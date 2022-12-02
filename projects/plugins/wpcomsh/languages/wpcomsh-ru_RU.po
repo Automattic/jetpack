@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-07-29 10:12:53+0000\n"
+"PO-Revision-Date: 2022-11-29 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ru\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "Только для тех, кто перенаправлен. Вы видите это, потому что вы перенаправлены. Не используйте это, если вы не знаете, почему вы здесь."
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr "У вас нет прав на доступ к данной странице."
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr "Настройте цветовую схему на WordPress.com."
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "Дополнительные стили"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr "На всех веб-сайтах Atomic предустановлены 
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr "Обновления под управлением WordPress.com"
 
@@ -52,11 +74,11 @@ msgstr "Создайте сайт, продавайте свои товары и
 msgid "Coming Soon"
 msgstr "Скоро запуск"
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr "Выделенный объем дисковой памяти"
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr "Использованный объем дисковой памяти"
 
@@ -100,31 +122,31 @@ msgstr "Ваши наиболее часто используемые рубри
 msgid "Category Cloud"
 msgstr "Облако рубрик"
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack отключен, а сайт переведен в закрытый режим. Подключите Jetpack заново, чтобы изменить настройки отображения."
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr "Изменение настроек отображения"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr "Запустить сайт"
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr "Закрыть"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "Ваш сайт запущен. Сообщите о нём миру!"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "Ваш сайт отмечен как сайт в процессе создания и скрыт от посетителей до окончания разработки."
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "Ваш сайт ещё не запущен. До запуска сайт виден только вам."
 
@@ -415,7 +437,7 @@ msgstr "Сохранить"
 msgid "Activate &amp; Save"
 msgstr "Активировать и сохранить"
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr "Управляйте настройками видимости своего сайта"
 
@@ -766,12 +788,12 @@ msgstr "Показывать список авторов в виде сетки 
 msgid "Author Grid"
 msgstr "Список авторов в виде сетки"
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr "Закрытый сайт"
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr "Это закрытый сайт."
 
@@ -830,13 +852,13 @@ msgstr ""
 "плагинах. Удаляемые персональные данные включают только следующие\n"
 "время:"
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr "Создать логотип"
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "Добавьте логотип для отображения на вашем сайте. Нет логотипа? Купите профессиональный логотип от Looka — нажмите «Создать логотип», чтобы приступить к его созданию."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "Добавьте логотип для отображения на вашем сайте. Нет логотипа? Купите профессиональный логотип — нажмите \"Создать логотип\", чтобы приступить к его созданию."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

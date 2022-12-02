@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: +0000\n"
+"PO-Revision-Date: 2022-10-14 08:12:36+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ti_ER\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr ""
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
@@ -52,11 +74,11 @@ msgstr ""
 msgid "Coming Soon"
 msgstr ""
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr ""
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr ""
 
@@ -100,31 +122,31 @@ msgstr ""
 msgid "Category Cloud"
 msgstr ""
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr ""
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr ""
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr ""
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr ""
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr ""
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr ""
 
@@ -242,7 +264,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
-msgstr ""
+msgstr "ስእሊ"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
@@ -373,7 +395,7 @@ msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
 msgid "Default"
-msgstr ""
+msgstr "ንቡር"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
@@ -409,13 +431,13 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:9
 msgid "Save"
-msgstr ""
+msgstr "ኣቐምጥ"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
 msgstr ""
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr ""
 
@@ -530,11 +552,11 @@ msgstr ""
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr ""
+msgstr "ኢመይል"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
-msgstr ""
+msgstr "ስም"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
@@ -581,7 +603,7 @@ msgstr ""
 
 #: widgets/recent-comments-widget.php:252
 msgid "Anonymous"
-msgstr ""
+msgstr "ዘይፍለጥ"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
@@ -589,7 +611,7 @@ msgstr ""
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
-msgstr ""
+msgstr "ናይ ቀረባ ግዜ ሓሳባት"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
@@ -682,19 +704,19 @@ msgstr ""
 
 #: widgets/gravatar.php:115
 msgid "Center"
-msgstr ""
+msgstr "ማእኸል"
 
 #: widgets/gravatar.php:115
 msgid "Right"
-msgstr ""
+msgstr "የማን"
 
 #: widgets/gravatar.php:115
 msgid "Left"
-msgstr ""
+msgstr "ፀጋም"
 
 #: widgets/gravatar.php:115 widgets/top-clicks.php:108
 msgid "None"
-msgstr ""
+msgstr "ዋላ ሓደ"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
@@ -752,7 +774,7 @@ msgstr ""
 #: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
 #: widgets/top-rated.php:115 widgets/twitter.php:357
 msgid "Title:"
-msgstr ""
+msgstr "ኣርእስቲ ፦"
 
 #: widgets/author-grid.php:44
 msgid "Authors"
@@ -766,12 +788,12 @@ msgstr ""
 msgid "Author Grid"
 msgstr ""
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr ""
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr ""
 
@@ -815,12 +837,12 @@ msgid ""
 "time:"
 msgstr ""
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr ""
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
 msgstr ""
 
 #. Plugin Name of the plugin

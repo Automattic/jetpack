@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-24 08:54:04+0000\n"
+"PO-Revision-Date: 2022-11-30 13:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "프록시 설정됨에만 해당: 프록시가 설정되어서 이 내용을 볼 수 있습니다. 여기로 이동한 이유를 모르면 사용하지 마세요."
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr "이 페이지에 접근할 권한이 없습니다."
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr "워드프레스닷컴에서 색 구성표를 설정하세요."
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "추가 CSS"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr "모든 Atomic 사이트에 사전 설치되고 활성화된 기능과 �
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr "업데이트 관리: 워드프레스닷컴"
 
@@ -52,11 +74,11 @@ msgstr "웹사이트 제작. 상품 판매. 블로그 글 작성. 무엇이든 �
 msgid "Coming Soon"
 msgstr "Coming Soon"
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr "디스크 공간 할당량"
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr "사용된 디스크 공간"
 
@@ -100,31 +122,31 @@ msgstr "클라우드 형식에서 가장 많이 사용된 카테고리입니다.
 msgid "Category Cloud"
 msgstr "카테고리 클라우드"
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "젯팩의 연결이 끊어졌으며 사이트가 비공개입니다. 사이트 가시성 설정을 관리하려면 젯팩을 다시 연결하세요."
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr "가시성 업데이트"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr "사이트 시작"
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr "무시"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "회원님의 사이트가 시작되었습니다. 이제 회원님의 사이트를 전 세계와 공유할 수 있습니다!"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "회원님의 사이트는 “곧 제공될 예정”으로 표시되며 준비가 될 때까지 방문자에게 표시되지 않습니다."
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "사이트가 아직 시작되지 않았습니다. 시작될 때까지는 볼 수만 있습니다."
 
@@ -415,7 +437,7 @@ msgstr "저장하기"
 msgid "Activate &amp; Save"
 msgstr "활성화 및 저장"
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr "사이트 공개 설정 관리"
 
@@ -766,12 +788,12 @@ msgstr "작성자 아바타 이미지의 그리드를 표시합니다."
 msgid "Author Grid"
 msgstr "작성자 그리드"
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr "비공개 사이트"
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr "이 사이트는 비공개 상태입니다."
 
@@ -830,13 +852,13 @@ msgstr ""
 "책임입니다. 현재 지워지는 개인 데이터에는 다음 항목만\n"
 "포함됩니다."
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr "로고 만들기"
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "사이트에 표시할 로고를 추가하세요. 로고가 없나요? Looka에서 전문 로고를 구입할 수 있습니다. 시작하려면 “로고 만들기”를 클릭하세요."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "사이트에 표시할 로고를 추가하세요. 로고가 없나요? 지금 프로 로고 구매 - 시작하려면 “로고 만들기”를 클릭하세요."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

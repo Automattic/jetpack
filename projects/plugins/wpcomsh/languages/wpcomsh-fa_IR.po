@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-08-08 09:09:23+0000\n"
+"PO-Revision-Date: 2022-11-23 17:37:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: fa\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr "شما مجاز به دسترسی به این صفحه را نیستید"
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "css اضافی"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr "سی‌اِس‌اِس"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr ""
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
@@ -52,11 +74,11 @@ msgstr "یک وبسایت بسازید. چیزهایی بفروشید. یک وب
 msgid "Coming Soon"
 msgstr "به زودی"
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr "میزان فضای دیسک"
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr "حجم فضای استفاده شده"
 
@@ -100,31 +122,31 @@ msgstr "پراستفاده‌ترین دسته‌های شما در قالب ا�
 msgid "Category Cloud"
 msgstr "ابر دسته‌ها"
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "اتصال Jetpack قطع شده است و سایت خصوصی است. مجددا به JetPack وصل شوید تا تنظیمات نمایش سایت را مدیریت کنید."
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr "به‌روزرسانیِ رؤیت‌پذیری"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr "اجرای سایت"
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr "لغو"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "سایت شما در حال حاضر منتشر شده است؛ می‌توانید آن را با دنیا به اشتراک بگذارید!"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "سایت شما به عنوان «به زودی»‌ نشان‌گذاری شده است و تا زمان آماده شدن برای بازدیدکنندگان مخفی می‌ماند."
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "سایت شما هنوز اجرا نشده است. آن را تنها تا زمانی که در حال اجرا است می‌توانید ببینید."
 
@@ -415,7 +437,7 @@ msgstr "ذخیره"
 msgid "Activate &amp; Save"
 msgstr "فعال‌سازی &amp; ذخیره"
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr "مدیریت تنظیمات نمایش سایت شما"
 
@@ -766,12 +788,12 @@ msgstr "نمایش شبکه‌ای از تصاویر چهرک نویسندگان
 msgid "Author Grid"
 msgstr "شبکهٔ نویسندگان"
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr "سایت خصوصی"
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr "این سایت خصوصی است."
 
@@ -815,13 +837,13 @@ msgid ""
 "time:"
 msgstr "لطفا به یاد داشته باشید - این ابزار صرفا اطلاعات شخصی ذخیره شده شما توسط وردپرس و ابزارک‌های مشخص شده را پاک می‌کند. اطلاعات کاربران ثبت‌نام شده و اطلاعات شخصی ذخیره شده برای ابزارک‌های انتخاب نشده را حذف نمی‌کند. مسئولیت حذف اطلاعات کاربران ثبت‌نام شده به عنوان اطلاعات شخصی ذخیره شده توسط ابزارک‌های انتخاب نشده، با شما است. اطلاعات شخصی حذف شده صرفا شامل موارد اشاره شده در زیر در زمان مشخص می‌شود:‌"
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr "ساخت نماد"
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "افزودن یک نماد (لوگو) برای نمایش در سایت خود. نمادی ندارید؟ یک ماد حرفه‌ای را از Looka خریداری کنید - برای شروع روی «Create Logo» کلیک کنید."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr ""
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

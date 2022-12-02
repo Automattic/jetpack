@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: +0000\n"
+"PO-Revision-Date: 2022-11-23 17:37:39+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: jv_ID\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "Tambahan CSS"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr ""
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
@@ -52,11 +74,11 @@ msgstr ""
 msgid "Coming Soon"
 msgstr ""
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr ""
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr ""
 
@@ -82,7 +104,7 @@ msgstr ""
 
 #: widgets/category-cloud.php:141
 msgid "Exclude:"
-msgstr ""
+msgstr "Kejābā:"
 
 #: widgets/category-cloud.php:134
 msgid "Maximum number of categories to show:"
@@ -100,31 +122,31 @@ msgstr ""
 msgid "Category Cloud"
 msgstr ""
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr ""
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr ""
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
-msgstr ""
+msgstr "Ilangi"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr ""
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr ""
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr ""
 
@@ -190,15 +212,15 @@ msgstr ""
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
-msgstr ""
+msgstr "Taksonomi:"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr ""
+msgstr "Awan tetenger ora bakal ditampilaké kawit ora ānā taksonomi sing nyokong widget awan tetenger."
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
-msgstr ""
+msgstr "Tudhuhaké jumlah tenger"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
@@ -210,15 +232,15 @@ msgstr ""
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
-msgstr ""
+msgstr "Tetenger"
 
 #: widgets/tag-cloud-widget.php:21
 msgid "Tag Cloud"
-msgstr ""
+msgstr "Tenger Lamuk"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr ""
+msgstr "Lamuk sākā tenger sing sampéyan sering enggo."
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -242,7 +264,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
-msgstr ""
+msgstr "Gambar"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
@@ -369,11 +391,11 @@ msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
-msgstr ""
+msgstr "Dhelikke"
 
 #: footer-credit/footer-credit/customizer.php:41
 msgid "Default"
-msgstr ""
+msgstr "Standar"
 
 #: footer-credit/footer-credit-optimizations.php:159
 msgid "Design by"
@@ -385,7 +407,7 @@ msgstr ""
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: footer-credit/footer-credit-optimizations.php:114
 msgid "Proudly powered by WordPress"
@@ -401,21 +423,21 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
-msgstr ""
+msgstr "Disimpen"
 
 #: customizer-fixes/customizer-fixes.php:10
 msgid "Save Changes"
-msgstr ""
+msgstr "Simpen Owahan"
 
 #: customizer-fixes/customizer-fixes.php:9
 msgid "Save"
-msgstr ""
+msgstr "Simpen"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
 msgstr ""
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr ""
 
@@ -429,11 +451,11 @@ msgstr ""
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
-msgstr ""
+msgstr "Pirang item sing arep Sampéyan katonaké?"
 
 #: widgets/top-rated.php:137
 msgid "Filter by category"
-msgstr ""
+msgstr "Filter karo kategori"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
@@ -522,7 +544,7 @@ msgstr ""
 
 #: widgets/reservations.php:25
 msgid "Message"
-msgstr ""
+msgstr "Pesen"
 
 #: widgets/reservations.php:24
 msgid "Phone"
@@ -530,11 +552,11 @@ msgstr ""
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
-msgstr ""
+msgstr "Jeneng"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
@@ -566,7 +588,7 @@ msgstr ""
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
-msgstr ""
+msgstr "Cacahé pangalemb‪‪ānā kanggo ditontonaké:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
@@ -577,11 +599,11 @@ msgstr ""
 #: widgets/recent-comments-widget.php:308
 msgctxt "widgets"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$s neng %2$s"
 
 #: widgets/recent-comments-widget.php:252
 msgid "Anonymous"
-msgstr ""
+msgstr "Anonim"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
@@ -589,7 +611,7 @@ msgstr ""
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
-msgstr ""
+msgstr "Pangalemb‪‪ānā Pungkasan"
 
 #: widgets/posts-i-like.php:269
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
@@ -614,7 +636,7 @@ msgstr ""
 
 #: widgets/posts-i-like.php:97
 msgid "List"
-msgstr ""
+msgstr "Urutan"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
@@ -682,19 +704,19 @@ msgstr ""
 
 #: widgets/gravatar.php:115
 msgid "Center"
-msgstr ""
+msgstr "Tengah"
 
 #: widgets/gravatar.php:115
 msgid "Right"
-msgstr ""
+msgstr "Tengen"
 
 #: widgets/gravatar.php:115
 msgid "Left"
-msgstr ""
+msgstr "Kiwā"
 
 #: widgets/gravatar.php:115 widgets/top-clicks.php:108
 msgid "None"
-msgstr ""
+msgstr "Ora ānā"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
@@ -752,7 +774,7 @@ msgstr ""
 #: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
 #: widgets/top-rated.php:115 widgets/twitter.php:357
 msgid "Title:"
-msgstr ""
+msgstr "Judhul:"
 
 #: widgets/author-grid.php:44
 msgid "Authors"
@@ -766,19 +788,19 @@ msgstr ""
 msgid "Author Grid"
 msgstr ""
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr ""
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:52
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
-msgstr ""
+msgstr "Mlebu log"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
@@ -815,12 +837,12 @@ msgid ""
 "time:"
 msgstr ""
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr ""
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
 msgstr ""
 
 #. Plugin Name of the plugin

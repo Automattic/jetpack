@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2021-05-02 07:43:20+0000\n"
+"PO-Revision-Date: 2022-11-23 17:37:40+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: cv_RU\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr ""
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr "Сирĕн ку страницăна иртме ирĕк çук."
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "Хушма CSS"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr "Atomic Sites сайчĕсен мĕнпурĕнче те WordPress.com т
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr "Çĕнетÿсене WordPress.com тытса тăрать"
 
@@ -52,11 +74,11 @@ msgstr "Сайт туса лартăр. Суту-илÿ тăвăр. Блог ç�
 msgid "Coming Soon"
 msgstr "Часах"
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr "Уйăрса панă диск уçлăхĕ"
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr "Усă курнă диск уçлăхĕ"
 
@@ -100,31 +122,31 @@ msgstr "Ваши наиболее часто используемые рубри
 msgid "Category Cloud"
 msgstr "Категори Пĕлĕчĕ"
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack çыхăнăвне татнă, сайчĕ те вăрттăн. Jetpack-а  çĕнĕрен çыхăнтарăр  та сайт курăнаслăхне настройкисене майлас."
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr "Курăнаслăхне çĕнетес"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr "Сайта хута ярас"
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr "Сирсе ярас"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "Сайт ĕçлеме пуçларĕ; халĕ унпа пĕтĕм тĕнчепе пайлашма пултаратăр!"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "Сайта \"Часах уçăлĕ\" тесе палăртнă, хатĕр пуличчен килсе куракансем ăна курмĕç."
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "Сирен сайт ĕçлеме пуçламарĕ-ха. Халлĕхе ăна эсир кăна куратăр."
 
@@ -415,7 +437,7 @@ msgstr "Упрас"
 msgid "Activate &amp; Save"
 msgstr "Активацилес &amp; Упрас"
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr "Сайтăн курăнаслăх настройкисене майлас"
 
@@ -766,12 +788,12 @@ msgstr "Показывать список авторов в виде сетки 
 msgid "Author Grid"
 msgstr "Список авторов в виде сетки"
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr "Вăрттăн Сайт"
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr "Ку сайт вăл вăрттăн."
 
@@ -815,13 +837,13 @@ msgid ""
 "time:"
 msgstr "Тархасшăн, асăрхăр – ку хатĕр Wordpress тата хутшăнтарнă плагинсем упракан персональнăй даннăйсене кăна хуратать. Регистрациленнĕ усă куракансене тата хутшăнтарман плагинсем упракан даннăйсене хуратмасть. Регистрациленнĕ усă куракансене тата хутшăнтарман плагинсем упракан даннăйсене хуратасси сирĕн яваплăх. Ку хутĕнче хуратнă персональнăй даннăйсен шутне çаксем кăна кĕреççĕ:"
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr "Логотип туса хурас"
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "Сайта логотип хушăр. Логотип çук-и? Халех профессионаллă логотип хатĕрлеттерĕр — “Логотип тăвас” кликать тăвăр та туянăр."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr ""
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

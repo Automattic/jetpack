@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-09-24 15:54:05+0000\n"
+"PO-Revision-Date: 2022-11-30 17:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,28 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: tr\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: feature-plugins/unsupported-plan-mods.php:40
+msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
+msgstr "Yalnızca proxy'li: Proxy'li olduğunuz için bunu görebilirsiniz. Neden burada olduğunuzu bilmiyorsanız bunu kullanmayın."
+
+#: feature-plugins/unsupported-plan-mods.php:34
+msgid "You do not have permission to access this page."
+msgstr "Bu sayfaya erişmek için izniniz yok."
+
+#: feature-plugins/masterbar.php:87
+msgid "Set your color scheme on WordPress.com."
+msgstr "WordPress.com'da renk düzeninizi ayarlayın."
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "Additional CSS"
+msgstr "Ek CSS"
+
+#: feature-manager/class-manage-additional-css-feature.php:94
+#: feature-manager/class-manage-additional-css-feature.php:97
+msgid "CSS"
+msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -20,7 +42,7 @@ msgstr "WordPress.com, tüm Atomik Sitelerde önceden yüklenmiş ve etkinleşti
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:262 wpcomsh.php:268 wpcomsh.php:274
+#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
 msgid "Updates managed by WordPress.com"
 msgstr "WordPress.com tarafından yönetilen güncellemeler"
 
@@ -52,11 +74,11 @@ msgstr "Bir site kurun. Ürünlerinizi satın. Blog yazın. Ve daha fazlası."
 msgid "Coming Soon"
 msgstr "Çok Yakında"
 
-#: wpcomsh.php:980
+#: wpcomsh.php:1092
 msgid "Disk space quota"
 msgstr "Disk alanı kotası"
 
-#: wpcomsh.php:976
+#: wpcomsh.php:1088
 msgid "Disk space used"
 msgstr "Kullanılan disk alanı"
 
@@ -100,31 +122,31 @@ msgstr "Bulut biçiminde en çok kullanılan kategorileriniz."
 msgid "Category Cloud"
 msgstr "Kategori Bulutu"
 
-#: private-site/private-site.php:162
+#: private-site/private-site.php:166
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "Jetpack bağlantısı kesildi ve site özel. Site görünürlük ayarlarını yönetmek için Jetpack'i yeniden bağlayın."
 
-#: private-site/logged-in-banner.php:72
+#: private-site/logged-in-banner.php:75
 msgid "Update visibility"
 msgstr "Görünürlüğü güncelle"
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:71
 msgid "Launch site"
 msgstr "Siteyi başlat"
 
-#: private-site/logged-in-banner.php:63
+#: private-site/logged-in-banner.php:66
 msgid "Dismiss"
 msgstr "Gizle"
 
-#: private-site/logged-in-banner.php:56
+#: private-site/logged-in-banner.php:59
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "Siteniz yayımlandı; artık paylaşabilirsiniz!"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:55
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "Siteniz \"Çok Yakında\" olarak işaretlendi ve hazır olana kadar ziyaretçilerden gizleniyor."
 
-#: private-site/logged-in-banner.php:54
+#: private-site/logged-in-banner.php:57
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "Siteniz henüz başlatılmadı. Başlatılana dek sitenizi yalnızca siz görebilirsiniz."
 
@@ -415,7 +437,7 @@ msgstr "Kaydet"
 msgid "Activate &amp; Save"
 msgstr "Etkinleştirin ve Tasarruf Edin"
 
-#: private-site/private-site.php:168
+#: private-site/private-site.php:172
 msgid "Manage your site visibility settings"
 msgstr "Sitenizin görünürlük ayarlarını yönetin"
 
@@ -766,12 +788,12 @@ msgstr "Yazar avatar görsellerini tablo biçiminde göster."
 msgid "Author Grid"
 msgstr "Yazar Tablosu"
 
-#: private-site/private-site.php:555
+#: private-site/private-site.php:580
 msgid "Private Site"
 msgstr "Özel Site"
 
-#: private-site/private-site.php:391 private-site/private-site.php:493
-#: private-site/private-site.php:687
+#: private-site/private-site.php:416 private-site/private-site.php:518
+#: private-site/private-site.php:716
 msgid "This site is private."
 msgstr "Bu site özel."
 
@@ -830,13 +852,13 @@ msgstr ""
 "sorumluluğunuzdadır. Silinen kişisel veriler şu anda yalnızca aşağıdaki\n"
 "öğeleri içermektedir:"
 
-#: logo-tool/logo-tool.php:70
+#: logo-tool/logo-tool.php:73
 msgid "Create logo"
 msgstr "Logo oluştur"
 
-#: logo-tool/logo-tool.php:60
-msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr "Sitenize bir logo ekleyin. Logonuz yok mu? Looka'dan profesyonel bir logo satın alın. Başlamak için “Logo oluştur” seçeneğine tıklayın."
+#: logo-tool/logo-tool.php:66
+msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
+msgstr "Sitenize bir logo ekleyin. Logonuz yok mu? Bugün bir pro one satın alın. Başlamak için \"Logo oluştur\"a tıklayın."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
