@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import useVideo from '../../hooks/use-video';
 import useVideos from '../../hooks/use-videos';
 import styles from './styles.module.scss';
 /**
@@ -28,6 +29,7 @@ const PublishFirstVideoPopover = ( {
 	anchor = null,
 }: PublishFirstVideoPopoverProps ) => {
 	const dispatch = useDispatch( STORE_ID );
+	const { data } = useVideo( Number( id ) );
 	const { firstUploadedVideoId, dismissedFirstVideoPopover } = useVideos();
 	const showAddToPostPopover =
 		Number( firstUploadedVideoId ) === Number( id ) && ! dismissedFirstVideoPopover;
@@ -39,7 +41,7 @@ const PublishFirstVideoPopover = ( {
 			<ActionPopover
 				title={ __( 'Publish your new video', 'jetpack-videopress-pkg' ) }
 				buttonContent={ __( 'Add video to post', 'jetpack-videopress-pkg' ) }
-				buttonHref={ 'post-new.php' }
+				buttonHref={ `post-new.php?videopress_guid=${ data.guid }` }
 				buttonExternalLink
 				anchor={ anchor }
 				onClose={ closePopover }
