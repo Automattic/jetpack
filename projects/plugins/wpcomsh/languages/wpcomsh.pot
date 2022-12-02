@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2022-12-02 00:40+0100\n"
+"POT-Creation-Date: 2022-12-02 15:10-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,6 +18,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr ""
 
@@ -115,6 +118,67 @@ msgstr ""
 msgid "Set your color scheme on WordPress.com."
 msgstr ""
 
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr ""
+
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
 msgstr ""
@@ -129,18 +193,18 @@ msgstr ""
 msgid "Continue to site"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr ""
 
@@ -165,81 +229,81 @@ msgstr ""
 #: notices/plan-notices.php:85
 #, php-format
 msgid ""
-"The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s"
-"\">Renew your plan</a> to retain Personal plan features such as 6 GB storage "
-"space, no WordPress.com ads, and Subscriber-only content."
+"The Personal plan for <strong>%3$s</strong> expires on %2$s. <a "
+"href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 "
+"GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
 #: notices/plan-notices.php:90
 #, php-format
 msgid ""
-"The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s"
-"\">Renew your plan</a> to retain Premium plan features such as site "
-"monetization, VideoPress, and Google Analytics support."
+"The Premium plan for <strong>%3$s</strong> expires on %2$s. <a "
+"href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as "
+"site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
 #: notices/plan-notices.php:95
 #, php-format
 msgid ""
-"The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s"
-"\">Renew your plan</a> to retain Business plan features such as custom "
-"plugins and themes, SFTP, and phpMyAdmin access."
+"The Business plan for <strong>%3$s</strong> expires on %2$s. <a "
+"href=\"%1$s\">Renew your plan</a> to retain Business plan features such as "
+"custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/plan-notices.php:100
 #, php-format
 msgid ""
-"The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s"
-"\">Renew your plan</a> to retain eCommerce plan features such as custom "
-"plugins and themes, SFTP, and phpMyAdmin access."
+"The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a "
+"href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as "
+"custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/plan-notices.php:105
 #, php-format
 msgid ""
-"The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s"
-"\">Renew your plan</a> to retain Pro plan features such as custom plugins "
-"and themes, SFTP, and phpMyAdmin access."
+"The Pro plan for <strong>%3$s</strong> expires on %2$s. <a "
+"href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom "
+"plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/plan-notices.php:116
 #, php-format
 msgid ""
-"The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s"
-"\">Reactivate your plan</a> to retain Personal plan features such as 6 GB "
-"storage space, no WordPress.com ads, and Subscriber-only content."
+"The Personal plan for <strong>%3$s</strong> expired on %2$s. <a "
+"href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such "
+"as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
 #: notices/plan-notices.php:121
 #, php-format
 msgid ""
-"The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s"
-"\">Reactivate your plan</a> to retain Premium plan features such as site "
-"monetization, VideoPress, and Google Analytics support."
+"The Premium plan for <strong>%3$s</strong> expired on %2$s. <a "
+"href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such "
+"as site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
 #: notices/plan-notices.php:126
 #, php-format
 msgid ""
-"The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s"
-"\">Reactivate your plan</a> to retain Business plan features such as custom "
-"plugins and themes, SFTP, and phpMyAdmin access."
+"The Business plan for <strong>%3$s</strong> expired on %2$s. <a "
+"href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such "
+"as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/plan-notices.php:131
 #, php-format
 msgid ""
-"The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s"
-"\">Reactivate your plan</a> to retain eCommerce plan features such as custom "
-"plugins and themes, SFTP, and phpMyAdmin access."
+"The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a "
+"href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features "
+"such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/plan-notices.php:136
 #, php-format
 msgid ""
-"The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s"
-"\">Reactivate your plan</a> to retain Pro plan features such as custom "
-"plugins and themes, SFTP, and phpMyAdmin access."
+"The Pro plan for <strong>%3$s</strong> expired on %2$s. <a "
+"href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as "
+"custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
 #: notices/storage-notices.php:37 notices/storage-notices.php:76
@@ -405,9 +469,9 @@ msgstr ""
 #: widgets/class-aboutme-widget.php:40
 #, php-format
 msgid ""
-"The about.me widget is no longer available. To remove this widget, <a href="
-"\"%s\">visit your settings</a>. This message is not shown to visitors to "
-"your site."
+"The about.me widget is no longer available. To remove this widget, <a "
+"href=\"%s\">visit your settings</a>. This message is not shown to visitors "
+"to your site."
 msgstr ""
 
 #: widgets/class-aboutme-widget.php:106
@@ -477,8 +541,8 @@ msgstr ""
 #: widgets/class-gravatar-widget.php:102
 #, php-format
 msgid ""
-"You need to pick a user or enter an email address in your <a href=\"%s"
-"\">Gravatar Widget</a> settings."
+"You need to pick a user or enter an email address in your <a "
+"href=\"%s\">Gravatar Widget</a> settings."
 msgstr ""
 
 #: widgets/class-gravatar-widget.php:145
@@ -560,8 +624,8 @@ msgstr ""
 
 #: widgets/class-gravatar-widget.php:204
 msgid ""
-"You can modify your Gravatar from your <a href=\"/wp-admin/profile.php"
-"\">profile page</a>."
+"You can modify your Gravatar from your <a href=\"/wp-admin/profile."
+"php\">profile page</a>."
 msgstr ""
 
 #: widgets/class-jetpack-i-voted-widget.php:33
@@ -614,8 +678,8 @@ msgstr ""
 #: widgets/class-jetpack-posts-i-like-widget.php:273
 #, php-format
 msgid ""
-"You have not recently liked any posts. Once you do, this <a href=\"%s"
-"\">Posts I Like</a> widget will display them."
+"You have not recently liked any posts. Once you do, this <a "
+"href=\"%s\">Posts I Like</a> widget will display them."
 msgstr ""
 
 #: widgets/class-jetpack-widget-twitter.php:25

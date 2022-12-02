@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-11-23 17:37:39+0000\n"
+"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,25 +11,124 @@ msgstr ""
 "Language: mr\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: feature-plugins/unsupported-plan-mods.php:40
+#: storage/storage.php:33
+msgid "You have used your space quota. Please delete files before uploading."
+msgstr "आपण आपल्या स्पेस कोटाचा वापर केला आहे. कृपया अपलोड करण्यापूर्वी फाइल्स हटवा."
+
+#: private-site/logged-in-banner.php:117
+msgid "Change theme"
+msgstr "थीम बदला"
+
+#: private-site/logged-in-banner.php:116
+msgid "Change"
+msgstr "बदला"
+
+#: private-site/logged-in-banner.php:107
+msgid "Edit page"
+msgstr ""
+
+#: private-site/logged-in-banner.php:107
+msgid "Edit post"
+msgstr "पोस्ट संपादित करा "
+
+#: private-site/logged-in-banner.php:106
+msgid "Edit"
+msgstr "संपादन"
+
+#: private-site/logged-in-banner.php:96
+msgid "My Home"
+msgstr ""
+
+#: private-site/logged-in-banner.php:69
+msgid "Launch"
+msgstr ""
+
+#: private-site/logged-in-banner.php:65
+msgid "Update"
+msgstr "अपडेट"
+
+#: notices/plan-notices.php:121
+msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr ""
+
+#: notices/plan-notices.php:116
+msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr ""
+
+#: notices/plan-notices.php:90
+msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
+msgstr ""
+
+#: notices/plan-notices.php:85
+msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
+msgstr ""
+
+#: notices/php-version-notices.php:30
+msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:113
+#: frontend-notices/gifting-banner/gifting-banner.php:140
+msgid "Gift"
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:109
+#: frontend-notices/gifting-banner/gifting-banner.php:136
+msgid "Gift the author a WordPress.com membership."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:105
+#: frontend-notices/gifting-banner/gifting-banner.php:132
+msgid "Enjoy this site?"
+msgstr ""
+
+#: frontend-notices/class-wpcomsh-frontend-notices.php:152
+msgid "Continue to site"
+msgstr ""
+
+#: frontend-notices/class-wpcomsh-frontend-notices.php:151
+msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
+msgstr ""
+
+#: frontend-notices/class-wpcomsh-frontend-notices.php:150
+msgid "This site is going offline soon."
+msgstr ""
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:130
+msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr ""
+
+#. translators: 1: opening anchor tag; 2: closing anchor tag.
+#: feature-plugins/full-site-editing.php:127
+msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
+msgstr ""
+
+#: feature-plugins/class-template-first-themes.php:406
+msgid "Home"
+msgstr "होम"
+
+#: feature-plugins/class-template-first-themes.php:205
+msgid "Blog"
+msgstr "ब्लॉग"
+
+#: feature-plugins/hooks.php:130
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr ""
 
-#: feature-plugins/unsupported-plan-mods.php:34
+#: feature-plugins/hooks.php:119
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: feature-plugins/masterbar.php:87
+#: feature-plugins/masterbar.php:90
 msgid "Set your color scheme on WordPress.com."
 msgstr ""
 
-#: feature-manager/class-manage-additional-css-feature.php:94
-#: feature-manager/class-manage-additional-css-feature.php:97
+#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
 msgid "Additional CSS"
 msgstr "अतिरिक्त सीएसएस"
 
-#: feature-manager/class-manage-additional-css-feature.php:94
-#: feature-manager/class-manage-additional-css-feature.php:97
+#: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
 msgid "CSS"
 msgstr ""
 
@@ -42,112 +141,99 @@ msgstr ""
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: wpcomsh.php:416 wpcomsh.php:422 wpcomsh.php:428
+#: feature-plugins/managed-plugins.php:482
+#: feature-plugins/managed-plugins.php:493
+#: feature-plugins/managed-plugins.php:504
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
-#: notices/plan-notices.php:44
-msgid "The Business plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+#: notices/plan-notices.php:126
+msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:38
-msgid "The eCommerce plan for <strong>%3$s</strong> expires in %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+#: notices/plan-notices.php:136
+msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: private-site/access-denied-preview-login-template.php:61
+#: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
 msgstr ""
 
-#: private-site/access-denied-preview-login-template.php:58
+#: private-site/access-denied-preview-login-template.php:60
 msgid "This site is private. You need to log in as a user with permissions before previewing it."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:53
+#: private-site/access-denied-coming-soon-template.php:56
 msgid "Start your website"
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:49
+#: private-site/access-denied-coming-soon-template.php:52
 msgid "Build a website. Sell your stuff. Write a blog. And so much more."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:43
+#: private-site/access-denied-coming-soon-template.php:46
 msgid "Coming Soon"
 msgstr ""
 
-#: wpcomsh.php:1092
+#: notices/storage-notices.php:115
 msgid "Disk space quota"
 msgstr ""
 
-#: wpcomsh.php:1088
+#: notices/storage-notices.php:111
 msgid "Disk space used"
 msgstr ""
 
-#: widgets/category-cloud.php:167
+#: widgets/class-wpcom-category-cloud-widget.php:179
 msgid "Click for more information"
 msgstr ""
 
-#: widgets/category-cloud.php:166
+#: widgets/class-wpcom-category-cloud-widget.php:178
 msgid "Count items in sub-categories toward parent total."
 msgstr ""
 
-#: widgets/category-cloud.php:156
+#: widgets/class-wpcom-category-cloud-widget.php:168
 msgid "Maximum font percentage:"
 msgstr ""
 
-#: widgets/category-cloud.php:149
+#: widgets/class-wpcom-category-cloud-widget.php:161
 msgid "Minimum font percentage:"
 msgstr ""
 
-#: widgets/category-cloud.php:144
+#: widgets/class-wpcom-category-cloud-widget.php:156
 msgid "Category IDs, separated by commas"
 msgstr ""
 
-#: widgets/category-cloud.php:141
+#: widgets/class-wpcom-category-cloud-widget.php:153
 msgid "Exclude:"
 msgstr "वगळा:"
 
-#: widgets/category-cloud.php:134
+#: widgets/class-wpcom-category-cloud-widget.php:146
 msgid "Maximum number of categories to show:"
 msgstr ""
 
-#: widgets/category-cloud.php:108
+#: widgets/class-wpcom-category-cloud-widget.php:117
 msgid "If you use more <a href=\"%s\">categories</a> on your site, they will appear here."
 msgstr ""
 
-#: widgets/category-cloud.php:18
+#: widgets/class-wpcom-category-cloud-widget.php:18
 msgid "Your most used categories in cloud format."
 msgstr ""
 
-#: widgets/category-cloud.php:16 widgets/category-cloud.php:42
+#: widgets/class-wpcom-category-cloud-widget.php:16
+#: widgets/class-wpcom-category-cloud-widget.php:45
 msgid "Category Cloud"
 msgstr ""
 
-#: private-site/private-site.php:166
+#: private-site/private-site.php:172
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr ""
 
-#: private-site/logged-in-banner.php:75
+#: private-site/logged-in-banner.php:64
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:71
+#: private-site/logged-in-banner.php:68
 msgid "Launch site"
-msgstr ""
-
-#: private-site/logged-in-banner.php:66
-msgid "Dismiss"
-msgstr "घालवा"
-
-#: private-site/logged-in-banner.php:59
-msgid "Your site has been launched; now you can share it with the world!"
-msgstr ""
-
-#: private-site/logged-in-banner.php:55
-msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
-
-#: private-site/logged-in-banner.php:57
-msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr ""
 
 #: wpcomsh.php:909
@@ -286,158 +372,95 @@ msgstr ""
 msgid "Instagram"
 msgstr ""
 
-#: widgets/aboutme.php:141
+#: widgets/class-aboutme-widget.php:159
 msgid "Biography"
 msgstr ""
 
-#: widgets/aboutme.php:134
+#: widgets/class-aboutme-widget.php:152
 msgid "Headline"
 msgstr ""
 
-#: widgets/aboutme.php:127
+#: widgets/class-aboutme-widget.php:145
 msgid "Photo"
 msgstr ""
 
-#: widgets/aboutme.php:123
+#: widgets/class-aboutme-widget.php:141
 msgid "Don't Display Name"
 msgstr ""
 
-#: widgets/aboutme.php:121
+#: widgets/class-aboutme-widget.php:139
 msgid "Display Small"
 msgstr ""
 
-#: widgets/aboutme.php:119
+#: widgets/class-aboutme-widget.php:137
 msgid "Display Medium"
 msgstr ""
 
-#: widgets/aboutme.php:117
+#: widgets/class-aboutme-widget.php:135
 msgid "Display Large"
 msgstr ""
 
-#: widgets/aboutme.php:115
+#: widgets/class-aboutme-widget.php:133
 msgid "Display X-Large"
 msgstr ""
 
-#: widgets/aboutme.php:104
+#: widgets/class-aboutme-widget.php:122
 msgid "Your about.me URL"
 msgstr ""
 
-#: widgets/aboutme.php:97
+#: widgets/class-aboutme-widget.php:115
 msgid "Widget title"
 msgstr ""
 
-#: widgets/aboutme.php:90
+#: widgets/class-aboutme-widget.php:106
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
 msgstr ""
 
-#: widgets/aboutme.php:37
+#: widgets/class-aboutme-widget.php:40
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
 msgstr ""
 
-#: widgets/aboutme.php:20
+#: widgets/class-aboutme-widget.php:20
 msgid "About.me Widget"
 msgstr ""
 
-#: widgets/aboutme.php:18
+#: widgets/class-aboutme-widget.php:18
 msgid "Display your about.me profile with thumbnail"
 msgstr ""
 
-#: safeguard/utils.php:58
+#: safeguard/utils.php:68
 msgid "Unable to fetch the requested data."
 msgstr ""
 
-#: footer-credit/theme-optimizations.php:37
-msgid "Create a free website or blog at WordPress.com"
-msgstr ""
-
-#: footer-credit/theme-optimizations.php:32
-msgid "Create a free website at WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:101
-msgid "Powered by WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:98
-#: footer-credit/theme-optimizations.php:30
-#: footer-credit/theme-optimizations.php:35
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
 msgid "Blog at WordPress.com"
 msgstr ""
 
-#: footer-credit/footer-credit/footer-credit.php:97
-msgid "A WordPress.com Website"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:96
-msgid "WordPress.com Logo"
-msgstr ""
-
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
-msgid "Create a website or blog at WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:85
-msgid "Footer Credit"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:62
-msgid "Upgrade to Business"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:54
-msgid "Hide (Business Plan Required)"
-msgstr ""
-
-#: footer-credit/footer-credit/customizer.php:52
-msgid "Hide"
-msgstr "लपवा"
-
-#: footer-credit/footer-credit/customizer.php:41
-msgid "Default"
-msgstr "मुलभूत"
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr "थीम"
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: customizer-fixes/customizer-fixes.php:13
+#: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"
 msgstr "सेटींग्ज जतन करा"
 
-#: customizer-fixes/customizer-fixes.php:12
+#: customizer-fixes/customizer-fixes.php:25
 msgid "Are you sure you want to discard your unsaved changes?"
 msgstr ""
 
-#: customizer-fixes/customizer-fixes.php:11
+#: customizer-fixes/customizer-fixes.php:24
 msgid "Saved"
 msgstr "जतन केले"
 
-#: customizer-fixes/customizer-fixes.php:10
+#: customizer-fixes/customizer-fixes.php:23
 msgid "Save Changes"
 msgstr "बदल साठवा"
 
-#: customizer-fixes/customizer-fixes.php:9
+#: customizer-fixes/customizer-fixes.php:22
 msgid "Save"
 msgstr "जतन करा"
 
-#: customizer-fixes/customizer-fixes.php:8
+#: customizer-fixes/customizer-fixes.php:21
 msgid "Activate &amp; Save"
 msgstr ""
 
-#: private-site/private-site.php:172
+#: private-site/private-site.php:178
 msgid "Manage your site visibility settings"
 msgstr ""
 
@@ -554,263 +577,276 @@ msgstr "फोन"
 msgid "Email"
 msgstr "ईमेल"
 
-#: widgets/aboutme.php:111 widgets/reservations.php:22
+#: widgets/class-aboutme-widget.php:129
+#: widgets/class-wpcom-widget-reservations.php:22
 msgid "Name"
 msgstr "नाव"
 
-#: widgets/reservations.php:16
+#: widgets/class-wpcom-widget-reservations.php:16
 msgid "Reservation Inquiry"
 msgstr ""
 
-#: widgets/reservations.php:10 widgets/reservations.php:15
+#: widgets/class-wpcom-widget-reservations.php:10
+#: widgets/class-wpcom-widget-reservations.php:15
 msgid "Reservations"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:384
+#: widgets/class-wpcom-widget-recent-comments.php:408
 msgid "Show comments from:"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:379
+#: widgets/class-wpcom-widget-recent-comments.php:403
 msgid "Text background color:"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:373
+#: widgets/class-wpcom-widget-recent-comments.php:397
 msgid "Avatar background color:"
 msgstr "अवतारचा बॅकग्राउंड रंग: "
 
-#: widgets/recent-comments-widget.php:362
+#: widgets/class-wpcom-widget-recent-comments.php:386
 msgid "No Avatars"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:355
+#: widgets/class-wpcom-widget-recent-comments.php:379
 msgid "(at most 15)"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:349
+#: widgets/class-wpcom-widget-recent-comments.php:373
 msgid "Number of comments to show:"
 msgstr "दर्शविण्यासाठी टिप्पण्या संख्या:"
 
-#: widgets/recent-comments-widget.php:284
+#: widgets/class-wpcom-widget-recent-comments.php:306
 msgid "There are no public comments available to display."
 msgstr ""
 
 #. translators: comments widget: 1: comment author, 2: post link
-#: widgets/recent-comments-widget.php:275
-#: widgets/recent-comments-widget.php:308
+#: widgets/class-wpcom-widget-recent-comments.php:297
+#: widgets/class-wpcom-widget-recent-comments.php:330
 msgctxt "widgets"
 msgid "%1$s on %2$s"
 msgstr "%1$s च्यावर %2$s"
 
-#: widgets/recent-comments-widget.php:252
+#: widgets/class-wpcom-widget-recent-comments.php:269
 msgid "Anonymous"
 msgstr "अनामित"
 
-#: widgets/recent-comments-widget.php:30
+#: widgets/class-wpcom-widget-recent-comments.php:35
 msgid "Display your site's most recent comments"
 msgstr ""
 
-#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+#: widgets/class-wpcom-widget-recent-comments.php:32
+#: widgets/class-wpcom-widget-recent-comments.php:152
 msgid "Recent Comments"
 msgstr "अलीकडील टिप्पण्या"
 
-#: widgets/posts-i-like.php:269
+#: widgets/class-jetpack-posts-i-like-widget.php:273
 msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
 msgstr ""
 
-#: widgets/posts-i-like.php:259
+#: widgets/class-jetpack-posts-i-like-widget.php:263
 msgid "on"
 msgstr ""
 
-#: widgets/posts-i-like.php:236
+#: widgets/class-jetpack-posts-i-like-widget.php:240
 msgctxt "1: Post Title, 2: Blog Name"
 msgid "%1$s on %2$s"
 msgstr ""
 
-#: widgets/posts-i-like.php:113
+#: widgets/class-jetpack-posts-i-like-widget.php:116
 msgid "Author's likes to display:"
 msgstr ""
 
-#: widgets/posts-i-like.php:98
+#: widgets/class-jetpack-posts-i-like-widget.php:98
 msgid "Grid"
 msgstr "ग्रीड"
 
-#: widgets/posts-i-like.php:97
+#: widgets/class-jetpack-posts-i-like-widget.php:97
 msgid "List"
 msgstr "सूची "
 
-#: widgets/posts-i-like.php:95
+#: widgets/class-jetpack-posts-i-like-widget.php:95
 msgid "Display as:"
 msgstr ""
 
-#: widgets/posts-i-like.php:90
+#: widgets/class-jetpack-posts-i-like-widget.php:90
 msgid "Number of posts to show (1 to 15):"
 msgstr ""
 
-#: widgets/posts-i-like.php:27
+#: widgets/class-jetpack-posts-i-like-widget.php:27
 msgid "A list of the posts I most recently liked"
 msgstr ""
 
-#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+#: widgets/class-jetpack-posts-i-like-widget.php:25
+#: widgets/class-jetpack-posts-i-like-widget.php:32
 msgid "Posts I Like"
 msgstr ""
 
-#: widgets/music-player.php:82
+#: widgets/class-music-player-widget.php:91
 msgid "Choose songs"
 msgstr ""
 
-#: widgets/music-player.php:16 widgets/music-player.php:87
+#: widgets/class-music-player-widget.php:19
+#: widgets/class-music-player-widget.php:96
 msgid "Music Player"
 msgstr ""
 
-#: widgets/music-player.php:15
+#: widgets/class-music-player-widget.php:17
 msgid "A multi-song music player"
 msgstr ""
 
-#: widgets/i-voted.php:33
+#: widgets/class-jetpack-i-voted-widget.php:36
 msgid "I Voted"
 msgstr ""
 
-#: widgets/i-voted.php:31
+#: widgets/class-jetpack-i-voted-widget.php:33
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr ""
 
-#: widgets/gravatar.php:144
+#: widgets/class-gravatar-widget.php:204
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
 msgstr ""
 
-#: widgets/gravatar.php:143
+#: widgets/class-gravatar-widget.php:203
 msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
 msgstr ""
 
-#: widgets/gravatar.php:142
+#: widgets/class-gravatar-widget.php:202
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
 msgstr ""
 
-#: widgets/gravatar.php:134
+#: widgets/class-gravatar-widget.php:189
 msgid "Gravatar alignment:"
 msgstr "अवतार मांडणी:"
 
-#: widgets/gravatar.php:125
+#: widgets/class-gravatar-widget.php:175
 msgid "Size:"
 msgstr ""
 
-#: widgets/gravatar.php:122
+#: widgets/class-gravatar-widget.php:172
 msgid "Custom Email Address:"
 msgstr ""
 
-#: widgets/gravatar.php:119
+#: widgets/class-gravatar-widget.php:159
 msgid "Select a user or pick \"custom\" and enter a custom email address."
 msgstr ""
 
-#: widgets/gravatar.php:115
+#: widgets/class-gravatar-widget.php:154
 msgid "Center"
 msgstr "सेंटर"
 
-#: widgets/gravatar.php:115
+#: widgets/class-gravatar-widget.php:153
 msgid "Right"
 msgstr "उजवा"
 
-#: widgets/gravatar.php:115
+#: widgets/class-gravatar-widget.php:152
 msgid "Left"
 msgstr "डावं"
 
-#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+#: widgets/class-gravatar-widget.php:151
+#: widgets/class-widget-top-clicks.php:125
 msgid "None"
 msgstr "नाही"
 
-#: widgets/gravatar.php:114
+#: widgets/class-gravatar-widget.php:148
 msgid "Extra Large (256 pixels)"
 msgstr ""
 
-#: widgets/gravatar.php:114
+#: widgets/class-gravatar-widget.php:147
 msgid "Large (128 pixels)"
 msgstr ""
 
-#: widgets/gravatar.php:114
+#: widgets/class-gravatar-widget.php:146
 msgid "Medium (96 pixels)"
 msgstr ""
 
-#: widgets/gravatar.php:114
+#: widgets/class-gravatar-widget.php:145
 msgid "Small (64 pixels)"
 msgstr ""
 
-#: widgets/gravatar.php:84
+#: widgets/class-gravatar-widget.php:102
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
 msgstr ""
 
-#: widgets/gravatar.php:22
+#: widgets/class-gravatar-widget.php:25
 msgid "Gravatar"
 msgstr "अवतार"
 
-#: widgets/gravatar.php:20
+#: widgets/class-gravatar-widget.php:22
 msgid "Insert a Gravatar image"
 msgstr ""
 
-#: widgets/freshly-pressed.php:60
+#: widgets/class-wpcom-freshly-pressed-widget.php:64
 msgid "Choose an image to display in your sidebar:"
 msgstr ""
 
-#: widgets/freshly-pressed.php:10
+#: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Freshly Pressed"
 msgstr ""
 
-#: widgets/freshly-pressed.php:8
+#: widgets/class-wpcom-freshly-pressed-widget.php:10
 msgid "Display a Freshly Pressed badge in your sidebar"
 msgstr ""
 
-#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+#: widgets/class-widget-authors-grid.php:126
+#: widgets/class-wpcom-widget-recent-comments.php:384
 msgid "Avatar Size (px):"
 msgstr ""
 
-#: widgets/author-grid.php:97
+#: widgets/class-widget-authors-grid.php:121
 msgid "Display all authors (including those who have not written any posts)"
 msgstr ""
 
-#: widgets/author-grid.php:91 widgets/category-cloud.php:127
-#: widgets/freshly-pressed.php:56 widgets/gravatar.php:117
-#: widgets/i-voted.php:65 widgets/music-player.php:73
-#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
-#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
-#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
-#: widgets/top-rated.php:115 widgets/twitter.php:357
+#: widgets/class-gravatar-widget.php:157
+#: widgets/class-jetpack-i-voted-widget.php:69
+#: widgets/class-jetpack-posts-i-like-widget.php:85
+#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
+#: widgets/class-widget-authors-grid.php:115
+#: widgets/class-widget-top-clicks.php:47
+#: widgets/class-wpcom-category-cloud-widget.php:139
+#: widgets/class-wpcom-freshly-pressed-widget.php:60
+#: widgets/class-wpcom-tag-cloud-widget.php:129
+#: widgets/class-wpcom-widget-recent-comments.php:367
+#: widgets/class-wpcom-widget-reservations.php:38
+#: widgets/tlkio/class-tlkio-widget.php:58
 msgid "Title:"
 msgstr "शीर्षक:"
 
-#: widgets/author-grid.php:44
+#: widgets/class-widget-authors-grid.php:51
 msgid "Authors"
 msgstr "लेखक"
 
-#: widgets/author-grid.php:12
+#: widgets/class-widget-authors-grid.php:14
 msgid "Show a grid of author avatar images."
 msgstr ""
 
-#: widgets/author-grid.php:11
+#: widgets/class-widget-authors-grid.php:11
 msgid "Author Grid"
 msgstr ""
 
-#: private-site/private-site.php:580
+#: private-site/private-site.php:664
 msgid "Private Site"
 msgstr ""
 
-#: private-site/private-site.php:416 private-site/private-site.php:518
-#: private-site/private-site.php:716
+#: private-site/private-site.php:474 private-site/private-site.php:591
+#: private-site/private-site.php:814
 msgid "This site is private."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:52
-#: private-site/access-denied-private-site-template.php:45
+#: private-site/access-denied-coming-soon-template.php:55
+#: private-site/access-denied-private-site-template.php:47
 msgid "Log in"
 msgstr "लॉग ईन"
 
-#: private-site/access-denied-private-site-template.php:45
+#: private-site/access-denied-private-site-template.php:47
 msgid "Switch user"
 msgstr ""
 
-#: private-site/access-denied-private-site-template.php:43
+#: private-site/access-denied-private-site-template.php:45
 msgid "You need to be logged in as a user who has permission to view this site."
 msgstr ""
 
-#: privacy/participating-plugins.php:144
+#: privacy/class-wp-privacy-participating-plugins.php:181
 msgid ""
 "Please note - this tool only displays privacy policy information provided by\n"
 "WordPress and participating plugins. It does not include privacy policy\n"
@@ -818,7 +854,7 @@ msgid ""
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
 
-#: privacy/participating-plugins.php:94
+#: privacy/class-wp-privacy-participating-plugins.php:126
 msgid ""
 "Please note - this tool only exports the personal data stored by WordPress and\n"
 "participating plugins. It does not export personal data stored by\n"
@@ -827,7 +863,7 @@ msgid ""
 "includes only the following items at this time:"
 msgstr ""
 
-#: privacy/participating-plugins.php:47
+#: privacy/class-wp-privacy-participating-plugins.php:74
 msgid ""
 "Please note - this tool only erases the personal data stored by WordPress and\n"
 "participating plugins. It does not delete registered users, nor does it erase\n"
@@ -837,11 +873,11 @@ msgid ""
 "time:"
 msgstr ""
 
-#: logo-tool/logo-tool.php:73
+#: logo-tool/logo-tool.php:80
 msgid "Create logo"
 msgstr ""
 
-#: logo-tool/logo-tool.php:66
+#: logo-tool/logo-tool.php:68
 msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
 msgstr ""
 
