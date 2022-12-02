@@ -1,4 +1,4 @@
-/* global currentSite */
+/* global launchpadModalOptions */
 
 import { Modal, Button } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
@@ -18,7 +18,7 @@ export const settings = {
 		);
 		const prevIsSaving = usePrevious( isSaving );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ , siteSlug ] = currentSite.siteUrlOption.split( '//' );
+		const [ , siteSlug ] = launchpadModalOptions.siteUrlOption.split( '//' );
 		const isInsideSiteEditor = window.location.href.includes( 'site-editor' );
 
 		useEffect( () => {
@@ -28,8 +28,8 @@ export const settings = {
 		}, [ isSaving, prevIsSaving ] );
 
 		const showModal =
-			currentSite.launchpadScreenOption === 'full' &&
-			currentSite.siteIntentOption === 'link-in-bio' &&
+			launchpadModalOptions.launchpadScreenOption === 'full' &&
+			launchpadModalOptions.siteIntentOption === 'link-in-bio' &&
 			isInsideSiteEditor &&
 			isModalOpen;
 
@@ -63,7 +63,7 @@ export const settings = {
 									window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
 								} }
 							>
-								{ __( 'Launch Site', 'jetpack' ) }
+								{ __( 'Next Steps', 'jetpack' ) }
 							</Button>
 						</div>
 					</div>

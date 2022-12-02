@@ -16,14 +16,16 @@ wp_enqueue_script(
 	true
 );
 
-wp_localize_script(
+wp_add_inline_script(
 	'launchpad-save-modal',
-	'currentSite',
-	array(
-		'launchpadScreenOption' => get_option( 'launchpad_screen' ),
-		'siteUrlOption'         => get_option( 'siteurl' ),
-		'siteIntentOption'      => get_option( 'site_intent' ),
-	)
+	'const launchpadModalOptions = ' . wp_json_encode(
+		array(
+			'launchpadScreenOption' => get_option( 'launchpad_screen' ),
+			'siteUrlOption'         => get_option( 'siteurl' ),
+			'siteIntentOption'      => get_option( 'site_intent' ),
+		)
+	),
+	'before'
 );
 
 // Populate the available extensions with launchpad-save-modal.
