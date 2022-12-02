@@ -5,13 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-<<<<<<< HEAD
-=======
 ## [2.5.0.1] - 2022-12-02
 ### Changed
 - My Jetpack: Requires connection only if needed [#27615]
 
->>>>>>> 755dead958 (Release My Jetpack 2.5.0.1)
 ## [2.5.0] - 2022-11-28
 ### Changed
 - My Jetpack: rename Backup and Anti-Spam to new product names [#27377]
