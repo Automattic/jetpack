@@ -26,24 +26,13 @@ class Gifting_Banner {
 	 * Maybe show the gifting banner for the current site.
 	 */
 	public function maybe_show_gifting_banner() {
-		$_blog_id        = null;
-		$jetpack_options = get_option( 'jetpack_options' );
-		if ( $jetpack_options ) {
-			$_blog_id = (int) $jetpack_options['id'];
-		}
 
-		// Expose the gifting banner to 10% of users or if behind the a8c proxy.
-		if ( ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ||
-			( defined( 'A8C_PROXIED_REQUEST' ) && A8C_PROXIED_REQUEST ) ||
-			( ! is_null( $_blog_id ) && 0 === $_blog_id % 10 ) ) {
-
-			if ( $this->should_display_expiring_plan_notice() ) {
-				// Inject the gifting banner after the launch banner.
-				if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-					add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcomsh' ), 1103 );
-				} else {
-					add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcom' ), 1103 );
-				}
+		if ( $this->should_display_expiring_plan_notice() ) {
+			// Inject the gifting banner after the launch banner.
+			if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+				add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcomsh' ), 1103 );
+			} else {
+				add_action( 'wp_head', array( $this, 'inject_gifting_banner_wpcom' ), 1103 );
 			}
 		}
 	}
