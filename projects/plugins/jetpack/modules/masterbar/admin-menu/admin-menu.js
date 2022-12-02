@@ -97,27 +97,26 @@
 			}
 
 			if ( jetpackAdminMenu.launchpadScreenOption === 'full' ) {
-				const LaunchpadNotice =
-					'<li class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices" id="toplevel_page_site-notices">' +
-					`	<a href="https://wordpress.com/setup/${ jetpackAdminMenu.siteIntentOption }/launchpad?siteSlug=${ siteHostname }" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">` +
-					'		<div class="wp-menu-arrow">' +
-					'			<div></div>' +
-					'		</div>' +
-					'		<div class="wp-menu-image dashicons-before dashicons-admin-generic" aria-hidden="true"><br></div>' +
-					'			<div class="wp-menu-name">' +
-					'				<div class="upsell_banner">' +
-					'					<div class="banner__info">' +
-					'						<div class="banner__title">' +
-					`							${ jetpackAdminMenu.launchpadNoticeTitle }` +
-					'						</div>' +
-					'					</div>' +
-					'				<div class="banner__action">' +
-					`					<button type="button" class="button">${ jetpackAdminMenu.launchpadNoticeButtonText }</button>` +
-					'				</div>' +
-					'			</div>' +
-					'		</div>' +
-					'	</a>' +
-					'</li>';
+				const LaunchpadNotice = `<li class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices" id="toplevel_page_site-notices">\
+						<a href="https://wordpress.com/setup/${ jetpackAdminMenu.siteIntentOption }/launchpad?siteSlug=${ siteHostname }" class="wp-not-current-submenu menu-top menu-icon-generic toplevel_page_site-notices">\
+						<div class="wp-menu-arrow">\
+							<div></div>\
+						</div>\
+						<div class="wp-menu-image dashicons-before dashicons-admin-generic" aria-hidden="true"><br></div>'\
+							<div class="wp-menu-name">\
+								<div class="upsell_banner">\
+									<div class="banner__info">\
+										<div class="banner__title">\
+											${ jetpackAdminMenu.launchpadNoticeTitle }
+										</div>\
+									</div>\
+									<div class="banner__action">\
+										<button type="button" class="button">${ jetpackAdminMenu.launchpadNoticeButtonText }</button>\
+									</div>\
+								</div>\
+							</div>\
+						</a>\
+					</li>`;
 
 				adminMenu
 					.querySelector( '#toplevel_page_site_card' )
