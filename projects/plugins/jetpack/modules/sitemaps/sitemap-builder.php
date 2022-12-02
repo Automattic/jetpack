@@ -1393,6 +1393,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 */
 	private function post_to_news_sitemap_item( $post ) {
 
+		// Exclude posts with meta 'jetpack_seo_noindex' set true from the Jetpack news sitemap.
+		add_filter( 'jetpack_sitemap_news_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ), 10, 2 );
+
 		/**
 		 * Filter condition to allow skipping specific posts in news sitemap.
 		 *
