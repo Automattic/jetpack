@@ -58,10 +58,15 @@ export default function PublicizeForm( {
 	const { autosave } = useDispatch( 'core/editor' );
 	const autosaveAndRedirect = useCallback(
 		async ev => {
-			if ( isEditedPostDirty() ) {
+			const target = ev.target.getAttribute( 'target' );
+			if ( isEditedPostDirty() && ! target ) {
 				ev.preventDefault();
 				await autosave();
 				window.location.href = ev.target.href;
+			}
+			if ( target ) {
+				ev.preventDefault();
+				window.open( ev.target.href, target, 'popup,noreferrer,width=900,height=600' );
 			}
 		},
 		[ autosave, isEditedPostDirty ]
@@ -89,6 +94,7 @@ export default function PublicizeForm( {
 										{
 											upgradeLink: (
 												<a
+													className={ styles[ 'upgrade-link' ] }
 													href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
 														site: getSiteFragment(),
 														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
@@ -100,15 +106,18 @@ export default function PublicizeForm( {
 									) }
 									<br />
 									{ createInterpolateElement(
-										/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
+										/* translators: %d is the number of shares remaining, moreLink is the link to find out more information about the plan */
 										__( '<moreLink>More about Jetpack Social</moreLink>.', 'jetpack' ),
 										{
 											moreLink: (
 												<a
+													className={ styles[ 'more-link' ] }
 													href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
 														site: getSiteFragment(),
 														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
 													} ) }
+													target="_blank"
+													rel="noreferrer"
 													onClick={ autosaveAndRedirect }
 												/>
 											),
