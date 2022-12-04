@@ -41,7 +41,7 @@ function init() {
 
 	add_settings_field(
 		'jetpack_blogging_prompts_enabled',
-		__( 'Enable Writing Prompts', 'jetpack' ),
+		__( 'Show Writing Prompts', 'jetpack' ),
 		__NAMESPACE__ . '\enabled_field_callback',
 		'writing',
 		'default',
