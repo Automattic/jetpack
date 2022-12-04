@@ -2190,7 +2190,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "601cd835cb48a8fd698f40c2dd355fb2f1a576b9"
+                "reference": "9b247af2b7754a8d9d652ac4c04ea07198302fda"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -2208,7 +2208,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 }
             },
             "autoload": {
