@@ -15,7 +15,7 @@ namespace Automattic\Jetpack\Extensions\BloggingPrompts\Settings;
  * @return void
  */
 function enabled_field_callback() {
-	$option  = get_option( 'jetpack_blogging_prompts_enabled' );
+	$option  = jetpack_are_blogging_prompts_enabled();
 	$checked = ( $option ? 'checked' : '' ); ?>
 <input name="jetpack_blogging_prompts_enabled" id="jetpack_blogging_prompts_enabled" type="checkbox" value="1"<?php echo esc_attr( $checked ); ?> />
 <p id="jetpack-blogging-prompts-enabled-description" class="description"><?php esc_html_e( 'Displays a writing prompt when starting a new post.', 'jetpack' ); ?></p>
