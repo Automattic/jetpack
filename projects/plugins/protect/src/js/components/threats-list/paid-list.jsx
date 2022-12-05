@@ -65,7 +65,7 @@ const ThreatAccordionItem = ( {
 			fixable={ fixable }
 			severity={ severity }
 			onOpen={ useCallback( () => {
-				if ( ! [ 'core', 'plugin', 'theme' ].includes( type ) ) {
+				if ( ! [ 'core', 'plugin', 'theme', 'file', 'database' ].includes( type ) ) {
 					return;
 				}
 				recordEvent( `jetpack_protect_${ type }_threat_open` );
@@ -92,8 +92,8 @@ const ThreatAccordionItem = ( {
 							/* translators: filename follows in separate line; e.g. "PHP.Injection.5 in: `post.php`" */
 							__( 'Threat found in file:', 'jetpack-protect' )
 						}
-						<pre className={ styles[ 'threat-filename' ] }>{ filename }</pre>
 					</Text>
+					<pre className={ styles[ 'threat-filename' ] }>{ filename }</pre>
 				</>
 			) }
 			{ context && <MarkedLines context={ context } /> }

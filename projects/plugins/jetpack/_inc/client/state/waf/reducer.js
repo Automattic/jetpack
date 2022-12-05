@@ -11,7 +11,6 @@ export const data = ( state = {}, action ) => {
 		case WAF_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, state, {
 				bootstrapPath: action.settings?.bootstrapPath,
-				hasRulesAccess: action.settings?.hasRulesAccess,
 			} );
 		default:
 			return state;
@@ -61,14 +60,4 @@ export function isFetchingWafSettings( state ) {
  */
 export function getWafBootstrapPath( state ) {
 	return get( state.jetpack.waf, [ 'data', 'bootstrapPath' ], '' );
-}
-
-/**
- * Returns whether the site has access to latest firewall rules.
- *
- * @param {object}  state - Global state tree
- * @returns {boolean}  True when the site has access to latest firewall rules.
- */
-export function getWafHasRulesAccess( state ) {
-	return get( state.jetpack.waf, [ 'data', 'hasRulesAccess' ], false );
 }
