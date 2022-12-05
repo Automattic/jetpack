@@ -596,17 +596,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
-	 * @param bool $include_publicize_subscribers Include followers through Publicize.
 	 * @return int
 	 */
-	public static function fetch_subscriber_count( $include_publicize_subscribers = true ) {
+	public static function fetch_subscriber_count() {
 		$subs_count = 0;
 		if ( self::is_jetpack() ) {
-			$cache_key  = $include_publicize_subscribers ? 'wpcom_subscribers_total' : 'wpcom_subscribers_total_no_publicize';
+			$cache_key  = 'wpcom_subscribers_total';
 			$subs_count = get_transient( $cache_key );
 			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
-				$xml->query( 'jetpack.fetchSubscriberCount', $include_publicize_subscribers );
+				$xml->query( 'jetpack.fetchSubscriberCount' );
 
 				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
 
@@ -628,11 +627,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		}
 
 		if ( self::is_wpcom() ) {
-			if ( $include_publicize_subscribers && function_exists( 'wpcom_reach_total_for_blog' ) ) {
-				$subs_count = wpcom_reach_total_for_blog();
-			} elseif ( function_exists( 'wpcom_subs_total_for_blog' ) ) {
-				$subs_count = wpcom_subs_total_for_blog();
-			}
+			$subs_count = wpcom_reach_total_for_blog();
 			return $subs_count;
 		}
 	}
