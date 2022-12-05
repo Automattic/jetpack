@@ -13,6 +13,9 @@ import { MouseEvent } from 'react';
  */
 import filterIcon from '../../../components/icons/filter-icon';
 import {
+	VIDEO_PRIVACY_LEVELS,
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_RATING_G,
 	VIDEO_RATING_PG_13,
 	VIDEO_RATING_R_17,
@@ -115,14 +118,32 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-public"
 						label={ __( 'Public', 'jetpack-videopress-pkg' ) }
-						onChange={ checked => props.onChange?.( VIDEO_FILTER_PRIVACY, 0, checked ) }
-						checked={ filterIsChecked( VIDEO_FILTER_PRIVACY, 0 ) }
+						onChange={ checked =>
+							props.onChange?.(
+								VIDEO_FILTER_PRIVACY,
+								VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ),
+								checked
+							)
+						}
+						checked={ filterIsChecked(
+							VIDEO_FILTER_PRIVACY,
+							VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC )
+						) }
 					/>
 					<CheckboxCheckmark
 						for="filter-private"
 						label={ __( 'Private', 'jetpack-videopress-pkg' ) }
-						onChange={ checked => props.onChange?.( VIDEO_FILTER_PRIVACY, 1, checked ) }
-						checked={ filterIsChecked( VIDEO_FILTER_PRIVACY, 1 ) }
+						onChange={ checked =>
+							props.onChange?.(
+								VIDEO_FILTER_PRIVACY,
+								VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PRIVATE ),
+								checked
+							)
+						}
+						checked={ filterIsChecked(
+							VIDEO_FILTER_PRIVACY,
+							VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PRIVATE )
+						) }
 					/>
 				</Col>
 
