@@ -54,7 +54,7 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Open Sans',
 	'Overpass',
 	'Petrona',
-	'Piazzola',
+	'Piazzolla',
 	'Playfair Display',
 	'Plus Jakarta Sans',
 	'Poppins',
