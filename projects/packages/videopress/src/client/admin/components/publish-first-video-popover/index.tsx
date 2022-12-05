@@ -4,6 +4,7 @@
 import { ActionPopover, Text } from '@automattic/jetpack-components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -38,12 +39,18 @@ const PublishFirstVideoPopover = ( {
 
 	const closePopover = () => dispatch.dismissFirstVideoPopover();
 
+	const nonce = window.jetpackVideoPressInitialState?.contentNonce ?? '';
+	const newPostURL = addQueryArgs( 'post-new.php', {
+		videopress_guid: data.guid,
+		_wpnonce: nonce,
+	} );
+
 	return (
 		showAddToPostPopover && (
 			<ActionPopover
 				title={ __( 'Publish your new video', 'jetpack-videopress-pkg' ) }
 				buttonContent={ __( 'Add video to post', 'jetpack-videopress-pkg' ) }
-				buttonHref={ `post-new.php?videopress_guid=${ data.guid }` }
+				buttonHref={ newPostURL }
 				buttonExternalLink
 				anchor={ anchor }
 				onClose={ closePopover }

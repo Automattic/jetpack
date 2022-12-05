@@ -32,20 +32,23 @@ class Block_Editor_Content {
 	 * @return string
 	 */
 	public static function video_block_by_guid( $content, $post ) {
-		if ( ! empty( $_GET['videopress_guid'] )
-				&& current_user_can( 'edit_post', $post->ID )
-				&& '' === $content
+		if ( isset( $_GET['videopress_guid'], $_GET['_wpnonce'] )
+			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'videopress-content-nonce' )
+			&& current_user_can( 'edit_post', $post->ID )
+			&& '' === $content
 		) {
-				$guid = sanitize_text_field( wp_unslash( $_GET['videopress_guid'] ) );
+			$guid = sanitize_text_field( wp_unslash( $_GET['videopress_guid'] ) );
 
+			if ( ! empty( $guid ) ) {
 				// ref /client/lib/url/index.ts
-				return '<!-- wp:videopress/video {"guid":"' . $guid . '"} -->
-					<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">
-						<div class="jetpack-videopress-player__wrapper">
-							https://videopress.com/v/' . $guid . '?resizeToParent=true&amp;cover=true&amp;preloadContent=metadata&amp;useAverageColor=true
-						</div>
-					</figure>
+				$content = '<!-- wp:videopress/video {"guid":"' . $guid . '"} -->
+				<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">
+					<div class="jetpack-videopress-player__wrapper">
+						https://videopress.com/v/' . $guid . '?resizeToParent=true&amp;cover=true&amp;preloadContent=metadata&amp;useAverageColor=true
+					</div>
+				</figure>
 				<!-- /wp:videopress/video -->';
+			}
 		}
 
 		return $content;
