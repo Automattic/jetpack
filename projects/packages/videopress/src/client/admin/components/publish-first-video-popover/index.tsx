@@ -30,9 +30,11 @@ const PublishFirstVideoPopover = ( {
 }: PublishFirstVideoPopoverProps ) => {
 	const dispatch = useDispatch( STORE_ID );
 	const { data } = useVideo( Number( id ) );
-	const { firstUploadedVideoId, dismissedFirstVideoPopover } = useVideos();
+	const { firstUploadedVideoId, firstVideoProcessed, dismissedFirstVideoPopover } = useVideos();
 	const showAddToPostPopover =
-		Number( firstUploadedVideoId ) === Number( id ) && ! dismissedFirstVideoPopover;
+		Number( firstUploadedVideoId ) === Number( id ) &&
+		firstVideoProcessed &&
+		! dismissedFirstVideoPopover;
 
 	const closePopover = () => dispatch.dismissFirstVideoPopover();
 

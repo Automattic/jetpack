@@ -352,9 +352,11 @@ const videos = ( state, action ) => {
 			let total = state?.uploadedVideoCount ?? 0;
 
 			let firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? false;
 			let dismissedFirstVideoPopover = state?.dismissedFirstVideoPopover ?? false;
 			if ( total === 0 ) {
 				firstUploadedVideoId = data.id;
+				firstVideoProcessed = false;
 				dismissedFirstVideoPopover = false;
 			}
 
@@ -384,6 +386,7 @@ const videos = ( state, action ) => {
 				items,
 				uploadedVideoCount: total,
 				firstUploadedVideoId,
+				firstVideoProcessed,
 				dismissedFirstVideoPopover,
 				pagination,
 				_meta: {
@@ -398,15 +401,25 @@ const videos = ( state, action ) => {
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			const firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? null;
+			if ( video.id === firstUploadedVideoId ) {
+				firstVideoProcessed = true;
+			}
+
 			// Probably user is searching or in another page than first
 			if ( videoIndex === -1 ) {
-				return state;
+				return {
+					...state,
+					firstVideoProcessed,
+				};
 			}
 
 			items[ videoIndex ] = video;
 
 			return {
 				...state,
+				firstVideoProcessed,
 				items,
 			};
 		}

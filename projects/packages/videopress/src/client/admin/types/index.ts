@@ -225,6 +225,7 @@ export type VideopressSelectors = {
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
 	getFirstUploadedVideoId: () => number;
+	getFirstVideoProcessed: () => boolean;
 	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
