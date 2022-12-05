@@ -2,13 +2,7 @@
 
 Note: This plugin is intended for internal use by WordPress.com only.
 
-## How to install jetpack-mu-wpcom
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+Enhances your site with features powered by WordPress.com
 
 ## Security
 

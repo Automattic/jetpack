@@ -43,7 +43,6 @@
 		"wp-plugin-slug": "jetpack-mu-wpcom",
 		"autorelease": true,
 		"autotagger": true,
-		"wp-svn-autopublish": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
 		}
