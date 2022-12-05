@@ -12,6 +12,7 @@ import { MouseEvent } from 'react';
  * Internal dependencies
  */
 import filterIcon from '../../../components/icons/filter-icon';
+import { VIDEO_RATING_G, VIDEO_RATING_PG_13, VIDEO_RATING_R_17 } from '../../../state/constants';
 import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
@@ -123,20 +124,20 @@ export const FilterSection = ( props: {
 					<CheckboxCheckmark
 						for="filter-g"
 						label={ __( 'G', 'jetpack-videopress-pkg' ) }
-						onChange={ checked => props.onChange?.( 'rating', 'G', checked ) }
-						checked={ filterIsChecked( 'rating', 'G' ) }
+						onChange={ checked => props.onChange?.( 'rating', VIDEO_RATING_G, checked ) }
+						checked={ filterIsChecked( 'rating', VIDEO_RATING_G ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-pg-13"
 						label={ __( 'PG-13', 'jetpack-videopress-pkg' ) }
-						onChange={ checked => props.onChange?.( 'rating', 'PG-13', checked ) }
-						checked={ filterIsChecked( 'rating', 'PG-13' ) }
+						onChange={ checked => props.onChange?.( 'rating', VIDEO_RATING_PG_13, checked ) }
+						checked={ filterIsChecked( 'rating', VIDEO_RATING_PG_13 ) }
 					/>
 					<CheckboxCheckmark
 						for="filter-r"
 						label={ __( 'R', 'jetpack-videopress-pkg' ) }
-						onChange={ checked => props.onChange?.( 'rating', 'R-17', checked ) }
-						checked={ filterIsChecked( 'rating', 'R-17' ) }
+						onChange={ checked => props.onChange?.( 'rating', VIDEO_RATING_R_17, checked ) }
+						checked={ filterIsChecked( 'rating', VIDEO_RATING_R_17 ) }
 					/>
 				</Col>
 			</Container>
