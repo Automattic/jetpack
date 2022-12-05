@@ -51,16 +51,6 @@ class REST_Controller {
 	}
 
 	/**
-	 * Has Rules Access
-	 *
-	 * @return bool True when the current site has access to latest firewall rules.
-	 */
-	private static function has_rules_access() {
-		// any site with Jetpack Scan can download new WAF rules
-		return \Jetpack_Plan::supports( 'scan' );
-	}
-
-	/**
 	 * Update rules endpoint
 	 */
 	public static function update_rules() {
@@ -88,8 +78,7 @@ class REST_Controller {
 	public static function waf() {
 		return rest_ensure_response(
 			array(
-				'bootstrapPath'  => self::get_bootstrap_file_path(),
-				'hasRulesAccess' => self::has_rules_access(),
+				'bootstrapPath' => self::get_bootstrap_file_path(),
 			)
 		);
 	}

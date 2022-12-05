@@ -12,7 +12,7 @@ import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { getSubscriberCount } from './api';
+import { getSubscriberCounts } from './api';
 import './view.scss';
 import defaultAttributes from './attributes';
 import {
@@ -70,6 +70,7 @@ export function SubscriptionEdit( props ) {
 		borderRadius,
 		borderWeight,
 		buttonWidth,
+		includeSocialFollowers,
 		padding,
 		spacing,
 		submitButtonText,
@@ -174,8 +175,12 @@ export function SubscriptionEdit( props ) {
 	};
 
 	useEffect( () => {
-		getSubscriberCount(
-			count => {
+		getSubscriberCounts(
+			counts => {
+				const count = includeSocialFollowers
+					? counts.email_subscribers + counts.social_followers
+					: counts.email_subscribers;
+
 				setSubscriberCountString(
 					sprintf(
 						/* translators: Placeholder is a number of subscribers. */
@@ -190,7 +195,7 @@ export function SubscriptionEdit( props ) {
 				setSubscriberCount( 0 );
 			}
 		);
-	}, [] );
+	}, [ includeSocialFollowers ] );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
@@ -218,6 +223,7 @@ export function SubscriptionEdit( props ) {
 					fallbackButtonBackgroundColor={ fallbackButtonBackgroundColor }
 					fallbackTextColor={ fallbackTextColor }
 					fontSize={ fontSize }
+					includeSocialFollowers={ includeSocialFollowers }
 					isGradientAvailable={ isGradientAvailable }
 					padding={ padding }
 					setAttributes={ setAttributes }

@@ -10,15 +10,14 @@ import {
 	H3,
 	Alert,
 } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -67,7 +66,8 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
-	const fileSystemWriteAccess = window?.myJetpackInitialState?.fileSystemWriteAccess;
+	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+
 	const { detail, isFetching } = useProduct( slug );
 	const {
 		title,
@@ -93,7 +93,6 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		wpcomProductSlug,
 		wpcomFreeProductSlug,
 	} = pricingForUi;
-	const { isUserConnected } = useMyJetpackConnection();
 
 	const { recordEvent } = useAnalytics();
 
@@ -104,15 +103,25 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const addProductUrl =
-		needsPurchase && wpcomProductSlug
-			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
-			: null;
+	const {
+		run: mainCheckoutRedirect,
+		hasCheckoutStarted: hasMainCheckoutStarted,
+	} = useProductCheckoutWorkflow( {
+		productSlug: wpcomProductSlug,
+		redirectUrl: myJetpackUrl,
+		siteSuffix,
+		from: 'my-jetpack',
+	} );
 
-	const addFreeProductUrl =
-		trialAvailable && wpcomFreeProductSlug
-			? getProductCheckoutUrl( wpcomFreeProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
-			: null;
+	const {
+		run: trialCheckoutRedirect,
+		hasCheckoutStarted: hasTrialCheckoutStarted,
+	} = useProductCheckoutWorkflow( {
+		productSlug: wpcomFreeProductSlug,
+		redirectUrl: myJetpackUrl,
+		siteSuffix,
+		from: 'my-jetpack',
+	} );
 
 	// Suppported products icons.
 	const icons = isBundle
@@ -138,13 +147,13 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		onClick?.( addProductUrl );
-	}, [ onClick, trackButtonClick, addProductUrl ] );
+		onClick?.( mainCheckoutRedirect );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect ] );
 
 	const trialClickHandler = useCallback( () => {
 		trackButtonClick( wpcomFreeProductSlug );
-		onClick?.( addFreeProductUrl );
-	}, [ onClick, trackButtonClick, addFreeProductUrl, wpcomFreeProductSlug ] );
+		onClick?.( trialCheckoutRedirect );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -246,10 +255,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
-						isLoading={ isFetching }
+						isLoading={ isFetching || hasMainCheckoutStarted }
 						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
-						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
@@ -264,10 +272,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
-						isLoading={ isFetching }
+						isLoading={ isFetching || hasTrialCheckoutStarted }
 						disabled={ cantInstallPlugin }
 						isPrimary={ false }
-						href={ onClick ? undefined : addFreeProductUrl }
 						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
 						variant="body"
 					>
