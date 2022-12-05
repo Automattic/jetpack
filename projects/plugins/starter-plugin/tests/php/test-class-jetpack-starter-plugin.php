@@ -30,11 +30,11 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 		$this->starter = new Jetpack_Starter_Plugin();
 	}
 
-		/**
-		 * Returning the environment into its initial state.
-		 *
-		 * @after
-		 */
+	/**
+	 * Returning the environment into its initial state.
+	 *
+	 * @after
+	 */
 	public function tear_down() {
 
 		WorDBless_Options::init()->clear_options();
@@ -44,9 +44,9 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 		$_GET = array();
 	}
 
-		/**
-		 * Creates a mock user and logs in
-		 */
+	/**
+	 * Creates a mock user and logs in
+	 */
 	public function create_user_and_login() {
 		self::$user_id = wp_insert_user(
 			array(
