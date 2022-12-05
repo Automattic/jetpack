@@ -13,11 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Usability: Prompt new users to setup Boost after plugin activation.
 
 ### Fixed
+- Fixed an error on navigating to the getting-started page
 - Fixed issues in Super Cache measurement tool on some URLs
-- Fix error log on navigating to the getting-started page
 - General: Fix showing discount markers on pricing options without a discount.
 - General: Remove invalid link to priority support for free users.
-- Speed Score: Fix unclickable link to dismiss speed score popups.
+- Speed Score: Fix un-clickable link to dismiss speed score popups.
 
 ## [1.5.4] - 2022-11-09
 ### Fixed
