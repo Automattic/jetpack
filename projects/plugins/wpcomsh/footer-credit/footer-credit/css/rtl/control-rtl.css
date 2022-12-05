@@ -1,0 +1,24 @@
+/* This file was automatically generated on Jul 12 2016 11:37:10 */
+
+.footercredit-upgrade-link {
+	display: block;
+	margin-top: 8px;
+	padding: 9px 8px 8px 5px;
+	background: #fff;
+	box-shadow: 0 1px 0 0 rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+	border-right: 3px solid #f0b849;
+	color: #2e4453;
+}
+
+.footercredit-upgrade-link .dashicons {
+	background: #f0b849;
+	border-radius: 50%;
+	color: #fff;
+	font-size: 12px;
+	margin-left: 2px;
+}
+
+.footercredit-upgrade-link .dashicons:before {
+	position: relative;
+	top: 3px;
+}

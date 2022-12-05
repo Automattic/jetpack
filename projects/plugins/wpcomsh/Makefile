@@ -69,9 +69,6 @@ ifeq ($(strip $(shell git rev-parse --exit-code v$(PLUGIN_VERSION_STRING) 2>/dev
 endif
 
 $(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
-	@ echo "fetching submodules..."
-	@ git submodule update --init --recursive &>/dev/null
-
 	@ echo "removing vendor dir..."
 	@ rm -rf vendor
 
@@ -133,5 +130,3 @@ test-private-access: build
 clean: $(BUILD_DST)
 	@ echo "removing $(BUILD_DST)"
 	@ rm -rf $(BUILD_DST)
-
-.PHONY: check git.fetch submodules clean checkbeforetag checktagandblockonfail
