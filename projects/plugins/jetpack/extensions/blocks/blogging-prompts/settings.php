@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\BloggingPrompts\Settings;
 
-use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Constants;
 
 /**
  * Renders the settings field for enabling/disabling blogging prompts in the editor.
@@ -17,10 +17,9 @@ use Automattic\Jetpack\Status\Host;
  * @return void
  */
 function enabled_field_callback() {
-	$option  = jetpack_are_blogging_prompts_enabled();
-	$checked = ( $option ? 'checked' : '' ); ?>
-<input name="jetpack_blogging_prompts_enabled" id="jetpack_blogging_prompts_enabled" type="checkbox" value="1"<?php echo esc_attr( $checked ); ?> />
-<p id="jetpack-blogging-prompts-enabled-description" class="description"><?php esc_html_e( 'Displays a writing prompt when starting a new post.', 'jetpack' ); ?></p>
+	$is_enabled = jetpack_are_blogging_prompts_enabled(); ?>
+<input name="jetpack_blogging_prompts_enabled" id="jetpack_blogging_prompts_enabled" type="checkbox" value="1" <?php checked( $is_enabled ); ?>" />
+<label for="jetpack_blogging_prompts_enabled"><?php esc_html_e( 'Show a writing prompt when starting a new post.', 'jetpack' ); ?></label>
 	<?php
 }
 
@@ -30,9 +29,7 @@ function enabled_field_callback() {
  * @return void
  */
 function init() {
-	$host = new Host();
-
-	if ( ! $host->is_wpcom_platform() ) {
+	if ( ! Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) && ! Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 		return;
 	}
 
@@ -41,7 +38,7 @@ function init() {
 		'jetpack_blogging_prompts_enabled',
 		array(
 			'type'         => 'boolean',
-			'description'  => __( 'Displays a writing prompt in the editor when starting a new post.', 'jetpack' ),
+			'description'  => __( 'Show a writing prompt in the editor when starting a new post.', 'jetpack' ),
 			'show_in_rest' => true,
 			'default'      => jetpack_has_write_intent() || jetpack_has_posts_page(),
 		)
@@ -49,11 +46,10 @@ function init() {
 
 	add_settings_field(
 		'jetpack_blogging_prompts_enabled',
-		__( 'Show Writing Prompts', 'jetpack' ),
+		__( 'Writing Prompts', 'jetpack' ),
 		__NAMESPACE__ . '\enabled_field_callback',
 		'writing',
-		'default',
-		array( 'label_for' => 'jetpack_blogging_prompts_enabled' )
+		'default'
 	);
 }
 
