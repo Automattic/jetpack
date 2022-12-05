@@ -73,15 +73,13 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.2.0-beta - 2022-12-02
-
+### 1.2.0 - 2022-12-05
 #### Added
 - Added a static image for when the block acts as an example in Editor inserter.
 - Added example image to the dynamic colors panel.
 - Implemented tracks control implementation.
 
 #### Changed
-
 - Updated tracks icon.
 - We now include videos with Site Default privacy setting on the search results.
 
