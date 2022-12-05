@@ -428,7 +428,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					>
 						<?php
 						echo wp_kses(
-							html_entity_decode( $subscribe_button ),
+							html_entity_decode( $subscribe_button, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 							self::$allowed_html_tags_for_submit_button
 						);
 						?>
@@ -517,7 +517,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						>
 							<?php
 							echo wp_kses(
-								html_entity_decode( $subscribe_button ),
+								html_entity_decode( $subscribe_button, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 								self::$allowed_html_tags_for_submit_button
 							);
 							?>

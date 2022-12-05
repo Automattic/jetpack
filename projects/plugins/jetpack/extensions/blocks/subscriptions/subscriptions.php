@@ -455,7 +455,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 					>
 						<?php
 						echo wp_kses(
-							html_entity_decode( $data['submit_button_text'] ),
+							html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 							Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
 						);
 						?>
@@ -546,7 +546,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 						>
 							<?php
 							echo wp_kses(
-								html_entity_decode( $data['submit_button_text'] ),
+								html_entity_decode( $data['submit_button_text'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 								Jetpack_Subscriptions_Widget::$allowed_html_tags_for_submit_button
 							);
 							?>
