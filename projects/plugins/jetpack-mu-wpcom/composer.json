@@ -40,7 +40,7 @@
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-mu-wpcom",
 		"release-branch-prefix": "jetpack-mu-wpcom",
-		"wp-plugin-slug": "jetpack-mu-wpcom",
+		"beta-plugin-slug": "jetpack-mu-wpcom",
 		"autorelease": true,
 		"autotagger": true,
 		"changelogger": {
