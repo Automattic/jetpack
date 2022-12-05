@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Extensions\BloggingPrompts\Settings;
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Renders the settings field for enabling/disabling blogging prompts in the editor.
  *
@@ -28,6 +30,12 @@ function enabled_field_callback() {
  * @return void
  */
 function init() {
+	$host = new Host();
+
+	if ( ! $host->is_wpcom_platform() ) {
+		return;
+	}
+
 	register_setting(
 		'writing',
 		'jetpack_blogging_prompts_enabled',
