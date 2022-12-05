@@ -20,6 +20,12 @@
 		gap: 8px;
 	}
 
+	&-controls {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+	}
+
 	&-buttons {
 		display: flex;
 		gap: 16px;

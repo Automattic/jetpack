@@ -1,6 +1,6 @@
 /* global launchpadModalOptions */
 
-import { Modal, Button } from '@wordpress/components';
+import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -18,6 +18,7 @@ export const settings = {
 		);
 		const prevIsSaving = usePrevious( isSaving );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
+		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ , siteSlug ] = launchpadModalOptions.siteUrlOption.split( '//' );
 		const isInsideSiteEditor = window.location.href.includes( 'site-editor' );
 
@@ -43,7 +44,7 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Your site is ready to launch!', 'jetpack' ) }
+								{ __( 'VERY Your site is ready to launch!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
 								{ __(
@@ -52,19 +53,26 @@ export const settings = {
 								) }
 							</p>
 						</div>
-						<div className="launchpad__save-modal-buttons">
-							<Button size="normal" variant="secondary" onClick={ () => setIsModalOpen( false ) }>
-								{ __( 'Back to Edit', 'jetpack' ) }
-							</Button>
-							<Button
-								size="normal"
-								variant="primary"
-								onClick={ () => {
-									window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
-								} }
-							>
-								{ __( 'Next Steps', 'jetpack' ) }
-							</Button>
+						<div className="launchpad__save-modal-controls">
+							<CheckboxControl
+								label={ __( "Don't show this again.", 'jetpack' ) }
+								checked={ dontShowAgain }
+								onChange={ () => setDontShowAgain( ! dontShowAgain ) }
+							/>
+							<div className="launchpad__save-modal-buttons">
+								<Button size="normal" variant="secondary" onClick={ () => setIsModalOpen( false ) }>
+									{ __( 'Back to Edit', 'jetpack' ) }
+								</Button>
+								<Button
+									size="normal"
+									variant="primary"
+									onClick={ () => {
+										window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
+									} }
+								>
+									{ __( 'Next Steps', 'jetpack' ) }
+								</Button>
+							</div>
 						</div>
 					</div>
 				</Modal>
