@@ -56,6 +56,25 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Work Sans',
 );
 
+const JETPACK_GOOGLE_FONTS_I18N = array(
+	'Alexandria', // Arabic
+	'IBM Plex Sans Arabic',
+	'Noto Sans Hebrew',
+	'Noto Sans HK', // Noto Sans Hong Kong @TODO: should be HKC?
+	'Noto Sans JP', // Japanese
+	'Noto Sans KR', // Korean
+	'Noto Sans SC', // Simplified Chinese
+	'Noto Sans TC', // Traditional Chinese
+	'Noto Sans Telugu',
+	'Noto Serif Hebrew',
+	'Noto Serif HK', // Noto Sans Hong Kong @TODO: should be HKC?
+	'Noto Serif JP', // Japanese
+	'Noto Serif KR', // Korean
+	'Noto Serif SC', // Simplified Chinese
+	'Noto Serif TC', // Traditional Chinese
+	// 'Mukta (Devanagari)' @TODO: not on Google Fonts?
+);
+
 /**
  * Register a curated selection of Google Fonts.
  *
@@ -68,6 +87,10 @@ function jetpack_add_google_fonts_provider() {
 
 	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
+	// @TODO: we need to modify some of the font names and
+	// Ensure i18n specific fonts are at the end of the list
+	$fonts_list = array_merge( JETPACK_GOOGLE_FONTS_I18N, JETPACK_GOOGLE_FONTS_I18N );
+
 	/**
 	 * Curated list of Google Fonts.
 	 *
@@ -77,7 +100,7 @@ function jetpack_add_google_fonts_provider() {
 	 *
 	 * @param array $fonts_to_register Array of Google Font names to register.
 	 */
-	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', $fonts_list );
 
 	foreach ( $fonts_to_register as $font_family ) {
 		wp_register_webfonts(
