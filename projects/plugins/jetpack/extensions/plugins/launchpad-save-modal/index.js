@@ -44,7 +44,7 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'VERY Your site is ready to launch!', 'jetpack' ) }
+								{ __( 'Your site is ready to launch!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
 								{ __(
