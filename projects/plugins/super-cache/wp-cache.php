@@ -1009,11 +1009,11 @@ table.wpsc-settings-table {
 		$call_out_box = '-90px';
 	}
 	?>
-	
+
 	<script>
 
 		function dismissNotice(){
-			// hide the notice here sometimes it can be a little slow if waiting for 
+			// hide the notice here sometimes it can be a little slow if waiting for
 			// the success response.
 			jQuery('#wp-super-cache-2022-survey').fadeOut('slow');
 			document.getElementById('wpsc-callout').style.marginTop = "0px";
@@ -1027,10 +1027,10 @@ table.wpsc-settings-table {
 				}
 			});
 		}
-	
+
 	</script>
 
-	<?php 
+	<?php
 	//only show the notification if not dismissed.
 	if($showing_2022_survey){
 		?>
@@ -1046,7 +1046,7 @@ table.wpsc-settings-table {
 					<b><?php _e("WP Super Cache Survey", "wp-super-cache"); ?></b>
 				</div>
 				<?php
-					_e("We’d love to hear your thoughts about what should make it into WP Super Cache in the future. Please take our quick survey to help us improve!", "wp-super-cache"); 
+					_e("We’d love to hear your thoughts about what should make it into WP Super Cache in the future. Please take our quick survey to help us improve!", "wp-super-cache");
 				?>
 			</div>
 			<div class="survey-cta">
@@ -3014,6 +3014,7 @@ function wpsc_get_htaccess_info() {
 	if ( $cache_control_header != '' ) {
 		$headers_text .= "  Header set Cache-Control '$cache_control_header'\n";
 	}
+	$headers_text .= "  Header set Accept-Ranges 'bytes'\n";
 	if ( $headers_text != '' ) {
 		$gziprules .= "<IfModule mod_headers.c>\n$headers_text</IfModule>\n";
 	}
