@@ -5,15 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.2.0-beta - 2022-12-02
-
+## 1.2.0 - 2022-12-05
 ### Added
 - Added a static image for when the block acts as an example in Editor inserter.
 - Added example image to the dynamic colors panel.
 - Implemented tracks control implementation.
 
 ### Changed
+- Updated tracks icon.
+- We now include videos with Site Default privacy setting on the search results.
 
+### Removed
+- Removeed caption field from edit page.
+
+### Fixed
+- Fixed handling of chapters edition which previously overwrote existing video track file.
+- Fixed issue where video meta could not be saved on a WP.com simple site.
+- Fixed the thumbnail selection to allow selecting the last frame of the video.
+- Fixed video block conversion from core/video.
+
+## 1.2.0-beta - 2022-12-02
+### Added
+- Added a static image for when the block acts as an example in Editor inserter.
+- Added example image to the dynamic colors panel.
+- Implemented tracks control implementation.
+
+### Changed
 - Updated tracks icon.
 - We now include videos with Site Default privacy setting on the search results.
 
