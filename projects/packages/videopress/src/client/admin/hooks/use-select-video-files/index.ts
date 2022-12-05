@@ -23,7 +23,9 @@ const useSelectVideoFiles = ( {
 
 	const filterVideoFiles = ( files: FileList | File[] ) => {
 		return Array.from( files ).filter( file => {
-			return allowedVideoExtensions.some( extension => file.name.endsWith( extension ) );
+			return allowedVideoExtensions.some( extension =>
+				file.name.toLocaleLowerCase().endsWith( extension )
+			);
 		} );
 	};
 

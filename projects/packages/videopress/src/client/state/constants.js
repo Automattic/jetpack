@@ -86,3 +86,7 @@ export const VIDEO_PRIVACY_LEVELS = [
 export const VIDEO_RATING_G = 'G';
 export const VIDEO_RATING_PG_13 = 'PG-13';
 export const VIDEO_RATING_R_17 = 'R-17';
+
+export const VIDEO_FILTER_UPLOADER = 'uploader';
+export const VIDEO_FILTER_RATING = 'rating';
+export const VIDEO_FILTER_PRIVACY = 'privacy';

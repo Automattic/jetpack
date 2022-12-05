@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.

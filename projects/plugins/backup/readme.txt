@@ -4,7 +4,7 @@ Tags: jetpack
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.2.0
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -160,12 +160,15 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.4.1 - 2022-09-08
-#### Added
-- Include contextual notifications from My Jetpack 
-
+### 1.4.2-beta - 2022-11-28
 #### Changed
-- Plugin activation: Only redirect when activating from the Plugins page in the browser
+- Add real-time backups details in plugin FAQs
+- Compatibility: WordPress 6.1 compatibility
+- Rename plugin name to Jetpack VaultPress Backup [#27432]
+- Updated package dependencies. [#26072] 
+
+#### Removed
+- Remove connection-ui package dependency
 
 --------
 

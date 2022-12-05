@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Decode single-quote HTML entities in various places, and use a Unicode Replacement Character rather than empty string for invalid characters.

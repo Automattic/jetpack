@@ -30,6 +30,8 @@
    # Exclude packages managed by other teams, which are covered by other blocks below.
    - '!projects/packages/backup/**'
    - '!projects/packages/search/**'
+   - '!projects/packages/stats/**'
+   - '!projects/packages/stats-admin/**'
    - '!projects/packages/publicize/**'
    - '!projects/packages/waf/**'
    - '!projects/plugins/*/composer.lock'
@@ -84,6 +86,18 @@
   paths:
    - 'projects/plugins/search/**'
    - 'projects/packages/search/**'
+   - '!projects/plugins/*/composer.lock'
+   - '!projects/plugins/*/composer.json'
+   - '!projects/plugins/*/changelog/*'
+  teams:
+   - red
+   - jetpack-approvers
+
+# The Red team reviews changes to the Stats and its Admin package.
+- name: Stats
+  paths:
+   - 'projects/packages/stats/**'
+   - 'projects/packages/stats-admin/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

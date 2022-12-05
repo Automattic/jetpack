@@ -30,7 +30,7 @@ window.jetpackVideoPressInitialState = {
 		features: [
 			'1TB of storage',
 			'Built into WordPress editor',
-			'Ad-free and brandable player',
+			'Ad-free and customizable player',
 			'Unlimited users',
 		],
 		status: 'error',

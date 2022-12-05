@@ -575,6 +575,141 @@ class Test_WPCOM_Stats extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Test get_highlights.
+	 */
+	public function test_get_highlights() {
+		$expected_stats = array(
+			'past_seven_days'                     => array(
+				'range'    => array(
+					'start' => '2022-11-21',
+					'end'   => '2022-11-27',
+				),
+				'comments' => 0,
+				'likes'    => 1,
+				'views'    => 106,
+				'visitors' => 28,
+			),
+			'between_past_eight_and_fifteen_days' => array(
+				'range'    => array(
+					'start' => '2022-11-14',
+					'end'   => '2022-11-20',
+				),
+				'comments' => 0,
+				'likes'    => 0,
+				'views'    => 23,
+				'visitors' => 17,
+			),
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->with(
+				$this->equalTo( '/sites/1234/stats/highlights' ),
+				$this->equalTo( array() )
+			)
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_highlights();
+		$this->assertSame( $expected_stats, $stats );
+		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/highlights' ) );
+	}
+
+	/**
+	 * Test get_insights.
+	 */
+	public function test_get_insights() {
+		$expected_stats = array(
+			'highest_hour'         => 19,
+			'highest_hour_percent' => 32,
+			'highest_day_of_week'  => 2,
+			'highest_day_percent'  => 31,
+			'days'                 =>
+			array(
+				'0' => 103,
+				'1' => 99,
+			),
+			'hours'                =>
+			array(
+				'00' => 101,
+				'01' => 43,
+			),
+			'hourly_views'         =>
+			array(
+				'2022-11-26 04:00:00' => 0,
+				'2022-11-26 05:00:00' => 0,
+				'2022-11-26 06:00:00' => 0,
+			),
+			'years'                =>
+			array(
+				array(
+					'year'           => '2022',
+					'total_posts'    => 2,
+					'total_words'    => 35,
+					'avg_words'      => 17.5,
+					'total_likes'    => 1,
+					'avg_likes'      => 0.5,
+					'total_comments' => 0,
+					'avg_comments'   => 0,
+					'total_images'   => 2,
+					'avg_images'     => 1,
+				),
+			),
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->with(
+				$this->equalTo( '/sites/1234/stats/insights' ),
+				$this->equalTo( array() )
+			)
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_insights();
+		$this->assertSame( $expected_stats, $stats );
+		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/insights' ) );
+	}
+
+	/**
+	 * Test get_streak.
+	 */
+	public function test_get_streak() {
+		$expected_stats = array(
+			'streak' => array(
+				'long'    => array(
+					'start'  => '',
+					'end'    => '',
+					'length' => 1,
+				),
+				'current' => array(
+					'start'  => '2022-11-21',
+					'end'    => '2022-11-21',
+					'length' => 1,
+				),
+			),
+			'data'   => array(
+				1669011611 => 1,
+				1656367289 => 1,
+				1638135559 => 1,
+			),
+		);
+
+		$this->wpcom_stats
+			->expects( $this->once() )
+			->method( 'fetch_remote_stats' )
+			->with(
+				$this->equalTo( '/sites/1234/stats/streak' ),
+				$this->equalTo( array() )
+			)
+			->willReturn( $expected_stats );
+
+		$stats = $this->wpcom_stats->get_streak();
+		$this->assertSame( $expected_stats, $stats );
+		$this->assertSame( wp_json_encode( $expected_stats ), self::get_stats_transient( '/sites/1234/stats/streak' ) );
+	}
+
+	/**
 	 * Test get_stats with cached result.
 	 */
 	public function test_get_stats_with_cached_result() {
