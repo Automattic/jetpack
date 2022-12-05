@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Expert mode: Allow partially downloaded files to be reused by the browser by adding the HTTP response header "Accept-Ranges: bytes"
+Expert Mode: allow partially downloaded files to be reused by the browser
