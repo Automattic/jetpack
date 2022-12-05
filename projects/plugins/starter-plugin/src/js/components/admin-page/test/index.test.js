@@ -25,6 +25,8 @@ describe( 'Admin', () => {
 
 		render( <Admin /> );
 		expect( screen.getByLabelText( 'Jetpack Starter Plugin' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Amazing feature 1', { selector: 'li' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'heading', { name: 'Connection screen title' } )
+		).toBeInTheDocument();
 	} );
 } );

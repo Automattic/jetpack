@@ -36,7 +36,6 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 	 * @after
 	 */
 	public function tear_down() {
-
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 
@@ -77,6 +76,7 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 		new Jetpack_Starter_Plugin();
 		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
 
+		// Check that `my_jetpack_init` is only triggered once.
 		new Jetpack_Starter_Plugin();
 		$this->assertSame( 1, did_action( ( 'my_jetpack_init' ) ) );
 	}
