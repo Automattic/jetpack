@@ -934,7 +934,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'instant_search_enabled':
-				case 'jetpack_are_blogging_prompts_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
 					break;
@@ -954,6 +953,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'featured_image_email_enabled':
 					update_option( 'featured_image_email_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'jetpack_are_blogging_prompts_enabled':
+					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				default:
