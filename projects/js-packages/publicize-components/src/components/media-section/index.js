@@ -52,6 +52,14 @@ const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
 const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
 const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
 
+const validationErrorMessages = {
+	[ FILE_TYPE_ERROR ]: __(
+		'The selected media type is not accepted by these platforms.',
+		'jetpack'
+	),
+	[ FILE_SIZE_ERROR ]: __( 'The selected media size is too big for these platforms.', 'jetpack' ),
+};
+
 /**
  * Wrapper that handles media-related functionality.
  *
@@ -162,14 +170,7 @@ export default function MediaSection() {
 						onDismiss={ onDismissClick }
 						status="warning"
 					>
-						{ validationError === FILE_TYPE_ERROR && (
-							<p>
-								{ __( 'The selected media type is not accepted by these platforms.', 'jetpack' ) }
-							</p>
-						) }
-						{ validationError === FILE_SIZE_ERROR && (
-							<p>{ __( 'The selected media size is too big for these platforms.', 'jetpack' ) }</p>
-						) }
+						<p>{ validationErrorMessages[ validationError ] }</p>
 					</Notice>
 				) }
 				{ ! mediaObject && (
