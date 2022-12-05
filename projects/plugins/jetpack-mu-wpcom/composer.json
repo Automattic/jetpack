@@ -39,7 +39,7 @@
 	"prefer-stable": true,
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-mu-wpcom",
-		"release-branch-prefix": "jetpack-mu-wpcom",
+		"release-branch-prefix": "jetpack",
 		"beta-plugin-slug": "jetpack-mu-wpcom",
 		"autorelease": true,
 		"autotagger": true,
