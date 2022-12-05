@@ -47,7 +47,6 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Literata',
 	'Lora',
 	'Merriweather',
-	'Metropolis',
 	'Montserrat',
 	'Newsreader',
 	'Nunito',
@@ -67,7 +66,6 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Source Serif Pro',
 	'Space Mono',
 	'Texturina',
-	'Uncut Sans',
 	'Work Sans',
 );
 
