@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2022-12-05
+### Added
+- Prepare package for use in the Jetpack Protect standalone plugin. [#27528]
+
+### Changed
+- Updated package dependencies. [#27688]
+
+### Removed
+- Remove has_rules_access plan check in favor of external alternatives [#27600]
+
 ## [0.6.10] - 2022-11-28
 ### Changed
 - Updated package dependencies. [#27043]
@@ -104,6 +114,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.7.0]: https://github.com/Automattic/jetpack-waf/compare/v0.6.10...v0.7.0
 [0.6.10]: https://github.com/Automattic/jetpack-waf/compare/v0.6.9...v0.6.10
 [0.6.9]: https://github.com/Automattic/jetpack-waf/compare/v0.6.8...v0.6.9
 [0.6.8]: https://github.com/Automattic/jetpack-waf/compare/v0.6.7...v0.6.8
