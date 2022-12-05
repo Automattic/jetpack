@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove has_rules_access plan check in favor of external alternatives

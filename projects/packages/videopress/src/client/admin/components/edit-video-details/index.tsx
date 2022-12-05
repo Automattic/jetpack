@@ -89,16 +89,12 @@ const Infos = ( {
 	onChangeTitle,
 	description,
 	onChangeDescription,
-	caption,
-	onChangeCaption,
 	loading,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
 	description: string;
 	onChangeDescription: ( value: string ) => void;
-	caption: string;
-	onChangeCaption: ( value: string ) => void;
 	loading: boolean;
 } ) => {
 	return (
@@ -129,20 +125,6 @@ const Infos = ( {
 					size="large"
 				/>
 			) }
-			{ loading ? (
-				<Placeholder height={ 133 } className={ styles.input } />
-			) : (
-				<Input
-					value={ caption }
-					className={ styles.input }
-					label={ __( 'Caption', 'jetpack-videopress-pkg' ) }
-					name="caption"
-					onChange={ onChangeCaption }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-				/>
-			) }
 		</>
 	);
 };
@@ -157,7 +139,6 @@ const EditVideoDetails = () => {
 		url,
 		title,
 		description,
-		caption,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -169,7 +150,6 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
-		setCaption,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -253,8 +233,6 @@ const EditVideoDetails = () => {
 								onChangeTitle={ setTitle }
 								description={ description ?? '' }
 								onChangeDescription={ setDescription }
-								caption={ caption ?? '' }
-								onChangeCaption={ setCaption }
 								loading={ isFetchingData }
 							/>
 						</Col>

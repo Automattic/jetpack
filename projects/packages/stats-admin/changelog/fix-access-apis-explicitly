@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: explicitly allow only certain API access with blog token to wpcom

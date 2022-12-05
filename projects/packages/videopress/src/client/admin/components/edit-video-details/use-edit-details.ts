@@ -28,9 +28,7 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [ 'title', 'description', 'caption' ].some( field =>
-		hasFieldChanged( field )
-	);
+	const metaChanged = [ 'title', 'description' ].some( field => hasFieldChanged( field ) );
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -38,10 +36,6 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 
 	const setDescription = ( description: string ) => {
 		updateData( { description } );
-	};
-
-	const setCaption = ( caption: string ) => {
-		updateData( { caption } );
 	};
 
 	const handleMetaUpdate = () => {
@@ -57,7 +51,6 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	return {
 		setTitle,
 		setDescription,
-		setCaption,
 		handleMetaUpdate,
 		metaChanged,
 	};
@@ -89,7 +82,6 @@ export default () => {
 	const [ formData, setFormData ] = useState( {
 		title: video?.title,
 		description: video?.description,
-		caption: video?.caption,
 	} );
 
 	const updateData = newData => {
@@ -158,10 +150,7 @@ export default () => {
 	// This moment we fetch the video data and update after fetching
 
 	const initialLoading =
-		isFetching &&
-		formData?.title === undefined &&
-		formData?.description === undefined &&
-		formData?.caption === undefined;
+		isFetching && formData?.title === undefined && formData?.description === undefined;
 
 	useEffect( () => {
 		let mounted = true;
@@ -170,7 +159,6 @@ export default () => {
 			setFormData( {
 				title: video?.title,
 				description: video?.description,
-				caption: video?.caption,
 			} );
 		}
 

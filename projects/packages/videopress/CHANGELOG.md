@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3] - 2022-12-02
+### Added
+- VideoPress: add debug() tool. Improve in-sync process [#27669]
+- VideoPress: handle overwriting video track file [#27633]
+- VideoPress: re-render player after a new track uploads [#27713]
+- VideoPress: refresh UI when video track deletes [#27646]
+- VideoPress: show a static image when the block acts as an example [#27686]
+- VideoPress: update tracks list once new track uploads [#27704]
+- VideoPress: upload track file to VideoPress server [#27631]
+
+### Changed
+- Updated package dependencies. [#27688]
+- VideoPress: Disable delete_posts capability for VideoPress attachments if user is disconnected. [#27665]
+- VideoPress: do not set icon color at SVG markup level [#27687]
+- VideoPress: fix visual issue in Track list component when no tracks [#27648]
+- VideoPress: handle properly when adding or replacing new video track [#27716]
+- VideoPress: re-implement track control using ToolbarDropdownMenu [#27635]
+- VideoPress: refresh video player when deleting track [#27649]
+- VideoPress: remove Preload playback control from the video block sidebar [#27701]
+- VideoPress: update tracks icon [#27650]
+
+### Removed
+- VideoPress: Remove caption field from edit page [#27718]
+
+### Fixed
+- Fixes issue where video meta could not be saved on a WP.com simple site. [#27725]
+- VideoPress: Fix the thumbnail selection to allow selecting the last frame of the video. [#27638]
+- VideoPress: fix video block conversion issue [#27678]
+
 ## [0.8.2] - 2022-11-28
 ### Added
 - VideoPress: add example image to the dynamic colors panel [#27599]
@@ -487,6 +516,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.8.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.7.0...v0.8.0

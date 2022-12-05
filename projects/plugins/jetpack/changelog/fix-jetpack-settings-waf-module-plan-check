@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Jetpack Settings WAF module plan check
