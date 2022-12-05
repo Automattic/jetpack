@@ -176,7 +176,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.6.0-beta - 2022-12-01
+### 1.6.0-beta - 2022-12-05
 #### Added
 - General: New deactivation survey.
 - General: New tracks events for upgrade CTA impressions.
@@ -185,6 +185,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 
 #### Fixed
 - Fixed issues in Super Cache measurement tool on some URLs
+- Fix error log on navigating to the getting-started page
 - General: Fix showing discount markers on pricing options without a discount.
 - General: Remove invalid link to priority support for free users.
 - Speed Score: Fix unclickable link to dismiss speed score popups.
