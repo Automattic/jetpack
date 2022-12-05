@@ -29,6 +29,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+define( 'WPSC_VERSION', '1.9.1-alpha' );
+
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
 
@@ -207,6 +209,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
 	wp_cache_disable_plugin( false ); // don't delete configuration file
+	delete_option( 'wpsc_2022_boost_banner' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
@@ -257,6 +260,146 @@ function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
 add_action( 'network_admin_menu', 'wp_cache_network_pages' );
+
+/**
+ * Load JavaScript on admin pages.
+ */
+function wp_super_cache_admin_enqueue_scripts( $hook ) {
+	if ( 'settings_page_wpsupercache' !== $hook ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'wp-super-cache-admin',
+		trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/admin.js',
+		array( 'jquery' ),
+		WPSC_VERSION,
+		false
+	);
+
+	wp_localize_script(
+		'wp-super-cache-admin',
+		'wpscAdmin',
+		array(
+			'boostDismissNonce'  => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
+			'boostInstallNonce'  => wp_create_nonce( 'updates' ),
+			'boostActivateNonce' => wp_create_nonce( 'activate-boost' ),
+		)
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wp_super_cache_admin_enqueue_scripts' );
+
+/**
+ * Use the standard WordPress plugin installation ajax handler.
+ */
+add_action( 'wp_ajax_wpsc_install_plugin', 'wp_ajax_install_plugin' );
+
+/**
+ * Check if Jetpack Boost has been installed.
+ */
+function wpsc_is_boost_installed() {
+	$plugins = array_keys( get_plugins() );
+
+	foreach ( $plugins as $plugin ) {
+		if ( false !== strpos( $plugin, 'jetpack-boost.php' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if Jetpack Boost is active.
+ */
+function wpsc_is_boost_active() {
+	return class_exists( '\Automattic\Jetpack_Boost\Jetpack_Boost' );
+}
+
+/**
+ * Admin ajax action: hide the Boost Banner.
+ */
+function wpsc_hide_boost_banner() {
+	check_ajax_referer( 'wpsc_dismiss_boost_banner', 'nonce' );
+	update_option( 'wpsc_2022_boost_banner', 0, 'no' );
+
+	wp_die();
+}
+add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
+
+/**
+ * Admin ajax action: activate Jetpack Boost.
+ */
+function wpsc_ajax_activate_boost() {
+	check_ajax_referer( 'activate-boost' );
+
+	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
+	if ( is_wp_error( $result ) ) {
+		wp_send_json_error( $result->get_error_message() );
+	}
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
+
+/**
+ * Show a Jetpack Boost installation banner (unless dismissed or installed)
+ */
+function wpsc_jetpack_boost_install_banner() {
+	// Don't show the banner if Boost is installed, or the banner has been dismissed.
+	if ( wpsc_is_boost_active() || ! get_option( 'wpsc_2022_boost_banner', true ) ) {
+		return;
+	}
+
+	$install_url  = wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' );
+	$activate_url = admin_url( 'plugins.php' );
+	$is_installed = wpsc_is_boost_installed();
+	$button_url   = $is_installed ? $activate_url : $install_url;
+	$button_label = $is_installed ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
+	$button_id    = $is_installed ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+
+	?>
+		<div class="wpsc-boost-banner">
+			<div class="wpsc-boost-banner-inner">
+				<div class="wpsc-boost-banner-content">
+					<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+
+					<h3>
+						<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
+					</h3>
+
+					<p id="wpsc-install-invitation">
+						<?php
+							esc_html_e(
+								'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.',
+								'wp-super-cache'
+							);
+						?>
+					</p>
+
+					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+
+					<a href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button" id="<?php echo esc_attr( $button_id ); ?>">
+						<div class="spinner" style="display:none;"></div>
+						<label><?php echo esc_html( $button_label ); ?></label>
+					</a>
+				</div>
+
+				<div class="wpsc-boost-banner-image-container">
+					<img
+						src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
+						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
+						alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
+						srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
+						sizes="(max-width: 782px) 654px, 1306px"
+					>
+				</div>
+			</div>
+
+			<span class="wpsc-boost-dismiss dashicons dashicons-dismiss"></span>
+		</div>
+	<?php
+}
 
 function wp_cache_manager_error_checks() {
 	global $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
@@ -743,14 +886,6 @@ function wp_cache_manager_updates() {
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
-// hides the boost promo banner on dismiss
-add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
-function wpsc_hide_boost_banner() {
-	check_ajax_referer( 'wpsc_2022_boost_banner', 'nonce' );
-	update_option( 'wpsc_2022_boost_banner', 0, 'no' );
-	wp_die();
-}
-
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
@@ -939,14 +1074,14 @@ table.wpsc-settings-table {
 
 	?>
 	<style>
-		.boost-banner {
+		.wpsc-boost-banner {
 			margin: 2px 1.25rem 1.25rem 0;
 			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
 			border: 1px solid #d5d5d5;
 			position: relative;
 		}
 
-		.boost-banner-inner {
+		.wpsc-boost-banner-inner {
 			display: flex;
 			grid-template-columns: minmax(auto, 750px) 500px;
 			justify-content: space-between;
@@ -955,14 +1090,14 @@ table.wpsc-settings-table {
 			overflow: hidden;
 		}
 
-		.boost-banner-content {
+		.wpsc-boost-banner-content {
 			display: inline-flex;
 			flex-direction: column;
 			padding: 2rem 3rem 2rem 2rem;
 			text-align: left;
 		}
 
-		.boost-banner-image-container {
+		.wpsc-boost-banner-image-container {
 			position: relative;
 			background-image: url( <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-colors.svg' ); ?> );
 			background-size: cover;
@@ -970,7 +1105,7 @@ table.wpsc-settings-table {
 			overflow: hidden;
 		}
 
-		.boost-banner-image-container img {
+		.wpsc-boost-banner-image-container img {
 			position: relative;
 			left: 50%;
 			top: 50%;
@@ -978,13 +1113,13 @@ table.wpsc-settings-table {
 			width: 100%;
 		}
 
-		.boost-banner p {
+		.wpsc-boost-banner p {
 			font-size: 16px;
 			line-height: 1.5;
 			margin: 1rem 0 2rem;
 		}
 
-		.boost-banner .boost-dismiss {
+		.wpsc-boost-banner .wpsc-boost-dismiss {
 			position: absolute;
 			top: 10px;
 			right: 10px;
@@ -992,7 +1127,7 @@ table.wpsc-settings-table {
 			cursor:pointer;
 		}
 
-		.boost-banner .button-primary {
+		.wpsc-boost-banner .button-primary {
 			background: black;
 			border-color: black;
 			color: #fff;
@@ -1001,88 +1136,20 @@ table.wpsc-settings-table {
 			font-size: 16px;
 		}
 
-		.boost-banner .button-primary:hover {
+		.wpsc-boost-banner .button-primary:hover {
 			background-color: #333;
 		}
 
-		.boost-banner .button-primary:visited {
+		.wpsc-boost-banner .button-primary:visited {
 			background-color: black;
 			border-color: black;
 		}
 	</style>
 
-	<?php
-		$showing_boost_banner = ! class_exists( 'Automattic\Jetpack_Boost\Jetpack_Boost' ) && get_option( 'wpsc_2022_boost_banner', true );
-		$boost_banner_nonce   = wp_create_nonce( 'wpsc_2022_boost_banner' );
-	?>
-
 	<table class="wpsc-settings-table"><td valign="top">
 
 	<?php
-	if ( $showing_boost_banner ) {
-		?>
-			<div class="boost-banner">
-				<div class="boost-banner-inner">
-					<div class="boost-banner-content">
-						<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
-
-						<h3>
-							<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
-						</h3>
-
-						<p>
-							<?php esc_html_e( 'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.', 'wp-super-cache' ); ?>
-						</p>
-
-						<a href="
-						<?php
-						// phpcs:disable
-						wp_nonce_url(
-							add_query_arg(
-								array(
-									'action' => 'install-plugin',
-									'plugin' => 'jetpack-boost',
-								),
-								admin_url( 'update.php' )
-							),
-							'install-plugin_jetpack-boost'
-						);
-						// phpcs:enable
-						?>
-						" class="button button-primary">
-						<?php esc_html_e( 'Install Jetpack Boost', 'wp-super-cache' ); ?>
-						</a>
-					</div>
-
-					<div class="boost-banner-image-container">
-						<img
-							src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
-							title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
-							alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
-							srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
-							sizes="(max-width: 782px) 654px, 1306px"
-						>
-					</div>
-				</div>
-
-				<span class="boost-dismiss dashicons dashicons-dismiss"></span>
-			</div>
-
-			<script>
-				jQuery( '.boost-dismiss' ).on( 'click', function() {
-					jQuery( '.boost-banner' ).fadeOut( 'slow' );
-					jQuery.post( ajaxurl, {
-						action: 'wpsc-hide-boost-banner',
-						nonce: '<?php echo esc_js( $boost_banner_nonce ); ?>',
-					} );
-				} );
-			</script>
-		<?php
-	}
-	?>
-
-
-	<?php
+	wpsc_jetpack_boost_install_banner();
 
 	switch ( $curr_tab ) {
 		case 'cdn':
