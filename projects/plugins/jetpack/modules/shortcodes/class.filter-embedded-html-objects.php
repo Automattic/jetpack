@@ -223,7 +223,7 @@ class Filter_Embedded_HTML_Objects {
 	 */
 	private static function dispatch_entities( $matches ) {
 		$orig_html       = $matches[0];
-		$decoded_matches = array( html_entity_decode( $matches[0] ) );
+		$decoded_matches = array( html_entity_decode( $matches[0], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 
 		return self::dispatch( $decoded_matches, $orig_html );
 	}
