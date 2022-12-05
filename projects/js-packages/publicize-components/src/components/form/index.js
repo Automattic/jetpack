@@ -30,6 +30,7 @@ import styles from './styles.module.scss';
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
  * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
+ * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -38,6 +39,7 @@ export default function PublicizeForm( {
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
 	connectionsAdminUrl,
+	adminUrl,
 } ) {
 	const {
 		connections,
@@ -66,7 +68,7 @@ export default function PublicizeForm( {
 			}
 			if ( target ) {
 				ev.preventDefault();
-				window.open( ev.target.href, target, 'popup,noreferrer,width=900,height=600' );
+				window.open( ev.target.href, target, 'noreferrer' );
 			}
 		},
 		[ autosave, isEditedPostDirty ]
@@ -114,7 +116,9 @@ export default function PublicizeForm( {
 													className={ styles[ 'more-link' ] }
 													href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
 														site: getSiteFragment(),
-														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+														...( adminUrl
+															? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
+															: {} ),
 													} ) }
 													target="_blank"
 													rel="noreferrer"

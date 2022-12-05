@@ -291,6 +291,7 @@ class Jetpack_Social {
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
+					'adminUrl'                    => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                  => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 					'connectionRefreshPath'       => '/jetpack/v4/publicize/connection-test-results',
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
