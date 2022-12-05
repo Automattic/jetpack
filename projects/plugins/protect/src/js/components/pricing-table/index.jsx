@@ -50,7 +50,6 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 		handleRegisterSite
 	);
 
-	// TODO: Add feature item tooltip popover details
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
 		items: [

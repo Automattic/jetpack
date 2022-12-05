@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Updated waf package version in composer.lock
