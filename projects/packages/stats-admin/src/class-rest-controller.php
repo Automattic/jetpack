@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
+use WP_Query;
 use WP_REST_Server;
 
 /**
@@ -79,6 +80,17 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post' ),
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+			)
+		);
+
+		// Single post info.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/posts', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_posts' ),
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
@@ -201,35 +213,7 @@ class REST_Controller {
 	 * @param WP_REST_Request $req The request object.
 	 */
 	public function get_single_post_likes( $req ) {
-		$response = wp_remote_get(
-			sprintf(
-				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
-				JETPACK__WPCOM_JSON_API_BASE,
-				Jetpack_Options::get_option( 'id' ),
-				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
-				)
-			),
-			array( 'timeout' => 5 )
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
-				array( 'status' => $response_code )
-			);
-		}
-
-		return $response_body;
+		return $this->get_single_post_likes_by_post_id( $req->get_param( 'resource_id' ) );
 	}
 
 	/**
@@ -278,6 +262,44 @@ class REST_Controller {
 	}
 
 	/**
+	 * This is only provides a capatible way for the front end to get the most recent post. It doesn't deal with any passed in params.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_posts( $req ) {
+		$args   = array(
+			'posts_per_page' => 1,
+			'order'          => 'DESC',
+			'orderby'        => 'date',
+			'post_type'      => 'post',
+			'post_status'    => array( 'publish' ),
+			'fields'         => 'ids',
+		);
+		$posts  = new WP_Query( $args );
+		$return = array();
+		foreach ( $posts->posts as $post_id ) {
+			$post = get_post( $post_id );
+			if ( ! is_wp_error( $post ) ) {
+				$is_jetpack_likes_enabled = $this->is_jetpack_likes_enabled_for_post( (array) $post );
+				$return[]                 = array(
+					'ID'            => $post->ID,
+					'title'         => $post->post_title,
+					'post_type'     => $post->post_type,
+					'URL'           => get_permalink( $post->ID ),
+					'discussion'    => array(
+						'comment_count' => $post->comment_count,
+						'comments_open' => $post->comment_status,
+					),
+					'like_count'    => $is_jetpack_likes_enabled ? 0 : $this->get_single_post_like_count_by_post_id( $post_id ),
+					'likes_enabled' => $is_jetpack_likes_enabled,
+				);
+			}
+		}
+		return array( 'posts' => $return );
+	}
+
+	/**
 	 * Get site stats.
 	 *
 	 * @param WP_REST_Request $req The request object.
@@ -307,6 +329,65 @@ class REST_Controller {
 			null,
 			'wpcom'
 		);
+	}
+
+	/**
+	 * Whether like is enabled for a post.
+	 *
+	 * @param array $post The post array.
+	 */
+	protected function is_jetpack_likes_enabled_for_post( $post ) {
+		return function_exists( 'jetpack_post_likes_get_value' ) && jetpack_post_likes_get_value( (array) $post );
+	}
+
+	/**
+	 * Returns like count of a post.
+	 *
+	 * @param int   $post_id The post id.
+	 * @param array $params Additional parameters.
+	 */
+	protected function get_single_post_like_count_by_post_id( $post_id, $params = array() ) {
+		$likes_response = $this->get_single_post_likes_by_post_id( $post_id, $params );
+		if ( is_wp_error( $likes_response ) ) {
+			return 0;
+		}
+		return isset( $likes_response['found'] ) ? $likes_response['found'] : 0;
+	}
+
+	/**
+	 * Return likes of a single post.
+	 *
+	 * @param int   $post_id The post id.
+	 * @param array $params Additional parameters.
+	 */
+	protected function get_single_post_likes_by_post_id( $post_id, $params = array() ) {
+		$response = wp_remote_get(
+			sprintf(
+				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
+				JETPACK__WPCOM_JSON_API_BASE,
+				Jetpack_Options::get_option( 'id' ),
+				$post_id,
+				http_build_query( $params )
+			),
+			array( 'timeout' => 5 )
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
+				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				array( 'status' => $response_code )
+			);
+		}
+
+		return $response_body;
 	}
 
 	/**
