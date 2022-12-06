@@ -13,7 +13,118 @@ import './style.scss';
  * The Activation Screen Controls component.
  *
  * @param {object} props -- The properties.
+ * @param {Function} props.className -- class name of the input control.
+ * @param {boolean} props.disabled -- determines if input control is disabled.
+ * @param {string} props.value -- the license code to edit or submit
+ * @param {Function} props.onChange -- function to handle changes to the value.
+ * @returns {React.Component} The `ManualLicenseKeyInput` component.
+ */
+const ManualLicenseKeyInput = props => {
+	const { className, disabled, onChange, value } = props;
+
+	return (
+		<TextControl
+			className={ className }
+			label={ __( 'License key', 'jetpack' ) }
+			value={ value }
+			onChange={ onChange }
+			disabled={ disabled }
+		/>
+	);
+};
+
+/**
+ * The Activation Screen Controls component.
+ *
+ * @param {object} props -- The properties.
+ * @param {Function} props.className -- class name of the input control.
+ * @param {Array} props.detachedLicenses -- list of detached license keys for activation.
+ * @param {boolean} props.disabled -- determines if input control is disabled.
+ * @param {string} props.value -- the license code to edit or submit
+ * @param {Function} props.onChange -- function to handle changes to the value.
+ * @returns {React.Component} The `SelectableLicenseKeyInput` component.
+ */
+const SelectableLicenseKeyInput = props => {
+	const { className, detachedLicenses, disabled, onChange, value } = props;
+	const [ selectedOption, setSelectedOption ] = useState( '' );
+	const isFetching = detachedLicenses === null;
+
+	const options = useMemo( () => {
+		if ( isFetching ) {
+			return [
+				{
+					label: __( 'Fetching available licenses…', 'jetpack' ),
+					value: '',
+				},
+			];
+		}
+
+		return [
+			...detachedLicenses.map( ( { product, license_key } ) => {
+				return {
+					label: sprintf(
+						/* translators: placeholder is the product name and license key */
+						__( '%1$s - %2$s', 'jetpack' ),
+						product,
+						license_key
+					),
+					value: license_key,
+				};
+			} ),
+			{
+				label: __( 'I want to add a license key manually', 'jetpack' ),
+				value: '',
+			},
+		];
+	}, [ detachedLicenses, isFetching ] );
+
+	useEffect( () => {
+		if ( options?.length ) {
+			setSelectedOption( options[ 0 ].value );
+		} else {
+			setSelectedOption( '' );
+		}
+	}, [ options ] );
+
+	const onSelectionChange = useCallback(
+		val => {
+			setSelectedOption( val );
+			onChange( val );
+		},
+		[ onChange ]
+	);
+
+	return (
+		<>
+			<SelectControl
+				className={ className }
+				disabled={ disabled }
+				label={ __( 'Select a license key', 'jetpack' ) }
+				value={ selectedOption }
+				options={ options }
+				onChange={ onSelectionChange }
+			/>
+
+			{ ! isFetching && ! selectedOption && (
+				<TextControl
+					className={ className }
+					label={ __( 'Input a license key', 'jetpack' ) }
+					value={ value }
+					onChange={ onChange }
+					disabled={ disabled }
+				/>
+			) }
+		</>
+	);
+};
+
+/**
+ * The Activation Screen Controls component.
+ *
+ * @param {object} props -- The properties.
  * @param {Function} props.activateLicense -- function to handle submitting a license
+ * @param {Array} props.detachedLicenses -- list of detached license keys for activation.
+ * @param {boolean} props.fetchingDetachedLicenses -- status to determine if the screen is fetching detached license keys.
  * @param {boolean} props.isActivating -- should the controls be disabled
  * @param {string} props.license -- the license code to edit or submit
  * @param {?string} props.licenseError -- any error that occurred while activating a license
@@ -41,48 +152,7 @@ const ActivationScreenControls = props => {
 		? 'jp-license-activation-screen-controls--license-field-with-error'
 		: 'jp-license-activation-screen-controls--license-field';
 
-	const [ selectionMode, setSelectionMode ] = useState( false );
-
-	useEffect( () => {
-		setSelectionMode( detachedLicenses && detachedLicenses.length );
-	}, [ detachedLicenses ] );
-
-	const onLicenseSelectionChange = useCallback(
-		val => {
-			if ( ! val ) {
-				setSelectionMode( false );
-			}
-			onLicenseChange( val );
-		},
-		[ onLicenseChange ]
-	);
-
-	const options = useMemo(
-		() => [
-			...detachedLicenses.map( ( { product, license_key } ) => {
-				return {
-					label: sprintf(
-						/* translators: placeholder is the product name and license key */
-						__( '%1$s - %2$s', 'jetpack' ),
-						product,
-						license_key
-					),
-					value: license_key,
-				};
-			} ),
-			{
-				label: fetchingDetachedLicenses
-					? __( 'Fetching available licenses…', 'jetpack' )
-					: __(
-							'I want to add a license key manually',
-							'jetpack',
-							/* dummy arg to avoid bad minification */ 0
-					  ),
-				value: '',
-			},
-		],
-		[ detachedLicenses, fetchingDetachedLicenses ]
-	);
+	const hasAvailableLicenseKey = detachedLicenses && detachedLicenses.length;
 
 	return (
 		<div className="jp-license-activation-screen-controls">
@@ -100,22 +170,20 @@ const ActivationScreenControls = props => {
 						}
 					) }
 				</p>
-				{ fetchingDetachedLicenses || selectionMode ? (
-					<SelectControl
+				{ fetchingDetachedLicenses || hasAvailableLicenseKey ? (
+					<SelectableLicenseKeyInput
 						className={ className }
 						disabled={ fetchingDetachedLicenses || isActivating }
-						label={ __( 'License key', 'jetpack' ) }
+						onChange={ onLicenseChange }
+						detachedLicenses={ fetchingDetachedLicenses ? null : detachedLicenses }
 						value={ license }
-						options={ options }
-						onChange={ onLicenseSelectionChange }
 					/>
 				) : (
-					<TextControl
+					<ManualLicenseKeyInput
 						className={ className }
-						label={ __( 'License key', 'jetpack' ) }
-						value={ license }
-						onChange={ onLicenseChange }
 						disabled={ isActivating }
+						onChange={ onLicenseChange }
+						value={ license }
 					/>
 				) }
 				{ hasLicenseError && (
@@ -129,6 +197,7 @@ const ActivationScreenControls = props => {
 				<Button
 					className="jp-license-activation-screen-controls--button"
 					onClick={ activateLicense }
+					disabled={ ! license }
 				>
 					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack' ) }
 				</Button>
