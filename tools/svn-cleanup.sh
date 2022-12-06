@@ -89,7 +89,7 @@ CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
 # Get all versions, excluding point releases for Jetpack-the-plugin, so we can obtain the previous release cycle's version.
 if [[ $WPSLUG == "jetpack" ]]; then
 	SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+){1}$" ) )' <<<"$JSON"  | sort -V )
-else 
+else
 	SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+)+$" ) )' <<<"$JSON"  | sort -V )
 fi
 mapfile -t SVN_TAGS <<<"$SVN_TMP"
