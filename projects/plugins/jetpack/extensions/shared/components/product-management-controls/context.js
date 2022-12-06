@@ -6,8 +6,8 @@ export const ProductManagementContext = createContext( {
 	clientId: undefined,
 	products: [],
 	productType: PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId: 0,
-	setSelectedProductId: () => {},
+	selectedProductIds: 0,
+	setSelectedProductIds: () => {},
 } );
 
 export const useProductManagementContext = () => useContext( ProductManagementContext );

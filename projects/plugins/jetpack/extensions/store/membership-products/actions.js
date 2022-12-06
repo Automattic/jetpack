@@ -40,7 +40,7 @@ export const setUpgradeUrl = upgradeUrl => ( {
 export const saveProduct = (
 	product,
 	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	setSelectedProductId = () => {},
+	setSelectedProductIds = () => {},
 	callback = () => {}
 ) => async ( { dispatch, registry } ) => {
 	const { title, price, currency } = product;
@@ -89,7 +89,7 @@ export const saveProduct = (
 		const products = registry.select( STORE_NAME ).getProducts();
 
 		dispatch( setProducts( products.concat( [ newProduct ] ) ) );
-		setSelectedProductId( newProduct.id );
+		setSelectedProductIds( [ newProduct.id ] );
 		onSuccess( getMessageByProductType( 'successfully created product', productType ), registry );
 		callback( true );
 	} catch ( error ) {

@@ -47,6 +47,10 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 		[ editorType, postLink, setAttributes ]
 	);
 
+	const updateSubscriptionPlans = (planIds) => {
+		planIds.forEach( updateSubscriptionPlan );
+	};
+
 	useEffect( () => {
 		updateSubscriptionPlan( planId );
 	}, [ planId, updateSubscriptionPlan ] );
@@ -105,8 +109,8 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductId={ planId }
-					setSelectedProductId={ updateSubscriptionPlan }
+					selectedProductIds={ [ planId ] }
+					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }
 			<InspectorControls>

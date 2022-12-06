@@ -38,16 +38,17 @@ function getProductDescription( product ) {
 }
 
 function Product( { onClose, product } ) {
-	const { selectedProductId, setSelectedProductId } = useProductManagementContext();
+	const { selectedProductIds, setSelectedProductIds } = useProductManagementContext();
 
 	const { id, title } = product;
-	const isSelected = selectedProductId && selectedProductId === id;
+	const isSelected = selectedProductIds && selectedProductIds.includes( id );
 	const icon = isSelected ? check : undefined;
 	const productDescription = product ? ' ' + getProductDescription( product ) : null;
 
 	const handleClick = event => {
 		event.preventDefault();
-		setSelectedProductId( id );
+		let selected = isSelected ? selectedProductIds.filter( productId => productId !== id ): [ ...selectedProductIds, id ];
+		setSelectedProductIds( selected );
 		onClose();
 	};
 
@@ -99,12 +100,12 @@ function NewProduct( { onClose } ) {
 }
 
 export default function ProductManagementToolbarControl() {
-	const { products, productType, selectedProductId } = useProductManagementContext();
+	const { products, productType, selectedProductIds } = useProductManagementContext();
 
-	const { selectedProduct, shouldUpgrade } = useSelect( select => {
-		const { getProduct, getShouldUpgrade } = select( membershipProductsStore );
+	const { selectedProducts, shouldUpgrade } = useSelect( select => {
+		const { getSelectedProducts, getShouldUpgrade } = select( membershipProductsStore );
 		return {
-			selectedProduct: getProduct( selectedProductId ),
+			selectedProducts: getSelectedProducts( selectedProductIds ),
 			shouldUpgrade: getShouldUpgrade(),
 		};
 	} );
@@ -112,10 +113,13 @@ export default function ProductManagementToolbarControl() {
 	let productDescription = null;
 	let subscriptionIcon = update;
 
-	if ( selectedProduct ) {
-		productDescription = getProductDescription( selectedProduct );
+	if ( selectedProducts.length > 1 ) {
+		productDescription = __( 'Multiple plans selected', 'jetpack' );
 	}
-	if ( selectedProductId && ! selectedProduct ) {
+	else if ( selectedProducts.length == 1 ) {
+		productDescription = getProductDescription( selectedProducts[0] );
+	}
+	if ( selectedProductIds.length !== selectedProducts.length ) {
 		productDescription = getMessageByProductType( 'product not found', productType );
 		subscriptionIcon = warning;
 	}
