@@ -208,11 +208,8 @@ const FirewallPage = () => {
 		API.wafUpgradeSeen();
 	}, [ setWafUpgradeIsSeen ] );
 
-	const [ popoverDismissed, setPopoverDismissed ] = useState( false );
-
-	const handleDismissPopoverClick = useCallback( () => {
-		setPopoverDismissed( true );
-	}, [] );
+	const { waf } = window.jetpackProtectInitialState;
+	const { displayUpgradeBadge } = waf;
 
 	return (
 		<AdminPage>
@@ -229,7 +226,7 @@ const FirewallPage = () => {
 										onChange={ handleEnabledChange }
 										disabled={ ! hasRequiredPlan || settingsIsUpdating }
 									/>
-									{ ! popoverDismissed && hasRequiredPlan && upgradeIsSeen === false && (
+									{ hasRequiredPlan && upgradeIsSeen === false && (
 										<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
 											<div className={ styles.popover }>
 												<div className={ styles[ 'popover-header' ] }>
@@ -238,7 +235,7 @@ const FirewallPage = () => {
 													</Text>
 													<Button variant={ 'icon' }>
 														<Icon
-															onClick={ handleDismissPopoverClick }
+															onClick={ handleClosePopoverClick }
 															icon={ closeSmall }
 															size={ 24 }
 															aria-label={ __( 'Close Window', 'jetpack-protect' ) }
@@ -273,7 +270,7 @@ const FirewallPage = () => {
 										>
 											{ __( 'Enable automatic rules', 'jetpack-protect' ) }
 										</Text>
-										{ hasRequiredPlan && upgradeIsSeen === false && (
+										{ hasRequiredPlan && displayUpgradeBadge && (
 											<span className={ styles.badge }>
 												{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }
 											</span>
