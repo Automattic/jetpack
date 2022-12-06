@@ -38,8 +38,6 @@ class Waf_Runner {
 			return;
 		}
 		self::define_mode();
-		self::define_automatic_rules_enabled();
-		self::define_ip_lists_enabled();
 		self::define_share_data();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
@@ -48,7 +46,7 @@ class Waf_Runner {
 		if ( function_exists( 'add_action' ) ) {
 			self::add_hooks();
 		}
-		if ( ! self::did_run() && self::rules_enabled() ) {
+		if ( ! self::did_run() ) {
 			self::run();
 		}
 	}
@@ -84,54 +82,6 @@ class Waf_Runner {
 			$mode_option = get_option( self::MODE_OPTION_NAME );
 			define( 'JETPACK_WAF_MODE', $mode_option );
 		}
-	}
-
-	/**
-	 * Set the automatic rules enabled definition if it has not been set.
-	 *
-	 * @return void
-	 */
-	public static function define_automatic_rules_enabled() {
-		if ( defined( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED' ) ) {
-			return;
-		}
-
-		// default to true when outside of the WP environment
-		if ( ! defined( 'ABSPATH' ) ) {
-			define( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED', true );
-			return;
-		}
-
-		// for backwards compatibility, if the automatic rules option does not exist and the
-		// module is active, consider automatic rules enabled
-		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
-		if ( ! $option_exists && self::is_enabled() ) {
-			$is_enabled = true;
-		} else {
-			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-		}
-
-		define( 'JETPACK_WAF_AUTOMATIC_RULES_ENABLED', $is_enabled );
-	}
-
-	/**
-	 * Set the IP lists enabled definition if it has not been set.
-	 *
-	 * @return void
-	 */
-	public static function define_ip_lists_enabled() {
-		if ( defined( 'JETPACK_WAF_IP_LISTS_ENABLED' ) ) {
-			return;
-		}
-
-		// default to true when outside of the WP environment
-		if ( ! defined( 'ABSPATH' ) ) {
-			define( 'JETPACK_WAF_IP_LISTS_ENABLED', true );
-			return;
-		}
-
-		$is_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
-		define( 'JETPACK_WAF_IP_LISTS_ENABLED', $is_enabled );
 	}
 
 	/**
@@ -191,6 +141,24 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Determines if automatic rules are enabled.
+	 *
+	 * @return bool
+	 */
+	public static function automatic_rules_enabled() {
+		// for backwards compatibility, if the automatic rules option does not exist and the
+		// module is active, consider automatic rules enabled
+		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
+		if ( ! $option_exists && self::is_enabled() ) {
+			$is_enabled = true;
+		} else {
+			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+		}
+
+		return $is_enabled;
+	}
+
+	/**
 	 * Enables the WAF module on the site.
 	 */
 	public static function enable() {
@@ -202,15 +170,6 @@ class Waf_Runner {
 	 */
 	public static function disable() {
 		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
-	}
-
-	/**
-	 * Determines if the WAF has any type of rules enabled.
-	 *
-	 * @return bool
-	 */
-	private static function rules_enabled() {
-		return JETPACK_WAF_AUTOMATIC_RULES_ENABLED || JETPACK_WAF_IP_LISTS_ENABLED;
 	}
 
 	/**
@@ -511,7 +470,7 @@ class Waf_Runner {
 		$throw_api_exception = true;
 
 		// Add automatic rules
-		if ( JETPACK_WAF_AUTOMATIC_RULES_ENABLED ) {
+		if ( self::automatic_rules_enabled() ) {
 			try {
 				$rules = self::get_rules_from_api();
 			} catch ( \Exception $e ) {
@@ -592,7 +551,6 @@ class Waf_Runner {
 		global $wp_filesystem;
 
 		self::initialize_filesystem();
-		self::define_ip_lists_enabled();
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( self::RULES_FILE ) ) ) {
@@ -602,7 +560,8 @@ class Waf_Runner {
 		$allow_list = self::ip_option_to_array( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
 		$block_list = self::ip_option_to_array( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
 
-		if ( false === JETPACK_WAF_IP_LISTS_ENABLED ) {
+		$lists_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
+		if ( false === $lists_enabled ) {
 			// Making the lists empty effectively disabled the feature while still keeping the other WAF rules evaluation active.
 			$allow_list = array();
 			$block_list = array();
