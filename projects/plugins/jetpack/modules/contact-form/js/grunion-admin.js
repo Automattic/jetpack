@@ -179,8 +179,8 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
-	// export to Google Drive handler
-	$( document ).on( 'click', '#jetpack-export-feedback-to-gdrive', function ( event ) {
+	// Handle export to Google Drive
+	$( document ).on( 'click', '#jetpack-export-feedback-gdrive', function ( event ) {
 		event.preventDefault();
 		var nonceName = $( event.target ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
@@ -214,8 +214,8 @@ jQuery( function ( $ ) {
 		);
 	} );
 
-	// Handle export
-	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
+	// Handle export to CSV
+	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
 		e.preventDefault();
 
 		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
@@ -252,5 +252,12 @@ jQuery( function ( $ ) {
 				window.URL.revokeObjectURL( a.href );
 			}
 		);
+	} );
+
+	// modal opener
+	$( document ).on( 'click', '#export-modal-opener', function ( event ) {
+		const button = $( this );
+		event.preventDefault();
+		window.tb_show( button.html(), button.attr( 'href' ) );
 	} );
 } );

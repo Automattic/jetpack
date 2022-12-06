@@ -67,3 +67,18 @@
 .post-type-feedback #jetpack-check-feedback-spam {
 	margin-top: 0;
 }
+
+/* Modal styles */
+.feedback-export-modal__wrapper {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.feedback-export-modal__content {
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 32px;
+}

@@ -810,22 +810,6 @@ function grunion_ajax_spam() {
 	exit;
 }
 
-add_action( 'admin_enqueue_scripts', 'grunion_enable_export_button' );
-/**
- * Add the scripts that will add the "Export" button to the Feedbacks dashboard page.
- */
-function grunion_enable_export_button() {
-	$screen = get_current_screen();
-
-	// Only add to feedback, only to non-spam view
-	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
-		return;
-	}
-
-	// Add the export feedback button
-	add_action( 'admin_head', 'grunion_export_button' );
-}
-
 /**
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  */
@@ -1130,10 +1114,6 @@ function grunion_feedback_admin_notice() {
 }
 add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
 
-if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
-	add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
-	add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
-}
 
 /**
  * Class Grunion_Admin
@@ -1143,11 +1123,119 @@ if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
  */
 class Grunion_Admin {
 	/**
+	 * Define nonce field name
+	 * @var string The nonce field name.
+	 */
+	private $export_nonce_field = 'feedback_export_nonce';
+
+	/**
+	 * Instantiates this singleton class
+	 *
+	 * @return Grunion_Admin The Grunion Admin class instance.
+	 */
+	public static function init() {
+		static $instance = false;
+
+		if ( ! $instance ) {
+			$instance = new Grunion_Admin();
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Grunion_Admin constructor
+	 */
+	public function __construct() {
+		if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+			add_action( 'admin_footer-edit.php', array( $this, 'print_export_modal' ) );
+			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
+		}
+	}
+
+	/**
+	 * admin_enqueue_scripts hook
+	 */
+	public function admin_enqueue_scripts() {
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+		add_thickbox();
+	}
+
+	/**
+	 * Prints the modal markup with export buttons/content.
+	 *
+	 */
+	public function print_export_modal() {
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
+		// if there aren't any feedbacks, bail out
+		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+			return;
+		}
+
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+
+		$button_csv_html = get_submit_button(
+			__( 'Export CSV', 'jetpack' ),
+			'primary export-button export-csv',
+			'jetpack-export-feedback-csv',
+			false,
+			array(
+				'data-nonce-name' => $this->export_nonce_field,
+			)
+		);
+		$button_csv_html .= wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+		$button_csv_html = '<div>' . $button_csv_html . '</div>';
+
+		$button_gdrive_html = $this->get_gdrive_export_button();
+		?>
+		<div id="feedback-export-modal" style="display: none;">
+			<div class="feedback-export-modal__wrapper">
+				<div class="feedback-export-modal__header"></div>
+				<div class="feedback-export-modal__content">
+					<?php echo $button_csv_html; ?>
+					<?php echo $button_gdrive_html; ?>
+				</div>
+				<div class="feedback-export-modal__footer"></div>
+			</div>
+		</div>
+		<?php
+		$opener_label = esc_html( __( 'Export', 'jetpack' ) );
+		$export_modal_opener = "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=500&height=300&inlineId=feedback-export-modal'>{$opener_label}</a>";
+		?>
+		<script type="text/javascript">
+			jQuery( function( $ ) {
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener ); ?> );
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
-	public static function export_to_gdrive() {
+	public function export_to_gdrive() {
+		if ( empty( $_POST['feedback_export_nonce'] ) ) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+
+			return;
+		}
+
 		$grunion     = Grunion_Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
@@ -1184,40 +1272,12 @@ class Grunion_Admin {
 	}
 
 	/**
-	 * (maybe) Add the script that will add the "Export to Google Drive" button to the Feedbacks dashboard page.
+	 * Return HTML markup for the export to gdrive button.
+	 * If the user doesn't hold a Google Drive connection, it will return get_gdrive_connection_hint().
 	 */
-	public static function maybe_enable_gdrive_export_button() {
-		$screen = get_current_screen();
-
-		// Only add to feedback, only to non-spam view
-		if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
-			return;
-		}
-
+	public function get_gdrive_export_button() {
 		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
 		if ( ! $user_connected ) {
-			return;
-		}
-
-		// Add the export feedback button
-		add_action( 'admin_head', array( 'Grunion_Admin', 'print_export_gdrive_button' ) );
-	}
-
-	/**
-	 * Print "Export to Google Drive" button.
-	 */
-	public static function print_export_gdrive_button() {
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'export' ) ) {
-			return;
-		}
-
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
 			return;
 		}
 
@@ -1227,31 +1287,30 @@ class Grunion_Admin {
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
 		// hint user to connect at 'https://wordpress.com/marketing/connections'
 
-		$nonce_name = 'feedback_export_nonce';
-
 		$attributes = array(
-			'data-nonce-name' => $nonce_name,
+			'data-nonce-name' => $this->export_nonce_field,
 		);
 
 		if ( ! $has_valid_connection ) {
 			$attributes['disabled'] = 'disabled';
 		}
 
+
 		$button_html = get_submit_button(
 			__( 'Export to Google Drive', 'jetpack' ),
-			'primary',
-			'jetpack-export-feedback-to-gdrive',
+			'primary export-button export-gdrive',
+			'jetpack-export-feedback-gdrive',
 			false,
 			$attributes
 		);
 
-		$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
-		?>
-		<script type="text/javascript">
-			jQuery( function ( $ ) {
-				$( '#posts-filter #post-query-submit' ).parent().append( <?php echo wp_json_encode( $button_html ); ?> );
-			} );
-		</script>
-		<?php
+		$button_html .= wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+		return '<div>' . $button_html . '</div>';
+	}
+
+	public function get_gdrive_connection_hint() {
+		return '<div>Export to Google Drive: Need a valid Google Drive connection</div>';
 	}
 }
+
+Grunion_admin::init();
