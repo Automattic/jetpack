@@ -9,7 +9,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
-use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
+use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 
 class List_Site_Urls implements Endpoint {
 
@@ -24,7 +24,7 @@ class List_Site_Urls implements Endpoint {
 
 	public function permissions() {
 		return array(
-			new Current_User_Admin(),
+			new Signed_With_Blog_Token(),
 		);
 	}
 
