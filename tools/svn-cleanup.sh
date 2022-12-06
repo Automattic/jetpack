@@ -61,7 +61,7 @@ WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 # Check build dir.
 if [[ -z "$BUILD_DIR" ]]; then
 	TMPDIR="${TMPDIR:-/tmp}"
-	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/update-tag.XXXXXXXX")
+	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/svn-cleanup.XXXXXXXX")
 elif [[ ! -e "$BUILD_DIR" ]]; then
 	mkdir -p "$BUILD_DIR"
 else
