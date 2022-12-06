@@ -29,7 +29,7 @@
 		"@wordpress/i18n": "4.22.0",
 		"concurrently": "6.0.2",
 		"postcss": "8.4.18",
-		"prettier-plugin-svelte": "2.4.0",
+		"prettier-plugin-svelte": "2.8.1",
 		"react": "17.0.2",
 		"react-dom": "17.0.2",
 		"rollup": "2.56.3",
@@ -41,7 +41,7 @@
 		"rollup-plugin-svelte-svg": "0.2.3",
 		"rollup-plugin-terser": "7.0.2",
 		"sass": "1.43.3",
-		"svelte": "3.49.0",
+		"svelte": "3.53.1",
 		"svelte-preprocess": "4.9.2",
 		"tslib": "2.3.1",
 		"typescript": "4.8.2"

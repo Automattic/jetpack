@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Change `${var}` to the equivalent `{$var}` for PHP 8.1 compat.
+
+

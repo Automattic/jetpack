@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+html_entity_decode filter now decodes single-quotes too, and uses a Unicode Replacement Character instead of returning empty string on invalid characters.

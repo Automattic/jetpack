@@ -1389,7 +1389,7 @@ importers:
       jetpack-boost-critical-css-gen: github:automattic/jetpack-boost-critical-css-gen#release-0.0.4
       postcss: 8.4.18
       prettier: 2.6.2
-      prettier-plugin-svelte: 2.4.0
+      prettier-plugin-svelte: 2.8.1
       react: 17.0.2
       react-dom: 17.0.2
       rollup: 2.56.3
@@ -1401,7 +1401,7 @@ importers:
       rollup-plugin-svelte-svg: 0.2.3
       rollup-plugin-terser: 7.0.2
       sass: 1.43.3
-      svelte: 3.49.0
+      svelte: 3.53.1
       svelte-navigator: 3.1.5
       svelte-preprocess: 4.9.2
       tslib: 2.3.1
@@ -1413,7 +1413,7 @@ importers:
       history: 5.3.0
       jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/91e0ed5e0cf6296fd06f525d1fc016d5d46af86f
       prettier: 2.6.2
-      svelte-navigator: 3.1.5_k5n4uipe6734vn7334tf7n5ml4
+      svelte-navigator: 3.1.5_blprp4ovaphqvsbuhbk2xnyjlu
     devDependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@babel/core': 7.20.5
@@ -1429,7 +1429,7 @@ importers:
       '@wordpress/i18n': 4.22.0
       concurrently: 6.0.2
       postcss: 8.4.18
-      prettier-plugin-svelte: 2.4.0_3cyj5wbackxvw67rnaarcmbw7y
+      prettier-plugin-svelte: 2.8.1_dhgc3nm4qbaahazvwcpyr4wtfe
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       rollup: 2.56.3
@@ -1437,12 +1437,12 @@ importers:
       rollup-plugin-css-only: 3.1.0_rollup@2.56.3
       rollup-plugin-node-globals: 1.4.0
       rollup-plugin-postcss: 4.0.2_postcss@8.4.18
-      rollup-plugin-svelte: 7.1.0_ug4c3w2vt5ztpkxm7ls5xl7hyy
-      rollup-plugin-svelte-svg: 0.2.3_svelte@3.49.0
+      rollup-plugin-svelte: 7.1.0_jsy4sxto4sjiplknaeewlpxrh4
+      rollup-plugin-svelte-svg: 0.2.3_svelte@3.53.1
       rollup-plugin-terser: 7.0.2_rollup@2.56.3
       sass: 1.43.3
-      svelte: 3.49.0
-      svelte-preprocess: 4.9.2_fmemofmzhbqc2qziu2pshjhafy
+      svelte: 3.53.1
+      svelte-preprocess: 4.9.2_mkb7ccijiwv55rom7iouagnzni
       tslib: 2.3.1
       typescript: 4.8.2
 
@@ -1719,6 +1719,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
+      react-router-dom: 6.2.2
       sass: 1.43.3
       sass-loader: 12.4.0
       webpack: 5.72.1
@@ -1742,6 +1743,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.20.5
@@ -17380,16 +17382,6 @@ packages:
       fast-diff: 1.2.0
     dev: true
 
-  /prettier-plugin-svelte/2.4.0_3cyj5wbackxvw67rnaarcmbw7y:
-    resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
-    peerDependencies:
-      prettier: ^1.16.4 || ^2.0.0
-      svelte: ^3.2.0
-    dependencies:
-      prettier: 2.6.2
-      svelte: 3.49.0
-    dev: true
-
   /prettier-plugin-svelte/2.4.0_d5pgk2jhi5g6273v2bhcf7ct7a:
     resolution: {integrity: sha512-JwJ9bOz4XHLQtiLnX4mTSSDUdhu12WH8sTwy/XTDCSyPlah6IcV7NWeYBZscPEcceu2YnW8Y9sJCP40Z2UH9GA==}
     peerDependencies:
@@ -17398,6 +17390,16 @@ packages:
     dependencies:
       prettier: /wp-prettier/2.2.1-beta-1
       svelte: 3.49.0
+    dev: true
+
+  /prettier-plugin-svelte/2.8.1_dhgc3nm4qbaahazvwcpyr4wtfe:
+    resolution: {integrity: sha512-KA3K1J3/wKDnCxW7ZDRA/QL2Q67N7Xs3gOERqJ5X1qFjq1DdnN3K1R29scSKwh+kA8FF67pXbYytUpvN/i3iQw==}
+    peerDependencies:
+      prettier: ^1.16.4 || ^2.0.0
+      svelte: ^3.2.0
+    dependencies:
+      prettier: 2.6.2
+      svelte: 3.53.1
     dev: true
 
   /prettier/2.3.0:
@@ -18713,16 +18715,16 @@ packages:
       - ts-node
     dev: true
 
-  /rollup-plugin-svelte-svg/0.2.3_svelte@3.49.0:
+  /rollup-plugin-svelte-svg/0.2.3_svelte@3.53.1:
     resolution: {integrity: sha512-WH2KqihgVbcJT/PrjiJ/ipctrGueRdOLaaEuAIbXYqfsEzNb9krOVLyc5TL7to3cEKL6DiAa8IEe7IL1oqVolg==}
     peerDependencies:
       svelte: ^3.16.7
     dependencies:
       rollup-pluginutils: 1.5.2
-      svelte: 3.49.0
+      svelte: 3.53.1
     dev: true
 
-  /rollup-plugin-svelte/7.1.0_ug4c3w2vt5ztpkxm7ls5xl7hyy:
+  /rollup-plugin-svelte/7.1.0_jsy4sxto4sjiplknaeewlpxrh4:
     resolution: {integrity: sha512-vopCUq3G+25sKjwF5VilIbiY6KCuMNHP1PFvx2Vr3REBNMDllKHFZN2B9jwwC+MqNc3UPKkjXnceLPEjTjXGXg==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -18732,7 +18734,7 @@ packages:
       require-relative: 0.8.7
       rollup: 2.56.3
       rollup-pluginutils: 2.8.2
-      svelte: 3.49.0
+      svelte: 3.53.1
     dev: true
 
   /rollup-plugin-terser/7.0.2_rollup@2.56.3:
@@ -19844,18 +19846,18 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-navigator/3.1.5_k5n4uipe6734vn7334tf7n5ml4:
+  /svelte-navigator/3.1.5_blprp4ovaphqvsbuhbk2xnyjlu:
     resolution: {integrity: sha512-CGTaexasSLpUaTSN2AlYqii0JeisIgg7uZbm8XCLKlpM9Qv3IltlJ7Nvh90Xw9ND97KqtGOjNJ3LNwMN1ABV0w==}
     peerDependencies:
       svelte: 3.x
     dependencies:
-      svelte: 3.49.0
-      svelte2tsx: 0.1.193_k5n4uipe6734vn7334tf7n5ml4
+      svelte: 3.53.1
+      svelte2tsx: 0.1.193_blprp4ovaphqvsbuhbk2xnyjlu
     transitivePeerDependencies:
       - typescript
     dev: false
 
-  /svelte-preprocess/4.9.2_fmemofmzhbqc2qziu2pshjhafy:
+  /svelte-preprocess/4.9.2_mkb7ccijiwv55rom7iouagnzni:
     resolution: {integrity: sha512-Eu/09bEpcBD8a9pGxcILEAZssXifnWoi5ad5GgUAgoT4alblNikOIpKrWDFkepMqjgioXciWbIZOROoTX3ZLdA==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true
@@ -19905,15 +19907,20 @@ packages:
       sass: 1.43.3
       sorcery: 0.10.0
       strip-indent: 3.0.0
-      svelte: 3.49.0
+      svelte: 3.53.1
       typescript: 4.8.2
     dev: true
 
   /svelte/3.49.0:
     resolution: {integrity: sha512-+lmjic1pApJWDfPCpUUTc1m8azDqYCG1JN9YEngrx/hUyIcFJo6VZhj0A1Ai0wqoHcEIuQy+e9tk+4uDgdtsFA==}
     engines: {node: '>= 8'}
+    dev: true
 
-  /svelte2tsx/0.1.193_k5n4uipe6734vn7334tf7n5ml4:
+  /svelte/3.53.1:
+    resolution: {integrity: sha512-Q4/hHkktZogGhN5iqxqSi9sjEVoe/NbIxX4hXEHoasTxj+TxEQVAq66LnDMdAZxjmsodkoI5F3slqsS68U7FNw==}
+    engines: {node: '>= 8'}
+
+  /svelte2tsx/0.1.193_blprp4ovaphqvsbuhbk2xnyjlu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
     peerDependencies:
       svelte: ^3.24
@@ -19921,7 +19928,7 @@ packages:
     dependencies:
       dedent-js: 1.0.1
       pascal-case: 3.1.2
-      svelte: 3.49.0
+      svelte: 3.53.1
       typescript: 4.8.2
     dev: false
 

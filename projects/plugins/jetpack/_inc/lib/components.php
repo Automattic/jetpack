@@ -106,7 +106,7 @@ class Jetpack_Components {
 			? add_query_arg(
 				'redirect_to',
 				$redirect_to,
-				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
+				"https://wordpress.com/checkout/{$site_slug}/{$plan_path_slug}"
 			) : '';
 
 		return self::render_component(
