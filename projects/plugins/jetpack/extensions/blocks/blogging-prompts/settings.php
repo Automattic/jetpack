@@ -29,6 +29,12 @@ function enabled_field_callback() {
  * @return void
  */
 function init() {
+	// If editor extensions are not loaded, don't show the settings.
+	if ( ! \Jetpack_Gutenberg::should_load() ) {
+		return;
+	}
+
+	// Blogging prompts is an expermental extension: if expermental blocks are not enabled, don't show the settings.
 	if ( ! Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) && ! Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
 		return;
 	}
