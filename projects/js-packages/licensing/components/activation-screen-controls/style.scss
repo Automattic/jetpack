@@ -38,6 +38,7 @@
 
 	.jp-license-activation-screen-controls--license-field,
 	.jp-license-activation-screen-controls--license-field-with-error {
+		max-width: 500px;
 		.components-input-control__label.components-input-control__label.components-input-control__label {
 			font-weight: 600;
 			font-size: var(--font-body);
@@ -50,7 +51,6 @@
 			line-height: 24px;
 			margin: 0;
 			min-height: 48px;
-			max-width: 500px;
 		}
 	}
 
@@ -72,6 +72,7 @@
 		flex-direction: row;
 		align-items: start;
 		color: var(--jp-red);
+		max-width: 500px;
 
 		svg {
 			margin-right: 4px;
