@@ -91,7 +91,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.5.1-beta - 2022-11-28
+### 1.5.1 - 2022-12-06
 #### Changed
 - Updated package dependencies.
 
