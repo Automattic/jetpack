@@ -10,8 +10,7 @@
 namespace Automattic\Jetpack\Extensions\BloggingPrompts;
 
 use Automattic\Jetpack\Blocks;
-
-require_once __DIR__ . '/settings.php';
+use Automattic\Jetpack\Constants;
 
 const FEATURE_NAME = 'blogging-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -27,6 +26,35 @@ function register_extension() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && should_load_blogging_prompts() ) {
 		wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' );
 	}
+}
+
+/**
+ * Adds the blogging prompt settings to wp-admin, if appropriate.
+ *
+ * @return void
+ */
+function load_settings() {
+	// If editor extensions are not loaded, don't show the settings.
+	if ( ! \Jetpack_Gutenberg::should_load() ) {
+		return;
+	}
+
+	// Blogging prompts is an expermental extension: if expermental blocks are not enabled, don't show the settings.
+	if ( ! Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) && ! Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+		return;
+	}
+
+	/**
+	 * Filter to hide the blogging prompts settings.
+	 *
+	 * @since $$next-version$$
+	 * @param bool $is_hidden Should the blogging prompts be hidden. Defaults to false.
+	 */
+	if ( apply_filters( 'jetpack_blogging_prompts_hidden', false ) ) {
+		return;
+	}
+
+	require_once __DIR__ . '/settings.php';
 }
 
 /**
@@ -63,9 +91,11 @@ function inject_blogging_prompts() {
  * @return bool
  */
 function should_load_blogging_prompts() {
+	$show_placeholder_prompt = ! apply_filters( 'jetpack_blogging_prompts_hidden', false ) && jetpack_are_blogging_prompts_enabled();
 	 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
-	return jetpack_are_blogging_prompts_enabled() || ( isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) );
+	return $show_placeholder_prompt || ( isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
+add_action( 'init', __NAMESPACE__ . '\load_settings' );
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\inject_blogging_prompts' );

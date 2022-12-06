@@ -57,16 +57,7 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  * @return boolean
  */
 function jetpack_are_blogging_prompts_enabled() {
-	$prompts_enabled = (bool) get_option( 'jetpack_blogging_prompts_enabled', jetpack_has_write_intent() || jetpack_has_posts_page() );
-
-	/**
-	 * Filters whether blogging prompts are enabled.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @param bool $prompts_enabled Whether blogging prompts are enabled.
-	 */
-	return apply_filters( 'jetpack_are_blogging_prompts_enabled', $prompts_enabled );
+	return (bool) get_option( 'jetpack_blogging_prompts_enabled', jetpack_has_write_intent() || jetpack_has_posts_page() );
 }
 
 /**
