@@ -242,54 +242,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.6-beta - 2022-11-28
+### 11.7-a.1 - 2022-12-06
 #### Enhancements
-- Editor: adds an experimental editor extension that displays a placeholder blogging prompt when starting a new post.
-- Form Block: add a new form variation and template for a Salesforce Lead form.
-- Form Block: add block alignment control for the form wrapper: center, wide and full
-- Form block: add support links to form type selector.
-- Form Block: enable editing placeholders on form input fields.
-- Form Block: feedback export function is now integrated with the feedback table filters
-- Form Block: improve the styling and formatting of the form submission page after a form block is submitted.
-- Form Block: move the 'check for spam' buttont to below the responses table on the feedback page in WP Admin.
-- Form block: register Jetpack forms in the pattern inserter.
-- Form Block: remove connection button from the Form block toolbar
-- Form block: update contact-form icon
-- Form block: update Contact Form Sidebar to include Manage Responses section and split Form Settings section into more specific sections
-- Form block: update Contact Form Toolbar to include a form settings dropdown
-- Form Block: update design for Feedback table in WP Admin.
-- Form Block: updates Form block placeholder to include pattern selection modal
-- Form Block: updates Form block to allow layout blocks
-- Form Block: updates URL validitity check
-- Pre-Publish Panel: split out the email subscribers & social followers count in the pre-publish panel.
-- SEO: add a 'noindex' checkbox for posts and pages.
-- SEO: add a per post/page HTML title option.
-- Stats: add stats option `enable_calypso_stats` to allow users to enable the new Calypso Stats experience
-- Stats: conditionally load the new Calypso Stats package
-- Stats: update mentions of "Site Stats" to "Jetpack Stats"
-- VideoPress: adds VideoPress feedback link to the VideoPress block.
-- VideoPress: detect if the video has a vtt chapters file
-- WordAds: add US Privacy support for additional states (Colorado, Connecticut, Utah, and Virginia).
+- Form block: change form placeholder background color to prevent styling issues on colored backgrounds.
+- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
+- Subscription block: add a checkbox to include/exclude social followers.
+- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
 
 #### Improved compatibility
-- Form block: update Form child blocks to show the "Manage Responses" section on the Sidebar.
-- Improves compatibility with the Jetpack Protect standalone plugin.
-- Sitemaps: improve compatibility with recent Google Image Sitemap changes.
-- VideoPress (beta): introduce Video Chapters beta block.
+- Site Editor: dashboard link points to wordpress.com.
 
 #### Bug fixes
-- Customizer: make sure the menu item is shown for block themes.
-- Dashboard: fixes issue where default icon would be empty
-- Dashboard: prevent scrolling to the active settings menu item on page load.
-- Image Editor: fix issue where users are not able to edit/crop and restore images.
-- Related Posts Block: when 3 posts are output, increase the width closer to 100%.
-- Shortcodes: fix content_width handling for various shortcodes.
-- SSO: fix setting toggle inconsistency.
-- SSO: properly disable "match by email" by default.
-- Stats: stop stats loading indefinitely when a hashtag exists
-- VideoPress: fix issue with uploading VideoPress videos in the Full Site Editor.
-- Widget Visibility: fix error with WooCommerce Product Categories block
-- WordPress.com REST API: Fix fatal error in site ID endpoint.
+- Form block: add line breaks back to plain text email submissions.
+- Form block: fix patterns modal scrollbar behavior.
+- Form block: fix contact form view responses URL.
+- Form block: update form patterns modal filter query.
+- WAF: fix WPA click tracking in Agencies card.
+- WAF: fix Jetpack Settings WAF module plan check.
 
 --------
 

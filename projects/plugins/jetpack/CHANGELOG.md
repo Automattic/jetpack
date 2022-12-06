@@ -4,34 +4,31 @@
 
 ## 11.7-a.1 - 2022-12-06
 ### Enhancements
-- Add a checkbox to include/exclude social followers from subscription block. [#27443]
-- Fix Form placeholder background color [#27629]
-- Move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings. [#27613]
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post [#27746]
+- Form block: change form placeholder background color to prevent styling issues on colored backgrounds. [#27629]
+- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings. [#27613]
+- Subscription block: add a checkbox to include/exclude social followers. [#27443]
+- Writing prompts: add a writing setting to disable showing prompts when starting a new post. [#27746]
 
 ### Improved compatibility
-- Site Editor dashboard link points to wp.com [#27601]
+- Site Editor: dashboard link points to wordpress.com. [#27601]
 
 ### Bug fixes
-- Fix Contact Form patterns modal scrollbar behavior [#27692]
-- Fix Contact Form view responses URL [#27707]
-- Fix Jetpack Settings WAF module plan check [#27600]
-- Form block: Add line breaks back to plain text email submissions. [#27723]
-- Provide a fix for WPA click tracking in Agencies card [#27503]
-- Update Form patterns modal filter query [#27703]
+- Form block: add line breaks back to plain text email submissions. [#27723]
+- Form block: fix patterns modal scrollbar behavior. [#27692]
+- Form block: fix contact form view responses URL. [#27707]
+- Form block: update form patterns modal filter query. [#27703]
+- WAF: fix WPA click tracking in Agencies card. [#27503]
+- WAF: fix Jetpack Settings WAF module plan check. [#27600]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Decode single-quote HTML entities in various places, and use a Unicode Replacement Character rather than empty string for invalid characters. [#27753]
-- Fix syntax in wordards-ccpa.js causing it to be included in all merge commits [#27667]
-- Init 11.7-a.0 [#27639]
-- Remove references to obsolete $include_publicized_followers [#27749]
-- Search: Changed Search menu in Calypso menu link to Search Dashboard in WP Admin [#27664]
+- PHPCS: decode single-quote HTML entities in various places, and use a Unicode Replacement Character rather than empty string for invalid characters. [#27753]
+- Remove references to obsolete $include_publicized_followers. [#27749]
+- Search: change Search menu in Calypso menu link to Search Dashboard in WP Admin. [#27664]
 - SEO: exclude posts with meta jetpack_seo_noindex set true from Jetpack news sitemap. [#27742]
-- Stats: initialize the Stats Admin package [#27604]
-- Tweaks to previous PR that already has changelog entry [#27557]
-- Updated package dependencies. [#27340, #27688, #27696, , #27698]
-- Updated waf package version in composer.lock [#27528]
-- Updating testing instructions [#27642]
+- Stats: initialize the Stats Admin package. [#27604]
+- Updated package dependencies. [#27340, #27688, #27696, #27698]
+- WAF: update WAF package version in composer.lock [#27528]
+- WordAds: fix syntax in wordards-ccpa.js causing it to be included in all merge commits. [#27667]
 
 ## 11.6-beta - 2022-11-28
 ### Enhancements
