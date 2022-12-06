@@ -264,6 +264,8 @@ class REST_Controller {
 	/**
 	 * This is only provides a capatible way for the front end to get the most recent post. It doesn't deal with any passed in params.
 	 *
+	 * @see https://developer.wordpress.com/docs/api/1/get/sites/%24site/posts/
+	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
@@ -276,16 +278,21 @@ class REST_Controller {
 			'post_status'    => array( 'publish' ),
 			'fields'         => 'ids',
 		);
-		$posts  = new WP_Query( $args );
+		$result = new WP_Query( $args );
+
+		if ( ! $result->have_posts() ) {
+			return array( 'posts' => array() );
+		}
+
 		$return = array();
-		foreach ( $posts->posts as $post_id ) {
+		foreach ( $result->posts as $post_id ) {
 			$post = get_post( $post_id );
-			if ( ! is_wp_error( $post ) ) {
-				$is_jetpack_likes_enabled = $this->is_jetpack_likes_enabled_for_post( (array) $post );
+			if ( ! is_wp_error( $post ) && ! empty( $post ) ) {
+				$is_jetpack_likes_enabled = $this->is_jetpack_likes_enabled_for_post( $post_id );
 				$return[]                 = array(
 					'ID'            => $post->ID,
 					'title'         => $post->post_title,
-					'post_type'     => $post->post_type,
+					'type'          => $post->post_type,
 					'URL'           => get_permalink( $post->ID ),
 					'discussion'    => array(
 						'comment_count' => $post->comment_count,
@@ -334,10 +341,10 @@ class REST_Controller {
 	/**
 	 * Whether like is enabled for a post.
 	 *
-	 * @param array $post The post array.
+	 * @param int $post_id The post ID.
 	 */
-	protected function is_jetpack_likes_enabled_for_post( $post ) {
-		return function_exists( 'jetpack_post_likes_get_value' ) && jetpack_post_likes_get_value( (array) $post );
+	protected function is_jetpack_likes_enabled_for_post( $post_id ) {
+		return function_exists( 'jetpack_post_likes_get_value' ) && jetpack_post_likes_get_value( array( 'id' => $post_id ) );
 	}
 
 	/**
