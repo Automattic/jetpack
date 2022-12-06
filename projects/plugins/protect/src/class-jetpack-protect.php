@@ -633,16 +633,16 @@ class Jetpack_Protect {
 	/**
 	 * Get WAF Upgrade Badge Timestamp
 	 *
-	 * @return int The timestamp when the upgrade seen status was set to true.
+	 * @return integer The timestamp for the when the upgrade seen status was first set to true.
 	 */
 	public static function get_waf_upgrade_badge_timestamp() {
-		return get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp', true );
+		return (int) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp', true );
 	}
 
 	/**
 	 * Set WAF Upgrade Badge Timestamp
 	 *
-	 * @return bool True if upgrade if upgrade badge timestamp to set to the current time, false on failure.
+	 * @return bool True if upgrade badge timestamp to set to the current time, false on failure.
 	 */
 	public static function set_waf_upgrade_badge_timestamp() {
 		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp', time() );
@@ -671,11 +671,9 @@ class Jetpack_Protect {
 	/**
 	 * Get WAF Upgrade "Seen" Status
 	 *
-	 * @return bool Whether the current upgraded user has enabled the automatic rules feature.
+	 * @return bool Whether the current user has dismissed the upgrade popover or enabled the automatic rules feature.
 	 */
 	public static function get_waf_upgrade_seen_status() {
-		// delete_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen' );
-		// delete_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp' );
 		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen', true );
 	}
 
