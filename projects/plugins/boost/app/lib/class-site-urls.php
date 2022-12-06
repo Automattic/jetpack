@@ -52,13 +52,25 @@ class Site_Urls {
 	private function get_post_urls( $limit ) {
 		global $wpdb;
 
-		// @todo - exclude post types that aren't publicly queryable
+		$public_post_types       = $this->get_public_post_types();
+		$post_types_placeholders = implode(
+			',',
+			array_fill(
+				0,
+				count( $public_post_types ),
+				'%s'
+			)
+		);
+
+		$prepare_values   = $public_post_types;
+		$prepare_values[] = $limit;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT ID, post_modified FROM {$wpdb->posts} WHERE post_status = 'publish' ORDER BY post_modified DESC LIMIT 0, %d",
-				$limit
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				"SELECT ID, post_modified FROM {$wpdb->posts} WHERE post_status = 'publish' AND post_type IN ({$post_types_placeholders}) ORDER BY post_modified DESC LIMIT 0, %d",
+				$prepare_values
 			)
 		);
 
@@ -102,6 +114,22 @@ class Site_Urls {
 			0,
 			count( $clean ) - $cutoff,
 			true
+		);
+	}
+
+	private function get_public_post_types() {
+		$post_types = get_post_types(
+			array(
+				'public' => true,
+			)
+		);
+		unset( $post_types['attachment'] );
+
+		return array_values(
+			array_filter(
+				$post_types,
+				'is_post_type_viewable'
+			)
 		);
 	}
 }
