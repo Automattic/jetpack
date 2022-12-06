@@ -53,6 +53,7 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 
 // Deprecated fonts that were available before, and we don't show to customers anymore.
 // They should keep functioning for existing sites and be available for enqueueing when used.
+// See p9Jlb4-5Dj-p2#comment-6411
 const JETPACK_GOOGLE_FONTS_DEPRECATED = array(
 	'Domine',
 	'Montserrat',
@@ -87,7 +88,7 @@ function jetpack_add_google_fonts_provider() {
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', $fonts );
 
 	foreach ( $fonts_to_register as $font_family ) {
-		$font_family_label = in_array( $font_family, JETPACK_GOOGLE_FONTS_DEPRECATED ) ? $font_family : $font_family . ' (deprecated)';
+		$font_family_label = in_array( $font_family, JETPACK_GOOGLE_FONTS_DEPRECATED ) ? $font_family . ' (deprecated)' : $font_family;
 
 		wp_register_webfonts(
 			array(
