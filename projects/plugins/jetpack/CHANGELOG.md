@@ -30,7 +30,6 @@
 - WAF: update WAF package version in composer.lock [#27528]
 - WordAds: fix syntax in wordards-ccpa.js causing it to be included in all merge commits. [#27667]
 
-## 11.6-beta - 2022-11-28
 ## 11.6 - 2022-12-06
 ### Enhancements
 - Editor: adds an experimental editor extension that displays a placeholder blogging prompt when starting a new post. [#26680]
@@ -7359,6 +7358,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
