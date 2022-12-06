@@ -55,9 +55,9 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
-const detachedLicensesSelectors = {
-	getDetachedLicenses: state => state.detachedLicenses?.items || [],
-	isFetchingDetachedLicenses: state => state.detachedLicenses?.isFetching || false,
+const availableLicensesSelectors = {
+	getAvailableLicenses: state => state.availableLicenses?.items || [],
+	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
 };
 
 const pluginSelectors = {
@@ -82,7 +82,7 @@ const noticeSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
-	...detachedLicensesSelectors,
+	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
 };

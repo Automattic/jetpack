@@ -2,8 +2,8 @@ import { combineReducers } from '@wordpress/data';
 import {
 	SET_PURCHASES,
 	SET_PURCHASES_IS_FETCHING,
-	SET_DETACHED_LICENSES,
-	SET_DETACHED_LICENSES_IS_FETCHING,
+	SET_AVAILABLE_LICENSES,
+	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	SET_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_IS_FETCHING_PRODUCT,
@@ -90,18 +90,18 @@ const purchases = ( state = {}, action ) => {
 	}
 };
 
-const detachedLicenses = ( state = {}, action ) => {
+const availableLicenses = ( state = {}, action ) => {
 	switch ( action.type ) {
-		case SET_DETACHED_LICENSES_IS_FETCHING:
+		case SET_AVAILABLE_LICENSES_IS_FETCHING:
 			return {
 				...state,
 				isFetching: action.isFetching,
 			};
 
-		case SET_DETACHED_LICENSES:
+		case SET_AVAILABLE_LICENSES:
 			return {
 				...state,
-				items: action?.detachedLicenses || [],
+				items: action?.availableLicenses || [],
 			};
 
 		default:
@@ -141,7 +141,7 @@ const plugins = ( state = {} ) => {
 const reducers = combineReducers( {
 	products,
 	purchases,
-	detachedLicenses,
+	availableLicenses,
 	notices,
 	plugins,
 } );

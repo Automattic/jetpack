@@ -53,9 +53,9 @@ const parseAttachLicensesResult = result => {
  */
 const ActivationScreen = props => {
 	const {
+		availableLicenses = [],
 		currentRecommendationsStep,
-		detachedLicenses = [],
-		fetchingDetachedLicenses = false,
+		fetchingAvailableLicenses = false,
 		onActivationSuccess = () => null,
 		siteAdminUrl,
 		siteRawUrl,
@@ -74,10 +74,10 @@ const ActivationScreen = props => {
 	}, [] );
 
 	useEffect( () => {
-		if ( detachedLicenses && detachedLicenses[ 0 ] ) {
-			setLicense( detachedLicenses[ 0 ].license_key );
+		if ( availableLicenses && availableLicenses[ 0 ] ) {
+			setLicense( availableLicenses[ 0 ].license_key );
 		}
-	}, [ detachedLicenses ] );
+	}, [ availableLicenses ] );
 
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
@@ -126,9 +126,9 @@ const ActivationScreen = props => {
 	const renderActivationControl = () => (
 		<div className="jp-license-activation-screen">
 			<ActivationScreenControls
+				availableLicenses={ availableLicenses }
 				activateLicense={ activateLicense }
-				detachedLicenses={ detachedLicenses }
-				fetchingDetachedLicenses={ fetchingDetachedLicenses }
+				fetchingAvailableLicenses={ fetchingAvailableLicenses }
 				isActivating={ isSaving }
 				license={ license }
 				licenseError={ licenseError }
@@ -143,9 +143,9 @@ const ActivationScreen = props => {
 };
 
 ActivationScreen.propTypes = {
+	availableLicenses: PropTypes.array,
 	currentRecommendationsStep: PropTypes.string,
-	detachedLicenses: PropTypes.array,
-	fetchingDetachedLicenses: PropTypes.bool,
+	fetchingAvailableLicenses: PropTypes.bool,
 	onActivationSuccess: PropTypes.func,
 	siteAdminUrl: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,

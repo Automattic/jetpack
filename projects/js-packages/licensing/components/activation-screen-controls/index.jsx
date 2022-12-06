@@ -38,16 +38,16 @@ const ManualLicenseKeyInput = props => {
  *
  * @param {object} props -- The properties.
  * @param {Function} props.className -- class name of the input control.
- * @param {Array} props.detachedLicenses -- list of detached license keys for activation.
+ * @param {Array} props.availableLicenses -- list of available license keys for activation.
  * @param {boolean} props.disabled -- determines if input control is disabled.
  * @param {string} props.value -- the license code to edit or submit
  * @param {Function} props.onChange -- function to handle changes to the value.
  * @returns {React.Component} The `SelectableLicenseKeyInput` component.
  */
 const SelectableLicenseKeyInput = props => {
-	const { className, detachedLicenses, disabled, onChange, value } = props;
+	const { className, availableLicenses, disabled, onChange, value } = props;
 	const [ selectedOption, setSelectedOption ] = useState( '' );
-	const isFetching = detachedLicenses === null;
+	const isFetching = availableLicenses === null;
 
 	const options = useMemo( () => {
 		if ( isFetching ) {
@@ -60,7 +60,7 @@ const SelectableLicenseKeyInput = props => {
 		}
 
 		return [
-			...detachedLicenses.map( ( { product, license_key } ) => {
+			...availableLicenses.map( ( { product, license_key } ) => {
 				return {
 					label: sprintf(
 						/* translators: placeholder is the product name and license key */
@@ -76,7 +76,7 @@ const SelectableLicenseKeyInput = props => {
 				value: '',
 			},
 		];
-	}, [ detachedLicenses, isFetching ] );
+	}, [ availableLicenses, isFetching ] );
 
 	useEffect( () => {
 		if ( options?.length ) {
@@ -123,8 +123,8 @@ const SelectableLicenseKeyInput = props => {
  *
  * @param {object} props -- The properties.
  * @param {Function} props.activateLicense -- function to handle submitting a license
- * @param {Array} props.detachedLicenses -- list of detached license keys for activation.
- * @param {boolean} props.fetchingDetachedLicenses -- status to determine if the screen is fetching detached license keys.
+ * @param {Array} props.availableLicenses -- list of available license keys for activation.
+ * @param {boolean} props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
  * @param {boolean} props.isActivating -- should the controls be disabled
  * @param {string} props.license -- the license code to edit or submit
  * @param {?string} props.licenseError -- any error that occurred while activating a license
@@ -135,8 +135,8 @@ const SelectableLicenseKeyInput = props => {
 const ActivationScreenControls = props => {
 	const {
 		activateLicense,
-		detachedLicenses,
-		fetchingDetachedLicenses,
+		availableLicenses,
+		fetchingAvailableLicenses,
 		isActivating,
 		license,
 		licenseError,
@@ -152,7 +152,7 @@ const ActivationScreenControls = props => {
 		? 'jp-license-activation-screen-controls--license-field-with-error'
 		: 'jp-license-activation-screen-controls--license-field';
 
-	const hasAvailableLicenseKey = detachedLicenses && detachedLicenses.length;
+	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
 		<div className="jp-license-activation-screen-controls">
@@ -170,12 +170,12 @@ const ActivationScreenControls = props => {
 						}
 					) }
 				</p>
-				{ fetchingDetachedLicenses || hasAvailableLicenseKey ? (
+				{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
 					<SelectableLicenseKeyInput
 						className={ className }
-						disabled={ fetchingDetachedLicenses || isActivating }
+						disabled={ fetchingAvailableLicenses || isActivating }
 						onChange={ onLicenseChange }
-						detachedLicenses={ fetchingDetachedLicenses ? null : detachedLicenses }
+						availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
 						value={ license }
 					/>
 				) : (
@@ -208,8 +208,8 @@ const ActivationScreenControls = props => {
 
 ActivationScreenControls.propTypes = {
 	activateLicense: PropTypes.func.isRequired,
-	detachedLicenses: PropTypes.array,
-	fetchingDetachedLicenses: PropTypes.bool,
+	availableLicenses: PropTypes.array,
+	fetchingAvailableLicenses: PropTypes.bool,
 	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
 	licenseError: PropTypes.string,

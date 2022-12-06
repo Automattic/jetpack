@@ -59,8 +59,8 @@ const myJetpackResolvers = {
 		}
 	},
 
-	getDetachedLicenses: () => async ( { dispatch } ) => {
-		dispatch.setDetachedLicensesIsFetching( true );
+	getAvailableLicenses: () => async ( { dispatch } ) => {
+		dispatch.setAvailableLicensesIsFetching( true );
 
 		try {
 			const { apiRoot, apiNonce } = window?.myJetpackRest || {};
@@ -69,16 +69,16 @@ const myJetpackResolvers = {
 			const result = await restApi.getUserLicenses();
 
 			if ( result && result.items ) {
-				dispatch.setDetachedLicenses(
+				dispatch.setAvailableLicenses(
 					result.items.filter( ( { attached_at } ) => attached_at === null )
 				);
 			} else {
-				dispatch.setDetachedLicenses( [] );
+				dispatch.setAvailableLicenses( [] );
 			}
 		} catch ( error ) {
-			dispatch.setDetachedLicenses( [] );
+			dispatch.setAvailableLicenses( [] );
 		} finally {
-			dispatch.setDetachedLicensesIsFetching( false );
+			dispatch.setAvailableLicensesIsFetching( false );
 		}
 	},
 };

@@ -6,7 +6,7 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with fresh props', () => {
 		const testProps = {
 			activateLicense: () => null,
-			detachedLicenses: [],
+			availableLicenses: [],
 			disabled: false,
 			isActivating: false,
 			license: 'test',
@@ -23,7 +23,7 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with license error', () => {
 		const testProps = {
 			activateLicense: () => null,
-			detachedLicenses: [],
+			availableLicenses: [],
 			disabled: true,
 			isActivating: false,
 			license: 'test',
@@ -55,7 +55,7 @@ describe( 'ActivationScreenControls', () => {
 	describe( 'Render the ActivationScreenControls with the license key selector', () => {
 		const testProps = {
 			activateLicense: () => null,
-			detachedLicenses: [ { product: 'jetpack-complete', license_key: 'key' } ],
+			availableLicenses: [ { product: 'jetpack-complete', license_key: 'key' } ],
 			disabled: true,
 			isActivating: false,
 			license: 'test',
