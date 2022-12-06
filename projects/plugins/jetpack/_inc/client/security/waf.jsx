@@ -96,9 +96,10 @@ export const Waf = class extends Component {
 		const automaticRulesSettings = (
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.state.jetpack_waf_automatic_rules }
+					checked={ this.props.hasScan ? this.state.jetpack_waf_automatic_rules : false }
 					disabled={
 						! isWafActive ||
+						! this.props.hasScan ||
 						unavailableInOfflineMode ||
 						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_automatic_rules' ] )
 					}
@@ -106,7 +107,7 @@ export const Waf = class extends Component {
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __(
-							'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.',
+							'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
 							'jetpack'
 						) }
 					</span>
@@ -258,14 +259,14 @@ export const Waf = class extends Component {
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={
 					<>
-						{ __( 'Your site is not receiving the latest updates to Firewall rules', 'jetpack' ) }
+						{ __( 'Upgrade to enable automatic rules', 'jetpack' ) }
 						<InfoPopover
 							position="right"
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
 							className="waf__settings__upgrade-popover"
 						>
 							{ __(
-								'Upgrade your protection to keep your site secure from the latest malicious requests with up-to-date firewall rules.',
+								'The free version of the firewall only allows for use of manual rules.',
 								'jetpack'
 							) }
 						</InfoPopover>
