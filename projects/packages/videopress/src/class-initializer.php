@@ -123,6 +123,7 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Settings::init();
 		XMLRPC::init();
 		Block_Editor_Extensions::init();
+		Block_Editor_Content::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();

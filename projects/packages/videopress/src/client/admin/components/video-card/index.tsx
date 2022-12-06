@@ -18,6 +18,7 @@ import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
+import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
@@ -86,6 +87,7 @@ export const VideoCard = ( {
 				numberFormat( plays )
 		  )
 		: '';
+	const [ anchor, setAnchor ] = useState( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const disabled = loading || uploading;
@@ -110,6 +112,7 @@ export const VideoCard = ( {
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
 					uploadProgress={ uploadProgress }
+					ref={ setAnchor }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -146,6 +149,8 @@ export const VideoCard = ( {
 						</>
 					) }
 				</div>
+
+				<PublishFirstVideoPopover id={ id } anchor={ anchor } />
 
 				{ showQuickActions && ! isSm && (
 					<QuickActions
