@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.4] - 2022-12-06
+### Changed
+- Updated package dependencies. [#27340]
+
+### Fixed
+- VideoPress: Use the filter state to check/uncheck the checkboxes associated to each filter value. [#27744]
+
 ## [0.8.3] - 2022-12-02
 ### Added
 - VideoPress: add debug() tool. Improve in-sync process [#27669]
@@ -516,6 +523,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.8.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.0...v0.8.1

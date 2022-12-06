@@ -1,0 +1,50 @@
+{
+	"name": "automattic/jetpack-mu-wpcom",
+	"description": "Enhances your site with features powered by WordPress.com",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-mu-wpcom",
+		"release-branch-prefix": "jetpack",
+		"beta-plugin-slug": "jetpack-mu-wpcom",
+		"autorelease": true,
+		"autotagger": true,
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
+		}
+	}
+}

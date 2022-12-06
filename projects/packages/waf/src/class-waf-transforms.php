@@ -118,7 +118,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function html_entity_decode( $value ) {
-		return html_entity_decode( $value );
+		return html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**

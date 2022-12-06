@@ -1,0 +1,24 @@
+// Alert section
+.main-content {
+	padding: calc( var( --spacing-base ) * 7 ) 0; // 56px | 0px
+}
+
+.loading-content {
+	display: flex;
+	align-items: center;
+}
+
+.illustration {
+	display: flex;
+	align-items: center;
+	height: 100%;
+	img {
+		// let's fit images
+		object-fit: cover;
+		width: 100%;
+	}
+}
+
+.connection-error-col {
+	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+}
