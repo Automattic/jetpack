@@ -105,7 +105,6 @@ if [[ -z "$SVN_PREV_TAGS" ]]; then
 fi
 yellow "Tags that will be deleted:"
 red "${SVN_PREV_TAGS}"
-
 proceed_p "" "Continue?"
 echo ""
 
@@ -123,7 +122,7 @@ success "Done!"
 
 info "Deleting tags..."
 svn -q rm ${SVN_PREV_TAGS}
-success "Done!"
 svn ci -m "Deleting $SVN_PREVIOUS alphas and betas"
+success "Done!"
 
 exit
