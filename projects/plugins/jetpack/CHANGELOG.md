@@ -2,15 +2,16 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.6-beta - 2022-11-28
+## 11.6 - 2022-12-06
 ### Enhancements
 - Editor: adds an experimental editor extension that displays a placeholder blogging prompt when starting a new post. [#26680]
-- Form Block: update design for Feedback table in WP Admin. [#27368]
+- Form Block: fix form placeholder background color. [#27629]
 - Form Block: add a new form variation and template for a Salesforce Lead form. [#26903]
 - Form Block: enable editing placeholders on form input fields. [#27514]
 - Form Block: feedback export function is now integrated with the feedback table filters [#27427]
-- Form Block: move the 'check for spam' buttont to below the responses table on the feedback page in WP Admin. [#27562]
 - Form Block: improve the styling and formatting of the form submission page after a form block is submitted. [#27392]
+- Form Block: move the 'check for spam' buttont to below the responses table on the feedback page in WP Admin. [#27562]
+- Form Block: update design for Feedback table in WP Admin. [#27368]
 - Form Block: updates Form block placeholder to include pattern selection modal [#27337]
 - Form Block: updates Form block to allow layout blocks [#27410]
 - Form Block: updates URL validitity check [#27138]
@@ -19,8 +20,8 @@
 - SEO: add a per post/page HTML title option. [#27236]
 - Stats: add stats option `enable_calypso_stats` to allow users to enable the new Calypso Stats experience [#27431]
 - Stats: conditionally load the new Calypso Stats package [#27247]
-- VideoPress: detect if the video has a vtt chapters file [#27544]
 - VideoPress: adds VideoPress feedback link to the VideoPress block. [#27450]
+- VideoPress: detect if the video has a vtt chapters file [#27544]
 - WordAds: add US Privacy support for additional states (Colorado, Connecticut, Utah, and Virginia). [#27045]
 
 ### Improved compatibility
@@ -28,6 +29,10 @@
 
 ### Bug fixes
 - Dashboard: fixes issue where default icon would be empty [#27511]
+- Form block: fix form patterns modal scrollbar behavior [#27692]
+- Form block: fix contact Form view responses URL [#27707]
+- Form block: add line breaks back to plain text email submissions. [#27723]
+- Provide a fix for WPA click tracking in Agencies card [#27503]
 - SSO: fix setting toggle inconsistency. [#27481]
 - Stats: stop stats loading indefinitely when a hashtag exists [#27539]
 - Widget Visibility: fix error with WooCommerce Product Categories block [#27542]
@@ -39,11 +44,14 @@
 - Init 11.6-a.6 [#27403]
 - Remove CSS from main plugin file [#27594]
 - Removes old save() implementation for the subscription block. Doesn't impact user experience as the block is already dynamic. [#27519]
+- SEO: exclude posts with meta jetpack_seo_noindex set true from Jetpack news sitemap. [#27742]
 - Stats: take off new Stats backend for security concerns [#27589]
 - Sync: Add unit tests [#27606]
 - Tests: Clean up wpcom-compat functions no longer needed post-de-Fusioning. [#27407]
 - Updated package dependencies. [#26069]
 - Update how wpcom_gifting_subscription is saved so an option value of false can be created [#27507]
+- Update Form patterns modal filter query [#27703]
+- Updating testing instructions [#27642]
 
 ## 11.6-a.5 - 2022-11-14
 ### Enhancements

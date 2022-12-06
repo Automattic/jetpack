@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.6-beta - 2022-11-28
+### 11.6 - 2022-12-06
 #### Enhancements
 - Editor: adds an experimental editor extension that displays a placeholder blogging prompt when starting a new post.
 - Form Block: add a new form variation and template for a Salesforce Lead form.
@@ -250,6 +250,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Form block: add support links to form type selector.
 - Form Block: enable editing placeholders on form input fields.
 - Form Block: feedback export function is now integrated with the feedback table filters
+- Form Block: fix form placeholder background color.
 - Form Block: improve the styling and formatting of the form submission page after a form block is submitted.
 - Form Block: move the 'check for spam' buttont to below the responses table on the feedback page in WP Admin.
 - Form block: register Jetpack forms in the pattern inserter.
@@ -281,7 +282,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Customizer: make sure the menu item is shown for block themes.
 - Dashboard: fixes issue where default icon would be empty
 - Dashboard: prevent scrolling to the active settings menu item on page load.
+- Form block: add line breaks back to plain text email submissions.
+- Form block: fix contact Form view responses URL
+- Form block: fix form patterns modal scrollbar behavior
 - Image Editor: fix issue where users are not able to edit/crop and restore images.
+- Provide a fix for WPA click tracking in Agencies card
 - Related Posts Block: when 3 posts are output, increase the width closer to 100%.
 - Shortcodes: fix content_width handling for various shortcodes.
 - SSO: fix setting toggle inconsistency.
