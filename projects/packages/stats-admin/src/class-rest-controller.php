@@ -298,7 +298,7 @@ class REST_Controller {
 						'comment_count' => $post->comment_count,
 						'comments_open' => $post->comment_status,
 					),
-					'like_count'    => $is_jetpack_likes_enabled ? 0 : $this->get_single_post_like_count_by_post_id( $post_id ),
+					'like_count'    => ! $is_jetpack_likes_enabled ? 0 : $this->get_single_post_like_count_by_post_id( $post_id ),
 					'likes_enabled' => $is_jetpack_likes_enabled,
 				);
 			}
@@ -358,6 +358,7 @@ class REST_Controller {
 		if ( is_wp_error( $likes_response ) ) {
 			return 0;
 		}
+
 		return isset( $likes_response['found'] ) ? $likes_response['found'] : 0;
 	}
 
