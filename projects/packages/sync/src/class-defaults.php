@@ -103,7 +103,6 @@ class Defaults {
 		'jetpack_blogging_prompts_enabled',
 		'large_size_h',
 		'large_size_w',
-		'launch-status',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
