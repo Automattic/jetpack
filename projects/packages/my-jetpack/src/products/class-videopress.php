@@ -99,7 +99,7 @@ class Videopress extends Hybrid_Product {
 		return array(
 			_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
+			_x( 'Ad-free and customizable player', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack-my-jetpack' ),
 		);
 	}

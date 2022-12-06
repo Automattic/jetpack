@@ -54,10 +54,10 @@ class Jetpack_Redux_State_Helper {
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
 		foreach ( $modules as $slug => $data ) {
-			$modules[ $slug ]['name']              = html_entity_decode( $data['name'] );
-			$modules[ $slug ]['description']       = html_entity_decode( $data['description'] );
-			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
-			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
+			$modules[ $slug ]['name']              = html_entity_decode( $data['name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['description']       = html_entity_decode( $data['description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		// "mock" a block module in order to get it searchable in the settings.

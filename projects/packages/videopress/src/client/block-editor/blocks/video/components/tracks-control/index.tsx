@@ -7,6 +7,7 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { upload } from '@wordpress/icons';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,7 @@ import './style.scss';
 import TrackForm from './track-form';
 import { TrackItemProps, TrackListProps } from './types';
 import type React from 'react';
+const debug = debugFactory( 'videopress:video:tracks-control' );
 
 /**
  * Track Item component.
@@ -118,20 +120,45 @@ export default function TracksControl( {
 
 	const videoPressUrl = getVideoPressUrl( guid, attributes );
 
-	const uploadNewTrackFile = useCallback( newUploadedTrack => {
-		uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
-			const newTrack = {
-				...newUploadedTrack,
-				src,
-			};
-			delete newTrack.tmpFile;
+	const uploadNewTrackFile = useCallback(
+		newUploadedTrack => {
+			uploadTrackForGuid( newUploadedTrack, guid ).then( src => {
+				/*
+				 * Rearrange the new track item,
+				 * removing the file field
+				 * and adding the src provided by the request-response body
+				 */
+				const newTrack = {
+					...newUploadedTrack,
+					src,
+				};
+				delete newTrack.tmpFile;
 
-			setAttributes( { tracks: [ ...tracks, newTrack ] } );
-			setIsUploadingNewTrack( false );
-			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-		} );
-		setIsUploadingNewTrack( true );
-	}, [] );
+				/*
+				 * Check if the new track is already in the list.
+				 * Add it if it's not. Replace it if it is.
+				 */
+				const trackItemIndex = tracks.findIndex(
+					t => t.kind === newTrack.kind && t.srcLang === newTrack.srcLang
+				);
+				const updatedTracksList = [ ...tracks ];
+
+				if ( trackItemIndex > -1 ) {
+					debug( 'new track already exists, replacing it' );
+					updatedTracksList[ trackItemIndex ] = newTrack;
+				} else {
+					debug( 'new track does not exist, adding it' );
+					updatedTracksList.push( newTrack );
+				}
+
+				setAttributes( { tracks: updatedTracksList } );
+				setIsUploadingNewTrack( false );
+				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+			} );
+			setIsUploadingNewTrack( true );
+		},
+		[ tracks ]
+	);
 
 	const onUpdateTrackListHandler = useCallback(
 		( updatedTracks: TrackProps[] ) => {

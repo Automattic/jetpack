@@ -224,6 +224,9 @@ export type VideopressSelectors = {
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
+	getFirstUploadedVideoId: () => number;
+	getFirstVideoProcessed: () => boolean;
+	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
 
