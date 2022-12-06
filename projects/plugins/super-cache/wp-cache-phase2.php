@@ -3086,7 +3086,7 @@ function wp_cache_post_edit( $post_id ) {
 
 	if ( $post_id == $last_post_edited ) {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_edit(${action}): Already processed post $post_id.", 4 );
+		wp_cache_debug( "wp_cache_post_edit({$action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 
@@ -3110,7 +3110,7 @@ function wp_cache_post_edit( $post_id ) {
 		prune_super_cache( get_supercache_dir(), true );
 	} else {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on ${action}", 2 );
+		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on {$action}", 2 );
 		wp_cache_post_change( $post_id );
 		wpsc_delete_post_archives( $post_id ); // delete related archive pages.
 	}
@@ -3152,7 +3152,7 @@ function wp_cache_post_change( $post_id ) {
 
 	if ( $post_id == $last_processed ) {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_change(${action}): Already processed post $post_id.", 4 );
+		wp_cache_debug( "wp_cache_post_change({$action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 

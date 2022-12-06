@@ -52,6 +52,15 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  */
 
 /**
+ * Get the 'jetpack_blogging_prompts_enabled' and default to true if the site appears to be a blog.
+ *
+ * @return boolean
+ */
+function jetpack_are_blogging_prompts_enabled() {
+	return (bool) get_option( 'jetpack_blogging_prompts_enabled', jetpack_has_write_intent() || jetpack_has_posts_page() );
+}
+
+/**
  * Retrieve daily blogging prompts from the wpcom API and cache them.
  *
  * @param int $time Unix timestamp representing the day for which to get blogging prompts.
