@@ -2273,6 +2273,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// WAF.
+			'jetpack_waf_automatic_rules'          => array(
+				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
 			'jetpack_waf_ip_list'                  => array(
 				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',
