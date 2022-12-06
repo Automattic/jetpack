@@ -58,9 +58,7 @@ class Waf_Runner {
 	 */
 	public static function add_hooks() {
 		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Standalone_Bootstrap::class, 'generate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Standalone_Bootstrap::class, 'generate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
