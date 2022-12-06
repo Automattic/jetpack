@@ -1,4 +1,3 @@
-// import { renderHook, act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import useMediaRestrictions, { FILE_SIZE_ERROR, FILE_TYPE_ERROR } from '../index';
 
@@ -23,14 +22,17 @@ const VALID_MEDIA = [
 	{ size: 3000000, type: 'image/png' },
 ];
 
+const setup = connections => renderHook( () => useMediaRestrictions( connections ) );
+
 describe( 'useMediaRestrictions hook', () => {
 	test( 'maxImageSize returns the best image size available', () => {
-		const { result } = renderHook( () => useMediaRestrictions( DUMMY_CONNECTIONS ) );
+		const { result } = setup( DUMMY_CONNECTIONS );
+
 		expect( result.current.maxImageSize ).toBe( 4 );
 	} );
 
 	test( 'Too big JPG results in file size error', () => {
-		const { result } = renderHook( () => useMediaRestrictions( DUMMY_CONNECTIONS ) );
+		const { result } = setup( DUMMY_CONNECTIONS );
 
 		const validationError = result.current.getValidationError( 10000000, 'image/jpg' );
 
@@ -38,7 +40,7 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'Invalid file type results in file type error', () => {
-		const { result } = renderHook( () => useMediaRestrictions( DUMMY_CONNECTIONS ) );
+		const { result } = setup( DUMMY_CONNECTIONS );
 
 		const validationErrors = INVALID_TYPES.map( type =>
 			result.current.getValidationError( 200, type )
@@ -48,7 +50,7 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'Valid media results in no error', () => {
-		const { result } = renderHook( () => useMediaRestrictions( DUMMY_CONNECTIONS ) );
+		const { result } = setup( DUMMY_CONNECTIONS );
 
 		const validationErrors = VALID_MEDIA.map( media =>
 			result.current.getValidationError( media.size, media.type )
