@@ -25,7 +25,6 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Chivo',
 	'Courier Prime',
 	'DM Sans',
-	'Domine',
 	'EB Garamond',
 	'Fira Sans',
 	'IBM Plex Sans',
@@ -38,14 +37,10 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Literata',
 	'Lora',
 	'Merriweather',
-	'Montserrat',
 	'Newsreader',
 	'Nunito',
-	'Open Sans',
 	'Overpass',
 	'Playfair Display',
-	'Poppins',
-	'Raleway',
 	'Roboto',
 	'Roboto Slab',
 	'Rubik',
@@ -54,6 +49,16 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Space Mono',
 	'Texturina',
 	'Work Sans',
+);
+
+// Deprecated fonts that were available before, and we don't show to customers anymore.
+// They should keep functioning for existing sites and be available for enqueueing when used.
+const JETPACK_GOOGLE_FONTS_DEPRECATED = array(
+	'Domine',
+	'Montserrat',
+	'Open Sans',
+	'Poppins',
+	'Raleway',
 );
 
 /**
@@ -68,6 +73,8 @@ function jetpack_add_google_fonts_provider() {
 
 	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
+	$fonts = array_merge( JETPACK_GOOGLE_FONTS_LIST, JETPACK_GOOGLE_FONTS_DEPRECATED );
+
 	/**
 	 * Curated list of Google Fonts.
 	 *
@@ -77,20 +84,22 @@ function jetpack_add_google_fonts_provider() {
 	 *
 	 * @param array $fonts_to_register Array of Google Font names to register.
 	 */
-	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', $fonts );
 
 	foreach ( $fonts_to_register as $font_family ) {
+		$font_family_label = in_array( $font_family, JETPACK_GOOGLE_FONTS_DEPRECATED ) ? $font_family : $font_family . ' (deprecated)';
+
 		wp_register_webfonts(
 			array(
 				array(
-					'font-family'  => $font_family,
+					'font-family'  => $font_family_label,
 					'font-weight'  => '100 900',
 					'font-style'   => 'normal',
 					'font-display' => 'fallback',
 					'provider'     => 'jetpack-google-fonts',
 				),
 				array(
-					'font-family'  => $font_family,
+					'font-family'  => $font_family_label,
 					'font-weight'  => '100 900',
 					'font-style'   => 'italic',
 					'font-display' => 'fallback',
