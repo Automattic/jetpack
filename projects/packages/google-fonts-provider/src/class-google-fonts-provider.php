@@ -161,7 +161,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 		 *
 		 * @param string $url The Google Fonts API URL.
 		 */
-		$root_url = apply_filters( 'jetpack_google_fonts_api_url', $this->root_url );
+		$root_url = esc_url( apply_filters( 'jetpack_google_fonts_api_url', $this->root_url ) );
 
 		/*
 		* Iterate over each font-family group to build the Google Fonts API URL
