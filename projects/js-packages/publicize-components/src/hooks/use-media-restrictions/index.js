@@ -60,13 +60,13 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 */
 	const getValidationError = useCallback(
 		( sizeInBytes, mime ) => {
-			const sizeInMb = sizeInBytes / Math.pow( 1000, 2 );
+			const sizeInMb = sizeInBytes ? sizeInBytes / Math.pow( 1000, 2 ) : null;
 
-			if ( ! getAllowedMediaTypes().includes( mime.toLowerCase() ) ) {
+			if ( ! mime || ! getAllowedMediaTypes().includes( mime.toLowerCase() ) ) {
 				return FILE_TYPE_ERROR;
 			}
 
-			if ( sizeInMb >= maxImageSize ) {
+			if ( ! sizeInMb || sizeInMb >= maxImageSize ) {
 				return FILE_SIZE_ERROR;
 			}
 
