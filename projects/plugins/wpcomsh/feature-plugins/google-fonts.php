@@ -47,11 +47,13 @@ add_filter( 'jetpack_modules_list_table_items', 'wpcomsh_rm_google_fonts_module_
  *
  * @see pMz3w-g6E-p2#comment-103418
  *
- * @param string $src The source URL of the enqueued style.
- * @return string
+ * @param string|array $src The source URL of the enqueued style.
+ * @return string|array
  */
 function wpcomsh_google_fonts_proxy( $src ) {
 	return str_replace( 'fonts.googleapis.com', 'fonts-api.wp.com', $src );
 }
 add_filter( 'style_loader_src', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'wp_resource_hints', 'wpcomsh_google_fonts_proxy' );
+add_filter( 'jetpack_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
+add_filter( 'custom_fonts_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
