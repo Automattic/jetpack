@@ -2,6 +2,13 @@
     max-width: 744px;
 }
 
+.toggle-wrapper {
+    
+    >:nth-child(2) {
+        margin-top: calc( var( --spacing-base ) * 6 ); // 56px
+    }
+}
+
 .toggle-section {
     display: flex;
 
@@ -17,27 +24,11 @@
         }
     }
 
-    & .disabled {
-        opacity: 0.5;
-    }
-
     &-title {
         display: flex;
         align-items: center;
         margin-bottom: calc( var( --spacing-base ) * 2 ); // 8px
     }
-}
-
-.upgrade-trigger-section {
-    margin-bottom: calc( var( --spacing-base ) * 7 ); // 56px
-
-    @media ( min-width: 600px ) {
-        margin-left: calc( var( --spacing-base ) * 11 ); // 88px
-    }
-}
-
-.upgrade-trigger {
-    margin-top: calc( var( --spacing-base ) * 3 ); // 24px
 }
 
 .edit-manual-rules-section {
@@ -63,37 +54,3 @@
     margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -2 ); // -8px -16px
 }
 
-.badge {
-    color: var( --jp-gray-30 );
-    font-size: 12px;
-    height: 21px;
-    padding: calc( var( --spacing-base ) / 2 ); // 4px
-    border: 1px solid var( --jp-gray-30 );
-    border-radius: 4px;
-    margin-left: var( --spacing-base ); // 8px
-    display: flex;
-    align-items: center;
-}
-
-.popover {
-    width: 304px;
-    padding: calc( var( --spacing-base ) * 3 ); // 24px
-
-    > .popover-header {
-        display: flex;
-        justify-content: space-between;
-
-        > button {
-            margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -3 ); // -8px -24px
-
-            &:focus {
-                box-shadow: none;
-            }
-        }
-    }
-
-    > .popover-footer {
-        display: flex;
-        justify-content: flex-end;
-    }
-}
