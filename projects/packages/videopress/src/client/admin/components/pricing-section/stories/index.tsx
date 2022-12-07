@@ -50,6 +50,7 @@ window.jetpackVideoPressInitialState = {
 		manage_url: 'http://localhost/wp-admin/admin.php?page=jetpack-videopress',
 		post_activation_url: '',
 	},
+	contentNonce: 'content-nonce',
 };
 
 export default {

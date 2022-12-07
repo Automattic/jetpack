@@ -185,6 +185,7 @@ class Admin_UI {
 			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
 			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
 			'initialState'           => Data::get_initial_state(),
+			'contentNonce'           => wp_create_nonce( 'videopress-content-nonce' ),
 		);
 	}
 
