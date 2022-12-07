@@ -31,3 +31,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Load the Coming Soon feature.
+ */
+function load_coming_soon() {
+	if (
+		( defined( 'WPCOM_PUBLIC_COMING_SOON' ) && WPCOM_PUBLIC_COMING_SOON ) ||
+		apply_filters( 'a8c_enable_public_coming_soon', false )
+	) {
+		require_once __DIR__ . '/src/features/coming-soon/coming-soon.php';
+	}
+}
+// Todo: once coming-soon is removed from ETK, we can remove this check.
+if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
+	add_action( 'plugins_loaded', 'load_coming_soon' );
+}
