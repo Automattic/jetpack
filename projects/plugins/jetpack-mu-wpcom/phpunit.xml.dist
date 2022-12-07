@@ -4,7 +4,7 @@
 			<directory prefix="test" suffix=".php">tests/php</directory>
 		</testsuite>
 		<testsuite name="coming-soon">
-			<directory suffix="-test.php">./coming-soon/test/</directory>
+			<directory suffix="-test.php">./src/features/coming-soon/test/</directory>
 		</testsuite>
 	</testsuites>
 	<filter>
