@@ -7,11 +7,10 @@ import {
 	Button,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { addQueryArgs } from '@wordpress/url';
+import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { STORE_ID } from '../../state/store';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
 import styles from './styles.module.scss';
@@ -25,18 +24,15 @@ import styles from './styles.module.scss';
  * @returns {React.Component}              Interstitial react component.
  */
 const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
-	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
-		skipUserConnection: true,
+	const { adminUrl } = window.jetpackProtectInitialState || {};
+	const {
+		siteIsRegistering,
+		handleRegisterSite,
+		registrationError,
+		userIsConnecting,
+	} = useConnection( {
+		redirectUri: addQueryArgs( adminUrl, { redirectUser: true } ),
 	} );
-
-	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
-
-	const onClickHandler = useCallback( () => {
-		return handleRegisterSite().then( () => {
-			refreshPlan();
-			refreshStatus( true );
-		} );
-	}, [ handleRegisterSite, refreshPlan, refreshStatus ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
@@ -55,8 +51,8 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 							className={ styles[ 'get-started-button' ] }
 							variant={ 'link' }
 							weight={ 'regular' }
-							onClick={ onClickHandler }
-							isLoading={ siteIsRegistering }
+							onClick={ handleRegisterSite }
+							isLoading={ siteIsRegistering || userIsConnecting }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
