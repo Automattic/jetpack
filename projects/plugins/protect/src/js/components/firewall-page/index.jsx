@@ -28,18 +28,10 @@ import styles from './styles.module.scss';
 
 const FirewallPage = () => {
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const {
-		config,
-		isSeen,
-		upgradeIsSeen,
-		isEnabled,
-		toggleWaf,
-		toggleManualRules,
-		updateConfig,
-	} = useWafData();
+	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
-	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
+	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
 
 	const [ settings, setSettings ] = useState( {
 		module_enabled: isEnabled,
@@ -114,12 +106,6 @@ const FirewallPage = () => {
 						  ),
 				} )
 			)
-			.then( () => {
-				if ( ! upgradeIsSeen ) {
-					setWafUpgradeIsSeen( true );
-					API.wafUpgradeSeen();
-				}
-			} )
 			.catch( () => {
 				setNotice( {
 					type: 'error',
@@ -127,7 +113,7 @@ const FirewallPage = () => {
 				} );
 			} )
 			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleWaf, setNotice, errorMessage, upgradeIsSeen, setWafUpgradeIsSeen ] );
+	}, [ settings, toggleWaf, setNotice, errorMessage ] );
 
 	const handleManualRulesChange = useCallback( () => {
 		const newManualRulesStatus = ! settings.jetpack_waf_ip_list;
