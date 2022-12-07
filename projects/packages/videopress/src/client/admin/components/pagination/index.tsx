@@ -10,6 +10,7 @@ import classnames from 'classnames';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
+import { useQueryStringPages } from './use-query-string-pages';
 import type React from 'react';
 
 const range = ( start, count ) => {
@@ -150,14 +151,16 @@ const Pagination: React.FC< PaginationProps > = ( {
 };
 
 export const ConnectPagination = ( props: { className: string; disabled?: boolean } ) => {
-	const { setPage, page, itemsPerPage, total, isFetching } = useVideos();
+	const { setPageOnURL } = useQueryStringPages();
+
+	const { page, itemsPerPage, total, isFetching } = useVideos();
 	return total <= itemsPerPage ? (
 		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
 	) : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }
-			onChangePage={ setPage }
+			onChangePage={ setPageOnURL }
 			currentPage={ page }
 			total={ total }
 			disabled={ isFetching || props.disabled }
