@@ -69,16 +69,53 @@
 }
 
 /* Modal styles */
+
+/* Override Thickbox defaults */
+#TB_title {
+	border: none;
+	background: none;
+}
+
+#TB_ajaxWindowTitle {
+	display: none;
+}
+
+#TB_ajaxContent {
+	display: flex;
+}
+
 .feedback-export-modal__wrapper {
 	display: flex;
 	flex-direction: column;
-	height: 100%;
+	/* These strange paddings to add 48px with TB defaults */
+	padding: 0 33px 33px 33px;
 }
 
 .feedback-export-modal__content {
-	flex-grow: 1;
 	display: flex;
-	align-items: center;
-	justify-content: center;
+	flex-grow: 1;
+	flex-direction: column;
+	align-items: flex-start;
+	padding: 0px;
 	gap: 32px;
+}
+
+.feedback-export-modal__footer {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 16px;
+}
+
+.export-card {
+	border-radius: var(--jp-border-radius, 4px);
+	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	padding: 24px;
+	isolation: isolate;
+}
+
+.export-card__body, .export-card__header {
+	display: flex;
 }

@@ -1183,34 +1183,26 @@ class Grunion_Admin {
 		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;
 		}
-
-		$button_csv_html = get_submit_button(
-			__( 'Export CSV', 'jetpack' ),
-			'primary export-button export-csv',
-			'jetpack-export-feedback-csv',
-			false,
-			array(
-				'data-nonce-name' => $this->export_nonce_field,
-			)
-		);
-		$button_csv_html .= wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
-		$button_csv_html = '<div>' . $button_csv_html . '</div>';
-
-		$button_gdrive_html = $this->get_gdrive_export_button();
 		?>
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
-				<div class="feedback-export-modal__header"></div>
-				<div class="feedback-export-modal__content">
-					<?php echo $button_csv_html; ?>
-					<?php echo $button_gdrive_html; ?>
+				<div class="feedback-export-modal__header">
+					<div class="feedback-export-modal__title"><h1>Export your Form responses</h1></div>
+					<div class="feedback-export-modal__subtitle"><p>Choose your favorite file format or export destination:</p></div>
 				</div>
-				<div class="feedback-export-modal__footer"></div>
+				<div class="feedback-export-modal__content">
+					<?php $this->get_csv_export_section(); ?>
+					<?php $this->get_gdrive_export_section(); ?>
+				</div>
+				<div class="feedback-export-modal__footer">
+					<div class="feedback-export-modal__footer-column">Jetpack Forms</div>
+					<div class="feedback-export-modal__footer-column">Automattic</div>
+				</div>
 			</div>
 		</div>
 		<?php
 		$opener_label = esc_html( __( 'Export', 'jetpack' ) );
-		$export_modal_opener = "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=500&height=300&inlineId=feedback-export-modal'>{$opener_label}</a>";
+		$export_modal_opener = "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=600&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
@@ -1271,11 +1263,41 @@ class Grunion_Admin {
 		);
 	}
 
+	public function get_csv_export_section() {
+		$button_csv_html = get_submit_button(
+			__( 'Export CSV', 'jetpack' ),
+			'primary export-button export-csv',
+			'jetpack-export-feedback-csv',
+			false,
+			array( 'data-nonce-name' => $this->export_nonce_field )
+		);
+		?>
+		<div class="feedback-export-modal__section">
+			<div class="export-card">
+				<div class="export-card__header">
+					<div class="export-card__header-title">CSV File</div>
+				</div>
+				<div class="export-card__content">
+					<div class="export-card__content-description">
+						Download your response form data via CSV file.
+					</div>
+					<div class="export-card__content-cta">
+						<?php
+						echo $button_csv_html;
+						echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+	}
+
 	/**
 	 * Return HTML markup for the export to gdrive button.
 	 * If the user doesn't hold a Google Drive connection, it will return get_gdrive_connection_hint().
 	 */
-	public function get_gdrive_export_button() {
+	public function get_gdrive_export_section() {
 		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
 		if ( ! $user_connected ) {
 			return;
@@ -1303,9 +1325,30 @@ class Grunion_Admin {
 			false,
 			$attributes
 		);
-
-		$button_html .= wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
-		return '<div>' . $button_html . '</div>';
+		?>
+		<div class="feedback-export-modal__section">
+			<div class="export-card">
+				<div class="export-card__header">
+					<div class="export-card__header-title">CSV File</div>
+					<div class="export-card__header-beta-badge">BETA</div>
+				</div>
+				<div class="export-card__body">
+					<div class="export-card__body-description">
+						<p>Export your data into a Google Sheets file. You need to <a href="#" rel="noopener noreferer">connect to Google Drive</a>.</p>
+						<p class="export-card__body-description-footer">
+							This premium feature is currently free to use in beta.
+						</p>
+					</div>
+					<div class="export-card__body-cta">
+						<?php
+						echo $button_html;
+						echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+						?>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	public function get_gdrive_connection_hint() {
