@@ -246,7 +246,7 @@ export function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
-				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) } initialOpen={ false }>
 					{ renderSubmissionSettings() }
 				</PanelBody>
 				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
