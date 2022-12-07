@@ -7,14 +7,12 @@
 
 namespace A8C\FSE\Coming_soon;
 
-use PHPUnit\Framework\TestCase;
-
 require_once __DIR__ . '/../coming-soon.php';
 
 /**
  * Class Coming_Soon_Test
  */
-class Coming_Soon_Test extends TestCase {
+class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Preview links used to test bypassing Coming Soon using the URL with share code provided as GET parameter.
 	 *
@@ -29,16 +27,20 @@ class Coming_Soon_Test extends TestCase {
 
 	/**
 	 * Post-test suite actions.
+	 *
+	 * @afterClass
 	 */
-	public static function tearDownAfterClass() {
+	public static function tear_down_after_class() {
 		self::delete_coming_soon_site_options();
 		parent::tearDownAfterClass();
 	}
 
 	/**
 	 * Post-test actions.
+	 *
+	 * @after
 	 */
-	public function tearDown() {
+	public function tear_down() {
 		self::delete_preview_links_parameters();
 		parent::tearDown();
 	}
