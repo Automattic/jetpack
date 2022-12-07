@@ -230,7 +230,6 @@ const FirewallPage = () => {
 									{ jetpackWafIpList && (
 										<div className={ styles[ 'edit-manual-rules-section' ] }>
 											<Text variant={ 'body-small' } mt={ 2 }>
-												{ /* // TO DO: Update or remove until ready for this */ }
 												{ '' === jetpackWafIpAllowList &&
 													'' === jetpackWafIpBlockList &&
 													__( 'No manual rules are being applied.', 'jetpack-protect' ) }
