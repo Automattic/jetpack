@@ -57,6 +57,7 @@ export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
 PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
+EXIT=0
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
@@ -69,8 +70,19 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		echo 'Platform reqs pass, running `composer install`'
 		composer install
 	else
-		echo 'Platform reqs failed, running `composer update`'
-		composer update
+		TMP=$(diff <(composer info --locked --no-dev --format=json | jq -r '.locked[].name' | sort) <(composer info --locked --format=json | jq -r '.locked[].name' | sort) | sed -n 's/^> //p')
+		if [[ -n "$TMP" ]]; then
+			echo 'Platform reqs failed, running `composer update` for dev dependencies'
+			DEPS=()
+			mapfile -t DEPS <<<"$TMP"
+			if ! composer update "${DEPS[@]}"; then
+				echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;') and updating dev deps didn't help. The plugin is likely broken for that PHP version."
+				EXIT=1
+			fi
+		else
+			echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;'). The plugin is likely broken for that PHP version."
+			EXIT=1
+		fi
 	fi
 	cd "$BASE"
 
@@ -93,4 +105,4 @@ sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
 
-exit 0;
+exit $EXIT
