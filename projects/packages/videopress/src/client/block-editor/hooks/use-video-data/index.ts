@@ -37,6 +37,7 @@ export default function useVideoData( {
 				const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
 					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ params }`,
 					credentials: 'omit',
+					global: true,
 				} );
 
 				setIsRequestingVideoData( false );
