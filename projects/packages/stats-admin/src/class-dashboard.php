@@ -223,14 +223,20 @@ class Dashboard {
 			'features'                       => array(),
 			'intial_state'                   => array(
 				'currentUser' => array(
-					'id'   => 1000,
-					'user' => array(
+					'id'           => 1000,
+					'user'         => array(
 						'ID'       => 1000,
 						'username' => 'no-user',
 					),
+					'capabilities' => array(
+						"$blog_id" => array(
+							'manage_options'   => true,
+							'activate_wordads' => true,
+						),
+					),
 				),
 				'sites'       => array(
-					'items' => array(
+					'items'    => array(
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
@@ -242,8 +248,12 @@ class Dashboard {
 							),
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'options'      => array(
+								'wordads' => true,
+							),
 						),
 					),
+					'features' => array( "$blog_id" => array( 'data' => array( 'active' => array( 'wordads' ) ) ) ),
 				),
 			),
 		);
