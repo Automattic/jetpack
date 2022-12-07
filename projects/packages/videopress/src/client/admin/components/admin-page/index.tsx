@@ -21,7 +21,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,6 +31,7 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
+import { useSearchParam } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
@@ -43,11 +44,18 @@ import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
-	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
-
+	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
 	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
+
+	/** Get the page number from the search parameters and set it to the state when the state is outdated */
+	const pageFromSearchParam = parseInt( useSearchParam( 'page', '1' ) );
+	useEffect( () => {
+		if ( page !== pageFromSearchParam ) {
+			setVideosQuery( { page: pageFromSearchParam } );
+		}
+	} );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
