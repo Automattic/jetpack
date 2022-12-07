@@ -16,8 +16,8 @@ class WP_Super_Cache_Rest_Preload extends WP_REST_Controller {
 			return rest_ensure_response( array( 'error' => 'preload disabled by admin' ) );
 		}
 
-		if ( isset( $parameters[ 'enable' ] ) ) {
-			if ( $parameters[ 'enable' ] == true ) {
+		if ( isset( $parameters['enable'] ) ) {
+			if ( $parameters['enable'] == true ) {
 				wp_cache_debug( 'WP_Super_Cache_Rest_Preload: enable' );
 				wpsc_enable_preload();
 				return( rest_ensure_response( array( 'enabled' => true ) ) );

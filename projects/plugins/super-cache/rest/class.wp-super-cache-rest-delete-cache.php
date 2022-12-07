@@ -14,20 +14,20 @@ class WP_Super_Cache_Rest_Delete_Cache extends WP_REST_Controller {
 		if ( isset( $params['id'] ) && is_numeric( $params['id'] ) ) {
 			wpsc_delete_post_cache( $params['id'] );
 
-		} elseif ( !empty( $params['expired'] ) ) {
+		} elseif ( ! empty( $params['expired'] ) ) {
 			global $file_prefix;
 			wp_cache_clean_expired( $file_prefix );
 
 		} elseif ( isset( $params['url'] ) ) {
 			global $cache_path;
 
-			$directory = $cache_path . 'supercache/' . $params[ 'url' ];
+			$directory = $cache_path . 'supercache/' . $params['url'];
 			wpsc_delete_files( $directory );
 			prune_super_cache( $directory . '/page', true );
 
 		} else {
 			global $file_prefix;
-			wp_cache_clean_cache( $file_prefix, !empty( $params['all'] ) );
+			wp_cache_clean_cache( $file_prefix, ! empty( $params['all'] ) );
 		}
 
 		return rest_ensure_response( array( 'Cache Cleared' => true ) );

@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-settings-map.php' );
+require_once __DIR__ . '/class.wp-super-cache-settings-map.php';
 
 class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
@@ -28,7 +28,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		if ( isset( $parameters['easy'] ) ) {
 			$errors = $this->toggle_easy_caching( $parameters['easy'] );
 
-		} elseif ( isset( $parameters[ 'reset' ] ) ) {
+		} elseif ( isset( $parameters['reset'] ) ) {
 			$errors = $this->restore_default_settings( $parameters );
 
 		} else {
@@ -88,9 +88,9 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			$set_method = method_exists( $this, 'set_' . $map['global'] ) ?
 				'set_' . $map['global'] : 'set_global';
 			if ( $set_method == 'set_global' ) {
-				$has_error  = call_user_func( array( $this, $set_method ), $key, $value );
+				$has_error = call_user_func( array( $this, $set_method ), $key, $value );
 			} else {
-				$has_error  = call_user_func( array( $this, $set_method ), $value );
+				$has_error = call_user_func( array( $this, $set_method ), $value );
 			}
 		}
 
@@ -131,7 +131,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			return false;
 		}
 
-		wp_cache_setting( $global_name, (int)$value );
+		wp_cache_setting( $global_name, (int) $value );
 
 	}
 
@@ -147,10 +147,15 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				$dir = WP_CONTENT_DIR . '/cache/';
 
 			} else {
-				$dir = trailingslashit( $dir ) . trailingslashit( wpsc_deep_replace( array(
-						'..',
-						'\\'
-					), basename( $value ) ) );
+				$dir = trailingslashit( $dir ) . trailingslashit(
+					wpsc_deep_replace(
+						array(
+							'..',
+							'\\',
+						),
+						basename( $value )
+					)
+				);
 			}
 
 			$new_cache_path = $dir;
@@ -186,7 +191,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 * @param mixed $value
 	 */
 	protected function set_lock_down( $value ) {
-		$_POST[ 'wp_lock_down' ] = (int)$value;
+		$_POST['wp_lock_down'] = (int) $value;
 		wp_update_lock_down();
 	}
 
@@ -197,7 +202,11 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		global $wp_cache_mod_rewrite;
 
 		if ( is_numeric( $value ) == false ) {
-			$types = array( 'wpcache' => 0, 'mod_rewrite' => 1, 'PHP' => 2 );
+			$types = array(
+				'wpcache'     => 0,
+				'mod_rewrite' => 1,
+				'PHP'         => 2,
+			);
 			if ( isset( $types[ $value ] ) ) {
 				$value = $types[ $value ];
 			} else {
@@ -216,7 +225,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				$wp_cache_mod_rewrite = 1;
 				add_mod_rewrite_rules();
 
-			} elseif( $value == 2 ) { // PHP
+			} elseif ( $value == 2 ) { // PHP
 				$wp_cache_mod_rewrite = 0;
 				remove_mod_rewrite_rules();
 
@@ -309,8 +318,8 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				$new_cache_compression = 1;
 			}
 
-			if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) {
-				return __( "You attempted to enable compression but `zlib.output_compression` is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' );
+			if ( 1 == ini_get( 'zlib.output_compression' ) || 'on' == strtolower( ini_get( 'zlib.output_compression' ) ) ) {
+				return __( 'You attempted to enable compression but `zlib.output_compression` is enabled. See #21 in the Troubleshooting section of the readme file.', 'wp-super-cache' );
 			}
 
 			if ( $new_cache_compression != $cache_compression ) {
@@ -494,7 +503,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'wp_cache_object_cache',
 			'wp_cache_refresh_single_only',
 			'cache_compression',
-			'wp_cache_mutex_disabled'
+			'wp_cache_mutex_disabled',
 		);
 
 		foreach ( $advanced_settings as $setting ) {
@@ -519,7 +528,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'cache_scheduled_time',
 			'cache_schedule_interval',
 			'cache_time_interval',
-			'cache_gc_email_me'
+			'cache_gc_email_me',
 		);
 
 		foreach ( $all_time_settings as $time_setting ) {
@@ -531,11 +540,10 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		if ( isset( $parameters['cache_gc_email_me'] ) && $parameters['cache_gc_email_me'] == 0 ) {
 			unset( $_POST['cache_gc_email_me'] );
 		}
-		$_POST[ 'wp_max_time' ] = $_POST[ 'cache_max_time' ];
+		$_POST['wp_max_time'] = $_POST['cache_max_time'];
 
 		wp_cache_time_update();
 	}
-
 
 	/**
 	 * set the cached direct pages list.
@@ -545,7 +553,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			return false;
 		}
 
-		$_POST[ 'direct_pages' ] = $list;
+		$_POST['direct_pages'] = $list;
 		wpsc_update_direct_pages();
 	}
 
@@ -555,11 +563,11 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	protected function new_direct_page( $value ) {
 		global $cached_direct_pages;
 
-		if ( isset( $_POST[ 'direct_pages' ] ) == false ) {
-			$_POST[ 'direct_pages' ] = $cached_direct_pages;
+		if ( isset( $_POST['direct_pages'] ) == false ) {
+			$_POST['direct_pages'] = $cached_direct_pages;
 		}
 
-		$_POST[ 'new_direct_page' ] = $value;
+		$_POST['new_direct_page'] = $value;
 		wpsc_update_direct_pages();
 	}
 
@@ -589,7 +597,6 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				if ( $key !== 'preload_interval' && ( $_POST[ $key ] === 0 || $_POST[ $key ] === false ) ) {
 					unset( $_POST[ $original ] );
 				}
-
 			}
 		}
 
@@ -607,7 +614,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
 			wp_cache_setting( 'cache_page_secret', $cache_page_secret );
 
-			if ( function_exists( "opcache_invalidate" ) ) {
+			if ( function_exists( 'opcache_invalidate' ) ) {
 				@opcache_invalidate( $wp_cache_config_file );
 			}
 		}
@@ -623,7 +630,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 */
 	public function set_debug_settings( $parameters ) {
 
-		$settings = array (
+		$settings = array(
 			'wp_super_cache_debug',
 			'wp_cache_debug_ip',
 			'wp_super_cache_comments',
@@ -634,12 +641,12 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'wpsc_delete_log',
 		);
 
-		foreach( $settings as $setting ) {
+		foreach ( $settings as $setting ) {
 			if ( isset( $parameters[ $setting ] ) ) {
 				if ( $parameters[ $setting ] != false ) {
 					$_POST[ $setting ] = $parameters[ $setting ];
 				}
-				$_POST[ 'wp_cache_debug' ] = 1;
+				$_POST['wp_cache_debug'] = 1;
 			} else {
 				if ( ! isset( $GLOBALS[ $setting ] ) ) {
 					$GLOBALS[ $setting ] = 0;

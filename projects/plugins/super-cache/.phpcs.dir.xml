@@ -44,6 +44,11 @@
 		<severity>0</severity>
 	</rule>
 
+	<!-- Allow non-wp alternative functions; a large part of WP Super Cache has to run without WordPress. -->
+	<rule ref="WordPress.WP.AlternativeFunctions.parse_url_parse_url">
+		<severity>0</severity>
+	</rule>
+
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<properties>
 			<property name="ignoreUnusedRegexp" value="/^_/"/>

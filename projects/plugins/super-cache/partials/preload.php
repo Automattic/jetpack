@@ -18,32 +18,34 @@ echo '<p>' . __( 'In &#8217;Preload Mode&#8217; regular garbage collection will 
 echo '<form name="cache_filler" action="' . esc_url_raw( add_query_arg( 'tab', 'preload', $admin_url ) ) . '" method="POST">';
 echo '<input type="hidden" name="action" value="preload" />';
 echo '<input type="hidden" name="page" value="wpsupercache" />';
-echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='wp_cache_preload_interval' value='" . (int) $wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
+echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %1$s minutes. (0 to disable, minimum %2$d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='wp_cache_preload_interval' value='" . (int) $wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
 if ( $count > 100 ) {
-	$step = (int)( $count / 10 );
+	$step = (int) ( $count / 10 );
 
-	$select = "<select name='wp_cache_preload_posts' size=1>";
+	$select  = "<select name='wp_cache_preload_posts' size=1>";
 	$select .= "<option value='all' ";
 	if ( ! isset( $wp_cache_preload_posts ) || $wp_cache_preload_posts == 'all' ) {
 		$checked = 'selectect=1 ';
-		$best = 'all';
+		$best    = 'all';
 	} else {
 		$checked = ' ';
-		$best = $wp_cache_preload_posts;
+		$best    = $wp_cache_preload_posts;
 	}
-	$select .= "{$checked}>" . __( 'all', 'wp-super-cache' ) . "</option>";
+	$select .= "{$checked}>" . __( 'all', 'wp-super-cache' ) . '</option>';
 
-	for( $c = $step; $c < $count; $c += $step ) {
+	for ( $c = $step; $c < $count; $c += $step ) {
 		$checked = ' ';
-		if ( $best == $c )
+		if ( $best == $c ) {
 			$checked = 'selected=1 ';
+		}
 		$select .= "<option value='$c'{$checked}>$c</option>";
 	}
 	$checked = ' ';
-	if ( $best == $count )
+	if ( $best == $count ) {
 		$checked = 'selected=1 ';
+	}
 	$select .= "<option value='$count'{$checked}>$count</option>";
-	$select .= "</select>";
+	$select .= '</select>';
 	echo '<p>' . sprintf( __( 'Preload %s posts.', 'wp-super-cache' ), $select ) . '</p>';
 } else {
 	echo '<input type="hidden" name="wp_cache_preload_posts" value="' . $count . '" />';
@@ -56,14 +58,15 @@ echo '<input type="checkbox" name="wp_cache_preload_taxonomies" value="1" ';
 echo $wp_cache_preload_taxonomies == 1 ? 'checked=1' : '';
 echo ' /> ' . __( 'Preload tags, categories and other taxonomies.', 'wp-super-cache' ) . '<br />';
 echo __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) . '<br />';
-if ( !isset( $wp_cache_preload_email_volume ) )
+if ( ! isset( $wp_cache_preload_email_volume ) ) {
 	$wp_cache_preload_email_volume = 'none';
+}
 echo '<select type="select" name="wp_cache_preload_email_volume">';
-echo '<option value="none" '. selected( 'none', $wp_cache_preload_email_volume ) . '>'.  __( 'No Emails', 'wp-super-cache' ) . '</option>';
-echo '<option value="many" '. selected( 'many', $wp_cache_preload_email_volume ) . '>'.  __( 'Many emails, 2 emails per 100 posts.', 'wp-super-cache' ) . '</option>';
-echo '<option value="medium" '. selected( 'medium', $wp_cache_preload_email_volume ) . '>'.  __( 'Medium, 1 email per 100 posts.', 'wp-super-cache' ) . '</option>';
-echo '<option value="less" '. selected( 'less', $wp_cache_preload_email_volume ) . '>'.  __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
-echo "</select>";
+echo '<option value="none" ' . selected( 'none', $wp_cache_preload_email_volume ) . '>' . __( 'No Emails', 'wp-super-cache' ) . '</option>';
+echo '<option value="many" ' . selected( 'many', $wp_cache_preload_email_volume ) . '>' . __( 'Many emails, 2 emails per 100 posts.', 'wp-super-cache' ) . '</option>';
+echo '<option value="medium" ' . selected( 'medium', $wp_cache_preload_email_volume ) . '>' . __( 'Medium, 1 email per 100 posts.', 'wp-super-cache' ) . '</option>';
+echo '<option value="less" ' . selected( 'less', $wp_cache_preload_email_volume ) . '>' . __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
+echo '</select>';
 
 if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) {
 	$currently_preloading = true;

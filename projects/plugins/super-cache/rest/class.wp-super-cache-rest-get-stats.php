@@ -10,8 +10,8 @@ class WP_Super_Cache_Rest_Get_Stats extends WP_REST_Controller {
 	 */
 	public function callback( $request ) {
 		global $valid_nonce;
-		$_GET[ 'listfiles' ] = 1;
-		$valid_nonce = true;
+		$_GET['listfiles'] = 1;
+		$valid_nonce       = true;
 
 		return rest_ensure_response( wp_cache_regenerate_cache_file_stats() );
 	}
