@@ -109,6 +109,10 @@ export const settings = {
 			type: 'number',
 			default: 0,
 		},
+		selectedPlanIds: {
+			type: 'array',
+			default: [],
+		},
 		isPreview: {
 			type: 'boolean',
 			default: false,
