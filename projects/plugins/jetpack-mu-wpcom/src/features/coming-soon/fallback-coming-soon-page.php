@@ -263,7 +263,7 @@ nocache_headers();
 		<div class="wpcom-coming-soon-inner">
 			<div class="wpcom-coming-soon-main">
 				<div class="wpcom-coming-soon-name"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
-				<div class="wpcom-coming-soon-description"><?php esc_html_e( 'Coming Soon', 'full-site-editing' ); ?></div>
+				<div class="wpcom-coming-soon-description"><?php esc_html_e( 'Coming Soon', 'jetpack-mu-wpcom' ); ?></div>
 			</div>
 			<div class="wpcom-coming-soon-marketing">
 				<?php if ( ! is_user_logged_in() ) : ?>
@@ -280,11 +280,11 @@ nocache_headers();
 								</svg>
 							</a>
 						</div>
-						<p class="wpcom-coming-soon-marketing-copy-text"><?php esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'full-site-editing' ); ?></p>
+						<p class="wpcom-coming-soon-marketing-copy-text"><?php esc_html_e( 'Build a website. Sell your stuff. Write a blog. And so much more.', 'jetpack-mu-wpcom' ); ?></p>
 					</div>
 					<div class="wpcom-coming-soon-marketing-buttons">
-						<p><a class="button button-secondary" href="<?php echo esc_url( get_login_url() ); ?>"><?php esc_html_e( 'Log in', 'full-site-editing' ); ?></a></p>
-						<p><a class="button button-primary has-background" href="<?php echo esc_url( get_onboarding_url() ); ?>"><?php esc_html_e( 'Start your website', 'full-site-editing' ); ?></a></p>
+						<p><a class="button button-secondary" href="<?php echo esc_url( get_login_url() ); ?>"><?php esc_html_e( 'Log in', 'jetpack-mu-wpcom' ); ?></a></p>
+						<p><a class="button button-primary has-background" href="<?php echo esc_url( get_onboarding_url() ); ?>"><?php esc_html_e( 'Start your website', 'jetpack-mu-wpcom' ); ?></a></p>
 					</div>
 				<?php endif; ?>
 			</div>
