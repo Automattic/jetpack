@@ -28,7 +28,11 @@ export const getVideoPressUrl = (
 	// - Muted: Turned off by default.
 	// - Plays Inline: Turned off by default.
 	// - Poster: No image by default.
-	// - Preload: None by default.
+	// - Preload: Metadata by default.
+	// - SeekbarColor: No color by default.
+	// - SeekbarPlayerColor: No color by default.
+	// - SeekbarLoadingColor: No color by default.
+	// - UseAverageColor: Turned on by default.
 	const options = {
 		resizeToParent: true,
 		cover: true,

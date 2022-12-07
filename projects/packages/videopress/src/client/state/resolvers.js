@@ -12,7 +12,7 @@ import {
 	WP_REST_API_MEDIA_ENDPOINT,
 	DELETE_VIDEO,
 	REST_API_SITE_INFO_ENDPOINT,
-	PROCESSING_VIDEO,
+	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
@@ -241,7 +241,7 @@ const getUploadedVideoCount = {
 	},
 
 	shouldInvalidate: action => {
-		return action.type === PROCESSING_VIDEO || action.type === DELETE_VIDEO;
+		return action.type === SET_VIDEO_PROCESSING || action.type === DELETE_VIDEO;
 	},
 };
 

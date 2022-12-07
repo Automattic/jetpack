@@ -58,7 +58,7 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback(
-		checkoutUrl => {
+		checkout => {
 			activate().finally( () => {
 				const product = select( STORE_ID ).getProduct( slug );
 				const postActivationUrl = product?.postActivationUrl;
@@ -71,12 +71,12 @@ export default function ProductInterstitial( {
 					return;
 				}
 
-				if ( ! needsPurchase || ! checkoutUrl ) {
+				if ( ! needsPurchase ) {
 					return navigateToMyJetpackOverviewPage();
 				}
 
 				// Redirect to the checkout page.
-				window.location.href = checkoutUrl;
+				checkout?.();
 			} );
 		},
 		[ navigateToMyJetpackOverviewPage, activate, slug ]

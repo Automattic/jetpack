@@ -61,7 +61,7 @@ function jetpack_migrate_gallery_widget() {
 
 		// Now un-register old widgets and register new.
 		foreach ( $widgets_to_unregister as $id => $new_id ) {
-			wp_unregister_sidebar_widget( "gallery-${id}" );
+			wp_unregister_sidebar_widget( "gallery-{$id}" );
 
 			// register new widget.
 			$media_gallery_widget = new WP_Widget_Media_Gallery();

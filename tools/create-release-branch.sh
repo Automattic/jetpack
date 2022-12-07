@@ -134,7 +134,7 @@ EOM
 PUSH_MSG=" after you push"
 if $INTERACTIVE; then
 	if proceed_p "" "Check changes and push?"; then
-		git log -p "$BASE_REF".."$BRANCH"
+		git log -p "$BASE_REF".."$BRANCH" || true
 		if proceed_p "" "Push it now?"; then
 			git push -u origin "$BRANCH"
 			PUSH_MSG=

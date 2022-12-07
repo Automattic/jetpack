@@ -1,0 +1,27 @@
+.tabs {
+    display: flex;
+}
+
+.tab {
+    color: var( --jp-black );
+    font-size: var( --font-body );
+    line-height: 1.5;
+    text-decoration: none;
+    padding: var( --spacing-base ) 0; // 8px | 0px
+    margin-right: calc( var( --spacing-base ) * 4 ); // 32px
+
+    &:last-child {
+        margin-right: 0;
+    }
+
+    &:hover,
+    &:focus {
+        box-shadow: none;
+        color: var( --jp-green );
+        border-bottom-color: var( --jp-green );
+    }
+
+    &--active {
+        border-bottom: 1px solid var( --jp-black );
+    }
+}
