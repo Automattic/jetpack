@@ -70,7 +70,7 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		echo 'Platform reqs pass, running `composer install`'
 		composer install
 	else
-		TMP=$(diff <(composer info --locked --no-dev --format=json | jq -r '.locked[].name' | sort) <(composer info --locked --format=json | jq -r '.locked[].name' | sort) | sed -n 's/^> //p')
+		TMP=$(diff <(composer info --locked --no-dev --format=json | jq -r '.locked[].name' | sort) <(composer info --locked --format=json | jq -r '.locked[].name' | sort) | sed -n 's/^> //p' || true)
 		if [[ -n "$TMP" ]]; then
 			echo 'Platform reqs failed, running `composer update` for dev dependencies'
 			DEPS=()
