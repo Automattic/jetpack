@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -16,9 +17,7 @@ export const TRACK_KIND_OPTIONS = [
 	'metadata',
 ] as const;
 
-const shouldUseJetpackVideoFetch = () => {
-	return window?.videoPressEditorState?.siteType !== 'simple';
-};
+const shouldUseJetpackVideoFetch = () => ! ( isSimpleSite() || isAtomicSite() );
 
 const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: string ) {
 	return new Promise( function ( resolve, reject ) {
