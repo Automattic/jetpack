@@ -423,30 +423,6 @@ class Jetpack_Protect {
 				},
 			)
 		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-upgrade-seen',
-			array(
-				'methods'             => \WP_REST_SERVER::READABLE,
-				'callback'            => __CLASS__ . '::get_waf_upgrade_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-upgrade-seen',
-			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
-				'callback'            => __CLASS__ . '::set_waf_upgrade_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
 	}
 
 	/**
