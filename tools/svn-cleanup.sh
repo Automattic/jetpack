@@ -114,11 +114,11 @@ info "Checking out SVN shallowly to $DIR"
 svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
 success "Done! Checked out to $DIR"
 
-info "Checking out SVN tags to $DIR/tags (this may take a while)"
+info "Checking out SVN tags to $DIR/tags"
 svn -q up tags --depth=empty
 cd tags
 SVN_PREV_TAGS=$(echo "$SVN_PREV_TAGS" | tr '\n' ' ')
-svn -q up ${SVN_PREV_TAGS}
+svn -q up ${SVN_PREV_TAGS} --depth=empty
 success "Done!"
 
 info "Deleting tags..."
