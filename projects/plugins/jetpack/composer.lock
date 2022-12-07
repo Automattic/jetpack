@@ -591,7 +591,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "ad6c987585b5b4a0f8cbdd5add6711278c4d675f"
+                "reference": "cbf1f469eb544e364568f907ecf5511abc441954"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
@@ -605,7 +605,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.11.x-dev"
+                    "dev-trunk": "1.12.x-dev"
                 }
             },
             "autoload": {
