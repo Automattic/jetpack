@@ -124,7 +124,12 @@ class Utils {
 			return $response;
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ) );
+		$body = wp_remote_retrieve_body( $response );
+		if ( strpos( $endpoint, 'speed-scores' ) !== false ) {
+			return new \WP_Error( 'test_error', $endpoint . ' -> ' . $body );
+		}
+
+		$json = json_decode( $body );
 
 		// Check for HTTP errors.
 		$code = wp_remote_retrieve_response_code( $response );
