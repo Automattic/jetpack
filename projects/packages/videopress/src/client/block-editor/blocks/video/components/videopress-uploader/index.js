@@ -184,15 +184,18 @@ const VideoPressUploader = ( {
 		media = media?.[ 0 ] ? media[ 0 ] : media;
 
 		const isFileUploading = media instanceof File;
-		// Handle upload by selecting a File
+		// - Handle upload by selecting a File
 		if ( isFileUploading ) {
 			startUpload( media );
 			return;
 		}
 
-		// Handle selection of Media Library VideoPress attachment
+		// - Handle selection of Media Library VideoPress attachment
 		if ( media.videopress_guid ) {
-			const videoGuid = media.videopress_guid[ 0 ];
+			const videoGuid = Array.isArray( media.videopress_guid )
+				? media.videopress_guid[ 0 ] // <- pick the first item when it's an array
+				: media.videopress_guid;
+
 			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
 			onSelectURL( videoUrl, media?.id );
 			return;
