@@ -43,7 +43,9 @@ class Site_Urls {
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
 			);
-		} else {
+		}
+
+		if ( empty( $front_page ) && empty( $posts_page ) ) {
 			$urls['posts_page'] = array(
 				'url'      => home_url( '/' ),
 				'modified' => current_time( 'Y-m-d H:i:s' ),
@@ -99,7 +101,7 @@ class Site_Urls {
 	 * @return array
 	 */
 	private function cleanup_post_urls( $post_urls, $additional_urls ) {
-		$clean   = array();
+		$clean = array();
 
 		foreach ( $post_urls as $key => $item ) {
 			if ( in_array( $item['url'], $additional_urls, true ) ) {
