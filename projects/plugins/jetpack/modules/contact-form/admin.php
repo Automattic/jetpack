@@ -1272,16 +1272,16 @@ class Grunion_Admin {
 			array( 'data-nonce-name' => $this->export_nonce_field )
 		);
 		?>
-		<div class="feedback-export-modal__section">
+
 			<div class="export-card">
 				<div class="export-card__header">
 					<div class="export-card__header-title">CSV File</div>
 				</div>
-				<div class="export-card__content">
-					<div class="export-card__content-description">
+				<div class="export-card__body">
+					<div class="export-card__body-description">
 						Download your response form data via CSV file.
 					</div>
-					<div class="export-card__content-cta">
+					<div class="export-card__body-cta">
 						<?php
 						echo $button_csv_html;
 						echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
@@ -1289,7 +1289,7 @@ class Grunion_Admin {
 					</div>
 				</div>
 			</div>
-		</div>
+
 		<?php
 	}
 
@@ -1326,25 +1326,23 @@ class Grunion_Admin {
 			$attributes
 		);
 		?>
-		<div class="feedback-export-modal__section">
-			<div class="export-card">
-				<div class="export-card__header">
-					<div class="export-card__header-title">CSV File</div>
-					<div class="export-card__header-beta-badge">BETA</div>
+		<div class="export-card">
+			<div class="export-card__header">
+				<div class="export-card__header-title">CSV File</div>
+				<div class="export-card__header-beta-badge">BETA</div>
+			</div>
+			<div class="export-card__body">
+				<div class="export-card__body-description">
+					<p>Export your data into a Google Sheets file. You need to <a href="#" rel="noopener noreferer">connect to Google Drive</a>.</p>
+					<p class="export-card__body-description-footer">
+						This premium feature is currently free to use in beta.
+					</p>
 				</div>
-				<div class="export-card__body">
-					<div class="export-card__body-description">
-						<p>Export your data into a Google Sheets file. You need to <a href="#" rel="noopener noreferer">connect to Google Drive</a>.</p>
-						<p class="export-card__body-description-footer">
-							This premium feature is currently free to use in beta.
-						</p>
-					</div>
-					<div class="export-card__body-cta">
-						<?php
-						echo $button_html;
-						echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
-						?>
-					</div>
+				<div class="export-card__body-cta">
+					<?php
+					echo $button_html;
+					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+					?>
 				</div>
 			</div>
 		</div>

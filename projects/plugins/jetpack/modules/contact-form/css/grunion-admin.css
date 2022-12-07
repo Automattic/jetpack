@@ -95,7 +95,6 @@
 	display: flex;
 	flex-grow: 1;
 	flex-direction: column;
-	align-items: flex-start;
 	padding: 0px;
 	gap: 32px;
 }
@@ -111,11 +110,18 @@
 	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;
 	display: flex;
 	flex-direction: column;
-	align-items: flex-start;
 	padding: 24px;
 	isolation: isolate;
 }
 
 .export-card__body, .export-card__header {
 	display: flex;
+}
+
+.export-card__body-description {
+	flex-grow: 1;
+}
+
+.export-card__body-cta {
+	align-self: flex-end;
 }
