@@ -174,7 +174,7 @@ export async function scriptRouter( argv ) {
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ '-u', argv.version, argv.project ];
+			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
 			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
@@ -264,7 +264,7 @@ export async function getReleaseVersion( argv ) {
 		// Check if dev-releases is specified in project's composer.json
 		const hasDevReleases = await readComposerJson( argv.project ).extra[ 'dev-releases' ];
 		if ( hasDevReleases ) {
-			if ( devReleaseVersion ) {
+			if ( devReleaseVersion && devReleaseVersion.match( /^a\.\d+$/ ) ) {
 				devReleaseVersion = await getVersionBump( devReleaseVersion, argv.project );
 				potentialVersion = `${ stableVersion }-${ devReleaseVersion }`;
 			} else {

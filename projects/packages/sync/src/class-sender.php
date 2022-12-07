@@ -227,13 +227,29 @@ class Sender {
 	/**
 	 * Retrieve the next sync time.
 	 *
+	 * Update @since 1.43.2
+	 * Sometimes when we process Sync requests in Jetpack, the server clock can be a
+	 * bit in the future and this can lock Sync to not send stuff for a while.
+	 * We are introducing an extra check, to make sure to limit the next_sync_time
+	 * to be at most one hour in the future from the current time.
+	 *
 	 * @access public
 	 *
 	 * @param string $queue_name Name of the queue.
 	 * @return float Timestamp of the next sync.
 	 */
 	public function get_next_sync_time( $queue_name ) {
-		return (float) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
+		$option_name    = self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name;
+		$next_sync_time = (float) get_option( $option_name, 0 );
+
+		$is_more_than_one_hour = ( $next_sync_time - microtime( true ) ) >= HOUR_IN_SECONDS;
+
+		if ( $is_more_than_one_hour ) {
+			delete_option( $option_name );
+			$next_sync_time = 0;
+		}
+
+		return $next_sync_time;
 	}
 
 	/**
@@ -944,10 +960,8 @@ class Sender {
 		foreach ( Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
-
-		foreach ( array( 'sync', 'full_sync', 'full-sync-enqueue' ) as $queue_name ) {
-			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
-		}
+		// Reset Sync locks without unlocking queues since we already reset those.
+		Actions::reset_sync_locks( false );
 
 		Settings::reset_data();
 	}

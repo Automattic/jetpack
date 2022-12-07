@@ -99,9 +99,13 @@ export type OriginalVideoPressVideo = {
 		 */
 		rating?: 'G' | 'PG-13' | 'R-17';
 		/**
-		 * Whether is possible to download the video, or not.
+		 * Whether it is possible to download the video or not.
 		 */
 		allow_download?: boolean;
+		/**
+		 * Whether the video sharing menu is enabled or not.
+		 */
+		display_embed?: boolean;
 		/**
 		 * Video privacy setting:
 		 * - 0 `public`: anyone can view the video
@@ -144,6 +148,7 @@ export type VideoPressVideo = {
 	isPrivate?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'is_private' ];
 	posterImage?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 	allowDownload?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'allow_download' ];
+	displayEmbed?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'display_embed' ];
 	rating?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'rating' ];
 	privacySetting?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'privacy_setting' ];
 	needsPlaybackToken?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'needs_playback_token' ];
@@ -224,6 +229,9 @@ export type VideopressSelectors = {
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;
+	getFirstUploadedVideoId: () => number;
+	getFirstVideoProcessed: () => boolean;
+	getDismissedFirstVideoPopover: () => boolean;
 	getIsFetching: () => boolean;
 	getPurchases: () => Array< object >;
 

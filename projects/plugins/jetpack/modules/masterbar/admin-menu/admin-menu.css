@@ -205,12 +205,14 @@
 
 #adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image {
 	background-color: #c3c4c7;
+	height: 32px;
+	width: 32px;
 }
 
-#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img[src^="data:image/svg"] {
-	height: auto;
-	padding-top: 7px;
+#adminmenu .toplevel_page_site-card:not(.has-site-icon) .wp-menu-image img {
 	width: 18px;
+	height: 18px;
+	padding: 7px;
 }
 
 #adminmenu .toplevel_page_site-card:hover div.wp-menu-image img,

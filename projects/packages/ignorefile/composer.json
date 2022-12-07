@@ -7,7 +7,7 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"wikimedia/at-ease": "^1.2 || ^2.0",
-		"yoast/phpunit-polyfills": "1.0.3"
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"autoload": {
 		"classmap": [

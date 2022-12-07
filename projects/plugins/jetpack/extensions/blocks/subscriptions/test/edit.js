@@ -7,6 +7,7 @@ const setAttributes = jest.fn();
 const defaultAttributes = {
 	borderRadius: 0,
 	borderWeight: 0,
+	includeSocialFollowers: true,
 	padding: 0,
 	spacing: 0,
 	submitButtonText: 'Submit',
@@ -34,6 +35,9 @@ jest.mock( '../api', () => ( {
 	__esModule: true,
 	getSubscriberCount: jest.fn( successCallback => {
 		successCallback( 100 );
+	} ),
+	getSubscriberCounts: jest.fn( successCallback => {
+		successCallback( { email_subscribers: 100, social_followers: 100 } );
 	} ),
 } ) );
 

@@ -77,33 +77,46 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'repository_dispatch':
 		if ( process.env.DISPATCH_REPO ) {
 			const repoName = process.env.DISPATCH_REPO.split( '/' )[ 1 ];
+			const refName = process.env.REF_NAME;
+			const refType = process.env.REF_TYPE;
+
+			if ( repoName === 'jetpack-production' ) {
+				projects.push( {
+					project: 'Blocks with latest Gutenberg',
+					path: 'projects/plugins/jetpack/tests/e2e',
+					testArgs: [ 'blocks', '--retries=1' ],
+					suite: 'gutenberg',
+				} );
+
+				if ( refType === 'tag' || refName === 'trunk' ) {
+					projects.push( {
+						project: 'Jetpack on Atomic',
+						path: 'projects/plugins/jetpack/tests/e2e',
+						testArgs: [ 'blocks', '--retries=1' ],
+						suite: 'atomic',
+					} );
+				}
+			}
 
 			for ( const project of projects ) {
 				const packageJson = JSON.parse(
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
 
-				project.suite = repoName;
+				let suiteName = project.suite ? project.suite : repoName;
+				if ( refType === 'tag' ) {
+					suiteName = `${ suiteName }-${ refName }`;
+				}
+
+				if ( refType === 'branch' && refName !== 'trunk' ) {
+					suiteName = `${ suiteName }-rc`;
+				}
+
+				project.suite = suiteName;
+
 				if ( packageJson?.ci?.mirrorName === repoName ) {
 					matrix.push( project );
 				}
-			}
-
-			if ( repoName === 'jetpack-production' ) {
-				matrix.push(
-					{
-						project: 'Jetpack on Atomic',
-						path: 'projects/plugins/jetpack/tests/e2e',
-						testArgs: [ 'blocks', '--retries=1' ],
-						suite: 'atomic',
-					},
-					{
-						project: 'Blocks with latest Gutenberg',
-						path: 'projects/plugins/jetpack/tests/e2e',
-						testArgs: [ 'blocks', '--retries=1' ],
-						suite: 'gutenberg',
-					}
-				);
 			}
 		} else {
 			// eslint-disable-next-line no-console

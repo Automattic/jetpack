@@ -88,9 +88,7 @@ class VideoPress_Rest_Api_V1_Settings {
 		}
 
 		$status = 200;
-		$data   = array(
-			'videopress_videos_private_for_site' => get_option( 'videopress_private_enabled_for_site', false ) ? true : false,
-		);
+		$data   = Data::get_videopress_settings();
 
 		return rest_ensure_response(
 			new WP_REST_Response( $data, $status )

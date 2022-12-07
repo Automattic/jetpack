@@ -80,7 +80,7 @@ jobs:
           fi
 
       - name: Filter mirror list for release branch
-        if: contains( github.ref, '/branch-' )
+        if: github.ref == 'refs/heads/prerelease' || contains( github.ref, '/branch-' )
         run: .github/files/filter-mirrors-for-release-branch.sh
 
       - name: Determine plugins to publish

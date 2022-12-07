@@ -1,5 +1,23 @@
 import { exec } from './system-tools';
 
+// Cache the docker container id
+let containerId: string | undefined;
+
+export async function getContainerId(): Promise< string > {
+	if ( ! containerId ) {
+		const { stdout } = await exec(
+			'docker',
+			'ps',
+			'-q',
+			'--filter',
+			'ancestor=super-cache-e2e_wordpress '
+		);
+		containerId = stdout.trim();
+	}
+
+	return containerId;
+}
+
 /**
  * Run the given command in the test Docker instance.
  *
@@ -11,7 +29,7 @@ export async function dockerExec( ...command: string[] ) {
 		'exec',
 		'-u',
 		'www-data',
-		'super-cache-e2e_wordpress_1',
+		await getContainerId(),
 		...command
 	);
 
@@ -38,12 +56,36 @@ export async function deleteContainerFile( filename: string ) {
 }
 
 /**
+ * Deletes the specified directory (and its contents) from docker.
+ *
+ * @param {string} filename - The file to delete.
+ */
+export async function deleteContainerDirectory( filename: string ) {
+	await dockerExec( 'rm', '-rf', filename );
+}
+
+/**
  * Returns the contents of the specified file from docker.
  *
  * @param {string} filename - The file to read.
  */
-export async function readContainerFile( filename: string ) {
-	return dockerExec( 'cat', filename );
+export async function readContainerFile( filename: string ): Promise< Buffer > {
+	const encoded = await dockerExec( 'bash', '-c', `cat ${ filename } | base64 -w 0` );
+
+	return Buffer.from( encoded, 'base64' );
+}
+
+/**
+ * Returns the contents of the specified file from docker, converted to string.
+ *
+ * @param {string} filename - The file to read.
+ * @param          encoding
+ */
+export async function decodeContainerFile(
+	filename: string,
+	encoding: BufferEncoding = 'utf8'
+): Promise< string > {
+	return ( await readContainerFile( filename ) ).toString( encoding );
 }
 
 /**

@@ -25,13 +25,14 @@ import {
 	DELETE_VIDEO,
 	REMOVE_VIDEO,
 	SET_IS_FETCHING_UPLOADED_VIDEO_COUNT,
+	DISMISS_FIRST_VIDEO_POPOVER,
 	SET_UPLOADED_VIDEO_COUNT,
 	WP_REST_API_VIDEOPRESS_META_ENDPOINT,
 	VIDEO_PRIVACY_LEVELS,
 	WP_REST_API_MEDIA_ENDPOINT,
-	UPLOADING_VIDEO,
-	PROCESSING_VIDEO,
-	UPLOADED_VIDEO,
+	SET_VIDEO_UPLOADING,
+	SET_VIDEO_PROCESSING,
+	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -238,15 +239,15 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	// @todo: implement progress and error handler
 	const noop = () => {};
 
-	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.name } );
+	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 	// @todo: this should be stored in the state
 	const jwt = await getJWT();
 
 	const onSuccess = async data => {
-		dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+		dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 		const video = await pollingUploadedVideoData( data );
-		dispatch( { type: UPLOADED_VIDEO, video } );
+		dispatch( { type: SET_VIDEO_UPLOADED, video } );
 	};
 
 	const onProgress = ( bytesSent, bytesTotal ) => {
@@ -270,12 +271,12 @@ const uploadVideo = file => async ( { dispatch } ) => {
  */
 const uploadVideoFromLibrary = file => async ( { dispatch } ) => {
 	const tempId = uid();
-	dispatch( { type: UPLOADING_VIDEO, id: tempId, title: file?.title } );
+	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.title } );
 	const data = await uploadFromLibrary( file?.id );
 	dispatch( { type: SET_LOCAL_VIDEO_UPLOADED, id: file?.id } );
-	dispatch( { type: PROCESSING_VIDEO, id: tempId, data } );
+	dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
 	const video = await pollingUploadedVideoData( data );
-	dispatch( { type: UPLOADED_VIDEO, video } );
+	dispatch( { type: SET_VIDEO_UPLOADED, video } );
 };
 
 const setIsFetchingPurchases = isFetching => {
@@ -289,9 +290,8 @@ const setPurchases = purchases => {
 const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, select, resolveSelect } ) => {
 	const path = `${ WP_REST_API_VIDEOPRESS_ENDPOINT }/${ guid }/poster`;
 
+	const video = await select.getVideo( id );
 	const getPlaybackTokenIfNeeded = async () => {
-		const video = await select.getVideo( id );
-
 		if ( ! video.needsPlaybackToken ) {
 			return null;
 		}
@@ -343,6 +343,18 @@ const updateVideoPoster = ( id, guid, data ) => async ( { dispatch, select, reso
 
 	try {
 		dispatch( { type: SET_UPDATING_VIDEO_POSTER, id } );
+
+		/**
+		 * For some reason, the thumbnail generator fails when a time
+		 * too close to the end of the media is selected. This code is
+		 * detecting this scenario and is bringing back the selected frame
+		 * to a point where it will succeeed, but close enough to not affect
+		 * much the thumbnail itself.
+		 */
+		const poster_to_duration_threshold = video.duration - data.at_time;
+		if ( poster_to_duration_threshold < 50 ) {
+			data.at_time -= poster_to_duration_threshold + 50;
+		}
 
 		const resp = await apiFetch( { method: 'POST', path, data } );
 
@@ -421,6 +433,10 @@ const updateVideoPressSettings = settings => async ( { dispatch } ) => {
 	}
 };
 
+const dismissFirstVideoPopover = () => {
+	return { type: DISMISS_FIRST_VIDEO_POPOVER };
+};
+
 const actions = {
 	setIsFetchingVideos,
 	setFetchVideosError,
@@ -428,6 +444,7 @@ const actions = {
 	setVideosPagination,
 	setVideosFilter,
 	setVideos,
+	dismissFirstVideoPopover,
 
 	setLocalVideos,
 	setIsFetchingLocalVideos,

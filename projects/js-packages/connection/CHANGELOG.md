@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.0 - 2022-12-05
+### Changed
+- Improve design of the connection error notice. [#27340]
+
+## 0.23.0 - 2022-12-02
+### Added
+- Connection: hide the "Manage Connection" modal on "Escape" press. [#27643]
+
+### Changed
+- Updated package dependencies. [#27697]
+
+## 0.22.11 - 2022-11-28
+### Changed
+- My Jetpack: move connection status card out of connection package. [#26967]
+- Updated package dependencies. [#27576]
+
 ## 0.22.10 - 2022-11-22
 ### Added
 - Add Manage Connection dialog to My Jetpack [#27476]

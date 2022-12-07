@@ -81,7 +81,7 @@
 			</slot>
 
 			{#if data}
-				<pre class="data">{ data }</pre>
+				<pre class="data">{data}</pre>
 			{/if}
 
 			{#if suggestion}

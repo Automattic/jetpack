@@ -41,6 +41,12 @@ const settingsHandlers = {
 			form.setCheckbox( 'wp_cache_no_cache_for_get', value );
 		} );
 	},
+
+	cache_compression: async ( authCookie: string, value: boolean ) => {
+		await submitSettingsForm( authCookie, 'settings', 'scupdates', form => {
+			form.setCheckbox( 'cache_compression', value );
+		} );
+	},
 };
 
 type SettingName = keyof typeof settingsHandlers;

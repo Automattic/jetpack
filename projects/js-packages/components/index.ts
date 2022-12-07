@@ -54,4 +54,5 @@ export { default as ContextualUpgradeTrigger } from './components/contextual-upg
 export { default as Alert } from './components/alert';
 export { default as Notice } from './components/notice';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
+export { default as ActionPopover } from './components/action-popover';
 export { getUserLocale, cleanLocale } from './lib/locale';

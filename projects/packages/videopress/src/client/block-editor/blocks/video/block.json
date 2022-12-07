@@ -73,7 +73,10 @@
 			"type": "string"
 		},
 		"src": {
-			"type": "string"
+			"type": "string",
+			"source": "attribute",
+			"selector": "video",
+			"attribute": "src"
 		},
 		"cacheHtml": {
 			"type": "string",
@@ -100,11 +103,19 @@
 			"type": "boolean",
 			"default": true
 		},
+		"displayEmbed": {
+			"type": "boolean",
+			"default": true
+		},
 		"rating": {
 			"type": "string"
 		},
 		"isPrivate": {
 			"type": "boolean"
+		},
+		"isExample": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "jetpack-videopress",

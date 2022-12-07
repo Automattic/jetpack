@@ -50,7 +50,12 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	).toBeTruthy();
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
-	await ( await PluginsPage.init( page ) ).deactivatePlugin( 'jetpack-boost' );
+
+	// Deactivate boost
+	const pluginsPage = await PluginsPage.init( page );
+	await pluginsPage.deactivatePlugin( 'jetpack-boost' );
+	await pluginsPage.click( 'text=Just Deactivate' );
+
 	let result;
 	result = await execWpCommand(
 		'db query \'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"\' --skip-column-names'

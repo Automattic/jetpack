@@ -1,5 +1,5 @@
 import { describe, expect, beforeAll, test } from '@jest/globals';
-import { readContainerFile } from '../../lib/docker-tools';
+import { decodeContainerFile } from '../../lib/docker-tools';
 import { ModRewriteOptions, updateSettings } from '../../lib/plugin-settings';
 import {
 	authenticatedRequest,
@@ -25,7 +25,7 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 	} );
 
 	test( 'updates mod_rewrite rules', async () => {
-		const rules = await readContainerFile( '/var/www/html/.htaccess' );
+		const rules = await decodeContainerFile( '/var/www/html/.htaccess' );
 
 		expect( rules ).toContain( '# BEGIN WPSuperCache' );
 		expect( rules ).toContain( '# END WPSuperCache' );
@@ -41,13 +41,13 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 		expect( first ).toBe( second );
 	} );
 
-	test( 'logged in users do not get cached pages', async () => {
+	test( 'logged in users get cached pages by default', async () => {
 		const url = getSiteUrl();
 
 		const first = await authenticatedRequest( authCookie, 'GET', url );
 		const second = await authenticatedRequest( authCookie, 'GET', url );
 
-		expect( first ).not.toBe( second );
+		expect( first ).toBe( second );
 	} );
 
 	test( 'GET parameters should affect caching', async () => {
@@ -84,7 +84,7 @@ describe( 'cache behavior with mod_rewrite enabled', () => {
 			wp_cache_mod_rewrite: ModRewriteOptions.Off,
 		} );
 
-		const rules = await readContainerFile( '/var/www/html/.htaccess' );
+		const rules = await decodeContainerFile( '/var/www/html/.htaccess' );
 		expect( rules ).not.toContain( 'cache/supercache' );
 
 		// Return things to the state other tests expect.
