@@ -23,7 +23,10 @@ const icon = renderMaterialIcon(
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
-	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
+	description: __(
+		'Create forms that allow visitors to send data to you, and manage their responses.',
+		'jetpack'
+	),
 	icon,
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
