@@ -197,13 +197,11 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSeen'              => self::get_waf_seen_status(),
-				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
-				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
-				'isEnabled'           => Waf_Runner::is_enabled(),
-				'isLoading'           => false,
-				'isUpdating'          => false,
-				'config'              => Waf_Runner::get_config(),
+				'isSeen'     => self::get_waf_seen_status(),
+				'isEnabled'  => Waf_Runner::is_enabled(),
+				'isLoading'  => false,
+				'isUpdating' => false,
+				'config'     => Waf_Runner::get_config(),
 			),
 		);
 
@@ -425,30 +423,6 @@ class Jetpack_Protect {
 				},
 			)
 		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-upgrade-seen',
-			array(
-				'methods'             => \WP_REST_SERVER::READABLE,
-				'callback'            => __CLASS__ . '::get_waf_upgrade_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
-
-		register_rest_route(
-			'jetpack-protect/v1',
-			'waf-upgrade-seen',
-			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
-				'callback'            => __CLASS__ . '::set_waf_upgrade_seen_status',
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-			)
-		);
 	}
 
 	/**
@@ -628,62 +602,5 @@ class Jetpack_Protect {
 	 */
 	public static function set_waf_seen_status() {
 		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
-	}
-
-	/**
-	 * Get WAF Upgrade Badge Timestamp
-	 *
-	 * @return integer The timestamp for the when the upgrade seen status was first set to true.
-	 */
-	public static function get_waf_upgrade_badge_timestamp() {
-		return (int) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp', true );
-	}
-
-	/**
-	 * Set WAF Upgrade Badge Timestamp
-	 *
-	 * @return bool True if upgrade badge timestamp to set to the current time, false on failure.
-	 */
-	public static function set_waf_upgrade_badge_timestamp() {
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp', time() );
-	}
-
-	/**
-	 * Get WAF Upgrade Badge Display Status
-	 *
-	 * @return bool True if upgrade badge timestamp is set and less than 7 days ago, otherwise false.
-	 */
-	public static function get_waf_upgrade_badge_display_status() {
-		$badge_timestamp_exists = metadata_exists( 'user', get_current_user_id(), 'jetpack_protect_waf_upgrade_badge_timestamp' );
-		if ( ! $badge_timestamp_exists ) {
-			return true;
-		}
-
-		$badge_timestamp = self::get_waf_upgrade_badge_timestamp();
-		$seven_days      = strtotime( '-7 days' );
-		if ( $badge_timestamp > $seven_days ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get WAF Upgrade "Seen" Status
-	 *
-	 * @return bool Whether the current user has dismissed the upgrade popover or enabled the automatic rules feature.
-	 */
-	public static function get_waf_upgrade_seen_status() {
-		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen', true );
-	}
-
-	/**
-	 * Set WAF Upgrade "Seen" Status
-	 *
-	 * @return bool True if upgrade seen status updated to true, false on failure.
-	 */
-	public static function set_waf_upgrade_seen_status() {
-		self::set_waf_upgrade_badge_timestamp();
-		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_upgrade_seen', true );
 	}
 }
