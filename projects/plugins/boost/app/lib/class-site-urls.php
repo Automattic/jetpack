@@ -7,6 +7,10 @@ class Site_Urls {
 	public static function get( $limit = 1000 ) {
 		$instance = new static();
 
+		// @todo - after removing the core urls from the post urls,
+		// there might be core urls left that aren't in the posts urls
+		// and combining the two would result in a list over the $limit
+
 		$core_urls = $instance->get_wp_core_urls();
 		$post_urls = $instance->cleanup_post_urls(
 			$instance->get_post_urls( $limit ),
@@ -86,8 +90,8 @@ class Site_Urls {
 	}
 
 	/**
-	 * Removes duplicate URLs from the $post_urls list and reduces the
-	 * size of that list based on the additional URLs.
+	 * Removes duplicate URLs from the $post_urls list
+	 * based on the additional URLs.
 	 *
 	 * @param  $post_urls       List of URLs to cleanup.
 	 * @param  $additional_urls List of URLs to lookup while cleaning.
@@ -96,25 +100,16 @@ class Site_Urls {
 	 */
 	private function cleanup_post_urls( $post_urls, $additional_urls ) {
 		$clean   = array();
-		$removed = 0;
 
 		foreach ( $post_urls as $key => $item ) {
 			if ( in_array( $item['url'], $additional_urls, true ) ) {
-				$removed++;
 				continue;
 			}
 
 			$clean[ $key ] = $item;
 		}
 
-		$cutoff = count( $additional_urls ) - $removed;
-
-		return array_slice(
-			$clean,
-			0,
-			count( $clean ) - $cutoff,
-			true
-		);
+		return $clean;
 	}
 
 	private function get_public_post_types() {
