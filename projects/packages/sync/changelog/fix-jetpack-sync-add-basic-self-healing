@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add basic self-healing functionality to Sync when a few failrue states are detected.
