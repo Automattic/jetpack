@@ -25,7 +25,7 @@ import type React from 'react';
  * @returns {React.ReactElement}    Component template
  */
 export default function PrivacyAndRatingPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { privacySetting, rating, allowDownload } = attributes;
+	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
 	return (
 		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
@@ -87,6 +87,18 @@ export default function PrivacyAndRatingPanel( { attributes, setAttributes }: Vi
 				onChange={ value => {
 					setAttributes( { allowDownload: value } );
 				} }
+			/>
+
+			<ToggleControl
+				label={ __( 'Show video sharing menu', 'jetpack-videopress-pkg' ) }
+				checked={ displayEmbed }
+				onChange={ value => {
+					setAttributes( { displayEmbed: value } );
+				} }
+				help={ __(
+					'Gives viewers the option to share the video link and HTML embed code',
+					'jetpack-videopress-pkg'
+				) }
 			/>
 		</PanelBody>
 	);

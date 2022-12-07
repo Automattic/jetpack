@@ -103,6 +103,10 @@
 			"type": "boolean",
 			"default": true
 		},
+		"displayEmbed": {
+			"type": "boolean",
+			"default": true
+		},
 		"rating": {
 			"type": "string"
 		},

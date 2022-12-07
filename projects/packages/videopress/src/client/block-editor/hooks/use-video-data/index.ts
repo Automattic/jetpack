@@ -49,6 +49,7 @@ export default function useVideoData( {
 					title: response.title,
 					description: response.description,
 					allow_download: response.allow_download,
+					display_embed: response.display_embed,
 					privacy_setting: response.privacy_setting,
 					rating: response.rating,
 					filename,
