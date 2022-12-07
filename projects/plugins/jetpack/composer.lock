@@ -1206,7 +1206,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "06fc8f1ff2c52aac53109dfc25e92d8e3f97b20b"
+                "reference": "f525760662fd374d27bd7d4c92faeedaaf5941a4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1232,7 +1232,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.5.x-dev"
+                    "dev-trunk": "2.6.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1873,7 +1873,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "c33d4f4c97ec0eb77ffe8aff852b16e3bf974093"
+                "reference": "921b9b08b3336103da4fc96a317a1fb7e58d5111"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1893,7 +1893,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -2112,7 +2112,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "f4e72e6315dbdc54ea46fc3656ace1be7f63b3f7"
+                "reference": "f9648f4fec2e3e51fa86bbc43e5aad2cade714f2"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2134,7 +2134,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -2190,7 +2190,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "9b247af2b7754a8d9d652ac4c04ea07198302fda"
+                "reference": "601cd835cb48a8fd698f40c2dd355fb2f1a576b9"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -2208,7 +2208,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 }
             },
             "autoload": {

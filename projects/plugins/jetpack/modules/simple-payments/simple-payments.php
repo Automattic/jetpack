@@ -334,19 +334,19 @@ class Jetpack_Simple_Payments {
 					<input class="%2$s" type="number" value="1" min="1" id="%3$s" />
 				</div>
 				',
-				esc_attr( "${css_prefix}-items" ),
-				esc_attr( "${css_prefix}-items-number" ),
+				esc_attr( "{$css_prefix}-items" ),
+				esc_attr( "{$css_prefix}-items-number" ),
 				esc_attr( "{$dom_id}_number" )
 			);
 		}
 
 		return sprintf(
 			'<div class="%1$s" id="%2$s"></div><div class="%3$s">%4$s<div class="%5$s" id="%6$s"></div></div>',
-			esc_attr( "${css_prefix}-purchase-message" ),
+			esc_attr( "{$css_prefix}-purchase-message" ),
 			esc_attr( "{$dom_id}-message-container" ),
-			esc_attr( "${css_prefix}-purchase-box" ),
+			esc_attr( "{$css_prefix}-purchase-box" ),
 			$items,
-			esc_attr( "${css_prefix}-button" ),
+			esc_attr( "{$css_prefix}-button" ),
 			esc_attr( "{$dom_id}_button" )
 		);
 	}
@@ -364,8 +364,8 @@ class Jetpack_Simple_Payments {
 		if ( has_post_thumbnail( $data['id'] ) ) {
 			$image = sprintf(
 				'<div class="%1$s"><div class="%2$s">%3$s</div></div>',
-				esc_attr( "${css_prefix}-product-image" ),
-				esc_attr( "${css_prefix}-image" ),
+				esc_attr( "{$css_prefix}-product-image" ),
+				esc_attr( "{$css_prefix}-image" ),
 				get_the_post_thumbnail( $data['id'], 'full' )
 			);
 		}
@@ -384,15 +384,15 @@ class Jetpack_Simple_Payments {
 	</div>
 </div>
 ',
-			esc_attr( "{$data['class']} ${css_prefix}-wrapper" ),
-			esc_attr( "${css_prefix}-product" ),
+			esc_attr( "{$data['class']} {$css_prefix}-wrapper" ),
+			esc_attr( "{$css_prefix}-product" ),
 			$image,
-			esc_attr( "${css_prefix}-details" ),
-			esc_attr( "${css_prefix}-title" ),
+			esc_attr( "{$css_prefix}-details" ),
+			esc_attr( "{$css_prefix}-title" ),
 			esc_html( $data['title'] ),
-			esc_attr( "${css_prefix}-description" ),
+			esc_attr( "{$css_prefix}-description" ),
 			wp_kses( $data['description'], wp_kses_allowed_html( 'post' ) ),
-			esc_attr( "${css_prefix}-price" ),
+			esc_attr( "{$css_prefix}-price" ),
 			esc_html( $data['price'] ),
 			$this->output_purchase_box( $data['dom_id'], $data['multiple'] )
 		);

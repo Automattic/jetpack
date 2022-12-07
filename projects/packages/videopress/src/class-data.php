@@ -211,6 +211,10 @@ class Data {
 	 * Checks if the user is able to perform actions that modify data
 	 */
 	public static function can_perform_action() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
 		$connection = new Connection_Manager();
 
 		return (
