@@ -5,12 +5,13 @@ import {
 	withHasWarningIsInteractiveClassNames,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
-import { useBlockEditContext } from '@wordpress/block-editor';
+import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import { mediaUpload } from '@wordpress/editor';
-import { useContext } from '@wordpress/element';
+import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
@@ -434,4 +435,76 @@ addFilter(
 	'blocks.registerBlockType',
 	'videopress/add-core-video-transform',
 	addVideoPressCoreVideoTransform
+);
+
+/**
+ * Organize the block attributes for the new videopress/video block
+ *
+ * @param {object} attributes        - core/video block attributes
+ * @param {object} defaultAttributes - default core/video block attributes
+ * @returns {object}                   The new attributes
+ */
+function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
+	const attrs = attributes || defaultAttributes;
+
+	// Update attributes names to match the new VideoPress Video block.
+	if ( attrs?.videoPressTracks ) {
+		attrs.tracks = attrs.videoPressTracks || [];
+		delete attrs.videoPressTracks;
+	}
+
+	if ( attrs?.isVideoPressExample ) {
+		attrs.isExample = attrs.isVideoPressExample || [];
+		delete attrs.isVideoPressExample;
+	}
+
+	return attrs;
+}
+
+const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
+	return props => {
+		const { block } = props;
+		const { name, attributes, clientId, __unstableBlockSource } = block;
+		const { guid, videoPressTracks } = attributes;
+
+		const { replaceBlock } = useDispatch( blockEditorStore );
+
+		/*
+		 * We try to recognize core/video Jetpack VideoPress block,
+		 * based on some of its attributes.
+		 */
+		const isCoreVideoVideoPressBlock = guid?.length && videoPressTracks;
+
+		const shouldConvertToVideoPressVideoBlock = !! (
+			name === 'core/video' && isCoreVideoVideoPressBlock
+		);
+
+		useEffect( () => {
+			if ( ! shouldConvertToVideoPressVideoBlock ) {
+				return;
+			}
+
+			replaceBlock(
+				clientId,
+				createBlock(
+					'videopress/video',
+					getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
+				)
+			);
+		}, [
+			clientId,
+			shouldConvertToVideoPressVideoBlock,
+			attributes,
+			__unstableBlockSource,
+			replaceBlock,
+		] );
+
+		return <BlockListBlock { ...props } />;
+	};
+}, 'convertCoreVideoToVideoPressVideoBlock' );
+
+addFilter(
+	'editor.BlockListBlock',
+	'videopress/jetpack-convert-to-videopress-video-block',
+	convertCoreVideoToVideoPressVideoBlock
 );
