@@ -62,38 +62,3 @@
 .go-back-button {
     margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -2 ); // -8px -16px
 }
-
-.badge {
-    color: var( --jp-gray-30 );
-    font-size: 12px;
-    height: 21px;
-    padding: calc( var( --spacing-base ) / 2 ); // 4px
-    border: 1px solid var( --jp-gray-30 );
-    border-radius: 4px;
-    margin-left: var( --spacing-base ); // 8px
-    display: flex;
-    align-items: center;
-}
-
-.popover {
-    width: 304px;
-    padding: calc( var( --spacing-base ) * 3 ); // 24px
-
-    > .popover-header {
-        display: flex;
-        justify-content: space-between;
-
-        > button {
-            margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -3 ); // -8px -24px
-
-            &:focus {
-                box-shadow: none;
-            }
-        }
-    }
-
-    > .popover-footer {
-        display: flex;
-        justify-content: flex-end;
-    }
-}

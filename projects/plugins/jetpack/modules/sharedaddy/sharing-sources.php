@@ -150,7 +150,7 @@ abstract class Sharing_Source {
 		 */
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
-		return html_entity_decode( wp_kses( $title, null ) );
+		return html_entity_decode( wp_kses( $title, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**

@@ -25,6 +25,7 @@ declare global {
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;
+			contentNonce: string;
 		};
 	}
 }

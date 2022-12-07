@@ -904,6 +904,8 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
+
+		Automattic\Jetpack\Stats_Admin\Main::init();
 	}
 
 	/**
@@ -6797,7 +6799,7 @@ endif;
 			'features'          => array(
 				_x( '1TB of storage', 'VideoPress Product Feature', 'jetpack' ),
 				_x( 'Built into WordPress editor', 'VideoPress Product Feature', 'jetpack' ),
-				_x( 'Ad-free and brandable player', 'VideoPress Product Feature', 'jetpack' ),
+				_x( 'Ad-free and customizable player', 'VideoPress Product Feature', 'jetpack' ),
 				_x( 'Unlimited users', 'VideoPress Product Feature', 'jetpack' ),
 			),
 		);

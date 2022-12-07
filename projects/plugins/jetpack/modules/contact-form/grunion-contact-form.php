@@ -3810,6 +3810,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep
 		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
 
+		// Convert <div> to \n breaks, to preserve space between lines for new email formatting.
+		$alt_body = str_replace( '<div', "\n<div", $alt_body );
+
 		// Convert <hr> to an plain-text equivalent, to preserve the integrity of the message
 		$alt_body = str_replace( array( '<hr>', '<hr />' ), "----\n", $alt_body );
 
