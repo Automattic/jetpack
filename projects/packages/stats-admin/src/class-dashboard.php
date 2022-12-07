@@ -248,6 +248,9 @@ class Dashboard {
 							'visible'      => true,
 							'capabilities' => $empty_object,
 							'products'     => array(),
+							'options'      => array(
+								'woocommerce_is_active' => true,
+							),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 						),
 					),
