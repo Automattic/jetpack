@@ -20,6 +20,7 @@ use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
 use Automattic\Jetpack\Stats\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
@@ -51,6 +52,7 @@ class Config {
 		'waf'             => false,
 		'videopress'      => false,
 		'stats'           => false,
+		'stats_admin'     => false,
 	);
 
 	/**
@@ -150,6 +152,9 @@ class Config {
 		}
 		if ( $this->config['stats'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Stats\Main' ) && $this->ensure_feature( 'stats' );
+		}
+		if ( $this->config['stats_admin'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
 		}
 	}
 
@@ -314,6 +319,14 @@ class Config {
 	 */
 	protected function enable_stats() {
 		Stats_Main::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats Admin.
+	 */
+	protected function enable_stats_admin() {
+		Stats_Admin_Main::init();
 		return true;
 	}
 
