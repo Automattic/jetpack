@@ -1441,7 +1441,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				'lastmod'   => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'news:news' => array(
 					'news:publication'      => array(
-						'news:name'     => html_entity_decode( get_bloginfo( 'name' ) ),
+						'news:name'     => html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 						'news:language' => $language,
 					),
 					/** This filter is already documented in core/wp-includes/feed.php */

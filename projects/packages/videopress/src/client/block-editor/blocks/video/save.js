@@ -54,7 +54,7 @@ export default function save( { attributes } ) {
 		poster,
 	} );
 
-	// Adjust block with based on custom maxWidth.
+	// Adjust block width based on custom maxWidth.
 	const style = {};
 	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		style.maxWidth = maxWidth;

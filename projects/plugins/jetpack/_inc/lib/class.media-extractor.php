@@ -565,7 +565,7 @@ class Jetpack_Media_Meta_Extractor {
 	 */
 	private static function get_stripped_content( $content ) {
 		$clean_content = wp_strip_all_tags( $content );
-		$clean_content = html_entity_decode( $clean_content );
+		$clean_content = html_entity_decode( $clean_content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		// completely strip shortcodes and any content they enclose.
 		$clean_content = strip_shortcodes( $clean_content );
 		return $clean_content;
