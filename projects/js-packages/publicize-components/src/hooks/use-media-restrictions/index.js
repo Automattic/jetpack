@@ -2,29 +2,59 @@ import { useCallback } from 'react';
 
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
+export const VIDEO_LENGTH_ERROR = 'VIDEO_LENGTH_ERROR';
 
+const MP4 = 'video/mp4';
+const MOV = 'video/mov';
 /**
- * These restrictions were updated on: November 18, 2022
+ * These restrictions were updated on: November 18, 2022.
  *
- * Image size is in MB
+ * Image and video size is in MB.
+ * Video length is in seconds.
  */
 const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const RESTRICTIONS = {
 	twitter: {
-		maxImageSize: 5,
-		allowedImageTypes,
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		image: {
+			maxSize: 5,
+		},
+		video: {
+			maxSize: 512,
+			maxLength: 140,
+		},
 	},
 	facebook: {
-		maxImageSize: 4,
-		allowedImageTypes,
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		image: {
+			maxSize: 4,
+		},
+		video: {
+			maxSize: 10000,
+			maxLength: 14400,
+		},
 	},
 	tumblr: {
-		maxImageSize: 20,
-		allowedImageTypes,
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV ] ),
+		image: {
+			maxSize: 20,
+		},
+		video: {
+			maxSize: 500,
+			maxLength: 600,
+		},
 	},
 	linkedin: {
-		maxImageSize: 5,
-		allowedImageTypes,
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		image: {
+			maxSize: 20,
+		},
+		video: {
+			minSize: 0.075,
+			maxSize: 200,
+			maxLength: 600,
+			minLength: 3,
+		},
 	},
 };
 
@@ -35,10 +65,32 @@ const RESTRICTIONS = {
  */
 export function getAllowedMediaTypes() {
 	const typeArrays = Object.keys( RESTRICTIONS ).map(
-		service => RESTRICTIONS[ service ].allowedImageTypes
+		service => RESTRICTIONS[ service ].allowedMediaTypes
 	);
 	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
 }
+
+/**
+ * Checks whether a media is a video.
+ *
+ * @param {string} mime - The MIME tye of the media
+ * @returns {boolean} Whether it is a video.
+ */
+export function isVideo( mime ) {
+	return mime.split( '/' )[ 0 ] === 'video';
+}
+
+const isMimeValid = mime => mime && getAllowedMediaTypes().includes( mime.toLowerCase() );
+
+const getMin = ( a, b ) => Math.min( a ?? Infinity, b ?? Infinity );
+const getMax = ( a, b ) => Math.min( a ?? 0, b ?? 0 );
+
+const reduceVideoLimits = ( prev, current ) => ( {
+	minSize: getMax( prev.minSize, current.minSize ),
+	maxSize: getMin( prev.maxSize, current.maxSize ),
+	maxLength: getMin( prev.maxLength, current.maxLength ),
+	minLength: getMax( prev.minLength, current.minLength ),
+} );
 
 /**
  * Hooks to deal with the media restrictions
@@ -48,31 +100,75 @@ export function getAllowedMediaTypes() {
  */
 export default function useMediaRestrictions( enabledConnections ) {
 	const maxImageSize = Math.min(
-		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].maxImageSize )
+		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].image.maxSize )
 	);
+
+	const videoLimits = enabledConnections
+		.map( connection => RESTRICTIONS[ connection.service_name ].video )
+		.reduce( reduceVideoLimits );
 
 	/**
 	 * This function is used to check if the provided image is valid based on it's size and type.
 	 *
-	 * @param {number} sizeInBytes - Size of the image in bytes.
-	 * @param {string} mime - MIME type of the image.
-	 * @returns {number} Returns validation error. 1 - Type error, 2 - Size error
+	 * @param {number} sizeInMb - The fileSize in bytes.
+	 * @returns {FILE_SIZE_ERROR} Returns validation error.
 	 */
-	const getValidationError = useCallback(
-		( sizeInBytes, mime ) => {
-			const sizeInMb = sizeInBytes ? sizeInBytes / Math.pow( 1000, 2 ) : null;
-
-			if ( ! mime || ! getAllowedMediaTypes().includes( mime.toLowerCase() ) ) {
-				return FILE_TYPE_ERROR;
-			}
-
-			if ( ! sizeInMb || sizeInMb >= maxImageSize ) {
+	const getImageValidationError = useCallback(
+		sizeInMb => {
+			if ( ! sizeInMb || sizeInMb > maxImageSize ) {
 				return FILE_SIZE_ERROR;
 			}
 
 			return null;
 		},
 		[ maxImageSize ]
+	);
+
+	/**
+	 * This function is used to check if the provided video is valid based on it's size and type and length.
+	 *
+	 * @param {number} sizeInMb - The fileSize in bytes.
+	 * @param {number} length - Video length in seconds and.
+	 * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 */
+	const getVideoValidationError = useCallback(
+		( sizeInMb, length ) => {
+			const { minSize, maxSize, minLength, maxLength } = videoLimits;
+
+			if ( ! sizeInMb || sizeInMb > maxSize || sizeInMb < minSize ) {
+				return FILE_SIZE_ERROR;
+			}
+
+			if ( ! length || length > maxLength || length < minLength ) {
+				return VIDEO_LENGTH_ERROR;
+			}
+
+			return null;
+		},
+		[ videoLimits ]
+	);
+
+	/**
+	 * Checks whether the media with the provided metaData is valid. It can validate images or videos.
+	 *
+	 * @param {number} metaData - Data for media.
+	 * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 */
+	const getValidationError = useCallback(
+		metaData => {
+			const { mime, fileSize, length } = metaData;
+
+			if ( ! isMimeValid( mime ) ) {
+				return FILE_TYPE_ERROR;
+			}
+
+			const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
+
+			return isVideo( mime )
+				? getVideoValidationError( sizeInMb, length )
+				: getImageValidationError( sizeInMb );
+		},
+		[ getImageValidationError, getVideoValidationError ]
 	);
 
 	return {
