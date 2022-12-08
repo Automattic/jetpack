@@ -26,6 +26,7 @@ import {
 import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
+import { useQueryStringPages } from '../pagination/use-query-string-pages';
 import styles from './style.module.scss';
 import { FilterObject } from './types';
 
@@ -181,8 +182,21 @@ export const FilterSection = ( props: {
 
 export const ConnectFilterSection = props => {
 	const { setFilter, filter } = useVideos();
+	const { setPageOnURL } = useQueryStringPages();
+
+	const onFilterHandler = ( ...filterArgs ) => {
+		// clear the pagination, setting it back to page 1
+		setPageOnURL( 1 );
+		setFilter( ...filterArgs );
+	};
+
 	const { items: users } = useUsers();
 	return (
-		<FilterSection { ...props } onChange={ setFilter } uploaders={ users } filter={ filter } />
+		<FilterSection
+			{ ...props }
+			onChange={ onFilterHandler }
+			uploaders={ users }
+			filter={ filter }
+		/>
 	);
 };
