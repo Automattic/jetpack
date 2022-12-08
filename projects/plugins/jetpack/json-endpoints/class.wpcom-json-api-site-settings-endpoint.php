@@ -437,6 +437,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -892,10 +893,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'wpcom_publish_posts_with_markdown':
 				case 'wpcom_publish_comments_with_markdown':
-				case 'wpcom_gifting_subscription':
 					$coerce_value = (bool) $value;
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $coerce_value;
+					}
+					break;
+
+				case 'wpcom_gifting_subscription':
+					$coerce_value = (bool) $value;
+
+					/*
+					 * get_option returns a boolean false if the option doesn't exist, otherwise it always returns
+					 * a serialized value. Knowing that we can check if the option already exists.
+					 */
+					$gift_toggle = get_option( $key );
+					if ( false === $gift_toggle ) {
+						// update_option will not create a new option if the initial value is false. So use add_option.
+						if ( add_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
+					} else {
+						// If the option already exists use update_option.
+						if ( update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
 					}
 					break;
 
@@ -932,6 +953,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'featured_image_email_enabled':
 					update_option( 'featured_image_email_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'jetpack_are_blogging_prompts_enabled':
+					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				default:

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
 /**
@@ -12,9 +11,8 @@ import {
 	SET_VIDEOS_FILTER,
 	WP_REST_API_MEDIA_ENDPOINT,
 	DELETE_VIDEO,
-	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_INFO_ENDPOINT,
-	PROCESSING_VIDEO,
+	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
@@ -243,30 +241,7 @@ const getUploadedVideoCount = {
 	},
 
 	shouldInvalidate: action => {
-		return action.type === PROCESSING_VIDEO || action.type === DELETE_VIDEO;
-	},
-};
-
-const getPurchases = {
-	fulfill: () => async ( { dispatch, registry } ) => {
-		/*
-		 * Check whether the site is already connected
-		 * befor to try to fetch the purchases.
-		 */
-		const { isRegistered } = registry.select( CONNECTION_STORE_ID ).getConnectionStatus();
-		if ( ! isRegistered ) {
-			return;
-		}
-
-		dispatch.setIsFetchingPurchases( true );
-
-		try {
-			const purchases = await apiFetch( { path: REST_API_SITE_PURCHASES_ENDPOINT } );
-			dispatch.setPurchases( purchases );
-		} catch ( error ) {
-			// @todo: handle error
-			console.error( error ); // eslint-disable-line no-console
-		}
+		return action.type === SET_VIDEO_PROCESSING || action.type === DELETE_VIDEO;
 	},
 };
 
@@ -455,8 +430,6 @@ export default {
 	getLocalVideos,
 
 	getUsers,
-
-	getPurchases,
 
 	getPlaybackToken,
 

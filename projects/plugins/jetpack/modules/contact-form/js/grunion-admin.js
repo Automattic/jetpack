@@ -50,7 +50,7 @@ jQuery( function ( $ ) {
 		requestOptions[ nonceName ] = nonce;
 
 		$.post( ajaxurl, requestOptions )
-			.fail( function ( result ) {
+			.fail( function () {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = failureUrl;
 				return;
@@ -121,4 +121,101 @@ jQuery( function ( $ ) {
 				}
 			} );
 	}
+
+	// Async handling for response table actions
+	$( document ).ready( function () {
+		function updateStatus( postId, status, indicatorColor ) {
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_ajax_spam',
+					post_id: postId,
+					make_it: status,
+					sub_menu: jQuery( '.subsubsub .current' ).attr( 'href' ),
+					_ajax_nonce: window.__grunionPostStatusNonce,
+				},
+				function ( response ) {
+					$( '#post-' + postId )
+						.css( { backgroundColor: indicatorColor } )
+						.fadeOut( 350, function () {
+							$( this ).remove();
+							$( '.subsubsub' ).html( response );
+						} );
+				}
+			);
+		}
+
+		$( 'tr.type-feedback .row-actions a' ).click( function ( e ) {
+			e.preventDefault();
+
+			var postRowId = $( e.target ).closest( 'tr.type-feedback' ).attr( 'id' );
+			var match = postRowId.match( /^post\-(\d+)/ );
+
+			if ( ! match ) {
+				return;
+			}
+
+			var postId = parseInt( match[ 1 ], 10 );
+
+			if ( $( e.target ).parent().hasClass( 'spam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'spam', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'trash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'trash', '#FF7979' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'unspam' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'ham', '#59C859' );
+			}
+
+			if ( $( e.target ).parent().hasClass( 'untrash' ) ) {
+				e.preventDefault();
+				updateStatus( postId, 'publish', '#59C859' );
+			}
+		} );
+	} );
+
+	// Handle export
+	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
+		e.preventDefault();
+
+		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
+		var nonce = $( '#' + nonceName ).attr( 'value' );
+
+		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
+		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
+
+		var selected = [];
+		$( '#posts-filter .check-column input[type=checkbox]:checked' ).each( function () {
+			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
+		} );
+
+		$.post(
+			ajaxurl,
+			{
+				action: 'feedback_export',
+				year: date ? date[ 2 ].substr( 0, 4 ) : '',
+				month: date ? date[ 2 ].substr( 4, 2 ) : '',
+				post: post ? parseInt( post[ 2 ], 10 ) : 'all',
+				selected: selected,
+				[ nonceName ]: nonce,
+			},
+			function ( response ) {
+				var blob = new Blob( [ response ], { type: 'application/octetstream' } );
+
+				var a = document.createElement( 'a' );
+				a.href = window.URL.createObjectURL( blob );
+				a.download = 'feedback.csv';
+
+				document.body.appendChild( a );
+				a.click();
+				document.body.removeChild( a );
+				window.URL.revokeObjectURL( a.href );
+			}
+		);
+	} );
 } );

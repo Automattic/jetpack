@@ -190,12 +190,12 @@ export default function VideoPressPlayer( {
 				enable={ {
 					top: false,
 					bottom: false,
-					left: true,
+					left: false,
 					right: true,
 				} }
 				maxWidth="100%"
 				size={ { width: maxWidth } }
-				style={ { margin: 'auto' } }
+				style={ { marginRight: 'auto' } }
 				onResizeStop={ onBlockResize }
 				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
 			>

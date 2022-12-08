@@ -38,6 +38,7 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
@@ -53,7 +54,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -234,6 +235,14 @@ export default function SubscriptionControls( {
 								'jetpack'
 							);
 						}
+					} }
+				/>
+				<ToggleControl
+					disabled={ ! showSubscribersTotal }
+					label={ __( 'Include social followers in count', 'jetpack' ) }
+					checked={ includeSocialFollowers }
+					onChange={ () => {
+						setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
 					} }
 				/>
 				<ToggleControl

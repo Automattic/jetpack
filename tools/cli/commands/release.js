@@ -136,7 +136,7 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! Next: \n	- Create a new branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
@@ -145,7 +145,7 @@ export async function scriptRouter( argv ) {
 				  - If this is a beta, ensure the stable tag in readme.txt is latest stable.
 				  - Create a PR and have your changes reviewed and merged.
 				  - Wait and make sure changes are propagated to mirror repos for each updated package.
-				  - After propagation, if you need to create a release branch, stand on trunk and then run:
+				  - After propagation, if you need to create a release branch, stand on "prerelease" and then run:
 				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
@@ -174,7 +174,7 @@ export async function scriptRouter( argv ) {
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ '-u', argv.version, argv.project ];
+			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
 			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
@@ -264,7 +264,7 @@ export async function getReleaseVersion( argv ) {
 		// Check if dev-releases is specified in project's composer.json
 		const hasDevReleases = await readComposerJson( argv.project ).extra[ 'dev-releases' ];
 		if ( hasDevReleases ) {
-			if ( devReleaseVersion ) {
+			if ( devReleaseVersion && devReleaseVersion.match( /^a\.\d+$/ ) ) {
 				devReleaseVersion = await getVersionBump( devReleaseVersion, argv.project );
 				potentialVersion = `${ stableVersion }-${ devReleaseVersion }`;
 			} else {

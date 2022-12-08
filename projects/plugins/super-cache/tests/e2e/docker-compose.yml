@@ -2,10 +2,10 @@ services:
   db:
     image: mariadb:latest
     healthcheck:
-      test: ["CMD", "mysqladmin", "-pwordpress", "ping", "--silent"]
-      interval: 10s
+      test: ["CMD", "mysqladmin", "-P", "3306", "-pwordpress", "ping", "--silent"]
+      interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 20
     volumes:
       - db_data:/var/lib/mysql
     environment:

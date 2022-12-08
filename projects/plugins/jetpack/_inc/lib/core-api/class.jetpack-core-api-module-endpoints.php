@@ -865,6 +865,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'admin_bar':
+				case 'enable_calypso_stats':
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':

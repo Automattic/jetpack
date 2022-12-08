@@ -76,7 +76,9 @@ while read -r GIT_SLUG; do
 
 	# Check if a remote exists for that mirror.
 	if ! git ls-remote -h origin >/dev/null 2>&1; then
-		echo "Mirror repo for ${GIT_SLUG} does not exist. Skipping."
+		echo "::error::Mirror repo for ${GIT_SLUG} does not exist."
+		echo "Skipping."
+		EXIT=1
 		continue
 	fi
 

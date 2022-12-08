@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.1
 Requires PHP: 7.0
-Stable tag: 1.5.3
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -176,9 +176,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.5.4 - 2022-11-09
+### 1.6.0 - 2022-12-05
+#### Added
+- General: New deactivation survey.
+- General: New tracks events for upgrade CTA impressions.
+- Super Cache: Added a tool for measuring the impact of Super Cache on your site performance.
+- Usability: Prompt new users to setup Boost after plugin activation.
+
 #### Fixed
-- Fixed an issue that caused boost to break on offline sites
+- Fixed an error on navigating to the getting-started page
+- Fixed issues in Super Cache measurement tool on some URLs
+- General: Fix showing discount markers on pricing options without a discount.
+- General: Remove invalid link to priority support for free users.
+- Speed Score: Fix un-clickable link to dismiss speed score popups.
 
 --------
 

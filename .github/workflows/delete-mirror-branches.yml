@@ -1,0 +1,25 @@
+name: Delete mirror branches
+on:
+  delete:
+
+jobs:
+  delete:
+    name: Delete `${{ github.event.ref }}`
+    runs-on: ubuntu-latest
+    timeout-minutes: 5  # 2022-11-21: Shouldn't take long.
+    if: github.event_name == 'delete' && github.repository == 'Automattic/jetpack' && github.event.ref == 'prerelease'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: trunk
+      - name: Delete branches
+        env:
+          TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
+          REF: heads/${{ github.event.ref }}
+        run: |
+          for repo in $(jq -r '.extra["mirror-repo"] // empty' projects/*/*/composer.json | sort -u); do
+            echo "::group::Deleting $REF on $repo"
+            RES="$(curl -v -L -X DELETE --header "Authorization: Bearer $TOKEN" "https://api.github.com/repos/$repo/git/refs/$REF")"
+            echo '::endgroup::'
+            echo "$RES"
+          done

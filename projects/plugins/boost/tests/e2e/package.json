@@ -14,7 +14,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm jetpack build plugins/jetpack plugins/boost -v --no-pnpm-install --production",
+		"build": "pnpm jetpack build plugins/jetpack plugins/boost packages/plugin-deactivation -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
 		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./node_modules/jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",

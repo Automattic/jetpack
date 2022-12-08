@@ -79,6 +79,23 @@ export type siteProductProps = {
 	wpcomProductSlug: string;
 };
 
+export type productPriceOriginalProps = {
+	yearly: {
+		name: string;
+		slug: string;
+		price: number;
+		salePrice: number;
+		priceByMonth: number;
+		salePriceByMonth: number;
+		currency: string;
+		discount: number;
+	};
+	monthly: {
+		price: number;
+		currency: string;
+	};
+};
+
 export type productProps = {
 	productId: number;
 	productName: string;
@@ -107,6 +124,7 @@ export type usePlanProps = {
 	features?: paidFeaturesProp;
 	siteProduct?: siteProductProps;
 	product?: productProps;
+	productPrice?: productPriceOriginalProps;
 
 	purchases?: Array< object >;
 	hasVideoPressPurchase: boolean;

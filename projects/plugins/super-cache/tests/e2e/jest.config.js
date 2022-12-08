@@ -8,4 +8,5 @@ dotenv.config( { path: path.join( path.dirname( __filename ), '.env' ) } );
 
 export default {
 	preset: 'ts-jest',
+	testTimeout: 10000,
 };

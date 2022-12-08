@@ -192,11 +192,12 @@ const upgradeMessageBoth = apiData => {
 const upgradeMessageFromAPIData = apiData => {
 	// What's the data we're working with?
 	// apiData.currentUsage.must_upgrade
+	// apiData.currentUsage.should_upgrade
 	// apiData.currentUsage.upgrade_reason.records
 	// apiData.currentUsage.upgrade_reason.requests
 	// apiData.currentUsage.months_over_plan_records_limit
 	// apiData.currentUsage.months_over_plan_requests_limit
-	if ( ! apiData.currentUsage.must_upgrade ) {
+	if ( ! apiData.currentUsage.should_upgrade && ! apiData.currentUsage.must_upgrade ) {
 		return null;
 	}
 	// Handle both case.
@@ -218,29 +219,7 @@ const upgradeMessageFromAPIData = apiData => {
 	return upgradeMessageNoOverage();
 };
 
-// TODO: Remove this if no longer needed.
-// Currently not called. Not removing yet, pending review of new CTA logic (which feels messy).
-// eslint-disable-next-line no-unused-vars
-const upgradeTypeFromAPIData = apiData => {
-	// Determine if upgrade message is needed.
-	if ( ! apiData.currentUsage.must_upgrade ) {
-		return null;
-	}
-
-	// Determine appropriate upgrade message.
-	let mustUpgradeReason = '';
-	if ( apiData.currentUsage.upgrade_reason.requests ) {
-		mustUpgradeReason = 'requests';
-	}
-	if ( apiData.currentUsage.upgrade_reason.records ) {
-		mustUpgradeReason = mustUpgradeReason === 'requests' ? 'both' : 'records';
-	}
-
-	return mustUpgradeReason;
-};
-
 const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
-	// const upgradeType = upgradeTypeFromAPIData( planInfo );
 	const upgradeMessage = isFreePlan ? upgradeMessageFromAPIData( planInfo ) : null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
 

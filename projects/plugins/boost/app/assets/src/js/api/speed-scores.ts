@@ -210,7 +210,7 @@ export type ScoreChangeMessage = {
 	ctaLink: string;
 };
 
-export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage {
+export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage | null {
 	const changePercentage = getScoreMovementPercentage( scores );
 	if ( changePercentage > 5 ) {
 		return {
@@ -220,7 +220,7 @@ export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage {
 			cta: __( 'Rate the Plugin', 'jetpack-boost' ),
 			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
 		};
-	} else if ( changePercentage < -5 ) {
+	} else if ( changePercentage < -5 && Jetpack_Boost.preferences.prioritySupport ) {
 		return {
 			id: 'score-decrease',
 			title: __( 'Speed score has fallen', 'jetpack-boost' ),
@@ -232,4 +232,6 @@ export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage {
 			ctaLink: SupportUrl,
 		};
 	}
+
+	return null;
 }

@@ -201,6 +201,17 @@ describe( 'Inspector controls', () => {
 			} );
 		} );
 
+		test( 'toggles include social followers', async () => {
+			const user = userEvent.setup();
+			render( <SubscriptionsInspectorControls { ...defaultProps } /> );
+			await user.click( screen.getByText( 'Settings' ), { selector: 'button' } );
+			await user.click( screen.getByLabelText( 'Include social followers in count' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				includeSocialFollowers: true,
+			} );
+		} );
+
 		test( 'toggles place button on new line', async () => {
 			const user = userEvent.setup();
 			render( <SubscriptionsInspectorControls { ...defaultProps } /> );

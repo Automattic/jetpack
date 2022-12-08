@@ -10,7 +10,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
  * Internal dependencies
@@ -19,8 +19,9 @@ import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = ( { onRedirecting } ) => {
 	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
-	const { siteProduct, product } = usePlan();
-	const { pricingForUi } = siteProduct;
+	const { siteProduct, productPrice } = usePlan();
+	const { yearly: yearlyPrice } = productPrice;
+
 	const { handleRegisterSite, userIsConnecting } = useConnection( {
 		redirectUri: adminUri,
 		from: 'jetpack-videopress',
@@ -30,32 +31,30 @@ const PricingPage = ( { onRedirecting } ) => {
 
 	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		siteSuffix,
-		productSlug: product.productSlug,
+		productSlug: yearlyPrice?.slug,
 		redirectUrl: adminUri,
 	} );
 
 	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
-
-	/*
-	 * Fallback to the product price if the site product price is not available.
-	 * This can happen when the site is not connected yet.
-	 */
-	if ( ! pricingForUi?.fullPrice ) {
-		pricingForUi.fullPrice = product.cost;
-		pricingForUi.discountPrice = product.introductoryOffer.costPerInterval;
-		pricingForUi.currencyCode = product.currencyCode;
-	}
 
 	return (
 		<PricingTable title={ siteProduct.description } items={ pricingItems }>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ pricingForUi.fullPrice }
-						offPrice={ pricingForUi.discountPrice }
-						promoLabel={ __( '50% off', 'jetpack-videopress-pkg' ) }
+						offPrice={ yearlyPrice?.discount ? yearlyPrice.salePriceByMonth : null }
+						price={ yearlyPrice.priceByMonth }
+						promoLabel={
+							yearlyPrice?.discount
+								? sprintf(
+										/* translators: placeholder is the number of videos */
+										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
+										yearlyPrice.discount
+								  )
+								: null
+						}
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
-						currency={ pricingForUi.currencyCode }
+						currency={ yearlyPrice.currency }
 					/>
 					<Button
 						onClick={ () => {
@@ -76,12 +75,7 @@ const PricingPage = ( { onRedirecting } ) => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice
-						price={ 0 }
-						legend=""
-						currency={ pricingForUi.currencyCode }
-						hidePriceFraction
-					/>
+					<ProductPrice price={ 0 } legend="" currency={ yearlyPrice.currency } hidePriceFraction />
 					<Button
 						fullWidth
 						variant="secondary"

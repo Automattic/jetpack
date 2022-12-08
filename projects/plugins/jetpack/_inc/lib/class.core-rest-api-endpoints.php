@@ -2730,6 +2730,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
+			'enable_calypso_stats'                 => array(
+				'description'       => esc_html__( 'Preview the new Jetpack Stats experience (Experimental).', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'stats',
+			),
 			'roles'                                => array(
 				'description'       => esc_html__( 'Select the roles that will be able to view stats reports.', 'jetpack' ),
 				'type'              => 'array',
@@ -2884,6 +2891,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
+			),
+
+			// Writing Prompts.
+			'jetpack_blogging_prompts_enabled'     => array(
+				'description'       => esc_html__( 'Displays a writing prompt when starting a new post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => jetpack_has_write_intent() || jetpack_has_posts_page(),
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'writing-prompts',
 			),
 
 		);

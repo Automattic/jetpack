@@ -45,15 +45,16 @@ const myJetpackResolvers = {
 			dispatch.setPurchasesIsFetching( false );
 		} catch ( error ) {
 			dispatch.setPurchasesIsFetching( false );
-			dispatch.setGlobalNotice(
-				__(
-					'There was an error fetching your purchases information. Check your site connectivity and try again.',
-					'jetpack-my-jetpack'
-				),
-				{
-					status: 'error',
-				}
-			);
+			error.code !== 'not_connected' &&
+				dispatch.setGlobalNotice(
+					__(
+						'There was an error fetching your purchases information. Check your site connectivity and try again.',
+						'jetpack-my-jetpack'
+					),
+					{
+						status: 'error',
+					}
+				);
 		}
 	},
 };
