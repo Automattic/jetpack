@@ -25,25 +25,7 @@ const FirewallPage = () => {
 	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
-
-	const [ settings, setSettings ] = useState( {
-		module_enabled: isEnabled,
-		jetpack_waf_ip_list: jetpackWafIpList,
-		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
-		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-	} );
-	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
-
-	// Track view for Protect WAF page.
-	useAnalyticsTracks( {
-		pageViewEventName: 'protect_waf',
-		pageViewEventProperties: {
-			has_plan: hasRequiredPlan,
-		},
-	} );
-
 	const successNoticeDuration = 5000;
-
 	const errorMessage = createInterpolateElement(
 		__(
 			'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
@@ -53,6 +35,17 @@ const FirewallPage = () => {
 			supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
 		}
 	);
+
+	const [ settings, setSettings ] = useState( {
+		module_enabled: isEnabled,
+		jetpack_waf_ip_list: jetpackWafIpList,
+		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
+		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
+	} );
+
+	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
+
+	const [ showManualRules, setShowManualRules ] = useState( false );
 
 	const saveChanges = useCallback( () => {
 		setSettingsIsUpdating( true );
@@ -135,6 +128,10 @@ const FirewallPage = () => {
 			.finally( () => setSettingsIsUpdating( false ) );
 	}, [ settings, toggleManualRules, setNotice, errorMessage ] );
 
+	const handleShowManualRulesClick = useCallback( () => {
+		setShowManualRules( ! showManualRules );
+	}, [ showManualRules, setShowManualRules ] );
+
 	/**
 	 * Sync state.settings with application state WAF config
 	 */
@@ -162,11 +159,13 @@ const FirewallPage = () => {
 		API.wafSeen();
 	}, [ isSeen, setWafIsSeen ] );
 
-	const [ showManualRules, setShowManualRules ] = useState( false );
-
-	const handleShowManualRulesClick = useCallback( () => {
-		setShowManualRules( ! showManualRules );
-	}, [ showManualRules, setShowManualRules ] );
+	// Track view for Protect WAF page.
+	useAnalyticsTracks( {
+		pageViewEventName: 'protect_waf',
+		pageViewEventProperties: {
+			has_plan: hasRequiredPlan,
+		},
+	} );
 
 	return (
 		<AdminPage>
