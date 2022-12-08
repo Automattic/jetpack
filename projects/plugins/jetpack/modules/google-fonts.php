@@ -57,22 +57,21 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 );
 
 const JETPACK_GOOGLE_FONTS_I18N = array(
-	'Alexandria', // Arabic
-	'IBM Plex Sans Arabic',
-	'Noto Sans Hebrew',
-	'Noto Sans HK', // Noto Sans Hong Kong @TODO: should be HKC?
-	'Noto Sans JP', // Japanese
-	'Noto Sans KR', // Korean
-	'Noto Sans SC', // Simplified Chinese
-	'Noto Sans TC', // Traditional Chinese
-	'Noto Sans Telugu',
-	'Noto Serif Hebrew',
-	'Noto Serif HK', // Noto Sans Hong Kong @TODO: should be HKC?
-	'Noto Serif JP', // Japanese
-	'Noto Serif KR', // Korean
-	'Noto Serif SC', // Simplified Chinese
-	'Noto Serif TC', // Traditional Chinese
-	// 'Mukta (Devanagari)' @TODO: not on Google Fonts?
+	'Alexandria'           => 'Alexandria (Arabic)',
+	'IBM Plex Sans Arabic' => 'IBM Plex Sans (Arabic)',
+	'Noto Sans Hebrew'     => 'Noto Sans (Hebrew)',
+	'Noto Sans HK'         => 'Noto Sans (Hong Kong)',
+	'Noto Sans JP'         => 'Noto Sans (Japanese)',
+	'Noto Sans KR'         => 'Noto Sans (Korean)',
+	'Noto Sans SC'         => 'Noto Sans (Simplified Chinese)',
+	'Noto Sans TC'         => 'Noto Sans (Traditional Chinese)',
+	'Noto Sans Telugu'     => 'Noto Sans (Telugu)',
+	'Noto Serif Hebrew'    => 'Noto Serif (Hebrew)',
+	'Noto Serif HK'        => 'Noto Serif (Hong Kong)',
+	'Noto Serif JP'        => 'Noto Serif (Japanese)',
+	'Noto Serif KR'        => 'Noto Serif (Korean)',
+	'Noto Serif SC'        => 'Noto Serif (Simplified Chinese)',
+	'Noto Serif TC'        => 'Noto Serif (Traditional Chinese)',
 );
 
 /**
@@ -87,9 +86,8 @@ function jetpack_add_google_fonts_provider() {
 
 	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
-	// @TODO: we need to modify some of the font names and
 	// Ensure i18n specific fonts are at the end of the list
-	$fonts_list = array_merge( JETPACK_GOOGLE_FONTS_I18N, JETPACK_GOOGLE_FONTS_I18N );
+	$fonts_list = array_merge( JETPACK_GOOGLE_FONTS_LIST, array_keys( JETPACK_GOOGLE_FONTS_I18N ) );
 
 	/**
 	 * Curated list of Google Fonts.
@@ -103,9 +101,17 @@ function jetpack_add_google_fonts_provider() {
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', $fonts_list );
 
 	foreach ( $fonts_to_register as $font_family ) {
+
+		$font_name = $font_family;
+
+		if ( array_key_exists( $font_family, JETPACK_GOOGLE_FONTS_I18N ) ) {
+			$font_name = JETPACK_GOOGLE_FONTS_I18N[ $font_family ];
+		}
+
 		wp_register_webfonts(
 			array(
 				array(
+					'name'         => $font_name,
 					'font-family'  => $font_family,
 					'font-weight'  => '100 900',
 					'font-style'   => 'normal',
@@ -113,6 +119,7 @@ function jetpack_add_google_fonts_provider() {
 					'provider'     => 'jetpack-google-fonts',
 				),
 				array(
+					'name'         => $font_name,
 					'font-family'  => $font_family,
 					'font-weight'  => '100 900',
 					'font-style'   => 'italic',
