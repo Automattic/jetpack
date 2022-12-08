@@ -199,10 +199,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Text Input Field', 'jetpack' ),
-			description: __(
-				'A single-line text input field that allows visitors to share some text with you.',
-				'jetpack'
-			),
+			description: __( 'Collect short text responses from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M4 9h16v2H4V9zm0 4h10v2H4v-2z" />
 			),
@@ -221,7 +218,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Name Field', 'jetpack' ),
-			description: __( 'An input field, that lets your visitors share their names.', 'jetpack' ),
+			description: __( 'Collect the site visitor’s name.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -267,7 +264,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'URL Field', 'jetpack' ),
 			keywords: [ 'url', __( 'internet page', 'jetpack' ), 'link' ],
-			description: __( 'Allow visitors to enter the address of a website.', 'jetpack' ),
+			description: __( 'Collect a website address from your site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -293,7 +290,7 @@ export const childBlocks = [
 				__( 'Calendar', 'jetpack' ),
 				_x( 'day month year', 'block search term', 'jetpack' ),
 			],
-			description: __( 'Allow users to enter a date via a calendar date picker.', 'jetpack' ),
+			description: __( 'Capture date information with a date picker.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -320,7 +317,7 @@ export const childBlocks = [
 				__( 'Cellular phone', 'jetpack' ),
 				__( 'Mobile', 'jetpack' ),
 			],
-			description: __( 'Give users the option to enter a phone number.', 'jetpack' ),
+			description: __( 'Collect phone numbers from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -343,7 +340,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Multi-line Text Field', 'jetpack' ),
 			keywords: [ __( 'Textarea', 'jetpack' ), 'textarea', __( 'Multiline text', 'jetpack' ) ],
-			description: __( 'A text box that allows users to write a long response.', 'jetpack' ),
+			description: __( 'Capture longform text responses from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M21 11.01L3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z" />
 			),
@@ -378,10 +375,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Checkbox', 'jetpack' ),
 			keywords: [ __( 'Confirm', 'jetpack' ), __( 'Accept', 'jetpack' ) ],
-			description: __(
-				'Offer visitors to select or confirm an option with a single checkbox.',
-				'jetpack'
-			),
+			description: __( 'Confirm or select information with a single checkbox.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -419,7 +413,7 @@ export const childBlocks = [
 			title: __( 'Terms Consent', 'jetpack' ),
 			keywords: [ __( 'Consent', 'jetpack' ) ],
 			description: __(
-				'Make clear to users that they consent to certain terms by submitting their information.',
+				'Communicate site terms and offer visitors consent to those terms.',
 				'jetpack'
 			),
 			icon: renderMaterialIcon(
@@ -510,7 +504,7 @@ export const childBlocks = [
 			title: __( 'Single Choice (Radio)', 'jetpack' ),
 			keywords: [ __( 'Choose', 'jetpack' ), __( 'Select', 'jetpack' ), __( 'Option', 'jetpack' ) ],
 			description: __(
-				'Offer users a list of choices, and allow them to select one single option.',
+				'Offer users a list of choices, and allow them to select a single option.',
 				'jetpack'
 			),
 			icon: renderMaterialIcon(
@@ -543,7 +537,7 @@ export const childBlocks = [
 				__( 'Option', 'jetpack' ),
 			],
 			description: __(
-				'Add a compact select box, that when expanded allows visitors to choose one value from a list.',
+				'Add a compact select box, that when expanded, allows visitors to choose one value from the list.',
 				'jetpack'
 			),
 			icon: renderMaterialIcon(
