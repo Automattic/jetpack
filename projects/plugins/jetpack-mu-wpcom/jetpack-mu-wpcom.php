@@ -11,6 +11,8 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+namespace Jetpack\Mu_Wpcom;
+
 /*
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -44,5 +46,5 @@ function load_coming_soon() {
 }
 // Todo: once coming-soon is removed from ETK, we can remove this check.
 if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
-	add_action( 'plugins_loaded', 'load_coming_soon' );
+	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_coming_soon' );
 }
