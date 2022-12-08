@@ -1147,6 +1147,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.5
       '@babel/preset-react': 7.18.6
@@ -1201,6 +1202,7 @@ importers:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@storybook/addon-actions': 6.5.13_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/block-editor': 10.5.0_mqlga6776einr32k2jcmre7x6i
@@ -1442,7 +1444,7 @@ importers:
       rollup-plugin-terser: 7.0.2_rollup@2.56.3
       sass: 1.43.3
       svelte: 3.53.1
-      svelte-preprocess: 4.9.2_mkb7ccijiwv55rom7iouagnzni
+      svelte-preprocess: 4.9.2_bv7oupgopumae55kyj5ktctxxi
       tslib: 2.3.1
       typescript: 4.8.2
 
@@ -1680,6 +1682,9 @@ importers:
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
       typescript: 4.8.2
 
+  projects/plugins/jetpack-mu-wpcom:
+    specifiers: {}
+
   projects/plugins/jetpack/tests/e2e:
     specifiers:
       '@playwright/test': 1.26.0
@@ -1719,6 +1724,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
+      react-router-dom: 6.2.2
       sass: 1.43.3
       sass-loader: 12.4.0
       webpack: 5.72.1
@@ -1742,6 +1748,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
+      react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.20.5
@@ -1871,12 +1878,18 @@ importers:
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
       '@babel/runtime': 7.20.6
+      '@testing-library/dom': 8.16.0
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.1
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/data': 7.6.0
       '@wordpress/date': 4.22.0
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
+      babel-jest: 29.3.1
       concurrently: 6.0.2
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -1899,8 +1912,14 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.5
       '@babel/register': 7.18.9_@babel+core@7.20.5
       '@babel/runtime': 7.20.6
+      '@testing-library/dom': 8.16.0
+      '@testing-library/react': 12.1.5_vdnpi7rkmyqe25smnb75665vfu
+      '@testing-library/react-hooks': 8.0.1_sfoxds7t5ydpegc3knd667wn6m
       '@wordpress/browserslist-config': 5.5.0
+      babel-jest: 29.3.1_@babel+core@7.20.5
       concurrently: 6.0.2
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
@@ -6236,7 +6255,7 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       read-pkg-up: 7.0.1
-      regenerator-runtime: 0.13.10
+      regenerator-runtime: 0.13.11
       resolve-from: 5.0.0
       style-loader: 2.0.0_webpack@5.72.1
       telejson: 6.0.8
@@ -19843,7 +19862,7 @@ packages:
       - typescript
     dev: false
 
-  /svelte-preprocess/4.9.2_mkb7ccijiwv55rom7iouagnzni:
+  /svelte-preprocess/4.9.2_bv7oupgopumae55kyj5ktctxxi:
     resolution: {integrity: sha512-Eu/09bEpcBD8a9pGxcILEAZssXifnWoi5ad5GgUAgoT4alblNikOIpKrWDFkepMqjgioXciWbIZOROoTX3ZLdA==}
     engines: {node: '>= 9.11.2'}
     requiresBuild: true

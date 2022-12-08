@@ -113,14 +113,14 @@ class Jetpack_Calypsoify {
 		if ( $post_id === null ) {
 			// E.g. posts or pages have no special suffix. CPTs are in the `types/{cpt}` format.
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}s/"
-				: "/types/${post_type}/";
+				? "/{$post_type}s/"
+				: "/types/{$post_type}/";
 			$post_suffix      = '';
 		} else {
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}/"
-				: "/edit/${post_type}/";
-			$post_suffix      = "/${post_id}";
+				? "/{$post_type}/"
+				: "/edit/{$post_type}/";
+			$post_suffix      = "/{$post_id}";
 		}
 
 		return $this->get_calypso_origin() . $post_type_suffix . $site_suffix . $post_suffix;

@@ -62,7 +62,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	// Turn shortcode option "param" (param=value&param2=value) into array of params.
 	$shortcode_params = array();
 	if ( isset( $shortcode_options['params'] ) ) {
-		parse_str( html_entity_decode( $shortcode_options['params'] ), $shortcode_params );
+		parse_str( html_entity_decode( $shortcode_options['params'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $shortcode_params );
 		$shortcode_options = array_merge(
 			$shortcode_options,
 			$shortcode_params
@@ -226,7 +226,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			// if pasted from the visual editor - prevent double encoding.
 			$match[1] = str_replace( '&amp;amp;', '&amp;', $match[1] );
 
-			$args = wp_parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
+			$args = wp_parse_url( html_entity_decode( $match[1], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), PHP_URL_QUERY );
 			$args = wp_parse_args( $args );
 
 			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) ) {

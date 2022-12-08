@@ -23,18 +23,28 @@ export default function useVideos() {
 	const isFetchingUploadedVideoCount = useSelect( select =>
 		select( STORE_ID ).getIsFetchingUploadedVideoCount()
 	);
+	const firstUploadedVideoId = useSelect( select => select( STORE_ID ).getFirstUploadedVideoId() );
+	const firstVideoProcessed = useSelect( select => select( STORE_ID ).getFirstVideoProcessed() );
+	const dismissedFirstVideoPopover = useSelect( select =>
+		select( STORE_ID ).getDismissedFirstVideoPopover()
+	);
 	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
+	const filter = useSelect( select => select( STORE_ID ).getVideosFilter() );
 
 	return {
 		items,
 		uploading,
 		isUploading,
 		search,
+		filter,
 		uploadedVideoCount,
 		isFetching,
 		isFetchingUploadedVideoCount,
+		firstUploadedVideoId,
+		firstVideoProcessed,
+		dismissedFirstVideoPopover,
 		...query,
 		...pagination,
 		...storageUsed,
