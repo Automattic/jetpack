@@ -22,7 +22,7 @@ class Block_Editor_Content {
 		}
 
 		add_shortcode( 'jetpack_videopress', array( static::class, 'videopress_block_shortcode' ) );
-		add_filter( 'default_content', array( static::class, 'videopress_block_by_guid' ), 10, 2 );
+		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
 	}
 
 	/**
@@ -62,13 +62,13 @@ class Block_Editor_Content {
 	}
 
 	/**
-	 * Generates a VideoPress block content with the given guid
+	 * Generates a VideoPress video block content with the given guid
 	 *
 	 * @param string  $content Post content.
 	 * @param WP_Post $post Post.
 	 * @return string
 	 */
-	public static function videopress_block_by_guid( $content, $post ) {
+	public static function videopress_video_block_by_guid( $content, $post ) {
 		if ( isset( $_GET['videopress_guid'], $_GET['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'videopress-content-nonce' )
 			&& current_user_can( 'edit_post', $post->ID )
