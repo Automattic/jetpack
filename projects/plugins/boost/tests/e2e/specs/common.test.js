@@ -10,7 +10,7 @@ test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
-	await boostPrerequisitesBuilder( page ).withConnection( true ).withGotStarted().build();
+	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
 	await page.close();
 } );
 
