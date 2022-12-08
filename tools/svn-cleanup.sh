@@ -89,7 +89,7 @@ if [[ "$VERSION_TYPE" == "wordpress" ]]; then
 	STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+\.([0-9]+)')
 else
 	STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+(\.[0-9]+)+')
-fi 
+fi
 
 success "Done! Checked out to $DIR"
 
