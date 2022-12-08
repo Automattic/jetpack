@@ -14,6 +14,7 @@ import { useHistory } from 'react-router-dom';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
+import { useQueryStringPages } from '../pagination/use-query-string-pages';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList, { LocalVideoList } from '../video-list';
@@ -50,6 +51,14 @@ const VideoLibraryWrapper = ( {
 	disabled?: boolean;
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
+	const { setPageOnURL } = useQueryStringPages();
+
+	const onSearchHandler = searchQuery => {
+		// clear the pagination, setting it back to page 1
+		setPageOnURL( 1 );
+		setSearch( searchQuery );
+	};
+
 	const [ searchQuery, setSearchQuery ] = useState( search );
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
@@ -75,7 +84,7 @@ const VideoLibraryWrapper = ( {
 					<div className={ styles[ 'filter-wrapper' ] }>
 						<SearchInput
 							className={ classnames( styles[ 'search-input' ], { [ styles.small ]: ! isLg } ) }
-							onSearch={ setSearch }
+							onSearch={ onSearchHandler }
 							value={ searchQuery }
 							loading={ isFetching }
 							onChange={ setSearchQuery }
