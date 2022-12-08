@@ -361,7 +361,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'It’s time to block spam comments.', 'jetpack' ),
 				description: __(
-					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Akismet Anti-spam.',
 					'jetpack'
 				),
 				ctaText: __( 'Learn how to block spam', 'jetpack' ),
@@ -395,7 +395,8 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'welcome__backup':
 			return {
-				question: __( 'Welcome to Jetpack Backup!', 'jetpack' ),
+				/* translators: <nbsp/> represents a non-breakable space */
+				question: __( 'Welcome to Jetpack VaultPress<nbsp/>Backup!', 'jetpack' ),
 				description: __(
 					'Real-time cloud-based backups are now active for your site. Save every change and get back online in one click from desktop and mobile.',
 					'jetpack'
@@ -428,12 +429,13 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'welcome__antispam':
 			return {
-				question: __( 'Welcome to Jetpack Anti-spam, powered by Akismet!', 'jetpack' ),
+				/* translators: <nbsp/> represents a non-breakable space */
+				question: __( 'Welcome to Jetpack Akismet<nbsp/>Anti-spam!', 'jetpack' ),
 				description: __(
 					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
 					'jetpack'
 				),
-				ctaText: __( 'Configure Anti-spam', 'jetpack' ),
+				ctaText: __( 'Configure Akismet Anti-spam', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
 				illustration: 'assistant-antispam',
 				skipText: __( 'Next', 'jetpack' ),
@@ -505,7 +507,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
 					'jetpack'
 				),
-				ctaText: __( 'Configure Anti-spam', 'jetpack' ),
+				ctaText: __( 'Configure Akismet Anti-spam', 'jetpack' ),
 				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
 				illustration: 'assistant-antispam',
 				skipText: __( 'Next', 'jetpack' ),
@@ -570,12 +572,15 @@ export const getProductCardData = ( state, productSlug ) => {
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {
-				productCardTitle: __( 'Block spam automatically with Jetpack Anti-spam', 'jetpack' ),
+				productCardTitle: __(
+					'Block spam automatically with Jetpack Akismet Anti-spam',
+					'jetpack'
+				),
 				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Anti-spam', 'jetpack' ),
+				productCardCtaText: __( 'Get Akismet Anti-spam', 'jetpack' ),
 				productCardList: products.akismet ? products.akismet.features : [],
 				productCardIcon: '/recommendations/bug-icon.svg',
 			};
@@ -597,7 +602,7 @@ export const getProductCardData = ( state, productSlug ) => {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Jetpack Backup', 'jetpack' ),
+				productCardCtaText: __( 'Get Jetpack VaultPress Backup', 'jetpack' ),
 				productCardList: products.backup ? products.backup.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
 				productCardDisclaimer: products.backup ? products.backup.disclaimer : '',
