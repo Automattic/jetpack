@@ -7,12 +7,12 @@ let jetpackBoostPage;
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).withGotStarted().build();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
 	} );
 
 	test.afterAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).withGotStarted().build();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
 	} );
 
 	test.beforeEach( async function ( { page } ) {
