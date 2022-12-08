@@ -101,7 +101,7 @@ success "Done!"
 info "Getting list of pre-release tags"
 PRERELEASE_TAGS=()
 for TAG in *; do
-	if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG" && [[ "$TAG" != "$STABLE_TAG"* ]]; then
+	if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG" && [[ "$TAG" != "$STABLE_TAG".* && "$TAG" != "$STABLE_TAG"-* ]]; then
 		PRERELEASE_TAGS+=("$TAG")
 	fi
 done
