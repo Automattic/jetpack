@@ -5,15 +5,13 @@ namespace Automattic\Jetpack_Boost\Lib;
 class Site_Urls {
 
 	public static function get( $limit = 1000 ) {
-		$instance = new static();
-
 		// @todo - after removing the core urls from the post urls,
 		// there might be core urls left that aren't in the posts urls
 		// and combining the two would result in a list over the $limit
 
-		$core_urls = $instance->get_wp_core_urls();
-		$post_urls = $instance->cleanup_post_urls(
-			$instance->get_post_urls( $limit ),
+		$core_urls = self::get_wp_core_urls();
+		$post_urls = self::cleanup_post_urls(
+			self::get_post_urls( $limit ),
 			wp_list_pluck(
 				$core_urls,
 				'url'
@@ -26,7 +24,7 @@ class Site_Urls {
 		);
 	}
 
-	private function get_wp_core_urls() {
+	private static function get_wp_core_urls() {
 		$urls = array();
 
 		$front_page = get_option( 'page_on_front' );
@@ -55,10 +53,10 @@ class Site_Urls {
 		return $urls;
 	}
 
-	private function get_post_urls( $limit ) {
+	private static function get_post_urls( $limit ) {
 		global $wpdb;
 
-		$public_post_types       = $this->get_public_post_types();
+		$public_post_types       = self::get_public_post_types();
 		$post_types_placeholders = implode(
 			',',
 			array_fill(
@@ -100,7 +98,7 @@ class Site_Urls {
 	 *
 	 * @return array
 	 */
-	private function cleanup_post_urls( $post_urls, $additional_urls ) {
+	private static function cleanup_post_urls( $post_urls, $additional_urls ) {
 		$clean = array();
 
 		foreach ( $post_urls as $key => $item ) {
@@ -114,7 +112,7 @@ class Site_Urls {
 		return $clean;
 	}
 
-	private function get_public_post_types() {
+	private static function get_public_post_types() {
 		$post_types = get_post_types(
 			array(
 				'public' => true,
