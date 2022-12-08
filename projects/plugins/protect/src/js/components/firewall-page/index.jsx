@@ -165,10 +165,7 @@ const FirewallPage = () => {
 	const [ showManualRules, setShowManualRules ] = useState( false );
 
 	const handleShowManualRulesClick = useCallback( () => {
-		if ( showManualRules ) {
-			return setShowManualRules( false );
-		}
-		setShowManualRules( true );
+		setShowManualRules( ! showManualRules );
 	}, [ showManualRules, setShowManualRules ] );
 
 	return (
