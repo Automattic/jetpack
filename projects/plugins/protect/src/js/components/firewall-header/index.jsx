@@ -5,10 +5,10 @@ import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
-import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = () => {
@@ -16,7 +16,7 @@ const UpgradePrompt = () => {
 	const firewallUrl = adminUrl + '#/firewall';
 
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
 	} );
 

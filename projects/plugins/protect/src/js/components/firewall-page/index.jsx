@@ -13,12 +13,12 @@ import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
-import { PLUGIN_SUPPORT_URL } from '../../constants';
+import { JETPACK_SCAN_SLUG, PLUGIN_SUPPORT_URL } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
-import AdminPage, { JETPACK_SCAN } from '../admin-page';
+import AdminPage from '../admin-page';
 import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
@@ -182,7 +182,7 @@ const FirewallPage = () => {
 	const firewallUrl = adminUrl + '#/firewall';
 
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
 	} );
 
