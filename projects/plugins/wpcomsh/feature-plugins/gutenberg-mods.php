@@ -218,3 +218,49 @@ function wpcomsh_disable_anchor_blocks( $extensions ) {
 	);
 }
 add_filter( 'jetpack_set_available_extensions', 'wpcomsh_disable_anchor_blocks' );
+
+/**
+ * WPCOM Hack to allow rgba() as CSS property's values, which would otherwise be filtered by
+ * `safecss_filter_attr` in `wp-includes/kses.php`.
+ *
+ * For more context, see: p1670179266219969-slack-C02FMH4G8
+ * and p1670086796757129-slack-CBTN58FTJ.
+ *
+ * @param bool   $allow_css whether the current CSS property is allowed.
+ * @param string $css_test_string contains the actual CSS property to be tested.
+ * @return bool whether or not the given CSS property is allowed.
+ */
+function wpcom_safecss_filter_attr_allow_css_rgba( $allow_css, $css_test_string ) {
+	if ( false === $allow_css ) {
+		// Allow rgb and rgba values with numbers, commas, percents, dividers and decimal numbers in the following parenthesis only.
+		$css_test_string = preg_replace(
+			'/\b(?:rgb[a]?)\((?:[\.]?\d+[\.\s\,\%\/]*\d*){0,4}\)/',
+			'',
+			$css_test_string
+		);
+
+		$allow_css = ! preg_match( '%[\\\(&=}]|/\*%', $css_test_string );
+	}
+
+	return $allow_css;
+}
+add_filter( 'safecss_filter_attr_allow_css', 'wpcom_safecss_filter_attr_allow_css_rgba', 10, 2 );
+
+/**
+ * WPCOM Hack to allow additional inline CSS that would otherwise be filtered by `safecss_filter_attr` in
+ * `wp-includes/kses.php`.
+ *
+ * For more context, see: p1670179266219969-slack-C02FMH4G8
+ * and p1670086796757129-slack-CBTN58FTJ.
+ *
+ * @param array<string> $css_properties an array of allowed CSS properties.
+ * @return array<string> the array of allowed CSS properties.
+ */
+function wpcom_safecss_allow_additional_css_properties( $css_properties ) {
+	$css_properties[] = 'display';
+	$css_properties[] = 'transform';
+	$css_properties[] = 'position';
+
+	return $css_properties;
+}
+add_filter( 'safe_style_css', 'wpcom_safecss_allow_additional_css_properties', 10, 1 );
