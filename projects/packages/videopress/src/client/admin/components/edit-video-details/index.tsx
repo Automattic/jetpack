@@ -134,11 +134,14 @@ const Infos = ( {
 const EditVideoDetails = () => {
 	const {
 		// Video Data
+		guid,
 		duration,
 		posterImage,
 		filename,
 		uploadDate,
 		url,
+		width,
+		height,
 		title,
 		description,
 		// Playback Token
@@ -200,6 +203,11 @@ const EditVideoDetails = () => {
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
 
+	const shortcode =
+		width && height
+			? `[jetpack_videopress guid=${ guid } width=${ width } height=${ height }]`
+			: null;
+
 	return (
 		<>
 			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
@@ -251,6 +259,7 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
+								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
 							/>
 						</Col>
