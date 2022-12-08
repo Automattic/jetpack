@@ -19,6 +19,7 @@ export const settings = {
 		const prevIsSaving = usePrevious( isSaving );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
+		const [ isChecked, setIsChecked ] = useState( false );
 		const [ , siteSlug ] = launchpadModalOptions.siteUrlOption.split( '//' );
 		const isInsideSiteEditor = window.location.href.includes( 'site-editor' );
 
@@ -32,6 +33,7 @@ export const settings = {
 			launchpadModalOptions.launchpadScreenOption === 'full' &&
 			launchpadModalOptions.siteIntentOption === 'link-in-bio' &&
 			isInsideSiteEditor &&
+			! dontShowAgain &&
 			isModalOpen;
 
 		return (
@@ -39,7 +41,10 @@ export const settings = {
 				<Modal
 					isDismissible={ true }
 					className="launchpad__save-modal"
-					onRequestClose={ () => setIsModalOpen( false ) }
+					onRequestClose={ () => {
+						setIsModalOpen( false );
+						setDontShowAgain( isChecked );
+					} }
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
@@ -56,8 +61,8 @@ export const settings = {
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
 								label={ __( "Don't show this again.", 'jetpack' ) }
-								checked={ dontShowAgain }
-								onChange={ () => setDontShowAgain( ! dontShowAgain ) }
+								checked={ isChecked }
+								onChange={ () => setIsChecked( ! isChecked ) }
 							/>
 							<div className="launchpad__save-modal-buttons">
 								<Button size="normal" variant="secondary" onClick={ () => setIsModalOpen( false ) }>
