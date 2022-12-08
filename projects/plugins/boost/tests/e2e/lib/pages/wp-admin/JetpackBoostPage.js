@@ -96,11 +96,15 @@ export default class JetpackBoostPage extends WpPage {
 		);
 		await this.page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
-			timeout: 90 * 1000,
+			timeout: 60 * 1000,
 		} );
 		await speedBar.waitForElementState( 'stable' );
-		this.page.screenshot( { path: 'output/speed-score-' + platform + '.png' } );
-		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
+		return Number(
+			await this.page.$eval(
+				`.jb-score-bar--${ platform } .jb-score-bar__score`,
+				e => e.textContent
+			)
+		);
 	}
 
 	async isScorebarLoading( platform ) {
