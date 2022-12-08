@@ -29,6 +29,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+define( 'WPSC_VERSION', '1.9.1-alpha' );
+
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
 
@@ -207,6 +209,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
 	wp_cache_disable_plugin( false ); // don't delete configuration file
+	delete_option( 'wpsc_2022_boost_banner' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
@@ -257,6 +260,146 @@ function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
 add_action( 'network_admin_menu', 'wp_cache_network_pages' );
+
+/**
+ * Load JavaScript on admin pages.
+ */
+function wp_super_cache_admin_enqueue_scripts( $hook ) {
+	if ( 'settings_page_wpsupercache' !== $hook ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'wp-super-cache-admin',
+		trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/admin.js',
+		array( 'jquery' ),
+		WPSC_VERSION,
+		false
+	);
+
+	wp_localize_script(
+		'wp-super-cache-admin',
+		'wpscAdmin',
+		array(
+			'boostDismissNonce'  => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
+			'boostInstallNonce'  => wp_create_nonce( 'updates' ),
+			'boostActivateNonce' => wp_create_nonce( 'activate-boost' ),
+		)
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wp_super_cache_admin_enqueue_scripts' );
+
+/**
+ * Use the standard WordPress plugin installation ajax handler.
+ */
+add_action( 'wp_ajax_wpsc_install_plugin', 'wp_ajax_install_plugin' );
+
+/**
+ * Check if Jetpack Boost has been installed.
+ */
+function wpsc_is_boost_installed() {
+	$plugins = array_keys( get_plugins() );
+
+	foreach ( $plugins as $plugin ) {
+		if ( false !== strpos( $plugin, 'jetpack-boost.php' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if Jetpack Boost is active.
+ */
+function wpsc_is_boost_active() {
+	return class_exists( '\Automattic\Jetpack_Boost\Jetpack_Boost' );
+}
+
+/**
+ * Admin ajax action: hide the Boost Banner.
+ */
+function wpsc_hide_boost_banner() {
+	check_ajax_referer( 'wpsc_dismiss_boost_banner', 'nonce' );
+	update_option( 'wpsc_2022_boost_banner', 0, 'no' );
+
+	wp_die();
+}
+add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
+
+/**
+ * Admin ajax action: activate Jetpack Boost.
+ */
+function wpsc_ajax_activate_boost() {
+	check_ajax_referer( 'activate-boost' );
+
+	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
+	if ( is_wp_error( $result ) ) {
+		wp_send_json_error( $result->get_error_message() );
+	}
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
+
+/**
+ * Show a Jetpack Boost installation banner (unless dismissed or installed)
+ */
+function wpsc_jetpack_boost_install_banner() {
+	// Don't show the banner if Boost is installed, or the banner has been dismissed.
+	if ( wpsc_is_boost_active() || ! get_option( 'wpsc_2022_boost_banner', true ) ) {
+		return;
+	}
+
+	$install_url  = wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' );
+	$activate_url = admin_url( 'plugins.php' );
+	$is_installed = wpsc_is_boost_installed();
+	$button_url   = $is_installed ? $activate_url : $install_url;
+	$button_label = $is_installed ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
+	$button_id    = $is_installed ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+
+	?>
+		<div class="wpsc-boost-banner">
+			<div class="wpsc-boost-banner-inner">
+				<div class="wpsc-boost-banner-content">
+					<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+
+					<h3>
+						<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
+					</h3>
+
+					<p id="wpsc-install-invitation">
+						<?php
+							esc_html_e(
+								'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.',
+								'wp-super-cache'
+							);
+						?>
+					</p>
+
+					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+
+					<a href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button" id="<?php echo esc_attr( $button_id ); ?>">
+						<div class="spinner" style="display:none; margin-top: 8px"></div>
+						<label><?php echo esc_html( $button_label ); ?></label>
+					</a>
+				</div>
+
+				<div class="wpsc-boost-banner-image-container">
+					<img
+						src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
+						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
+						alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
+						srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
+						sizes="(max-width: 782px) 654px, 1306px"
+					>
+				</div>
+			</div>
+
+			<span class="wpsc-boost-dismiss dashicons dashicons-dismiss"></span>
+		</div>
+	<?php
+}
 
 function wp_cache_manager_error_checks() {
 	global $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
@@ -743,17 +886,6 @@ function wp_cache_manager_updates() {
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
-
-add_action( 'wp_ajax_wpsc-hide-survey', 'wpsc_hide_survey' );
-function wpsc_hide_survey(){
-	//nonce it
-	check_ajax_referer( 'wpsc-2022-survey', 'security' );
-	//update it
-	update_option('wpsc_2022-survey', 0, false);
-	wp_die();
-}
-
-
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
@@ -942,126 +1074,82 @@ table.wpsc-settings-table {
 
 	?>
 	<style>
-		.feedback-notice{
-			background:white;
-			border: 1px solid #DCDCDE;
-			border-radius: 4px;
-			position:relative;
-			height: 86px;
-			width: calc(100% - 310px);
+		.wpsc-boost-banner {
+			margin: 2px 1.25rem 1.25rem 0;
+			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+			border: 1px solid #d5d5d5;
+			position: relative;
 		}
-		.feedback-notice .content{
-			margin-top:5px;
-			position: absolute;
-			width:65%;
-			padding-right:5%;
-			height: 42px;
-			left: 65px;
-			top: calc(50% - 65px/2);
-			font-size: 14px;
+
+		.wpsc-boost-banner-inner {
+			display: flex;
+			grid-template-columns: minmax(auto, 750px) 500px;
+			justify-content: space-between;
+			min-height: 300px;
+			background: #fff;
+			overflow: hidden;
 		}
-		.megaphone{
-			position:absolute;
-			width: 24px;
-			height: 24px;
-			left: 21px;
-			top: calc(50% - 24px/2);
+
+		.wpsc-boost-banner-content {
+			display: inline-flex;
+			flex-direction: column;
+			padding: 2rem 3rem 2rem 2rem;
+			text-align: left;
 		}
-		.survey-title b{
-			font-size:14px;
+
+		.wpsc-boost-banner-image-container {
+			position: relative;
+			background-image: url( <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-colors.svg' ); ?> );
+			background-size: cover;
+			max-width: 40%;
+			overflow: hidden;
 		}
-		.survey-cta{
-			position: absolute;
-			width: 140px;
-			height: 40px;
-			right: 64px;
-			top: calc(50% - 40px/2);
-			background: #FFFFFF;
-			border: 1px solid #000000;
-			border-radius: 4px;
-			line-height:40px;
-			text-align:center;
-			font-style: normal;
-			font-weight: 600;
+
+		.wpsc-boost-banner-image-container img {
+			position: relative;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 100%;
+		}
+
+		.wpsc-boost-banner p {
 			font-size: 16px;
-			letter-spacing: -0.01em;
+			line-height: 1.5;
+			margin: 1rem 0 2rem;
 		}
-		.survey-cta a{
-			color:#000000 !important;
-			text-decoration:none !important;
-		}
-		.close{
+
+		.wpsc-boost-banner .wpsc-boost-dismiss {
 			position: absolute;
-			width: 24px;
-			height: 24px;
-			right: 20px;
-			top: calc(50% - 24px/2);
+			top: 10px;
+			right: 10px;
+			color: black;
 			cursor:pointer;
+		}
+
+		.wpsc-boost-banner .button-primary {
+			background: black;
+			border-color: black;
+			color: #fff;
+			width: fit-content;
+			padding: 0.4rem 1rem;
+			font-size: 16px;
+		}
+
+		.wpsc-boost-banner .button-primary:hover {
+			background-color: #333;
+		}
+
+		.wpsc-boost-banner .button-primary:visited {
+			background-color: black;
+			border-color: black;
 		}
 	</style>
 
-	<?php
-		$survey_nonce = wp_create_nonce( "wpsc-2022-survey" );
-		$call_out_box = "0px";
-		$showing_2022_survey = get_option('wpsc_2022-survey', true);
-		//to handle the way the yellow box is output in the UI in a table cell.
-	if ( $showing_2022_survey && $curr_tab !== 'contents' ) {
-		$call_out_box = '-90px';
-	}
-	?>
-	
-	<script>
-
-		function dismissNotice(){
-			// hide the notice here sometimes it can be a little slow if waiting for 
-			// the success response.
-			jQuery('#wp-super-cache-2022-survey').fadeOut('slow');
-			document.getElementById('wpsc-callout').style.marginTop = "0px";
-			jQuery.ajax({
-				type: "post",
-				dataType: "json",
-				url: ajaxurl,
-				data: {
-					action: 'wpsc-hide-survey',
-					security: '<?php echo $survey_nonce; ?>',
-				}
-			});
-		}
-	
-	</script>
-
-	<?php 
-	//only show the notification if not dismissed.
-	if($showing_2022_survey){
-		?>
-		<div class="feedback-notice" id="wp-super-cache-2022-survey">
-			<div class="megaphone">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M5 10H5.07846L5.15522 9.98376L18.0785 7.25H19.25V15.25H18.0785L5.15522 12.5162L5.07846 12.5H5H4.75V10H5Z" stroke="#1E1E1E" stroke-width="1.5"/>
-				<path fill-rule="evenodd" clip-rule="evenodd" d="M9.92831 16.2481C8.73996 15.8848 8.07114 14.6269 8.43446 13.4386L7 13C6.39448 14.9806 7.50918 17.077 9.48975 17.6825C11.4703 18.2881 13.5668 17.1734 14.1723 15.1928L12.7378 14.7542C12.3745 15.9426 11.1166 16.6114 9.92831 16.2481Z" fill="#1E1E1E"/>
-				</svg>
-			</div>
-			<div class="content">
-				<div style="survey-title">
-					<b><?php _e("WP Super Cache Survey", "wp-super-cache"); ?></b>
-				</div>
-				<?php
-					_e("We’d love to hear your thoughts about what should make it into WP Super Cache in the future. Please take our quick survey to help us improve!", "wp-super-cache"); 
-				?>
-			</div>
-			<div class="survey-cta">
-				<a href="https://docs.google.com/forms/d/e/1FAIpQLScOnrNs4_g-vOqzpPRghfK4WPFGGrBWqn9J5ZX8OYwyxa_QKg/viewform" target="_blank"><?php _e("Take Survey", "wp-super-cache"); ?></a>
-			</div>
-			<div class="close" onclick="dismissNotice()">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="#1E1E1E" stroke-width="1.5"/>
-				</svg>
-			</div>
-		</div>
-	<?php } ?>
-
 	<table class="wpsc-settings-table"><td valign="top">
+
 	<?php
+	wpsc_jetpack_boost_install_banner();
 
 	switch ( $curr_tab ) {
 		case 'cdn':
@@ -1183,7 +1271,7 @@ table.wpsc-settings-table {
 
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px;margin-top:<?php echo $call_out_box;?>;'>
+	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
 

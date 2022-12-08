@@ -219,7 +219,7 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push a PR, and have it merged.
+	Feel free to edit them as needed. Then commit and push those changes.
 
 EOM
 
