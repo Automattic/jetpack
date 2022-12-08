@@ -1,10 +1,7 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
 	<testsuites>
-		<testsuite name="main">
-			<directory prefix="test" suffix=".php">tests/php</directory>
-		</testsuite>
-		<testsuite name="coming-soon">
-			<directory suffix="-test.php">./src/features/coming-soon/test/</directory>
+		<testsuite name="features">
+			<directory suffix="-test.php">tests/php/features</directory>
 		</testsuite>
 	</testsuites>
 	<filter>

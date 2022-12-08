@@ -33,6 +33,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JETPACK_MU_WPCOM__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+
 /**
  * Load the Coming Soon feature.
  */
