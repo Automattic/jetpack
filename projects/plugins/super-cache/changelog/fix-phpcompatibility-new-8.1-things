@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Update for PHP 8.1 compat. No behaviorial changes.
+
+

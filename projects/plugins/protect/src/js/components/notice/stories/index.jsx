@@ -17,3 +17,19 @@ export default {
 };
 
 export const Default = () => <Notice type="success" message="Code is poetry." />;
+
+export const Dismissable = () => (
+	<Notice
+		type="success"
+		dismissable={ true }
+		message="Dismiss this notice by clicking the close icon."
+	/>
+);
+
+export const Duration = () => (
+	<Notice
+		type="success"
+		duration={ 5000 }
+		message="This notice will self-destruct in five seconds."
+	/>
+);

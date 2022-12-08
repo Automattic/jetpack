@@ -3,25 +3,29 @@
 }
 
 .notice {
+	box-sizing: border-box;
 	margin: 0;
+    padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ) calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 ); // 16px | 24px | 16px | 24px
 	font-size: 16px;
+	line-height: 22px;
+	color: var( --jp-gray-80 );
+    border: 1px solid var( --jp-gray );
+	border-left: 6px solid var( --jp-red-50 );
+	border-radius: var( --jp-border-radius );
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03), 0 1px 2px rgba(0, 0, 0, 0.06);
 
 	// notice itself on error status
 	&:global(.is-error) {
-		background-color: var(--jp-red-0);
+		background-color: var( --jp-white );
 	}
 
 	// notice content
 	& :global(.components-notice__content) {
 		display: flex;
-		align-items: center;
 		margin: 0;
 		padding: 12px 4px;
-
-		// left icon
-		& > svg {
-			fill: var(--jp-red-60);
-		}
+		flex-direction: column;
+		align-items: start;
 	}
 
 	// action button
@@ -35,9 +39,53 @@
 	& :global(.components-notice__dismiss) {
 		align-self: center;
 	}
+
+	& :global(.components-notice__action) {
+		color: var( --jp-white );
+		font-weight: 600;
+		font-size: 16px;
+		line-height: 24px;
+		letter-spacing: -0.01em;
+		text-decoration: none;
+		cursor: pointer;
+		justify-content: center;
+		align-items: center;
+		padding: 8px 24px;
+		margin-left: calc( var( --spacing-base ) * 2 + 24px ); // 40px
+		margin-top: 24px;
+		background: #000000;
+		border-radius: var( --jp-border-radius );
+		height: auto;
+	}
+
+	&.bigger-than-medium {
+		& :global(.components-notice__action) {
+			margin-left: 0;
+			margin-top: 0;
+			white-space: nowrap;
+		}
+
+		& :global(.components-notice__content) {
+			flex-direction: row;
+			align-items: center;
+		}
+	}
 }
 
 .message {
-	margin-left: 8px;
-}
+    margin-right: var( --spacing-base ); // 8px
+	flex-grow: 1;
+	display: flex;
 
+	// left icon
+	& > svg {
+		fill: var( --jp-red-60 );
+		flex-shrink: 0;
+		align-self: flex-start;
+		margin-right: calc( var( --spacing-base ) * 2 ); // 16px
+
+		&.nofill {
+			fill: none;
+		}
+	}
+}
