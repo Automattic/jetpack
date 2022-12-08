@@ -20,4 +20,6 @@
 
 {#if ! when}
 	<slot />
+{:else}
+	<div />
 {/if}
