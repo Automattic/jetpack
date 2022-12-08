@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
@@ -15,7 +15,6 @@ import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
-import { isBetaExtension } from '../../editor';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -502,13 +501,20 @@ const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( Block
 		 * based on some of its attributes.
 		 */
 		const isCoreVideoVideoPressBlock = isVideoPressBlockBasedOnAttributes( attributes );
-		const isBeta = isBetaExtension( 'videopress/video' );
+
+		const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
+
+		const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
+			'videopress/video'
+		);
+
 		const isSimple = isSimpleSite();
 
 		const shouldConvertToVideoPressVideoBlock = !! (
 			name === 'core/video' && // Only auto-convert if the block is a core/video block
+			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
-			isBeta && // Only auto-convert if the feature is beta
+			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
 			// Only auto-convert if the site is Simple
 			isSimple
 		);
