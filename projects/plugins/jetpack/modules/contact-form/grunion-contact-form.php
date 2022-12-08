@@ -2905,6 +2905,31 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string
 	 */
 	private static function esc_shortcode_val( $val ) {
+		if ( is_array( $val ) ) {
+			if ( isset( $val['link'] ) ) {
+				return 'link: ' . self::esc_shortcode_val( $val['link']['color']['text'] );
+			}
+
+			$style = array();
+			if ( isset( $val['padding'] ) ) {
+				$att     = $val['padding'];
+				$style[] = 'padding: ' . self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['top'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['right'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['bottom'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['left'] ) ) . 'px';
+			}
+			if ( isset( $val['margin'] ) ) {
+				$att     = $val['margin'];
+				$style[] = 'margin: ' . self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['top'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['right'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['bottom'] ) ) . 'px ' .
+					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['left'] ) ) . 'px';
+			}
+			if ( isset( $val['text'] ) ) {
+				$style[] = 'color: ' . $val['text'];
+			}
+			return implode( ';', $style );
+		}
 		return strtr(
 			esc_html( $val ),
 			array(
@@ -2945,7 +2970,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 					if ( is_array( $val ) ) {
 						$val        = array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
-						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . implode( ';', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
@@ -2959,7 +2984,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
 				$html .= ']' . esc_html( $content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
-				$html .= '/]';
+				$html .= ']';
 			}
 
 			return $html;
@@ -3912,6 +3937,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'required'               => false,
 				'options'                => array(),
 				'id'                     => null,
+				'style'                  => null,
+				'backgroundcolor'        => null,
+				'textcolor'              => null,
 				'default'                => null,
 				'values'                 => null,
 				'placeholder'            => null,
@@ -4090,7 +4118,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_required    = $this->get_attribute( 'required' );
 		$field_placeholder = $this->get_attribute( 'placeholder' );
 		$field_width       = $this->get_attribute( 'width' );
+		$field_style       = $this->get_attribute( 'style' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+
+		$field_background_color = $this->get_attribute( 'backgroundcolor' );
+		$field_text_color       = $this->get_attribute( 'textcolor' );
 
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;
@@ -4151,7 +4183,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_value = Grunion_Contact_Form_Plugin::strip_tags( $this->value );
 		$field_label = Grunion_Contact_Form_Plugin::strip_tags( $field_label );
 
-		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required );
+		$rendered_field = $this->render_field( $field_type, $field_id, $field_label, $field_value, $field_class, $field_placeholder, $field_required, $field_style, $field_background_color, $field_text_color );
 
 		/**
 		 * Filter the HTML of the Contact Form.
@@ -4523,10 +4555,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @param string $class - the field class.
 	 * @param string $placeholder - the field placeholder content.
 	 * @param bool   $required - if the field is marked as required.
+	 * @param string $field_style - style defined in the block sidebar.
+	 * @param string $field_background_color - background color of the field.
+	 * @param string $field_text_color - color of the text in the field.
 	 *
 	 * @return string HTML
 	 */
-	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required ) {
+	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $field_style = '', $field_background_color = '', $field_text_color = '' ) {
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
@@ -4544,7 +4579,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ) );
 
-		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		if ( $field_text_color !== '' ) {
+			$text_color = "color: var(--wp--preset--color--{$field_text_color});";
+		} else {
+			$text_color = '';
+		}
+		$field = "\n<div style='$text_color $field_style; background-color: var(--wp--preset--color--{$field_background_color})' {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 		// If they are logged in, and this is their site, don't pre-populate fields
 		if ( current_user_can( 'manage_options' ) ) {
 			$value = '';
