@@ -31,6 +31,7 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
+import useQueryStringPages from '../../hooks/use-query-string-pages';
 import { useSearchParam } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
@@ -45,17 +46,32 @@ import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
-	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
+	const {
+		items,
+		uploading,
+		uploadedVideoCount,
+		isFetching,
+		search,
+		page,
+		itemsPerPage,
+		total,
+	} = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
 
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
 	const pageFromSearchParam = parseInt( useSearchParam( 'page', '1' ) );
+	const { forceFirstPage } = useQueryStringPages();
+	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
-		if ( page !== pageFromSearchParam ) {
-			setVideosQuery( { page: pageFromSearchParam } );
+		if ( 1 <= pageFromSearchParam && pageFromSearchParam <= totalOfPages ) {
+			if ( page !== pageFromSearchParam ) {
+				setVideosQuery( { page: pageFromSearchParam } );
+			}
+		} else {
+			forceFirstPage();
 		}
-	} );
+	}, [ totalOfPages, pageFromSearchParam ] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
