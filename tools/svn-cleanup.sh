@@ -57,6 +57,7 @@ $INTERACTIVE || die "Input is not a terminal, aborting."
 process_plugin_arg "${ARGS[0]}"
 PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
 WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
+VERSION_TYPE=$(jq -r '.extra["changelogger"]["versioning"] // ""' "$PLUGIN_DIR/composer.json" )
 [[ -n "$WPSLUG" ]] || die "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot cleanup previous tags."
 
 # Check build dir.
@@ -78,11 +79,17 @@ fi
 cd "$BUILD_DIR"
 DIR=$(pwd)
 
-info "Cecking out SVN and getting the current stable tag"
+info "Checking out SVN and getting the current stable tag"
 svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
 svn -q up trunk/ --depth=empty
 svn -q up trunk/readme.txt
-STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+(\.[0-9]+)+')
+
+if [[ "$VERSION_TYPE" == "wordpress" ]]; then
+	STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+\.([0-9]+)')
+else
+	STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+(\.[0-9]+)+')
+fi 
+
 success "Done! Checked out to $DIR"
 
 info "Checking out SVN tags to $DIR/tags"
@@ -94,7 +101,7 @@ info "Getting list of pre-release tags"
 PRERELEASE_TAGS=()
 for TAG in *
 	do
-		if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG"; then
+		if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG" && [[ "$TAG" != "$STABLE_TAG"* ]]; then
 			PRERELEASE_TAGS+=("$TAG")
 		fi
 done
@@ -115,7 +122,7 @@ proceed_p "" "Continue?"
 echo ""
 
 info "Deleting tags..."
-svn -q rm "${SVN_PREV_TAGS[@]}"
+svn -q rm "${PRERELEASE_TAGS[@]}"
 svn ci -m "Deleting previous release's alphas and betas"
 success "Done!"
 
