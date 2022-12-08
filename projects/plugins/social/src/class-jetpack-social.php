@@ -90,6 +90,7 @@ class Jetpack_Social {
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
+		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
 
 		add_action(
 			'plugins_loaded',
@@ -347,13 +348,26 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Redirect to the plugin settings page after activation.
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public function redirect_after_activation( $plugin ) {
+		if (
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin &&
+			\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH )
+		) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Activates the Publicize module and disables the activation option
 	 */
 	public function activate_module() {
 		delete_option( self::JETPACK_SOCIAL_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_PUBLICIZE_MODULE_SLUG, false, false );
-		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
-			exit;
 	}
 
 	/**
