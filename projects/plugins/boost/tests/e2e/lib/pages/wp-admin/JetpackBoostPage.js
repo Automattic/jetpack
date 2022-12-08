@@ -94,10 +94,7 @@ export default class JetpackBoostPage extends WpPage {
 		const speedBar = await this.page.waitForSelector(
 			`div.jb-score-bar--${ platform } .jb-score-bar__filler`
 		);
-		await this.page.waitForSelector( '.jb-score-bar__score', {
-			state: 'visible',
-			timeout: 90 * 1000,
-		} );
+		await this.page.waitForSelector( '.jb-score-bar__score' );
 		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}
 
