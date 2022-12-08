@@ -15,6 +15,7 @@ import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+import { isBetaExtension } from '../../editor';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -461,22 +462,55 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	return attrs;
 }
 
+/**
+ * Check whether the block is a VideoPress block istance,
+ * based on the passed attributes.
+ *
+ * @param {object} attributes - Block attributes.
+ * @returns {boolean} 	        Whether the block is a VideoPress block istance.
+ */
+const isVideoPressBlockBasedOnAttributes = attributes => {
+	const { guid, videoPressTracks, isVideoPressExample } = attributes;
+
+	// VideoPress block should have a guid attribute.
+	if ( ! guid?.length ) {
+		return false;
+	}
+
+	// VideoPress block should have a videoPressTracks array attribute.
+	if ( ! Array.isArray( videoPressTracks ) ) {
+		return false;
+	}
+
+	// VideoPress block should have a isVideoPressExample boolean attribute.
+	const attrNames = Object.keys( attributes );
+	if ( ! attrNames.includes( 'isVideoPressExample' ) || typeof isVideoPressExample !== 'boolean' ) {
+		return false;
+	}
+
+	return true;
+};
+
 const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block } = props;
 		const { name, attributes, clientId, __unstableBlockSource } = block;
-		const { guid, videoPressTracks } = attributes;
-
 		const { replaceBlock } = useDispatch( blockEditorStore );
 
 		/*
 		 * We try to recognize core/video Jetpack VideoPress block,
 		 * based on some of its attributes.
 		 */
-		const isCoreVideoVideoPressBlock = guid?.length && videoPressTracks;
+		const isCoreVideoVideoPressBlock = isVideoPressBlockBasedOnAttributes( attributes );
+		const isBeta = isBetaExtension( 'videopress/video' );
+		const isSimple = isSimpleSite();
 
 		const shouldConvertToVideoPressVideoBlock = !! (
-			name === 'core/video' && isCoreVideoVideoPressBlock
+			name === 'core/embed' && // Only auto-convert if the block is a core/video block
+			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
+			isBeta && // Only auto-convert if the feature is beta
+			// Only auto-convert if the site is Simple
+			isSimple
 		);
 
 		useEffect( () => {
