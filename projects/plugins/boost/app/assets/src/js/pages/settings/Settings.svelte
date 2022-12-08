@@ -11,27 +11,26 @@
 	import Tips from './sections/Tips.svelte';
 </script>
 
-<ReRouter to="/getting-started" when={$config.site.getStarted}>
-	<div id="jb-settings" class="jb-settings jb-settings--main">
-		<div class="jb-container">
-			<Header />
-		</div>
-
-		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
-		</div>
-
-		<Router>
-			<div class="jb-section jb-section--main">
-				<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
-				<Route path="/" component={Modules} />
-			</div>
-		</Router>
-
-		<Tips />
-
-		<Support />
-
-		<Footer />
+<ReRouter to="/getting-started" when={$config.site.getStarted} />
+<div id="jb-settings" class="jb-settings jb-settings--main">
+	<div class="jb-container">
+		<Header />
 	</div>
-</ReRouter>
+
+	<div class="jb-section jb-section--alt jb-section--scores">
+		<Score />
+	</div>
+
+	<Router>
+		<div class="jb-section jb-section--main">
+			<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+			<Route path="/" component={Modules} />
+		</div>
+	</Router>
+
+	<Tips />
+
+	<Support />
+
+	<Footer />
+</div>
