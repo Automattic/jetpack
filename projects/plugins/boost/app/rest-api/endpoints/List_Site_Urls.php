@@ -17,8 +17,7 @@ class List_Site_Urls implements Endpoint {
 		return \WP_REST_Server::READABLE;
 	}
 
-	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	public function response( $request ) {
+	public function response( $_request ) {
 		return rest_ensure_response( Site_Urls::get() );
 	}
 
