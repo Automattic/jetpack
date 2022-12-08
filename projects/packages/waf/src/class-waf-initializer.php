@@ -17,11 +17,25 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		// Do not run in the WPCOM context
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return;
+		}
+
+		// Check if killswitch is defined as true
+		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+			return;
+		}
+
+		// Triggers when the Jetpack plugin is updated
+		add_action( 'upgrader_process_complete', array( Waf_Runner::class, 'update_waf' ) );
+
+		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
-		if ( Waf_Runner::is_enabled() ) {
-			add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-		}
+
+		// Run the WAF
+		Waf_Runner::initialize();
 	}
 
 	/**
