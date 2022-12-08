@@ -20,6 +20,8 @@ test.describe( 'Speed Score feature', () => {
 	} );
 
 	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async () => {
+		await jetpackBoostPage.waitForScoreLoadingToFinish();
+
 		expect(
 			await jetpackBoostPage.getSpeedScore( 'mobile' ),
 			'Mobile speed score should be greater than 0'
