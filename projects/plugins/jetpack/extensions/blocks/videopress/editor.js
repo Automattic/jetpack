@@ -14,6 +14,7 @@ import { useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+import { isBetaExtension } from '../../editor';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -403,6 +404,11 @@ addFilter(
  * @returns {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
+	const isBeta = isBetaExtension( 'videopress/video' );
+	if ( isBeta && isSimpleSite() ) {
+		return settings;
+	}
+
 	if ( name !== 'videopress/video' ) {
 		return settings;
 	}
