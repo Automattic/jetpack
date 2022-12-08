@@ -17,6 +17,15 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+		align: [ 'wide', 'full' ],
 	},
 	attributes: {
 		label: {
