@@ -84,6 +84,7 @@ svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR
 svn -q up trunk/ --depth=empty
 svn -q up trunk/readme.txt
 
+# Ignore point releases for wordpress-style versioning
 if [[ "$VERSION_TYPE" == "wordpress" ]]; then
 	STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+\.([0-9]+)')
 else
