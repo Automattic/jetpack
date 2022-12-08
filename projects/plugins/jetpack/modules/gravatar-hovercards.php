@@ -201,10 +201,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 				$response_body = wp_cache_get( $cache_key, $cache_group );
 				if ( false === $response_body ) {
-					$response = wp_remote_get( esc_url_raw( 'https://en.gravatar.com/' . $email_hash . '.json' ) );
-					echo '<pre>';
-					error_log( $response, 0 );//phpcs:ignore
-					echo '</pre>';
+					$response = wp_remote_get( esc_url_raw( 'https://www.gravatar.com/' . $email_hash . '.json' ) );
 					if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						$response_body = json_decode( $response['body'] );
 						wp_cache_set( $cache_key, $response_body, $cache_group, 60 * MINUTE_IN_SECONDS );
