@@ -32,7 +32,6 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 	 */
 	public static function tear_down_after_class() {
 		self::delete_coming_soon_site_options();
-		parent::tearDownAfterClass();
 	}
 
 	/**
@@ -42,7 +41,6 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		self::delete_preview_links_parameters();
-		parent::tearDown();
 	}
 
 	/**
