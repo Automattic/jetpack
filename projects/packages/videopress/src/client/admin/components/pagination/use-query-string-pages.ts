@@ -19,8 +19,18 @@ export const useQueryStringPages = () => {
 			} );
 		}
 	};
+	const forceFirstPage = () => {
+		const searchFragment = '';
+		if ( searchFragment !== history.location.search ) {
+			history.replace( {
+				pathname: history.location.pathname,
+				search: searchFragment,
+			} );
+		}
+	};
 
 	return {
 		setPageOnURL,
+		forceFirstPage,
 	};
 };
