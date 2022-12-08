@@ -9,7 +9,7 @@
  * @package automattic/jetpack
  */
 
-add_filter( 'pre_http_request', 'e2e_mock_speed_score_api', 1, 3 );
+// add_filter( 'pre_http_request', 'e2e_mock_speed_score_api', 1, 3 );
 
 /**
  * Intercept WPCOM request to generate Speed Scores and reply with mocked data
