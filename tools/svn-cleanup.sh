@@ -100,11 +100,10 @@ success "Done!"
 
 info "Getting list of pre-release tags"
 PRERELEASE_TAGS=()
-for TAG in *
-	do
-		if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG" && [[ "$TAG" != "$STABLE_TAG"* ]]; then
-			PRERELEASE_TAGS+=("$TAG")
-		fi
+for TAG in *; do
+	if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG" && [[ "$TAG" != "$STABLE_TAG"* ]]; then
+		PRERELEASE_TAGS+=("$TAG")
+	fi
 done
 success "Done!"
 
@@ -115,9 +114,8 @@ if [[ ${#PRERELEASE_TAGS[@]} -eq 0 ]]; then
 fi
 
 yellow "Tags that will be deleted:"
-for TAG in "${PRERELEASE_TAGS[@]}"
-	do
-		red "$TAG"
+for TAG in "${PRERELEASE_TAGS[@]}"; do
+	red "$TAG"
 done
 proceed_p "" "Continue?"
 echo ""
@@ -126,5 +124,3 @@ info "Deleting tags..."
 svn -q rm "${PRERELEASE_TAGS[@]}"
 svn ci -m "Deleting previous release's alphas and betas"
 success "Done!"
-
-exit
