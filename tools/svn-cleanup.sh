@@ -7,6 +7,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/proceed_p.sh"
+. "$BASE/tools/includes/version-compare.sh"
 
 # Instructions
 function usage {
@@ -77,53 +78,45 @@ fi
 cd "$BUILD_DIR"
 DIR=$(pwd)
 
-
-# Get JSON
-JSON=$(curl -s "https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json")
-if ! jq -e '.' <<<"$JSON" &>/dev/null; then
-	die "Failed to retrieve JSON data from https://api.wordpress.org/plugins/info/1.0/$WPSLUG.json"
-fi
-
-# Current stable version
-CURRENT_STABLE_VERSION=$(jq -r .version <<<"$JSON")
-
-# Get all versions, excluding point releases for Jetpack-the-plugin, so we can obtain the previous release cycle's version.
-if [[ $WPSLUG == "jetpack" ]]; then
-	SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+){1}$" ) )' <<<"$JSON"  | sort -V )
-else
-	SVN_TMP=$(jq -r '.versions | keys[] | select( test( "^[0-9]+(\\.[0-9]+)+$" ) )' <<<"$JSON"  | sort -V )
-fi
-mapfile -t SVN_TAGS <<<"$SVN_TMP"
-SVN_PREVIOUS=${SVN_TAGS[-2]}
-
-# Get all previous version's betas and alphas
-SVN_PREV_TAGS=$(jq -r '.versions | keys[] | select( test( "^'${SVN_PREVIOUS}'\\-" ) )' <<<"$JSON"  | sort -V )
-
-yellow "Current stable tag in SVN: ${CURRENT_STABLE_VERSION}"
-if [[ -z "$SVN_PREV_TAGS" ]]; then
-	echo "No beta or alpha tags for $SVN_PREVIOUS to delete!"
-	exit
-fi
-yellow "Tags that will be deleted:"
-red "${SVN_PREV_TAGS}"
-proceed_p "" "Continue?"
-echo ""
-
-# Checkout and delete the tags, then commit to SVN.
-info "Checking out SVN shallowly to $DIR"
+info "Cecking out SVN and getting the current stable tag"
 svn -q checkout "https://plugins.svn.wordpress.org/$WPSLUG/" --depth=empty "$DIR"
+svn -q up trunk/ --depth=empty
+svn -q up trunk/readme.txt
+STABLE_TAG=$(grep "Stable tag:" trunk/readme.txt | grep -Eo '[0-9]+(\.[0-9]+)+')
 success "Done! Checked out to $DIR"
 
 info "Checking out SVN tags to $DIR/tags"
-svn -q up tags --depth=empty
+svn -q up tags --depth=immediates
 cd tags
-SVN_PREV_TAGS=$(echo "$SVN_PREV_TAGS" | tr '\n' ' ')
-svn -q up ${SVN_PREV_TAGS} --depth=empty
 success "Done!"
 
+info "Getting list of pre-release tags"
+PRERELEASE_TAGS=()
+for TAG in *
+	do
+		if [[ "$TAG" =~ [0-9]+(\.[0-9]+)+- ]] && version_compare "$STABLE_TAG" "$TAG"; then
+			PRERELEASE_TAGS+=("$TAG")
+		fi
+done
+success "Done!"
+
+yellow "Current stable tag in SVN: ${STABLE_TAG}"
+if [[ ${#PRERELEASE_TAGS[@]} -eq 0 ]]; then
+	echo "No beta or alpha tags from previous releases to delete!"
+	exit
+fi
+
+yellow "Tags that will be deleted:"
+for TAG in "${PRERELEASE_TAGS[@]}"
+	do
+		red "$TAG"
+done
+proceed_p "" "Continue?"
+echo ""
+
 info "Deleting tags..."
-svn -q rm ${SVN_PREV_TAGS}
-svn ci -m "Deleting $SVN_PREVIOUS alphas and betas"
+svn -q rm "${SVN_PREV_TAGS[@]}"
+svn ci -m "Deleting previous release's alphas and betas"
 success "Done!"
 
 exit
