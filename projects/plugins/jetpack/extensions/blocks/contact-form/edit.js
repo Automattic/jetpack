@@ -269,11 +269,11 @@ export function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
-							<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM Connection', 'jetpack' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 						) }
-						<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
+						<PanelBody title={ __( 'Newsletter Connection', 'jetpack' ) } initialOpen={ false }>
 							<NewsletterIntegrationSettings />
 						</PanelBody>
 					</Fragment>
