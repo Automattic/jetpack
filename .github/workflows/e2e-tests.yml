@@ -4,10 +4,6 @@ on:
   pull_request:
     paths-ignore:
     - '**.md'
-  push:
-    branches: [ 'trunk' ]
-    paths-ignore:
-    - '**.md'
   repository_dispatch:
     types: ['e2e tests**']
 
