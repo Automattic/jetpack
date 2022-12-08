@@ -44,8 +44,8 @@ function should_show_coming_soon_page() {
  * @return string
  */
 function get_share_code() {
-	if ( isset( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return sanitize_key( wp_unslash( $_GET['share'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['share'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No data written to site, used in conditionally displaying coming-soon page and adding robots headers.
+		return sanitize_key( wp_unslash( $_GET['share'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No data written to site, used in conditionally displaying coming-soon page and adding robots headers.
 	} elseif ( isset( $_COOKIE['wp_share_code'] ) ) {
 		return sanitize_key( wp_unslash( $_COOKIE['wp_share_code'] ) );
 	}
