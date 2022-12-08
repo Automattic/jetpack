@@ -35,7 +35,9 @@ const useWafData = () => {
 	 * Flips the switch on the WAF module, and then refreshes the data.
 	 */
 	const toggleWaf = useCallback( () => {
-		setWafIsLoading( true );
+		if ( ! waf.isEnabled ) {
+			setWafIsLoading( true );
+		}
 		setWafIsUpdating( true );
 		return API.toggleWaf()
 			.then( refreshWaf )
@@ -43,7 +45,7 @@ const useWafData = () => {
 				setWafIsLoading( false );
 				setWafIsUpdating( false );
 			} );
-	}, [ refreshWaf, setWafIsLoading, setWafIsUpdating ] );
+	}, [ refreshWaf, waf.isEnabled, setWafIsLoading, setWafIsUpdating ] );
 
 	/**
 	 * Toggle Manual Rules
