@@ -4,6 +4,7 @@
 	which can be important when dealing with things like child-routes.
 -->
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { useNavigate } from 'svelte-navigator';
 
 	export let when: boolean;
@@ -16,6 +17,13 @@
 	if ( when ) {
 		navigate( to );
 	}
+	onMount( () => {
+		if ( when ) {
+			setTimeout( () => {
+				navigate( to );
+			}, 1 );
+		}
+	} );
 </script>
 
 {#if ! when}
