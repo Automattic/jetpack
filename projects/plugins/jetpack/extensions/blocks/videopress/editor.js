@@ -506,7 +506,7 @@ const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( Block
 		const isSimple = isSimpleSite();
 
 		const shouldConvertToVideoPressVideoBlock = !! (
-			name === 'core/embed' && // Only auto-convert if the block is a core/video block
+			name === 'core/video' && // Only auto-convert if the block is a core/video block
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
 			isBeta && // Only auto-convert if the feature is beta
 			// Only auto-convert if the site is Simple
