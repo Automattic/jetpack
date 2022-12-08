@@ -9,7 +9,7 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
-	const { setWafConfig, setWafIsEnabled, setWafIsUpdating, setWafIsLoading } = useDispatch(
+	const { setWafConfig, setWafIsEnabled, setWafIsUpdating, setWafIsToggling } = useDispatch(
 		STORE_ID
 	);
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
@@ -36,16 +36,16 @@ const useWafData = () => {
 	 */
 	const toggleWaf = useCallback( () => {
 		if ( ! waf.isEnabled ) {
-			setWafIsLoading( true );
+			setWafIsToggling( true );
 		}
 		setWafIsUpdating( true );
 		return API.toggleWaf()
 			.then( refreshWaf )
 			.finally( () => {
-				setWafIsLoading( false );
+				setWafIsToggling( false );
 				setWafIsUpdating( false );
 			} );
-	}, [ refreshWaf, waf.isEnabled, setWafIsLoading, setWafIsUpdating ] );
+	}, [ refreshWaf, waf.isEnabled, setWafIsToggling, setWafIsUpdating ] );
 
 	/**
 	 * Toggle Manual Rules

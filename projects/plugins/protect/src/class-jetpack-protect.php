@@ -199,7 +199,7 @@ class Jetpack_Protect {
 			'waf'               => array(
 				'isSeen'     => self::get_waf_seen_status(),
 				'isEnabled'  => Waf_Runner::is_enabled(),
-				'isLoading'  => false,
+				'isToggling' => false,
 				'isUpdating' => false,
 				'config'     => Waf_Runner::get_config(),
 			),

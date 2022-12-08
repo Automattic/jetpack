@@ -24,7 +24,7 @@ const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
 const SET_WAF_IS_SEEN = 'SET_WAF_IS_SEEN';
 const SET_WAF_IS_ENABLED = 'SET_WAF_IS_ENABLED';
 const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
-const SET_WAF_IS_LOADING = 'SET_WAF_IS_LOADING';
+const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 
 const setStatus = status => {
@@ -371,8 +371,8 @@ const setWafIsUpdating = isUpdating => {
 	return { type: SET_WAF_IS_UPDATING, isUpdating };
 };
 
-const setWafIsLoading = isLoading => {
-	return { type: SET_WAF_IS_LOADING, isLoading };
+const setWafIsToggling = isToggling => {
+	return { type: SET_WAF_IS_TOGGLING, isToggling };
 };
 
 const setWafConfig = config => {
@@ -406,7 +406,7 @@ const actions = {
 	setWafIsEnabled,
 	setWafIsSeen,
 	setWafIsUpdating,
-	setWafIsLoading,
+	setWafIsToggling,
 	setWafConfig,
 };
 
@@ -432,7 +432,7 @@ export {
 	SET_WAF_IS_SEEN,
 	SET_WAF_IS_ENABLED,
 	SET_WAF_IS_UPDATING,
-	SET_WAF_IS_LOADING,
+	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 	actions as default,
 };
