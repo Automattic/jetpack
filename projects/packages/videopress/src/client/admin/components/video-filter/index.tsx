@@ -23,10 +23,10 @@ import {
 	VIDEO_FILTER_RATING,
 	VIDEO_FILTER_UPLOADER,
 } from '../../../state/constants';
+import useQueryStringPages from '../../hooks/use-query-string-pages';
 import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
-import { useQueryStringPages } from '../pagination/use-query-string-pages';
 import styles from './style.module.scss';
 import { FilterObject } from './types';
 

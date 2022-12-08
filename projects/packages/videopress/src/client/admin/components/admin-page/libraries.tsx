@@ -11,10 +11,10 @@ import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import useQueryStringPages from '../../hooks/use-query-string-pages';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
-import { useQueryStringPages } from '../pagination/use-query-string-pages';
 import { FilterButton, ConnectFilterSection } from '../video-filter';
 import VideoGrid from '../video-grid';
 import VideoList, { LocalVideoList } from '../video-list';

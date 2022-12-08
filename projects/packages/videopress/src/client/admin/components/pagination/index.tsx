@@ -7,10 +7,10 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import useQueryStringPages from '../../hooks/use-query-string-pages';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
-import { useQueryStringPages } from './use-query-string-pages';
 import type React from 'react';
 
 const range = ( start, count ) => {

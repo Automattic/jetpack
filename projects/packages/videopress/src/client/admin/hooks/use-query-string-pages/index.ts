@@ -8,7 +8,7 @@ import { useHistory } from 'react-router-dom';
  *
  * @returns {object} - Object containing useful handlers for URL pagination
  */
-export const useQueryStringPages = () => {
+const useQueryStringPages = () => {
 	const history = useHistory();
 	const setPageOnURL = page => {
 		const searchFragment = page > 1 ? `?page=${ page }` : '';
@@ -34,3 +34,5 @@ export const useQueryStringPages = () => {
 		forceFirstPage,
 	};
 };
+
+export default useQueryStringPages;
