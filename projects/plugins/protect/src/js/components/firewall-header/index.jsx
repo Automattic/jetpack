@@ -66,7 +66,24 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan } ) => {
+const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
+	let enabledFeatures = '';
+
+	if ( status === 'on' ) {
+		if ( manualRulesEnabled ) {
+			enabledFeatures = __( 'Automatic and manual rules are currently active.', 'jetpack-protect' );
+		} else {
+			enabledFeatures = __( 'Automatic rules are currently active.', 'jetpack-protect' );
+		}
+	}
+	if ( status === 'off' ) {
+		enabledFeatures = __( 'Automatic and manual rules are available.', 'jetpack-protect' );
+	}
+
+	return <Text weight={ 600 }>{ enabledFeatures }</Text>;
+};
+
+const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 	return (
 		<AdminSectionHero>
 			<Container
@@ -81,9 +98,18 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
+								{ hasRequiredPlan
+									? __( 'Automatic firewall is on', 'jetpack-protect' )
+									: __( 'Jetpack firewall is on', 'jetpack-protect' ) }
 							</H3>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
+							{ hasRequiredPlan ? (
+								<CurrentlyEnabledFeatures
+									status={ status }
+									manualRulesEnabled={ config?.jetpackWafIpList }
+								/>
+							) : (
+								<UpgradePrompt />
+							) }
 						</>
 					) }
 					{ 'off' === status && (
@@ -94,7 +120,14 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
 							</H3>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
+							{ hasRequiredPlan ? (
+								<CurrentlyEnabledFeatures
+									status={ status }
+									manualRulesEnabled={ config?.jetpackWafIpList }
+								/>
+							) : (
+								<UpgradePrompt />
+							) }
 						</>
 					) }
 					{ 'loading' === status && (
@@ -118,11 +151,17 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled } = useWafData();
+	const { isEnabled, config } = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 
 	// To Do: Add loading status
-	return <FirewallHeader status={ isEnabled ? 'on' : 'off' } hasRequiredPlan={ hasRequiredPlan } />;
+	return (
+		<FirewallHeader
+			status={ isEnabled ? 'on' : 'off' }
+			hasRequiredPlan={ hasRequiredPlan }
+			config={ config }
+		/>
+	);
 };
 
 export default ConnectedFirewallHeader;
