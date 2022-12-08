@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { unregisterBlockVariation } from '@wordpress/blocks';
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
@@ -10,6 +11,10 @@ import { addFilter } from '@wordpress/hooks';
 import withCoreEmbedVideoPressBlock from './edit';
 
 const extendCoreEmbedVideoPressBlock = ( settings, name ) => {
+	if ( isSimpleSite() ) {
+		return settings;
+	}
+
 	if ( name !== 'core/embed' ) {
 		return settings;
 	}
