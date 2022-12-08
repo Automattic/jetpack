@@ -17,20 +17,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	[ 'lazy-images', 'render-blocking-js' ].forEach( moduleSlug => {
-		test( `Enabling ${ moduleSlug } should refresh scores`, async () => {
-			await jetpackBoostPage.waitForScoreLoadingToFinish();
-
-			await jetpackBoostPage.toggleModule( moduleSlug );
-
-			await new Promise( resolve => setTimeout( resolve, 2100 ) ); // Score refresh starts after 2 seconds delay
-
-			expect( await jetpackBoostPage.isScoreLoading(), 'Score should be loading' ).toBeTruthy();
-			await jetpackBoostPage.waitForScoreLoadingToFinish();
-			expect( await jetpackBoostPage.isScoreVisible(), 'Score should be visible' ).toBeTruthy();
-		} );
-	} );
-
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 
