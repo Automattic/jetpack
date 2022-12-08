@@ -1,21 +1,23 @@
 /**
  * External dependencies
  */
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 
 /**
- * Uses the history and location to manipulate the URL pagination parameters.
+ * Uses the history to manipulate the URL pagination parameters.
  *
  * @returns {object} - Object containing useful handlers for URL pagination
  */
 export const useQueryStringPages = () => {
 	const history = useHistory();
-	const location = useLocation();
 	const setPageOnURL = page => {
-		history.push( {
-			pathname: location.pathname,
-			search: `?page=${ page }`,
-		} );
+		const searchFragment = page > 1 ? `?page=${ page }` : '';
+		if ( searchFragment !== history.location.search ) {
+			history.push( {
+				pathname: history.location.pathname,
+				search: searchFragment,
+			} );
+		}
 	};
 
 	return {
