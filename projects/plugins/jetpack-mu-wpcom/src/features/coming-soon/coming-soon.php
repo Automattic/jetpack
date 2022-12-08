@@ -196,7 +196,6 @@ function disable_coming_soon_on_privacy_change( $old_value, $value ) {
 }
 add_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_on_privacy_change', 10, 2 );
 
-// phpcs:disable Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
 /**
  * Adds the `wpcom_public_coming_soon` option to new sites  if requested by the client.
  *
@@ -217,7 +216,7 @@ function add_option_to_new_site( $blog_id, $user_id, $domain, $path, $network_id
 	}
 	return false;
 }
-// phpcs:enable Generic.CodeAnalysis.UnusedFunctionParameter.FoundBeforeLastUsed
+
 add_action( 'wpmu_new_blog', __NAMESPACE__ . '\add_option_to_new_site', 10, 6 );
 
 /**
