@@ -6,7 +6,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
+import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { mediaUpload } from '@wordpress/editor';
@@ -14,7 +14,6 @@ import { useContext } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
-import { isBetaExtension } from '../../editor';
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -404,8 +403,12 @@ addFilter(
  * @returns {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
-	const isBeta = isBetaExtension( 'videopress/video' );
-	if ( isBeta && isSimpleSite() ) {
+	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
+	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
+		'videopress/video'
+	);
+
+	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable && isSimpleSite() ) {
 		return settings;
 	}
 
