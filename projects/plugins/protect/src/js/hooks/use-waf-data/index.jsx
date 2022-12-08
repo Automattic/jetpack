@@ -46,6 +46,18 @@ const useWafData = () => {
 	}, [ refreshWaf, setWafIsLoading, setWafIsUpdating ] );
 
 	/**
+	 * Toggle Automatic Rules
+	 *
+	 * Flips the switch on the WAF automatic rules feature, and then refreshes the data.
+	 */
+	const toggleAutomaticRules = useCallback( () => {
+		setWafIsUpdating( true );
+		return API.updateWaf( { jetpack_waf_automatic_rules: ! waf.config.jetpackWafAutomaticRules } )
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafAutomaticRules ] );
+
+	/**
 	 * Toggle Manual Rules
 	 *
 	 * Flips the switch on the WAF IP list feature, and then refreshes the data.
@@ -92,6 +104,7 @@ const useWafData = () => {
 		...waf,
 		refreshWaf,
 		toggleWaf,
+		toggleAutomaticRules,
 		toggleManualRules,
 		toggleShareData,
 		updateConfig,

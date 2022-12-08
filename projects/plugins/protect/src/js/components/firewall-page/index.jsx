@@ -28,7 +28,14 @@ import styles from './styles.module.scss';
 
 const FirewallPage = () => {
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
+	const {
+		config,
+		isSeen,
+		isEnabled,
+		toggleAutomaticRules,
+		toggleManualRules,
+		updateConfig,
+	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
@@ -88,19 +95,22 @@ const FirewallPage = () => {
 		[ settings, setSettings ]
 	);
 
-	const handleEnabledChange = useCallback( () => {
-		const newWafStatus = ! settings.module_enabled;
+	const handleAutomaticRulesChange = useCallback( () => {
 		setSettingsIsUpdating( true );
-		setSettings( { ...settings, module_enabled: newWafStatus } );
-		toggleWaf()
+		const newValue = ! settings.jetpack_waf_automatic_rules;
+		setSettings( {
+			...settings,
+			jetpack_waf_automatic_rules: newValue,
+		} );
+		toggleAutomaticRules()
 			.then( () =>
 				setNotice( {
 					type: 'success',
 					duration: successNoticeDuration,
-					message: newWafStatus
-						? __( `Firewall is active.`, 'jetpack-protect' )
+					message: newValue
+						? __( `Automatic rules are enabled.`, 'jetpack-protect' )
 						: __(
-								`Firewall is disabled.`,
+								`Automatic rules are disabled.`,
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
@@ -113,7 +123,7 @@ const FirewallPage = () => {
 				} );
 			} )
 			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleWaf, setNotice, errorMessage ] );
+	}, [ settings, toggleAutomaticRules, setNotice, errorMessage ] );
 
 	const handleManualRulesChange = useCallback( () => {
 		const newManualRulesStatus = ! settings.jetpack_waf_ip_list;
@@ -200,9 +210,11 @@ const FirewallPage = () => {
 							<div className={ styles[ 'toggle-section' ] }>
 								<div>
 									<FormToggle
-										checked={ settings.module_enabled }
-										onChange={ handleEnabledChange }
-										disabled={ ! hasRequiredPlan || settingsIsUpdating }
+										checked={ hasRequiredPlan ? settings.jetpack_waf_automatic_rules : false }
+										onChange={ handleAutomaticRulesChange }
+										disabled={
+											! hasRequiredPlan || settingsIsUpdating || ! settings.module_enabled
+										}
 									/>
 								</div>
 								<div>
