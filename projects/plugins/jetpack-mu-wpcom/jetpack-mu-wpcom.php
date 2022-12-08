@@ -35,6 +35,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 define( 'JETPACK_MU_WPCOM__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
+// Shared code for src/features
+require_once __DIR__ . '/src/common/index.php';
+
 /**
  * Load the Coming Soon feature.
  */
