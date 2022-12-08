@@ -31,7 +31,7 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 		registrationError,
 		userIsConnecting,
 	} = useConnection( {
-		redirectUri: addQueryArgs( adminUrl, { redirectUser: true } ),
+		redirectUri: addQueryArgs( adminUrl, { redirectUserPostConnection: true } ),
 	} );
 
 	// Track view for Protect WAF page.

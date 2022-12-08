@@ -5,7 +5,6 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import React, { useEffect } from 'react';
-import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
@@ -32,7 +31,6 @@ const AdminPage = ( { children } ) => {
 				method: 'GET',
 			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
-	const { hasRequiredPlan } = useProtectData();
 
 	useEffect( () => {
 		if ( getQueryArg( window.location.search, 'checkPlan' ) ) {
@@ -43,16 +41,6 @@ const AdminPage = ( { children } ) => {
 			}, 5000 );
 		}
 	}, [ refreshPlan, refreshStatus, startScanOptimistically ] );
-
-	useEffect( () => {
-		if ( getQueryArg( window.location.search, 'redirectUser' ) ) {
-			if ( ! hasRequiredPlan ) {
-				const redirectUrl = 'admin.php?page=my-jetpack#/add-license';
-				window.location = redirectUrl;
-				return Promise.resolve( redirectUrl );
-			}
-		}
-	}, [ hasRequiredPlan ] );
 
 	/*
 	 * Show interstital page when

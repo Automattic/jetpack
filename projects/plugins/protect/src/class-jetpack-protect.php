@@ -43,6 +43,11 @@ class Jetpack_Protect {
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['redirectUserPostConnection'] ) ) {
+					add_action( 'admin_init', array( $this, 'redirect_user_conditionally' ) );
+		}
+
 		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
@@ -601,5 +606,16 @@ class Jetpack_Protect {
 	 */
 	public static function set_waf_seen_status() {
 		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
+	}
+
+	/**
+	 * Handles conditionally redirecting users post connection when the redirectUserPostConnection query arg if found
+	 *
+	 * @return bool False if the redirect is cancelled, true otherwise
+	 */
+	public static function redirect_user_conditionally() {
+		$has_required_plan = Plan::has_required_plan();
+
+		return $has_required_plan ? wp_safe_redirect( 'admin.php?page=jetpack-protect' ) : wp_safe_redirect( 'admin.php?page=my-jetpack#/add-license' );
 	}
 }
