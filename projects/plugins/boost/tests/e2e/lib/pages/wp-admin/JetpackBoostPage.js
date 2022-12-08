@@ -92,8 +92,9 @@ export default class JetpackBoostPage extends WpPage {
 
 	async getSpeedScore( platform ) {
 		const speedBar = await this.page.waitForSelector(
-			`div.jb-score-bar--${ platform }  .jb-score-bar__filler`
+			`div.jb-score-bar--${ platform } .jb-score-bar__filler`
 		);
+		this.page.screenshot( { path: `output/speedbar${ platform }.png` } );
 		await this.page.waitForSelector( '.jb-score-bar__score', {
 			state: 'visible',
 			timeout: 90 * 1000,
