@@ -70,6 +70,9 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		echo 'Platform reqs pass, running `composer install`'
 		composer install
 	else
+		# Composer can't directly tell us which packages are dev deps, but we can get lists of all deps and just the non-dev deps.
+		# So we use `diff` to find which aren't in the non-dev list, and `sed` to extract just the `> ` lines with the actual package names (and remove the `> ` too).
+		# Adding `|| true` makes sure the exit code stays 0 so `-eo pipefail` doesn't trigger.
 		TMP=$(diff <(composer info --locked --no-dev --format=json | jq -r '.locked[].name' | sort) <(composer info --locked --format=json | jq -r '.locked[].name' | sort) | sed -n 's/^> //p' || true)
 		if [[ -n "$TMP" ]]; then
 			echo 'Platform reqs failed, running `composer update` for dev dependencies'
