@@ -13,14 +13,9 @@
 	// This ain't React.
 	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const navigate = useNavigate();
-
-	onMount( () => {
-		if ( when ) {
-			setTimeout( () => {
-				navigate( to );
-			}, 1 );
-		}
-	} );
+	if ( when ) {
+		navigate( to );
+	}
 </script>
 
 {#if ! when}
