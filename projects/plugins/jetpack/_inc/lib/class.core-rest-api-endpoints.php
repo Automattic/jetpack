@@ -2893,6 +2893,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'videopress',
 			),
 
+			// Writing Prompts.
+			'jetpack_blogging_prompts_enabled'     => array(
+				'description'       => esc_html__( 'Displays a writing prompt when starting a new post.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => jetpack_has_write_intent() || jetpack_has_posts_page(),
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'writing-prompts',
+			),
+
 		);
 
 		// Add modules to list so they can be toggled.

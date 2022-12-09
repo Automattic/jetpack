@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -51,7 +51,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
+const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 export function JetpackContactFormEdit( {
@@ -224,7 +224,12 @@ export function JetpackContactFormEdit( {
 						closeLabel={ __( 'Cancel', 'jetpack' ) }
 						onRequestClose={ () => setIsPatternsModalOpen( false ) }
 					>
-						<BlockPatternSetup blockName={ 'jetpack/contact-form' } clientId={ clientId } />
+						<BlockPatternSetup
+							filterPatternsFn={ pattern => {
+								return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
+							} }
+							clientId={ clientId }
+						/>
 					</Modal>
 				) }
 			</div>

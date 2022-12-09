@@ -97,6 +97,7 @@
 }
 
 .jetpack-contact-form.is-placeholder {
+	background-color: white;
 	border: 1px solid #1e1e1e;
 	padding: 24px;
 
@@ -146,8 +147,13 @@
 
 	.components-modal__content {
 		padding: 0;
+		margin-bottom: 60px;
 
 		.view-mode-carousel {
+			.carousel-container {
+				margin-bottom: 20px;
+			}
+
 			.pattern-slide {
 				border: 1px solid #ddd;
 			}

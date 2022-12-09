@@ -4,7 +4,7 @@ Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.8
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -268,12 +268,18 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9 - 2022-09-16
+### 1.9.1-beta - 2022-12-09
 #### Added
-- Cache deletion: add new hook to trigger actions after a successful cache deletion from the admin bar.
+- Added a dismissable option to install Jetpack Boost.
+- Improved stability with the start of an end-to-end test suite.
+- Tested with v6.1 of WordPress.
+
+#### Changed
+- Updated package dependencies.
 
 #### Fixed
-- Fixes to URL parsing to prevent cache pollution issues around URLs with double-slashes.
+- Compatibility: Avoid use of QUERY_STRING value, which is not available in all environments.
+- Updated links to related plugins to remove click-tracking redirects.
 
 --------
 

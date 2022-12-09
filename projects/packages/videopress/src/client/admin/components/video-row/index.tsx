@@ -15,6 +15,7 @@ import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
 import Placeholder from '../placeholder';
+import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import StatsBase from './stats';
@@ -129,6 +130,7 @@ export const VideoRow = ( {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const [ keyPressed, setKeyDown ] = useState( false );
 	const [ expanded, setExpanded ] = useState( false );
+	const [ anchor, setAnchor ] = useState( null );
 
 	const durationInMinutesAndSeconds = millisecondsToMinutesAndSeconds( duration );
 	const uploadDateFormatted = dateI18n( 'M j, Y', uploadDate, null );
@@ -219,6 +221,7 @@ export const VideoRow = ( {
 				},
 				className
 			) }
+			ref={ setAnchor }
 		>
 			{ showCheckbox && (
 				<div className={ classNames( { [ styles[ 'checkbox-wrapper-small' ] ]: isSmall } ) }>
@@ -231,6 +234,7 @@ export const VideoRow = ( {
 					/>
 				</div>
 			) }
+
 			<div
 				className={ classNames( styles[ 'video-data-wrapper' ], {
 					[ styles.small ]: isSmall,
@@ -254,6 +258,7 @@ export const VideoRow = ( {
 							/>
 						</div>
 					) }
+
 					<div className={ styles[ 'title-wrapper' ] }>
 						{ showTitleLabel && (
 							<Text variant="body-extra-small" className={ styles.label } component="span">
@@ -284,8 +289,10 @@ export const VideoRow = ( {
 							</>
 						) }
 					</div>
+
 					{ canExpand && <Icon icon={ expanded ? chevronUp : chevronDown } size={ 45 } /> }
 				</div>
+
 				{ showBottom && (
 					<div className={ classNames( styles[ 'meta-wrapper' ], { [ styles.small ]: isSmall } ) }>
 						{ ! isSmall && showActions && (
@@ -294,6 +301,7 @@ export const VideoRow = ( {
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
 							</div>
 						) }
+
 						<Stats
 							duration={ durationInMinutesAndSeconds }
 							uploadDate={ uploadDateFormatted }
@@ -301,6 +309,7 @@ export const VideoRow = ( {
 							isPrivate={ isPrivate }
 							loading={ loading }
 						/>
+
 						{ isSmall && (
 							<div className={ styles[ 'mobile-actions' ] }>
 								{ showActionButton && actionButton }
@@ -310,6 +319,8 @@ export const VideoRow = ( {
 					</div>
 				) }
 			</div>
+
+			<PublishFirstVideoPopover id={ id } anchor={ anchor } position="top center" />
 		</div>
 	);
 };
