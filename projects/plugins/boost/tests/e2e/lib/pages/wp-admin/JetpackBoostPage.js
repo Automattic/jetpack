@@ -16,6 +16,26 @@ export default class JetpackBoostPage extends WpPage {
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
 	}
 
+	async visit( ...args ) {
+		page
+			.on( 'console', message =>
+				console.log(
+					`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
+				)
+			)
+			.on( 'pageerror', ( { message } ) => console.log( 'ERROR: ' + message ) )
+			.on( 'response', response =>
+				console.log( `RESPONSE ${ response.status() } ${ response.url() }` )
+			)
+			.on( 'requestfailed', request =>
+				console.log( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
+			);
+
+		const r = await super.visit( ...args );
+
+		return r;
+	}
+
 	/**
 	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
 	 */
@@ -98,7 +118,7 @@ export default class JetpackBoostPage extends WpPage {
 		try {
 			await this.page.waitForSelector( '.jb-score-bar__score', {
 				state: 'visible',
-				timeout: 240 * 1000,
+				timeout: 120 * 1000,
 			} );
 		} catch ( err ) {
 			logger.action( 'Speed score not visible, taking screenshot' );

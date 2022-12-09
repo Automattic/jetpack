@@ -7,7 +7,7 @@ import pollPromise from '../utils/poll-promise';
 import { standardizeError } from '../utils/standardize-error';
 import api from './api';
 
-const pollTimeout = 4 * 60 * 1000;
+const pollTimeout = 2 * 60 * 1000;
 const pollInterval = 5 * 1000;
 
 type SpeedScores = {
@@ -35,16 +35,21 @@ type ParsedApiResponse = {
  */
 export async function requestSpeedScores( force = false ): Promise< SpeedScoresSet > {
 	// Request metrics
+	console.log( 'Requesting speed scores...' );
 	const response = parseResponse(
 		await api.post( force ? '/speed-scores/refresh' : '/speed-scores', {
 			url: Jetpack_Boost.site.url,
 		} )
 	);
 
+	console.log( 'Speed scores response:', response );
+
 	// If the response contains ready-to-use metrics, we're done here.
 	if ( response.scores ) {
 		return response.scores;
 	}
+
+	console.log( 'polling' );
 
 	// Poll for metrics.
 	return await pollRequest();
@@ -114,9 +119,11 @@ async function pollRequest(): Promise< SpeedScoresSet > {
 		interval: pollInterval,
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'jetpack-boost' ),
 		callback: async resolve => {
+			console.log( 'poll call' );
 			const response = parseResponse(
 				await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
 			);
+			console.log( 'response: ', response );
 
 			if ( response.scores ) {
 				resolve( response.scores );
