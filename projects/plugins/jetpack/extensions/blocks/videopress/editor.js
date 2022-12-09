@@ -510,7 +510,7 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 
 		const isSimple = isSimpleSite();
 
-		const shouldConvertToVideoPressVideoBlock = !! (
+		const shouldConvertCoreVideoToVideoPressVideoBlock = !! (
 			name === 'core/video' && // Only auto-convert if the block is a core/video block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
@@ -518,6 +518,8 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 			// Only auto-convert if the site is Simple
 			isSimple
 		);
+
+		const shouldConvertToVideoPressVideoBlock = shouldConvertCoreVideoToVideoPressVideoBlock;
 
 		useEffect( () => {
 			if ( ! shouldConvertToVideoPressVideoBlock ) {
