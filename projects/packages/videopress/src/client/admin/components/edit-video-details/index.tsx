@@ -76,7 +76,7 @@ const GoBackLink = () => {
 
 	return (
 		<div className={ styles[ 'back-link' ] }>
-			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+			<Link to="#" className={ styles.link } onClick={ () => history.goBack() }>
 				<Icon icon={ arrowLeft } className={ styles.icon } />
 				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
 			</Link>
