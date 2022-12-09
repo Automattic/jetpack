@@ -404,6 +404,15 @@ addFilter(
  * @returns {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
+	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
+	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
+		'videopress/video'
+	);
+
+	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable && isSimpleSite() ) {
+		return settings;
+	}
+
 	if ( name !== 'videopress/video' ) {
 		return settings;
 	}
