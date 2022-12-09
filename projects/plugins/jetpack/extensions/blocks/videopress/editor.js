@@ -462,11 +462,11 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 }
 
 /**
- * Check whether the block is a VideoPress block istance,
+ * Check whether the block is a VideoPress block instance,
  * based on the passed attributes.
  *
  * @param {object} attributes - Block attributes.
- * @returns {boolean} 	        Whether the block is a VideoPress block istance.
+ * @returns {boolean} 	        Whether the block is a VideoPress block instance.
  */
 const isVideoPressBlockBasedOnAttributes = attributes => {
 	const { guid, videoPressTracks, isVideoPressExample } = attributes;
