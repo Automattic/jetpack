@@ -17,6 +17,16 @@ test.describe( 'Speed Score feature', () => {
 
 	test.beforeEach( async function ( { page } ) {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
+		page.on( 'request', request => {
+			if ( /speed-scores/.test( request.url() ) ) {
+				console.log( 'Speed score request', request.url(), request.method(), request.postData() );
+			}
+		} );
+		page.on( 'response', response => {
+			if ( /speed-scores/.test( response.url() ) ) {
+				console.log( 'Speed score request', response.url(), response.method(), response.body() );
+			}
+		} );
 	} );
 
 	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async () => {
