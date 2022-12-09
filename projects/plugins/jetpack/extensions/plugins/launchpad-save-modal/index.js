@@ -65,7 +65,14 @@ export const settings = {
 								onChange={ () => setIsChecked( ! isChecked ) }
 							/>
 							<div className="launchpad__save-modal-buttons">
-								<Button size="normal" variant="secondary" onClick={ () => setIsModalOpen( false ) }>
+								<Button
+									size="normal"
+									variant="secondary"
+									onClick={ () => {
+										setDontShowAgain( isChecked );
+										setIsModalOpen( false );
+									} }
+								>
 									{ __( 'Back to Edit', 'jetpack' ) }
 								</Button>
 								<Button
