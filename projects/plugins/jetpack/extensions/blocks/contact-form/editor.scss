@@ -3,14 +3,27 @@
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
-	.block-editor-block-variation-picker__variations > li {
-		max-width: none;
-		width: 84px;
-		margin: 0;
+	.block-editor-block-variation-picker__variations {
+		max-width: 560px;
+		justify-content: center;
+		gap: 20px 10px;
+		margin: 16px auto;
+
+		> li {
+			width: unset;
+			max-width: none;
+			margin: 0;
+			flex: 1;
+		}
 
 		.block-editor-block-variation-picker__variation {
-			padding: 17px;
+			padding: 16px;
 			margin-right: 0;
+
+			svg {
+				width: 36px;
+				height: auto;
+			}
 		}
 
 		.block-editor-block-variation-picker__variation-label {
@@ -116,6 +129,7 @@
 	.form-placeholder__footer-links {
 		display: flex;
 		flex-direction: column;
+		align-items: flex-end;
 	}
 
 	.form-placeholder__external-link {
