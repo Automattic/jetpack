@@ -7,7 +7,7 @@ let jetpackBoostPage;
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).withGotStarted().build();
 	} );
 
 	test.afterAll( async ( { browser } ) => {
