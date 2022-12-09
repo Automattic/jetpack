@@ -22,7 +22,7 @@ import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
-import useVideos from '../../hooks/use-videos';
+import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -73,7 +73,7 @@ const Header = ( {
 };
 
 const GoBackLink = () => {
-	const { page } = useVideos();
+	const { page } = useVideosQuery();
 	const to = page > 1 ? `/?page=${ page }` : '/';
 
 	return (
