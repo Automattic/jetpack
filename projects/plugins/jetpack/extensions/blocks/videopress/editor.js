@@ -516,10 +516,12 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 			'videopress/video'
 		);
 
+		const isCoreVideoBlock = name === 'core/video';
+
 		const isSimple = isSimpleSite();
 
 		const shouldConvertCoreVideoToVideoPressVideoBlock = !! (
-			name === 'core/video' && // Only auto-convert if the block is a core/video block
+			isCoreVideoBlock && // Only auto-convert if the block is a core/video block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
 			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
