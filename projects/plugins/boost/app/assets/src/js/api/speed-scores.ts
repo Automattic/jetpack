@@ -7,7 +7,7 @@ import pollPromise from '../utils/poll-promise';
 import { standardizeError } from '../utils/standardize-error';
 import api from './api';
 
-const pollTimeout = 2 * 60 * 1000;
+const pollTimeout = 4 * 60 * 1000;
 const pollInterval = 5 * 1000;
 
 type SpeedScores = {
