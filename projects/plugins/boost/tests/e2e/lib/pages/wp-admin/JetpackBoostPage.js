@@ -1,5 +1,6 @@
 import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import logger from 'jetpack-e2e-commons/logger.cjs';
 
 const apiEndpointsRegex = {
 	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
@@ -94,10 +95,21 @@ export default class JetpackBoostPage extends WpPage {
 		const speedBar = await this.page.waitForSelector(
 			`div.jb-score-bar--${ platform }  .jb-score-bar__filler`
 		);
-		await this.page.waitForSelector( '.jb-score-bar__score', {
-			state: 'visible',
-			timeout: 120 * 1000,
-		} );
+		try {
+			await this.page.waitForSelector( '.jb-score-bar__score', {
+				state: 'visible',
+				timeout: 120 * 1000,
+			} );
+		} catch ( err ) {
+			logger.action( 'Speed score not visible, taking screenshot' );
+			this.page.screenshot( { path: `output/speedbar-th-${ platform }.png` } );
+			try {
+				const x = await this.page.querySelector( '.jb-score-bar__score' );
+				logger.action( 'x: ' + JSON.stringify( !! x ) );
+			} catch ( errinnner ) {
+				logger.action( 'query selector error: ' + errinnner.message );
+			}
+		}
 		return Number( await speedBar.$eval( '.jb-score-bar__score', e => e.textContent ) );
 	}
 
