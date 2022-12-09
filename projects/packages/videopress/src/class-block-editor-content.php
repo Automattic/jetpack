@@ -21,7 +21,7 @@ class Block_Editor_Content {
 			return;
 		}
 
-		add_shortcode( 'jetpack_videopress', array( static::class, 'videopress_block_shortcode' ) );
+		add_shortcode( 'jetpack_videopress', array( static::class, 'videopress_embed_shortcode' ) );
 		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
 	}
 
@@ -35,7 +35,7 @@ class Block_Editor_Content {
 	 *
 	 * @return string html
 	 */
-	public static function videopress_block_shortcode( $atts ) {
+	public static function videopress_embed_shortcode( $atts ) {
 		$atts = shortcode_atts(
 			array(
 				'guid'   => '', // string.
@@ -58,7 +58,22 @@ class Block_Editor_Content {
 
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), Package_Version::PACKAGE_VERSION, true );
 
-		return '<iframe src="' . $src . '" frameborder="0" allowfullscreen allow="clipboard-write" width="' . $width . '" height="' . $height . '"></iframe>';
+		$block_template =
+		'<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
+			'<div class="jetpack-videopress-player__wrapper">' .
+				'<iframe ' .
+					'title="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
+					'aria-label="' . __( 'VideoPress Video Player', 'jetpack-videopress-pkg' ) . '" ' .
+					'src="%s" ' .
+					'width="%s"' .
+					'height="%s" ' .
+					'frameborder="0" ' .
+					'allowfullscreen data-resize-to-parent="true" allow="clipboard-write">' .
+				'</iframe>' .
+			'</div>' .
+		'</figure>';
+
+		return sprintf( $block_template, $src, $width, $height );
 	}
 
 	/**
