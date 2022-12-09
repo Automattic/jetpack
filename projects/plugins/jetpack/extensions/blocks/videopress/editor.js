@@ -22,6 +22,7 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
+import { pickGUIDFromUrl } from './utils';
 import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
@@ -503,6 +504,7 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 		const { block } = props;
 		const { name, attributes, clientId, __unstableBlockSource } = block;
 		const { replaceBlock } = useDispatch( blockEditorStore );
+		const { url, guid: guidAttr } = attributes;
 
 		/*
 		 * We try to recognize core/video Jetpack VideoPress block,
@@ -517,6 +519,15 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 		);
 
 		const isCoreVideoBlock = name === 'core/video';
+
+		const isCoreEmbedBlock = name === 'core/embed';
+		const guidFromUrl = pickGUIDFromUrl( url );
+
+		/*
+		 * GUID can come `guid` attribute (for core/video)
+		 * or from the `url` attribute (for core/embed)
+		 */
+		const guid = isCoreEmbedBlock && guidFromUrl ? guidFromUrl : guidAttr;
 
 		const isSimple = isSimpleSite();
 
@@ -540,7 +551,7 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 				clientId,
 				createBlock(
 					'videopress/video',
-					getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, attributes )
+					getVideoPressVideoBlockAttributes( __unstableBlockSource?.attrs, { ...attributes, guid } )
 				)
 			);
 		}, [
@@ -549,6 +560,7 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 			attributes,
 			__unstableBlockSource,
 			replaceBlock,
+			guid,
 		] );
 
 		return <BlockListBlock { ...props } />;
