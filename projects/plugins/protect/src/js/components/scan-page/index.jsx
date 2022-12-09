@@ -31,9 +31,6 @@ const ScanPage = () => {
 		status: select( STORE_ID ).getStatus(),
 	} ) );
 	const { currentProgress } = status;
-	const preparing = __( 'Preparing to scan…', 'jetpack-protect' );
-	const scanning = __( 'Scanning your site…', 'jetpack-protect' );
-	const heading = currentProgress === 0 ? preparing : scanning;
 	let currentScanStatus;
 	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
@@ -133,7 +130,7 @@ const ScanPage = () => {
 												marginLeft: 0,
 											} }
 										/>
-										<span>{ heading }</span>
+										<span>{ __( 'Scanning your site…', 'jetpack-protect' ) }</span>
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
