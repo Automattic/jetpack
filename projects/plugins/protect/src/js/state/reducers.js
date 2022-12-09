@@ -48,7 +48,7 @@ const status = ( state = {}, action ) => {
 		case SET_STATUS_PROGRESS:
 			return { ...state, currentProgress: action.currentProgress };
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, status: 'optimistically_scanning' };
+			return { ...state, currentProgress: 0, status: 'optimistically_scanning' };
 	}
 	return state;
 };
