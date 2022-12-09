@@ -1,0 +1,27 @@
+{
+	"name": "automattic/jetpack-inspect",
+	"description": "Jetpack Inspect",
+	"type": "project",
+	"license": "GPLv2.0",
+	"autoload": {
+		"psr-4": {
+			"Automattic\\Jetpack_Inspect\\": "app/"
+		}
+	},
+	"authors": [
+		{
+			"name": "pyronaur",
+			"email": "hi@pyronaur.com"
+		}
+	],
+	"require": {
+		"automattic/jetpack-autoloader": "^2.11",
+		"automattic/jetpack-connection": "^1.42",
+		"automattic/jetpack-config": "^1.9"
+	},
+	"config": {
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true
+		}
+	}
+}

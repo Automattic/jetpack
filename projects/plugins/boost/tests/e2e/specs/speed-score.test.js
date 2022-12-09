@@ -1,6 +1,7 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 let jetpackBoostPage;
 
@@ -8,6 +9,7 @@ test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withCleanEnv().withSpeedScoreMocked( false ).build();
+		await execWpCommand( 'plugin activate jetpack-inspect' );
 	} );
 
 	test.afterAll( async ( { browser } ) => {
@@ -62,4 +64,11 @@ test.describe( 'Speed Score feature', () => {
 			'Score description should be visible'
 		).toBeTruthy();
 	} );
+
+	for ( let i = 0; i < 100; i++ ) {
+		test( 'Fake test to buy time' + i, async () => {
+			await new Promise( resolve => setTimeout( resolve, 10000 ) );
+			expect( true ).toBeTruthy();
+		} );
+	}
 } );
