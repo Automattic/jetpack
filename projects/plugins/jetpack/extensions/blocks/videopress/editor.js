@@ -490,7 +490,7 @@ const isVideoPressBlockBasedOnAttributes = attributes => {
 	return true;
 };
 
-const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
+const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block } = props;
 		const { name, attributes, clientId, __unstableBlockSource } = block;
@@ -541,10 +541,10 @@ const convertCoreVideoToVideoPressVideoBlock = createHigherOrderComponent( Block
 
 		return <BlockListBlock { ...props } />;
 	};
-}, 'convertCoreVideoToVideoPressVideoBlock' );
+}, 'convertVideoBlockToVideoPressVideoBlock' );
 
 addFilter(
 	'editor.BlockListBlock',
 	'videopress/jetpack-convert-to-videopress-video-block',
-	convertCoreVideoToVideoPressVideoBlock
+	convertVideoBlockToVideoPressVideoBlock
 );
