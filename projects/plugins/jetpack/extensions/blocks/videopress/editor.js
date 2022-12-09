@@ -554,6 +554,11 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 		const shouldConvertToVideoPressVideoBlock =
 			shouldConvertCoreVideoToVideoPressVideoBlock || shouldConvertCoreEmbedToVideoPressVideoBlock;
 
+		// clean oEmbed class attribute since it's not needed for v6
+		if ( shouldConvertCoreEmbedToVideoPressVideoBlock && attributes.className ) {
+			delete attributes.className;
+		}
+
 		useEffect( () => {
 			if ( ! shouldConvertToVideoPressVideoBlock ) {
 				return;
