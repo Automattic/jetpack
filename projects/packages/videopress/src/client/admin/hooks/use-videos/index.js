@@ -80,3 +80,14 @@ export const useLocalVideos = () => {
 		setPage: page => dispatch( STORE_ID ).setLocalVideosQuery( { page } ),
 	};
 };
+
+/**
+ * React custom hook to get the videos query.
+ *
+ * @returns {object} search query information
+ */
+export const useVideosQuery = () => {
+	// Data
+	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
+	return query;
+};
