@@ -1,4 +1,5 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 
@@ -16,6 +17,7 @@ test.describe( 'Speed Score feature', () => {
 	} );
 
 	test.beforeEach( async function ( { page } ) {
+		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 		page.on( 'request', request => {
 			if ( /speed-scores/.test( request.url() ) ) {
