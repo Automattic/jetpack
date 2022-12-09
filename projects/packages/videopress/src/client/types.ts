@@ -61,6 +61,7 @@ export type WPV2mediaGetEndpointResponseProps = {
 		description: string;
 		caption: string;
 		allow_download: 0 | 1;
+		display_embed: 0 | 1;
 		needs_playback_token: boolean;
 		privacy_setting: PrivacySettingProp;
 		rating: string;

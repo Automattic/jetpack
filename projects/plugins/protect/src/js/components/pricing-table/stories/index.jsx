@@ -1,7 +1,7 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
 import { initStore } from '../../../state/store';
-import { jetpackProtectInitialState } from '../../interstitial/stories/mock.js';
+import { jetpackProtectInitialState } from '../../interstitial-page/stories/mock.js';
 import ConnectedPricingTable from '../index.jsx';
 
 window.jetpackProtectInitialState = jetpackProtectInitialState;

@@ -23,8 +23,10 @@ const ActionPopover = ( {
 	children,
 	step = null,
 	totalSteps = null,
-	actionButtonText = null,
-	actionButtonDisabled = false,
+	buttonContent = null,
+	buttonDisabled = false,
+	buttonHref = null,
+	buttonExternalLink = false,
 	offset = 32,
 	onClose,
 	onClick,
@@ -32,7 +34,7 @@ const ActionPopover = ( {
 }: ActionPopoverProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 
-	if ( ! title || ! children || ! actionButtonText ) {
+	if ( ! title || ! children || ! buttonContent ) {
 		return null;
 	}
 
@@ -46,8 +48,15 @@ const ActionPopover = ( {
 	};
 
 	const showSteps = Number.isFinite( step ) && Number.isFinite( totalSteps );
-	/* translators: 1 Current step, 2 Total steps */
-	const stepsText = showSteps ? sprintf( __( '%1$d of %2$d', 'jetpack' ), step, totalSteps ) : null;
+	let stepsText = null;
+	if ( showSteps ) {
+		stepsText = sprintf(
+			/* translators: 1 Current step, 2 Total steps */
+			__( '%1$d of %2$d', 'jetpack' ),
+			step,
+			totalSteps
+		);
+	}
 
 	return (
 		<Popover { ...popoverProps }>
@@ -80,10 +89,12 @@ const ActionPopover = ( {
 					<Button
 						variant="primary"
 						className={ styles[ 'action-button' ] }
-						disabled={ actionButtonDisabled }
+						disabled={ buttonDisabled }
 						onClick={ onClick }
+						isExternalLink={ buttonExternalLink }
+						href={ buttonHref }
 					>
-						{ actionButtonText }
+						{ buttonContent }
 					</Button>
 				</div>
 			</div>

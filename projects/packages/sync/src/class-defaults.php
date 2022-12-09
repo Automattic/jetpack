@@ -100,6 +100,7 @@ class Defaults {
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
+		'jetpack_blogging_prompts_enabled',
 		'large_size_h',
 		'large_size_w',
 		'launch-status',

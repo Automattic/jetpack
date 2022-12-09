@@ -830,7 +830,7 @@ abstract class SAL_Post {
 			return '';
 		}
 
-		return esc_url_raw( htmlspecialchars_decode( $avatar_url[0] ) );
+		return esc_url_raw( htmlspecialchars_decode( $avatar_url[0], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 	}
 
 	/**

@@ -69,6 +69,7 @@ const videoFieldsToUpdate = [
 	'privacy_setting',
 	'rating',
 	'allow_download',
+	'display_embed',
 	'is_private',
 ];
 
@@ -79,6 +80,7 @@ const videoFieldsToUpdate = [
 const mapFieldsToAttributes = {
 	privacy_setting: 'privacySetting',
 	allow_download: 'allowDownload',
+	display_embed: 'displayEmbed',
 	is_private: 'isPrivate',
 };
 
@@ -155,6 +157,8 @@ export function useSyncMedia(
 	}, [] );
 
 	/*
+	 * Media data => Block attributes (update)
+	 *
 	 * Populate block attributes with the media data,
 	 * provided by the VideoPress API (useVideoData hook),
 	 * when the block is mounted.
@@ -221,16 +225,18 @@ export function useSyncMedia(
 			return;
 		}
 
-		debug( 'attributesToUpdate: ', attributesToUpdate );
+		debug( 'Updating attributes: ', attributesToUpdate );
 		setAttributes( attributesToUpdate );
 	}, [ videoData, isRequestingVideoData ] );
 
 	const updateMediaHandler = useMediaDataUpdate( id );
 
 	/*
+	 * Block attributes => Media data (sync)
+	 *
 	 * Compare the current attribute values of the block
 	 * with the initial state,
-	 * and update the media data if it detects changes on it
+	 * and sync the media data if it detects changes on it
 	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
@@ -255,7 +261,7 @@ export function useSyncMedia(
 				const attrValue = attributes[ attrName ];
 
 				if ( initialState[ key ] !== attributes[ attrName ] ) {
-					debug( 'Syncing %o: %o => %o: %o', key, stateValue, attrName, attrValue );
+					debug( 'Field to sync %o: %o => %o: %o', key, stateValue, attrName, attrValue );
 					acc[ key ] = attributes[ attrName ];
 				}
 				return acc;
@@ -265,8 +271,10 @@ export function useSyncMedia(
 
 		// When nothing to update, bail out early.
 		if ( ! Object.keys( dataToUpdate ).length ) {
-			return debug( 'No data to update. Bail early' );
+			return debug( 'No data to sync. Bail early' );
 		}
+
+		debug( 'Syncing data: ', dataToUpdate );
 
 		// Sync the block attributes data with the video data
 		updateMediaHandler( dataToUpdate ).then( () => {
