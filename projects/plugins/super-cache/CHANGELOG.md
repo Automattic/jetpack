@@ -627,6 +627,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Misc fixes
 
-[1.9.1-beta]: https://github.com/Automattic/wp-super-cache/compare/v1.9.0...v1.9.1-beta
+[1.9.2]: https://github.com/Automattic/wp-super-cache/compare/v1.9.1...v1.9.2-beta
+[1.9.1]: https://github.com/Automattic/wp-super-cache/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/Automattic/wp-super-cache/compare/v1.8...v1.9
 [1.8]: https://github.com/Automattic/wp-super-cache/compare/v1.7.9...v1.8
