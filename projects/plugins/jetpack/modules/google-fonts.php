@@ -56,6 +56,12 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Work Sans',
 );
 
+// Fonts not available on Google and shipped with Jetpack instead
+const JETPACK_LOCAL_FONTS = array(
+	// 'Uncut Sans', // Asking to add package.json first: https://github.com/kaspernordkvist/uncut_sans/pull/1
+	'Metropolis',
+);
+
 /**
  * Register a curated selection of Google Fonts.
  *
@@ -95,6 +101,44 @@ function jetpack_add_google_fonts_provider() {
 					'font-style'   => 'italic',
 					'font-display' => 'fallback',
 					'provider'     => 'jetpack-google-fonts',
+				),
+			)
+		);
+	}
+
+	/**
+	 * Curated list of locally hosted fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts_to_register Array of font names to register.
+	 */
+	$fonts_to_register_locally = apply_filters( 'jetpack_google_fonts_list', JETPACK_LOCAL_FONTS );
+
+	foreach ( $fonts_to_register_locally as $font_family ) {
+		wp_register_webfonts(
+			array(
+				array(
+					'font-family'  => $font_family,
+					'font-weight'  => '100 900',
+					'font-style'   => 'normal',
+					'font-display' => 'fallback',
+					'provider'     => 'local',
+					'src'          => array(
+						plugins_url( 'google-fonts/fonts/@chrismsimpson/metropolis/Fonts/Webfonts/woff2/Metropolis-Regular.woff2', __FILE__ ),
+					),
+				),
+				array(
+					'font-family'  => $font_family,
+					'font-weight'  => '100 900',
+					'font-style'   => 'italic',
+					'font-display' => 'fallback',
+					'provider'     => 'local',
+					'src'          => array(
+						plugins_url( 'google-fonts/fonts/@chrismsimpson/metropolis/Fonts/Webfonts/woff2/Metropolis-RegularItalic.woff2', __FILE__ ),
+					),
 				),
 			)
 		);
