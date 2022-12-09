@@ -67,6 +67,23 @@ const JETPACK_GOOGLE_FONTS_LIST = array(
 	'Space Mono',
 	'Texturina',
 	'Work Sans',
+
+	// Keep i18n fonts at the end of the list
+	'Alexandria'           => 'Alexandria (Arabic)',
+	'IBM Plex Sans Arabic' => 'IBM Plex Sans (Arabic)',
+	'Noto Sans Hebrew'     => 'Noto Sans (Hebrew)',
+	'Noto Sans HK'         => 'Noto Sans (Hong Kong)',
+	'Noto Sans JP'         => 'Noto Sans (Japanese)',
+	'Noto Sans KR'         => 'Noto Sans (Korean)',
+	'Noto Sans SC'         => 'Noto Sans (Simplified Chinese)',
+	'Noto Sans TC'         => 'Noto Sans (Traditional Chinese)',
+	'Noto Sans Telugu'     => 'Noto Sans (Telugu)',
+	'Noto Serif Hebrew'    => 'Noto Serif (Hebrew)',
+	'Noto Serif HK'        => 'Noto Serif (Hong Kong)',
+	'Noto Serif JP'        => 'Noto Serif (Japanese)',
+	'Noto Serif KR'        => 'Noto Serif (Korean)',
+	'Noto Serif SC'        => 'Noto Serif (Simplified Chinese)',
+	'Noto Serif TC'        => 'Noto Serif (Traditional Chinese)',
 );
 
 /**
@@ -90,7 +107,7 @@ function jetpack_add_google_fonts_provider() {
 	 *
 	 * @param array $fonts_to_register Array of Google Font names to register.
 	 */
-	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
+	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', array_keys( JETPACK_GOOGLE_FONTS_LIST ) );
 
 	foreach ( $fonts_to_register as $font_family ) {
 		wp_register_webfonts(
@@ -114,6 +131,45 @@ function jetpack_add_google_fonts_provider() {
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
+
+/**
+ * Updates font names by filtering the data provided by the theme for global styles & settings.
+ *
+ * `wp_register_webfonts()` does not currently support giving a separate "name"
+ * from "font-family", even if theme.json schema itself does support it.
+ * See: https://github.com/WordPress/gutenberg/issues/46398
+ *
+ * Once support for "name" is added, below functionality can be refactored
+ * to provide the name directly within `wp_register_webfonts()`.
+ *
+ * @param WP_Theme_JSON_Data_Gutenberg $theme_json Class to access and update the underlying data.
+ * @return WP_Theme_JSON_Data_Gutenberg Class with updated Global Styles settings.
+ */
+function jetpack_rename_google_font_names( $theme_json ) {
+	$raw_data      = $theme_json->get_data();
+	$font_families = $raw_data['settings']['typography']['fontFamilies']['theme'];
+
+	foreach ( $font_families as $key => $font_family ) {
+		$font_name = $font_family['name'];
+
+		if ( array_key_exists( $font_name, JETPACK_GOOGLE_FONTS_LIST ) ) {
+			$font_families[ $key ]['name'] = JETPACK_GOOGLE_FONTS_LIST[ $font_name ];
+		}
+	}
+
+	// See https://developer.wordpress.org/block-editor/reference-guides/theme-json-reference/theme-json-living/#typography
+	$updated_fonts = array(
+		'version'  => 2,
+		'settings' => array(
+			'typography' => array(
+				'fontFamilies' => $font_families,
+			),
+		),
+	);
+
+	return $theme_json->update_with( $updated_fonts );
+}
+add_filter( 'wp_theme_json_data_theme', 'jetpack_rename_google_font_names', 10, 1 );
 
 add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_resource_hint', 10, 2 );
 add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks::enqueue_block_fonts', 10, 2 );
