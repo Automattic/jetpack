@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Tiled Gallery block: Ensuring localhost and WoA sites with squareish gallery images display those image
+Tiled Gallery block: Ensuring localhost and WoA sites with squareish gallery images display those images with correct aspect ratios.
