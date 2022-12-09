@@ -29,7 +29,7 @@ const ConnectionCount = props => {
 
 	return (
 		<span className="jetpack-publicize-connection-label-follower-count">
-			{ followerCount ? (
+			{ followerCount >= 0 ? (
 				followerCount.toLocaleString()
 			) : (
 				<Tooltip
