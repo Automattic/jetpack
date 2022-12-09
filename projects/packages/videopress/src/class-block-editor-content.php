@@ -28,28 +28,33 @@ class Block_Editor_Content {
 	/**
 	 * VideoPress embed shortcode
 	 *
-	 * Example use:
-	 * [jetpack_videopress guid=tLvEwHYZ width=560 height=315]
+	 * Expected input format:
+	 * [jetpack_videopress tLvEwHYZ width=560 height=315]
 	 *
 	 * @param array $atts Shortcode attributes.
 	 *
 	 * @return string html
 	 */
 	public static function videopress_embed_shortcode( $atts ) {
+		/**
+		 * We only accept GUIDs as a first unnamed argument.
+		 */
+		$guid = isset( $atts[0] ) ? $atts[0] : null;
+
 		$atts = shortcode_atts(
 			array(
-				'guid'   => '', // string.
 				'width'  => 560, // int.
 				'height' => 315, // int.
 			),
 			$atts,
-			'jetpack_videopress'
+			'videopress'
 		);
 
-		$guid = sanitize_text_field( wp_unslash( $atts['guid'] ) );
-
-		if ( empty( $guid ) ) {
-			return '<!-- error: missing VideoPress video ID -->';
+		/**
+		 * Make sure the GUID passed in matches how actual GUIDs are formatted.
+		 */
+		if ( ! videopress_is_valid_guid( $guid ) ) {
+			return '<!-- error: missing or invalid VideoPress video ID -->';
 		}
 
 		$width  = (int) $atts['width'];
