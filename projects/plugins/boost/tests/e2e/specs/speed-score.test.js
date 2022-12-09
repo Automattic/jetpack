@@ -19,12 +19,17 @@ test.describe( 'Speed Score feature', () => {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 		page.on( 'request', request => {
 			if ( /speed-scores/.test( request.url() ) ) {
-				console.log( 'Speed score request', request.url(), request.method(), request.postData() );
+				console.log( '>>', request.url(), request.method(), request.postData() );
 			}
 		} );
-		page.on( 'response', response => {
+		page.on( 'response', async response => {
 			if ( /speed-scores/.test( response.url() ) ) {
-				console.log( 'Speed score request', response.url(), response.method(), response.body() );
+				console.log(
+					'<<',
+					response.url(),
+					response.status(),
+					( await response.body() ).toString()
+				);
 			}
 		} );
 	} );
