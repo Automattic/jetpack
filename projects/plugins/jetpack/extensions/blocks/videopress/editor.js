@@ -490,6 +490,14 @@ const isVideoPressBlockBasedOnAttributes = attributes => {
 	return true;
 };
 
+/**
+ * Convert some video blocks to VideoPress video blocks,
+ * when the app detects that the block is a VideoPress block instance.
+ *
+ * Blocks list:
+ * - core/video
+ * - core/embed
+ */
 const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		const { block } = props;
