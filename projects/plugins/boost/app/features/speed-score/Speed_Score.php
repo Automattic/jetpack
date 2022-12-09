@@ -276,8 +276,17 @@ class Speed_Score {
 					$response = $score_request_no_boost->jsonSerialize();
 				}
 			} else {
+				global $is_mocking_speed_score, $real_speed_score_response;
+
 				// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
 				$response['status'] = 'pending';
+				$response['debug']  = array(
+					'active_plugins'   => get_option( 'active_plugins' ),
+					'request'          => $score_request,
+					'request_no_boost' => $score_request_no_boost,
+					'mocking'          => $is_mocking_speed_score,
+					'response'         => $real_speed_score_response,
+				);
 			}
 		}
 

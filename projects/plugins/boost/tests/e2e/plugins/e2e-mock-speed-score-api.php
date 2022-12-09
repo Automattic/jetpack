@@ -20,6 +20,8 @@ add_filter( 'pre_http_request', 'e2e_mock_speed_score_api', 1, 3 );
  * @param string $target - HTTP request target / URL.
  */
 function e2e_mock_speed_score_api( $default_action, $args, $target ) {
+	global $is_mocking_speed_score;
+
 	// Ignore requests which are not to the Jetpack Speed Score API.
 	if ( ! preg_match( '#wpcom/v2/sites/\d+/jetpack-boost/speed-scores#', $target ) ) {
 		return $default_action;
@@ -27,6 +29,7 @@ function e2e_mock_speed_score_api( $default_action, $args, $target ) {
 
 	// Return generic success message when new speed score requested.
 	if ( 'POST' === $args['method'] ) {
+		$is_mocking_speed_score['POST'] = true;
 		return e2e_mock_speed_score_api_response(
 			array(
 				'status' => 'pending',
@@ -36,6 +39,7 @@ function e2e_mock_speed_score_api( $default_action, $args, $target ) {
 
 	// Return successful speed score message when polling.
 	if ( 'GET' === $args['method'] ) {
+		$is_mocking_speed_score['GET'] = true;
 		// Return a lower mock-score when generating with no Boost modules enabled (determined by URL arguments).
 		$modules_disabled = strpos( $target, 'jb-disable-modules' ) !== false;
 

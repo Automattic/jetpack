@@ -154,8 +154,9 @@ class Speed_Score_Request extends Cacheable {
 	 */
 	public function execute() {
 		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
+		global $real_speed_score_response;
 
-		$response = Utils::send_wpcom_request(
+		$response                  = Utils::send_wpcom_request(
 			'POST',
 			sprintf( '/sites/%d/jetpack-boost/speed-scores', $blog_id ),
 			null,
@@ -165,6 +166,7 @@ class Speed_Score_Request extends Cacheable {
 				'active_modules' => $this->active_modules,
 			)
 		);
+		$real_speed_score_response = $response;
 
 		if ( is_wp_error( $response ) ) {
 			$this->status = 'error';
