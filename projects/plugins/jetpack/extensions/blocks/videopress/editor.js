@@ -504,7 +504,7 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 		const { block } = props;
 		const { name, attributes, clientId, __unstableBlockSource } = block;
 		const { replaceBlock } = useDispatch( blockEditorStore );
-		const { url, guid: guidAttr } = attributes;
+		const { url, guid: guidAttr, providerNameSlug } = attributes;
 
 		/*
 		 * We try to recognize core/video Jetpack VideoPress block,
@@ -523,6 +523,8 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 		const isCoreEmbedBlock = name === 'core/embed';
 		const guidFromUrl = pickGUIDFromUrl( url );
 
+		const isCoreEmbedVideoPressVariation = providerNameSlug === 'videopress' && !! guidFromUrl;
+
 		/*
 		 * GUID can come `guid` attribute (for core/video)
 		 * or from the `url` attribute (for core/embed)
@@ -540,7 +542,17 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 			isSimple
 		);
 
-		const shouldConvertToVideoPressVideoBlock = shouldConvertCoreVideoToVideoPressVideoBlock;
+		const shouldConvertCoreEmbedToVideoPressVideoBlock = !! (
+			isCoreEmbedBlock && // Only auto-convert if the block is a core/embed block
+			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
+			isCoreEmbedVideoPressVariation && // Only auto-convert if the block is a embed VideoPress variation
+			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
+			// Only auto-convert if the site is Simple
+			isSimple
+		);
+
+		const shouldConvertToVideoPressVideoBlock =
+			shouldConvertCoreVideoToVideoPressVideoBlock || shouldConvertCoreEmbedToVideoPressVideoBlock;
 
 		useEffect( () => {
 			if ( ! shouldConvertToVideoPressVideoBlock ) {
