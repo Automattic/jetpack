@@ -3,6 +3,9 @@
 		<testsuite name="features">
 			<directory suffix="-test.php">tests/php/features</directory>
 		</testsuite>
+		<testsuite name="common">
+			<directory suffix="-test.php">tests/php/common</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
