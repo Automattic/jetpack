@@ -70,11 +70,13 @@ const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
 	let enabledFeatures = '';
 
 	if ( status === 'on' ) {
-		if ( manualRulesEnabled ) {
-			enabledFeatures = __( 'Automatic and manual rules are currently active.', 'jetpack-protect' );
-		} else {
-			enabledFeatures = __( 'Automatic rules are currently active.', 'jetpack-protect' );
-		}
+		enabledFeatures = manualRulesEnabled
+			? __( 'Automatic and manual rules are currently active.', 'jetpack-protect' )
+			: __(
+					'Automatic rules are currently active.',
+					'jetpack-protect',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 	}
 	if ( status === 'off' ) {
 		enabledFeatures = __( 'Automatic and manual rules are available.', 'jetpack-protect' );
@@ -100,7 +102,11 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
 								{ hasRequiredPlan
 									? __( 'Automatic firewall is on', 'jetpack-protect' )
-									: __( 'Jetpack firewall is on', 'jetpack-protect' ) }
+									: __(
+											'Jetpack firewall is on',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
 							{ hasRequiredPlan ? (
 								<CurrentlyEnabledFeatures
