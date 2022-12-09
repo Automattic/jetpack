@@ -47,9 +47,9 @@ class Waf_Initializer {
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
-		/**
-		 * On module deactivation, unset waf mode
-		 */
+	/**
+	 * On module deactivation, unset waf mode
+	 */
 	public static function on_deactivation() {
 		Waf_Runner::deactivate();
 	}
@@ -57,8 +57,8 @@ class Waf_Initializer {
 	/**
 	 * Updates the WAF after upgrader process is complete.
 	 *
-	 * @param WP_Upgrader $upgrader  WP_Upgrader instance. In other contexts this might be a Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
-	 * @param array       $hook_extra      Array of bulk item update data.
+	 * @param WP_Upgrader $upgrader    WP_Upgrader instance. In other contexts this might be a Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
+	 * @param array       $hook_extra  Array of bulk item update data.
 	 *
 	 * @return void
 	 */
