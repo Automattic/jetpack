@@ -28,7 +28,7 @@ class Waf_Initializer {
 		}
 
 		// Triggers when the Jetpack plugin is updated
-		add_action( 'upgrader_process_complete', array( Waf_Runner::class, 'update_waf' ) );
+		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
@@ -52,5 +52,29 @@ class Waf_Initializer {
 		 */
 	public static function on_deactivation() {
 		Waf_Runner::deactivate();
+	}
+
+	/**
+	 * Updates the WAF after upgrader process is complete.
+	 *
+	 * @param WP_Upgrader $upgrader  WP_Upgrader instance. In other contexts this might be a Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
+	 * @param array       $hook_extra      Array of bulk item update data.
+	 *
+	 * @return void
+	 */
+	public static function update_waf_after_plugin_upgrade( $upgrader, $hook_extra ) {
+		$jetpack_plugins_with_waf = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
+
+		// Only run on upgrades affecting plugins
+		if ( is_array( $hook_extra['plugins'] ) ) {
+			return;
+		}
+
+		// Only run when Jetpack plugins were affected
+		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
+			return;
+		}
+
+		Waf_Runner::update_waf();
 	}
 }
