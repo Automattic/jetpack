@@ -21,7 +21,9 @@ export default function SubscribePanels() {
 				connections.reduce(
 					( acc, connection ) =>
 						acc +
-						( connection.enabled && Number.isFinite( connection.follower_count )
+						( connection.enabled &&
+						Number.isFinite( connection.follower_count ) &&
+						connection.follower_count > 0
 							? connection.follower_count
 							: 0 ),
 					0
