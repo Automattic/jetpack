@@ -4,6 +4,7 @@ import {
 	Container,
 	Text,
 	ContextualUpgradeTrigger,
+	Notice,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
@@ -22,7 +23,6 @@ import AdminPage from '../admin-page';
 import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
-import Notice from '../notice';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
@@ -32,8 +32,10 @@ const FirewallPage = () => {
 		config,
 		isSeen,
 		isEnabled,
+		isUpdating,
 		toggleAutomaticRules,
 		toggleManualRules,
+		toggleWaf,
 		updateConfig,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
@@ -207,6 +209,25 @@ const FirewallPage = () => {
 		},
 	} );
 
+	const moduleDisabledNotice = (
+		<Notice
+			level="error"
+			title="Jetpack Firewall is currently disabled."
+			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
+			actions={ [
+				<Button
+					variant="link"
+					onClick={ toggleWaf }
+					isLoading={ isUpdating }
+					disabled={ isUpdating }
+				>
+					{ __( 'Enable Firewall', 'jetpack-protect' ) }
+				</Button>,
+			] }
+			hideCloseButton={ true }
+		/>
+	);
+
 	const mainSettings = (
 		<div className={ styles[ 'toggle-wrapper' ] }>
 			<div className={ styles[ 'toggle-section' ] }>
@@ -338,7 +359,8 @@ const FirewallPage = () => {
 		<AdminPage>
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<ConnectedFirewallHeader />
-			<Container className={ styles.container } horizontalSpacing={ 8 }>
+			<Container className={ styles.container } horizontalSpacing={ 8 } horizontalGap={ 4 }>
+				{ ! isEnabled && <Col>{ moduleDisabledNotice } </Col> }
 				<Col>{ ! showManualRules ? mainSettings : manualRulesSettings }</Col>
 			</Container>
 			<FirewallFooter />
