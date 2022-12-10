@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Change the web activation firewall to run automatic and manual rules independantly.

@@ -668,7 +668,8 @@ export const jetpackProtectInitialState = {
 	waf: {
 		isSeen: true,
 		isEnabled: true,
-		isLoading: false,
+		isToggling: false,
+		isUpdating: false,
 		config: {
 			bootstrapPath: 'var/www/html/wp-content/jetpack-waf/bootstrap.php',
 			jetpackWafIpAllowList: '12.12.12.1',

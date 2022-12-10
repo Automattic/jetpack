@@ -9,7 +9,7 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
-	const { setWafConfig, setWafIsEnabled, setWafIsUpdating, setWafIsLoading } = useDispatch(
+	const { setWafConfig, setWafIsEnabled, setWafIsUpdating, setWafIsToggling } = useDispatch(
 		STORE_ID
 	);
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
@@ -35,18 +35,20 @@ const useWafData = () => {
 	 * Flips the switch on the WAF module, and then refreshes the data.
 	 */
 	const toggleWaf = useCallback( () => {
-		setWafIsLoading( true );
+		if ( ! waf.isEnabled ) {
+			setWafIsToggling( true );
+		}
 		setWafIsUpdating( true );
 		return API.toggleWaf()
 			.then( refreshWaf )
 			.finally( () => {
-				setWafIsLoading( false );
+				setWafIsToggling( false );
 				setWafIsUpdating( false );
 			} );
-	}, [ refreshWaf, setWafIsLoading, setWafIsUpdating ] );
+	}, [ refreshWaf, waf.isEnabled, setWafIsToggling, setWafIsUpdating ] );
 
 	/**
-	 * Ensure Module Is Enabled
+	 * Ensure WAF Module Is Enabled
 	 */
 	const ensureModuleIsEnabled = useCallback( () => {
 		if ( ! waf.isEnabled ) {
@@ -61,7 +63,7 @@ const useWafData = () => {
 	 *
 	 * Flips the switch on the WAF automatic rules feature, and then refreshes the data.
 	 */
-	const toggleAutomaticRules = useCallback( async () => {
+	const toggleAutomaticRules = useCallback( () => {
 		setWafIsUpdating( true );
 		return ensureModuleIsEnabled()
 			.then( () =>

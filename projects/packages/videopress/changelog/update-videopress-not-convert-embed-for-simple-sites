@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: do not prompt to convert core/embed to videopress/video for Simple sites

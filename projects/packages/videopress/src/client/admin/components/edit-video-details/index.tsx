@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
+import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -72,11 +73,12 @@ const Header = ( {
 };
 
 const GoBackLink = () => {
-	const history = useHistory();
+	const { page } = useVideosQuery();
+	const to = page > 1 ? `/?page=${ page }` : '/';
 
 	return (
 		<div className={ styles[ 'back-link' ] }>
-			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+			<Link to={ to } className={ styles.link }>
 				<Icon icon={ arrowLeft } className={ styles.icon } />
 				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
 			</Link>

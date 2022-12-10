@@ -2,6 +2,13 @@
     max-width: 744px;
 }
 
+.toggle-wrapper {
+    
+    >:nth-child(2) {
+        margin-top: calc( var( --spacing-base ) * 6 ); // 56px
+    }
+}
+
 .toggle-section {
     display: flex;
 
