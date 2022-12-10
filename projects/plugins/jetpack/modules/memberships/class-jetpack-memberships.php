@@ -297,7 +297,8 @@ class Jetpack_Memberships {
 			return;
 		}
 
-		$plan_id = (int) $attributes['planId'];
+		// Verify the plan id is either an integer or a string of integers seporated by '+'.
+		$plan_id = preg_match( '/^\d+(\+\d+)*$/', $attributes['planId'] ) ? $attributes['planId'] : 0;
 		$product = get_post( $plan_id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;

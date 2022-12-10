@@ -20,7 +20,7 @@ import { icon, title } from './';
 const BLOCK_NAME = 'recurring-payments';
 
 export default function Edit( { attributes, clientId, context, setAttributes } ) {
-	const { align, planId, width } = attributes;
+	const { align, planId, planIds, width } = attributes;
 	const { isPremiumContentChild } = context;
 	const editorType = getEditorType();
 	const postLink = useSelect( select => select( editorStore )?.getCurrentPost()?.link, [] );
@@ -109,7 +109,7 @@ export default function Edit( { attributes, clientId, context, setAttributes } )
 				<ProductManagementControls
 					blockName={ BLOCK_NAME }
 					clientId={ clientId }
-					selectedProductIds={ [ planId ] }
+					selectedProductIds={ planIds }
 					setSelectedProductIds={ updateSubscriptionPlans }
 				/>
 			) }

@@ -79,6 +79,10 @@ export const settings = {
 		planId: {
 			type: 'integer',
 		},
+		planIds: {
+			type: 'array',
+			default: [],
+		},
 		align: {
 			type: 'string',
 		},

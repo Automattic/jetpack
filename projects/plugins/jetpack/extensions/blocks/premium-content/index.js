@@ -126,6 +126,7 @@ export const settings = {
 	save,
 	providesContext: {
 		'premium-content/planId': 'selectedPlanId',
+		'premium-content/planIds': 'selectedPlanIds',
 		'premium-content/isPreview': 'isPreview',
 		isPremiumContentChild: 'isPremiumContentChild',
 	},
