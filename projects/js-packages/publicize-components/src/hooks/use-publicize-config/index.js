@@ -90,5 +90,6 @@ export default function usePublicizeConfig() {
 		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
 		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
+		adminUrl: getJetpackData()?.social?.adminUrl,
 	};
 }

@@ -246,7 +246,7 @@ export function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
-				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) } initialOpen={ false }>
 					{ renderSubmissionSettings() }
 				</PanelBody>
 				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
@@ -269,11 +269,11 @@ export function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
-							<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM Connection', 'jetpack' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 						) }
-						<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
+						<PanelBody title={ __( 'Newsletter Connection', 'jetpack' ) } initialOpen={ false }>
 							<NewsletterIntegrationSettings />
 						</PanelBody>
 					</Fragment>

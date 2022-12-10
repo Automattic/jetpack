@@ -197,10 +197,11 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSeen'    => self::get_waf_seen_status(),
-				'isEnabled' => Waf_Runner::is_enabled(),
-				'isLoading' => false,
-				'config'    => Waf_Runner::get_config(),
+				'isSeen'     => self::get_waf_seen_status(),
+				'isEnabled'  => Waf_Runner::is_enabled(),
+				'isToggling' => false,
+				'isUpdating' => false,
+				'config'     => Waf_Runner::get_config(),
 			),
 		);
 
