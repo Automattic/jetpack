@@ -29,6 +29,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 		numberOfSharesRemaining,
 		hasPaidPlan,
 		connectionsAdminUrl,
+		adminUrl,
 		isEnhancedPublishingEnabled,
 	} = usePublicizeConfig();
 
@@ -82,6 +83,7 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 							isShareLimitEnabled && ! hasPaidPlan ? numberOfSharesRemaining : null
 						}
 						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
+						adminUrl={ adminUrl }
 					/>
 					{ enableTweetStorm && isPublicizeEnabled && (
 						<PublicizeTwitterOptions prePublish={ prePublish } />

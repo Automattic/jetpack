@@ -20,7 +20,8 @@ import {
 	SET_HAS_REQUIRED_PLAN,
 	SET_WAF_IS_SEEN,
 	SET_WAF_IS_ENABLED,
-	SET_WAF_IS_LOADING,
+	SET_WAF_IS_UPDATING,
+	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 } from './actions';
 
@@ -159,7 +160,8 @@ const hasRequiredPlan = ( state = false, action ) => {
 const defaultWaf = {
 	isSeen: false,
 	isEnabled: false,
-	isLoading: false,
+	isUpdating: false,
+	isToggling: false,
 	config: undefined,
 };
 const waf = ( state = defaultWaf, action ) => {
@@ -170,8 +172,10 @@ const waf = ( state = defaultWaf, action ) => {
 			return { ...state, isEnabled: action.isEnabled };
 		case SET_WAF_CONFIG:
 			return { ...state, config: action.config };
-		case SET_WAF_IS_LOADING:
-			return { ...state, isLoading: action.isLoading };
+		case SET_WAF_IS_UPDATING:
+			return { ...state, isUpdating: action.isUpdating };
+		case SET_WAF_IS_TOGGLING:
+			return { ...state, isToggling: action.isToggling };
 	}
 	return state;
 };

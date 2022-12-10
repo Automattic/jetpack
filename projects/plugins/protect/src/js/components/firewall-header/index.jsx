@@ -66,7 +66,26 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan } ) => {
+const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
+	let enabledFeatures = '';
+
+	if ( status === 'on' ) {
+		enabledFeatures = manualRulesEnabled
+			? __( 'Automatic and manual rules are currently active.', 'jetpack-protect' )
+			: __(
+					'Automatic rules are currently active.',
+					'jetpack-protect',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+	}
+	if ( status === 'off' ) {
+		enabledFeatures = __( 'Automatic and manual rules are available.', 'jetpack-protect' );
+	}
+
+	return <Text weight={ 600 }>{ enabledFeatures }</Text>;
+};
+
+const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 	return (
 		<AdminSectionHero>
 			<Container
@@ -81,9 +100,22 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
+								{ hasRequiredPlan
+									? __( 'Automatic firewall is on', 'jetpack-protect' )
+									: __(
+											'Jetpack firewall is on',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
+							{ hasRequiredPlan ? (
+								<CurrentlyEnabledFeatures
+									status={ status }
+									manualRulesEnabled={ config?.jetpackWafIpList }
+								/>
+							) : (
+								<UpgradePrompt />
+							) }
 						</>
 					) }
 					{ 'off' === status && (
@@ -94,7 +126,14 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
 								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
 							</H3>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
+							{ hasRequiredPlan ? (
+								<CurrentlyEnabledFeatures
+									status={ status }
+									manualRulesEnabled={ config?.jetpackWafIpList }
+								/>
+							) : (
+								<UpgradePrompt />
+							) }
 						</>
 					) }
 					{ 'loading' === status && (
@@ -118,11 +157,19 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled } = useWafData();
+	const { isEnabled, isToggling, config } = useWafData();
 	const { hasRequiredPlan } = useProtectData();
+	const currentStatus = isEnabled ? 'on' : 'off';
 
-	// To Do: Add loading status
-	return <FirewallHeader status={ isEnabled ? 'on' : 'off' } hasRequiredPlan={ hasRequiredPlan } />;
+	return (
+		<FirewallHeader
+			status={ isToggling ? 'loading' : currentStatus }
+			hasRequiredPlan={ hasRequiredPlan }
+			config={ config }
+		/>
+	);
 };
+
+export { FirewallHeader };
 
 export default ConnectedFirewallHeader;

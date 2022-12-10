@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+VideoPress: Handle URL pagination for video list/grid so every page has it's own URL.
