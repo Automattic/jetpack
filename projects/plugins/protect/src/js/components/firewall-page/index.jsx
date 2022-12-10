@@ -27,12 +27,31 @@ import Notice from '../notice';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
+const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
+const SUCCESS_NOTICE_DURATION = 5000;
+
+const errorMessage = createInterpolateElement(
+	__(
+		'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
+		'jetpack-protect'
+	),
+	{
+		supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+	}
+);
+
 const FirewallPage = () => {
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
+	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
 	const {
-		config,
-		isSeen,
+		config: {
+			jetpackWafAutomaticRules,
+			jetpackWafIpList,
+			jetpackWafIpBlockList,
+			jetpackWafIpAllowList,
+		},
 		isEnabled,
+		isSeen,
 		isUpdating,
 		toggleAutomaticRules,
 		toggleManualRules,
@@ -40,53 +59,62 @@ const FirewallPage = () => {
 		updateConfig,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const {
-		jetpackWafAutomaticRules,
-		jetpackWafIpList,
-		jetpackWafIpBlockList,
-		jetpackWafIpAllowList,
-	} = config || {};
-	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
-	const successNoticeDuration = 5000;
-	const errorMessage = createInterpolateElement(
-		__(
-			'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
-			'jetpack-protect'
-		),
-		{
-			supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
-		}
-	);
+	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
+		productSlug: JETPACK_SCAN_SLUG,
+		redirectUrl: `${ ADMIN_URL }#/firewall`,
+	} );
+	const { recordEventHandler } = useAnalyticsTracks();
 
-	const [ settings, setSettings ] = useState( {
+	/**
+	 * Form State
+	 *
+	 * @member {object} formState - Current form values.
+	 */
+	const [ formState, setFormState ] = useState( {
 		module_enabled: isEnabled,
 		jetpack_waf_ip_list: jetpackWafIpList,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
 	} );
 
-	const [ settingsIsUpdating, setSettingsIsUpdating ] = useState( false );
+	/**
+	 * Form Is Submitting State
+	 *
+	 * @member {boolean} formIsSubmitting - Whether or not the form is submitting.
+	 */
+	const [ formIsSubmitting, setFormIsSubmitting ] = useState( false );
 
+	/**
+	 * Show Manual Rules State
+	 *
+	 * @member {boolean} showManualRules Whether or not to display the manual rules sub-section.
+	 */
 	const [ showManualRules, setShowManualRules ] = useState( false );
 
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const firewallUrl = adminUrl + '#/firewall';
+	/**
+	 * Get Scan
+	 *
+	 * Records an event and then starts the checkout flow for Jetpack Scan
+	 */
+	const getScan = recordEventHandler(
+		'jetpack_protect_waf_page_get_scan_link_click',
+		runCheckoutWorkflow
+	);
 
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: firewallUrl,
-	} );
-
-	const { recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler( 'jetpack_protect_waf_page_get_scan_link_click', run );
-
+	/**
+	 * Save Changes
+	 *
+	 * Updates the WAF settings with the current form state values.
+	 *
+	 * @returns void
+	 */
 	const saveChanges = useCallback( () => {
-		setSettingsIsUpdating( true );
-		updateConfig( settings )
+		setFormIsSubmitting( true );
+		updateConfig( formState )
 			.then( () =>
 				setNotice( {
 					type: 'success',
-					duration: successNoticeDuration,
+					duration: SUCCESS_NOTICE_DURATION,
 					message: __( 'Changes saved.', 'jetpack-protect' ),
 				} )
 			)
@@ -96,29 +124,44 @@ const FirewallPage = () => {
 					message: errorMessage,
 				} );
 			} )
-			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, updateConfig, setNotice, errorMessage ] );
+			.finally( () => setFormIsSubmitting( false ) );
+	}, [ formState, updateConfig, setNotice ] );
 
+	/**
+	 * Handle Change
+	 *
+	 * Syncs change events from a form element to formState.
+	 *
+	 * @param {Event} event - The form control's change event.
+	 * @returns void
+	 */
 	const handleChange = useCallback(
 		event => {
 			const { value, id } = event.target;
-			setSettings( { ...settings, [ id ]: value } );
+			setFormState( { ...formState, [ id ]: value } );
 		},
-		[ settings, setSettings ]
+		[ formState ]
 	);
 
+	/**
+	 * Handle Automatic Rules Change
+	 *
+	 * Toggles the WAF's automatic rules option.
+	 *
+	 * @returns void
+	 */
 	const handleAutomaticRulesChange = useCallback( () => {
-		setSettingsIsUpdating( true );
-		const newValue = ! settings.jetpack_waf_automatic_rules;
-		setSettings( {
-			...settings,
+		setFormIsSubmitting( true );
+		const newValue = ! formState.jetpack_waf_automatic_rules;
+		setFormState( {
+			...formState,
 			jetpack_waf_automatic_rules: newValue,
 		} );
 		toggleAutomaticRules()
 			.then( () =>
 				setNotice( {
 					type: 'success',
-					duration: successNoticeDuration,
+					duration: SUCCESS_NOTICE_DURATION,
 					message: newValue
 						? __( `Automatic rules are enabled.`, 'jetpack-protect' )
 						: __(
@@ -134,18 +177,25 @@ const FirewallPage = () => {
 					message: errorMessage,
 				} );
 			} )
-			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleAutomaticRules, setNotice, errorMessage ] );
+			.finally( () => setFormIsSubmitting( false ) );
+	}, [ formState, toggleAutomaticRules, setNotice ] );
 
+	/**
+	 * Handle Manual Rules Change
+	 *
+	 * Toggles the WAF's manual rules option.
+	 *
+	 * @returns void
+	 */
 	const handleManualRulesChange = useCallback( () => {
-		const newManualRulesStatus = ! settings.jetpack_waf_ip_list;
-		setSettingsIsUpdating( true );
-		setSettings( { ...settings, jetpack_waf_ip_list: newManualRulesStatus } );
+		const newManualRulesStatus = ! formState.jetpack_waf_ip_list;
+		setFormIsSubmitting( true );
+		setFormState( { ...formState, jetpack_waf_ip_list: newManualRulesStatus } );
 		toggleManualRules()
 			.then( () =>
 				setNotice( {
 					type: 'success',
-					duration: successNoticeDuration,
+					duration: SUCCESS_NOTICE_DURATION,
 					message: newManualRulesStatus
 						? __( 'Manual rules are active.', 'jetpack-protect' )
 						: __(
@@ -161,18 +211,25 @@ const FirewallPage = () => {
 					message: errorMessage,
 				} );
 			} )
-			.finally( () => setSettingsIsUpdating( false ) );
-	}, [ settings, toggleManualRules, setNotice, errorMessage ] );
+			.finally( () => setFormIsSubmitting( false ) );
+	}, [ formState, toggleManualRules, setNotice ] );
 
+	/**
+	 * Handle Show Manual Rules Click
+	 *
+	 * Toggles showManualRules.
+	 *
+	 * @returns void
+	 */
 	const handleShowManualRulesClick = useCallback( () => {
 		setShowManualRules( ! showManualRules );
 	}, [ showManualRules, setShowManualRules ] );
 
 	/**
-	 * Sync state.settings with application state WAF config
+	 * Sync formState with application state WAF config
 	 */
 	useEffect( () => {
-		setSettings( {
+		setFormState( {
 			module_enabled: isEnabled,
 			jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
 			jetpack_waf_ip_list: jetpackWafIpList,
@@ -210,6 +267,9 @@ const FirewallPage = () => {
 		},
 	} );
 
+	/**
+	 * Module Disabled Notice
+	 */
 	const moduleDisabledNotice = (
 		<JetpackNotice
 			level="error"
@@ -229,14 +289,17 @@ const FirewallPage = () => {
 		/>
 	);
 
+	/**
+	 * Main Settings
+	 */
 	const mainSettings = (
 		<div className={ styles[ 'toggle-wrapper' ] }>
 			<div className={ styles[ 'toggle-section' ] }>
 				<div>
 					<FormToggle
-						checked={ hasRequiredPlan && isEnabled ? settings.jetpack_waf_automatic_rules : false }
+						checked={ hasRequiredPlan && isEnabled ? formState.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
-						disabled={ ! hasRequiredPlan || settingsIsUpdating || ! isEnabled }
+						disabled={ ! hasRequiredPlan || formIsSubmitting || ! isEnabled }
 					/>
 				</div>
 				<div>
@@ -267,9 +330,9 @@ const FirewallPage = () => {
 				<div>
 					<FormToggle
 						id="jetpack_waf_ip_list"
-						checked={ isEnabled && settings.jetpack_waf_ip_list }
+						checked={ isEnabled && formState.jetpack_waf_ip_list }
 						onChange={ handleManualRulesChange }
-						disabled={ settingsIsUpdating || ! isEnabled }
+						disabled={ formIsSubmitting || ! isEnabled }
 					/>
 				</div>
 				<div>
@@ -301,6 +364,9 @@ const FirewallPage = () => {
 		</div>
 	);
 
+	/**
+	 * Manual Rules Settings
+	 */
 	const manualRulesSettings = (
 		<div className={ styles[ 'manual-rule-wrapper' ] }>
 			<Button
@@ -326,9 +392,9 @@ const FirewallPage = () => {
 					label={ __( 'Blocked IP addresses', 'jetpack-protect' ) }
 					placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
 					rows={ 3 }
-					value={ settings.jetpack_waf_ip_block_list }
+					value={ formState.jetpack_waf_ip_block_list }
 					onChange={ handleChange }
-					disabled={ settingsIsUpdating }
+					disabled={ formIsSubmitting }
 				/>
 			</div>
 			<div className={ styles[ 'manual-rule-section' ] }>
@@ -337,21 +403,20 @@ const FirewallPage = () => {
 					label={ __( 'Always allowed IP addresses', 'jetpack-protect' ) }
 					placeholder={ __( 'Example:', 'jetpack-protect' ) + '\n12.12.12.1\n12.12.12.2' }
 					rows={ 3 }
-					value={ settings.jetpack_waf_ip_allow_list }
+					value={ formState.jetpack_waf_ip_allow_list }
 					onChange={ handleChange }
-					disabled={ settingsIsUpdating }
+					disabled={ formIsSubmitting }
 				/>
 			</div>
-			<Button
-				onClick={ saveChanges }
-				isLoading={ settingsIsUpdating }
-				disabled={ settingsIsUpdating }
-			>
+			<Button onClick={ saveChanges } isLoading={ formIsSubmitting } disabled={ formIsSubmitting }>
 				{ __( 'Save changes', 'jetpack-protect' ) }
 			</Button>
 		</div>
 	);
 
+	/**
+	 * Render
+	 */
 	return (
 		<AdminPage>
 			{ notice.message && <Notice floating={ true } dismissable={ true } { ...notice } /> }
