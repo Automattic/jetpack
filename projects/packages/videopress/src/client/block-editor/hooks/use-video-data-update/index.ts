@@ -64,6 +64,7 @@ export default function useMediaDataUpdate( id: VideoId ) {
  * Fields list to keep in sync with block attributes.
  */
 const videoFieldsToUpdate = [
+	'post_id',
 	'title',
 	'description',
 	'privacy_setting',
@@ -82,6 +83,7 @@ const mapFieldsToAttributes = {
 	allow_download: 'allowDownload',
 	display_embed: 'displayEmbed',
 	is_private: 'isPrivate',
+	post_id: 'id',
 };
 
 /*
@@ -205,7 +207,7 @@ export function useSyncMedia(
 				}
 
 				acc[ key ] = videoDataValue;
-				const attrName = snakeToCamel( key );
+				const attrName = mapFieldsToAttributes[ key ] || snakeToCamel( key );
 
 				if ( videoDataValue !== attributes[ attrName ] ) {
 					debug(
