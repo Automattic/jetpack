@@ -4,7 +4,7 @@ import {
 	Container,
 	Text,
 	ContextualUpgradeTrigger,
-	Notice,
+	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
@@ -23,6 +23,7 @@ import AdminPage from '../admin-page';
 import FirewallFooter from '../firewall-footer';
 import ConnectedFirewallHeader from '../firewall-header';
 import FormToggle from '../form-toggle';
+import Notice from '../notice';
 import Textarea from '../textarea';
 import styles from './styles.module.scss';
 
@@ -210,7 +211,7 @@ const FirewallPage = () => {
 	} );
 
 	const moduleDisabledNotice = (
-		<Notice
+		<JetpackNotice
 			level="error"
 			title="Jetpack Firewall is currently disabled."
 			children={ <Text>{ __( 'Re-enable the Firewall to continue.', 'jetpack-protect' ) }</Text> }
@@ -233,9 +234,9 @@ const FirewallPage = () => {
 			<div className={ styles[ 'toggle-section' ] }>
 				<div>
 					<FormToggle
-						checked={ hasRequiredPlan ? settings.jetpack_waf_automatic_rules : false }
+						checked={ hasRequiredPlan && isEnabled ? settings.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
-						disabled={ ! hasRequiredPlan || settingsIsUpdating || ! settings.module_enabled }
+						disabled={ ! hasRequiredPlan || settingsIsUpdating || ! isEnabled }
 					/>
 				</div>
 				<div>
@@ -262,44 +263,40 @@ const FirewallPage = () => {
 					/>
 				) }
 			</div>
-			{ isEnabled && (
-				<>
-					<div className={ styles[ 'toggle-section' ] }>
-						<div>
-							<FormToggle
-								id="jetpack_waf_ip_list"
-								checked={ Boolean( settings.jetpack_waf_ip_list ) }
-								onChange={ handleManualRulesChange }
-								disabled={ settingsIsUpdating }
-							/>
-						</div>
-						<div>
-							<Text variant="title-medium" mb={ 2 }>
-								{ __( 'Enable manual rules', 'jetpack-protect' ) }
-							</Text>
-							<Text>
-								{ __(
-									'Allows you to add manual rules to block or allow traffic from specific IPs.',
-									'jetpack-protect'
-								) }
-							</Text>
-						</div>
-					</div>
-					{ jetpackWafIpList && (
-						<div className={ styles[ 'edit-manual-rules-section' ] }>
-							<Text variant={ 'body-small' } mt={ 2 }>
-								{ '' === jetpackWafIpAllowList &&
-									'' === jetpackWafIpBlockList &&
-									__( 'No manual rules are being applied.', 'jetpack-protect' ) }
-							</Text>
-							<Button variant={ 'link' }>
-								<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
-									{ __( 'Edit manual rules', 'jetpack-protect' ) }
-								</Text>
-							</Button>
-						</div>
-					) }
-				</>
+			<div className={ styles[ 'toggle-section' ] }>
+				<div>
+					<FormToggle
+						id="jetpack_waf_ip_list"
+						checked={ isEnabled && settings.jetpack_waf_ip_list }
+						onChange={ handleManualRulesChange }
+						disabled={ settingsIsUpdating || ! isEnabled }
+					/>
+				</div>
+				<div>
+					<Text variant="title-medium" mb={ 2 }>
+						{ __( 'Enable manual rules', 'jetpack-protect' ) }
+					</Text>
+					<Text>
+						{ __(
+							'Allows you to add manual rules to block or allow traffic from specific IPs.',
+							'jetpack-protect'
+						) }
+					</Text>
+				</div>
+			</div>
+			{ jetpackWafIpList && (
+				<div className={ styles[ 'edit-manual-rules-section' ] }>
+					<Text variant={ 'body-small' } mt={ 2 }>
+						{ '' === jetpackWafIpAllowList &&
+							'' === jetpackWafIpBlockList &&
+							__( 'No manual rules are being applied.', 'jetpack-protect' ) }
+					</Text>
+					<Button variant={ 'link' } disabled={ ! isEnabled }>
+						<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
+							{ __( 'Edit manual rules', 'jetpack-protect' ) }
+						</Text>
+					</Button>
+				</div>
 			) }
 		</div>
 	);
