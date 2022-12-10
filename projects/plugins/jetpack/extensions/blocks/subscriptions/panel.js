@@ -12,12 +12,23 @@ import './panel.scss';
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ followerCount, setFollowerCount ] = useState( null );
+	const connections = useSelect( select => select( 'jetpack/publicize' ).getConnections(), [] );
+
 	useEffect( () => {
 		getSubscriberCounts( counts => {
 			setSubscriberCount( counts.email_subscribers );
-			setFollowerCount( counts.social_followers );
+			setFollowerCount(
+				connections.reduce(
+					( acc, connection ) =>
+						acc +
+						( connection.enabled && Number.isFinite( connection.follower_count )
+							? connection.follower_count
+							: 0 ),
+					0
+				)
+			);
 		} );
-	}, [] );
+	}, [ connections ] );
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
