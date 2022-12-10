@@ -1569,6 +1569,7 @@ importers:
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
       typescript: 4.8.2
+      uncut_sans: github:kaspernordkvist/uncut_sans
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
@@ -1634,6 +1635,7 @@ importers:
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
+      uncut_sans: github.com/kaspernordkvist/uncut_sans/3695cc4e37a39db43808b122a5baf1e5d49277ee
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
     optionalDependencies:
@@ -21410,4 +21412,10 @@ packages:
     resolution: {tarball: https://codeload.github.com/dw5/Metropolis/tar.gz/85fa62524e9eb40047bbf64830022e59a02cbaed}
     name: '@chrismsimpson/metropolis'
     version: 10.0.0
+    dev: false
+
+  github.com/kaspernordkvist/uncut_sans/3695cc4e37a39db43808b122a5baf1e5d49277ee:
+    resolution: {tarball: https://codeload.github.com/kaspernordkvist/uncut_sans/tar.gz/3695cc4e37a39db43808b122a5baf1e5d49277ee}
+    name: uncut_sans
+    version: 1.212.0
     dev: false

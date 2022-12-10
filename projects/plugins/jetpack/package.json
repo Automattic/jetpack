@@ -107,6 +107,7 @@
 		"swiper": "6.7.0",
 		"tinycolor2": "1.4.2",
 		"tus-js-client": "2.3.0",
+		"uncut_sans": "github:kaspernordkvist/uncut_sans",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
