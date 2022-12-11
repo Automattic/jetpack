@@ -1,5 +1,7 @@
 import { VideoGUID, VideoId } from '../video/types';
 
+export type PersistentBlockLinkIdProp = `link-{ string }`;
+
 export type VideoChaptersBlockAttributes = {
 	id?: VideoId;
 	guid?: VideoGUID;
@@ -7,7 +9,7 @@ export type VideoChaptersBlockAttributes = {
 	/*
 	 * Persistent ID to link the block with the other blocks.
 	 */
-	persistentBlockLinkId?: `link-{ string }`;
+	persistentBlockLinkId?: PersistentBlockLinkIdProp;
 };
 
 export type VideoChaptersBlockPropertiesProps = {
