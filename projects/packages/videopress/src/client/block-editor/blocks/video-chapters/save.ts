@@ -1,3 +1,6 @@
+/**
+ * Types
+ */
 import type React from 'react';
 
 /**
