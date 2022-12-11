@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { SelectControl } from '@wordpress/components';
+import { PanelRow, SelectControl } from '@wordpress/components';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -24,19 +24,25 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 		}
 	}, [] );
 
-	const options = blocks
+	const availableBlocksListToLink = blocks
 		.map( block => ( {
 			value: block.clientId,
 			label: block.attributes.title,
 		} ) )
 		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
 
+	if ( ! availableBlocksListToLink.length ) {
+		return (
+			<PanelRow>{ __( 'No VideoPress video blocks found.', 'jetpack-videopress-pkg' ) }</PanelRow>
+		);
+	}
+
 	return (
 		<SelectControl
 			label={ __( 'Video', 'jetpack-videopress-pkg' ) }
 			value={ value }
 			onChange={ onChange }
-			options={ options }
+			options={ availableBlocksListToLink }
 		/>
 	);
 };
