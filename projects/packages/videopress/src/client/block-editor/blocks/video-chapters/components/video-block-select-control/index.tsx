@@ -12,6 +12,13 @@ type VideoBlockSelectControlProps = {
 	onChange: ( newvalue: PersistentBlockLinkIdProp ) => void;
 };
 
+type VideoBlocksSelectControlItemProps = {
+	value: PersistentBlockLinkIdProp;
+	label: string;
+};
+
+type VideoBlocksSelectControlDataProps = VideoBlocksSelectControlItemProps[];
+
 const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlProps ) => {
 	const blocks = select( 'core/block-editor' )
 		.getBlocks()
@@ -24,7 +31,7 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 		}
 	}, [] );
 
-	const availableBlocksListToLink = blocks
+	const availableBlocksListToLink: VideoBlocksSelectControlDataProps = blocks
 		.map( block => ( {
 			value: block.clientId,
 			label: block.attributes.title,
@@ -32,9 +39,7 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
 
 	if ( ! availableBlocksListToLink.length ) {
-		return (
-			<PanelRow>{ __( 'No VideoPress video blocks found.', 'jetpack-videopress-pkg' ) }</PanelRow>
-		);
+		return <PanelRow>{ __( 'No video blocks found.', 'jetpack-videopress-pkg' ) }</PanelRow>;
 	}
 
 	const blockToLinkName = availableBlocksListToLink.find( data => data.value === value )?.label;
