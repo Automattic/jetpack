@@ -51,7 +51,7 @@ export default function VideoPressChaptersEdit( {
 				<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
 					<VideoBlockSelectControl
 						value={ persistentBlockLinkId }
-						onChange={ handleAttributeChange( 'videoPressBlockId' ) }
+						onChange={ handleAttributeChange( 'persistentBlockLinkId' ) }
 					/>
 				</PanelBody>
 			</InspectorControls>

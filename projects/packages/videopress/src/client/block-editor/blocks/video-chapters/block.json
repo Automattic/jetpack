@@ -11,7 +11,7 @@
 		"align": true
 	},
 	"attributes": {
-		"videoPressBlockId": {
+		"persistentBlockLinkId": {
 			"type": "string"
 		},
 		"style": {
