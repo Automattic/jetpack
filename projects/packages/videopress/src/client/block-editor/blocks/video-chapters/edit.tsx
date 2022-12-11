@@ -1,6 +1,3 @@
-// Disabling temporarily
-/* eslint-disable no-unused-vars */
-
 /**
  * WordPress dependencies
  */
@@ -12,23 +9,22 @@ import classNames from 'classnames';
 import VideoPressChaptersInspectorControls from './components/inspector-controls';
 import useChapters from './hooks/use-chapters';
 import './editor.scss';
+/**
+ * Types
+ */
+import { VideoChaptersBlockPropertiesProps } from './types';
+import type React from 'react';
 
 /**
  * VideoPress Chapters block Edit react components
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {string} props.clientId        - Block client ID.
- * @returns {object}                     - React component.
+ * @param {VideoChaptersBlockPropertiesProps} props - Component props.
+ * @returns {React.ReactElement}                      React component.
  */
 export default function VideoPressChaptersEdit( {
 	attributes,
 	setAttributes,
-	isSelected,
-	clientId,
-} ) {
+}: VideoChaptersBlockPropertiesProps ) {
 	const chapters = useChapters();
 
 	const blockProps = useBlockProps( {
