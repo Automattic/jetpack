@@ -74,6 +74,7 @@
 		"@wordpress/core-data": "5.5.0",
 		"@wordpress/data": "7.6.0",
 		"@wordpress/date": "4.22.0",
+		"@wordpress/dom-ready": "3.22.0",
 		"@wordpress/editor": "12.21.0",
 		"@wordpress/element": "4.20.0",
 		"@wordpress/i18n": "4.22.0",
