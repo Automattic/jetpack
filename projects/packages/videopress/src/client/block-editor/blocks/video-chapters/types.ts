@@ -7,7 +7,7 @@ export type VideoChaptersBlockAttributes = {
 	/*
 	 * Persistent ID to link the block with the other blocks.
 	 */
-	persistentBlockLinkId?: string;
+	persistentBlockLinkId?: `link-{ string }`;
 };
 
 export type VideoChaptersBlockPropertiesProps = {
