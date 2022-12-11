@@ -71,7 +71,7 @@ const FirewallPage = () => {
 	 * @member {object} formState - Current form values.
 	 */
 	const [ formState, setFormState ] = useState( {
-		module_enabled: isEnabled,
+		jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
 		jetpack_waf_ip_list: jetpackWafIpList,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
@@ -230,19 +230,12 @@ const FirewallPage = () => {
 	 */
 	useEffect( () => {
 		setFormState( {
-			module_enabled: isEnabled,
 			jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
 			jetpack_waf_ip_list: jetpackWafIpList,
 			jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 			jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
 		} );
-	}, [
-		isEnabled,
-		jetpackWafIpList,
-		jetpackWafIpBlockList,
-		jetpackWafIpAllowList,
-		jetpackWafAutomaticRules,
-	] );
+	}, [ jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList, jetpackWafAutomaticRules ] );
 
 	/**
 	 * "WAF Seen" useEffect()
