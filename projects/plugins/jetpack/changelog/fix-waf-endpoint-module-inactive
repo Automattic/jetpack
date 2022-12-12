@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Admin Page: avoid querying for WAF settings when the feature is not active.
