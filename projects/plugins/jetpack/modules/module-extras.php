@@ -13,10 +13,6 @@
  *    - When connected to WordPress.com.
  */
 
-use Automattic\Jetpack\Promote_Posts;
-Promote_Posts::configure();
-// print_r( Redirect::get_url( 'jetpack-promote-posts', array( 'query' => 'blazepress-widget=post-9' ) ) );
-
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
 	'custom-post-types/comics.php',
@@ -93,5 +89,3 @@ function jetpack_widgets_add_suffix( $widget_name ) {
 	);
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
-
-// add_filter( 'post_row_actions', 'jetpack_promote_posts_row_action', 10, 2 );
