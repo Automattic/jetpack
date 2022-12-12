@@ -38,7 +38,12 @@ export default function useMediaRestrictions( enabledConnections ) {
 
 	const videoLimits = enabledConnections
 		.map( connection => RESTRICTIONS[ connection.service_name ].video )
-		.reduce( reduceVideoLimits );
+		.reduce( reduceVideoLimits, {
+			minSize: 0,
+			maxSize: Infinity,
+			maxLength: Infinity,
+			minLength: 0,
+		} );
 
 	/**
 	 * Returns the currently allowed media types
@@ -49,6 +54,9 @@ export default function useMediaRestrictions( enabledConnections ) {
 		const typeArrays = enabledConnections.map(
 			connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
 		);
+		if ( typeArrays.length === 0 ) {
+			return [];
+		}
 		return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
 	}, [ enabledConnections ] );
 
