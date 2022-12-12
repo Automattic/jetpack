@@ -18,7 +18,7 @@
 
 		// Need to await in this case because the generation request needs to go after the backend has enabled the module.
 		await updateModuleState( 'critical-css', true );
-
+		await recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 		navigate( '/' );
 	};
 
