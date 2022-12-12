@@ -17,19 +17,19 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async visit( ...args ) {
-		console.log( 'SETTING UP HOOKS' );
-		page
+		logger.info( 'SETTING UP HOOKS' );
+		this.page
 			.on( 'console', message =>
-				console.log(
+				logger.info(
 					`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
 				)
 			)
-			.on( 'pageerror', ( { message } ) => console.log( 'ERROR: ' + message ) )
+			.on( 'pageerror', ( { message } ) => logger.info( 'ERROR: ' + message ) )
 			.on( 'response', response =>
-				console.log( `RESPONSE ${ response.status() } ${ response.url() }` )
+				logger.info( `RESPONSE ${ response.status() } ${ response.url() }` )
 			)
 			.on( 'requestfailed', request =>
-				console.log( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
+				logger.info( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
 			);
 
 		const r = await super.visit( ...args );

@@ -21,9 +21,10 @@ export class MeasurableImageStore {
 	readonly image: MeasurableImage;
 	readonly node: MeasurableImage[ 'node' ];
 
-	private currentSrc = '';
+	private currentSrc;
 
 	constructor( measurableImage: MeasurableImage ) {
+		this.currentSrc = '';
 		this.image = measurableImage;
 		this.node = measurableImage.node;
 
