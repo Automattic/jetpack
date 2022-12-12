@@ -62,7 +62,7 @@ function jetpack_are_blogging_prompts_enabled() {
 	/**
 	 * Filters whether blogging prompts are enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 11.7
 	 *
 	 * @param bool $prompts_enabled Whether blogging prompts are enabled.
 	 */
