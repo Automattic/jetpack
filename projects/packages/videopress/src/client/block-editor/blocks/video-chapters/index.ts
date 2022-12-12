@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { registerBlockType } from '@wordpress/blocks';
+import { addFilter } from '@wordpress/hooks';
 import { formatListNumbered as icon } from '@wordpress/icons';
 import { isExtensionEnabled } from '../../extensions';
 /**
@@ -21,3 +22,26 @@ if ( isExtensionEnabled( name ) ) {
 		icon,
 	} );
 }
+
+/*
+ * Extend VideoPress video block with chapters support.
+ */
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/video-chapters/extend-video-block',
+	( settings, blockName ) => {
+		if ( blockName !== 'videopress/video' ) {
+			return settings;
+		}
+
+		return {
+			...settings,
+			attributes: {
+				...settings.attributes,
+				persistentBlockLinkId: {
+					type: 'string',
+				},
+			},
+		};
+	}
+);
