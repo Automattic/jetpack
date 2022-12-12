@@ -1348,13 +1348,25 @@ class Grunion_Admin {
 				<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
 				</svg>
-				<div class="export-card__header-title">Google Sheets</div>
+				<div class="export-card__header-title"><?php echo esc_html( __( 'Google Sheets', 'jetpack' ) ); ?></div>
 				<div class="export-card__beta-badge">BETA</div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
-					<div>Export your data into a Google Sheets file. You need to <a href="https://wordpress.com/marketing/connections" target="_blank" rel="noopener noreferer">connect to Google Drive</a>.</div>
-					<p class="export-card__body-description-footer">This premium feature is currently free to use in beta.</p>
+					<div>
+						<?php echo esc_html( __( 'Export your data into a Google Sheets file.', 'jetpack' ) ); ?>
+						<?php
+						/** Translators: Link to "connect to Google Drive" follows */
+						echo esc_html( __( 'You need to', 'jetpack' ) );
+						echo sprintf(
+							'<a href="%s" title="%s" target="_blank" rel="noopener noreferer">%s</a>',
+							'https://wordpress.com/marketing/connections',
+							esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
+							esc_html( __( 'connect to Google Drive', 'jetpack' ) )
+						);
+						?>
+					</div>
+					<p class="export-card__body-description-footer"><?php echo esc_html( __( 'This premium feature is currently free to use in beta.', 'jetpack' ) ); ?></p>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
