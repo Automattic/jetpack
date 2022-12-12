@@ -41,6 +41,14 @@ const VideoBlockSelectControl = ( { linkId, onChange }: VideoBlockSelectControlP
 		.filter( data => data.value && ! data.persistentBlockLinkId );
 
 	/*
+	 * Get the current linked video block
+	 * based on the linkId attribute.
+	 */
+	const currentLinkedBlock = blocks.find(
+		block => block.attributes?.persistentBlockLinkId === linkId
+	);
+
+	/*
 	 * Link the chapters block automatically when:
 	 * - The chapters block is created (mounted)
 	 * - The chapters block is not already linked to a video block
@@ -58,7 +66,7 @@ const VideoBlockSelectControl = ( { linkId, onChange }: VideoBlockSelectControlP
 		onChangeHandler( availableBlocksToLink[ 0 ].value );
 	}, [ linkId, availableBlocksToLink ] );
 
-	if ( ! availableBlocksToLink.length ) {
+	if ( ! availableBlocksToLink.length && ! currentLinkedBlock ) {
 		return <PanelRow>{ __( 'No video blocks found.', 'jetpack-videopress-pkg' ) }</PanelRow>;
 	}
 
@@ -73,11 +81,11 @@ const VideoBlockSelectControl = ( { linkId, onChange }: VideoBlockSelectControlP
 		);
 	}
 
-	const linkedToMessage = linkId
+	const linkedToMessage = currentLinkedBlock
 		? sprintf(
 				/* translators: %s: The block name to link to. */
 				__( 'Linked to %s video', 'jetpack-videopress-pkg' ),
-				availableBlocksToLink.find( data => data.value === linkId )?.label
+				currentLinkedBlock.attributes?.title
 		  )
 		: '';
 
