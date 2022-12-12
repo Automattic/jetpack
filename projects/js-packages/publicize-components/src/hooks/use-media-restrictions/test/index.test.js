@@ -53,18 +53,18 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'Video limits are calculated correctly', () => {
-		const defaultMaxImageSize = result.current.videoLimits;
+		const defaultVideoLimits = result.current.videoLimits;
 		rerender( [ { service_name: 'twitter' }, { service_name: 'facebook' } ] );
-		const modifiedMaxImageSize = result.current.videoLimits;
+		const modifiedVideoLimits = result.current.videoLimits;
 		rerender( DUMMY_CONNECTIONS );
 
-		expect( defaultMaxImageSize ).toStrictEqual( {
+		expect( defaultVideoLimits ).toStrictEqual( {
 			maxLength: 140,
 			maxSize: 200,
 			minLength: 3,
 			minSize: 0.075,
 		} );
-		expect( modifiedMaxImageSize ).toStrictEqual( {
+		expect( modifiedVideoLimits ).toStrictEqual( {
 			maxLength: 140,
 			maxSize: 512,
 			minLength: 0,
