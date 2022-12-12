@@ -229,13 +229,21 @@ const FirewallPage = () => {
 	 * Sync formState with application state WAF config
 	 */
 	useEffect( () => {
-		setFormState( {
-			jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
-			jetpack_waf_ip_list: jetpackWafIpList,
-			jetpack_waf_ip_block_list: jetpackWafIpBlockList,
-			jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-		} );
-	}, [ jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList, jetpackWafAutomaticRules ] );
+		if ( ! isUpdating ) {
+			setFormState( {
+				jetpack_waf_automatic_rules: jetpackWafAutomaticRules,
+				jetpack_waf_ip_list: jetpackWafIpList,
+				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
+				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
+			} );
+		}
+	}, [
+		jetpackWafIpList,
+		jetpackWafIpBlockList,
+		jetpackWafIpAllowList,
+		jetpackWafAutomaticRules,
+		isUpdating,
+	] );
 
 	/**
 	 * "WAF Seen" useEffect()
