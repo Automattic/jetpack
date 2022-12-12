@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Change the label "email subscribers" to "subscribers", since it also includes followers.
