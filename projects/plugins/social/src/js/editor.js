@@ -5,6 +5,7 @@ import {
 	usePublicizeConfig,
 	useSocialMediaConnections,
 	PublicizePanel,
+	ReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
@@ -13,6 +14,7 @@ import {
 	PluginSidebar,
 	PluginSidebarMoreMenuItem,
 	PluginPrePublishPanel,
+	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
@@ -93,6 +95,10 @@ const JetpackSocialSidebar = () => {
 			>
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
+
+			<PluginPostPublishPanel id="publicize-title">
+				<ReviewPrompt />
+			</PluginPostPublishPanel>
 		</PostTypeSupportCheck>
 	);
 };
