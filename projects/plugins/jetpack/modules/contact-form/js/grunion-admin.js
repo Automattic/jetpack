@@ -193,6 +193,10 @@ jQuery( function ( $ ) {
 			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
 		} );
 
+		var errorMessage =
+			( window.exportParameters && window.exportParameters.exportError ) ||
+			'There was an error exporting your results';
+
 		$btn.attr( 'disabled', 'disabled' );
 		$.post(
 			ajaxurl,
@@ -211,7 +215,7 @@ jQuery( function ( $ ) {
 			}
 		)
 			.fail( function () {
-				window.alert( 'There was an error exporting your results' );
+				window.alert( errorMessage );
 			} )
 			.always( function () {
 				$btn.removeAttr( 'disabled' );

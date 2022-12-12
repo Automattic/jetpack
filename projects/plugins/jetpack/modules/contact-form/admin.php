@@ -1163,6 +1163,7 @@ class Grunion_Admin {
 			return;
 		}
 		add_thickbox();
+		wp_localize_script( 'grunion-admin', 'exportParameters', array( 'exportError' => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ) ) );
 	}
 
 	/**
@@ -1231,7 +1232,11 @@ class Grunion_Admin {
 	 */
 	public function export_to_gdrive() {
 		$post_data = wp_unslash( $_POST );
-		if ( empty( sanitize_text_field( $post_data[ $this->export_nonce_field ] ) ) || ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field ] ), 'feedback_export' ) ) {
+		if (
+			! current_user_can( 'export' )
+			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field ] ) )
+			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field ] ), 'feedback_export' )
+		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack' ),
 				403
@@ -1358,6 +1363,7 @@ class Grunion_Admin {
 						<?php
 						/** Translators: Link to "connect to Google Drive" follows */
 						echo esc_html( __( 'You need to', 'jetpack' ) );
+						echo '&nbsp;';
 						echo sprintf(
 							'<a href="%s" title="%s" target="_blank" rel="noopener noreferer">%s</a>',
 							'https://wordpress.com/marketing/connections',
