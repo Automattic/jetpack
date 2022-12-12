@@ -249,11 +249,6 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
 - Writing prompts: add filter for whether prompts are enabled or not
 
-#### Improved compatibility
-- VideoPress block: convert on-the-fly video block instances on wordpress.com.
-- VideoPress block: convert core/embed block, videopress variation, to VideoPress video block, on the fly. Only relevant for wordpress.com sites.
-- VideoPress block: remove video block transform to/from videopress/video for wordpress.com sites.
-
 #### Bug fixes
 - Admin Page: avoid querying for WAF settings when the feature is not active.
 - VideoPress block: fix video player issue in some VideoMaker theme patterns.

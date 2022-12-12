@@ -9,11 +9,6 @@
 - Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers. [#27879]
 - Writing prompts: add filter for whether prompts are enabled or not [#27778]
 
-### Improved compatibility
-- VideoPress block: convert on-the-fly video block instances on wordpress.com. [#27831]
-- VideoPress block: convert core/embed block, videopress variation, to VideoPress video block, on the fly. Only relevant for wordpress.com sites. [#27857]
-- VideoPress block: remove video block transform to/from videopress/video for wordpress.com sites. [#27834]
-
 ### Bug fixes
 - Admin Page: avoid querying for WAF settings when the feature is not active. [#27777]
 - VideoPress block: fix video player issue in some VideoMaker theme patterns. [#27859]
@@ -23,6 +18,9 @@
 - Google fonts: Update composer with latest version of google-fonts-provider package. [#27719]
 - Stats: use config package to init stats admin. [#27565]
 - Updating changelog entries. [#27774]
+- VideoPress block: convert on-the-fly video block instances on WordPress.com. [#27831]
+- VideoPress block: convert core/embed block, videopress variation, to VideoPress video block, on the fly. Only relevant for WordPress.com sites. [#27857]
+- VideoPress block: remove video block transform to/from videopress/video for WordPress.com sites. [#27834]
 
 ## 11.7-a.1 - 2022-12-06
 ### Enhancements
