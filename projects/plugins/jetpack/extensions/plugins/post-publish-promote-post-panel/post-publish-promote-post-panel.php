@@ -12,6 +12,14 @@ const FEATURE_NAME = 'post-publish-promote-post-panel';
 
 use Automattic\Jetpack\Connection\Client;
 
+wp_enqueue_script(
+	'BlazePress',
+	'http://localhost:3004/widget.js',
+	array(),
+	round( time() / ( 60 * 60 ) ),
+	true
+);
+
 /**
  * Retriece if the user has the can_promote_widget flag
  *

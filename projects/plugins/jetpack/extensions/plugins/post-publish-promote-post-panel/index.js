@@ -1,6 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import {
-	getSiteFragment,
 	isAtomicSite,
 	isPrivateSite,
 	isSimpleSite,
@@ -12,6 +11,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar.js';
 import './editor.scss';
+import { PromotePostButton } from './components/promote-post.js';
 
 export const name = 'post-publish-promote-post-panel';
 
@@ -36,16 +36,6 @@ export const settings = {
 		function promoted_content_enabled( type ) {
 			return type === 'post' || type === 'page' || type === 'product';
 		}
-
-		const currentPost = useSelect( select => {
-			return select( editorStore ).getCurrentPost();
-		}, [] );
-
-		const currentPostId = currentPost?.id;
-
-		const siteFragment = getSiteFragment();
-
-		const targetLink = `https://wordpress.com/advertising/${ siteFragment }?blazepress-widget=post-${ currentPostId }`;
 
 		const authorId = useSelect( select => {
 			return select( 'core/editor' ).getEditedPostAttribute( 'author' );
@@ -72,11 +62,7 @@ export const settings = {
 							) }
 						</p>
 					</PanelRow>
-					<div className="qr-post-button">
-						<a class="is-secondary components-button" href={ targetLink }>
-							{ __( 'Promote Post', 'jetpack' ) }
-						</a>
-					</div>
+					<PromotePostButton />
 				</>
 			);
 		}
