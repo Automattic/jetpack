@@ -17,6 +17,7 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	async visit( ...args ) {
+		console.log( 'SETTING UP HOOKS' );
 		page
 			.on( 'console', message =>
 				console.log(
@@ -94,7 +95,7 @@ export default class JetpackBoostPage extends WpPage {
 		await this.page.waitForResponse(
 			response =>
 				response.url().match( apiEndpointsRegex[ apiEndpointId ] ) && response.status() === 200,
-			{ timeout: 2 * 60 * 1000 }
+			{ timeout: 60 * 1000 }
 		);
 	}
 

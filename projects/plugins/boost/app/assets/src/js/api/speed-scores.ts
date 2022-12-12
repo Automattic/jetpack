@@ -26,6 +26,8 @@ type ParsedApiResponse = {
 	scores?: SpeedScoresSet;
 };
 
+console.log( 'XXXX Loading...' );
+
 /**
  * Kick off a request to generate speed scores for this site. Will automatically
  * poll for a response until the task is done, returning a SpeedScores object.
@@ -35,7 +37,9 @@ type ParsedApiResponse = {
  */
 export async function requestSpeedScores( force = false ): Promise< SpeedScoresSet > {
 	// Request metrics
-	console.log( 'Requesting speed scores...' );
+	console.log(
+		'Requesting speed scores... ' + ( force ? '/speed-scores/refresh' : '/speed-scores' )
+	);
 	const response = parseResponse(
 		await api.post( force ? '/speed-scores/refresh' : '/speed-scores', {
 			url: Jetpack_Boost.site.url,
