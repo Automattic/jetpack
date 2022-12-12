@@ -287,21 +287,23 @@ const FirewallPage = () => {
 	 */
 	const mainSettings = (
 		<div className={ styles[ 'toggle-wrapper' ] }>
-			<div className={ styles[ 'toggle-section' ] }>
-				<div>
+			<div
+				className={ `${ styles[ 'toggle-section' ] } ${
+					! hasRequiredPlan || ! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
+				}` }
+			>
+				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						checked={ hasRequiredPlan && isEnabled ? formState.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
 						disabled={ ! hasRequiredPlan || formIsSubmitting || ! isEnabled }
 					/>
 				</div>
-				<div>
-					<div className={ styles[ 'toggle-section-title' ] }>
-						<Text className={ ! hasRequiredPlan ? styles.disabled : null } variant="title-medium">
-							{ __( 'Enable automatic rules', 'jetpack-protect' ) }
-						</Text>
-					</div>
-					<Text className={ ! hasRequiredPlan ? styles.disabled : null }>
+				<div className={ styles[ 'toggle-section__content' ] }>
+					<Text variant="title-medium" mb={ 2 }>
+						{ __( 'Enable automatic rules', 'jetpack-protect' ) }
+					</Text>
+					<Text>
 						{ __(
 							'Protect your site against untrusted traffic sources with automatic security rules.',
 							'jetpack-protect'
@@ -309,18 +311,22 @@ const FirewallPage = () => {
 					</Text>
 				</div>
 			</div>
-			<div className={ styles[ 'upgrade-trigger-section' ] }>
-				{ ! hasRequiredPlan && (
+			{ ! hasRequiredPlan && (
+				<div className={ styles[ 'upgrade-trigger-section' ] }>
 					<ContextualUpgradeTrigger
 						className={ styles[ 'upgrade-trigger' ] }
 						description={ __( 'Setup automatic rules with one click', 'jetpack-protect' ) }
 						cta={ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
 						onClick={ getScan }
 					/>
-				) }
-			</div>
-			<div className={ styles[ 'toggle-section' ] }>
-				<div>
+				</div>
+			) }
+			<div
+				className={ `${ styles[ 'toggle-section' ] } ${
+					! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
+				}` }
+			>
+				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="jetpack_waf_ip_list"
 						checked={ isEnabled && formState.jetpack_waf_ip_list }
@@ -328,7 +334,7 @@ const FirewallPage = () => {
 						disabled={ formIsSubmitting || ! isEnabled }
 					/>
 				</div>
-				<div>
+				<div className={ styles[ 'toggle-section__content' ] }>
 					<Text variant="title-medium" mb={ 2 }>
 						{ __( 'Enable manual rules', 'jetpack-protect' ) }
 					</Text>
@@ -338,22 +344,22 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
+					{ jetpackWafIpList && (
+						<div className={ styles[ 'edit-manual-rules-section' ] }>
+							<Text variant={ 'body-small' } mt={ 2 }>
+								{ '' === jetpackWafIpAllowList &&
+									'' === jetpackWafIpBlockList &&
+									__( 'No manual rules are being applied.', 'jetpack-protect' ) }
+							</Text>
+							<Button variant={ 'link' } disabled={ ! isEnabled }>
+								<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
+									{ __( 'Edit manual rules', 'jetpack-protect' ) }
+								</Text>
+							</Button>
+						</div>
+					) }
 				</div>
 			</div>
-			{ jetpackWafIpList && (
-				<div className={ styles[ 'edit-manual-rules-section' ] }>
-					<Text variant={ 'body-small' } mt={ 2 }>
-						{ '' === jetpackWafIpAllowList &&
-							'' === jetpackWafIpBlockList &&
-							__( 'No manual rules are being applied.', 'jetpack-protect' ) }
-					</Text>
-					<Button variant={ 'link' } disabled={ ! isEnabled }>
-						<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
-							{ __( 'Edit manual rules', 'jetpack-protect' ) }
-						</Text>
-					</Button>
-				</div>
-			) }
 		</div>
 	);
 
