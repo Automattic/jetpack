@@ -3,7 +3,9 @@
  */
 import { useBlockProps } from '@wordpress/block-editor';
 import { InspectorControls } from '@wordpress/block-editor';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -16,7 +18,7 @@ import './editor.scss';
 /**
  * Types
  */
-import { VideoChaptersBlockPropertiesProps } from './types';
+import { PersistentBlockLinkIdProp, VideoChaptersBlockPropertiesProps } from './types';
 import type React from 'react';
 
 /**
@@ -32,6 +34,8 @@ export default function VideoPressChaptersEdit( {
 	const { persistentBlockLinkId } = attributes;
 	const chapters = useChapters();
 
+	const { updateBlockAttributes } = dispatch( blockEditorStore );
+
 	const handleAttributeChange = useCallback(
 		attributeName => {
 			return newValue => {
@@ -39,6 +43,22 @@ export default function VideoPressChaptersEdit( {
 			};
 		},
 		[ setAttributes ]
+	);
+
+	const handleLinkingToVideoBlock = useCallback(
+		( videoBlockClientId: PersistentBlockLinkIdProp ) => {
+			// Define the new link id
+			const newPersistentBlockLinkId = `link-${ videoBlockClientId }`;
+
+			// Update the video block attribute
+			updateBlockAttributes( videoBlockClientId, {
+				persistentBlockLinkId: newPersistentBlockLinkId,
+			} );
+
+			// Update the video-chapters block attribute
+			setAttributes( { persistentBlockLinkId: newPersistentBlockLinkId } );
+		},
+		[ handleAttributeChange ]
 	);
 
 	const blockProps = useBlockProps( {
@@ -50,8 +70,8 @@ export default function VideoPressChaptersEdit( {
 			<InspectorControls>
 				<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
 					<VideoBlockSelectControl
-						value={ persistentBlockLinkId }
-						onChange={ handleAttributeChange( 'persistentBlockLinkId' ) }
+						linkId={ persistentBlockLinkId }
+						onChange={ handleLinkingToVideoBlock }
 					/>
 				</PanelBody>
 			</InspectorControls>

@@ -1,6 +1,7 @@
 import { VideoGUID, VideoId } from '../video/types';
 
-export type PersistentBlockLinkIdProp = `link-{ string }`;
+// We'd like to type `link-${ string }` but it's not possible?
+export type PersistentBlockLinkIdProp = string;
 
 export type VideoChaptersBlockAttributes = {
 	id?: VideoId;
