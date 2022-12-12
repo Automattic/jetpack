@@ -8,12 +8,12 @@ import { useEffect } from 'react';
 import { PersistentBlockLinkIdProp } from '../../types';
 
 type VideoBlockSelectControlProps = {
-	value: PersistentBlockLinkIdProp;
+	value: string;
 	onChange: ( newvalue: PersistentBlockLinkIdProp ) => void;
 };
 
 type VideoBlocksSelectControlItemProps = {
-	value: PersistentBlockLinkIdProp;
+	value: string;
 	label: string;
 };
 
@@ -25,24 +25,24 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 		.filter( block => block.name === 'videopress/video' );
 
 	useEffect( () => {
-		// Defaults to first option
 		if ( ! value && blocks.length > 0 ) {
 			onChange( blocks[ 0 ].clientId );
 		}
 	}, [] );
 
-	const availableBlocksListToLink: VideoBlocksSelectControlDataProps = blocks
+	const availableBlocksToLink: VideoBlocksSelectControlDataProps = blocks
 		.map( block => ( {
 			value: block.clientId,
 			label: block.attributes.title,
+			persistentBlockLinkId: block.attributes.persistentBlockLinkId,
 		} ) )
-		.filter( data => data.label ); // Avoid to list blocks with no video or not title defined
+		.filter( data => data.label );
 
-	if ( ! availableBlocksListToLink.length ) {
+	if ( ! availableBlocksToLink.length ) {
 		return <PanelRow>{ __( 'No video blocks found.', 'jetpack-videopress-pkg' ) }</PanelRow>;
 	}
 
-	const blockToLinkName = availableBlocksListToLink.find( data => data.value === value )?.label;
+	const blockToLinkName = availableBlocksToLink.find( data => data.value === value )?.label;
 
 	const linkedToMessage = sprintf(
 		/* translators: %s: The block name to link to. */
@@ -51,8 +51,8 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 	);
 
 	// Remove the current block from the list of blocks to link to
-	availableBlocksListToLink.splice(
-		availableBlocksListToLink.findIndex( data => data.value === value ),
+	availableBlocksToLink.splice(
+		availableBlocksToLink.findIndex( data => data.value === value ),
 		1
 	);
 
@@ -62,7 +62,7 @@ const VideoBlockSelectControl = ( { value, onChange }: VideoBlockSelectControlPr
 				label={ __( 'Change video link', 'jetpack-videopress-pkg' ) }
 				value={ value }
 				onChange={ onChange }
-				options={ availableBlocksListToLink }
+				options={ availableBlocksToLink }
 			/>
 
 			<PanelRow>{ linkedToMessage }</PanelRow>
