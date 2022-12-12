@@ -198,13 +198,13 @@ mapfile -t SLUGS <<<"$TMP"
 TMPDIR="${TMPDIR:-/tmp}"
 TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
 
-for SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U $SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U "$SLUG"
+for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
+	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U "$DEPENDENCY_SLUG"
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u $SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u "$SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u "$DEPENDENCY_SLUG"
 	fi
 done
 
@@ -219,7 +219,7 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push a PR, and have it merged.
+	Feel free to edit them as needed. Then commit and push those changes.
 
 EOM
 
