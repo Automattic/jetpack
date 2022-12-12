@@ -371,7 +371,7 @@ function wpsc_jetpack_boost_install_banner() {
 					<p id="wpsc-install-invitation">
 						<?php
 							esc_html_e(
-								'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.',
+								'Caching is a great start, but there is more to maximize your site speed. Find out how much your cache speeds up your site and make it blazing fast with Jetpack Boost, the easiest WordPress speed optimization plugin developed by Super Cache engineers.',
 								'wp-super-cache'
 							);
 						?>
