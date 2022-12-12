@@ -14,6 +14,7 @@ use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
+use Automattic\Jetpack_Boost\Lib\Features_Status;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
@@ -58,9 +59,15 @@ class Admin {
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
 
+		$total_problems = Features_Status::get_total_problems();
+		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
+		if ( $total_problems ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_problems );
+		}
+
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
-			'Boost',
+			$menu_label,
 			'manage_options',
 			JETPACK_BOOST_SLUG,
 			array( $this, 'render_settings' )
