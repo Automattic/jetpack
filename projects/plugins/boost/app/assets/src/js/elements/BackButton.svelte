@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { useNavigate } from 'svelte-navigator';
 	import { __ } from '@wordpress/i18n';
 	import LeftArrow from '../svg/left-arrow.svg';
-	import routerHistory from '../utils/router-history';
 
-	const { navigate } = routerHistory;
+	// This isn't react
+	// eslint-disable-next-line react-hooks/rules-of-hooks
+	const navigate = useNavigate();
 
 	export let route = -1;
 </script>
