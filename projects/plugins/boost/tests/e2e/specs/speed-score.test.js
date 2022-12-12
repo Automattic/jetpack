@@ -1,12 +1,29 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
+import logger from 'jetpack-e2e-commons/logger.cjs';
 
 let jetpackBoostPage;
 
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
+
+		if ( ! page.hasHooks ) {
+			logger.action( 'SETTING UP HOOKS' );
+			page
+				.on( 'console', message =>
+					logger.action(
+						`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
+					)
+				)
+				.on( 'pageerror', ( { message } ) => logger.info( 'ERROR: ' + message ) )
+				.on( 'requestfailed', request =>
+					logger.action( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
+				);
+			page.hasHooks = true;
+		}
+
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).withGotStarted().build();
 	} );
 

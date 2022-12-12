@@ -14,21 +14,6 @@ export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
-
-		if ( ! this.page.hasHooks ) {
-			logger.action( 'SETTING UP HOOKS' );
-			this.page
-				.on( 'console', message =>
-					logger.action(
-						`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
-					)
-				)
-				.on( 'pageerror', ( { message } ) => logger.info( 'ERROR: ' + message ) )
-				.on( 'requestfailed', request =>
-					logger.action( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
-				);
-			this.page.hasHooks = true;
-		}
 	}
 
 	/**
