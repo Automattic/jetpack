@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 import { Fragment, useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaRestrictions, {
-	getAllowedMediaTypes,
 	isVideo,
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
@@ -84,7 +83,9 @@ export default function MediaSection() {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const { maxImageSize, getValidationError } = useMediaRestrictions( enabledConnections );
+	const { maxImageSize, getValidationError, getAllowedMediaTypes } = useMediaRestrictions(
+		enabledConnections
+	);
 	const allowedMediaTypes = getAllowedMediaTypes();
 
 	const mediaObject = useSelect(

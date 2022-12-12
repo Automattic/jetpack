@@ -59,18 +59,6 @@ const RESTRICTIONS = {
 };
 
 /**
- * Returns the currently allowed media types
- *
- * @returns {Array} Array of allowed types
- */
-export function getAllowedMediaTypes() {
-	const typeArrays = Object.keys( RESTRICTIONS ).map(
-		service => RESTRICTIONS[ service ].allowedMediaTypes
-	);
-	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
-}
-
-/**
  * Checks whether a media is a video.
  *
  * @param {string} mime - The MIME tye of the media
@@ -80,10 +68,8 @@ export function isVideo( mime ) {
 	return mime.split( '/' )[ 0 ] === 'video';
 }
 
-const isMimeValid = mime => mime && getAllowedMediaTypes().includes( mime.toLowerCase() );
-
 const getMin = ( a, b ) => Math.min( a ?? Infinity, b ?? Infinity );
-const getMax = ( a, b ) => Math.min( a ?? 0, b ?? 0 );
+const getMax = ( a, b ) => Math.max( a ?? 0, b ?? 0 );
 
 const reduceVideoLimits = ( prev, current ) => ( {
 	minSize: getMax( prev.minSize, current.minSize ),
@@ -106,6 +92,18 @@ export default function useMediaRestrictions( enabledConnections ) {
 	const videoLimits = enabledConnections
 		.map( connection => RESTRICTIONS[ connection.service_name ].video )
 		.reduce( reduceVideoLimits );
+
+	/**
+	 * Returns the currently allowed media types
+	 *
+	 * @returns {Array} Array of allowed types
+	 */
+	const getAllowedMediaTypes = useCallback( () => {
+		const typeArrays = enabledConnections.map(
+			connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+		);
+		return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
+	}, [ enabledConnections ] );
 
 	/**
 	 * This function is used to check if the provided image is valid based on it's size and type.
@@ -158,6 +156,9 @@ export default function useMediaRestrictions( enabledConnections ) {
 		metaData => {
 			const { mime, fileSize, length } = metaData;
 
+			const isMimeValid = mimeToTest =>
+				mimeToTest && getAllowedMediaTypes().includes( mimeToTest.toLowerCase() );
+
 			if ( ! isMimeValid( mime ) ) {
 				return FILE_TYPE_ERROR;
 			}
@@ -168,11 +169,13 @@ export default function useMediaRestrictions( enabledConnections ) {
 				? getVideoValidationError( sizeInMb, length )
 				: getImageValidationError( sizeInMb );
 		},
-		[ getImageValidationError, getVideoValidationError ]
+		[ getImageValidationError, getVideoValidationError, getAllowedMediaTypes ]
 	);
 
 	return {
 		maxImageSize,
+		videoLimits,
 		getValidationError,
+		getAllowedMediaTypes,
 	};
 }
