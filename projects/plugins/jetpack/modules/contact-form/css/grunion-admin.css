@@ -67,3 +67,163 @@
 .post-type-feedback #jetpack-check-feedback-spam {
 	margin-top: 0;
 }
+
+/* Modal styles */
+
+/* Override Thickbox defaults */
+#TB_title {
+	border: none;
+	background: none;
+}
+
+#TB_ajaxWindowTitle {
+	display: none;
+}
+
+#TB_ajaxContent {
+	display: flex;
+}
+
+.feedback-export-modal__wrapper {
+	display: flex;
+	flex-direction: column;
+	/* These strange paddings to add 48px with TB defaults */
+	padding: 0 33px 9px 33px;
+}
+
+.feedback-export-modal__header {
+	margin-bottom: 32px;
+}
+
+.feedback-export-modal__header-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 36px;
+	line-height: 40px;
+	margin-bottom: 8px;
+}
+
+#TB_ajaxContent p.feedback-export-modal__header-subtitle {
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	color: #000000;
+	padding: 0;
+	margin-top: 8px;
+}
+
+.feedback-export-modal__content {
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+	padding: 0px;
+	gap: 32px;
+}
+
+.feedback-export-modal__footer {
+	display: flex;
+	justify-content: space-between;
+	padding: 0 16px;
+}
+
+.feedback-export-modal__footer-column {
+	display: flex;
+	align-items: center;
+}
+
+.feedback-export-modal__footer .jp-dashboard-footer__module-name {
+	padding-left: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 16px;
+	letter-spacing: -0.02em;
+	text-align: left;
+	color: #23282D;
+}
+
+.export-card {
+	border-radius: var(--jp-border-radius, 4px);
+	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	isolation: isolate;
+}
+
+.export-card__body, .export-card__header {
+	display: flex;
+}
+
+.export-card__header {
+	align-items: center;
+	margin-bottom: 16px;
+	gap: 16px;
+}
+
+.export-card__header-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 20px;
+	line-height: 30px;
+}
+
+.export-card__body {
+	gap: 32px;
+}
+
+.export-card__body-description {
+	flex-grow: 1;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	color: #000000;
+}
+
+.export-card__body-description a {
+	color: inherit;
+}
+
+.export-card__body-description-footer {
+	font-style: normal;
+	font-weight: 400;
+	font-size: 12px;
+	line-height: 150%;
+	color: #757575;
+	margin-bottom: 8px;
+}
+
+.export-card__body-cta {
+	align-self: flex-end;
+}
+
+.button-primary.export-button {
+	font-style: normal;
+	font-weight: 600;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.01em;
+	color: #000000;
+	background: #FFFFFF;
+	border: 1px solid #000000;
+	border-radius: 4px;
+	padding: 8px 32px;
+}
+
+.export-card__beta-badge {
+	background: #2FB41F;
+	border-radius: 2px;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 11px;
+	line-height: 150%;
+	/* identical to box height, or 16px */
+
+	text-align: right;
+	text-transform: uppercase;
+	padding: 4px 8px;
+	color: #FFFFFF;
+}
