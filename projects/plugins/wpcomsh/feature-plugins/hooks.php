@@ -23,7 +23,6 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 			}
 			break;
 
-		case 'edit_themes':
 		case 'update_themes':
 		case 'delete_themes':
 			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_THEMES ) ) {
@@ -42,6 +41,12 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 			}
 			break;
 
+		case 'edit_themes':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::EDIT_THEMES ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
 		case 'upload_themes':
 			if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_THEMES ) ) {
 				$caps[] = 'do_not_allow';
@@ -51,7 +56,6 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 		case 'activate_plugins':
 		case 'install_plugins':
 		case 'update_plugins':
-		case 'edit_plugins':
 			/*
 			 * Requests like /sites/207323956/plugins rely on the activate_plugins capability.
 			 * Allow this for sites with INSTALL_PURCHASED_PLUGINS feature, to accommodate
@@ -68,6 +72,12 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 
 		case 'upload_plugins':
 			if ( ! wpcom_site_has_feature( WPCOM_Features::UPLOAD_PLUGINS ) ) {
+				$caps[] = 'do_not_allow';
+			}
+			break;
+
+		case 'edit_plugins':
+			if ( ! wpcom_site_has_feature( WPCOM_Features::EDIT_PLUGINS ) ) {
 				$caps[] = 'do_not_allow';
 			}
 			break;
