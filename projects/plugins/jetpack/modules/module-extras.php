@@ -12,7 +12,6 @@
  *    - When in offline mode.
  *    - When connected to WordPress.com.
  */
-
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
 	'custom-post-types/comics.php',

@@ -98,7 +98,7 @@ This is ALL invocations of these types. To find just the invocations of missing/
 
 ```php
 $invocations = new Automattic\Jetpack\Analyzer\Invocations();
-$invocations->scan( 'path/to/class-promote-posts.php' ); // can be a file or directory
+$invocations->scan( 'path/to/example.php' ); // can be a file or directory
 // OR
 $invocations->scan( 'path/to/repo', array( '.git', '.gitmodules', 'assets' ) );
 
