@@ -102,7 +102,7 @@ function jetpack_form_register_pattern() {
 			'title'      => 'Appointment Form',
 			'blockTypes' => array( 'jetpack/contact-form' ),
 			'categories' => array( $category_slug ),
-			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","to":"cgastrell@gmail.com","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
+			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
 				<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 					<!-- wp:jetpack/field-name {"required":true} /-->
 					<!-- wp:jetpack/field-email {"required":true} /-->

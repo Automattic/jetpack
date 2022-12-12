@@ -13,12 +13,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "ac44e4dd3df9ce8f0e0690463b80acd289598872"
+                "reference": "a70b0aab252faa30c07064b7c076ead119064127"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "wikimedia/at-ease": "^1.2 || ^2.0",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "library",
             "extra": {
@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "517e3702102e9ceaec1f23e23b4f43101129e3b8"
+                "reference": "7b278c14eb3d0b5929db3eac2cfe29503c249ee8"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -74,7 +74,7 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "phpcodesniffer-standard",
             "extra": {
@@ -123,7 +123,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "8a1eb37bf072d844a64624a93bdcd97ee90ff816"
+                "reference": "c7e65316a187ec27a41f994a55c420e5ef98719c"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -131,7 +131,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.3"
+                "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "library",
             "extra": {

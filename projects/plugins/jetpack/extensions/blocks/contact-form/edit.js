@@ -1,4 +1,4 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getJetpackData, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	InnerBlocks,
 	InspectorControls,
@@ -51,7 +51,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const RESPONSES_PATH = '/wp-admin/edit.php?post_type=feedback';
+const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
 export function JetpackContactFormEdit( {
@@ -224,7 +224,12 @@ export function JetpackContactFormEdit( {
 						closeLabel={ __( 'Cancel', 'jetpack' ) }
 						onRequestClose={ () => setIsPatternsModalOpen( false ) }
 					>
-						<BlockPatternSetup blockName={ 'jetpack/contact-form' } clientId={ clientId } />
+						<BlockPatternSetup
+							filterPatternsFn={ pattern => {
+								return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
+							} }
+							clientId={ clientId }
+						/>
 					</Modal>
 				) }
 			</div>
@@ -241,7 +246,7 @@ export function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
-				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) } initialOpen={ false }>
 					{ renderSubmissionSettings() }
 				</PanelBody>
 				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
@@ -264,11 +269,11 @@ export function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
-							<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM Connection', 'jetpack' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 						) }
-						<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
+						<PanelBody title={ __( 'Newsletter Connection', 'jetpack' ) } initialOpen={ false }>
 							<NewsletterIntegrationSettings />
 						</PanelBody>
 					</Fragment>

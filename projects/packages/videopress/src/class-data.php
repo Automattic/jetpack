@@ -211,6 +211,10 @@ class Data {
 	 * Checks if the user is able to perform actions that modify data
 	 */
 	public static function can_perform_action() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
 		$connection = new Connection_Manager();
 
 		return (
@@ -285,6 +289,7 @@ class Data {
 				$caption              = $jetpack_videopress['caption'];
 				$rating               = $jetpack_videopress['rating'];
 				$allow_download       = $jetpack_videopress['allow_download'];
+				$display_embed        = $jetpack_videopress['display_embed'];
 				$privacy_setting      = $jetpack_videopress['privacy_setting'];
 				$needs_playback_token = $jetpack_videopress['needs_playback_token'];
 
@@ -315,6 +320,7 @@ class Data {
 					'isPrivate'          => $is_private,
 					'posterImage'        => $poster,
 					'allowDownload'      => $allow_download,
+					'displayEmbed'       => $display_embed,
 					'rating'             => $rating,
 					'privacySetting'     => $privacy_setting,
 					'needsPlaybackToken' => $needs_playback_token,

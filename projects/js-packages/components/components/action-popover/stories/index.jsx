@@ -28,10 +28,16 @@ export default {
 		totalSteps: {
 			control: { type: 'number' },
 		},
-		actionButtonText: {
+		buttonContent: {
 			control: { type: 'text' },
 		},
-		actionButtonDisabled: {
+		buttonDisabled: {
+			control: { type: 'boolean' },
+		},
+		buttonHref: {
+			control: { type: 'text' },
+		},
+		buttonExternalLink: {
 			control: { type: 'boolean' },
 		},
 		offset: {
@@ -89,8 +95,8 @@ const defaultArgs = {
 	children: 'Absque sudore et labore nullum opus perfectum est.',
 	step: null,
 	totalSteps: null,
-	actionButtonText: 'Next',
-	actionButtonDisabled: false,
+	buttonContent: 'Next',
+	buttonDisabled: false,
 	offset: 32,
 	position: 'top center',
 	noArrow: true,

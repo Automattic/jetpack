@@ -22,6 +22,7 @@ import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
+import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
 import Logo from '../logo';
 import Placeholder from '../placeholder';
@@ -72,11 +73,12 @@ const Header = ( {
 };
 
 const GoBackLink = () => {
-	const history = useHistory();
+	const { page } = useVideosQuery();
+	const to = page > 1 ? `/?page=${ page }` : '/';
 
 	return (
 		<div className={ styles[ 'back-link' ] }>
-			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+			<Link to={ to } className={ styles.link }>
 				<Icon icon={ arrowLeft } className={ styles.icon } />
 				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
 			</Link>
@@ -89,16 +91,12 @@ const Infos = ( {
 	onChangeTitle,
 	description,
 	onChangeDescription,
-	caption,
-	onChangeCaption,
 	loading,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
 	description: string;
 	onChangeDescription: ( value: string ) => void;
-	caption: string;
-	onChangeCaption: ( value: string ) => void;
 	loading: boolean;
 } ) => {
 	return (
@@ -129,20 +127,6 @@ const Infos = ( {
 					size="large"
 				/>
 			) }
-			{ loading ? (
-				<Placeholder height={ 133 } className={ styles.input } />
-			) : (
-				<Input
-					value={ caption }
-					className={ styles.input }
-					label={ __( 'Caption', 'jetpack-videopress-pkg' ) }
-					name="caption"
-					onChange={ onChangeCaption }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-				/>
-			) }
 		</>
 	);
 };
@@ -157,7 +141,6 @@ const EditVideoDetails = () => {
 		url,
 		title,
 		description,
-		caption,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -169,7 +152,6 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
-		setCaption,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -253,8 +235,6 @@ const EditVideoDetails = () => {
 								onChangeTitle={ setTitle }
 								description={ description ?? '' }
 								onChangeDescription={ setDescription }
-								caption={ caption ?? '' }
-								onChangeCaption={ setCaption }
 								loading={ isFetchingData }
 							/>
 						</Col>
