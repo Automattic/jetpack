@@ -91,7 +91,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 				'type'        => 'boolean',
 			),
 			'follower_count'       => array(
-				'description' => __( 'Number of followers of the connected account', 'jetpack' ),
+				'description' => __( "Number of followers of the connected account. Returns -1 when we don't have a follower count.", 'jetpack' ),
 				'type'        => 'integer',
 			),
 		);

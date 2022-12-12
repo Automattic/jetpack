@@ -745,7 +745,7 @@ abstract class Publicize_Base {
 	 *     @type bool   'done'             Has this connection already been publicized to?
 	 *     @type bool   'toggleable'       Is the user allowed to change the value for the connection?
 	 *     @type bool   'global'           Is this connection a global one?
-	 *     @type int    'follower_count'   Follower count for the connection.
+	 *     @type int    'follower_count'   Follower count for the connection. Returns -1 when we don't have a follower count.
 	 * }
 	 */
 	public function get_filtered_connection_data( $selected_post_id = null ) {
