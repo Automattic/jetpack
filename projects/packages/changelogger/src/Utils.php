@@ -176,7 +176,7 @@ class Utils {
 		);
 
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', "--format=%cI\n%s", $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
 				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
 
