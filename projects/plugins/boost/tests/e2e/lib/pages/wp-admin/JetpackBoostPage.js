@@ -15,26 +15,20 @@ export default class JetpackBoostPage extends WpPage {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
 		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
 
-		logger.action( 'SETTING UP HOOKS' );
-		this.page
-			.on( 'console', message =>
-				logger.action(
-					`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
+		if ( ! this.page.hasHooks ) {
+			logger.action( 'SETTING UP HOOKS' );
+			this.page
+				.on( 'console', message =>
+					logger.action(
+						`CONSOLE: ${ message.type().substr( 0, 3 ).toUpperCase() } ${ message.text() }`
+					)
 				)
-			)
-			.on( 'pageerror', ( { message } ) => logger.info( 'ERROR: ' + message ) )
-			.on( 'response', response =>
-				logger.action( `RESPONSE ${ response.status() } ${ response.url() }` )
-			)
-			.on( 'requestfailed', request =>
-				logger.action( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
-			);
-	}
-
-	async visit( ...args ) {
-		logger.action( 'VISIT' );
-		const r = await super.visit( ...args );
-		return r;
+				.on( 'pageerror', ( { message } ) => logger.info( 'ERROR: ' + message ) )
+				.on( 'requestfailed', request =>
+					logger.action( `RQ FAILED ${ request.failure().errorText } ${ request.url() }` )
+				);
+			this.page.hasHooks = true;
+		}
 	}
 
 	/**
