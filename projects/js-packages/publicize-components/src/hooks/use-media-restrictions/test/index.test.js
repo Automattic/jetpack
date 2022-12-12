@@ -43,7 +43,33 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'maxImageSize returns the best image size available', () => {
-		expect( result.current.maxImageSize ).toBe( 4 );
+		const defaultMaxImageSize = result.current.maxImageSize;
+		rerender( [ { service_name: 'linkedin' } ] );
+		const linkedinMaxImageSize = result.current.maxImageSize;
+		rerender( DUMMY_CONNECTIONS );
+
+		expect( defaultMaxImageSize ).toBe( 4 );
+		expect( linkedinMaxImageSize ).toBe( 20 );
+	} );
+
+	test( 'Video limits are calculated correctly', () => {
+		const defaultMaxImageSize = result.current.videoLimits;
+		rerender( [ { service_name: 'twitter' }, { service_name: 'facebook' } ] );
+		const modifiedMaxImageSize = result.current.videoLimits;
+		rerender( DUMMY_CONNECTIONS );
+
+		expect( defaultMaxImageSize ).toStrictEqual( {
+			maxLength: 140,
+			maxSize: 200,
+			minLength: 3,
+			minSize: 0.075,
+		} );
+		expect( modifiedMaxImageSize ).toStrictEqual( {
+			maxLength: 140,
+			maxSize: 512,
+			minLength: 0,
+			minSize: 0,
+		} );
 	} );
 
 	test( 'Returns allowed media types', () => {
