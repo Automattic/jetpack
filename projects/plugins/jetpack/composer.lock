@@ -361,7 +361,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "92d9ceae99ec006eb6ac2608c762015ec30b07fd"
+                "reference": "4de8be67a9e7b8f048d9d69a5d14196aa4ed77cd"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -371,7 +371,6 @@
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-identity-crisis": "@dev",
-                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev"
             },
