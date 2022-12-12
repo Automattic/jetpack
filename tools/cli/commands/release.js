@@ -136,7 +136,7 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk (if not already on that branch), review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process (unless it's an Atomic release), update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;

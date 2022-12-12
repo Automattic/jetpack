@@ -61,11 +61,11 @@ export default function SubscribePanels() {
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
-							/* translators: 1$s will be email subscribers, %2$s will be social followers */
+							/* translators: 1$s will be subscribers, %2$s will be social followers */
 							__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
 							sprintf(
-								/* translators: %s will be a number of email subscribers */
-								_n( '%s email subscriber', '%s email subscribers', subscriberCount, 'jetpack' ),
+								/* translators: %s will be a number of subscribers */
+								_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
 								numberFormat( subscriberCount )
 							),
 							sprintf(
@@ -82,11 +82,11 @@ export default function SubscribePanels() {
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
-							/* translators: 1$s will be email subscribers, %2$s will be social followers */
+							/* translators: 1$s will be subscribers, %2$s will be social followers */
 							__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
 							sprintf(
-								/* translators: %s will be a number of email subscribers */
-								_n( '%s email subscriber', '%s email subscribers', subscriberCount, 'jetpack' ),
+								/* translators: %s will be a number of subscribers */
+								_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
 								numberFormat( subscriberCount )
 							),
 							sprintf(

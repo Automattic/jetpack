@@ -42,6 +42,14 @@ function load_assets( $attrs, $content ) {
 	return $content;
 }
 
+// Set the videopress/video feature availability.
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'videopress/video' );
+	}
+);
+
 // Set the videopress/video-chapters feature availability.
 add_action(
 	'jetpack_register_gutenberg_extensions',

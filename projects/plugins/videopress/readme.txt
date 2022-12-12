@@ -4,7 +4,7 @@ Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, 
 
 Requires at least: 6.0
 Tested up to: 6.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,15 +73,13 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.2.0-beta - 2022-12-02
-
+### 1.2.0 - 2022-12-05
 #### Added
 - Added a static image for when the block acts as an example in Editor inserter.
 - Added example image to the dynamic colors panel.
 - Implemented tracks control implementation.
 
 #### Changed
-
 - Updated tracks icon.
 - We now include videos with Site Default privacy setting on the search results.
 

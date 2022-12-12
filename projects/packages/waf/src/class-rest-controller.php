@@ -31,6 +31,16 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack/v4',
+			'/waf',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_waf',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
 			'/waf/update-rules',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
@@ -38,16 +48,6 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
 			)
 		);
-	}
-
-	/**
-	 * Get Bootstrap File Path
-	 *
-	 * @return string The path to the Jetpack Firewall's bootstrap.php file.
-	 */
-	private static function get_bootstrap_file_path() {
-		$bootstrap = new Waf_Standalone_Bootstrap();
-		return $bootstrap->get_bootstrap_file_path();
 	}
 
 	/**
@@ -76,11 +76,39 @@ class REST_Controller {
 	 * WAF Endpoint
 	 */
 	public static function waf() {
-		return rest_ensure_response(
-			array(
-				'bootstrapPath' => self::get_bootstrap_file_path(),
-			)
-		);
+		return rest_ensure_response( Waf_Runner::get_config() );
+	}
+
+	/**
+	 * Update WAF Endpoint
+	 *
+	 * @param WP_REST_Request $request The API request.
+	 * @return WP_REST_Response
+	 */
+	public static function update_waf( $request ) {
+		// IP Lists Enabled
+		if ( isset( $request[ Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ) );
+		}
+
+		// IP Block List
+		if ( isset( $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] );
+		}
+
+		// IP Allow List
+		if ( isset( $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] );
+		}
+
+		// Share Data
+		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+		}
+
+		Waf_Runner::update_waf();
+
+		return self::waf();
 	}
 
 	/**
@@ -89,12 +117,12 @@ class REST_Controller {
 	 * @return bool|WP_Error True if user can view the Jetpack admin page.
 	 */
 	public static function waf_permissions_callback() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
 		return new WP_Error(
-			'invalid_user_permission_manage_modules',
+			'invalid_user_permission_manage_options',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
