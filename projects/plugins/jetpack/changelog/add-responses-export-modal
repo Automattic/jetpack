@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Move responses export to a modal triggered by a single "Export" button. This allows for more options to be added there as the listtable page offers very few space for it.
