@@ -115,6 +115,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// List posts.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/posts', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_posts' ),
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -285,6 +296,26 @@ class REST_Controller {
 	 */
 	public function get_site_stats( $req ) {
 		return $this->wpcom_stats->get_stats( $req->get_params() );
+	}
+
+	/**
+	 * List post for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_site_posts( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/posts?%s',
+				Jetpack_Options::get_option( 'id' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'1.2',
+			array( 'timeout' => 5 )
+		);
 	}
 
 	/**
