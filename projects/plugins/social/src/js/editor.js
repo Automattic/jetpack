@@ -120,7 +120,7 @@ const JetpackSocialSidebar = () => {
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 
-			{ isReviewRequestVisible && hasConnections && (
+			{ isReviewRequestVisible && isPublicizeEnabled && hasEnabledConnections && (
 				<PluginPostPublishPanel id="publicize-title">
 					<ReviewPrompt
 						href="https://wordpress.org/support/plugin/jetpack-social/reviews/"
