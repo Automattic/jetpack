@@ -18,6 +18,7 @@ use Automattic\Jetpack_Boost\Lib\Utils;
 class Speed_Score {
 	public function __construct( Optimizations $modules ) {
 		$this->modules = $modules;
+		$this->debug   = array();
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
@@ -83,7 +84,8 @@ class Speed_Score {
 	 * @return \WP_REST_Response|\WP_Error The response.
 	 */
 	public function dispatch_speed_score_request( $request ) {
-		$url = $this->process_url_arg( $request );
+		$this->debug [] = 'dispatch_speed_score_request';
+		$url            = $this->process_url_arg( $request );
 		if ( is_wp_error( $url ) ) {
 			return $url;
 		}
@@ -128,7 +130,8 @@ class Speed_Score {
 	 * @return \WP_REST_Response|\WP_Error The response.
 	 */
 	public function fetch_speed_score( $request ) {
-		$url = $this->process_url_arg( $request );
+		$this->debug [] = 'fetch_speed_score';
+		$url            = $this->process_url_arg( $request );
 		if ( is_wp_error( $url ) ) {
 			return $url;
 		}
@@ -137,7 +140,8 @@ class Speed_Score {
 		$url_no_boost           = $this->get_boost_modules_disabled_url( $url );
 		$score_request_no_boost = $this->get_score_request_by_url( $url_no_boost );
 		if ( $score_request_no_boost && $score_request_no_boost->is_pending() ) {
-			$response = $score_request_no_boost->poll_update();
+			$this->debug [] = 'polling no boost';
+			$response       = $score_request_no_boost->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
@@ -146,7 +150,8 @@ class Speed_Score {
 		// Poll update if there is an ongoing request for scores with boost enabled.
 		$score_request = $this->get_score_request_by_url( $url );
 		if ( $score_request && $score_request->is_pending() ) {
-			$response = $score_request->poll_update();
+			$this->debug [] = 'polling boost';
+			$response       = $score_request->poll_update();
 			if ( is_wp_error( $response ) ) {
 				return $response;
 			}
@@ -156,9 +161,11 @@ class Speed_Score {
 		// While updating plugin from 1.2 -> 1.3, the history will be missing along with a non-pending score request due to data structure change.
 		$history = new Speed_Score_History( $url );
 		if ( null === $history->latest_scores() && ( empty( $score_request ) || ! $score_request->is_pending() ) ) {
+			$this->debug [] = 'dispatching new rq';
 			return $this->dispatch_speed_score_request( $request );
 		}
 
+		$this->debug [] = 'done';
 		return $this->prepare_speed_score_response( $url, $score_request, $score_request_no_boost );
 	}
 
@@ -249,7 +256,7 @@ class Speed_Score {
 		$url_no_boost     = $this->get_boost_modules_disabled_url( $url );
 		$history_no_boost = new Speed_Score_History( $url_no_boost );
 
-		$response = array();
+		$response = array( 'debug' => $this->debug );
 
 		if ( ( ! $score_request || $score_request->is_success() ) && ( ! $score_request_no_boost || $score_request_no_boost->is_success() ) ) {
 			$response['status'] = 'success';
