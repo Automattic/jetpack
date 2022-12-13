@@ -44,6 +44,7 @@ export default class PageActions {
 			await this.waitForDomContentLoaded();
 		} catch ( e ) {
 			logger.error( `Error waiting for domcontentloaded (1): ${ e }` );
+			await this.reload();
 			await this.waitForDomContentLoaded();
 		}
 
