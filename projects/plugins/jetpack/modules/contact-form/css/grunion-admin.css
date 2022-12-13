@@ -133,6 +133,16 @@
 	align-items: center;
 }
 
+/* override JP logo */
+.feedback-export-modal__footer #jetpack-logo__icon {
+	width: 16px;
+	height: 16px;
+}
+
+.feedback-export-modal__footer #jetpack-logo__icon path {
+	fill: #000000;
+}
+
 .feedback-export-modal__footer .jp-dashboard-footer__module-name {
 	padding-left: 8px;
 	font-size: 12px;

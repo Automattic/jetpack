@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
@@ -1183,6 +1184,8 @@ class Grunion_Admin {
 		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
 			return;
 		}
+
+		$jetpack_logo = new Logo();
 		?>
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
@@ -1196,10 +1199,7 @@ class Grunion_Admin {
 				</div>
 				<div class="feedback-export-modal__footer">
 					<div class="feedback-export-modal__footer-column">
-						<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 32 32" class="jetpack-logo jp-dashboard-footer__jetpack-symbol" aria-labelledby="jetpack-logo-title" height="16" aria-label="Jetpack logo">
-							<desc id="jetpack-logo-title">Jetpack Logo</desc>
-							<path fill="#000" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path>
-						</svg>
+						<?php echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						<span class="jp-dashboard-footer__module-name">Jetpack Forms</span>
 					</div>
 					<div class="feedback-export-modal__footer-column">
