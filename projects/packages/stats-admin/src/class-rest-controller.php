@@ -305,15 +305,15 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_site_posts( $req ) {
+		// Force wpcom response.
+		$params   = array_merge( array( 'force' => 'wpcom' ), $req->get_params() );
 		$response = wp_remote_get(
 			sprintf(
 				'%s/rest/v1.2/sites/%d/posts?%s',
 				JETPACK__WPCOM_JSON_API_BASE,
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
-				)
+				http_build_query( $params )
 			),
 			array( 'timeout' => 5 )
 		);
