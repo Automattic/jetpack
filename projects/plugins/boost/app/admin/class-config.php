@@ -102,11 +102,11 @@ class Config {
 				}
 
 				// get the current dismissed modals
-				$is_dismissed = $this->get_dismissed_modals();
-				array_push( $is_dismissed, $modal_to_banish );
-				$is_dismissed = array_unique( $is_dismissed );
+				$dismissed_modals = $this->get_dismissed_modals();
+				array_push( $dismissed_modals, $modal_to_banish );
+				$dismissed_modals = array_unique( $dismissed_modals );
 
-				\update_option( self::DISMISSED_MODALS_OPTION, $is_dismissed, false );
+				\update_option( self::DISMISSED_MODALS_OPTION, $dismissed_modals, false );
 			}
 
 			wp_send_json( $response );
@@ -135,15 +135,15 @@ class Config {
 	 */
 	public function get_dismissed_modals() {
 		// get the option. This will be false, or an empty array
-		$score_prompts = \get_option( self::DISMISSED_MODALS_OPTION, array() );
+		$dismissed_modals = \get_option( self::DISMISSED_MODALS_OPTION, array() );
 		// if the value is false - "rate boost" was dismissed so the score-increase modal should not show.
-		if ( $score_prompts === false ) {
-			$score_prompts = array( 'score-increase' );
+		if ( $dismissed_modals === false ) {
+			$dismissed_modals = array( 'score-increase' );
 			// if an empty array then no score prompts have been dismissed yet.
-		} elseif ( $score_prompts === array( '' ) ) {
-			$score_prompts = array();
+		} elseif ( $dismissed_modals === array( '' ) ) {
+			$dismissed_modals = array();
 		}
-		return $score_prompts;
+		return $dismissed_modals;
 	}
 
 	/**
