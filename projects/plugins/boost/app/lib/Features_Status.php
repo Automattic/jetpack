@@ -30,6 +30,6 @@ class Features_Status {
 
 		$cloud_css = new Critical_CSS_State( 'cloud' );
 
-		return $cloud_css->get_state_status() === 'error' ? self::BAD : self::GOOD;
+		return $cloud_css->get_status() === 'error' ? self::BAD : self::GOOD;
 	}
 }

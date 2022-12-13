@@ -165,7 +165,7 @@ class Critical_CSS_State {
 	 *
 	 * @return mixed
 	 */
-	public function get_state_status() {
+	public function get_status() {
 		return $this->state;
 	}
 
