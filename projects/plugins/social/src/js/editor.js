@@ -7,6 +7,8 @@ import {
 	PublicizePanel,
 	ReviewPrompt,
 } from '@automattic/jetpack-publicize-components';
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
+import apiFetch from '@wordpress/api-fetch';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -43,9 +45,17 @@ registerPlugin( 'jetpack-social', {
 
 const JetpackSocialSidebar = () => {
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
+	const isReviewRequestDismissed = getJetpackData()?.social?.reviewRequestDismissed ?? false;
+	const reviewRequestDismissUpdatePath = getJetpackData()?.social?.dismissReviewRequestPath ?? null;
+	const [ isReviewRequestVisible, setIsReviewRequestVisible ] = useState(
+		! isReviewRequestDismissed
+	);
 
 	const openModal = useCallback( () => setIsModalOpened( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
+	const hideReviewRequest = useCallback( () => setIsReviewRequestVisible( false ), [
+		setIsReviewRequestVisible,
+	] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
@@ -61,6 +71,20 @@ const JetpackSocialSidebar = () => {
 			} }
 		/>
 	);
+
+	// Handle when the review request is dismissed
+	const handleReviewDismiss = useCallback( () => {
+		// Save that the user has dismissed this by calling to the social plugin API method
+		apiFetch( {
+			path: reviewRequestDismissUpdatePath,
+			method: 'POST',
+			data: { dismissed: true },
+		} ).then( () => {
+			// there's nothing to do here.
+		} );
+		hideReviewRequest();
+	}, [ hideReviewRequest, reviewRequestDismissUpdatePath ] );
+
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
@@ -96,9 +120,14 @@ const JetpackSocialSidebar = () => {
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 
-			<PluginPostPublishPanel id="publicize-title">
-				<ReviewPrompt />
-			</PluginPostPublishPanel>
+			{ isReviewRequestVisible && hasConnections && (
+				<PluginPostPublishPanel id="publicize-title">
+					<ReviewPrompt
+						href="https://wordpress.org/support/plugin/jetpack-social/reviews/"
+						onClose={ handleReviewDismiss }
+					/>
+				</PluginPostPublishPanel>
+			) }
 		</PostTypeSupportCheck>
 	);
 };

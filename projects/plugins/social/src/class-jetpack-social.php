@@ -25,6 +25,7 @@ class Jetpack_Social {
 	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
 	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
+	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION  = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -293,6 +294,8 @@ class Jetpack_Social {
 				'social'       => array(
 					'adminUrl'                    => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                  => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'reviewRequestDismissed'      => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath'    => '/jetpack/v4/social/review-dismiss',
 					'connectionRefreshPath'       => '/jetpack/v4/publicize/connection-test-results',
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl'     => esc_url_raw(
@@ -378,5 +381,14 @@ class Jetpack_Social {
 	 */
 	public static function should_show_pricing_page() {
 		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
+	}
+
+	/**
+	 * Check to see if the request to review the plugin has already been dismissed.
+	 *
+	 * @return bool
+	 */
+	public static function is_review_request_dismissed() {
+		return (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
 	}
 }

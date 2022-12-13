@@ -1785,6 +1785,7 @@ importers:
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-publicize-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.5
       '@babel/preset-env': 7.20.2
@@ -1821,6 +1822,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/components': 22.1.0_oh345hcsaunslvozv24xisnbli
       '@wordpress/data': 7.6.0_react@17.0.2
