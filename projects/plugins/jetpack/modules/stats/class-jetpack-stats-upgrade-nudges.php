@@ -417,7 +417,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'backup' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-backup-learn' );
 		$text       = __( 'Save every change and get back online quickly with one-click restores.', 'jetpack' );
-		self::print_item( __( 'Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
+		self::print_item( __( 'VaultPress Backup', 'jetpack' ), $text, 'product-jetpack-backup.svg', $link, 'backup', $learn_link, true );
 	}
 
 	/**
@@ -451,7 +451,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$link       = self::get_product_description_link( 'akismet' );
 		$learn_link = self::get_upgrade_link( 'stats-nudges-akismet-learn' );
 		$text       = __( 'Automatically clear spam from comments and forms.', 'jetpack' );
-		self::print_item( __( 'Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
+		self::print_item( __( 'Akismet Anti-spam', 'jetpack' ), $text, 'product-jetpack-anti-spam.svg', $link, 'akismet', $learn_link, true );
 	}
 
 	/**

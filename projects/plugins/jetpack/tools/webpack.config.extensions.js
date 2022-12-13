@@ -9,8 +9,8 @@ const webpack = jetpackWebpackConfig.webpack;
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const jsdom = require( 'jsdom' );
-const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
 const CopyBlockEditorAssetsPlugin = require( './copy-block-editor-assets' );
+const StaticSiteGeneratorPlugin = require( './static-site-generator-webpack-plugin' );
 
 /**
  * Internal variables

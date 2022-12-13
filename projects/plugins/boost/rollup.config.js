@@ -114,7 +114,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
@@ -233,7 +232,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
