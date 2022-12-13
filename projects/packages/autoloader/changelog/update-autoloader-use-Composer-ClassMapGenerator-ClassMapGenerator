@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `Composer\ClassMapGenerator\ClassMapGenerator` when available (i.e. with composer 2.4).

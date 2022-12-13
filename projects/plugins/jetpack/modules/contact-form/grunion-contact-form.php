@@ -1764,9 +1764,9 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Download as a csv a contact form or all of them in a csv file.
+	 * Extracts feedback entries based on POST data.
 	 */
-	public function download_feedback_as_csv() {
+	public function get_feedback_entries_from_post() {
 		if ( empty( $_POST['feedback_export_nonce'] ) ) {
 			return;
 		}
@@ -1787,12 +1787,9 @@ class Grunion_Contact_Form_Plugin {
 			'date_query'       => array(),
 		);
 
-		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
-
 		// Check if we want to download all the feedbacks or just a certain contact form
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
-			$filename            = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
 		}
 
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
@@ -1820,8 +1817,6 @@ class Grunion_Contact_Form_Plugin {
 			return;
 		}
 
-		$filename = sanitize_file_name( $filename );
-
 		/**
 		 * Prepare data for export.
 		 */
@@ -1833,6 +1828,30 @@ class Grunion_Contact_Form_Plugin {
 		if ( ! is_array( $data ) || empty( $data ) ) {
 			return;
 		}
+
+		return $data;
+	}
+
+	/**
+	 * Download exported data as CSV
+	 */
+	public function download_feedback_as_csv() {
+		$data = $this->get_feedback_entries_from_post();
+
+		if ( empty( $data ) ) {
+			return;
+		}
+
+		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
+
+		// Check if we want to download all the feedbacks or just a certain contact form
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
+		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
+			$filename = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		}
+
+		$filename = sanitize_file_name( $filename );
 
 		/**
 		 * Extract field names from `$data` for later use.
