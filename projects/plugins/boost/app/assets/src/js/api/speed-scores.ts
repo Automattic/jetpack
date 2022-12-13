@@ -127,6 +127,9 @@ async function pollRequest(): Promise< SpeedScoresSet > {
 				await api.post( '/speed-scores', { url: Jetpack_Boost.site.url } )
 			);
 
+			// eslint-disable-next-line no-console
+			console.log( 'pollRequest got response: ', response );
+
 			if ( response.scores ) {
 				resolve( response.scores );
 			}
