@@ -35,6 +35,13 @@ class Jetpack_IXR_Client extends IXR_Client {
 	public $response_headers = null;
 
 	/**
+	 * Holds the raw remote response from the latest call to query().
+	 *
+	 * @var null|array|WP_Error
+	 */
+	public $last_response = null;
+
+	/**
 	 * Constructor.
 	 * Initialize a new Jetpack IXR client instance.
 	 *
@@ -76,6 +83,13 @@ class Jetpack_IXR_Client extends IXR_Client {
 
 		// Store response headers.
 		$this->response_headers = wp_remote_retrieve_headers( $response );
+
+		$this->last_response = $response;
+		if ( is_array( $this->last_response ) && isset( $this->last_response['http_response'] ) ) {
+			// If the expected array response is received, format the data as plain arrays.
+			$this->last_response            = $this->last_response['http_response']->to_array();
+			$this->last_response['headers'] = $this->last_response['headers']->getAll();
+		}
 
 		if ( is_wp_error( $response ) ) {
 			$this->error = new IXR_Error( -10520, sprintf( 'Jetpack: [%s] %s', $response->get_error_code(), $response->get_error_message() ) );
@@ -153,5 +167,14 @@ class Jetpack_IXR_Client extends IXR_Client {
 			return $this->response_headers[ strtolower( $name ) ];
 		}
 		return false;
+	}
+
+	/**
+	 * Retrieve the raw response for the last query() call.
+	 *
+	 * @return null|array|WP_Error
+	 */
+	public function get_last_response() {
+		return $this->last_response;
 	}
 }

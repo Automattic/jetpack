@@ -9,7 +9,7 @@
 		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
-		"yoast/phpunit-polyfills": "1.0.3",
+		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
@@ -49,7 +49,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.4.x-dev"
 		},
 		"textdomain": "jetpack-stats"
 	},

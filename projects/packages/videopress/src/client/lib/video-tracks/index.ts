@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -16,9 +17,7 @@ export const TRACK_KIND_OPTIONS = [
 	'metadata',
 ] as const;
 
-const shouldUseJetpackVideoFetch = () => {
-	return window?.videoPressEditorState?.siteType !== 'simple';
-};
+const shouldUseJetpackVideoFetch = () => ! ( isSimpleSite() || isAtomicSite() );
 
 const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: string ) {
 	return new Promise( function ( resolve, reject ) {
@@ -68,18 +67,28 @@ export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) 
 		return videoPressUploadTrack( { kind, srcLang, label, tmpFile }, guid );
 	}
 
-	return apiFetch( {
-		method: 'POST',
-		path: `/videos/${ guid }/tracks`,
-		apiNamespace: 'rest/v1.1',
-		global: true,
-		parse: false,
-		formData: [
-			[ 'kind', kind ],
-			[ 'srclang', srcLang ],
-			[ 'label', label ],
-			[ 'vtt', tmpFile ],
-		],
+	return new Promise( function ( resolve, reject ) {
+		return apiFetch( {
+			method: 'POST',
+			path: `/videos/${ guid }/tracks`,
+			apiNamespace: 'rest/v1.1',
+			global: true,
+			parse: false,
+			formData: [
+				[ 'kind', kind ],
+				[ 'srclang', srcLang ],
+				[ 'label', label ],
+				[ 'vtt', tmpFile ],
+			],
+		} )
+			.then( data => {
+				try {
+					return resolve( data.json() );
+				} catch ( error ) {
+					return reject( error );
+				}
+			} )
+			.catch( reject );
 	} );
 };
 

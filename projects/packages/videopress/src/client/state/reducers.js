@@ -19,9 +19,9 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
-	UPLOADING_VIDEO,
-	PROCESSING_VIDEO,
-	UPLOADED_VIDEO,
+	SET_VIDEO_UPLOADING,
+	SET_VIDEO_PROCESSING,
+	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -40,6 +40,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
+	DISMISS_FIRST_VIDEO_POPOVER,
 } from './constants';
 
 /**
@@ -315,7 +316,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADING_VIDEO: {
+		case SET_VIDEO_UPLOADING: {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
@@ -336,7 +337,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case PROCESSING_VIDEO: {
+		case SET_VIDEO_PROCESSING: {
 			const { id, data } = action;
 			const query = state?.query ?? getDefaultQuery();
 			const pagination = { ...state.pagination };
@@ -350,7 +351,16 @@ const videos = ( state, action ) => {
 
 			let total = state?.uploadedVideoCount ?? 0;
 
-			// Not update total and pagination if user is searching or not in the first page.
+			let firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? false;
+			let dismissedFirstVideoPopover = state?.dismissedFirstVideoPopover ?? false;
+			if ( total === 0 ) {
+				firstUploadedVideoId = data.id;
+				firstVideoProcessed = false;
+				dismissedFirstVideoPopover = false;
+			}
+
+			// Don't update total and pagination if user is searching or not in the first page.
 			if ( query?.page === 1 && ! query?.search ) {
 				// Updating pagination and count
 				total = ( state?.uploadedVideoCount ?? 0 ) + 1;
@@ -375,6 +385,9 @@ const videos = ( state, action ) => {
 				...state,
 				items,
 				uploadedVideoCount: total,
+				firstUploadedVideoId,
+				firstVideoProcessed,
+				dismissedFirstVideoPopover,
 				pagination,
 				_meta: {
 					...currentMeta,
@@ -383,20 +396,30 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADED_VIDEO: {
+		case SET_VIDEO_UPLOADED: {
 			const { video } = action;
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			const firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? null;
+			if ( video.id === firstUploadedVideoId ) {
+				firstVideoProcessed = true;
+			}
+
 			// Probably user is searching or in another page than first
 			if ( videoIndex === -1 ) {
-				return state;
+				return {
+					...state,
+					firstVideoProcessed,
+				};
 			}
 
 			items[ videoIndex ] = video;
 
 			return {
 				...state,
+				firstVideoProcessed,
 				items,
 			};
 		}
@@ -470,6 +493,14 @@ const videos = ( state, action ) => {
 						},
 					},
 				},
+			};
+		}
+
+		case DISMISS_FIRST_VIDEO_POPOVER: {
+			return {
+				...state,
+				dismissedFirstVideoPopover: true,
+				firstUploadedVideoId: null,
 			};
 		}
 

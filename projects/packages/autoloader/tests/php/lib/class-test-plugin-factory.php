@@ -339,6 +339,11 @@ class Test_Plugin_Factory {
 		$composer_config = array(
 			'name'     => 'testing/' . $this->slug,
 			'autoload' => $this->autoloads,
+			'config'   => array(
+				'allow-plugins' => array(
+					'automattic/jetpack-autoloader' => true,
+				),
+			),
 		);
 		if ( $this->is_using_local_package() ) {
 			$composer_config['require']      = array( 'automattic/jetpack-autoloader' => 'dev-trunk' );
@@ -356,7 +361,7 @@ class Test_Plugin_Factory {
 		}
 
 		if ( isset( $this->composer_options ) ) {
-			$composer_config = array_merge( $composer_config, $this->composer_options );
+			$composer_config = array_replace_recursive( $composer_config, $this->composer_options );
 		}
 
 		return $composer_config;
@@ -374,6 +379,13 @@ class Test_Plugin_Factory {
 		// the developer has installed is compatible. To address these differences we will download a
 		// composer package that is compatible based on ranges of autoloader versions.
 		$composer_versions = array(
+			// Version 2.4.0 renamed a class, we want to test with that.
+			'2.4.4'   => array(
+				'min'     => '2.6.0',
+				'url'     => 'https://getcomposer.org/download/2.4.4/composer.phar',
+				'sha256'  => 'c252c2a2219956f88089ffc242b42c8cb9300a368fd3890d63940e4fc9652345',
+				'min_php' => 70205,
+			),
 			// Version 2.1.6 of Composer is the first to support PHP 8.1.
 			'2.1.6'   => array(
 				'min'     => '2.6.0',

@@ -136,7 +136,7 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk (if not already on that branch), review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process (unless it's an Atomic release), update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
@@ -174,7 +174,7 @@ export async function scriptRouter( argv ) {
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
-			argv.scriptArgs = [ '-u', argv.version, argv.project ];
+			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
 			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
@@ -264,7 +264,7 @@ export async function getReleaseVersion( argv ) {
 		// Check if dev-releases is specified in project's composer.json
 		const hasDevReleases = await readComposerJson( argv.project ).extra[ 'dev-releases' ];
 		if ( hasDevReleases ) {
-			if ( devReleaseVersion ) {
+			if ( devReleaseVersion && devReleaseVersion.match( /^a\.\d+$/ ) ) {
 				devReleaseVersion = await getVersionBump( devReleaseVersion, argv.project );
 				potentialVersion = `${ stableVersion }-${ devReleaseVersion }`;
 			} else {

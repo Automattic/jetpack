@@ -437,6 +437,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -952,6 +953,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'featured_image_email_enabled':
 					update_option( 'featured_image_email_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'jetpack_are_blogging_prompts_enabled':
+					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				default:

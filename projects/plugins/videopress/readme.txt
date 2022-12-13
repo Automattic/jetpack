@@ -4,7 +4,7 @@ Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, 
 
 Requires at least: 6.0
 Tested up to: 6.1
-Stable tag: 1.0.0
+Stable tag: 1.2.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,27 +73,22 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.1.0-beta - 2022-11-22
-
+### 1.2.0 - 2022-12-05
 #### Added
-- Added VideoPress feedback link to the VideoPress block.
-- Added Download, Details, Privacy, Rating and Dimensions panel to block.
-- Added rating control to the block's admin page details panel.
-- Added file drop support also after first video on admin page.
-- Added thumbnail selection from video frame on quick action and in edit details view for the admin page.
+- Added a static image for when the block acts as an example in Editor inserter.
+- Added example image to the dynamic colors panel.
+- Implemented tracks control implementation.
 
 #### Changed
+- Updated tracks icon.
+- We now include videos with Site Default privacy setting on the search results.
 
-- Updated Color Panel on block.
-- Allowed keyboard navigation on video quick actions.
-- Renamed "Match video title" setting for "Dynamic color" in block settings panel.
+#### Removed
+- Removeed caption field from edit page.
 
 #### Fixed
-
-- Fixed recognition of Jetpack Complete plan.
-- Fixed issue when setting video privacy.
-- Introduced a static list of video extensions allowed on VideoPress.
-- Mitigated video re-rendering flicker.
-- Fixed an issue with private VideoPress videos timing out when script loading is delayed.
-- Added Site Settings section for controlling site-wide privacy for videos.
+- Fixed handling of chapters edition which previously overwrote existing video track file.
+- Fixed issue where video meta could not be saved on a WP.com simple site.
+- Fixed the thumbnail selection to allow selecting the last frame of the video.
+- Fixed video block conversion from core/video.
 
