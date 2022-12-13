@@ -8,12 +8,18 @@ let jetpackBoostPage;
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+		await boostPrerequisitesBuilder( page )
+			.withSpeedScoreMocked( false )
+			.withGotStarted( true )
+			.build();
 	} );
 
 	test.afterAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
+		await boostPrerequisitesBuilder( page )
+			.withSpeedScoreMocked( true )
+			.withGotStarted( true )
+			.build();
 	} );
 
 	test.beforeEach( async function ( { page } ) {
@@ -31,9 +37,12 @@ test.describe( 'Speed Score feature', () => {
 		} );
 
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
+
+		logger.action( 'XXXXX - Hooks applied, page visited' );
 	} );
 
 	test( 'The Speed Score section should display a mobile and desktop speed score greater than zero', async () => {
+		logger.action( 'XXXXX - starting the test.' );
 		expect(
 			await jetpackBoostPage.getSpeedScore( 'mobile' ),
 			'Mobile speed score should be greater than 0'

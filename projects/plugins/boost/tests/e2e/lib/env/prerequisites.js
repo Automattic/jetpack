@@ -103,6 +103,9 @@ export async function ensureGotStartedState( shouldGetStarted ) {
 	if ( shouldGetStarted ) {
 		logger.prerequisites( 'Disabling getting started' );
 		await execWpCommand( 'jetpack-boost getting_started false' );
+	} else {
+		logger.prerequisites( 'Enabling getting started' );
+		await execWpCommand( 'jetpack-boost getting_started true' );
 	}
 }
 

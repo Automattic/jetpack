@@ -289,12 +289,10 @@ class Speed_Score {
 		}
 
 		return rest_ensure_response(
-			array_merge(
-				array(
-					'debug' => $this->debug,
-					'test'  => 'x',
-				),
-				$response
+			array(
+				'status' => 'pondering',
+				'debug'  => $this->debug,
+				'test'   => 'x',
 			)
 		);
 	}
