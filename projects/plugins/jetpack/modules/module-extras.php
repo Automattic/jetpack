@@ -13,10 +13,6 @@
  *    - When connected to WordPress.com.
  */
 
-use Automattic\Jetpack\Promote_Posts;
-Promote_Posts::configure();
-// print_r( Redirect::get_url( 'jetpack-promote-posts', array( 'query' => 'blazepress-widget=post-9' ) ) );
-
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
 	'custom-post-types/comics.php',
