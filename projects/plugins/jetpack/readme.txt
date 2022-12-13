@@ -242,23 +242,16 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.1 - 2022-12-06
+### 11.7-a.3 - 2022-12-12
 #### Enhancements
-- Form block: change form placeholder background color to prevent styling issues on colored backgrounds.
-- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
-- Subscription block: add a checkbox to include/exclude social followers.
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
-
-#### Improved compatibility
-- Site Editor: dashboard link points to wordpress.com.
+- Form block: update Form blocks descriptions.
+- Form block: simplify Form block sidebar to make the UI easier to use.
+- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
+- Writing prompts: add filter for whether prompts are enabled or not
 
 #### Bug fixes
-- Form block: add line breaks back to plain text email submissions.
-- Form block: fix patterns modal scrollbar behavior.
-- Form block: fix contact form view responses URL.
-- Form block: update form patterns modal filter query.
-- WAF: fix WPA click tracking in Agencies card.
-- WAF: fix Jetpack Settings WAF module plan check.
+- Admin Page: avoid querying for WAF settings when the feature is not active.
+- VideoPress block: fix video player issue in some VideoMaker theme patterns.
 
 --------
 
