@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 
 /**
@@ -14,22 +15,19 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
  */
 class Features_Status {
 
-	const GOOD = 'good';
-	const BAD  = 'bad';
-
 	public static function get_total_problems() {
-		$status = self::get_cloud_css_state_status();
-		return $status === self::GOOD ? 0 : 1;
+		$has_problem = self::has_cloud_css_problem();
+		return $has_problem ? 1 : 0;
 	}
 
-	private static function get_cloud_css_state_status() {
-		$is_enabled = '1' === get_option( 'jetpack_boost_status_critical-css' );
-		if ( ! $is_enabled ) {
-			return self::GOOD;
+	private static function has_cloud_css_problem() {
+		$status = new Status( Critical_CSS::get_slug() );
+		if ( ! $status->is_enabled() ) {
+			return false;
 		}
 
 		$cloud_css = new Critical_CSS_State( 'cloud' );
 
-		return $cloud_css->get_status() === 'error' ? self::BAD : self::GOOD;
+		return $cloud_css->get_status() === 'error';
 	}
 }
