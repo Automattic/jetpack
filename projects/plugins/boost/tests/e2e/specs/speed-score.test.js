@@ -10,8 +10,17 @@ test.describe( 'Speed Score feature', () => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
 
+		logger.action( 'XXXXX - APPLYING HOOKS - ' + page.url() );
 		page.on( 'console', message => {
-			logger.action( 'XXXXX - ' + message.text() );
+			logger.action( 'XXXXX CONSOLE - ' + message.text() );
+		} );
+
+		page.on( 'pageerror', error => {
+			logger.action( 'XXXXX ERROR - ' + error.message );
+		} );
+
+		page.on( 'requestfailed', request => {
+			logger.action( 'XXXXX REQUEST FAILED - ' + request.url() );
 		} );
 	} );
 
