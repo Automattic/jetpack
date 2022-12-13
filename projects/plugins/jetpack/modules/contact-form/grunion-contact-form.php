@@ -3938,6 +3938,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$attributes['required'] = false;
 		}
 
+		if ( $attributes['requiredtext'] === null ) {
+			$attributes['requiredtext'] = __( '(required)', 'jetpack' );
+		}
+
 		// parse out comma-separated options list (for selects, radios, and checkbox-multiples)
 		if ( ! empty( $attributes['options'] ) && is_string( $attributes['options'] ) ) {
 			$attributes['options'] = array_map( 'trim', explode( ',', $attributes['options'] ) );
