@@ -57,7 +57,7 @@ class Regenerate_Admin_Notice {
 	}
 
 	public static function maybe_render() {
-		if ( static::is_enabled() ) {
+		if ( static::is_enabled() && current_user_can( 'manage_options' ) ) {
 			static::render();
 		}
 	}
