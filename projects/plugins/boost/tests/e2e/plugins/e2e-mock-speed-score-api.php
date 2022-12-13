@@ -29,7 +29,9 @@ function e2e_mock_speed_score_api( $default_action, $args, $target ) {
 	if ( 'POST' === $args['method'] ) {
 		return e2e_mock_speed_score_api_response(
 			array(
-				'status' => 'pending',
+				'status'         => 'pending',
+				'is_mock'        => true,
+				'active_plugins' => get_option( 'active_plugins' ),
 			)
 		);
 	}
