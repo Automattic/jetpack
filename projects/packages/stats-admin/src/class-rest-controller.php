@@ -299,23 +299,41 @@ class REST_Controller {
 	}
 
 	/**
-	 * List post for the site.
+	 * List posts for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
 	public function get_site_posts( $req ) {
-		return $this->request_as_blog_cached(
+		$response = wp_remote_get(
 			sprintf(
-				'/sites/%d/posts?%s',
+				'%s/rest/v1.2/sites/%d/posts?%s',
+				JETPACK__WPCOM_JSON_API_BASE,
 				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'resource_id' ),
 				http_build_query(
 					$req->get_params()
 				)
 			),
-			'1.2',
 			array( 'timeout' => 5 )
 		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
+				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				array( 'status' => $response_code )
+			);
+		}
+
+		return $response_body;
 	}
 
 	/**
