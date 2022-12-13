@@ -3,7 +3,7 @@
  *
  * Plugin Name: WordPress.com Features
  * Description: Enhances your site with features powered by WordPress.com
- * Version: 0.1.0-alpha
+ * Version: 0.2.0-alpha
  * Author: Automattic
  * License: GPLv2 or later
  * Text Domain: jetpack-mu-wpcom
