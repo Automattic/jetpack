@@ -288,6 +288,14 @@ class Speed_Score {
 			}
 		}
 
-		return rest_ensure_response( $response );
+		return rest_ensure_response(
+			array_merge(
+				array(
+					'debug' => $this->debug,
+					'test'  => 'x',
+				),
+				$response
+			)
+		);
 	}
 }
