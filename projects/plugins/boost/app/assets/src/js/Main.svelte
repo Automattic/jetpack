@@ -16,7 +16,7 @@
 			// Event names must conform to the following regex: ^[a-z_][a-z0-9_]*$
 			let path = history.location.pathname.replace( /[-/]/g, '_' );
 			if ( path === '_' ) {
-				path = '_home';
+				path = '_settings';
 			}
 
 			recordBoostEvent( `page_view${ path }`, {
