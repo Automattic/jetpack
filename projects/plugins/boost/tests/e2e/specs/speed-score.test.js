@@ -1,13 +1,18 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
+import logger from 'jetpack-e2e-commons/logger.cjs';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
 
 let jetpackBoostPage;
 
-test.describe.skip( 'Speed Score feature', () => {
+test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+
+		page.on( 'console', message => {
+			logger.action( 'XXXXX - ' + message.text() );
+		} );
 	} );
 
 	test.afterAll( async ( { browser } ) => {

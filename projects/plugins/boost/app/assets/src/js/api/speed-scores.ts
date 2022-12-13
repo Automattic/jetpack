@@ -34,6 +34,9 @@ type ParsedApiResponse = {
  * @return {SpeedScoresSet} Speed scores returned by the server.
  */
 export async function requestSpeedScores( force = false ): Promise< SpeedScoresSet > {
+	// eslint-disable-next-line no-console
+	console.log( 'requestSpeedScores', force );
+
 	// Request metrics
 	const response = parseResponse(
 		await api.post( force ? '/speed-scores/refresh' : '/speed-scores', {
@@ -41,10 +44,16 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 		} )
 	);
 
+	// eslint-disable-next-line no-console
+	console.log( 'requestSpeedScores got response: ', response );
+
 	// If the response contains ready-to-use metrics, we're done here.
 	if ( response.scores ) {
 		return response.scores;
 	}
+
+	// eslint-disable-next-line no-console
+	console.log( 'Going to poll.' );
 
 	// Poll for metrics.
 	return await pollRequest();
