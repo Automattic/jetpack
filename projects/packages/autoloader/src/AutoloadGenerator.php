@@ -23,7 +23,6 @@
 
 namespace Automattic\Jetpack\Autoloader;
 
-use Composer\Autoload\ClassMapGenerator;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Installer\InstallationManager;
@@ -302,7 +301,15 @@ class AutoloadGenerator {
 				$dir = $this->filesystem->normalizePath(
 					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
-				return ClassMapGenerator::createMap(
+
+				// Composer 2.4 changed the name of the class.
+				if ( class_exists( \Composer\ClassMapGenerator\ClassMapGenerator::class ) ) {
+					$generator = new \Composer\ClassMapGenerator\ClassMapGenerator();
+					$generator->scanPaths( $dir, $excludedClasses, 'classmap', empty( $namespace ) ? null : $namespace );
+					return $generator->getClassMap()->getMap();
+				}
+
+				return \Composer\Autoload\ClassMapGenerator::createMap(
 					$dir,
 					$excludedClasses,
 					null, // Don't pass the IOInterface since the normal autoload generation will have reported already.
