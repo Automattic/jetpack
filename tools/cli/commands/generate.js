@@ -160,7 +160,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Select production and/or development build steps to generate?',
+			message: 'Select production and/or development build steps to generate:',
 			choices: [
 				{
 					name: 'Production Build Step',
