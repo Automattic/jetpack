@@ -1,8 +1,17 @@
-import { AdminSectionHero, Container, Col, Text, H3, Button } from '@automattic/jetpack-components';
+import {
+	AdminSectionHero,
+	Container,
+	Col,
+	Text,
+	H3,
+	Button,
+	useBreakpointMatch,
+	StatCard,
+} from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { Spinner, Popover } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
+import { Icon, help, shield, chartBar } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -86,6 +95,54 @@ const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
 };
 
 const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+
+	const lastThirtyArgs = {
+		className: hasRequiredPlan ? styles.active : styles.disabled,
+		icon: (
+			<div className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ shield } />
+				{ ! hasRequiredPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+				) }
+			</div>
+		),
+		label: isSmall ? (
+			<span>{ __( 'Blocked requests last 30 days', 'jetpack-protect' ) }</span>
+		) : (
+			<div className={ styles[ 'stat-card-label' ] }>
+				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+				<br />
+				<span>{ __( 'Last 30 days', 'jetpack-protect' ) }</span>
+			</div>
+		),
+		value: hasRequiredPlan ? 0 : 0, // Add actual stats here
+		variant: isSmall ? 'horizontal' : 'square',
+	};
+
+	const allTimeArgs = {
+		className: hasRequiredPlan ? styles.active : styles.disabled,
+		icon: (
+			<div className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ chartBar } />
+				{ ! hasRequiredPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+				) }
+			</div>
+		),
+		label: isSmall ? (
+			<span>{ __( 'Blocked requests all time', 'jetpack-protect' ) }</span>
+		) : (
+			<div className={ styles[ 'stat-card-label' ] }>
+				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+				<br />
+				<span>{ __( 'All time', 'jetpack-protect' ) }</span>
+			</div>
+		),
+		value: hasRequiredPlan ? 0 : 0,
+		variant: isSmall ? 'horizontal' : 'square',
+	};
+
 	return (
 		<AdminSectionHero>
 			<Container
@@ -149,7 +206,10 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 					) }
 				</Col>
 				<Col>
-					<div className={ styles[ 'stat-card-wrapper' ] }></div>
+					<div className={ styles[ 'stat-card-wrapper' ] }>
+						<StatCard { ...lastThirtyArgs } />
+						<StatCard { ...allTimeArgs } />
+					</div>
 				</Col>
 			</Container>
 		</AdminSectionHero>

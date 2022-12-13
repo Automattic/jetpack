@@ -56,3 +56,4 @@ export { default as Notice } from './components/notice';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { default as ActionPopover } from './components/action-popover';
 export { getUserLocale, cleanLocale } from './lib/locale';
+export { default as StatCard } from './components/stat-card';
