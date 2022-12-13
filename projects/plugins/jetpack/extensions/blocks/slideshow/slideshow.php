@@ -74,7 +74,7 @@ function render_amp( $attr ) {
 		absint( $wp_block_jetpack_slideshow_id ),
 		amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
 		$autoplay ? autoplay_ui( $wp_block_jetpack_slideshow_id ) : '',
-		bullets( $ids, $wp_block_jetpack_slideshow_id )
+		render_paginator( $ids, $wp_block_jetpack_slideshow_id )
 	);
 }
 
@@ -139,6 +139,18 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
 		},
 		$ids
 	);
+}
+
+/**
+ * Render blocks paginator section
+ *
+ * @param array $ids Array of image ids.
+ * @param int   $block_ordinal The ordinal number of the block, used in unique ID.
+ *
+ * @return array Array of bullets markup.
+ */
+function render_paginator( $ids = array(), $block_ordinal = 0 ) {
+	return bullets( $ids, $block_ordinal );
 }
 
 /**
