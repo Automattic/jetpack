@@ -51,7 +51,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_review_dismissed' ),
-					'permission_callback' => array( $this, 'require_edit_posts_permission_callback' ),
+					'permission_callback' => array( $this, 'require_publish_posts_permission_callback' ),
 					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
 				),
 			)
@@ -80,7 +80,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function require_edit_posts_permission_callback() {
+	public function require_publish_posts_permission_callback() {
 		if ( current_user_can( 'publish_posts' ) ) {
 			return true;
 		}
