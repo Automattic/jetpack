@@ -13,7 +13,7 @@
 			width: unset;
 			max-width: none;
 			margin: 0;
-			flex: 1;
+			flex: 0;
 		}
 
 		.block-editor-block-variation-picker__variation {
@@ -122,14 +122,25 @@
 
 	.form-placeholder__footer {
 		display: flex;
-		justify-content: space-between;
+		flex-direction: column;
+		justify-content: center;
 		align-items: center;
+		gap: 12px;
+
+		@include break-small() {
+			flex-direction: row;
+			justify-content: space-between;
+		}
 	}
 
 	.form-placeholder__footer-links {
 		display: flex;
 		flex-direction: column;
-		align-items: flex-end;
+		align-items: center;
+
+		@include break-small() {
+			align-items: flex-end;
+		}
 	}
 
 	.form-placeholder__external-link {
