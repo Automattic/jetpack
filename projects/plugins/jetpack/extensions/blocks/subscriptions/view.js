@@ -10,7 +10,7 @@ import {
 } from '../../../extensions/shared/memberships';
 
 domReady( function () {
-	const form = document.querySelector( '.jetpack_subscription_widget form' );
+	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
 	let premiumContentJWTToken = '';
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;

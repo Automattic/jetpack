@@ -409,6 +409,20 @@ function render_block( $attributes ) {
 }
 
 /**
+ * Generates the source parameter to pass to the iframe
+ *
+ * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+ */
+function get_post_access_level() {
+	global $post;
+	$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	if ( empty( $meta ) ) {
+		$meta = 'everybody';
+	}
+	return $meta;
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -431,6 +445,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -438,6 +454,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
+				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
