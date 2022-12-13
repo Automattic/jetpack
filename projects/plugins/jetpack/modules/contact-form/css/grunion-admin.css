@@ -93,6 +93,7 @@
 	flex-direction: column;
 	/* These strange paddings to add 48px with TB defaults */
 	padding: 0 33px 9px 33px;
+	width: 100%;
 }
 
 .feedback-export-modal__header {
