@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			$this->access_use_case( 'paid_subscriber_id', false, true, 'everybody', true, true ),
 			$this->access_use_case( 'paid_subscriber_id', false, true, 'subscribers', true, true ),
 			// For some reason this fails on php 5.6 and 7.0
-			// $this->access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true ),
+			$this->access_use_case( 'paid_subscriber_id', false, true, 'paid_subscribers', true, true ),
 
 			// Outdated paid subscription --  only matters for 'paid_subscribers' post - they are treated as normal "subscribers"
 				// loggued
