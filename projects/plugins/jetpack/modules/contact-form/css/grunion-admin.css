@@ -71,6 +71,10 @@
 /* Modal styles */
 
 /* Override Thickbox defaults */
+#TB_overlay {
+	opacity: 0.5;
+}
+
 #TB_title {
 	border: none;
 	background: none;
@@ -98,8 +102,8 @@
 .feedback-export-modal__header-title {
 	font-style: normal;
 	font-weight: 700;
-	font-size: 36px;
-	line-height: 40px;
+	font-size: 24px;
+	line-height: 32px;
 	margin-bottom: 8px;
 }
 
@@ -143,14 +147,15 @@
 	fill: #000000;
 }
 
-.feedback-export-modal__footer .jp-dashboard-footer__module-name {
+.feedback-export-modal__footer .feedback-export-modal__footer-link {
 	padding-left: 8px;
 	font-size: 12px;
 	font-weight: 600;
-	line-height: 16px;
+	line-height: 0;
 	letter-spacing: -0.02em;
 	text-align: left;
 	color: #23282D;
+	text-decoration: none;
 }
 
 .export-card {
@@ -187,7 +192,7 @@
 	flex-grow: 1;
 	font-style: normal;
 	font-weight: 400;
-	font-size: 16px;
+	font-size: 14px;
 	line-height: 24px;
 	letter-spacing: -0.02em;
 	color: #000000;
