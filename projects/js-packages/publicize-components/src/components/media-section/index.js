@@ -89,7 +89,7 @@ export default function MediaSection() {
 	const allowedMediaTypes = getAllowedMediaTypes();
 
 	const mediaObject = useSelect(
-		select => select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } ),
+		select => select( 'core' ).getMedia( attachedMedia[ 0 ]?.id || null, { context: 'view' } ),
 		[ attachedMedia[ 0 ] ]
 	);
 
@@ -111,7 +111,9 @@ export default function MediaSection() {
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
 		media => {
-			updateAttachedMedia( [ media.id ] );
+			const { id, url } = media;
+
+			updateAttachedMedia( [ { id, url } ] );
 			setValidationError( null );
 		},
 		[ updateAttachedMedia ]
@@ -165,7 +167,7 @@ export default function MediaSection() {
 					onSelect={ onUpdateMedia }
 					allowedTypes={ allowedMediaTypes }
 					render={ setMediaRender }
-					value={ attachedMedia[ 0 ] }
+					value={ attachedMedia[ 0 ]?.id }
 				/>
 				{ mediaObject && (
 					<>

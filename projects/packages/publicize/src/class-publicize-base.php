@@ -1058,7 +1058,15 @@ abstract class Publicize_Base {
 						'attached_media' => array(
 							'type'  => 'array',
 							'items' => array(
-								'type' => 'number',
+								'type'       => 'object',
+								'properties' => array(
+									'id'  => array(
+										'type' => 'number',
+									),
+									'url' => array(
+										'type' => 'string',
+									),
+								),
 							),
 						),
 					),

@@ -109,7 +109,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 */
 	const getValidationError = useCallback(
 		metaData => {
-			const { mime, fileSize, length } = metaData;
+			const { mime, fileSize } = metaData;
 
 			const isMimeValid = mimeToTest =>
 				mimeToTest && getAllowedMediaTypes().includes( mimeToTest.toLowerCase() );
@@ -121,7 +121,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 			const sizeInMb = fileSize ? fileSize / Math.pow( 1000, 2 ) : null;
 
 			return isVideo( mime )
-				? getVideoValidationError( sizeInMb, length )
+				? getVideoValidationError( sizeInMb, metaData.length )
 				: getImageValidationError( sizeInMb );
 		},
 		[ getImageValidationError, getVideoValidationError, getAllowedMediaTypes ]
