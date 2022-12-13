@@ -9,7 +9,14 @@ test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
+	} );
 
+	test.afterAll( async ( { browser } ) => {
+		const page = await browser.newPage();
+		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
+	} );
+
+	test.beforeEach( async function ( { page } ) {
 		logger.action( 'XXXXX - APPLYING HOOKS - ' + page.url() );
 		page.on( 'console', message => {
 			logger.action( 'XXXXX CONSOLE - ' + message.text() );
@@ -22,14 +29,7 @@ test.describe( 'Speed Score feature', () => {
 		page.on( 'requestfailed', request => {
 			logger.action( 'XXXXX REQUEST FAILED - ' + request.url() );
 		} );
-	} );
 
-	test.afterAll( async ( { browser } ) => {
-		const page = await browser.newPage();
-		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( true ).build();
-	} );
-
-	test.beforeEach( async function ( { page } ) {
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
