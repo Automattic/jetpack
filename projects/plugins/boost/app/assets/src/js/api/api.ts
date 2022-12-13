@@ -33,6 +33,8 @@ async function sendRequest(
 	let apiCall: Response;
 
 	try {
+		// eslint-disable-next-line no-console
+		console.log( endpointFullUrl );
 		apiCall = await fetch( endpointFullUrl, args );
 	} catch ( error ) {
 		const cleanupArgs = args;
