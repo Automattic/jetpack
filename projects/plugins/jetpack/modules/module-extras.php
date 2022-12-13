@@ -12,7 +12,6 @@
  *    - When in offline mode.
  *    - When connected to WordPress.com.
  */
-
 $tools = array(
 	// Always loaded, but only registered if theme supports it.
 	'custom-post-types/comics.php',
@@ -89,5 +88,3 @@ function jetpack_widgets_add_suffix( $widget_name ) {
 	);
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
-
-// add_filter( 'post_row_actions', 'jetpack_promote_posts_row_action', 10, 2 );

@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Promote_Posts {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -45,7 +45,7 @@ class Promote_Posts {
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
-			 * @since 0.1.0
+			 * @since $$next-version$$
 			 */
 			do_action( 'jetpack_on_promote_posts_init' );
 		}
@@ -71,7 +71,7 @@ class Promote_Posts {
 		);
 
 		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Promote', 'Advertise this post to WordPress.com and Tumblr', 'jetpack-promote-posts' );
+		$text  = _x( 'Promote', 'Verb', 'jetpack-promote-posts' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
 		$label                   = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-promote-posts' ), $title );
