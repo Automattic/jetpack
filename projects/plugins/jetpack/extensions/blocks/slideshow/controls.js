@@ -71,7 +71,7 @@ export function PanelControls( {
 			{ ! isEmpty( images ) && ! isEmpty( imageSizeOptions ) && (
 				<PanelBody title={ __( 'Image Settings', 'jetpack' ) }>
 					<SelectControl
-						label={ __( 'Image Size', 'jetpack' ) }
+						label={ __( 'Size', 'jetpack' ) }
 						value={ sizeSlug }
 						options={ imageSizeOptions }
 						onChange={ size => onChangeImageSize( size ) }
