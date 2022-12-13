@@ -17,6 +17,28 @@
 require_once __DIR__ . '/class-wpcom-features.php';
 
 /**
+ * Internal function to retrieve the current WP.com blog ID depending on the environment.
+ *
+ * @return int The current blog ID.
+ */
+function _wpcom_get_current_blog_id() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return get_current_blog_id();
+	}
+
+	/*
+	 * Atomic sites have the WP.com blog ID stored as a Jetpack option. This code deliberately
+	 * doesn't use `Jetpack_Options::get_option` so it works even when Jetpack has not been loaded.
+	 */
+	$jetpack_options = get_option( 'jetpack_options' );
+	if ( is_array( $jetpack_options ) && isset( $jetpack_options['id'] ) ) {
+		return (int) $jetpack_options['id'];
+	}
+
+	return get_current_blog_id();
+}
+
+/**
  * Whether a given feature is available to the current (or specified) site.
  *
  * This function pulls the purchases for a given site and uses WPCOM_Features to check if any of those purchases
@@ -29,7 +51,7 @@ require_once __DIR__ . '/class-wpcom-features.php';
  */
 function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	if ( ! $blog_id ) {
-		$blog_id = get_current_blog_id();
+		$blog_id = _wpcom_get_current_blog_id();
 	}
 
 	$purchases = wpcom_get_site_purchases( $blog_id );
@@ -58,11 +80,11 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
  */
 function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {
-		$blog_id = get_current_blog_id();
+		$blog_id = _wpcom_get_current_blog_id();
 	}
 
 	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
-		if ( get_current_blog_id() !== $blog_id ) {
+		if ( _wpcom_get_current_blog_id() !== $blog_id ) {
 			throw new Error(
 				'Atomic sites do not support looking up features for sites other than the current site.'
 			);
