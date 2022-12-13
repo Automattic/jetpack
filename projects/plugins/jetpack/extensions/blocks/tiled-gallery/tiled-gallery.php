@@ -197,17 +197,7 @@ class Tiled_Gallery {
 		$status         = new Status();
 
 		if ( $is_atomic_site || $status->is_local_site() ) {
-
-			?>
-			<script>
-				window.addEventListener( 'load', function() {
-					const squareish_tiled_gallery_imgs = document.querySelectorAll('.wp-block-jetpack-tiled-gallery.is-style-square img, .wp-block-jetpack-tiled-gallery.is-style-circle img');
-					for ( squareish_img of squareish_tiled_gallery_imgs ) {
-						squareish_img.style = 'aspect-ratio: 1/1';
-					}
-				} );
-			</script>
-			<?php
+			wp_enqueue_style( 'jetpack-squareish-tiled-gallery-styles', plugins_url( 'extensions/blocks/tiled-gallery/squareish.scss', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		}
 	}
 }
