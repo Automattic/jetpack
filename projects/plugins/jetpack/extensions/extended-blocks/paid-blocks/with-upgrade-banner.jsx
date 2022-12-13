@@ -3,9 +3,10 @@ import {
 	getRequiredPlan,
 	getUsableBlockProps,
 } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { render, useState, useEffect, useMemo, useContext } from '@wordpress/element';
+import { useState, useEffect, useMemo, useContext } from '@wordpress/element';
 import { PaidBlockContext, PaidBlockProvider } from './components';
 import UpgradePlanBanner from './upgrade-plan-banner';
 import { trackUpgradeBannerImpression, trackUpgradeClickEvent } from './utils';
@@ -70,50 +71,28 @@ export default createHigherOrderComponent(
 			setAttributes( { shouldDisplayFrontendBanner: ! hasParentBanner } );
 		}, [ setAttributes, hasParentBanner ] );
 
-		useEffect( () => {
-			const block = document.querySelector( `.wp-block[data-block="${ clientId }"]` );
-			if ( ! block ) {
-				return;
-			}
-
-			let upgradeBannerContainer = document.querySelector(
-				`.wp-block[data-block="${ clientId }"] > .jetpack-block-upgrade-banner-container`
-			);
-			if ( ! upgradeBannerContainer ) {
-				upgradeBannerContainer = document.createElement( 'div' );
-				upgradeBannerContainer.classList.add( 'jetpack-block-upgrade-banner-container' );
-				block.prepend( upgradeBannerContainer );
-			}
-
-			render(
-				<UpgradePlanBanner
-					className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
-					title={ null }
-					align={ attributes?.align }
-					visible={ isBannerVisible }
-					description={ usableBlocksProps?.description }
-					requiredPlan={ requiredPlan }
-					context={ bannerContext }
-					onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-				/>,
-				upgradeBannerContainer
-			);
-		}, [
-			attributes?.align,
-			clientId,
-			isBannerVisible,
-			name,
-			requiredPlan,
-			trackEventData,
-			usableBlocksProps?.description,
-		] );
+		const blockProps = useBlockProps();
 
 		return (
 			<PaidBlockProvider
 				onBannerVisibilityChange={ setIsVisible }
 				hasParentBanner={ isBannerVisible }
 			>
-				<BlockEdit { ...props } />
+				<div { ...blockProps }>
+					<div className="jetpack-block-upgrade-banner-container">
+						<UpgradePlanBanner
+							className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+							title={ null }
+							align={ attributes?.align }
+							visible={ isBannerVisible }
+							description={ usableBlocksProps?.description }
+							requiredPlan={ requiredPlan }
+							context={ bannerContext }
+							onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+						/>
+					</div>
+					<BlockEdit { ...props } />
+				</div>
 			</PaidBlockProvider>
 		);
 	},
