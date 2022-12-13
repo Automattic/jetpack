@@ -35,6 +35,10 @@ class Promote_Posts {
 	 * Sets up Post List action callbacks.
 	 */
 	public function register() {
+		// @todo filter to turn it off.
+		// @todo criteria for enabling: User connected, etc
+		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
+		// @todo Organize tracks events.
 		if ( ! did_action( 'jetpack_on_promote_posts_init' ) ) {
 			add_filter( 'post_row_actions', array( $this, 'jetpack_promote_posts_row_action' ), 10, 2 );
 
@@ -58,11 +62,7 @@ class Promote_Posts {
 	public function jetpack_promote_posts_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
-		// @todo enable/disable functionality maybe?
-		// @todo at least add filter to turn it off
-		// @todo Is it a supported post type? Basically anything that Jetpack syncs.
-
-		// Build the redirect URL.
+		// @todo wrap in method call, for general use?
 		$promote_post_url = Redirect::get_url(
 			'jetpack-promote-posts',
 			array(

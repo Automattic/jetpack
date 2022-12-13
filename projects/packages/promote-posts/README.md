@@ -1,14 +1,45 @@
 # promote-posts
 
-Attract high-quality traffic to your site using Promoted Posts. Using this service, you can advertise a post or page on some of the millions of pages across WordPress.com and Tumblr from just $5 per day.
+Attract high-quality traffic to your site using Promoted Posts. Using this service, you can advertise a post or page on some of the millions of pages across WordPress.com and Tumblr.
 
 ## How to install promote-posts
 
-### Installation From Git Repo
+Package is published in [Packagist](https://packagist.org/packages/automattic/jetpack-promote-posts).
 
-## Contribute
+Use composer to add the package to your project:
+```bash
+composer add automattic/jetpack-promote-posts
+```
 
-## Get Help
+Then you can initialize it on the `admin_init` hook:
+
+```php
+add_action( 'admin_init', array( '\Automattic\Jetpack\Promote_Posts', 'configure' ) );
+```
+
+Or directly invoke with a method call: 
+```php
+use Automattic\Jetpack\Promote_Posts;
+Promote_Posts::configure();
+```
+
+## Development
+
+### Production
+```bash
+jetpack build -p packages/promote-posts
+```
+
+### Development
+```bash
+jetpack build packages/promote-posts
+```
+
+### Development Watching Mode 👀
+```bash
+jetpack watch packages/promote-posts
+```
+
 
 ## Security
 
