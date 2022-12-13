@@ -60,7 +60,7 @@ export function PanelControls( {
 			</PanelBody>
 			<PanelBody title={ __( 'Effects', 'jetpack' ) }>
 				<SelectControl
-					label={ __( 'Transition effect', 'jetpack' ) }
+					label={ __( 'Transition', 'jetpack' ) }
 					value={ effect }
 					onChange={ value => {
 						setAttributes( { effect: value } );
