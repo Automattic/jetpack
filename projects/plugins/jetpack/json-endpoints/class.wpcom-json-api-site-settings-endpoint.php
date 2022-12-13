@@ -438,7 +438,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
-						'wpcom_subscription_emails_use_excerpt' => get_wpcom_subscription_emails_use_excerpt_option(),
+						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
