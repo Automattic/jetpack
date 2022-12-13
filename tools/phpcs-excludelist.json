@@ -98,5 +98,6 @@
 	"projects/plugins/vaultpress/cron-tasks.php",
 	"projects/plugins/vaultpress/uninstall.php",
 	"projects/plugins/vaultpress/vaultpress.php",
-	"projects/plugins/vaultpress/vp-scanner.php"
+	"projects/plugins/vaultpress/vp-scanner.php",
+	"tools/cli/skeletons/packages/src/class-example.php"
 ]
