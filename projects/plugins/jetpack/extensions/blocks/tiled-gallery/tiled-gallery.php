@@ -195,9 +195,8 @@ class Tiled_Gallery {
 	public static function add_woa_squareish_styles() {
 		$is_atomic_site = ( new Host() )->is_woa_site();
 		$status         = new Status();
-
 		if ( $is_atomic_site || $status->is_local_site() ) {
-			wp_enqueue_style( 'jetpack-squareish-tiled-gallery-styles', plugins_url( 'extensions/blocks/tiled-gallery/squareish.scss', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'jetpack-squareish-tiled-gallery-styles', plugins_url( 'modules/tiled-gallery/tiled-gallery/squareish.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		}
 	}
 }
