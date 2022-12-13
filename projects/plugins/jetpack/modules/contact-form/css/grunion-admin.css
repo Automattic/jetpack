@@ -186,6 +186,8 @@
 
 .export-card__body {
 	gap: 32px;
+	align-items: center;
+	justify-content: space-between;
 }
 
 .export-card__body-description {
@@ -196,6 +198,7 @@
 	line-height: 24px;
 	letter-spacing: -0.02em;
 	color: #000000;
+	max-width: 60%;
 }
 
 .export-card__body-description a {
@@ -208,24 +211,21 @@
 	font-size: 12px;
 	line-height: 150%;
 	color: #757575;
-	margin-bottom: 8px;
+	margin-bottom: 0px;
 }
 
 .export-card__body-cta {
 	align-self: flex-end;
 }
 
-.button-primary.export-button {
+.export-card__body-cta .button-primary.export-button {
 	font-style: normal;
-	font-weight: 600;
-	font-size: 16px;
-	line-height: 24px;
+	font-weight: 400;
 	letter-spacing: -0.01em;
-	color: #000000;
-	background: #FFFFFF;
-	border: 1px solid #000000;
+	color: #FFFFFF;
+	background: #000000;
+	border: 1px solid #FFFFFF;
 	border-radius: 4px;
-	padding: 8px 32px;
 }
 
 .export-card__beta-badge {

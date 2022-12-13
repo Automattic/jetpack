@@ -1218,7 +1218,9 @@ class Grunion_Admin {
 		</div>
 		<?php
 		$opener_label        = esc_html( __( 'Export', 'jetpack' ) );
-		$export_modal_opener = "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
+		$export_modal_opener = wp_is_mobile()
+			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=550&inlineId=feedback-export-modal'>{$opener_label}</a>"
+			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
 		?>
 		<script type="text/javascript">
 			jQuery( function( $ ) {
@@ -1334,23 +1336,23 @@ class Grunion_Admin {
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
-		// hint user to connect at 'https://wordpress.com/marketing/connections'
 
-		$attributes = array(
-			'data-nonce-name' => $this->export_nonce_field,
-		);
-
-		if ( ! $has_valid_connection ) {
-			$attributes['disabled'] = 'disabled';
+		if ( $has_valid_connection ) {
+			$button_html = get_submit_button(
+				esc_html( __( 'Export', 'jetpack' ) ),
+				'primary export-button export-gdrive',
+				'jetpack-export-feedback-gdrive',
+				false,
+				array( 'data-nonce-name' => $this->export_nonce_field )
+			);
+		} else {
+			$button_html = sprintf(
+				'<a href="https://wordpress.com/marketing/connections" class="button button-primary export-button export-gdrive" title="%s" rel="noopener noreferer" target="_blank">%s</a>',
+				esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
+				esc_html( __( 'Connect Google Drive', 'jetpack' ) )
+			);
 		}
 
-		$button_html = get_submit_button(
-			esc_html( __( 'Export', 'jetpack' ) ),
-			'primary export-button export-gdrive',
-			'jetpack-export-feedback-gdrive',
-			false,
-			$attributes
-		);
 		?>
 		<div class="export-card">
 			<div class="export-card__header">
@@ -1367,12 +1369,13 @@ class Grunion_Admin {
 						<?php
 						/** Translators: Link to "connect to Google Drive" follows */
 						echo esc_html( __( 'You need to', 'jetpack' ) );
-						echo '&nbsp;';
+						echo ' ';
+						// TODO: write/link a support doc for connections
 						echo sprintf(
 							'<a href="%s" title="%s" target="_blank" rel="noopener noreferer">%s</a>',
 							'https://wordpress.com/marketing/connections',
 							esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
-							esc_html( __( 'connect to Google Drive', 'jetpack' ) )
+							esc_html( __( 'connect to Google Drive.', 'jetpack' ) )
 						);
 						?>
 					</div>
