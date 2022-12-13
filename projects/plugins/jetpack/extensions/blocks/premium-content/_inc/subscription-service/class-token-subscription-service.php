@@ -239,7 +239,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			}
 		}
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
-			if ( in_array( $product_id, $product_ids, true ) ) {
+			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
 				if ( $end > time() ) {
 					return true;
