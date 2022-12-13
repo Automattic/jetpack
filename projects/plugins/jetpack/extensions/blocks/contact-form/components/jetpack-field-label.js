@@ -8,6 +8,7 @@ const JetpackFieldLabel = ( {
 	placeholder,
 	resetFocus,
 	required,
+	requiredText = __( '(required)', 'jetpack' ),
 } ) => {
 	return (
 		<div className="jetpack-field-label">
@@ -27,7 +28,19 @@ const JetpackFieldLabel = ( {
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
-			{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
+			{ required && (
+				<RichText
+					tagName="span"
+					value={ requiredText }
+					className="required"
+					onChange={ value => {
+						setAttributes( { requiredText: value } );
+					} }
+					placeholder={ __( '(required)', 'jetpack' ) }
+					withoutInteractiveFormatting
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				/>
+			) }
 		</div>
 	);
 };
