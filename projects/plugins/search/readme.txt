@@ -122,25 +122,14 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.3.1 - 2022-11-13
+### 1.4.0 - 2022-12-12
 #### Added
-- Search: support for Jetpack Search FREE tier for up to 5000 records or 500 search requests per month.
-- Search: Enable stats tracking upon establishing a site connection.
-- Search Dashboard: new record count and search request donut meters.
-- Search Dashboard: conditional CTA and notices.
-- Search: blog filtering support.
+- Search: port Search plugin 1.3.1 changelog and plugin description
 
 #### Changed
-- Compatibility: WordPress 6.1 compatibility.
-- Search: now support 38 languages.
-- Search: always add Search Dashboard page even when submenu is hidden.
+- My Jetpack: Requires connection only if needed
+- My Jetpack: Show My Jetpack even if site is disconnected
 - Updated package dependencies.
-
-### Fixed
-- Customizer: Fixes the issue where search results are not loaded in customizer.
-- Instant Search: Fix error message styling in Instant Search overlay.
-- Search: hide meters etc for Classic Search.
-- Fixed readme and descriptions for Free tier support and new pricing.
 
 == Testimonials ==
 

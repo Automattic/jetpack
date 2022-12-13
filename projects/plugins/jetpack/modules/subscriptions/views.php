@@ -857,10 +857,11 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance['show_subscribers_total'] = true;
 	}
 
-	if ( 'false' === $instance['include_social_followers'] ) {
-		$instance['include_social_followers'] = false;
-	} else {
+	// the default behavior is to include the social followers
+	if ( empty( $instance['include_social_followers'] ) || 'true' === $instance['include_social_followers'] ) {
 		$instance['include_social_followers'] = true;
+	} else {
+		$instance['include_social_followers'] = false;
 	}
 
 	$show_only_email_and_button = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
