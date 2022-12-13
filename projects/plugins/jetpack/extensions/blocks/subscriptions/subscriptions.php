@@ -341,12 +341,11 @@ function get_element_styles_from_attributes( $attributes ) {
 /**
  * Subscriptions block render callback.
  *
- * @param array  $attributes Array containing the block attributes.
- * @param string $content    String containing the block content.
+ * @param array $attributes Array containing the block attributes.
  *
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes ) {
 	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 	if (
 		\Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) &&
