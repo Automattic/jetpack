@@ -4537,10 +4537,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
 
-		if ( ! $required_field_text ) {
-			$required_field_text = __( '(required)', 'jetpack' );
-		}
-
 		/**
 		 * Filter the Contact Form required field text
 		 *
