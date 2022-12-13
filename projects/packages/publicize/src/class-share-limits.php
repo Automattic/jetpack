@@ -79,11 +79,24 @@ class Share_Limits {
 	}
 
 	/**
+	 * Get current URL.
+	 *
+	 * @return string Current URL.
+	 */
+	public function get_current_url() {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$host = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : wp_parse_url( home_url(), PHP_URL_HOST );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$path = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '/';
+		return esc_url_raw( ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $path );
+	}
+
+	/**
 	 * Render a notice with the share count in the classic editor.
 	 */
 	public function render_classic_editor_notice() {
-		global $pagenow;
-		$notice = sprintf(
+		$current_url = $this->get_current_url();
+		$notice      = sprintf(
 			/* translators: %1$d: number of shares remaining, %2$s: link to upgrade the plan. */
 			_n(
 				'You currently have %1$d share remaining. <a href="%2$s" target="_blank">Upgrade</a> to get more.',
@@ -95,7 +108,17 @@ class Share_Limits {
 			Redirect::get_url(
 				'jetpack-social-basic-plan-classic-editor',
 				array(
-					'query' => 'redirect_to=' . $pagenow,
+					'query' => 'redirect_to=' . rawurlencode( $current_url ),
+				)
+			)
+		);
+		$more_link = sprintf(
+			/* translators: %s: link to find out more about the plan, and potentially upgrade. */
+			__( '<a href="%s" target="_blank">More about Jetpack Social</a>', 'jetpack-publicize-pkg' ),
+			Redirect::get_url(
+				'jetpack-social-basic-plan-block-editor',
+				array(
+					'query' => 'redirect_to=' . rawurlencode( $current_url ),
 				)
 			)
 		);
@@ -107,7 +130,7 @@ class Share_Limits {
 			),
 		);
 
-		echo '<p><em>' . wp_kses( $notice, $kses_allowed_tags ) . '</em></p>';
+		echo '<p><em>' . wp_kses( $notice, $kses_allowed_tags ) . '<br />' . wp_kses( $more_link, $kses_allowed_tags ) . ' </em></p>';
 	}
 
 	/**
