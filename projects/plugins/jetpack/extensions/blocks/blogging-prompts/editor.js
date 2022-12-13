@@ -1,5 +1,6 @@
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
+import { __, sprintf } from '@wordpress/i18n';
 import { waitForEditor } from '../../shared/wait-for-editor';
 
 async function insertTemplate( prompt, embedPrompt = false ) {
@@ -8,7 +9,14 @@ async function insertTemplate( prompt, embedPrompt = false ) {
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 	const bloggingPromptBlocks = embedPrompt
 		? [ createBlock( 'core/pullquote', { value: prompt.text } ), createBlock( 'core/paragraph' ) ]
-		: createBlock( 'core/paragraph', { placeholder: prompt.text }, [] );
+		: createBlock(
+				'core/paragraph',
+				{
+					/* translators: %s is the daily blogging prompt. */
+					placeholder: sprintf( __( 'Daily Prompt: %s', 'jetpack' ), prompt.text ),
+				},
+				[]
+		  );
 
 	insertBlocks( bloggingPromptBlocks, 0, undefined, false );
 }
