@@ -362,10 +362,6 @@ export const childBlocks = [
 			},
 			attributes: {
 				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: 'Message',
-				},
 			},
 		},
 	},
