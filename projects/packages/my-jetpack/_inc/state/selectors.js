@@ -55,6 +55,11 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
+const availableLicensesSelectors = {
+	getAvailableLicenses: state => state.availableLicenses?.items || [],
+	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
+};
+
 const pluginSelectors = {
 	hasStandalonePluginInstalled: state =>
 		Object.values( state.plugins ).filter(
@@ -77,6 +82,7 @@ const noticeSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
 };
