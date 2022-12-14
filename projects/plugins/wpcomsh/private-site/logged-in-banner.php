@@ -81,6 +81,56 @@ function show_logged_in_banner() {
 	if ( ! empty( $path_prefix ) ) {
 		$edit_url = sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $blog_domain, get_the_ID() );
 	}
+
+	$bar_controls = array();
+
+	if ( ! empty( $path_prefix ) ) {
+		ob_start();
+		?>
+		<a href="<?php echo esc_url( $edit_url ); ?>" target="_blank" rel="noopener noreferrer">
+			<svg class="icon icon-edit" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+				<path d="M1.397 11.858L0.866564 11.3278L0.685098 11.5094L0.652921 11.764L1.397 11.858ZM1 15L0.255916 14.906L0.133382 15.8757L1.1018 15.7431L1 15ZM4.14583 14.569L4.24764 15.3121L4.4971 15.2779L4.6754 15.1001L4.14583 14.569ZM14.6061 4.1389L14.0846 3.59977L14.0765 3.60781L14.6061 4.1389ZM14.6061 2.28131L14.076 2.81203L14.0846 2.82038L14.6061 2.28131ZM13.7171 1.39346L13.1786 1.91563L13.1871 1.92411L13.7171 1.39346ZM11.8572 1.39346L12.3877 1.92374L12.3957 1.91556L11.8572 1.39346ZM0.652921 11.764L0.255916 14.906L1.74408 15.094L2.14109 11.9521L0.652921 11.764ZM1.1018 15.7431L4.24764 15.3121L4.04403 13.8259L0.898197 14.2569L1.1018 15.7431ZM4.6754 15.1001L15.1356 4.67L14.0765 3.60781L3.61627 14.0379L4.6754 15.1001ZM15.1275 4.67797C15.3244 4.48754 15.481 4.25948 15.5879 4.00731L14.207 3.4216C14.1786 3.48853 14.137 3.54916 14.0846 3.59983L15.1275 4.67797ZM15.5879 4.00731C15.6949 3.75513 15.75 3.48402 15.75 3.21011H14.25C14.25 3.28275 14.2354 3.35467 14.207 3.4216L15.5879 4.00731ZM15.75 3.21011C15.75 2.93619 15.6949 2.66508 15.5879 2.4129L14.207 2.99861C14.2354 3.06554 14.25 3.13746 14.25 3.21011H15.75ZM15.5879 2.4129C15.481 2.16073 15.3244 1.93267 15.1275 1.74224L14.0846 2.82038C14.137 2.87105 14.1786 2.93167 14.207 2.99861L15.5879 2.4129ZM15.1361 1.75065L14.2471 0.862801L13.1871 1.92411L14.0761 2.81196L15.1361 1.75065ZM14.2555 0.871351C14.0649 0.674719 13.8366 0.518422 13.5844 0.4117L12.9999 1.79314C13.0672 1.8216 13.128 1.86325 13.1787 1.91556L14.2555 0.871351ZM13.5844 0.4117C13.3321 0.30498 13.061 0.25 12.7872 0.25V1.75C12.8603 1.75 12.9326 1.76468 12.9999 1.79314L13.5844 0.4117ZM12.7872 0.25C12.5133 0.25 12.2422 0.30498 11.99 0.4117L12.5744 1.79314C12.6417 1.76468 12.7141 1.75 12.7872 1.75V0.25ZM11.99 0.4117C11.7377 0.518421 11.5095 0.674718 11.3188 0.871351L12.3957 1.91556C12.4464 1.86325 12.5072 1.8216 12.5744 1.79314L11.99 0.4117ZM11.3268 0.863238L0.866564 11.3278L1.92744 12.3883L12.3877 1.92368L11.3268 0.863238Z" />
+				<path d="M10.6924 3.15381L12.875 5.34619" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			</svg>
+			<span class="is-mobile"><?php esc_html_e( 'Edit' ); ?></span>
+			<span class="is-desktop"><?php is_single() ? esc_html_e( 'Edit post' ) : esc_html_e( 'Edit page' ); ?></span>
+		</a>
+		<?php
+		$bar_controls['edit-item'] = ob_get_clean();
+	}
+	ob_start();
+	?>
+	<a href="<?php echo esc_url( $change_theme_url ); ?>" target="_blank" rel="noopener noreferrer">
+		<svg class="icon icon-theme" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+			<path d="M3 7.6665H17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M7.66687 16.9998V7.6665" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			<rect x="3" y="3" width="14" height="14" rx="1" stroke-width="1.5"/>
+		</svg>
+		<span class="is-mobile"><?php esc_html_e( 'Change' ); ?></span>
+		<span class="is-desktop"><?php esc_html_e( 'Change theme' ); ?></span>
+	</a>
+	<?php
+	$bar_controls['change-theme'] = ob_get_clean();
+	ob_start();
+	?>
+	<a href="<?php echo esc_url( $launch_url ); ?>" target="_parent" rel="noopener noreferrer">
+		<svg class="icon icon-launch" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+			<path d="M8.99994 16.5C13.1421 16.5 16.4999 13.1421 16.4999 9C16.4999 4.85786 13.1421 1.5 8.99994 1.5C4.8578 1.5 1.49994 4.85786 1.49994 9C1.49994 13.1421 4.8578 16.5 8.99994 16.5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M1.49994 9H16.4999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+			<path d="M8.99994 1.5C10.8759 3.55376 11.942 6.21903 11.9999 9C11.942 11.781 10.8759 14.4462 8.99994 16.5C7.12398 14.4462 6.05787 11.781 5.99994 9C6.05787 6.21903 7.12398 3.55376 8.99994 1.5V1.5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+		</svg>
+		<span class="is-mobile"><?php echo esc_html( $launch_text_mobile ); ?></span>
+		<span class="is-desktop"><?php echo esc_html( $launch_text ); ?></span>
+	</a>
+	<?php
+	$bar_controls['launch-site'] = ob_get_clean();
+
+	$bar_controls = apply_filters( 'wpcom_launch_bar_controls', $bar_controls );
+
+	if ( ! is_array( $bar_controls ) || empty( $bar_controls ) ) {
+		return;
+	}
+
 	?>
 	<div class="launch-banner-wrapper" id="wpcom-launch-banner-wrapper">
 		<style id="wpcom-launch-banner-style">
@@ -97,34 +147,11 @@ function show_logged_in_banner() {
 					</a>
 				</div>
 				<div class="launch-banner-section bar-controls">
-					<?php if ( ! empty( $path_prefix ) ) : ?>
-					<a href="<?php echo esc_url( $edit_url ); ?>" target="_blank" rel="noopener noreferrer">
-						<svg class="icon icon-edit" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M1.397 11.858L0.866564 11.3278L0.685098 11.5094L0.652921 11.764L1.397 11.858ZM1 15L0.255916 14.906L0.133382 15.8757L1.1018 15.7431L1 15ZM4.14583 14.569L4.24764 15.3121L4.4971 15.2779L4.6754 15.1001L4.14583 14.569ZM14.6061 4.1389L14.0846 3.59977L14.0765 3.60781L14.6061 4.1389ZM14.6061 2.28131L14.076 2.81203L14.0846 2.82038L14.6061 2.28131ZM13.7171 1.39346L13.1786 1.91563L13.1871 1.92411L13.7171 1.39346ZM11.8572 1.39346L12.3877 1.92374L12.3957 1.91556L11.8572 1.39346ZM0.652921 11.764L0.255916 14.906L1.74408 15.094L2.14109 11.9521L0.652921 11.764ZM1.1018 15.7431L4.24764 15.3121L4.04403 13.8259L0.898197 14.2569L1.1018 15.7431ZM4.6754 15.1001L15.1356 4.67L14.0765 3.60781L3.61627 14.0379L4.6754 15.1001ZM15.1275 4.67797C15.3244 4.48754 15.481 4.25948 15.5879 4.00731L14.207 3.4216C14.1786 3.48853 14.137 3.54916 14.0846 3.59983L15.1275 4.67797ZM15.5879 4.00731C15.6949 3.75513 15.75 3.48402 15.75 3.21011H14.25C14.25 3.28275 14.2354 3.35467 14.207 3.4216L15.5879 4.00731ZM15.75 3.21011C15.75 2.93619 15.6949 2.66508 15.5879 2.4129L14.207 2.99861C14.2354 3.06554 14.25 3.13746 14.25 3.21011H15.75ZM15.5879 2.4129C15.481 2.16073 15.3244 1.93267 15.1275 1.74224L14.0846 2.82038C14.137 2.87105 14.1786 2.93167 14.207 2.99861L15.5879 2.4129ZM15.1361 1.75065L14.2471 0.862801L13.1871 1.92411L14.0761 2.81196L15.1361 1.75065ZM14.2555 0.871351C14.0649 0.674719 13.8366 0.518422 13.5844 0.4117L12.9999 1.79314C13.0672 1.8216 13.128 1.86325 13.1787 1.91556L14.2555 0.871351ZM13.5844 0.4117C13.3321 0.30498 13.061 0.25 12.7872 0.25V1.75C12.8603 1.75 12.9326 1.76468 12.9999 1.79314L13.5844 0.4117ZM12.7872 0.25C12.5133 0.25 12.2422 0.30498 11.99 0.4117L12.5744 1.79314C12.6417 1.76468 12.7141 1.75 12.7872 1.75V0.25ZM11.99 0.4117C11.7377 0.518421 11.5095 0.674718 11.3188 0.871351L12.3957 1.91556C12.4464 1.86325 12.5072 1.8216 12.5744 1.79314L11.99 0.4117ZM11.3268 0.863238L0.866564 11.3278L1.92744 12.3883L12.3877 1.92368L11.3268 0.863238Z" />
-							<path d="M10.6924 3.15381L12.875 5.34619" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-						<span class="is-mobile"><?php esc_html_e( 'Edit' ); ?></span>
-						<span class="is-desktop"><?php is_single() ? esc_html_e( 'Edit post' ) : esc_html_e( 'Edit page' ); ?></span>
-					</a>
-					<?php endif; ?>
-					<a href="<?php echo esc_url( $change_theme_url ); ?>" target="_blank" rel="noopener noreferrer">
-						<svg class="icon icon-theme" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-							<path d="M3 7.6665H17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							<path d="M7.66687 16.9998V7.6665" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							<rect x="3" y="3" width="14" height="14" rx="1" stroke-width="1.5"/>
-						</svg>
-						<span class="is-mobile"><?php esc_html_e( 'Change' ); ?></span>
-						<span class="is-desktop"><?php esc_html_e( 'Change theme' ); ?></span>
-					</a>
-					<a href="<?php echo esc_url( $launch_url ); ?>" target="_parent" rel="noopener noreferrer">
-						<svg class="icon icon-launch" width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-							<path d="M8.99994 16.5C13.1421 16.5 16.4999 13.1421 16.4999 9C16.4999 4.85786 13.1421 1.5 8.99994 1.5C4.8578 1.5 1.49994 4.85786 1.49994 9C1.49994 13.1421 4.8578 16.5 8.99994 16.5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							<path d="M1.49994 9H16.4999" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-							<path d="M8.99994 1.5C10.8759 3.55376 11.942 6.21903 11.9999 9C11.942 11.781 10.8759 14.4462 8.99994 16.5C7.12398 14.4462 6.05787 11.781 5.99994 9C6.05787 6.21903 7.12398 3.55376 8.99994 1.5V1.5Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-						</svg>
-						<span class="is-mobile"><?php echo esc_html( $launch_text_mobile ); ?></span>
-						<span class="is-desktop"><?php echo esc_html( $launch_text ); ?></span>
-					</a>
+					<?php
+					foreach ( $bar_controls as $bar_control ) {
+						echo $bar_control; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					}
+					?>
 				</div>
 				<div class="launch-banner-section dismiss-button">
 					<button>
@@ -137,6 +164,10 @@ function show_logged_in_banner() {
 		</div>
 	</div>
 	<script>
+		launchBarUserData = {
+			blogId: <?php echo method_exists( '\Jetpack_Options', 'get_option' ) ? (int) \Jetpack_Options::get_option( 'id' ) : get_current_blog_id(); ?>,
+			isAtomic: true,
+		};
 		<?php /* Minimize the banner contents jumping around by hiding and un-hiding when the page is loaded. */ ?>
 		( function() {
 			var el = document.querySelector( '#wpcom-launch-banner-wrapper' );

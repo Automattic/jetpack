@@ -18,7 +18,7 @@
 
 .launch-banner-content .my-home-button,
 .launch-banner-content .dismiss-button {
-	width: 120px;
+	width: 160px;
 }
 
 .launch-banner-content .dismiss-button {
@@ -30,7 +30,7 @@
 .launch-banner-content button {
 	background: none;
 	border: none;
-	height: 48px;
+	min-height: 48px;
 	text-decoration: none !important;
 	color: #fff;
 	border-bottom: none;
@@ -57,12 +57,12 @@
 	flex-grow: 1;
 }
 
-.launch-banner-section.bar-controls a {
+.launch-banner-section.bar-controls > * {
 	border-left: 1px solid #424446;
 	font-weight: 500;
 }
 
-.launch-banner-section.bar-controls a:last-child {
+.launch-banner-section.bar-controls > *:last-child {
 	border-right: 1px solid #424446;
 }
 
@@ -90,7 +90,7 @@
 	display: none;
 }
 
-@media screen and (max-width: 620px) {
+@media screen and (max-width: 960px) {
 	.is-desktop {
 		display: none;
 	}
@@ -103,15 +103,27 @@
 		padding: 0 12px;
 	}
 
-	.launch-banner-section.bar-controls a {
+	.launch-banner-section.bar-controls > * {
 		border-left: none;
 	}
 
-	.launch-banner-section.bar-controls a:last-child {
+	.launch-banner-section.bar-controls > *:last-child {
 		border-right: none;
 	}
 
 	.launch-banner-section.dismiss-link a {
 		padding-right: 18px;
+	}
+}
+
+@media screen and (max-width: 460px) {
+
+	.launch-banner-section.my-home-button,
+	.launch-banner-section.dismiss-button {
+		display: none;
+	}
+
+	.launch-banner-section.bar-controls {
+		overflow-y: scroll;
 	}
 }
