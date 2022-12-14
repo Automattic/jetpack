@@ -150,7 +150,17 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
  * @return array Array of bullets markup.
  */
 function render_paginator( $ids = array(), $block_ordinal = 0 ) {
-	return bullets( $ids, $block_ordinal );
+	$total = count( $ids );
+
+	if ( $total < 6 ) {
+		return bullets( $ids, $block_ordinal );
+	}
+
+	return sprintf(
+		'<div class="swiper-pagination-simple">%s / %s</div>',
+		absint( $block_ordinal ),
+		absint( $total )
+	);
 }
 
 /**
