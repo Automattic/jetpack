@@ -15,7 +15,9 @@
 	"author": "Automattic",
 	"scripts": {},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@wordpress/compose": "5.20.0",
+		"@wordpress/element": "4.20.0",
 		"@wordpress/i18n": "4.22.0",
 		"@wordpress/plugins": "4.20.0",
 		"@wordpress/url": "3.23.0",
