@@ -22,7 +22,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.0"
+		"automattic/wordbless": "dev-master"
 	},
 	"autoload": {
 		"classmap": [
