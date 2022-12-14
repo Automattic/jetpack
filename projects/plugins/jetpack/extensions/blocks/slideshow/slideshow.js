@@ -20,6 +20,32 @@ import {
 	swiperResize,
 } from './swiper-callbacks';
 
+export function paginationCustomRender( swiper, current, total ) {
+	let markup = '';
+
+	for ( let i = 1; i <= total; i++ ) {
+		const active = i === current ? ' swiper-pagination-bullet-active' : '';
+		const cssClass = `swiper-pagination-bullet${ active }`;
+		const ariaLabel = sprintf(
+			/* translators: placeholder is the number of videos */
+			__( 'Go to slide %s', 'jetpack' ),
+			i
+		);
+
+		markup +=
+			'<button ' +
+			'class="' +
+			cssClass +
+			'" ' +
+			'tab-index="0" ' +
+			'role="button" ' +
+			'aria-label="' +
+			ariaLabel +
+			'"></button>';
+	}
+
+	return markup;
+}
 class Slideshow extends Component {
 	pendingRequestAnimationFrame = null;
 	resizeObserver = null;
@@ -222,32 +248,7 @@ class Slideshow extends Component {
 					clickable: true,
 					el: this.paginationRef.current,
 					type: 'custom',
-					renderCustom: function ( swiper, current, total ) {
-						let markup = '';
-
-						for ( let i = 1; i <= total; i++ ) {
-							const active = i === current ? ' swiper-pagination-bullet-active' : '';
-							const cssClass = `swiper-pagination-bullet${ active }`;
-							const ariaLabel = sprintf(
-								/* translators: placeholder is the number of videos */
-								__( 'Go to slide %s', 'jetpack' ),
-								i
-							);
-
-							markup +=
-								'<button ' +
-								'class="' +
-								cssClass +
-								'" ' +
-								'tab-index="0" ' +
-								'role="button" ' +
-								'aria-label="' +
-								ariaLabel +
-								'"></button>';
-						}
-
-						return markup;
-					},
+					renderCustom: paginationCustomRender,
 				},
 			},
 			{
