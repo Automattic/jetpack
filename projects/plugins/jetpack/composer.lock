@@ -1989,11 +1989,12 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "4cd8e038dee77f90302cf854a0c3f6974a7980b6"
+                "reference": "19d34515a0201eec283a62dde17c63baddc6e47f"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-stats": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -2033,8 +2034,11 @@
                 "build-development": [
                     "echo 'Add your build step to composer.json, please!'"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
