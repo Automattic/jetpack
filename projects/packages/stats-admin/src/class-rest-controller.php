@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
@@ -215,7 +216,7 @@ class REST_Controller {
 		$response = wp_remote_get(
 			sprintf(
 				'%s/rest/v1.2/sites/%d/posts/%d/likes?%s',
-				JETPACK__WPCOM_JSON_API_BASE,
+				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
 				http_build_query(
@@ -310,7 +311,7 @@ class REST_Controller {
 		$response = wp_remote_get(
 			sprintf(
 				'%s/rest/v1.2/sites/%d/posts?%s',
-				JETPACK__WPCOM_JSON_API_BASE,
+				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
 				http_build_query( $params )

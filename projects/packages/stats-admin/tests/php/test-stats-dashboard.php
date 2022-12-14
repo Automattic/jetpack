@@ -67,6 +67,6 @@ class Test_Plan extends Stats_Test_Case {
 		$this->assertArrayHasKey( 'nonce', $data );
 		$this->assertArrayHasKey( 'site_name', $data );
 		$this->assertArrayHasKey( 'intial_state', $data );
-		$this->assertEmpty( $data->features );
+		$this->assertEmpty( $data['features'] );
 	}
 }
