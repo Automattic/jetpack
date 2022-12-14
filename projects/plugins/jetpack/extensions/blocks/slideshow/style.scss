@@ -200,11 +200,16 @@
 		max-height: calc( 100% - 68px );
 	}
 
+
+	.wp-block-jetpack-slideshow_pagination.swiper-pagination-custom,
 	.wp-block-jetpack-slideshow_pagination.swiper-pagination-bullets {
 		bottom: 0;
 		line-height: 24px;
 		padding: 10px 0 2px;
 		position: relative;
+		display: flex;
+		justify-content: center;
+		gap: 8px;
 
 		.swiper-pagination-bullet {
 			background: currentColor;
