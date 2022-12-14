@@ -1,4 +1,4 @@
-import { JetpackLogo, SocialIcon } from '@automattic/jetpack-components';
+import { JetpackLogo, SocialIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	SocialPreviewsModal,
 	SocialPreviewsPanel,
@@ -127,7 +127,7 @@ const JetpackSocialSidebar = () => {
 			{ isReviewRequestVisible && isPublicizeEnabled && hasEnabledConnections && (
 				<PluginPostPublishPanel id="publicize-title">
 					<ReviewPrompt
-						href="https://wordpress.org/support/plugin/jetpack-social/reviews/"
+						href={ getRedirectUrl( 'jetpack-social-plugin-reviews' ) }
 						onClose={ handleReviewDismiss }
 					/>
 				</PluginPostPublishPanel>
