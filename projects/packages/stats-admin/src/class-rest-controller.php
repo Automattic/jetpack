@@ -115,6 +115,17 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
 			)
 		);
+
+		// List posts.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/posts', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_site_posts' ),
+				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+			)
+		);
 	}
 
 	/**
@@ -285,6 +296,44 @@ class REST_Controller {
 	 */
 	public function get_site_stats( $req ) {
 		return $this->wpcom_stats->get_stats( $req->get_params() );
+	}
+
+	/**
+	 * List posts for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_site_posts( $req ) {
+		// Force wpcom response.
+		$params   = array_merge( array( 'force' => 'wpcom' ), $req->get_params() );
+		$response = wp_remote_get(
+			sprintf(
+				'%s/rest/v1.2/sites/%d/posts?%s',
+				JETPACK__WPCOM_JSON_API_BASE,
+				Jetpack_Options::get_option( 'id' ),
+				$req->get_param( 'resource_id' ),
+				http_build_query( $params )
+			),
+			array( 'timeout' => 5 )
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $response );
+		$response_body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
+				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				array( 'status' => $response_code )
+			);
+		}
+
+		return $response_body;
 	}
 
 	/**
