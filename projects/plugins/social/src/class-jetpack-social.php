@@ -287,8 +287,6 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
-
-		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
@@ -311,6 +309,7 @@ class Jetpack_Social {
 		);
 
 		if ( 'draft' === get_post_status() && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
+			wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
 			Tracking::register_tracks_functions_scripts( true );
 		}
 	}
