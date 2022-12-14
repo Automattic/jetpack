@@ -238,6 +238,13 @@
 			opacity: 1;
 			transform: scale( 1 );
 		}
+
+		.swiper-pagination-simple {
+			line-height: 16px;
+			font-size: 14px;
+			width: 100%;
+			text-align: left;
+		}
 	}
 }
 

@@ -23,25 +23,30 @@ import {
 export function paginationCustomRender( swiper, current, total ) {
 	let markup = '';
 
-	for ( let i = 1; i <= total; i++ ) {
-		const active = i === current ? ' swiper-pagination-bullet-active' : '';
-		const cssClass = `swiper-pagination-bullet${ active }`;
-		const ariaLabel = sprintf(
-			/* translators: placeholder is the number of videos */
-			__( 'Go to slide %s', 'jetpack' ),
-			i
-		);
+	// Print dots pagination when total slides are less than six.
+	if ( total <= 5 ) {
+		for ( let i = 1; i <= total; i++ ) {
+			const active = i === current ? ' swiper-pagination-bullet-active' : '';
+			const cssClass = `swiper-pagination-bullet${ active }`;
+			const ariaLabel = sprintf(
+				/* translators: placeholder is the number of videos */
+				__( 'Go to slide %s', 'jetpack' ),
+				i
+			);
 
-		markup +=
-			'<button ' +
-			'class="' +
-			cssClass +
-			'" ' +
-			'tab-index="0" ' +
-			'role="button" ' +
-			'aria-label="' +
-			ariaLabel +
-			'"></button>';
+			markup +=
+				'<button ' +
+				'class="' +
+				cssClass +
+				'" ' +
+				'tab-index="0" ' +
+				'role="button" ' +
+				'aria-label="' +
+				ariaLabel +
+				'"></button>';
+		}
+	} else {
+		markup += `<div class="swiper-pagination-simple">${ current } / ${ total }</div>`;
 	}
 
 	return markup;
