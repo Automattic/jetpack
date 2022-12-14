@@ -79,9 +79,13 @@ const JetpackSocialSidebar = () => {
 			path: reviewRequestDismissUpdatePath,
 			method: 'POST',
 			data: { dismissed: true },
-		} ).then( () => {
-			// there's nothing to do here.
-		} );
+		} )
+			.then( () => {
+				// there's nothing to do here.
+			} )
+			.catch( () => {
+				// there's nothing to do here.
+			} );
 		hideReviewRequest();
 	}, [ hideReviewRequest, reviewRequestDismissUpdatePath ] );
 

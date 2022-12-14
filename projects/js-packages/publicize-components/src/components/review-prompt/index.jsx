@@ -5,10 +5,26 @@
 
 import { Button, ThemeProvider } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
+import useAnalyticsTracks from '../../hooks/use-anaytics-tracks';
 import styles from './styles.module.scss';
 
 const ReviewPrompt = props => {
 	const { href, onClose } = props;
+	const { recordEventHandler, recordEvent } = useAnalyticsTracks( {
+		pageViewEventName: 'social_plugin_review_prompt',
+		pageViewNamespace: 'jetpack',
+		pageViewSuffix: 'view',
+	} );
+	const recordReviewClick = recordEventHandler(
+		'jetpack_social_plugin_review_prompt_new_review_click',
+		{}
+	);
+
+	const handleDismiss = useCallback( () => {
+		recordEvent( 'jetpack_social_plugin_review_prompt_dismiss_click', {} );
+		onClose();
+	}, [ recordEvent, onClose ] );
 
 	return (
 		<ThemeProvider>
@@ -29,10 +45,15 @@ const ReviewPrompt = props => {
 					) }
 				</p>
 				<div className={ styles.buttons }>
-					<Button isExternalLink href={ href } className={ styles.button }>
+					<Button
+						onClick={ recordReviewClick }
+						isExternalLink
+						href={ href }
+						className={ styles.button }
+					>
 						{ __( 'Leave a Review', 'jetpack' ) }
 					</Button>
-					<Button onClick={ onClose } variant="link" className={ styles.button }>
+					<Button onClick={ handleDismiss } variant="link" className={ styles.button }>
 						{ __( 'Dismiss', 'jetpack' ) }
 					</Button>
 				</div>

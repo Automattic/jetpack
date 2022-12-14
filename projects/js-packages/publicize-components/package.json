@@ -43,6 +43,8 @@
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@babel/core": "7.20.5",
 		"@babel/plugin-transform-react-jsx": "7.19.0",
 		"@babel/preset-react": "7.18.6",

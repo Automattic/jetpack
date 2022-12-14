@@ -17,6 +17,8 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Class Jetpack_Social
@@ -286,6 +288,7 @@ class Jetpack_Social {
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
 
+		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
@@ -307,6 +310,9 @@ class Jetpack_Social {
 			)
 		);
 
+		if ( 'draft' === get_post_status() && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**
@@ -390,5 +396,17 @@ class Jetpack_Social {
 	 */
 	public static function is_review_request_dismissed() {
 		return (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
+	}
+
+	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
 }

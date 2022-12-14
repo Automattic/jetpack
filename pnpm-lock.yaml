@@ -457,8 +457,10 @@ importers:
   projects/js-packages/publicize-components:
     specifiers:
       '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/social-previews': 1.1.5
@@ -514,7 +516,9 @@ importers:
       rememo: 4.0.1
     devDependencies:
       '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
+      '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-webpack-config': link:../webpack-config
       '@babel/core': 7.20.5
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.20.5
