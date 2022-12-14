@@ -48,10 +48,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder
 						className="jetpack-field-label__required"
 						checked={ required }
 						onChange={ value => setAttributes( { required: value } ) }
-						help={ __(
-							'Does this field have to be completed for the form to be submitted?',
-							'jetpack'
-						) }
+						help={ __( 'You can edit the "required" label in the editor', 'jetpack' ) }
 					/>
 
 					<TextControl
