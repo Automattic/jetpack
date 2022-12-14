@@ -15,6 +15,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\JITMS\JITM as JITM;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
@@ -34,7 +35,8 @@ use Automattic\Jetpack\Waf\Waf_Runner;
  */
 class Jetpack_Protect {
 
-	const JETPACK_WAF_MODULE_SLUG = 'waf';
+	const JETPACK_WAF_MODULE_SLUG           = 'waf';
+	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
 	 * Constructor.
@@ -42,6 +44,9 @@ class Jetpack_Protect {
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
+
+		// Activate the module as the plugin is activated
+		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 
 		// Init Jetpack packages
 		add_action(
@@ -201,7 +206,7 @@ class Jetpack_Protect {
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
 				'isEnabled'           => Waf_Runner::is_enabled(),
-				'isLoading'           => false,
+				'isToggling'          => false,
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
 			),
@@ -218,6 +223,44 @@ class Jetpack_Protect {
 		?>
 			<div id="jetpack-protect-root"></div>
 		<?php
+	}
+
+	/**
+	 * Activate the WAF module on plugin activation.
+	 *
+	 * @static
+	 */
+	public static function plugin_activation() {
+		add_option( self::JETPACK_PROTECT_ACTIVATION_OPTION, true );
+	}
+
+	/**
+	 * Helper to check that we have a Jetpack connection.
+	 */
+	private static function is_connected() {
+		$manager = new Connection_Manager();
+		return $manager->is_connected() && $manager->has_connected_user();
+	}
+
+	/**
+	 * Runs on admin_init, and does actions required on plugin activation, based on
+	 * the activation option.
+	 *
+	 * This needs to be run after the activation hook, as that results in a redirect,
+	 * and we need the sync module's actions and filters to be registered.
+	 */
+	public static function do_plugin_activation_activities() {
+		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && self::is_connected() ) {
+			self::activate_module();
+		}
+	}
+
+	/**
+	 * Activates the Publicize module and disables the activation option
+	 */
+	public static function activate_module() {
+		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
+		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -660,7 +703,7 @@ class Jetpack_Protect {
 		}
 
 		$badge_timestamp = self::get_waf_upgrade_badge_timestamp();
-		$seven_days      = strtotime( '-7 days' );
+		$seven_days      = strtotime( '-30 seconds' );
 		if ( $badge_timestamp > $seven_days ) {
 			return true;
 		}

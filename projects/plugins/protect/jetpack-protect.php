@@ -116,6 +116,7 @@ add_filter(
 	}
 );
 
+register_activation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactivation' ) );
 
 // Main plugin class.

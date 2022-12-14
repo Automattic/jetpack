@@ -5,10 +5,10 @@ import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
-import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = () => {
@@ -16,7 +16,7 @@ const UpgradePrompt = () => {
 	const firewallUrl = adminUrl + '#/firewall';
 
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
 	} );
 
@@ -81,7 +81,13 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ __( 'Automatic firewall is on', 'jetpack-protect' ) }
+								{ hasRequiredPlan
+									? __( 'Automatic firewall is on', 'jetpack-protect' )
+									: __(
+											'Jetpack firewall is on',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
 							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
@@ -118,13 +124,13 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, isLoading } = useWafData();
+	const { isEnabled, isToggling } = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus = isEnabled ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
-			status={ isLoading ? 'loading' : currentStatus }
+			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
 		/>
 	);
