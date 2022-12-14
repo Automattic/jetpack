@@ -17,12 +17,7 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		// Do not run in the WPCOM context
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return;
-		}
-
-		// Check if killswitch is defined as true
+		// Do not run in unsupported environments
 		if ( ! Waf_Runner::is_supported_environment() ) {
 			return;
 		}
@@ -33,6 +28,7 @@ class Waf_Initializer {
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
 
 		// Run the WAF
 		Waf_Runner::initialize();
@@ -76,5 +72,21 @@ class Waf_Initializer {
 		}
 
 		Waf_Runner::update_waf();
+	}
+
+	/**
+	 * Disables the WAF module when on an supported platform.
+	 *
+	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
+	 *
+	 * @return array Array of module slugs.
+	 */
+	public function remove_module_on_unsupported_environments( $modules ) {
+		if ( ! Waf_Runner::is_supported_environment() ) {
+			// WAF should never be available on unsupported platforms.
+			unset( $modules['waf'] );
+		}
+
+		return $modules;
 	}
 }

@@ -128,13 +128,14 @@ class Waf_Standalone_Bootstrap {
 			throw new Exception( 'Can not work without the file system being initialized.' );
 		}
 
+		$is_disabled       = ! Waf_Runner::is_supported_environment();
 		$bootstrap_file    = $this->get_bootstrap_file_path();
 		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
 		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"
-			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", var_export( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF, true ) )
+			. sprintf( "define( 'DISABLE_JETPACK_WAF', %s );\n", $is_disabled )
 			. "if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) return;\n"
 			. sprintf( "define( 'JETPACK_WAF_MODE', %s );\n", var_export( $mode_option ? $mode_option : 'silent', true ) )
 			. sprintf( "define( 'JETPACK_WAF_SHARE_DATA', %s );\n", var_export( $share_data_option, true ) )
