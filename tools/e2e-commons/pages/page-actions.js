@@ -45,7 +45,6 @@ export default class PageActions {
 		} catch ( e ) {
 			logger.error( `Error waiting for domcontentloaded (1): ${ e }` );
 			await this.reload();
-			await this.waitForDomContentLoaded();
 		}
 
 		if ( checkSelectors ) {
