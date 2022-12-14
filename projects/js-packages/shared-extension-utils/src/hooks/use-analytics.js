@@ -1,7 +1,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useEffect } from '@wordpress/element';
-import { getJetpackData } from './../get-jetpack-data';
-import { isCurrentUserConnected } from './../is-current-user-connected';
+import getJetpackData from './../get-jetpack-data';
+import isCurrentUserConnected from './../is-current-user-connected';
 
 const useAnalytics = () => {
 	const { userid, username } = getJetpackData()?.tracksUserData ?? {};
