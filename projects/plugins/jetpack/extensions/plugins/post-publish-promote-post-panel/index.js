@@ -39,7 +39,7 @@ const PluginPostPublishPanelPromotePost = () => {
 		postVisibility: selector( editorStore ).getEditedPostVisibility(),
 	} ) );
 
-	const promoteUrl = getRedirectUrl( 'wpcom-advertising-post', {
+	const promoteUrl = getRedirectUrl( 'jetpack-promote-posts', {
 		site: getSiteFragment(),
 		query: `blazepress-widget=post-${ postId }`,
 	} );
