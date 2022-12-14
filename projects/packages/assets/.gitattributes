@@ -10,6 +10,7 @@ webpack.config.js export-ignore
 .phpcs.dir.xml    production-exclude
 .phpcsignore      production-exclude
 /changelog/**     production-exclude
+src/js/**         production-exclude
 
 # Files to include in the production build.
 /build/**         production-include
