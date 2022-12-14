@@ -209,7 +209,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
 	wp_cache_disable_plugin( false ); // don't delete configuration file
-	delete_option( 'wpsc_2022_boost_banner' );
+	delete_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
