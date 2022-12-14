@@ -229,6 +229,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'wpcom_gifting_subscription'                   => true,
 			'launch-status'                                => 'unlaunched',
 			'jetpack_blogging_prompts_enabled'             => false,
+			'wpcom_subscription_emails_use_excerpt'        => false,
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
