@@ -177,7 +177,7 @@ class Waf_Runner {
 	 */
 	public static function get_config() {
 		return array(
-			self::AUTOMATIC_RULES_ENABLED_OPTION_NAME => get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ),
+			self::AUTOMATIC_RULES_ENABLED_OPTION_NAME => self::automatic_rules_enabled(),
 			self::IP_LISTS_ENABLED_OPTION_NAME        => get_option( self::IP_LISTS_ENABLED_OPTION_NAME ),
 			self::IP_ALLOW_LIST_OPTION_NAME           => get_option( self::IP_ALLOW_LIST_OPTION_NAME ),
 			self::IP_BLOCK_LIST_OPTION_NAME           => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
