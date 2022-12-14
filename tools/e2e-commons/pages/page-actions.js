@@ -39,7 +39,15 @@ export default class PageActions {
 	 */
 	async waitForPage( checkSelectors = true ) {
 		logger.action( `Waiting for ${ this.pageName }` );
-		await this.waitForDomContentLoaded();
+
+		try {
+			await this.waitForDomContentLoaded();
+		} catch ( e ) {
+			logger.error( `Error waiting for domcontentloaded (1): ${ e }` );
+			await this.reload();
+			await this.waitForDomContentLoaded();
+		}
+
 		if ( checkSelectors ) {
 			for ( const selector of this.selectors ) {
 				await this.waitForElementToBeVisible( selector );
