@@ -6,6 +6,7 @@ import {
 	Col,
 	getRedirectUrl,
 	PricingCard,
+	JetpackVaultPressBackupLogo,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
@@ -43,6 +44,7 @@ const Admin = () => {
 			showHeader={ isFullyConnected }
 			showFooter={ isFullyConnected }
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
+			header={ <JetpackVaultPressBackupLogo /> }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
