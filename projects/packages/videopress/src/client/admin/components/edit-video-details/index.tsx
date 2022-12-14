@@ -9,6 +9,7 @@ import {
 	Container,
 	Col,
 	useBreakpointMatch,
+	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
@@ -24,7 +25,6 @@ import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
-import Logo from '../logo';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
@@ -51,7 +51,7 @@ const Header = ( {
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
 			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
-				<Logo />
+				<JetpackVideoPressLogo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
 				<div className={ styles.breadcrumb }>
