@@ -4,7 +4,13 @@
 import { Path, SVG } from '@wordpress/components';
 
 export const VideoPressIcon = (
-	<SVG width="29" height="21" viewBox="0 0 29 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<SVG
+		width="29"
+		height="21"
+		viewBox="0 0 29 21"
+		fill="currentColor"
+		xmlns="http://www.w3.org/2000/svg"
+	>
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
@@ -14,7 +20,13 @@ export const VideoPressIcon = (
 );
 
 export const tracksIcon = (
-	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<SVG
+		width="24"
+		height="24"
+		viewBox="0 0 24 24"
+		fill="currentColor"
+		xmlns="http://www.w3.org/2000/svg"
+	>
 		<Path d="M7 15.5H17V17H7V15.5Z" />
 		<Path d="M17 12.5H7V14H17V12.5Z" />
 		<Path
