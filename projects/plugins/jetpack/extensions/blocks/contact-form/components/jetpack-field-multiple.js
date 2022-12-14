@@ -12,6 +12,7 @@ function JetpackFieldMultiple( props ) {
 		type,
 		instanceId,
 		required,
+		requiredText,
 		label,
 		setAttributes,
 		isSelected,
@@ -62,6 +63,7 @@ function JetpackFieldMultiple( props ) {
 				label={
 					<JetpackFieldLabel
 						required={ required }
+						requiredText={ requiredText }
 						label={ label }
 						setAttributes={ setAttributes }
 						isSelected={ isSelected }

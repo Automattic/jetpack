@@ -30,7 +30,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.6.1';
+	const PACKAGE_VERSION = '2.7.0-alpha';
 
 	/**
 	 * Initialize My Jetpack
