@@ -317,6 +317,17 @@ class REST_Endpoints {
 			)
 		);
 
+		// Reset Sync locks.
+		register_rest_route(
+			'jetpack/v4',
+			'/sync/locks',
+			array(
+				'methods'             => WP_REST_Server::DELETABLE,
+				'callback'            => __CLASS__ . '::reset_locks',
+				'permission_callback' => __CLASS__ . '::verify_default_permissions',
+			)
+		);
+
 	}
 
 	/**
@@ -765,6 +776,23 @@ class REST_Endpoints {
 			'dedicated_sync_failed',
 			'Failed to process Dedicated Sync request',
 			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @since 1.43.0
+	 *
+	 * @return \WP_REST_Response
+	 */
+	public static function reset_locks() {
+		Actions::reset_sync_locks();
+
+		return rest_ensure_response(
+			array(
+				'success' => true,
+			)
 		);
 	}
 

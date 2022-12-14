@@ -18,22 +18,32 @@ use Automattic\Jetpack\JITMS\JITM as JITM;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Credentials;
+use Automattic\Jetpack\Protect\Plan;
+use Automattic\Jetpack\Protect\Scan_Status;
 use Automattic\Jetpack\Protect\Site_Health;
-use Automattic\Jetpack\Protect\Status as Protect_Status;
+use Automattic\Jetpack\Protect\Status;
+use Automattic\Jetpack\Protect\Threats;
+use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Waf_Runner;
+
 /**
  * Class Jetpack_Protect
  */
 class Jetpack_Protect {
+
+	const JETPACK_WAF_MODULE_SLUG = 'waf';
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -54,11 +64,13 @@ class Jetpack_Protect {
 						'jetpack_sync_modules'             => array(
 							'Automattic\\Jetpack\\Sync\\Modules\\Options',
 							'Automattic\\Jetpack\\Sync\\Modules\\Callables',
+							'Automattic\\Jetpack\\Sync\\Modules\\Users',
 						),
 						'jetpack_sync_callable_whitelist'  => array(
-							'get_plugins' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
-							'get_themes'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
-							'wp_version'  => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
+							'main_network_site' => array( 'Automattic\\Jetpack\\Connection\\Urls', 'main_network_site_url' ),
+							'get_plugins'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
+							'get_themes'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_themes' ),
+							'wp_version'        => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 						),
 						'jetpack_sync_options_contentless' => array(),
 						'jetpack_sync_options_whitelist'   => array(
@@ -70,9 +82,14 @@ class Jetpack_Protect {
 
 				// Identity crisis package.
 				$config->ensure( 'identity_crisis' );
+
+				// Web application firewall package.
+				$config->ensure( 'waf' );
 			},
 			1
 		);
+
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
 
 	/**
@@ -83,22 +100,6 @@ class Jetpack_Protect {
 	public function init() {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
-
-		$total_vuls = Protect_Status::get_total_vulnerabilities();
-		$menu_label = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
-		if ( $total_vuls ) {
-			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_vuls );
-		}
-
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Protect', 'jetpack-protect' ),
-			$menu_label,
-			'manage_options',
-			'jetpack-protect',
-			array( $this, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar' ), 65 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -113,10 +114,25 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Initialize the admin resources.
+	 * Initialize the admin page resources.
 	 */
-	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+	public function admin_page_init() {
+		$total_threats = Status::get_total_threats();
+		$menu_label    = _x( 'Protect', 'The Jetpack Protect product name, without the Jetpack prefix', 'jetpack-protect' );
+		if ( $total_threats ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_threats );
+		}
+
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Protect', 'jetpack-protect' ),
+			$menu_label,
+			'manage_options',
+			'jetpack-protect',
+			array( $this, 'plugin_settings_page' ),
+			99
+		);
+
+		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );
 	}
 
 	/**
@@ -165,18 +181,32 @@ class Jetpack_Protect {
 	 */
 	public function initial_state() {
 		global $wp_version;
-		return array(
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		$refresh_status_from_wpcom = isset( $_GET['checkPlan'] );
+		$initial_state             = array(
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
-			'status'            => Protect_Status::get_status(),
+			'status'            => Status::get_status( $refresh_status_from_wpcom ),
 			'installedPlugins'  => Plugins_Installer::get_plugins(),
 			'installedThemes'   => Sync_Functions::get_themes(),
 			'wpVersion'         => $wp_version,
-			'adminUrl'          => admin_url( 'admin.php?page=jetpack-protect' ),
-			'securityBundle'    => My_Jetpack_Products::get_product( 'security' ),
+			'adminUrl'          => 'admin.php?page=jetpack-protect',
+			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
+			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
+			'hasRequiredPlan'   => Plan::has_required_plan(),
+			'waf'               => array(
+				'isSeen'    => self::get_waf_seen_status(),
+				'isEnabled' => Waf_Runner::is_enabled(),
+				'isLoading' => false,
+				'config'    => Waf_Runner::get_config(),
+			),
 		);
+
+		$initial_state['jetpackScan']['pricingForUi'] = Plan::get_product( 'jetpack_scan' );
+
+		return $initial_state;
 	}
 	/**
 	 * Main plugin settings page.
@@ -202,11 +232,11 @@ class Jetpack_Protect {
 		$manager = new Connection_Manager( 'jetpack-protect' );
 		$manager->remove_connection();
 
-		Protect_Status::delete_option();
+		Status::delete_option();
 	}
 
 	/**
-	 * Create a shortcut on Admin Bar to show the total of vulnerabilities found.
+	 * Create a shortcut on Admin Bar to show the total of threats found.
 	 *
 	 * @param object $wp_admin_bar The Admin Bar object.
 	 * @return void
@@ -216,7 +246,7 @@ class Jetpack_Protect {
 			return;
 		}
 
-		$total = Protect_Status::get_total_vulnerabilities();
+		$total = Status::get_total_threats();
 
 		if ( $total > 0 ) {
 			$args = array(
@@ -224,8 +254,8 @@ class Jetpack_Protect {
 				'title' => '<span class="ab-icon jp-protect-icon"></span><span class="ab-label">' . $total . '</span>',
 				'href'  => admin_url( 'admin.php?page=jetpack-protect' ),
 				'meta'  => array(
-					// translators: %d is the number of vulnerabilities found.
-					'title' => sprintf( _n( '%d vulnerability found by Jetpack Protect', '%d vulnerabilities found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
+					// translators: %d is the number of threats found.
+					'title' => sprintf( _n( '%d threat found by Jetpack Protect', '%d threats found by Jetpack Protect', $total, 'jetpack-protect' ), $total ),
 				),
 			);
 
@@ -234,11 +264,33 @@ class Jetpack_Protect {
 	}
 
 	/**
+	 * Adds module to the list of available modules
+	 *
+	 * @param array $modules The available modules.
+	 * @return array
+	 */
+	public function protect_filter_available_modules( $modules ) {
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
+	}
+
+	/**
 	 * Register the REST API routes.
 	 *
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		register_rest_route(
+			'jetpack-protect/v1',
+			'check-plan',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_check_plan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
 		register_rest_route(
 			'jetpack-protect/v1',
 			'status',
@@ -250,15 +302,304 @@ class Jetpack_Protect {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'clear-scan-cache',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_clear_scan_cache',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'ignore-threat',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_ignore_threat',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'fix-threats',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_fix_threats',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'fix-threats-status',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::api_fix_threats_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'check-credentials',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_check_credentials',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'scan',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_scan',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'toggle-waf',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_toggle_waf',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::api_get_waf',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::get_waf_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::set_waf_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+	}
+
+	/**
+	 * Return site plan data for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_check_plan() {
+		$has_required_plan = Plan::has_required_plan();
+
+		return rest_ensure_response( $has_required_plan, 200 );
 	}
 
 	/**
 	 * Return Protect Status for the API endpoint
 	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
 	 * @return WP_REST_Response
 	 */
-	public static function api_get_status() {
-		$status = Protect_Status::get_status();
+	public static function api_get_status( $request ) {
+		$status = Status::get_status( $request['hard_refresh'] );
 		return rest_ensure_response( $status, 200 );
+	}
+
+	/**
+	 * Clear the Scan_Status cache for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_clear_scan_cache() {
+		$cache_cleared = Scan_Status::delete_option();
+
+		if ( ! $cache_cleared ) {
+			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan cache.', 500 );
+		}
+
+		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );
+	}
+
+	/**
+	 * Ignores a threat for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_ignore_threat( $request ) {
+		if ( ! $request['threat_id'] ) {
+			return new WP_REST_RESPONSE( 'Missing threat ID.', 400 );
+		}
+
+		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
+
+		if ( ! $threat_ignored ) {
+			return new WP_REST_Response( 'An error occured while attempting to ignore the threat.', 500 );
+		}
+
+		return new WP_REST_Response( 'Threat ignored.' );
+	}
+
+	/**
+	 * Fixes threats for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_fix_threats( $request ) {
+		if ( empty( $request['threat_ids'] ) ) {
+			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+		}
+
+		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
+
+		if ( ! $threats_fixed ) {
+			return new WP_REST_Response( 'An error occured while attempting to fix the threat.', 500 );
+		}
+
+		return new WP_REST_Response( $threats_fixed );
+	}
+
+	/**
+	 * Fixes threats for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_fix_threats_status( $request ) {
+		if ( empty( $request['threat_ids'] ) ) {
+			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+		}
+
+		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );
+
+		if ( ! $threats_fixed ) {
+			return new WP_REST_Response( 'An error occured while attempting to get the fixer status of the threats.', 500 );
+		}
+
+		return new WP_REST_Response( $threats_fixed );
+	}
+
+	/**
+	 * Checks if the site has credentials configured
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_check_credentials() {
+		$credential_array = Credentials::get_credential_array();
+
+		if ( ! isset( $credential_array ) ) {
+			return new WP_REST_Response( 'An error occured while attempting to fetch the credentials array', 500 );
+		}
+
+		return new WP_REST_Response( $credential_array );
+	}
+
+	/**
+	 * Enqueues a scan for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_scan() {
+		$scan_enqueued = Threats::scan();
+
+		if ( ! $scan_enqueued ) {
+			return new WP_REST_Response( 'An error occured while attempting to enqueue the scan.', 500 );
+		}
+
+		return new WP_REST_Response( 'Scan enqueued.' );
+	}
+
+	/**
+	 * Toggles the WAF module on or off for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_toggle_waf() {
+		if ( Waf_Runner::is_enabled() ) {
+			Waf_Runner::disable();
+			return rest_ensure_response( true, 200 );
+		}
+
+		Waf_Runner::enable();
+		return rest_ensure_response( true, 200 );
+	}
+
+	/**
+	 * Get WAF data for the API endpoint
+	 *
+	 * @return WP_Rest_Response
+	 */
+	public static function api_get_waf() {
+		return new WP_REST_Response(
+			array(
+				'is_seen'    => self::get_waf_seen_status(),
+				'is_enabled' => Waf_Runner::is_enabled(),
+				'config'     => Waf_Runner::get_config(),
+			)
+		);
+	}
+
+	/**
+	 * Get WAF "Seen" Status
+	 *
+	 * @return bool Whether the current user has viewed the WAF screen.
+	 */
+	public static function get_waf_seen_status() {
+		return (bool) get_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
+	}
+
+	/**
+	 * Set WAF "Seen" Status
+	 *
+	 * @return bool True if seen status updated to true, false on failure.
+	 */
+	public static function set_waf_seen_status() {
+		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
 	}
 }

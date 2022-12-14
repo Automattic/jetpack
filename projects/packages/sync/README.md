@@ -66,6 +66,7 @@ the following modules will be enabled no matter the configuration:
 - `Automattic\\Jetpack\\Sync\\Modules\\Callables`
 - `Automattic\\Jetpack\\Sync\\Modules\\Constants`
 - `Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately`
+- `Automattic\\Jetpack\\Sync\\Modules\\Updates`
 
 ##### `jetpack_sync_options_whitelist` / `jetpack_sync_options_contentless`
 

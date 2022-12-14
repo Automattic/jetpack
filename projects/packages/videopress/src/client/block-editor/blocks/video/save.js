@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from './utils/url';
+import { getVideoPressUrl } from '../../../lib/url';
 
 /**
  * VideoPress block save function
@@ -54,7 +54,7 @@ export default function save( { attributes } ) {
 		poster,
 	} );
 
-	// Adjust block with based on custom maxWidth.
+	// Adjust block width based on custom maxWidth.
 	const style = {};
 	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		style.maxWidth = maxWidth;
@@ -63,9 +63,11 @@ export default function save( { attributes } ) {
 
 	return (
 		<figure { ...blockProps } style={ style }>
-			<div className="jetpack-videopress-player__wrapper">
-				{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-			</div>
+			{ videoPressUrl && (
+				<div className="jetpack-videopress-player__wrapper">
+					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+				</div>
+			) }
 
 			{ ! RichText.isEmpty( caption ) && (
 				<RichText.Content tagName="figcaption" value={ caption } />

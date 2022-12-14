@@ -17,30 +17,73 @@ export interface ActionItemProps extends React.ButtonHTMLAttributes< HTMLButtonE
 
 export interface PopoverWithAnchorProps {
 	/**
+	 * Whether the popover should be rendered or not
+	 */
+	showPopover?: boolean;
+	/**
+	 * Whether the anchor is focused
+	 */
+	isAnchorFocused?: boolean;
+	/**
 	 * Ref that anchors the popover
 	 */
-	anchorRef: HTMLElement | null;
+	anchor: HTMLElement | null;
 	/**
 	 * Popover content
 	 */
 	children: React.ReactNode;
 }
 
+/**
+ * Privacy setting of the video.
+ * - 0: `public`
+ * - 1: `private`
+ * - 2: `site default`
+ */
+type privacySetting = 0 | 1 | 2;
+
 export interface VideoQuickActionsProps {
 	/**
 	 * className to apply to the component
 	 */
 	className?: string;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+
+	privacySetting?: privacySetting;
+	isUpdatingPrivacy?: boolean;
+	isUpdatingPoster?: boolean;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
 }
+
+export interface ConnectVideoQuickActionsProps {
+	/**
+	 * className to apply to the component
+	 */
+	className?: string;
+
+	/**
+	 * Post ID of the video item.
+	 */
+	videoId: number | string;
+
+	onUpdateVideoThumbnail?: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	onUpdateVideoPrivacy?: ( action: 'site-default' | 'public' | 'private' ) => void;
+	onDeleteVideo?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+}
+
+export type ThumbnailActionsDropdownProps = {
+	onUpdate: ( action: 'default' | 'select-from-video' | 'upload-image' ) => void;
+	description: string;
+	isUpdatingPoster?: boolean;
+	disabled?: boolean;
+};
+
+export type PrivacyActionsDropdownProps = {
+	onUpdate: ( action: 'site-default' | 'public' | 'private' ) => void;
+	privacySetting?: privacySetting;
+	isUpdatingPrivacy?: boolean;
+	description: string;
+	disabled?: boolean;
+};

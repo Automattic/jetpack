@@ -25,6 +25,7 @@ class Config {
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
+		add_action( 'jetpack_boost_before_module_status_update', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
 
 	public function constants() {
@@ -40,10 +41,11 @@ class Config {
 			'optimizations'         => $optimizations,
 			'locale'                => get_locale(),
 			'site'                  => array(
-				'domain'    => ( new Status() )->get_site_suffix(),
-				'url'       => get_home_url(),
-				'online'    => ! ( new Status() )->is_offline_mode(),
-				'assetPath' => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'domain'     => ( new Status() )->get_site_suffix(),
+				'url'        => get_home_url(),
+				'online'     => ! ( new Status() )->is_offline_mode(),
+				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
+				'getStarted' => self::is_getting_started(),
 			),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
@@ -92,6 +94,7 @@ class Config {
 				$allowed_modals  = array(
 					'score-increase',
 					'score-decrease',
+					'super-cache-not-enabled',
 				);
 				if ( ! in_array( $modal_to_banish, $allowed_modals, true ) ) {
 					$error = new \WP_Error( 'authorization', __( 'This modal is not dismissable.', 'jetpack-boost' ) );
@@ -128,7 +131,7 @@ class Config {
 	 * This now holds an array of modal IDs since we are keeping the option name the same
 	 * earlier versions of Boost would set this to false.
 	 *
-	 * @return bool
+	 * @return string[]
 	 */
 	public function get_dismissed_modals() {
 		// get the option. This will be false, or an empty array
@@ -148,5 +151,41 @@ class Config {
 	 */
 	public static function clear_show_score_prompt() {
 		\delete_option( self::SHOW_SCORE_PROMPT_OPTION );
+	}
+
+	/**
+	 * Flag get started as complete if a module is enabled.
+	 *
+	 * @param string $module Module Slug.
+	 * @param bool   $enabled Enabled status.
+	 */
+	public function on_module_status_change( $module, $status ) {
+		if ( $status ) {
+			self::set_getting_started( false );
+		}
+	}
+
+	/**
+	 * Enable of disable getting started page.
+	 *
+	 * If enabled, trying to open boost dashboard will take a user to the getting started page.
+	 */
+	public static function set_getting_started( $value ) {
+		return \update_option( 'jb_get_started', $value, false );
+	}
+
+	/**
+	 * Check if force redirect to getting started page is enabled.
+	 */
+	public static function is_getting_started() {
+		// Aside from the boolean flag in the database, we also assume site already got started if they have premium features.
+		return \get_option( 'jb_get_started', false ) && ! Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) && ! ( new Status() )->is_offline_mode();
+	}
+
+	/**
+	 * Clear the getting started option.
+	 */
+	public static function clear_getting_started() {
+		\delete_option( 'jb_get_started' );
 	}
 }

@@ -6,7 +6,7 @@
  *
  * @package automattic/jetpack
  */
-
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -61,13 +61,13 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 *
 	 * We query the WordPress.com Stats REST API endpoint.
 	 *
-	 * @uses stats_get_from_restapi(). That function caches data locally for 5 minutes.
+	 * @uses Automattic\Jetpack\Stats\WPCOM_Stats->get_stats. That function caches data locally for 5 minutes.
 	 *
 	 * @return string|false $views All Time Stats for that blog.
 	 */
 	public function get_stats() {
 		// Get data from the WordPress.com Stats REST API endpoint.
-		$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
+		$stats = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) );
 
 		if ( isset( $stats->stats->views ) ) {
 			return $stats->stats->views;
@@ -168,7 +168,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
  * @since 4.5.0
  */
 function jetpack_blog_stats_widget_init() {
-	if ( function_exists( 'stats_get_from_restapi' ) ) {
+	if ( Jetpack::is_module_active( 'stats' ) ) {
 		register_widget( 'Jetpack_Blog_Stats_Widget' );
 	}
 }

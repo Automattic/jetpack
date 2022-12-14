@@ -29,6 +29,7 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_ANTI_SPAM_MONTHLY,
 	PLAN_JETPACK_SEARCH,
+	PLAN_JETPACK_SEARCH_FREE,
 	PLAN_JETPACK_SEARCH_MONTHLY,
 	PLAN_JETPACK_FREE,
 	PLAN_JETPACK_PERSONAL,
@@ -56,6 +57,8 @@ import {
 	PLAN_JETPACK_SECURITY_DAILY_MONTHLY,
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
+	PLAN_JETPACK_SOCIAL_BASIC,
+	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
 } from 'lib/plans/constants';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
@@ -92,6 +95,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_ANTI_SPAM ]: '/products/product-jetpack-anti-spam.svg',
 	[ PLAN_JETPACK_ANTI_SPAM_MONTHLY ]: '/products/product-jetpack-anti-spam.svg',
 	[ PLAN_JETPACK_SEARCH ]: '/products/product-jetpack-search.svg',
+	[ PLAN_JETPACK_SEARCH_FREE ]: '/products/product-jetpack-search.svg',
 	[ PLAN_JETPACK_SEARCH_MONTHLY ]: '/products/product-jetpack-search.svg',
 	[ PLAN_JETPACK_FREE ]: '/plans/jetpack-free.svg',
 	[ PLAN_JETPACK_PERSONAL ]: '/plans/jetpack-personal.svg',
@@ -108,7 +112,8 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_VIDEOPRESS ]: '/products/product-jetpack-videopress.svg',
 	[ PLAN_JETPACK_VIDEOPRESS_MONTHLY ]: '/products/product-jetpack-videopress.svg',
-
+	[ PLAN_JETPACK_SOCIAL_BASIC ]: '/products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_SOCIAL_BASIC_MONTHLY ]: '/products/product-jetpack-social.svg',
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	[ PLAN_JETPACK_BACKUP_DAILY ]: '/products/product-jetpack-backup.svg',
@@ -170,6 +175,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_ANTI_SPAM,
 		PLAN_JETPACK_ANTI_SPAM_MONTHLY,
 		PLAN_JETPACK_SEARCH,
+		PLAN_JETPACK_SEARCH_FREE,
 		PLAN_JETPACK_SEARCH_MONTHLY,
 		PLAN_JETPACK_FREE,
 		PLAN_JETPACK_PERSONAL,
@@ -186,6 +192,8 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_COMPLETE_MONTHLY,
 		PLAN_JETPACK_VIDEOPRESS,
 		PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+		PLAN_JETPACK_SOCIAL_BASIC,
+		PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.

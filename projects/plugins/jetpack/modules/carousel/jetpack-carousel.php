@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 /**
  * Jetpack_Carousel class.
@@ -476,9 +477,9 @@ class Jetpack_Carousel {
 				$localize_strings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 				// Set the stats as empty if user is logged in but logged-in users shouldn't be tracked.
-				if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
-					$stats_options        = stats_get_options();
-					$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
+				if ( is_user_logged_in() ) {
+					$stats_options        = Stats_Options::get_options();
+					$track_loggedin_users = isset( $stats_options['count_roles'] ) ? (bool) $stats_options['count_roles'] : false;
 
 					if ( ! $track_loggedin_users ) {
 						$localize_strings['stats'] = '';
@@ -903,15 +904,16 @@ class Jetpack_Carousel {
 
 		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
-		$attr['data-attachment-id']     = $attachment_id;
-		$attr['data-permalink']         = esc_attr( get_permalink( $attachment_id ) );
-		$attr['data-orig-file']         = esc_attr( $orig_file );
-		$attr['data-orig-size']         = $size;
-		$attr['data-comments-opened']   = $comments_opened;
-		$attr['data-image-meta']        = esc_attr( $img_meta );
-		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
-		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
-		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption ) );
+		$attr['data-attachment-id']   = $attachment_id;
+		$attr['data-permalink']       = esc_attr( get_permalink( $attachment_id ) );
+		$attr['data-orig-file']       = esc_attr( $orig_file );
+		$attr['data-orig-size']       = $size;
+		$attr['data-comments-opened'] = $comments_opened;
+		$attr['data-image-meta']      = esc_attr( $img_meta );
+		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.
+		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title, ENT_COMPAT ) );
+		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc, ENT_COMPAT ) );
+		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 

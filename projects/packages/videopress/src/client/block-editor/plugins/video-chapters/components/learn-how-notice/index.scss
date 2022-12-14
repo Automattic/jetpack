@@ -1,0 +1,43 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.learn-how-notice {
+	margin: 0;
+	background-color: #f6f7f7;
+
+	&.is-dismissible {
+		padding-right: 12px;
+	}
+
+	.learn-how-notice__message {
+		margin: 0;
+
+		.learn-how-notice__add-chapters-message {
+			font-weight: 600;
+		}
+	}
+
+	.learn-how-notice__button {
+		color: #3858e9;
+		padding: 0;
+	}
+}
+
+.learn-how-modal {
+	p {
+		margin: 0;
+		font-size: 13px;
+		line-height: 20px;
+		color: #1e1e1e;
+
+		&.learn-how-modal__heading {
+			margin: 16px 0;
+			font-weight: 600;
+		}
+	}
+
+	.learn-how-modal__button {
+		border-radius: 2px;
+		margin-top: 32px;
+		float: right;
+	}
+}

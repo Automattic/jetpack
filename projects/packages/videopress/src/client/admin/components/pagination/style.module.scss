@@ -16,3 +16,7 @@
 		background-color: unset;
 	}
 }
+
+.pagination-placeholder {
+	height: calc( var(--spacing-base) * 4 );
+}

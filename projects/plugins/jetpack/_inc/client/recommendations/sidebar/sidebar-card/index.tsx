@@ -7,13 +7,14 @@ type Props = {
 	header: React.ReactNode;
 	illustrationPath?: string;
 	compact?: boolean;
+	className?: string;
 };
 const SidebarCard: React.FC< Props > = props => {
-	const { header, children, illustrationPath, compact } = props;
+	const { header, children, illustrationPath, compact, className } = props;
 
 	return (
 		<div
-			className={ classNames( 'jp-recommendations-sidebar-card', {
+			className={ classNames( 'jp-recommendations-sidebar-card', className, {
 				'with-illustration': !! illustrationPath,
 			} ) }
 		>

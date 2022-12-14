@@ -6,6 +6,10 @@ $score_pointer_size: 6px;
 $no_boost_score_size: 28px;
 
 .jb-site-score {
+	p {
+		margin: 1em 0;
+	}
+
 	h2 {
 		font-weight: 700;
 

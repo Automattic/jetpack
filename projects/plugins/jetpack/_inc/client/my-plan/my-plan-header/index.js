@@ -216,7 +216,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t1-plan':
@@ -236,7 +236,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t2-plan':
@@ -256,7 +256,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -265,6 +265,14 @@ class MyPlanHeader extends React.Component {
 					details: [ activation, expiration ],
 					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
 					title: __( 'Jetpack Search', 'jetpack' ),
+				};
+
+			case 'is-free-search-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __( 'Fast, highly relevant search results and powerful filtering.', 'jetpack' ),
+					title: __( 'Jetpack Search Free', 'jetpack' ),
 				};
 
 			case 'is-scan-plan':
@@ -288,7 +296,7 @@ class MyPlanHeader extends React.Component {
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
 					),
-					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+					title: __( 'Akismet Anti-Spam', 'jetpack' ),
 				};
 
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
@@ -341,6 +349,19 @@ class MyPlanHeader extends React.Component {
 					details: [ activation, expiration ],
 					tagLine: __( 'High-quality, ad-free video built specifically for WordPress.', 'jetpack' ),
 					title: __( 'Jetpack VideoPress', 'jetpack' ),
+				};
+
+			case 'is-jetpack-social-basic-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Basic', 'jetpack' ), {
+						em: <em />,
+					} ),
 				};
 
 			default:

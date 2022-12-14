@@ -13,3 +13,4 @@ export {
 	isStillUsableWithFreePlan,
 	getUsableBlockProps,
 } from './src/plan-utils';
+export { default as isCurrentUserConnected } from './src/is-current-user-connected';

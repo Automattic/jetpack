@@ -12,6 +12,7 @@ export function boostPrerequisitesBuilder( page ) {
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
+		gotStarted: undefined,
 	};
 
 	return {
@@ -39,6 +40,10 @@ export function boostPrerequisitesBuilder( page ) {
 			state.clean = true;
 			return this;
 		},
+		withGotStarted() {
+			state.gotStarted = true;
+			return this;
+		},
 		async build() {
 			await buildPrerequisites( state, page );
 		},
@@ -52,6 +57,7 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
+		gotStarted: () => ensureGotStartedState( state.gotStarted, page ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -90,6 +96,13 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	} else {
 		logger.prerequisites( 'Unmocking Speed Score' );
 		await execWpCommand( 'plugin deactivate e2e-mock-speed-score-api' );
+	}
+}
+
+export async function ensureGotStartedState( shouldGetStarted ) {
+	if ( shouldGetStarted ) {
+		logger.prerequisites( 'Disabling getting started' );
+		await execWpCommand( 'jetpack-boost getting_started false' );
 	}
 }
 

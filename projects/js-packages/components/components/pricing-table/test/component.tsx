@@ -4,7 +4,11 @@ import PricingTable, { PricingTableColumn, PricingTableHeader, PricingTableItem 
 describe( 'PricingTable', () => {
 	const testProps = {
 		title: 'Dummy Pricing Table',
-		items: [ 'Dummy Item 1', 'Dummy Item 2', 'Dummy Item 3' ],
+		items: [
+			{ name: 'Dummy Item 1', tooltipInfo: 'Default Info' },
+			{ name: 'Dummy Item 2', tooltipInfo: 'Default Info' },
+			{ name: 'Dummy Item 3', tooltipInfo: 'Default Info' },
+		],
 		children: (
 			<>
 				<PricingTableColumn>

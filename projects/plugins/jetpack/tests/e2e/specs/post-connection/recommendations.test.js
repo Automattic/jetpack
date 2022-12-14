@@ -30,17 +30,12 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Check Personal and Other checkboxes', async () => {
 		await recommendationsPage.checkPersonalSiteType();
-		await recommendationsPage.checkOtherSiteType();
 		expect(
 			await recommendationsPage.isPersonalSiteTypeChecked(),
 			'Personal site type should be checked'
 		).toBeTruthy();
 		expect(
-			await recommendationsPage.isOtherSiteTypeChecked(),
-			'Other site type should be checked'
-		).toBeTruthy();
-		expect(
-			await recommendationsPage.isBusinessTypeUnchecked(),
+			await recommendationsPage.isAgencyTypeUnchecked(),
 			'Business type should be checked'
 		).toBeFalsy();
 		expect(

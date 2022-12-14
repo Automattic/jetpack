@@ -16,6 +16,7 @@ use Jetpack_Options;
  */
 class Waf_Runner {
 
+	const WAF_MODULE_NAME               = 'waf';
 	const WAF_RULES_VERSION             = '1.0.0';
 	const MODE_OPTION_NAME              = 'jetpack_waf_mode';
 	const IP_LISTS_ENABLED_OPTION_NAME  = 'jetpack_waf_ip_list';
@@ -27,6 +28,45 @@ class Waf_Runner {
 	const VERSION_OPTION_NAME           = 'jetpack_waf_rules_version';
 	const RULE_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_last_updated_timestamp';
 	const SHARE_DATA_OPTION_NAME        = 'jetpack_waf_share_data';
+
+	/**
+	 * Run the WAF
+	 */
+	public static function initialize() {
+		if ( ! self::is_enabled() ) {
+			return;
+		}
+		self::define_mode();
+		self::define_share_data();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+		// Don't run if in standalone mode
+		if ( function_exists( 'add_action' ) ) {
+			self::add_hooks();
+		}
+		if ( ! self::did_run() ) {
+			self::run();
+		}
+	}
+
+	/**
+	 * Set action hooks
+	 *
+	 * @return void
+	 */
+	public static function add_hooks() {
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
+		// TODO: This doesn't exactly fit here - may need to find another home
+		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
+			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+		}
+		// Register REST routes.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+	}
 
 	/**
 	 * Set the mode definition if it has not been set.
@@ -90,10 +130,49 @@ class Waf_Runner {
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// so we can check to see if the waf module is activated.
 		if ( defined( 'ABSPATH' ) ) {
-			return ( new Modules() )->is_active( 'waf' );
+			return ( new Modules() )->is_active( self::WAF_MODULE_NAME );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Enables the WAF module on the site.
+	 */
+	public static function enable() {
+		return ( new Modules() )->activate( self::WAF_MODULE_NAME, false, false );
+	}
+
+	/**
+	 * Disabled the WAF module on the site.
+	 */
+	public static function disable() {
+		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
+	}
+
+	/**
+	 * Get Config
+	 *
+	 * @return array The WAF settings and current configuration data.
+	 */
+	public static function get_config() {
+		return array(
+			self::IP_LISTS_ENABLED_OPTION_NAME => get_option( self::IP_LISTS_ENABLED_OPTION_NAME ),
+			self::IP_ALLOW_LIST_OPTION_NAME    => get_option( self::IP_ALLOW_LIST_OPTION_NAME ),
+			self::IP_BLOCK_LIST_OPTION_NAME    => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
+			self::SHARE_DATA_OPTION_NAME       => get_option( self::SHARE_DATA_OPTION_NAME ),
+			'bootstrap_path'                   => self::get_bootstrap_file_path(),
+		);
+	}
+
+	/**
+	 * Get Bootstrap File Path
+	 *
+	 * @return string The path to the Jetpack Firewall's bootstrap.php file.
+	 */
+	private static function get_bootstrap_file_path() {
+		$bootstrap = new Waf_Standalone_Bootstrap();
+		return $bootstrap->get_bootstrap_file_path();
 	}
 
 	/**
@@ -239,7 +318,7 @@ class Waf_Runner {
 			PRIMARY KEY (log_id),
 			KEY timestamp (timestamp)
 		)
-	";
+		";
 
 		dbDelta( $sql );
 	}
@@ -274,6 +353,7 @@ class Waf_Runner {
 			return;
 		}
 
+		self::generate_ip_rules();
 		self::generate_rules();
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
 	}
@@ -291,8 +371,19 @@ class Waf_Runner {
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::WAF_RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
+			self::generate_ip_rules();
 			self::generate_rules();
 		}
+	}
+
+	/**
+	 * Handle updates to the WAF
+	 */
+	public static function update_waf() {
+		self::update_rules_if_changed();
+		// Re-generate the standalone bootstrap file on every update
+		// TODO: We may consider only doing this when the WAF version changes
+		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
 	/**

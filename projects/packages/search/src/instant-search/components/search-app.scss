@@ -80,6 +80,11 @@ body.enable-search-modal .cover-modal.show-modal.search-modal.active {
 		color: $color-dark-text-lighter;
 	}
 
+	.jetpack-instant-search__jetpack-colophon {
+		border-color: $color-dark-layout-borders;
+		background-color: $color-dark-modal-background;
+	}
+
 	.jetpack-instant-search__box,
 	button.jetpack-instant-search__overlay-close {
 		border-color: $color-dark-layout-borders;

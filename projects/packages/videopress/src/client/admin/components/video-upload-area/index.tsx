@@ -5,67 +5,47 @@ import { Button, useBreakpointMatch, Text } from '@automattic/jetpack-components
 import { __ } from '@wordpress/i18n';
 import { Icon, cloudUpload } from '@wordpress/icons';
 import classnames from 'classnames';
-import { DragEvent, useCallback, useState, useRef, ChangeEvent } from 'react';
 /**
  * Internal dependencies
  */
+import { fileInputExtensions } from '../../../utils/video-extensions';
+import { usePlan } from '../../hooks/use-plan';
+import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import styles from './style.module.scss';
 import { VideoUploadAreaProps } from './types';
-import type React from 'react';
+/**
+ * Types
+ */
+import type { ReactNode } from 'react';
 
 /**
  * Video Upload Area component
  *
  * @param {VideoUploadAreaProps} props - Component props.
- * @returns {React.ReactNode} - VideoUploadArea react component.
+ * @returns {ReactNode} - VideoUploadArea react component.
  */
-const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelectFiles } ) => {
+const VideoUploadArea = ( { className, onSelectFiles }: VideoUploadAreaProps ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const [ isDraggingOver, setIsDraggingOver ] = useState( false );
-	const inputRef = useRef( null );
+	const { inputRef, handleFileInputChangeEvent } = useSelectVideoFiles( { onSelectFiles } );
+	const { hasVideoPressPurchase } = usePlan();
 
-	const handleFileInputChangeEvent = useCallback( ( e: ChangeEvent< HTMLInputElement > ) => {
-		onSelectFiles( e.currentTarget.files );
-	}, [] );
-
-	const handleClickEvent = useCallback( () => {
+	const handleClickEvent = () => {
 		inputRef.current.click();
-	}, [] );
-
-	const handleDragOverEvent = useCallback( ( event: DragEvent< HTMLInputElement > ) => {
-		event.preventDefault();
-		setIsDraggingOver( true );
-	}, [] );
-
-	const handleDragLeaveEvent = useCallback( () => {
-		setIsDraggingOver( false );
-	}, [] );
-
-	const handleDropEvent = useCallback(
-		( event: DragEvent< HTMLInputElement > ) => {
-			event.preventDefault();
-			setIsDraggingOver( false );
-
-			onSelectFiles( event.dataTransfer.files );
-		},
-		[ onSelectFiles ]
-	);
+	};
 
 	return (
 		<div
 			className={ classnames( styles.wrapper, className, {
 				[ styles.small ]: isSm,
-				[ styles.hover ]: isDraggingOver,
 			} ) }
-			onDrop={ handleDropEvent }
-			onDragOver={ handleDragOverEvent }
-			onDragLeave={ handleDragLeaveEvent }
 		>
 			<input
 				ref={ inputRef }
 				type="file"
+				accept={ fileInputExtensions }
 				className={ classnames( styles[ 'file-input' ] ) }
 				onChange={ handleFileInputChangeEvent }
+				multiple={ hasVideoPressPurchase }
 			/>
 			<Icon icon={ cloudUpload } size={ 48 } className={ classnames( styles.icon ) } />
 			<Text variant="title-small">
@@ -76,7 +56,6 @@ const VideoUploadArea: React.FC< VideoUploadAreaProps > = ( { className, onSelec
 				variant="secondary"
 				className={ classnames( styles.button ) }
 				onClick={ handleClickEvent }
-				disabled={ isDraggingOver }
 			>
 				{ __( 'Select file to upload', 'jetpack-videopress-pkg' ) }
 			</Button>

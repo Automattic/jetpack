@@ -32,6 +32,18 @@ function get_wp_cache_key( $url = false ) {
 	return do_cacheaction( 'wp_cache_key', wp_cache_check_mobile( $WPSC_HTTP_HOST . $server_port . preg_replace( '/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() ) );
 }
 
+/**
+ * Parse a partial URL (only the path and query components).
+ *
+ * @param string $partial_uri - The path and query component of a URI to parse.
+ */
+function wpsc_parse_partial_url( $partial_uri ) {
+	global $WPSC_HTTP_HOST;
+
+	$scheme = wpsc_is_https() ? 'https://' : 'http://';
+	return parse_url( $scheme . $WPSC_HTTP_HOST . $partial_uri );
+}
+
 function wpsc_remove_tracking_params_from_uri( $uri ) {
 	global $wpsc_tracking_parameters, $wpsc_ignore_tracking_parameters;
 
@@ -43,7 +55,7 @@ function wpsc_remove_tracking_params_from_uri( $uri ) {
 		return $uri;
 	}
 
-	$parsed_url = parse_url( $uri );
+	$parsed_url = wpsc_parse_partial_url( $uri );
 	$query      = array();
 
 	if ( isset( $parsed_url['query'] ) ) {
@@ -940,11 +952,16 @@ function get_all_supercache_filenames( $dir = '' ) {
 	return $out;
 }
 
+function wpsc_is_https() {
+	// Also supports https requests coming from an nginx reverse proxy
+	return ( ( isset( $_SERVER['HTTPS'] ) && 'on' == strtolower( $_SERVER['HTTPS'] ) ) || ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' == strtolower( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) );
+}
+
 function supercache_filename() {
 	global $cached_direct_pages;
 
 	// Add support for https and http caching
-	$is_https  = ( ( isset( $_SERVER['HTTPS'] ) && 'on' == strtolower( $_SERVER['HTTPS'] ) ) || ( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) && 'https' == strtolower( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) ); // Also supports https requests coming from an nginx reverse proxy
+	$is_https  = wpsc_is_https();
 	$extra_str = $is_https ? '-https' : '';
 
 	if ( function_exists( 'apply_filters' ) ) {
@@ -3069,7 +3086,7 @@ function wp_cache_post_edit( $post_id ) {
 
 	if ( $post_id == $last_post_edited ) {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_edit(${action}): Already processed post $post_id.", 4 );
+		wp_cache_debug( "wp_cache_post_edit({$action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 
@@ -3093,7 +3110,7 @@ function wp_cache_post_edit( $post_id ) {
 		prune_super_cache( get_supercache_dir(), true );
 	} else {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on ${action}", 2 );
+		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on {$action}", 2 );
 		wp_cache_post_change( $post_id );
 		wpsc_delete_post_archives( $post_id ); // delete related archive pages.
 	}
@@ -3135,7 +3152,7 @@ function wp_cache_post_change( $post_id ) {
 
 	if ( $post_id == $last_processed ) {
 		$action = current_filter();
-		wp_cache_debug( "wp_cache_post_change(${action}): Already processed post $post_id.", 4 );
+		wp_cache_debug( "wp_cache_post_change({$action}): Already processed post $post_id.", 4 );
 		return $post_id;
 	}
 
@@ -3421,7 +3438,7 @@ function wpsc_is_get_query() {
 	static $is_get_query = null;
 
 	if ( null === $is_get_query ) {
-		$request_uri  = parse_url( $_SERVER['REQUEST_URI'] );
+		$request_uri  = wpsc_parse_partial_url( $_SERVER['REQUEST_URI'] );
 		$is_get_query = $request_uri && ! empty( $request_uri['query'] );
 	}
 

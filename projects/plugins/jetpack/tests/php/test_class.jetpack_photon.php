@@ -1180,7 +1180,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
+		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertArrayHasKey( 'height', $attributes );
 		$this->assertStringNotContainsString( 'data-recalc-dims', $filtered_content );
@@ -1217,7 +1217,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
 		Jetpack_AMP_Support::init();
-		$post = $this->factory()->post->create_and_get( compact( 'post_type' ) );
+		$post = self::factory()->post->create_and_get( compact( 'post_type' ) );
 		$this->go_to( get_permalink( $post ) );
 		$this->assertTrue( is_singular( $post_type ) );
 
@@ -1313,7 +1313,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
-		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin );
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );

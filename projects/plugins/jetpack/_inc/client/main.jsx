@@ -40,7 +40,6 @@ import {
 	isConnectingUser,
 	resetConnectUser,
 	isReconnectingSite,
-	reconnectSite,
 	getConnectUrl,
 	getConnectingUserFeatureLabel,
 	getConnectionStatus,
@@ -90,6 +89,7 @@ const recommendationsRoutes = [
 	'/recommendations/site-type',
 	'/recommendations/product-suggestions',
 	'/recommendations/product-purchased',
+	'/recommendations/agency',
 	'/recommendations/woocommerce',
 	'/recommendations/monitor',
 	'/recommendations/related-posts',
@@ -400,7 +400,7 @@ class Main extends React.Component {
 					</p>
 
 					<ul>
-						<li>{ __( 'Measure your impact with beautiful stats', 'jetpack' ) }</li>
+						<li>{ __( 'Measure your impact with Jetpack Stats', 'jetpack' ) }</li>
 						<li>{ __( 'Speed up your site with optimized images', 'jetpack' ) }</li>
 						<li>{ __( 'Protect your site against bot attacks', 'jetpack' ) }</li>
 						<li>{ __( 'Get notifications if your site goes offline', 'jetpack' ) }</li>
@@ -489,6 +489,7 @@ class Main extends React.Component {
 			case '/recommendations/site-type':
 			case '/recommendations/product-suggestions':
 			case '/recommendations/product-purchased':
+			case '/recommendations/agency':
 			case '/recommendations/woocommerce':
 			case '/recommendations/monitor':
 			case '/recommendations/related-posts':
@@ -501,6 +502,19 @@ class Main extends React.Component {
 			case '/recommendations/backup-plan':
 			case '/recommendations/boost':
 			case '/recommendations/summary':
+			case '/recommendations/welcome-backup':
+			case '/recommendations/welcome-complete':
+			case '/recommendations/welcome-security':
+			case '/recommendations/welcome-antispam':
+			case '/recommendations/welcome-videopress':
+			case '/recommendations/welcome-search':
+			case '/recommendations/welcome-scan':
+			case '/recommendations/backup-activated':
+			case '/recommendations/scan-activated':
+			case '/recommendations/antispam-activated':
+			case '/recommendations/videopress-activated':
+			case '/recommendations/search-activated':
+			case '/recommendations/server-credentials':
 				if ( this.props.showRecommendations ) {
 					pageComponent = <Recommendations />;
 				} else {
@@ -775,9 +789,6 @@ export default connect(
 		},
 		clearUnsavedSettingsFlag: () => {
 			return dispatch( clearUnsavedSettingsFlag() );
-		},
-		reconnectSite: () => {
-			return dispatch( reconnectSite() );
 		},
 		setHasSeenWCConnectionModal: () => {
 			return dispatch( setHasSeenWCConnectionModal() );

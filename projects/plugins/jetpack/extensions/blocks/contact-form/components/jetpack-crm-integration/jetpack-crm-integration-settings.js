@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Spinner, PanelBody, BaseControl } from '@wordpress/components';
+import { Spinner, BaseControl } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import CRMPluginState from './jetpack-crm-integration-settings-plugin-state';
 
 const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) => {
@@ -19,37 +18,7 @@ const fetchCRMData = ( setHasCRMDataError, setCRMData, setIsFetchingCRMData ) =>
 		.finally( () => setIsFetchingCRMData( false ) );
 };
 
-const CRMPluginData = ( {
-	isFetchingCRMData,
-	hasCRMDataError,
-	crmData,
-	setCRMData,
-	jetpackCRM,
-	setAttributes,
-	onCRMPluginClick,
-	isInstalling,
-} ) => {
-	if ( isFetchingCRMData ) {
-		return <Spinner />;
-	}
-	if ( hasCRMDataError ) {
-		// Don`t show anything if the CRM plugin data can't be accessed.
-		return null;
-	}
-
-	return (
-		<CRMPluginState
-			crmData={ crmData }
-			setCRMData={ setCRMData }
-			jetpackCRM={ jetpackCRM }
-			setAttributes={ setAttributes }
-			onCRMPluginClick={ onCRMPluginClick }
-			isInstalling={ isInstalling }
-		/>
-	);
-};
-
-const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
+const CRMPluginData = ( { jetpackCRM, setAttributes } ) => {
 	const [ isFetchingCRMData, setIsFetchingCRMData ] = useState( true );
 	const [ hasCRMDataError, setHasCRMDataError ] = useState( false );
 	const [ crmData, setCRMData ] = useState();
@@ -75,21 +44,30 @@ const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
 		fetchCRMData( setHasCRMDataError, setCRMData, setIsFetchingCRMData );
 	}, [] );
 
+	if ( isFetchingCRMData ) {
+		return <Spinner />;
+	}
+	if ( hasCRMDataError ) {
+		// Don't show anything if the CRM plugin data can't be accessed.
+		return null;
+	}
 	return (
-		<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
-			<BaseControl>
-				<CRMPluginData
-					isFetchingCRMData={ isFetchingCRMData }
-					hasCRMDataError={ hasCRMDataError }
-					crmData={ crmData }
-					setCRMData={ setCRMData }
-					jetpackCRM={ jetpackCRM }
-					setAttributes={ setAttributes }
-					isInstalling={ isInstalling }
-					onCRMPluginClick={ onCRMPluginClick }
-				/>
-			</BaseControl>
-		</PanelBody>
+		<CRMPluginState
+			crmData={ crmData }
+			setCRMData={ setCRMData }
+			jetpackCRM={ jetpackCRM }
+			setAttributes={ setAttributes }
+			onCRMPluginClick={ onCRMPluginClick }
+			isInstalling={ isInstalling }
+		/>
+	);
+};
+
+const CRMIntegrationSettings = ( { jetpackCRM, setAttributes } ) => {
+	return (
+		<BaseControl>
+			<CRMPluginData jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
+		</BaseControl>
 	);
 };
 

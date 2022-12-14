@@ -4,6 +4,8 @@ export const MULTISITE_NO_GROUP_VALUE = '__NO_GROUP__';
 
 export const SERVER_OBJECT_NAME = 'JetpackInstantSearchOptions';
 export const OVERLAY_CLASS_NAME = 'jetpack-instant-search__overlay';
+export const SEARCH_RESULTS_CLASS_NAME = 'jetpack-instant-search__search-results';
+export const SEARCH_RESULTS_LOAD_MORE_OFFSET = 70;
 export const OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME = 'jetpack-instant-search__box-input';
 export const OVERLAY_FOCUS_ANCHOR_ID = 'jetpack-instant-search__overlay-focus-anchor';
 export const SORT_DIRECTION_ASC = 'ASC';

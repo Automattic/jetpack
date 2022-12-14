@@ -677,6 +677,13 @@ class Search_Widget extends \WP_Widget {
 							'count' => $count,
 						);
 						break;
+					case 'blog_id':
+						$filters[] = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'blog_id',
+							'count' => $count,
+						);
+						break;
 					case 'date_histogram':
 						$filters[] = array(
 							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
@@ -956,8 +963,8 @@ class Search_Widget extends \WP_Widget {
 
 		$args['name_placeholder'] = Helper::generate_widget_filter_name( $args );
 
-		// Hide author filter when Instant Search is turned off.
-		if ( ! $is_instant_search && 'author' === $args['type'] ) :
+		// Hide author & blog ID filters when Instant Search is turned off.
+		if ( ! $is_instant_search && in_array( $args['type'], array( 'author', 'blog_id' ), true ) ) :
 			return;
 		endif;
 		?>
@@ -975,6 +982,9 @@ class Search_Widget extends \WP_Widget {
 						<?php if ( $is_instant_search ) : ?>
 						<option value="author" <?php $this->render_widget_option_selected( 'type', $args['type'], 'author', $is_template ); ?>>
 							<?php esc_html_e( 'Author', 'jetpack-search-pkg' ); ?>
+						</option>
+						<option value="blog_id" <?php $this->render_widget_option_selected( 'type', $args['type'], 'blog_id', $is_template ); ?>>
+							<?php esc_html_e( 'Blog', 'jetpack-search-pkg' ); ?>
 						</option>
 						<?php endif; ?>
 						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>

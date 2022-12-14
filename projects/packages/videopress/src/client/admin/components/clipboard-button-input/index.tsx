@@ -27,7 +27,8 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 	const onClickInputHandler = ( event: React.MouseEvent< HTMLInputElement > ) => {
 		event.currentTarget.select();
 	};
-
+	const copiedLabel = __( 'Copied!', 'jetpack-videopress-pkg' );
+	const copyLabel = __( 'Copy', 'jetpack-videopress-pkg' );
 	const [ hasCopied, setHasCopied ] = useState( false );
 
 	const textToCopy = value || text;
@@ -45,9 +46,7 @@ const ClipboardButtonInput: React.FC< ClipboardButtonInputProps > = ( {
 		<div className={ styles.wrapper }>
 			<input type="text" value={ text || value } onClick={ onClickInputHandler } readOnly />
 			<Button weight="regular" variant="secondary" size="small" ref={ ref }>
-				{ hasCopied
-					? __( 'Copied', 'jetpack-videopress-pkg' )
-					: __( 'Copy', 'jetpack-videopress-pkg' ) }
+				{ hasCopied ? copiedLabel : copyLabel }
 			</Button>
 		</div>
 	);

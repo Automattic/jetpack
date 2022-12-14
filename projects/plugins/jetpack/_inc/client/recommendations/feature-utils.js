@@ -7,9 +7,15 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
-import { getSiteAdminUrl, getSiteRawUrl, getStaticProductsForPurchase } from 'state/initial-state';
+import {
+	getSiteAdminUrl,
+	getSiteRawUrl,
+	getJetpackCloudUrl,
+	getStaticProductsForPurchase,
+} from 'state/initial-state';
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
+import { isFeatureActive } from '../state/recommendations';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -83,8 +89,14 @@ export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	}
 };
 
-export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
+export const getSummaryResourceProps = ( state, resourceSlug ) => {
 	switch ( resourceSlug ) {
+		case 'agency':
+			return {
+				displayName: __( 'Jetpack for Agencies', 'jetpack' ),
+				ctaLabel: __( 'Sign Up', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+			};
 		case 'backup-plan':
 			return {
 				displayName: __( 'Site Backups', 'jetpack' ),
@@ -97,8 +109,53 @@ export const mapStateToSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLabel: __( 'Read More', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
 			};
+		case 'server-credentials':
+			return {
+				displayName: __( 'Server Credentials', 'jetpack' ),
+				ctaLabel: __( 'Add', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'settings' ),
+			};
 		default:
-			throw `Unknown resource slug in mapStateToSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
+	}
+};
+
+export const getSummaryPrimaryProps = ( state, primarySlug ) => {
+	switch ( primarySlug ) {
+		case 'backup-activated':
+			return {
+				displayName: __( 'Real-time Backups', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'backup' ),
+			};
+		case 'scan-activated':
+			return {
+				displayName: __( 'Real-time Malware Scanning', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+			};
+		case 'antispam-activated':
+			return {
+				displayName: __( 'Automated Spam Protection', 'jetpack' ),
+				ctaLabel: __( 'Manage', 'jetpack' ),
+				ctaLink: isFeatureActive( state, primarySlug )
+					? getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config'
+					: undefined,
+			};
+		case 'videopress-activated':
+			return {
+				displayName: __( 'Ad-free, Customizable Video', 'jetpack' ),
+				ctaLabel: __( 'Add a Video', 'jetpack' ),
+				ctaLink: isFeatureActive( state, primarySlug )
+					? getSiteAdminUrl( state ) + 'admin.php?page=jetpack-videopress'
+					: undefined,
+			};
+		case 'search-activated':
+			return {
+				displayName: __( 'Custom Site Search', 'jetpack' ),
+				ctaLabel: __( 'Customize', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+			};
 	}
 };
 
@@ -164,7 +221,9 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 		case 'videopress':
 			return {
 				activateFeature: () => {
-					return dispatch( updateSettings( { videopress: true } ) );
+					return restApi.installPlugin( 'videopress', 'recommendations' ).then( () => {
+						return dispatch( fetchPluginsData() );
+					} );
 				},
 			};
 		case 'woocommerce':
@@ -180,8 +239,21 @@ export const mapDispatchToProps = ( dispatch, featureSlug ) => {
 	}
 };
 
-export const getStepContent = stepSlug => {
+export const getStepContent = ( state, stepSlug ) => {
 	switch ( stepSlug ) {
+		case 'agency':
+			return {
+				progressValue: '28',
+				question: __( 'Manage your clients’ sites with ease', 'jetpack' ),
+				// eslint-disable-next-line @wordpress/i18n-translator-comments
+				description: __(
+					'Jetpack’s world-class security features are now easier to manage for anyone with at least five WordPress websites.<br/><br/>Purchase and manage licenses, and get a 60% discount with our licensing platform.',
+					'jetpack'
+				),
+				ctaText: __( 'Get Jetpack for Agencies', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-for-agencies-signup-assistant-recommendation' ),
+				illustration: 'assistant-agency',
+			};
 		case 'backup-plan':
 			return {
 				question: __( 'Be prepared for auto-updates.', 'jetpack' ),
@@ -209,7 +281,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'creative-mail':
 			return {
-				progressValue: '83',
+				progressValue: '86',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
@@ -222,7 +294,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'monitor':
 			return {
-				progressValue: '50',
+				progressValue: '57',
 				question: __(
 					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
@@ -237,7 +309,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'related-posts':
 			return {
-				progressValue: '67',
+				progressValue: '71',
 				question: __(
 					'Would you like Related Posts to display at the bottom of your content?',
 					'jetpack'
@@ -289,11 +361,12 @@ export const getStepContent = stepSlug => {
 			return {
 				question: __( 'It’s time to block spam comments.', 'jetpack' ),
 				description: __(
-					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Anti-spam.',
+					'Congratulations! Your content is getting traction and receiving comments. The more popular your content is, the more likely it is you will be a target for spam comments. To ensure a great experience for your readers, we recommend manually moderating spam or using an automated product like Jetpack Akismet Anti-spam.',
 					'jetpack'
 				),
 				ctaText: __( 'Learn how to block spam', 'jetpack' ),
 				ctaLink: getRedirectUrl( 'jetpack-blog-spam-comments' ),
+				illustration: 'assistant-antispam',
 			};
 		case 'videopress':
 			return {
@@ -310,7 +383,7 @@ export const getStepContent = stepSlug => {
 			};
 		case 'woocommerce':
 			return {
-				progressValue: '33',
+				progressValue: '43',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
@@ -318,6 +391,161 @@ export const getStepContent = stepSlug => {
 				),
 				descriptionLink: 'https://woocommerce.com/woocommerce-features/',
 				ctaText: __( 'Install WooCommerce', 'jetpack' ),
+				illustration: 'assistant-woo-commerce',
+			};
+		case 'welcome__backup':
+			return {
+				/* translators: <nbsp/> represents a non-breakable space */
+				question: __( 'Welcome to Jetpack VaultPress<nbsp/>Backup!', 'jetpack' ),
+				description: __(
+					'Real-time cloud-based backups are now active for your site. Save every change and get back online in one click from desktop and mobile.',
+					'jetpack'
+				),
+				ctaText: __( 'Manage Backups', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'backup' ),
+				illustration: 'assistant-backup-welcome',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__complete':
+			return {
+				question: __( 'Welcome to Jetpack Complete!', 'jetpack' ),
+				description: __(
+					'Congratulations, you’ve just unlocked the full power of the Jetpack suite; all of our Security, Performance, Growth, and Design tools.',
+					'jetpack'
+				),
+				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-complete-welcome',
+			};
+		case 'welcome__security':
+			return {
+				question: __( 'Welcome to Jetpack Security!', 'jetpack' ),
+				description: __(
+					'Congratulations, you’ve just unlocked comprehensive WordPress site security, including backups, malware scanning, and spam protection.',
+					'jetpack'
+				),
+				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				hasNoAction: true,
+			};
+		case 'welcome__antispam':
+			return {
+				/* translators: <nbsp/> represents a non-breakable space */
+				question: __( 'Welcome to Jetpack Akismet<nbsp/>Anti-spam!', 'jetpack' ),
+				description: __(
+					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
+					'jetpack'
+				),
+				ctaText: __( 'Configure Akismet Anti-spam', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
+				illustration: 'assistant-antispam',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__videopress':
+			return {
+				question: __( 'Welcome to Jetpack VideoPress!', 'jetpack' ),
+				description: __(
+					'Jetpack VideoPress is now active. Stunning-quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to add videos to your site', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
+				illustration: 'assistant-videopress',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__search':
+			return {
+				question: __( 'Welcome to Jetpack Search!', 'jetpack' ),
+				description: __(
+					'Jetpack Search is now active. Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+					'jetpack'
+				),
+				ctaText: __( 'Customize Search', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				illustration: 'assistant-search',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__scan':
+			return {
+				question: __( 'Welcome to Jetpack Scan!', 'jetpack' ),
+				description: __(
+					'Automated malware scanning is live and your site’s first scan is underway. We’ll notify you if we detect anything suspicious, with one-click fixes for most issues.',
+					'jetpack'
+				),
+				ctaText: __( 'View Security Dashboard', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+				illustration: 'assistant-backup-welcome',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'backup-activated':
+			return {
+				question: __( 'Site backups are live', 'jetpack' ),
+				description: __(
+					'Real-time cloud-based backups are now active for your site. Save every change and get back online in one click from desktop and mobile.',
+					'jetpack'
+				),
+				ctaText: __( 'Manage Backups', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'backup' ),
+				illustration: 'assistant-backup-welcome',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'scan-activated':
+			return {
+				question: __( 'Real-time Malware Scanning', 'jetpack' ),
+				description: __(
+					'Automated malware scanning is live and your site’s first scan is underway. We’ll notify you if we detect anything suspicious, with one-click fixes for most issues.',
+					'jetpack'
+				),
+				ctaText: __( 'View Security Dashboard', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+				illustration: 'assistant-malware-scanning',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'antispam-activated':
+			return {
+				question: __( 'Live Spam Protection', 'jetpack' ),
+				description: __(
+					'Automated spam protection is now active for comments and forms. We’ll flag anything that looks suspicious and comments will now be available to moderate.',
+					'jetpack'
+				),
+				ctaText: __( 'Configure Akismet Anti-spam', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=akismet-key-config',
+				illustration: 'assistant-antispam',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'videopress-activated':
+			return {
+				question: __( 'Ad-free, Customizable Video', 'jetpack' ),
+				description: __(
+					'Jetpack VideoPress is now active. Stunning-quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.',
+					'jetpack'
+				),
+				ctaText: __( 'Learn how to add videos to your site', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-support-videopress-block-editor' ),
+				illustration: 'assistant-videopress',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'search-activated':
+			return {
+				question: __( 'Custom Site Search', 'jetpack' ),
+				description: __(
+					'Jetpack Search is now active. Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+					'jetpack'
+				),
+				ctaText: __( 'Customize Search', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				illustration: 'assistant-search',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'server-credentials':
+			return {
+				question: __( 'Setup one-click restores', 'jetpack' ),
+				description: __(
+					'To restore your site to a previous version, you need to add your server credentials. We recommend doing this now so you can restore your site in one click if you encounter issues in the future.',
+					'jetpack'
+				),
+				ctaText: __( 'Add server credentials', 'jetpack' ),
+				ctaLink: getJetpackCloudUrl( state, 'settings' ),
+				illustration: 'assistant-server-credentials',
 			};
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
@@ -344,12 +572,15 @@ export const getProductCardData = ( state, productSlug ) => {
 			};
 		case PLAN_JETPACK_ANTI_SPAM:
 			return {
-				productCardTitle: __( 'Block spam automatically with Jetpack Anti-spam', 'jetpack' ),
+				productCardTitle: __(
+					'Block spam automatically with Jetpack Akismet Anti-spam',
+					'jetpack'
+				),
 				productCardCtaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Anti-spam', 'jetpack' ),
+				productCardCtaText: __( 'Get Akismet Anti-spam', 'jetpack' ),
 				productCardList: products.akismet ? products.akismet.features : [],
 				productCardIcon: '/recommendations/bug-icon.svg',
 			};
@@ -371,7 +602,7 @@ export const getProductCardData = ( state, productSlug ) => {
 					site: siteRawUrl,
 					path: productSlug,
 				} ),
-				productCardCtaText: __( 'Get Jetpack Backup', 'jetpack' ),
+				productCardCtaText: __( 'Get Jetpack VaultPress Backup', 'jetpack' ),
 				productCardList: products.backup ? products.backup.features : [],
 				productCardIcon: '/recommendations/cloud-icon.svg',
 				productCardDisclaimer: products.backup ? products.backup.disclaimer : '',

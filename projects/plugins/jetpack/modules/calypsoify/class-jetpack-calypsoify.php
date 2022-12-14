@@ -34,20 +34,6 @@ class Jetpack_Calypsoify {
 	}
 
 	/**
-	 * Original singleton.
-	 *
-	 * @todo We need to leave this in place until wpcomsh is updated. wpcomsh can be updated once 9.3.0 is stable.
-	 *
-	 * Deprecated 9.3.0
-	 *
-	 * @return Jetpack_Calypsoify
-	 */
-	public static function getInstance() { //phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
-		_deprecated_function( __METHOD__, 'Jetpack 9.3.0', 'Jetpack_Calypsoify::get_instance' );
-		return self::get_instance();
-	}
-
-	/**
 	 * Singleton.
 	 *
 	 * @return Jetpack_Calypsoify
@@ -127,14 +113,14 @@ class Jetpack_Calypsoify {
 		if ( $post_id === null ) {
 			// E.g. posts or pages have no special suffix. CPTs are in the `types/{cpt}` format.
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}s/"
-				: "/types/${post_type}/";
+				? "/{$post_type}s/"
+				: "/types/{$post_type}/";
 			$post_suffix      = '';
 		} else {
 			$post_type_suffix = ( 'post' === $post_type || 'page' === $post_type )
-				? "/${post_type}/"
-				: "/edit/${post_type}/";
-			$post_suffix      = "/${post_id}";
+				? "/{$post_type}/"
+				: "/edit/{$post_type}/";
+			$post_suffix      = "/{$post_id}";
 		}
 
 		return $this->get_calypso_origin() . $post_type_suffix . $site_suffix . $post_suffix;

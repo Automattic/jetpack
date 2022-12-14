@@ -10,7 +10,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-p] [-a|-b|-r <version>] <slug>
+		usage: $0 [-v] [-p] [-H] [-a|-b|-r <version>] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
@@ -21,6 +21,7 @@ function usage {
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
+		Pass \`-H\` if doing a hard-way package release on a plugin release branch.
 	EOH
 	exit 1
 }
@@ -33,7 +34,8 @@ fi
 VERBOSE=
 ADDPRNUM=
 ALPHABETA=
-while getopts ":vpabhr:" opt; do
+HARDWAY=
+while getopts ":vpabhHr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -53,6 +55,9 @@ while getopts ":vpabhr:" opt; do
 			;;
 		r)
 			ALPHABETA=$OPTARG
+			;;
+		H)
+			HARDWAY=-H
 			;;
 		h)
 			usage
@@ -189,15 +194,21 @@ SLUGS=()
 # Use a temp variable so pipefail works
 TMP="$(pnpm jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
-for SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -U $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
+
+TMPDIR="${TMPDIR:-/tmp}"
+TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
+
+for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
+	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U "$DEPENDENCY_SLUG"
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -u $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u "$DEPENDENCY_SLUG"
 	fi
 done
+
+rm "$TEMP"
 
 debug "  Updating pnpm.lock..."
 pnpm install --silent
@@ -208,7 +219,7 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push a PR, and have it merged.
+	Feel free to edit them as needed. Then commit and push those changes.
 
 EOM
 

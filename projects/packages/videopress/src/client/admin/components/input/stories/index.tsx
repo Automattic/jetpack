@@ -17,7 +17,7 @@ export default {
 	argTypes: {
 		size: {
 			options: [ 'small', 'large' ],
-			control: { type: 'select' },
+			control: { type: 'radio' },
 		},
 		type: {
 			options: [ 'text', 'textarea', 'number', 'url', 'email', 'password', 'tel', 'search' ],
@@ -33,6 +33,7 @@ const onEnter = value => {
 const defaultArgs = {
 	placeholder: 'Placeholder text',
 	disabled: false,
+	loading: false,
 	size: 'small',
 	type: 'text',
 	label: '',
@@ -79,9 +80,9 @@ const SearchInputTemplate: ComponentStory< typeof SearchInput > = args => {
 };
 
 export const Search = SearchInputTemplate.bind( {} );
-
 Search.args = {
 	disabled: false,
+	loading: false,
 	onEnter: action( 'onEnter' ),
 	onChange: action( 'onChange' ),
 	onSearch: action( 'onSearch' ),

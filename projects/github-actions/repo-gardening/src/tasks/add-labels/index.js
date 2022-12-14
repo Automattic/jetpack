@@ -225,6 +225,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( 'E2E Tests' );
 		}
 
+		const anyTestFile = file.match( /\/tests\// );
+		if ( anyTestFile ) {
+			keywords.add( '[Status] Needs Test Review' );
+		}
+
 		// Add '[Status] In Progress' for draft PRs
 		if ( isDraft ) {
 			keywords.add( '[Status] In Progress' );

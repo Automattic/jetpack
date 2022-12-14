@@ -61,16 +61,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'pexels_object' => array(
 							'type' => 'object',
 						),
-						'orientations'  => array(
-							'type'        => 'array',
-							'items'       => array(
-								'type' => 'string',
-								'enum' => array( 'landscape', 'portrait', 'square' ),
-							),
-							'minItems'    => 1,
-							'maxItems'    => 3,
-							'uniqueItems' => true,
-						),
 					),
 				),
 			),

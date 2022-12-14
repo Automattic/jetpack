@@ -1,5 +1,5 @@
 {
-	"name": "Jetpack_Monorepo",
+	"name": "@automattic/Jetpack_Monorepo",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a set of WordPress plugins that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -24,7 +24,7 @@
 		"php:compatibility": "composer phpcs:compatibility",
 		"php:lint": "composer phpcs:lint",
 		"prepare": "husky install",
-		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json}\"",
+		"reformat-files": "prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,cjs,mjs,ts,tsx,svelte,json,json5}\"",
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {

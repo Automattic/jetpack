@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 
 /**
@@ -83,6 +84,24 @@ class CLI {
 				$this->set_module_status( $module_slug, false );
 				break;
 		}
+	}
+
+	public function getting_started( $args ) {
+		$status = isset( $args[0] ) ? $args[0] : null;
+
+		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
+			\WP_CLI::error(
+				/* translators: %s refers to the module slug like 'critical-css' */
+				sprintf( __( "The '%s' status is invalid", 'jetpack-boost' ), $status )
+			);
+		}
+
+		Config::set_getting_started( 'true' === $status );
+
+		\WP_CLI::success(
+			/* translators: %s refers to 'true' or 'false' */
+			sprintf( __( 'Getting started is set to %s', 'jetpack-boost' ), $status )
+		);
 	}
 
 	/**

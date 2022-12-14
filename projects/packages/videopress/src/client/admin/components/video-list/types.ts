@@ -1,22 +1,10 @@
-import type { VideoRowProps } from '../video-row';
+import { LocalVideo, VideoPressVideo } from '../../types';
 
 export type VideoListProps = {
 	/**
 	 * List of videos.
 	 */
-	videos: Array<
-		Omit<
-			VideoRowProps,
-			| 'checked'
-			| 'hideEditButton'
-			| 'hideQuickActions'
-			| 'onSelect'
-			| 'onClickEdit'
-			| 'onUpdateThumbnailClick'
-			| 'onUpdateUpdatePrivacyClick'
-			| 'onDeleteClick'
-		>
-	>;
+	videos: Array< VideoPressVideo >;
 	/**
 	 * Hide privacy column.
 	 */
@@ -30,27 +18,28 @@ export type VideoListProps = {
 	 */
 	hidePlays?: boolean;
 	/**
-	 * Hide edit details button.
+	 * Show action button.
 	 */
-	hideEditButton?: boolean;
+	showActionButton?: boolean;
 	/**
-	 * Hide quick actions section.
+	 * Show quick actions.
 	 */
-	hideQuickActions?: boolean;
+	showQuickActions?: boolean;
+	/**
+	 * Loading mode.
+	 */
+	loading?: boolean;
+	/**
+	 * Is Uploading.
+	 */
+	uploading?: boolean;
 	/**
 	 * Callback to be invoked when clicking on the `Edit details` button.
 	 */
-	onClickEdit?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
-	 */
-	onUpdateThumbnailClick?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
-	 */
-	onUpdateUpdatePrivacyClick?: ( video: VideoRowProps ) => void;
-	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
-	 */
-	onDeleteClick?: ( video: VideoRowProps ) => void;
+	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
+};
+
+export type LocalVideoListProps = Omit< VideoListProps, 'onVideoDetailsClick' | 'videos' > & {
+	videos: Array< LocalVideo >;
+	onActionClick?: ( video: LocalVideo ) => void;
 };

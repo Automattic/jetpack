@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import { Button } from '@wordpress/components';
 	import { __ } from '@wordpress/i18n';
@@ -46,8 +46,9 @@
 			</div>
 
 			<div class="jb-card__cta px-1 py-4">
+				<!-- svelte-ignore missing-declaration Jetpack_Boost -->
 				<img
-					src={`${ window.Jetpack_Boost.site.assetPath }../static/images/boost.png`}
+					src={`${ Jetpack_Boost.site.assetPath }../static/images/boost.png`}
 					alt={__( 'Optimize with Jetpack Boost', 'jetpack-boost' )}
 				/>
 			</div>

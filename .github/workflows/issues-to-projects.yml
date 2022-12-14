@@ -27,7 +27,7 @@ jobs:
     if: github.event_name == 'issues'
     steps:
       # Jetpack Boost: Push to Boost Maintenance Board if labelled "[Plugin] Boost"
-      - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
+      - uses: leonsteinhaeuser/project-beta-automations@v1.3.0
         if: contains(github.event.issue.labels.*.name, '[Plugin] Boost')
         with:
           gh_token: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' && github.event.action == 'review_requested'
     steps:
-      - uses: leonsteinhaeuser/project-beta-automations@v1.2.1
+      - uses: leonsteinhaeuser/project-beta-automations@v1.3.0
         if: contains(github.event.pull_request.requested_teams, 'Automattic/jarvis-jetpack-quality')
         with:
           gh_token: ${{ secrets.PUSH_ISSUES_TO_PROJECT_TOKEN }}

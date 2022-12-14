@@ -57,6 +57,7 @@ class Defaults {
 		'disabled_reblogs',
 		'disallowed_keys',
 		'enable_header_ad',
+		'featured_image_email_enabled',
 		'gmt_offset',
 		'gravatar_disable_hovercards',
 		'highlander_comment_form_prompt',
@@ -99,8 +100,10 @@ class Defaults {
 		'jetpack_testimonial',
 		'jetpack_testimonial_posts_per_page',
 		'jetpack_wga',
+		'jetpack_blogging_prompts_enabled',
 		'large_size_h',
 		'large_size_w',
+		'launch-status',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
@@ -172,7 +175,9 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
+		'wpcom_gifting_subscription',
 	);
 
 	/**
@@ -407,6 +412,7 @@ class Defaults {
 		'scheduled-action', // Action Scheduler - Job Queue for WordPress https://github.com/woocommerce/woocommerce/tree/e7762627c37ec1f7590e6cac4218ba0c6a20024d/includes/libraries/action-scheduler .
 		'secupress_log_action',
 		'sg_optimizer_jobs',
+		'sl-insta-media',
 		'snitch',
 		'vip-legacy-redirect',
 		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
@@ -721,6 +727,7 @@ class Defaults {
 		'_wpas_feature_enabled',
 		'_wpas_is_tweetstorm',
 		'_wpas_mess',
+		'_wpas_options',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY.
 		'content_width',
 		'custom_css_add',
@@ -796,16 +803,21 @@ class Defaults {
 	 */
 	public static $default_theme_support_whitelist = array(
 		'align-wide',
+		'appearance-tools', // In Gutenberg.
 		'automatic-feed-links',
 		'block-templates',
+		'block-template-parts', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54176
 		'custom-background',
 		'custom-header',
 		'custom-logo',
 		'customize-selective-refresh-widgets',
 		'dark-editor-style',
+		'default-color-palette', // In Gutenberg.
+		'default-gradient-presets', // In Gutenberg.
 		'disable-custom-colors',
 		'disable-custom-font-sizes',
 		'disable-custom-gradients',
+		'disable-layout-styles', // WP 6.1. Added via https://core.trac.wordpress.org/changeset/54159
 		'editor-color-palette',
 		'editor-font-sizes',
 		'editor-gradient-presets',

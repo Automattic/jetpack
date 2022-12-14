@@ -37,8 +37,13 @@ const JetpackBenefits = props => {
 						</p>
 					</div>
 					<div className="jp-connection__disconnect-card__group">
-						{ siteBenefits.map( ( { value, description, title } ) => (
-							<DisconnectCard title={ title } value={ value } description={ description } />
+						{ siteBenefits.map( ( { value, description, title }, index ) => (
+							<DisconnectCard
+								title={ title }
+								value={ value }
+								description={ description }
+								key={ index }
+							/>
 						) ) }
 					</div>
 				</React.Fragment>

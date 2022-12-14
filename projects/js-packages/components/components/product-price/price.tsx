@@ -12,7 +12,7 @@ import type React from 'react';
  * @returns {React.ReactNode} -Price react component.
  */
 export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePriceFraction } ) => {
-	const classNames = classnames( styles.price, {
+	const classNames = classnames( styles.price, 'product-price_price', {
 		[ styles[ 'is-not-off-price' ] ]: ! isOff,
 	} );
 
@@ -21,13 +21,13 @@ export const Price: React.FC< PriceProps > = ( { value, currency, isOff, hidePri
 
 	return (
 		<Text className={ classNames } variant="headline-medium" component="p">
-			<Text component="sup" variant="title-medium">
+			<Text className={ styles.symbol } component="sup" variant="title-medium">
 				{ symbol }
 			</Text>
 			{ integer }
 			{ showPriceFraction && (
-				<Text component="sup" variant="title-medium" data-testid="PriceFraction">
-					{ fraction }
+				<Text component="sup" variant="body-small" data-testid="PriceFraction">
+					<strong>{ fraction }</strong>
 				</Text>
 			) }
 		</Text>

@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
 import {
@@ -45,15 +46,39 @@ const myJetpackResolvers = {
 			dispatch.setPurchasesIsFetching( false );
 		} catch ( error ) {
 			dispatch.setPurchasesIsFetching( false );
-			dispatch.setGlobalNotice(
-				__(
-					'There was an error fetching your purchases information. Check your site connectivity and try again.',
-					'jetpack-my-jetpack'
-				),
-				{
-					status: 'error',
-				}
-			);
+			error.code !== 'not_connected' &&
+				dispatch.setGlobalNotice(
+					__(
+						'There was an error fetching your purchases information. Check your site connectivity and try again.',
+						'jetpack-my-jetpack'
+					),
+					{
+						status: 'error',
+					}
+				);
+		}
+	},
+
+	getAvailableLicenses: () => async ( { dispatch } ) => {
+		dispatch.setAvailableLicensesIsFetching( true );
+
+		try {
+			const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+			restApi.setApiRoot( apiRoot );
+			restApi.setApiNonce( apiNonce );
+			const result = await restApi.getUserLicenses();
+
+			if ( result && result.items ) {
+				dispatch.setAvailableLicenses(
+					result.items.filter( ( { attached_at } ) => attached_at === null )
+				);
+			} else {
+				dispatch.setAvailableLicenses( [] );
+			}
+		} catch ( error ) {
+			dispatch.setAvailableLicenses( [] );
+		} finally {
+			dispatch.setAvailableLicensesIsFetching( false );
 		}
 	},
 };

@@ -19,6 +19,9 @@ export function getQuery( search = window.location.search ) {
  * @param {object|null} queryObject - a query object.
  */
 export function setQuery( queryObject ) {
+	if ( window.instantSearchSkipPushState ) {
+		return;
+	}
 	pushQueryString( encode( queryObject ) );
 }
 

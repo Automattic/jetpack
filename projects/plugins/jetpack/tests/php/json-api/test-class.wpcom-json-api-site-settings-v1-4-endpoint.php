@@ -6,7 +6,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Jetpack `sites/%s/settings` endpoint unit tests.
@@ -122,7 +122,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	public function make_get_request() {
 		global $blog_id;
 
-		$admin = $this->factory->user->create_and_get(
+		$admin = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)
@@ -163,7 +163,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 	public function make_post_request( $setting ) {
 		global $blog_id;
 
-		$admin = $this->factory->user->create_and_get(
+		$admin = self::factory()->user->create_and_get(
 			array(
 				'role' => 'administrator',
 			)

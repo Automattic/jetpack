@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_role_cap() {
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'role' => 'administrator',
 			)
@@ -51,7 +51,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_no_role() {
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'role' => 'imagination_mover',
 			)
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_authorize_data_error() {
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'role' => 'administrator',
 			)
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_jetpack_client_server_get_token() {
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'role' => 'administrator',
 			)

@@ -92,7 +92,7 @@ const JetpackProductCard = props => {
 						price={ price }
 						offPrice={ discountedPrice }
 						showNotOffPrice={ !! discountedPrice }
-						leyend={ billingDescription }
+						legend={ billingDescription }
 					/>
 				</div>
 

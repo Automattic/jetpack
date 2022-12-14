@@ -38,11 +38,15 @@ const jetpackPaidBlock = ( settings, name ) => {
 			};
 		}
 
-		// Ensure that the toolbar of the inner blocks doesn't overlap the upgrade banner.
-		settings.supports = {
-			...settings.supports,
-			__experimentalExposeControlsToChildren: true,
-		};
+		// Ensure that the toolbar of the inner blocks doesn't overlap the upgrade banner by displaying the controls
+		// of the inner blocks in the parent block toolbar (which is always placed above the upgrade banner).
+		// The cover block is excluded from this behavior because the toolbars of its inner blocks do not interfere.
+		if ( name !== 'core/cover' ) {
+			settings.supports = {
+				...settings.supports,
+				__experimentalExposeControlsToChildren: true,
+			};
+		}
 	}
 
 	return settings;

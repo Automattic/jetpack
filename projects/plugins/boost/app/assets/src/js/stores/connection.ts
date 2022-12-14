@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import api from '../api/api';
+import { onConnectionComplete } from '../utils/connection';
 import { reloadModulesState } from './modules';
 
 export type ConnectionStatus = {
@@ -8,7 +9,6 @@ export type ConnectionStatus = {
 	error: null | string;
 };
 
-// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.connection;
 const { subscribe, update } = writable< ConnectionStatus >( initialState );
 
@@ -36,6 +36,7 @@ async function initialize(): Promise< void > {
 		}
 		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
+		await onConnectionComplete();
 		partialUpdate( connection );
 	} catch ( e ) {
 		partialUpdate( {

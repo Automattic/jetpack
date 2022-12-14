@@ -16,6 +16,7 @@ export default class SimpleNotice extends React.Component {
 		showDismiss: true,
 		className: '',
 		onDismissClick: noop,
+		display: true,
 	};
 
 	static propTypes = {
@@ -31,6 +32,7 @@ export default class SimpleNotice extends React.Component {
 		icon: PropTypes.string,
 		onDismissClick: PropTypes.func,
 		className: PropTypes.string,
+		display: PropTypes.bool,
 	};
 
 	dismissTimeout = null;
@@ -89,10 +91,12 @@ export default class SimpleNotice extends React.Component {
 			status,
 			text,
 			dismissText,
+			display,
 		} = this.props;
 		const classes = classnames( 'dops-notice', status, className, {
 			'is-compact': isCompact,
 			'is-dismissable': showDismiss,
+			'is-hidden': ! display,
 		} );
 
 		return (

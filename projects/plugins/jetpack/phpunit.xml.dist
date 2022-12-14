@@ -139,14 +139,14 @@
 	</groups>
 	<filter>
 		<whitelist>
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">views</directory>
-				<directory suffix=".php">tools</directory>
-				<directory suffix=".php">node_modules</directory>
-				<directory suffix=".php">vendor</directory>
-			</exclude>
+			<file>./*.php</file>
+			<directory suffix=".php">3rd-party</directory>
+			<directory suffix=".php">extensions</directory>
+			<directory suffix=".php">_inc</directory>
+			<directory suffix=".php">json-endpoints</directory>
+			<directory suffix=".php">modules</directory>
+			<directory suffix=".php">sal</directory>
+			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
 	<listeners>

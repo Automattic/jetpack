@@ -8,8 +8,8 @@
 	},
 	"require-dev": {
 		"composer/composer": "2.2.12",
-		"yoast/phpunit-polyfills": "1.0.3",
-		"automattic/jetpack-changelogger": "^3.2"
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [

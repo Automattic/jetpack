@@ -23,6 +23,7 @@ function load_3rd_party() {
 		'class.jetpack-amp-support.php',
 		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
+		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
 		'creative-mail.php',
 		'jetpack-backup.php',
 		'jetpack-boost.php',
@@ -44,6 +45,27 @@ function load_3rd_party() {
 	}
 
 	add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
+	add_filter( 'jetpack_get_available_modules', __NAMESPACE__ . '\atomic_remove_modules' );
+
+	if ( ( new Host() )->is_atomic_platform() && ! defined( 'DISABLE_JETPACK_WAF' ) ) {
+		define( 'DISABLE_JETPACK_WAF', true );
+	}
+}
+
+/**
+ * Disables modules not compatible with the Atomic platform.
+ *
+ * @param array $modules Filterable value for `jetpack_get_available_modules.
+ *
+ * @return array Array of module slugs.
+ */
+function atomic_remove_modules( $modules ) {
+	if ( ( new Host() )->is_atomic_platform() ) {
+		// WAF should never be available on the Atomic platform.
+		unset( $modules['waf'] );
+	}
+
+	return $modules;
 }
 
 /**

@@ -34,7 +34,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		);
 
 		// create a post
-		$this->post_id     = $this->factory->post->create();
+		$this->post_id     = self::factory()->post->create();
 		$this->term_object = wp_insert_term( 'dog', $this->taxonomy );
 
 		$this->sender->do_sync();
@@ -164,7 +164,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	public function test_filters_out_blacklisted_taxonomies() {
 		register_taxonomy( 'bloginfo_rss', 'post' );
 
-		$term_id = $this->factory->term->create( array( 'taxonomy' => 'bloginfo_rss' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'bloginfo_rss' ) );
 
 		$this->sender->do_sync();
 
@@ -174,7 +174,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	public function test_taxonomies_blacklist_can_be_appended_in_settings() {
 		register_taxonomy( 'filter_me', 'post' );
 
-		$term_id = $this->factory->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		$this->sender->do_sync();
 
@@ -183,7 +183,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 
 		Settings::update_settings( array( 'taxonomies_blacklist' => array( 'filter_me' ) ) );
 
-		$term_id = $this->factory->term->create( array( 'taxonomy' => 'filter_me' ) );
+		$term_id = self::factory()->term->create( array( 'taxonomy' => 'filter_me' ) );
 
 		$this->sender->do_sync();
 

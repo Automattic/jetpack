@@ -19,3 +19,9 @@
 .row {
 	border-bottom: 1px solid var(--jp-gray-5);
 }
+
+.title-adornment {
+	fill: var(--jp-gray-10);
+	margin-left: var(--spacing-base);
+	display: inline-flex;
+}

@@ -5,6 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
+import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldConsent = ( {
 	id,
@@ -41,6 +42,9 @@ const JetpackFieldConsent = ( {
 						) }
 					/>
 					<InspectorControls>
+						<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+							<JetpackManageResponsesSettings isChildBlock />
+						</PanelBody>
 						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 							<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 						</PanelBody>

@@ -160,7 +160,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Does your project require build steps?',
+			message: 'Select production and/or development build steps to generate:',
 			choices: [
 				{
 					name: 'Production Build Step',
@@ -177,13 +177,13 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'wordbless',
-			message: 'Will you need WorDBless for integration testing?',
+			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
 			default: false,
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message: 'Will this project require a mirror repo?',
+			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
 		},
 	];
 	const packageQuestions = [];
@@ -683,9 +683,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.9\n' +
+		'Requires at least: 6.0\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.0\n' +
+		'Tested up to: 6.1\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

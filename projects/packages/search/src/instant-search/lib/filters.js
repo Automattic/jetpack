@@ -3,6 +3,8 @@ import { SERVER_OBJECT_NAME } from './constants';
 // NOTE: This list is missing custom taxonomy names.
 //       getFilterKeys must be used to get the conclusive list of valid filter keys.
 export const FILTER_KEYS = Object.freeze( [
+	// Blog IDs
+	'blog_ids',
 	// Authors
 	'authors',
 	// Post types
@@ -123,6 +125,8 @@ export function mapFilterToFilterKey( filter ) {
 		return 'post_types';
 	} else if ( filter.type === 'author' ) {
 		return 'authors';
+	} else if ( filter.type === 'blog_id' ) {
+		return 'blog_ids';
 	} else if ( filter.type === 'group' ) {
 		return filter.filter_id;
 	}
@@ -157,6 +161,10 @@ export function mapFilterKeyToFilter( filterKey ) {
 		return {
 			type: 'author',
 		};
+	} else if ( filterKey === 'blog_ids' ) {
+		return {
+			type: 'blog_id',
+		};
 	} else if ( filterKey === 'group' ) {
 		return {
 			type: 'group',
@@ -184,6 +192,8 @@ export function mapFilterToType( filter ) {
 		return 'postType';
 	} else if ( filter.type === 'author' ) {
 		return 'author';
+	} else if ( filter.type === 'blog_id' ) {
+		return 'blogId';
 	} else if ( filter.type === 'group' ) {
 		return 'group';
 	}

@@ -38,6 +38,7 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
@@ -53,7 +54,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -158,6 +159,8 @@ export default function SubscriptionControls( {
 							customFontSize: newFontSize,
 						} );
 					} }
+					// This is changing in the future, and we need to do this to silence the deprecation warning.
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 			<PanelBody
@@ -232,6 +235,14 @@ export default function SubscriptionControls( {
 								'jetpack'
 							);
 						}
+					} }
+				/>
+				<ToggleControl
+					disabled={ ! showSubscribersTotal }
+					label={ __( 'Include social followers in count', 'jetpack' ) }
+					checked={ includeSocialFollowers }
+					onChange={ () => {
+						setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
 					} }
 				/>
 				<ToggleControl

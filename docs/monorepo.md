@@ -34,7 +34,7 @@ WordPress, being a part of the Docker environment, gets installed into the direc
 
 Documentation that's applicable to the monorepo as a whole lives in `docs/`.
 
-All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
+All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specific to any one project.
 
 * Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
 * Pattern matchers (not associated with an action) go in `.github/matchers/`.
@@ -180,7 +180,7 @@ All test commands must return a shell failure status when tests fail and a succe
 
 If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
-The following environment variables are avaliable for all tests:
+The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.

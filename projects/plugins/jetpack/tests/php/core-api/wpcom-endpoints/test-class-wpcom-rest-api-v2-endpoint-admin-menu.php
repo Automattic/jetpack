@@ -44,7 +44,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -63,7 +63,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
@@ -80,7 +80,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return WP_REST_Response
 	 */
 	public function test_successful_request() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertSame( 200, $response->get_status() );

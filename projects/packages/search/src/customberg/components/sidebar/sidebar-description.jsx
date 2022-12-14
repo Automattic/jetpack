@@ -16,7 +16,7 @@ export default function SidebarDescription() {
 			<div>
 				<p>
 					{ __(
-						'Jetpack Instant Search will allow your visitors to get search results as soon as they start typing. Customize this experience to offer better results that match your site.',
+						'Jetpack Search will allow your visitors to get search results as soon as they start typing. Customize this experience to offer better results that match your site.',
 						'jetpack-search-pkg'
 					) }
 				</p>

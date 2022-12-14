@@ -43,7 +43,7 @@ class Jetpack_Stats_Dashboard_Widget {
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
-				__( 'Stats by Jetpack', 'jetpack' )
+				__( 'Jetpack Stats', 'jetpack' )
 			);
 
 			wp_add_dashboard_widget(
@@ -152,7 +152,7 @@ class Jetpack_Stats_Dashboard_Widget {
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
 					>
 						<?php
-						esc_html_e( 'Configure stats', 'jetpack' );
+						esc_html_e( 'Configure Jetpack Stats', 'jetpack' );
 						?>
 				</a>
 				|

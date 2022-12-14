@@ -19,6 +19,8 @@ use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
+use Automattic\Jetpack\Stats\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
@@ -49,6 +51,8 @@ class Config {
 		'wordads'         => false,
 		'waf'             => false,
 		'videopress'      => false,
+		'stats'           => false,
+		'stats_admin'     => false,
 	);
 
 	/**
@@ -145,6 +149,12 @@ class Config {
 
 		if ( $this->config['videopress'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
+		}
+		if ( $this->config['stats'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats\Main' ) && $this->ensure_feature( 'stats' );
+		}
+		if ( $this->config['stats_admin'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
 		}
 	}
 
@@ -270,6 +280,17 @@ class Config {
 	}
 
 	/**
+	 * Handles Publicize options.
+	 */
+	protected function ensure_options_publicize() {
+		$options = $this->get_feature_options( 'publicize' );
+
+		if ( ! empty( $options['force_refresh'] ) ) {
+			Publicize_Setup::$refresh_plan_info = true;
+		}
+	}
+
+	/**
 	 * Enables WordAds.
 	 */
 	protected function enable_wordads() {
@@ -290,6 +311,22 @@ class Config {
 	 */
 	protected function enable_videopress() {
 		VideoPress_Pkg_Initializer::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats.
+	 */
+	protected function enable_stats() {
+		Stats_Main::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats Admin.
+	 */
+	protected function enable_stats_admin() {
+		Stats_Admin_Main::init();
 		return true;
 	}
 

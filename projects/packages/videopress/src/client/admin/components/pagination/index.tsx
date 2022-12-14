@@ -7,6 +7,8 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import useQueryStringPages from '../../hooks/use-query-string-pages';
+import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
 import type React from 'react';
@@ -145,6 +147,41 @@ const Pagination: React.FC< PaginationProps > = ( {
 				<Icon icon={ chevronRight } />
 			</Button>
 		</div>
+	);
+};
+
+export const ConnectPagination = ( props: { className: string; disabled?: boolean } ) => {
+	const { setPageOnURL } = useQueryStringPages();
+
+	const { page, itemsPerPage, total, isFetching } = useVideos();
+	return total <= itemsPerPage ? (
+		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+	) : (
+		<Pagination
+			{ ...props }
+			perPage={ itemsPerPage }
+			onChangePage={ setPageOnURL }
+			currentPage={ page }
+			total={ total }
+			disabled={ isFetching || props.disabled }
+		/>
+	);
+};
+
+export const ConnectLocalPagination = ( props: { className?: string; disabled?: boolean } ) => {
+	const { setPage, page, itemsPerPage, total, isFetching } = useLocalVideos();
+
+	return total < itemsPerPage ? (
+		<div className={ classnames( props.className, styles[ 'pagination-placeholder' ] ) } />
+	) : (
+		<Pagination
+			{ ...props }
+			perPage={ itemsPerPage }
+			onChangePage={ setPage }
+			currentPage={ page }
+			total={ total }
+			disabled={ isFetching || props.disabled }
+		/>
 	);
 };
 

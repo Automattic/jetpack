@@ -631,4 +631,14 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return $this->get_atomic_cloud_site_option( 'anchor_podcast' );
 	}
 
+	/**
+	 * Get user interactions with a site. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_user_interactions() {
+		return null;
+	}
 }

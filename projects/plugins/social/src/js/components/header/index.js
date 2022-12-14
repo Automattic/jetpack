@@ -1,11 +1,14 @@
 import {
 	Container,
+	ContextualUpgradeTrigger,
 	Col,
 	H3,
 	Button,
 	SocialIcon,
+	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -22,6 +25,8 @@ const Header = () => {
 		sharesCount,
 		postsCount,
 		isShareLimitEnabled,
+		hasPaidPlan,
+		siteSuffix,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -31,8 +36,11 @@ const Header = () => {
 			sharesCount: select( STORE_ID ).getSharesCount(),
 			postsCount: select( STORE_ID ).getPostsCount(),
 			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			siteSuffix: select( STORE_ID ).getSiteSuffix(),
 		};
 	} );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
@@ -42,6 +50,11 @@ const Header = () => {
 	return (
 		<>
 			<Container horizontalSpacing={ 0 }>
+				{ hasConnectionError && (
+					<Col className={ styles[ 'connection-error-col' ] }>
+						<ConnectionError />
+					</Col>
+				) }
 				<Col>
 					<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 				</Col>
@@ -61,8 +74,22 @@ const Header = () => {
 					</div>
 				</Col>
 				<Col sm={ 4 } md={ 4 } lg={ { start: 7, end: 12 } }>
-					{ isShareLimitEnabled ? (
-						<ShareCounter value={ sharesCount } max={ 30 } />
+					{ isShareLimitEnabled && ! hasPaidPlan ? (
+						<>
+							<ShareCounter value={ sharesCount } max={ 30 } />
+							<ContextualUpgradeTrigger
+								className={ styles.cut }
+								description={ __(
+									'Keep sharing all your posts to social media',
+									'jetpack-social'
+								) }
+								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
+								href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
+									site: siteSuffix,
+									query: 'redirect_to=' + window.location.href,
+								} ) }
+							/>
+						</>
 					) : (
 						<StatCards
 							stats={ [

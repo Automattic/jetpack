@@ -1,4 +1,8 @@
-import { __experimentalGetSettings } from '@wordpress/date'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import * as wpdate from '@wordpress/date';
+
+// @wordpress/date now provides getSettings in preference to __experimentalGetSettings,
+// but we still have to support WP 6.0 that doesn't have that yet.
+const getSettings = wpdate.getSettings || wpdate.__experimentalGetSettings;
 
 /**
  * Clean up WP locale so it matches the format expected by browsers.
@@ -35,7 +39,7 @@ declare const global: typeof globalThis;
 export const getUserLocale = () => {
 	const {
 		l10n: { locale },
-	} = __experimentalGetSettings();
+	} = getSettings();
 
 	if ( locale ) {
 		return cleanLocale( locale );

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.11] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
 ## [1.14.10] - 2022-07-06
 ### Changed
 - Renaming master to trunk. [#24661]
@@ -250,6 +254,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create package for Jetpack Tracking
 
+[1.14.11]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.10...v1.14.11
 [1.14.10]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.9...v1.14.10
 [1.14.9]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.8...v1.14.9
 [1.14.8]: https://github.com/Automattic/jetpack-tracking/compare/v1.14.7...v1.14.8

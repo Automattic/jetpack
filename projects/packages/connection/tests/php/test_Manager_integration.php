@@ -595,6 +595,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 			3
 		);
 
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		\Jetpack_Options::update_option(
 			'user_tokens',
 			array(

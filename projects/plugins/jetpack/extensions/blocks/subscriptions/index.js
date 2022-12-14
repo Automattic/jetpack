@@ -7,7 +7,6 @@ import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import SubscribePanels from './panel';
-import save from './save';
 
 export const name = 'subscriptions';
 export const icon = (
@@ -53,7 +52,6 @@ export const settings = {
 	],
 	attributes,
 	edit,
-	save,
 	styles: [
 		{
 			name: 'compact',

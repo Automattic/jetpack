@@ -102,7 +102,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 
 		$youtube_id = 'JaNH56Vpg-A';
 		$url        = 'http://www.youtube.com/watch?v=' . $youtube_id;
-		$post       = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
+		$post       = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		wpcom_youtube_embed_crazy_url_init();
 		setup_postdata( $post );

@@ -1,6 +1,7 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { getDotComCredentials } from '../../helpers/utils-helper.cjs';
+import PageActions from '../page-actions.js';
 
 export default class LoginPage extends WpPage {
 	constructor( page ) {
@@ -9,6 +10,12 @@ export default class LoginPage extends WpPage {
 			expectedSelectors: [ '.wp-login__container' ],
 			url,
 		} );
+	}
+
+	static async isDisplayed( page ) {
+		const pa = new PageActions( page );
+		await pa.waitForDomContentLoaded();
+		return await pa.isElementVisible( '#wpcom .wp-login__container', 2000 );
 	}
 
 	async login( credentials = getDotComCredentials(), { retry = true } = {} ) {

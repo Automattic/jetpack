@@ -8,14 +8,14 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sending_empties_queue() {
-		$this->factory->post->create();
+		self::factory()->post->create();
 		$this->assertNotEmpty( $this->sender->get_sync_queue()->get_all() );
 		$this->sender->do_sync();
 		$this->assertEmpty( $this->sender->get_sync_queue()->get_all() );
 	}
 
 	public function test_sends_publish_post_action() {
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertEquals( 'jetpack_published_post', $event->action );
@@ -183,7 +183,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 
-		$this->factory->post->create_many( 2 );
+		self::factory()->post->create_many( 2 );
 		$this->sender->do_sync();
 
 		$this->assertEmpty( $this->server_event_storage->get_all_events() );
@@ -197,7 +197,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 
-		$this->factory->post->create_many( 2 );
+		self::factory()->post->create_many( 2 );
 		$this->sender->do_sync();
 
 		$this->assertNotEmpty( $this->server_event_storage->get_all_events() );

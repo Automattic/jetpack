@@ -326,7 +326,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		for ( $i = 0; $i < $iterations; $i++ ) {
 			$start_create_post_time = microtime( true );
 
-			$post_id = $this->factory->post->create();
+			$post_id = self::factory()->post->create();
 
 			$start_add_queue_time = microtime( true );
 

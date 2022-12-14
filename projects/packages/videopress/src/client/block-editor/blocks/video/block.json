@@ -8,11 +8,21 @@
 	"icon": "smiley",
 	"description": "Embed a video from your media library or upload a new one with VideoPress.",
 	"supports": {
-		"align": true
+		"align": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
 	},
 	"attributes": {
 		"autoplay": {
 			"type": "boolean"
+		},
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
 		},
 		"caption": {
 			"type": "string",
@@ -63,7 +73,10 @@
 			"type": "string"
 		},
 		"src": {
-			"type": "string"
+			"type": "string",
+			"source": "attribute",
+			"selector": "video",
+			"attribute": "src"
 		},
 		"cacheHtml": {
 			"type": "string",
@@ -74,6 +87,35 @@
 		},
 		"videoRatio": {
 			"type": "number"
+		},
+		"tracks": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayEmbed": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
+		},
+		"isExample": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"textdomain": "jetpack-videopress",

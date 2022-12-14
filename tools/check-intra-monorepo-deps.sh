@@ -11,7 +11,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-n <name>] [-v] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-H] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -26,6 +26,7 @@ function usage {
 		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
 		 -n: Set changelogger filename.
 		 -v: Output debug information.
+		 -H: When on a release branch, skip updating the corresponding plugin.
 	EOH
 	exit 1
 }
@@ -36,7 +37,8 @@ VERBOSE=false
 DOCL_EVER=true
 AUTO_SUFFIX=false
 CL_FILENAME=
-while getopts ":uUvhan:" opt; do
+HARDWAY=false
+while getopts ":uUvhHan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -53,6 +55,9 @@ while getopts ":uUvhan:" opt; do
 			;;
 		v)
 			VERBOSE=true
+			;;
+		H)
+			HARDWAY=true
 			;;
 		h)
 			usage
@@ -84,12 +89,60 @@ else
 	fi
 fi
 
+debug "Making sure changelogger is runnable"
+CL="$BASE/projects/packages/changelogger/bin/changelogger"
+if ! "$CL" &>/dev/null; then
+	(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+	if ! "$CL" &>/dev/null; then
+		die "Changelogger is not runnable via $CL"
+	fi
+fi
+
+declare -A SKIPSLUGS
+if $HARDWAY; then
+	debug "Checking for release branch for -H"
+	BRANCH="$(git symbolic-ref --short HEAD)"
+	if [[ "$BRANCH" == */branch-* ]]; then
+		for k in $(jq -r --arg prefix "${BRANCH%%/*}" 'if .extra["release-branch-prefix"] == $prefix then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
+			debug "Release branch matches $k"
+			SKIPSLUGS[$k]=$k
+		done
+		if [[ "${#SKIPSLUGS[@]}" -eq 0 ]]; then
+			warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch for any monorepo plugin"
+			HARDWAY=false
+		else
+			debug "Release branch matches ${SKIPSLUGS[*]}"
+		fi
+	else
+		warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch"
+		HARDWAY=false
+	fi
+fi
+
+debug "Fetching PHP package versions"
+
 function get_packages {
-	PACKAGES_DEV=$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= if $in.extra["branch-alias"]["dev-trunk"] then [ $in.extra["branch-alias"]["dev-trunk"], ( $in.extra["branch-alias"]["dev-trunk"] | sub( "^(?<v>\\d+\\.\\d+)\\.x-dev$"; "^\(.v)" ) ) ] else [ "@dev" ] end )' "$BASE"/projects/packages/*/composer.json)
-	PACKAGES_NODEV=$(jq -c '( .[][0] | select( . != "@dev" ) ) |= empty' <<<"$PACKAGES_DEV")
-	PACKAGES_STAR=$(jq -c '.[] |= [ "@dev" ]' <<<"$PACKAGES_DEV")
-	JSPACKAGES_PROJ=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:* || ^\( $in.version | sub( "^(?<v>[0-9]+\\.[0-9]+)(?:\\..*)$"; "\(.v)" ) )", "workspace:* || \($in.version)" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
-	JSPACKAGES_STAR=$(jq -c '.[] |= [ "workspace:*" ]' <<<"$JSPACKAGES_PROJ")
+	local PKGS
+	if [[ -z "$1" ]]; then
+		PACKAGES='{}'
+		PKGS=( "$BASE"/projects/packages/*/composer.json )
+	elif [[ "$1" == packages/* ]]; then
+		PKGS=( "$BASE"/projects/$1/composer.json )
+	else
+		PKGS=()
+	fi
+	if [[ "$PACKAGES" == '{}' && -n "$PACKAGE_VERSIONS_CACHE" && -s "$PACKAGE_VERSIONS_CACHE" ]]; then
+		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
+	else
+		for PKG in "${PKGS[@]}"; do
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
+		done
+		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
+			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
+		fi
+	fi
+
+	JSPACKAGES=$(jq -nc 'reduce inputs as $in ({}; if $in.name then .[$in.name] |= [ "workspace:*" ] else . end )' "$BASE"/projects/js-packages/*/package.json)
 }
 
 get_packages
@@ -108,17 +161,8 @@ else
 fi
 
 if $UPDATE; then
-	DID_CL_INSTALL=false
-	CL="$BASE/projects/packages/changelogger/bin/changelogger"
-
 	function changelogger {
 		local SLUG="$1"
-
-		if ! $DID_CL_INSTALL; then
-			debug "Making sure changelogger is runnable"
-			(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
-			DID_CL_INSTALL=true
-		fi
 
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
@@ -148,7 +192,7 @@ if $UPDATE; then
 			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
 			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
-			get_packages
+			get_packages "$SLUG"
 		fi
 		cd "$OLDDIR"
 	}
@@ -156,31 +200,28 @@ fi
 
 EXIT=0
 ANYJS=false
+SKIPPED=()
 for SLUG in "${SLUGS[@]}"; do
 	spin
+	if [[ -n "${SKIPSLUGS[$SLUG]}" ]]; then
+		debug "Skipping $SLUG, matches release branch"
+		SKIPPED+=( "$SLUG" )
+		continue
+	fi
 	debug "Checking dependencies of $SLUG"
+	PACKAGES_CHECK_ALLOWED_SEL=
+	PACKAGES_UPDATE_SEL='"@dev"'
+	PACKAGES_CHECK_SEL='[ "@dev" ]'
+	DOCL=false
 	if [[ "$SLUG" == monorepo ]]; then
-		PACKAGES="$PACKAGES_DEV"
-		JSPACKAGES="$JSPACKAGES_PROJ"
-		DOCL=false
 		DIR=.
 	elif [[ "$SLUG" == nonproject:* ]]; then
-		PACKAGES="$PACKAGES_STAR"
-		JSPACKAGES="$JSPACKAGES_STAR"
-		if [[ "$SLUG" == nonproject:tools/cli/skeletons/* ]]; then
-			PACKAGES="$PACKAGES_DEV"
-			JSPACKAGES="$JSPACKAGES_PROJ"
-			if [[ "$SLUG" == "nonproject:tools/cli/skeletons/packages" ]]; then
-				PACKAGES="$PACKAGES_NODEV"
-			fi
-		fi
-		DOCL=false
 		DIR="${SLUG#nonproject:}"
 	else
-		PACKAGES="$PACKAGES_DEV"
-		JSPACKAGES="$JSPACKAGES_PROJ"
-		if [[ "$SLUG" == packages/* ]]; then
-			PACKAGES="$PACKAGES_NODEV"
+		if [[ "$SLUG" == plugins/* ]]; then
+			PACKAGES_UPDATE_SEL='( if e.value | endswith( "@dev" ) or endswith( "-dev" ) then "@dev" else $packages[e.key].dep end )'
+			PACKAGES_CHECK_SEL='( if .value | endswith( "@dev" ) or endswith( "-dev" ) then [ "@dev" ] else [ $packages[.key].dep ] end )'
+			PACKAGES_CHECK_ALLOWED_SEL='[ "@dev", $packages[.key].dep ]'
 		fi
 		DOCL=$DOCL_EVER
 		DIR="projects/$SLUG"
@@ -198,7 +239,7 @@ for SLUG in "${SLUGS[@]}"; do
 	JSFILE="$DIR/package.json"
 	if $UPDATE; then
 		if [[ -e "$PHPFILE" ]]; then
-			JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
+			JSON=$(jq --tab --argjson packages "$PACKAGES" -r 'def ver(e): if $packages[e.key] then '"$PACKAGES_UPDATE_SEL"' else e.value end; if .require then .require |= with_entries( .value = ver(.) ) else . end | if .["require-dev"] then .["require-dev"] |= with_entries( .value = ver(.) ) else . end' "$PHPFILE")
 			if [[ "$JSON" != "$(<"$PHPFILE")" ]]; then
 				info "PHP dependencies of $SLUG changed!"
 				echo "$JSON" > "$PHPFILE"
@@ -211,7 +252,7 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		fi
 		if [[ -e "$JSFILE" ]]; then
-			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then if e.value[0:1] == "^" then $packages[e.key][1] else null end // $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
+			JSON=$(jq --tab --argjson packages "$JSPACKAGES" -r 'def ver(e): if $packages[e.key] then $packages[e.key][0] else e.value end; def proc(k): if .[k] then .[k] |= with_entries( .value = ver(.) ) else . end; proc("dependencies") | proc("devDependencies") | proc("peerDependencies") | proc("optionalDependencies")' "$JSFILE")
 			if [[ "$JSON" != "$(<"$JSFILE")" ]]; then
 				info "JS dependencies of $SLUG changed!"
 				echo "$JSON" > "$JSFILE"
@@ -229,6 +270,7 @@ for SLUG in "${SLUGS[@]}"; do
 			cd "$PROJECTFOLDER"
 			debug "Updating $SLUG composer.lock"
 			OLD="$(<composer.lock)"
+
 			"$BASE/tools/composer-update-monorepo.sh" --quiet "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
@@ -252,7 +294,7 @@ for SLUG in "${SLUGS[@]}"; do
 			fi
 		done < <(
 			if [[ -e "$PHPFILE" ]]; then
-				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$PHPFILE"
+				jq --argjson packages "$PACKAGES" -r '.require // {}, .["require-dev"] // {} | to_entries[] | select( .value as $v | $packages[.key] and ( '"$PACKAGES_CHECK_SEL"' | index( $v ) == null ) ) | [ input_filename, .key, ( '"${PACKAGES_CHECK_ALLOWED_SEL:-$PACKAGES_CHECK_SEL}"' | join( " or " ) ) ] | @tsv' "$PHPFILE"
 			fi
 			if [[ -e "$JSFILE" ]]; then
 				jq --argjson packages "$JSPACKAGES" -r '.dependencies // {}, .devDependencies // {}, .peerDependencies // {}, .optionalDependencies // {} | to_entries[] | select( .value as $v | $packages[.key] as $vals | $vals and ( $vals | index( $v ) == null ) ) | [ input_filename, .key, ( $packages[.key] | join( " or " ) ) ] | @tsv' "$JSFILE"
@@ -279,6 +321,19 @@ spinclear
 
 if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'
+fi
+
+if $HARDWAY && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
+	jetpackGreen <<-EOF
+		Due to use of \`-H\`, dependencies may not be fully updated. If you're doing a
+		"hard way" package release, next steps are:
+		 1. Commit the changes and push to the release branch. Note the
+		    "Check plugin monorepo dep versions" test will fail.
+		 2. Use the build artifact to do the package releases.
+		 3. Update the release plugin's deps by running
+		      tools/check-intra-monorepo-deps.sh -aU ${SKIPPED[*]}
+		    then commit and push.
+	EOF
 fi
 
 exit $EXIT

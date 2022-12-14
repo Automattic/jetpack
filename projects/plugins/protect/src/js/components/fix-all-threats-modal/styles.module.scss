@@ -1,0 +1,8 @@
+.list {
+    margin-bottom: calc( var( --spacing-base ) * 5 ); // 40px
+}
+
+.footer {
+    display: flex;
+    justify-content: space-between;
+}

@@ -1,5 +1,6 @@
-import { MouseEvent } from 'react';
+import React from 'react';
 import { VideoPressVideo } from '../../types';
+import { VideoThumbnailProps } from '../video-thumbnail/types';
 
 type VideoRowBaseProps = {
 	/**
@@ -11,35 +12,62 @@ type VideoRowBaseProps = {
 	 */
 	checked?: boolean;
 	/**
-	 * Hide edit details button.
+	 * Show action button
 	 */
-	hideEditButton?: boolean;
+	showActionButton?: boolean;
 	/**
-	 * Hide quick actions section.
+	 * Show quick actions section.
 	 */
-	hideQuickActions?: boolean;
+	showQuickActions?: boolean;
+	/**
+	 * Show checkbox.
+	 */
+	showCheckbox?: boolean;
+	/**
+	 * Loading mode.
+	 */
+	loading?: boolean;
+	/**
+	 * True when is uploading a poster image.
+	 */
+	isUpdatingPoster?: boolean;
+	/**
+	 * The video upload progress from 0 to 1.
+	 */
+	uploadProgress?: number;
 	/**
 	 * Callback to be invoked when clicking on the row.
 	 */
 	onSelect?: ( check: boolean ) => void;
 	/**
-	 * Callback to be invoked when clicking on the `Edit details` button.
+	 * Callback to be invoked when clicking on action button.
 	 */
-	onClickEdit?: () => void;
+	onActionClick?: () => void;
 	/**
-	 * Callback to be invoked when clicking on the `Update thumbnail` button.
+	 * Text to be used inside action button. Default to `Edit details`.
 	 */
-	onUpdateThumbnailClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	actionButtonLabel?: string;
 	/**
-	 * Callback to be invoked when clicking on the `Update privacy` button.
+	 * Make row disabled.
 	 */
-	onUpdateUpdatePrivacyClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	disabled?: boolean;
 	/**
-	 * Callback to be invoked when clicking on the `Delete video` button.
+	 * Adornment to be showed after title.
 	 */
-	onDeleteClick?: ( event: MouseEvent< HTMLButtonElement > ) => void;
+	titleAdornment?: React.ReactNode;
+	/**
+	 * Adornment to be showed after title.
+	 */
+	disableActionButton?: boolean;
 };
 
-type VideoPressVideoProps = VideoRowBaseProps & VideoPressVideo;
+type VideoPressVideoProps = VideoRowBaseProps &
+	Pick< VideoPressVideo, 'id' | 'title' > &
+	Partial<
+		Pick< VideoPressVideo, 'duration' | 'uploadDate' | 'plays' | 'isPrivate' | 'privacySetting' > // Optional
+	> &
+	Pick< VideoThumbnailProps, 'thumbnail' | 'loading' | 'processing' | 'uploading' >;
 
-export type VideoRowProps = VideoPressVideoProps;
+export type VideoRowProps = VideoPressVideoProps & {
+	showThumbnail?: boolean;
+};

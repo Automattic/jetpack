@@ -22,6 +22,7 @@
 	<rule ref="MediaWiki.Usage.NestedFunctions" />
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
+	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
 	<rule ref="MediaWiki.WhiteSpace.MultipleEmptyLines" />
 	<rule ref="MediaWiki.WhiteSpace.SpaceAfterClosure" />
 	<rule ref="MediaWiki.Usage.IsNull" />

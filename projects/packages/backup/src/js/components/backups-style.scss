@@ -195,3 +195,31 @@
 		transform: translateY( -84px );
 	}
 }
+
+.backup-panel {
+	padding-top: 8px;
+	padding-bottom: 24px;
+
+	a.button {
+		height: auto;
+		line-height: 24px;
+		width: auto;
+		text-align: center;
+
+		@include for-tablet-down {
+			width: 100%;
+			
+		}
+	}
+}
+
+.backup-segments {
+	h2 {
+		margin-bottom: 0;
+	}
+
+	p {
+		margin-top: 8px;
+		margin-bottom: 8px;
+	}
+}

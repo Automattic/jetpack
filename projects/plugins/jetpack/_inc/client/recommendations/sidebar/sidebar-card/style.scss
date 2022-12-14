@@ -16,6 +16,20 @@
 	}
 }
 
+.jp-recommendations-sidebar-card.underside {
+	border-radius: 0px;
+	box-shadow: none;
+
+	h2 {
+		font-size: $font-title-large;
+		margin-bottom: 0.75rem;
+	}
+
+	p {
+		font-size: $font-body;
+	}
+}
+
 .jp-recommendations-sidebar-card__content {
 	padding: 0 1.5rem 1.5rem;
 
@@ -56,5 +70,5 @@
 }
 
 .jp-recommendations-sidebar-card__features {
-	@include features-list;	
+	@include features-list;
 }

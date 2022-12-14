@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2022-12-06
+### Changed
+- html_entity_decode filter now decodes single-quotes too, and uses a Unicode Replacement Character instead of returning empty string on invalid characters. [#27753]
+
+## [0.7.0] - 2022-12-05
+### Added
+- Prepare package for use in the Jetpack Protect standalone plugin. [#27528]
+
+### Changed
+- Updated package dependencies. [#27688]
+
+### Removed
+- Remove has_rules_access plan check in favor of external alternatives [#27600]
+
+## [0.6.10] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [0.6.9] - 2022-11-01
+### Fixed
+- Fix bug for cron event not generating IP rules. [#27215]
+
+## [0.6.8] - 2022-10-27
+### Fixed
+- Fixes several invalid action callbacks. [#27106]
+
+## [0.6.7] - 2022-09-20
+### Changed
+- Changing how we load and run the package to avoid actions.php [#24730]
+
 ## [0.6.6] - 2022-09-08
 ### Fixed
 - Fixed exception namespace. [#25663]
@@ -88,6 +118,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.7.1]: https://github.com/Automattic/jetpack-waf/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/Automattic/jetpack-waf/compare/v0.6.10...v0.7.0
+[0.6.10]: https://github.com/Automattic/jetpack-waf/compare/v0.6.9...v0.6.10
+[0.6.9]: https://github.com/Automattic/jetpack-waf/compare/v0.6.8...v0.6.9
+[0.6.8]: https://github.com/Automattic/jetpack-waf/compare/v0.6.7...v0.6.8
+[0.6.7]: https://github.com/Automattic/jetpack-waf/compare/v0.6.6...v0.6.7
 [0.6.6]: https://github.com/Automattic/jetpack-waf/compare/v0.6.5...v0.6.6
 [0.6.5]: https://github.com/Automattic/jetpack-waf/compare/v0.6.4...v0.6.5
 [0.6.4]: https://github.com/Automattic/jetpack-waf/compare/v0.6.3...v0.6.4

@@ -1,10 +1,15 @@
-import { VideoCardProps } from '../video-card/types';
+import { VideoPressVideo } from '../../types';
 
 export type VideoGridProps = {
 	/**
 	 * Array of VideoPressVideo objects
 	 */
-	videos: Array< VideoCardProps >;
+	videos: Array< VideoPressVideo >;
+
+	/**
+	 * Callback to be called when click on Edit Details
+	 */
+	onVideoDetailsClick?: ( video: VideoPressVideo ) => void;
 
 	/**
 	 * Count of videos to render into the grid
@@ -12,4 +17,9 @@ export type VideoGridProps = {
 	 * @default 6
 	 */
 	count?: number;
+
+	/**
+	 * Trigger loading state
+	 */
+	loading?: boolean;
 };

@@ -10,7 +10,8 @@
 	background: var( --jp-white );
 
 	a:not( [type='button'] ) {
-		@include rna-link;
+		// $has-focus-state: false - as we don't need a focus state for navigation links
+		@include rna-link( $has-focus-state: false );
 	}
 }
 

@@ -63,6 +63,7 @@ class Test_Host extends TestCase {
 		$this->setup_atomic_constants();
 		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', true );
 		$this->assertTrue( $this->host_obj->is_woa_site() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
 	}
 
 	/**
@@ -90,6 +91,15 @@ class Test_Host extends TestCase {
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', false );
 		Constants::set_constant( 'ATOMIC_SITE_ID', false );
 		$this->assertFalse( $this->host_obj->is_atomic_platform() );
+	}
+
+	/**
+	 * Tests if a Simple Site based on constant
+	 */
+	public function test_simple_site_based_on_constant() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->assertTrue( $this->host_obj->is_wpcom_simple() );
+		$this->assertTrue( $this->host_obj->is_wpcom_platform() );
 	}
 
 	/**

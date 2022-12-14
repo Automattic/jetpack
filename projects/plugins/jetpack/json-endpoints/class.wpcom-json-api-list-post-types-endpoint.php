@@ -68,18 +68,27 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->load_theme_functions();
-		}
 
-		/**
-		 * Whether API responses should be returned in a custom locale.  False
-		 * for Jetpack; may be true for WP.com requests.
-		 *
-		 * @since 3.9.2
-		 */
-		if ( apply_filters( 'rest_api_localize_response', false ) ) {
-			// API localization occurs after the initial post types have been
-			// registered, so re-register if localizing response.
-			create_initial_post_types();
+			/**
+			 * Whether API responses should be returned in a custom locale.  False
+			 * for Jetpack; may be true for WP.com requests.
+			 *
+			 * @since 3.9.2
+			 */
+			if ( apply_filters( 'rest_api_localize_response', false ) ) {
+				// API localization occurs after the initial post types have been
+				// registered, so let's get the post type labels translated.
+				if ( 'en' !== get_locale() ) {
+					global $wp_post_types;
+					foreach ( $wp_post_types as $post_type_object ) {
+						foreach ( array_keys( (array) $post_type_object->labels ) as $label_key ) {
+							// Direct use of translate call because this doesn't need to be extracted.
+							// phpcs:ignore WordPress.WP.I18n
+							$post_type_object->labels->$label_key = translate( $post_type_object->labels->$label_key, 'default' );
+						}
+					}
+				}
+			}
 		}
 
 		// Get a list of available post types.

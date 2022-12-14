@@ -61,7 +61,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	public function test_delete_transient_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
+		$request  = new WP_REST_Request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'authorization_required', $response, 403 );
@@ -74,7 +74,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Transient extends WP_Test_Jetpack_REST_
 	 * @covers ::delete_transient
 	 */
 	public function test_delete_transient() {
-		$request  = wp_rest_request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
+		$request  = new WP_REST_Request( Requests::DELETE, '/wpcom/v2/transients/' . static::$transient_name );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( array( 'success' => true ), $response->get_data() );

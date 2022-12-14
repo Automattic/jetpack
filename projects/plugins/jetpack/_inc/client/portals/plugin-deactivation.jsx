@@ -46,7 +46,9 @@ const PluginDeactivation = props => {
 	// Modify the deactivation link.
 	const deactivationLink = document.querySelector( '#deactivate-jetpack, #deactivate-jetpack-dev' ); // ID set by WP on the deactivation link.
 
-	deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	if ( deactivationLink !== null ) {
+		deactivationLink.setAttribute( 'title', __( 'Deactivate Jetpack', 'jetpack' ) );
+	}
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -70,6 +72,9 @@ const PluginDeactivation = props => {
 	 * The link is set to open the deactivation dialog.
 	 */
 	useEffect( () => {
+		if ( deactivationLink === null ) {
+			return null;
+		}
 		deactivationLink.addEventListener( 'click', handleLinkClick );
 
 		return () => {
@@ -78,6 +83,9 @@ const PluginDeactivation = props => {
 	}, [ deactivationLink, handleLinkClick ] );
 
 	const handleDeactivate = useCallback( () => {
+		if ( deactivationLink === null ) {
+			return null;
+		}
 		window.location.href = deactivationLink.getAttribute( 'href' );
 	}, [ deactivationLink ] );
 

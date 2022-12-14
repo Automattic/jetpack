@@ -24,6 +24,8 @@ test.describe( 'Settings Page Connection', () => {
 			'Site should not be connected'
 		).toBeTruthy();
 		await jetpackBoostPage.connect();
+		await jetpackBoostPage.chooseFreePlan();
+
 		expect( await jetpackBoostPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 	} );
 
@@ -38,6 +40,8 @@ test.describe( 'Settings Page Connection', () => {
 			'Site should not be connected'
 		).toBeTruthy();
 		await jetpackBoostPage.connect();
+		await jetpackBoostPage.chooseFreePlan();
+
 		expect( await jetpackBoostPage.isConnected(), 'Site should be connected' ).toBeTruthy();
 	} );
 } );

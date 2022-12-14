@@ -1,6 +1,7 @@
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
 import DashSectionHeader from 'components/dash-section-header';
+import QueryRecommendationsData from 'components/data/query-recommendations-data';
 import QueryScanStatus from 'components/data/query-scan-status';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -189,6 +190,7 @@ class AtAGlance extends Component {
 					</h1>
 					<QuerySitePlugins />
 					<QuerySite />
+					<QueryRecommendationsData />
 					<QueryScanStatus />
 					{ redeemPartnerCoupon }
 					<DashStats { ...settingsProps } { ...urls } />

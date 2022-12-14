@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { _x, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import SectionNav from 'components/section-nav';
 import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
@@ -15,12 +16,12 @@ import {
 	getSiteRawUrl,
 	showRecommendations,
 	showMyJetpack,
-	getNewRecommendationsCount,
 	userCanManageModules as _userCanManageModules,
 	userCanViewStats as _userCanViewStats,
 	getPurchaseToken,
 } from 'state/initial-state';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
+import { getNonViewedRecommendationsCount } from 'state/recommendations';
 
 export class Navigation extends React.Component {
 	trackNavClick = target => {
@@ -131,10 +132,11 @@ export class Navigation extends React.Component {
 								{
 									count: (
 										<span
-											className={
-												'dops-section-nav-tab__update-badge count-' +
-												this.props.newRecommendationsCount
-											}
+											className={ classNames( 'dops-section-nav-tab__update-badge', {
+												[ 'is-hidden' ]:
+													this.props.location.pathname.startsWith( '/recommendations' ) ||
+													! this.props.newRecommendationsCount,
+											} ) }
 										></span>
 									),
 								}
@@ -187,7 +189,7 @@ export default connect( state => {
 		isLinked: isCurrentUserLinked( state ),
 		hasConnectedOwner: hasConnectedOwner( state ),
 		showRecommendations: showRecommendations( state ),
-		newRecommendationsCount: getNewRecommendationsCount( state ),
+		newRecommendationsCount: getNonViewedRecommendationsCount( state ),
 		siteUrl: getSiteRawUrl( state ),
 		adminUrl: getSiteAdminUrl( state ),
 		purchaseToken: getPurchaseToken( state ),

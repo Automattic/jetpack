@@ -1,0 +1,11 @@
+.block-editor-panel-color-gradient-settings {
+	&.videopress-color-panel {
+		padding: 0;
+		border-top: 0;
+	}
+}
+
+.videopress-dynamic-color-example {
+	--spacing-base: 8px;
+	margin-top: var( --spacing-base );
+}

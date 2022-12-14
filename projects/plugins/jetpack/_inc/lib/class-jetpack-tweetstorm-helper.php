@@ -269,7 +269,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'WPCOM_Gather_Tweetstorm' ) ) {
-				\jetpack_require_lib( 'gather-tweetstorm' );
+				\require_lib( 'gather-tweetstorm' );
 			}
 
 			return WPCOM_Gather_Tweetstorm::gather( $url );

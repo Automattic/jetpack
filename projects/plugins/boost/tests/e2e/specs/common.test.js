@@ -10,7 +10,7 @@ test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
-	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
+	await boostPrerequisitesBuilder( page ).withConnection( true ).withGotStarted().build();
 	await page.close();
 } );
 
@@ -40,6 +40,7 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 	await boostPrerequisitesBuilder( page )
 		.withCleanEnv( true )
+		.withGotStarted()
 		.withActiveModules( [ 'critical-css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
@@ -49,7 +50,12 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	).toBeTruthy();
 	await DashboardPage.visit( page );
 	await ( await Sidebar.init( page ) ).selectInstalledPlugins();
-	await ( await PluginsPage.init( page ) ).deactivatePlugin( 'jetpack-boost' );
+
+	// Deactivate boost
+	const pluginsPage = await PluginsPage.init( page );
+	await pluginsPage.deactivatePlugin( 'jetpack-boost' );
+	await pluginsPage.click( 'text=Just Deactivate' );
+
 	let result;
 	result = await execWpCommand(
 		'db query \'SELECT ID FROM wp_posts WHERE post_type LIKE "%jb_store_%"\' --skip-column-names'

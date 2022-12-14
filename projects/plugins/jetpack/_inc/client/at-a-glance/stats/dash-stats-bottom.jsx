@@ -5,7 +5,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
-import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
@@ -97,9 +96,27 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-ctas">
+						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+							button: (
+								<Button
+									onClick={ this.trackViewDetailedStats }
+									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+								/>
+							),
+						} ) }
+						{ ! this.props.isLinked && this.props.userCanConnectAccount && (
+							<ConnectButton
+								connectUser={ true }
+								from="unlinked-user-connect"
+								connectLegend={ __(
+									'Connect your WordPress.com account for more metrics',
+									'jetpack'
+								) }
+							/>
+						) }
 						{ this.props.isLinked &&
 							createInterpolateElement(
-								__( '<ExternalLink>View more stats on WordPress.com</ExternalLink>', 'jetpack' ),
+								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
 								{
 									ExternalLink: (
 										<ExternalLink
@@ -117,28 +134,8 @@ class DashStatsBottom extends Component {
 									),
 								}
 							) }
-						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-							button: (
-								<Button
-									onClick={ this.trackViewDetailedStats }
-									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-								/>
-							),
-						} ) }
 					</div>
 				</div>
-				{ ! this.props.isLinked && this.props.userCanConnectAccount && (
-					<Card compact className="jp-settings-card__configure-link">
-						<ConnectButton
-							connectUser={ true }
-							from="unlinked-user-connect"
-							connectLegend={ __(
-								'Connect your WordPress.com account to view more stats',
-								'jetpack'
-							) }
-						/>
-					</Card>
-				) }
 			</div>
 		);
 	}

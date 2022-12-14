@@ -25,5 +25,6 @@ wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.l
 global $wp_version;
 if ( version_compare( $wp_version, '6.1-alpha-53744', '<' ) ) {
 	wp_oembed_add_provider( '#https?://pca\.st/.+#i', 'https://pca.st/oembed.json', true );
-	wp_oembed_add_provider( '#https?://pcast\.pocketcasts\.net/.+#i', 'https://pcast.pocketcasts.net/oembed.json', true );
 }
+// WordPress core only registers pca.st, not pcast.pocketcasts.net.
+wp_oembed_add_provider( '#https?://pcast\.pocketcasts\.net/.+#i', 'https://pcast.pocketcasts.net/oembed.json', true );

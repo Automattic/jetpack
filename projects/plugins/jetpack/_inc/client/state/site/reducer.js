@@ -265,7 +265,7 @@ export function isFetchingSitePurchases( state ) {
  * @returns {Array} Site products
  */
 export function getSiteProducts( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'products' ], [] );
 }
 
 /**

@@ -66,6 +66,8 @@
 	flex-direction: row;
 	align-items: center;
 	padding: 20px 20px 0;
+	flex-wrap: wrap;
+	gap: $grid-unit-15 $grid-unit-30;
 }
 
 .resumable-upload__error {
@@ -75,7 +77,6 @@
 .resumable-upload__file-info {
 	display: flex;
 	flex-direction: row;
-	width: 100%;
 }
 
 .resumable-upload__file-size {
@@ -91,7 +92,6 @@
 	border-radius: 4px;
 	box-sizing: border-box;
 	overflow: hidden;
-	margin-right: $grid-unit-15;
 }
 
 .resumable-upload__progress-loaded {
@@ -119,6 +119,8 @@
 	justify-self: flex-end;
 	justify-content: space-between;
 	align-items: center;
+	width: fit-content;
+	margin-left: auto;
 
 	.components-button.is-link {
 		text-decoration: none;

@@ -7,5 +7,5 @@ export type VideoUploadAreaProps = {
 	/**
 	 * Callback to be invoked when files are selected.
 	 */
-	onSelectFiles: ( files: FileList ) => unknown;
+	onSelectFiles: ( files: File[] ) => void;
 };

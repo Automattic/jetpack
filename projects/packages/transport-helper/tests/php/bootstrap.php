@@ -1,11 +1,15 @@
 <?php
 /**
- * Bootstrap.
+ * Initialize the testing environment.
  *
- * @package automattic/
+ * @package automattic/jetpack-transport-helper
  */
 
 /**
- * Include the composer autoloader.
+ * Load the composer autoloader.
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
+
+define( 'WP_DEBUG', true );
+
+\WorDBless\Load::load();

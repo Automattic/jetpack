@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Fix PHP Warning on subscription block

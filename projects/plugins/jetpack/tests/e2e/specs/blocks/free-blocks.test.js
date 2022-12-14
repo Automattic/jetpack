@@ -3,6 +3,7 @@ import {
 	BlockEditorPage,
 	PinterestBlock,
 	EventbriteBlock,
+	FormBlock,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import config from 'config';
@@ -15,7 +16,6 @@ test.describe.parallel( 'Free blocks', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await prerequisitesBuilder( page )
-			.withWpComLoggedIn( true )
 			.withLoggedIn( true )
 			.withConnection( true )
 			.withPlan( Plans.Free )
@@ -83,6 +83,29 @@ test.describe.parallel( 'Free blocks', () => {
 				await frontend.isRenderedBlockPresent( EventbriteBlock, {
 					eventId,
 				} ),
+				'Block should be displayed'
+			).toBeTruthy();
+		} );
+	} );
+
+	test( 'Form block', async ( { page } ) => {
+		await test.step( 'Can visit the block editor and add a Form block', async () => {
+			const blockId = await blockEditor.insertBlock( FormBlock.name(), FormBlock.title() );
+
+			const block = new FormBlock( blockId, page );
+			await block.selectFormVariation();
+		} );
+
+		await test.step( 'Can publish a post with a Form block', async () => {
+			await blockEditor.selectPostTitle();
+			await blockEditor.publishPost();
+			await blockEditor.viewPost();
+		} );
+
+		await test.step( 'Can assert that Form block is rendered', async () => {
+			const frontend = await PostFrontendPage.init( page );
+			expect(
+				await frontend.isRenderedBlockPresent( FormBlock ),
 				'Block should be displayed'
 			).toBeTruthy();
 		} );

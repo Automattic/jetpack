@@ -83,9 +83,6 @@ for PKG in "$BASE"/projects/packages/*/composer.json; do
 	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.[$k] |= $v' <<<"$PACKAGES")
 done
 
-# Get current packages and their versions from the target project.
-OLD_VERSIONS=$(jq -r --argjson packages "$PACKAGES" '( .["require-dev"] // {} ) + ( .require // {} ) | with_entries( select( ( .value | test( "\\.x-dev$" ) ) and $packages[.key] ) )' "$DIR/composer.json")
-
 # Update the versions in composer.json, without actually updating them yet.
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.require // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")
@@ -100,10 +97,8 @@ if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	composer require "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
 fi
 
-# Update any indirect dependencies too. Pass `--with` options to ensure exactly the versions we expect are used.
-WITH=()
-mapfile -t WITH < <(jq -r --argjson oldvers "$OLD_VERSIONS" 'to_entries[] | select( $oldvers[.key] ) | "--with=\( .key )=\( .value )"' <<<"$PACKAGES")
-"$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "${WITH[@]}" "$DIR"
+# Now update all the deps.
+"$BASE/tools/composer-update-monorepo.sh" "${COMPOSER_ARGS[@]}" "$DIR"
 
 # If there's a lock file, check that the locked versions are as expected too.
 EXIT=0

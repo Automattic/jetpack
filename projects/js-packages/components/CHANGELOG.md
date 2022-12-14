@@ -2,6 +2,127 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.26.3 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.26.2 - 2022-12-12
+### Added
+- RNA: Add props to ActionPopover related to link on action button [#27714]
+
+## 0.26.1 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27699]
+
+## 0.26.0 - 2022-11-30
+### Added
+- RNA: Add ActionPopover component [#27656]
+
+## 0.25.2 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.25.1 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.25.0 - 2022-11-17
+### Added
+- Added additional color studio colors to the ThemeProvider component for use in Jetpack Protect. [#26069]
+- Added a new component for Admin Notices [#26736]
+
+### Fixed
+- Added support for falsey non-zero values for offPrice [#27456]
+- RNA: Add aria-disabled property to Button when disabled [#27449]
+
+## 0.24.5 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.24.4 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.24.3 - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## 0.24.2 - 2022-10-25
+### Changed
+- Fix visual issues in the Product Price component in Jetpack plugin [#27032]
+
+## 0.24.1 - 2022-10-19
+### Changed
+- RNA: move product labels next to `legend` text [#26877]
+- Updated package dependencies. [#26883]
+
+### Fixed
+- Fixed the tooltips being cut of on PricingTable [#26666]
+
+## 0.24.0 - 2022-10-17
+### Changed
+- Refactor IconTooltip with prop popoverAnchorStyle for alignment with Popover anchor. [#26851]
+
+## 0.23.0 - 2022-10-13
+### Changed
+- Add shadowAnchor and forceShow for pure Popover displaying within parent wrapper. [#26790]
+- Updated package dependencies. [#26791]
+
+## 0.22.2 - 2022-10-11
+### Changed
+- Added types and adaptive coloring for the donut meter component [#26690]
+
+### Fixed
+- RNA: Fix styling issue on Button component due to Gutenberg component update [#26704]
+
+## 0.22.1 - 2022-10-06
+### Changed
+- Do not open upgrade links from Jetpack Social in a new tab [#26649]
+- Update ContextualUpgradeTrigger component styles [#26633]
+
+## 0.22.0 - 2022-10-05
+### Added
+- Improve upon elements used within the PricingTable component [#26364]
+- Introduce JetpackSearchLogo component [#26481]
+- RNA: register jp-yellow-10 color in the ThemePrtovider [#26508]
+
+### Changed
+- Fix ProductPrice layout for long prices [#26595]
+- IconTooltip: Use click instead of mouseover for summoning [#26457]
+- Refactor props for structure consistency with JetpackLogo component. [#26510]
+- Updated package dependencies. [#26568]
+- Updated package dependencies. [#26583]
+
+### Fixed
+- Components: fix the positio of TOS component of the PricingTable cmp [#26509]
+- Fixed color and size per design for Indeterminate Progress Bar [#26458]
+- RNA: Scope global CSS modification on IconTooltip component [#26584]
+
+## 0.21.0 - 2022-09-27
+### Added
+- Added indeterminate progress bar [#26370]
+- Add support for link variant and className to ContextualUpgradeTrigger component [#26115]
+- JS Components: Add body-extra-small-bold variant to Text [#26295]
+
+### Changed
+- Changed design to latest design patterns. [#26253]
+- DonutMeter: Expose DonutMeter to clients of the component library. [#26371]
+- Modify components for usages in Upsell page [#26408]
+
+### Fixed
+- Fixed divider not appearing on small screens [#26443]
+
+## 0.20.0 - 2022-09-20
+### Added
+- Introduce component IconTooltip [#26081]
+
+### Changed
+- JS Components: Use RNA button for ActionButton component [#23936]
+
+### Fixed
+- Fixed bug preventing Pricing Table from building properly. [#26214]
+- JS Components: Add basic a11y support to donut meter. [#26129]
+
 ## 0.19.0 - 2022-09-08
 ### Added
 - Components: apply Icon Button styles when icon and not-text properties are provided. [#25999]

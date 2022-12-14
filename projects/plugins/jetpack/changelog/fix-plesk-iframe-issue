@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Notifications: Improve third-party cookie check to work with modsecurity rules.

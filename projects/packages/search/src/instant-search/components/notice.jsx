@@ -10,7 +10,7 @@ const Notice = ( { type, children } ) => {
 	return (
 		<div className="jetpack-instant-search__notice jetpack-instant-search__notice--warning">
 			<Gridicon icon="info" size={ 20 } />
-			{ children }
+			<div>{ children }</div>
 		</div>
 	);
 };

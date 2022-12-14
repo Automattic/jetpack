@@ -69,7 +69,7 @@ class Jetpack_Media {
 
 		do {
 			$filename  = $filename_base;
-			$filename .= $number_suffix;
+			$filename .= "e{$number_suffix}";
 			$file_ext  = $new_file_ext ? $new_file_ext : $current_file_ext;
 
 			$new_filename = "{$filename}.{$file_ext}";
@@ -322,9 +322,9 @@ class Jetpack_Media {
 	 *
 	 * Also, it removes the file defined in each item.
 	 *
-	 * @param int    $media_id - media post ID.
-	 * @param object $criteria - criteria to remove the items.
-	 * @param array  $revision_history - revision history array.
+	 * @param int   $media_id - media post ID.
+	 * @param array $criteria - criteria to remove the items.
+	 * @param array $revision_history - revision history array.
 	 *
 	 * @return array `revision_history` array updated.
 	 */

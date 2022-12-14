@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { PricingCard } from '@automattic/jetpack-components';
 	import React from 'react';
 	import { derived } from 'svelte/store';
@@ -8,10 +8,13 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
+	import { recordBoostEvent } from '../../utils/analytics';
 	import { jetpackURL } from '../../utils/jetpack-url';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
-	function goToCheckout() {
+	async function goToCheckout() {
+		const eventProps = {};
+		await recordBoostEvent( 'checkout_from_pricing_page_in_plugin', eventProps );
 		window.location.href = getUpgradeURL();
 	}
 
@@ -66,10 +69,11 @@
 
 			<div class="jb-card__cta px-2 my-4">
 				{#if 'yearly' in $pricing}
+					<!-- svelte-ignore missing-declaration Jetpack_Boost -->
 					<ReactComponent
 						this={PricingCard}
 						title={'Jetpack Boost'}
-						icon={`${ window.Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
+						icon={`${ Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
 						priceBefore={$pricing.yearly.priceBefore / 12}
 						priceAfter={$pricing.yearly.priceAfter / 12}
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
