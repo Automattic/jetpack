@@ -29,7 +29,12 @@ export default class PageActions {
 			throw new Error( 'Cannot navigate! Page URL is not set' );
 		}
 		logger.action( `Navigating to ${ url }` );
-		return await this.page.goto( url, options );
+		try {
+			await this.page.goto( url, options );
+		} catch ( e ) {
+			logger.error( `Error navigating to ${ url } (1). Retrying once.\n${ e }` );
+			await this.page.goto( url, options );
+		}
 	}
 
 	/**
