@@ -89,11 +89,11 @@ export const SUMMARY_SECTION_BY_ONBOARDING_NAME = {
 		slugs: [ 'backup-activated', 'scan-activated', 'antispam-activated' ],
 	},
 	[ ONBOARDING_JETPACK_BACKUP ]: {
-		name: 'Backup',
+		name: 'VaultPress Backup',
 		slugs: [ 'backup-activated' ],
 	},
 	[ ONBOARDING_JETPACK_ANTI_SPAM ]: {
-		name: 'Anti-Spam',
+		name: 'Akismet Anti-Spam',
 		slugs: [ 'antispam-activated' ],
 	},
 	[ ONBOARDING_JETPACK_VIDEOPRESS ]: {

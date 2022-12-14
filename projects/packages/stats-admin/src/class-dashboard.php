@@ -145,28 +145,6 @@ class Dashboard {
 			'before'
 		);
 
-		add_action(
-			'admin_head',
-			function () {
-				echo '<style>
-				.jp-stats-dashboard .card {
-					border:0;
-					max-width: initial;
-					min-width: initial;
-				}
-				ul.wp-submenu, ul.wp-submenu-wrap {
-					margin-left: 0;
-				}
-				.jp-stats-dashboard .followers-count {
-					display: none;
-				}
-				.jp-stats-dashboard .layout__content {
-					padding-top: 32px;
-				}
-				</style>';
-			},
-			100
-		);
 	}
 
 	/**
