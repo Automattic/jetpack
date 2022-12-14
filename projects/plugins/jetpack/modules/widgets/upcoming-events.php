@@ -168,7 +168,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
+		do_action( 'jetpack_stats_extra', 'widget_view', 'upcoming_events' );
 	}
 
 	/**
@@ -180,7 +180,6 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	private function apply_timezone_offset( $events ) {
 		require_once JETPACK__PLUGIN_DIR . '/_inc/lib/icalendar-reader.php';
 
-		$ical = new iCalendarReader();
-		return $ical->apply_timezone_offset( $events );
+		return ( new iCalendarReader() )->apply_timezone_offset( $events );
 	}
 }
