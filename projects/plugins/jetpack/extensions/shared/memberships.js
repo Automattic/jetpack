@@ -17,18 +17,19 @@ function handleIframeResult( eventFromIframe ) {
 }
 
 function setUpThickbox( button ) {
-	button.addEventListener( 'click', event => {
-		event.preventDefault();
-		const url = button.getAttribute( 'href' );
-		window.scrollTo( 0, 0 );
-		tb_show( null, url + '&display=alternate&TB_iframe=true', null );
-		window.addEventListener( 'message', handleIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
+	console.log('loading thickbox');
+	// button.addEventListener( 'click', event => {
+	// 	event.preventDefault();
+	// 	const url = button.getAttribute( 'href' );
+	// 	window.scrollTo( 0, 0 );
+	// 	tb_show( null, url + '&display=alternate&TB_iframe=true', null );
+	// 	window.addEventListener( 'message', handleIframeResult, false );
+	// 	const tbWindow = document.querySelector( '#TB_window' );
+	// 	tbWindow.classList.add( 'jetpack-memberships-modal' );
 
-		// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
-		window.scrollTo( 0, 0 );
-	} );
+	// 	// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
+	// 	window.scrollTo( 0, 0 );
+	// } );
 }
 
 export const initializeMembershipButtons = selector => {
@@ -39,7 +40,8 @@ export const initializeMembershipButtons = selector => {
 		}
 
 		try {
-			setUpThickbox( button );
+			// setUpThickbox( button );
+			console.warn( 'loading thickbox', button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Problem setting up Thickbox', err );
