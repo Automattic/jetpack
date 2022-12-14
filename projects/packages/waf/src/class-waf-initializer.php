@@ -81,7 +81,7 @@ class Waf_Initializer {
 	 *
 	 * @return array Array of module slugs.
 	 */
-	public function remove_module_on_unsupported_environments( $modules ) {
+	public static function remove_module_on_unsupported_environments( $modules ) {
 		if ( ! Waf_Runner::is_supported_environment() ) {
 			// WAF should never be available on unsupported platforms.
 			unset( $modules['waf'] );
