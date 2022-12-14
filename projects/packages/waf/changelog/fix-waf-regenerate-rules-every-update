@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Regenerate security rules every plugin update to prevent them from being overwritten.
