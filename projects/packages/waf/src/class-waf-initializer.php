@@ -75,6 +75,6 @@ class Waf_Initializer {
 			return;
 		}
 
-		Waf_Runner::update_waf();
+		Waf_Runner::update_waf_on_upgrader_process_complete();
 	}
 }

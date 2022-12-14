@@ -387,6 +387,27 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Updates the rule set on plugin update
+	 *
+	 * @return void
+	 */
+	public static function update_waf_on_upgrader_process_complete() {
+		self::define_mode();
+		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+			return;
+		}
+
+		// Rules are currently always re-generated on update
+		// TODO: Remove this once rules are stored outside of the plugin directory
+		self::generate_ip_rules();
+		self::generate_rules();
+
+		// Re-generate the standalone bootstrap file on every update
+		// TODO: We may consider only doing this when the WAF version changes
+		( new Waf_Standalone_Bootstrap() )->generate();
+	}
+
+	/**
 	 * Retrieve rules from the API
 	 *
 	 * @throws \Exception If site is not registered.
