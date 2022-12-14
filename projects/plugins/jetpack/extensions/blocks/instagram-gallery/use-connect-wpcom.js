@@ -1,4 +1,4 @@
-import isCurrentUserConnected from '@automattic/jetpack-shared-extension-utils';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';

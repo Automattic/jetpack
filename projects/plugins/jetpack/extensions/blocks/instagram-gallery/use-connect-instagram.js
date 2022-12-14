@@ -1,4 +1,4 @@
-import isCurrentUserConnected from '@automattic/jetpack-shared-extension-utils';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import PopupMonitor from '@automattic/popup-monitor';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';

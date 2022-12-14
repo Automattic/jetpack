@@ -1,4 +1,4 @@
-import isCurrentUserConnected from '@automattic/jetpack-shared-extension-utils';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { InspectorControls } from '@wordpress/block-editor';
 import { Button, Placeholder, RadioControl, Spinner, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';

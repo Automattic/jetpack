@@ -1,4 +1,4 @@
-import isCurrentUserConnected from '@automattic/jetpack-shared-extension-utils';
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
