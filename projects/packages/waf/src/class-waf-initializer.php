@@ -23,7 +23,7 @@ class Waf_Initializer {
 		}
 
 		// Check if killswitch is defined as true
-		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+		if ( ! Waf_Runner::is_supported_environment() ) {
 			return;
 		}
 

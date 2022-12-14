@@ -122,6 +122,19 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Determines if the WAF is supported in the current environment.
+	 *
+	 * @return bool
+	 */
+	public static function is_supported_environment() {
+		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines if the WAF module is enabled on the site.
 	 *
 	 * @return bool
