@@ -17,12 +17,6 @@ const FieldDefaults = {
 	supports: {
 		reusable: false,
 		html: false,
-		color: true,
-		spacing: {
-			padding: true,
-			margin: true,
-		},
-		align: true,
 	},
 	attributes: {
 		label: {
@@ -52,6 +46,10 @@ const FieldDefaults = {
 		width: {
 			type: 'number',
 			default: 100,
+		},
+		borderRadius: {
+			type: 'number',
+			default: 10,
 		},
 	},
 	transforms: {
@@ -178,6 +176,7 @@ const editField = type => props => {
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			borderRadius={ props.attributes.borderRadius }
 		/>
 	);
 };

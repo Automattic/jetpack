@@ -17,7 +17,14 @@ import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
-const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder } ) => {
+const JetpackFieldControls = ( {
+	setAttributes,
+	width,
+	id,
+	required,
+	placeholder,
+	borderRadius,
+} ) => {
 	return (
 		<>
 			<BlockControls>
@@ -62,6 +69,12 @@ const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder
 							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
 							'jetpack'
 						) }
+					/>
+					<TextControl
+						label={ __( 'Corner radius', 'jetpack' ) }
+						value={ borderRadius }
+						onChange={ value => setAttributes( { borderRadius: parseInt( value, 10 ) || 0 } ) }
+						type="number"
 					/>
 
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
