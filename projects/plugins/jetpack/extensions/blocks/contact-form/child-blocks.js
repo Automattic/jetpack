@@ -199,7 +199,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Text Input Field', 'jetpack' ),
-			description: __( 'When you need just a small amount of text, add a text input.', 'jetpack' ),
+			description: __( 'Collect short text responses from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M4 9h16v2H4V9zm0 4h10v2H4v-2z" />
 			),
@@ -218,10 +218,7 @@ export const childBlocks = [
 		settings: {
 			...FieldDefaults,
 			title: __( 'Name Field', 'jetpack' ),
-			description: __(
-				'Introductions are important. Add an input for folks to add their name.',
-				'jetpack'
-			),
+			description: __( 'Collect the site visitor’s name.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -244,7 +241,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Email Field', 'jetpack' ),
 			keywords: [ __( 'e-mail', 'jetpack' ), __( 'mail', 'jetpack' ), 'email' ],
-			description: __( 'Want to reply to folks? Add an email address input.', 'jetpack' ),
+			description: __( 'Collect email addresses from your visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -267,7 +264,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'URL Field', 'jetpack' ),
 			keywords: [ 'url', __( 'internet page', 'jetpack' ), 'link' ],
-			description: __( 'Add an address input for a website.', 'jetpack' ),
+			description: __( 'Collect a website address from your site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -293,7 +290,7 @@ export const childBlocks = [
 				__( 'Calendar', 'jetpack' ),
 				_x( 'day month year', 'block search term', 'jetpack' ),
 			],
-			description: __( 'The best way to set a date. Add a date picker.', 'jetpack' ),
+			description: __( 'Capture date information with a date picker.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -320,7 +317,7 @@ export const childBlocks = [
 				__( 'Cellular phone', 'jetpack' ),
 				__( 'Mobile', 'jetpack' ),
 			],
-			description: __( 'Add a phone number input.', 'jetpack' ),
+			description: __( 'Collect phone numbers from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -343,10 +340,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Multi-line Text Field', 'jetpack' ),
 			keywords: [ __( 'Textarea', 'jetpack' ), 'textarea', __( 'Multiline text', 'jetpack' ) ],
-			description: __(
-				'Let folks speak their mind. This text box is great for longer responses.',
-				'jetpack'
-			),
+			description: __( 'Capture longform text responses from site visitors.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M21 11.01L3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z" />
 			),
@@ -381,7 +375,7 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Checkbox', 'jetpack' ),
 			keywords: [ __( 'Confirm', 'jetpack' ), __( 'Accept', 'jetpack' ) ],
-			description: __( 'Add a single checkbox.', 'jetpack' ),
+			description: __( 'Confirm or select information with a single checkbox.', 'jetpack' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -418,7 +412,10 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Terms Consent', 'jetpack' ),
 			keywords: [ __( 'Consent', 'jetpack' ) ],
-			description: __( 'Ask for consent', 'jetpack' ),
+			description: __(
+				'Communicate site terms and offer visitors consent to those terms.',
+				'jetpack'
+			),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -480,7 +477,10 @@ export const childBlocks = [
 			...FieldDefaults,
 			title: __( 'Multiple Choice (Checkbox)', 'jetpack' ),
 			keywords: [ __( 'Choose Multiple', 'jetpack' ), __( 'Option', 'jetpack' ) ],
-			description: __( 'People love options. Add several checkbox items.', 'jetpack' ),
+			description: __(
+				'Offer users a list of choices, and allow them to select multiple options.',
+				'jetpack'
+			),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -504,7 +504,7 @@ export const childBlocks = [
 			title: __( 'Single Choice (Radio)', 'jetpack' ),
 			keywords: [ __( 'Choose', 'jetpack' ), __( 'Select', 'jetpack' ), __( 'Option', 'jetpack' ) ],
 			description: __(
-				'Inspired by radios, only one radio item can be selected at a time. Add several radio button items.',
+				'Offer users a list of choices, and allow them to select a single option.',
 				'jetpack'
 			),
 			icon: renderMaterialIcon(
@@ -536,7 +536,10 @@ export const childBlocks = [
 				__( 'Dropdown', 'jetpack' ),
 				__( 'Option', 'jetpack' ),
 			],
-			description: __( 'Compact, but powerful. Add a select box with several items.', 'jetpack' ),
+			description: __(
+				'Add a compact select box, that when expanded, allows visitors to choose one value from the list.',
+				'jetpack'
+			),
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M3 17h18v2H3zm16-5v1H5v-1h14m2-2H3v5h18v-5zM3 6h18v2H3z" />
 			),

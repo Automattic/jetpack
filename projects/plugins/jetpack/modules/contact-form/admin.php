@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName -- legacy file
 /**
  * Contact form elements in the admin area. Used with Classic Editor.
  *
@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Add a contact form button to the post composition screen
@@ -1128,3 +1129,129 @@ function grunion_feedback_admin_notice() {
 	}
 }
 add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
+
+if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
+	add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
+	add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
+}
+
+/**
+ * Class Grunion_Admin
+ *
+ * Stop the global scope madness, use static methods on this class to provide for wp-admin responses area.
+ * Might turn into singleton in the future.
+ */
+class Grunion_Admin {
+	/**
+	 * Exports data to Google Drive, based on POST data.
+	 *
+	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
+	 */
+	public static function export_to_gdrive() {
+		$grunion     = Grunion_Contact_Form_Plugin::init();
+		$export_data = $grunion->get_feedback_entries_from_post();
+
+		$fields    = array_keys( $export_data );
+		$row_count = count( reset( $export_data ) );
+
+		$sheet_data = array( $fields );
+
+		for ( $i = 0; $i < $row_count; $i ++ ) {
+
+			$current_row = array();
+
+			/**
+			 * Put all the fields in `$current_row` array.
+			 */
+			foreach ( $fields as $single_field_name ) {
+				$current_row[] = $export_data[ $single_field_name ][ $i ];
+			}
+
+			$sheet_data[] = $current_row;
+		}
+
+		$user_id           = (int) get_current_user_id();
+		$spreadsheet_title = sprintf( '%s - %s', __( 'Responses', 'jetpack' ), gmdate( 'Y-m-d H:i' ) );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+
+		wp_send_json(
+			array(
+				'success' => ! is_wp_error( $sheet ),
+				'data'    => $sheet,
+			)
+		);
+	}
+
+	/**
+	 * (maybe) Add the script that will add the "Export to Google Drive" button to the Feedbacks dashboard page.
+	 */
+	public static function maybe_enable_gdrive_export_button() {
+		$screen = get_current_screen();
+
+		// Only add to feedback, only to non-spam view
+		if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
+			return;
+		}
+
+		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
+			return;
+		}
+
+		// Add the export feedback button
+		add_action( 'admin_head', array( 'Grunion_Admin', 'print_export_gdrive_button' ) );
+	}
+
+	/**
+	 * Print "Export to Google Drive" button.
+	 */
+	public static function print_export_gdrive_button() {
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
+		// if there aren't any feedbacks, bail out
+		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+			return;
+		}
+
+		$user_id = (int) get_current_user_id();
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
+		// hint user to connect at 'https://wordpress.com/marketing/connections'
+
+		$nonce_name = 'feedback_export_nonce';
+
+		$attributes = array(
+			'data-nonce-name' => $nonce_name,
+		);
+
+		if ( ! $has_valid_connection ) {
+			$attributes['disabled'] = 'disabled';
+		}
+
+		$button_html = get_submit_button(
+			__( 'Export to Google Drive', 'jetpack' ),
+			'primary',
+			'jetpack-export-feedback-to-gdrive',
+			false,
+			$attributes
+		);
+
+		$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
+		?>
+		<script type="text/javascript">
+			jQuery( function ( $ ) {
+				$( '#posts-filter #post-query-submit' ).parent().append( <?php echo wp_json_encode( $button_html ); ?> );
+			} );
+		</script>
+		<?php
+	}
+}
