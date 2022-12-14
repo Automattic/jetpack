@@ -2,6 +2,7 @@ import {
 	isStillUsableWithFreePlan,
 	getRequiredPlan,
 	getUsableBlockProps,
+	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -14,6 +15,7 @@ export default createHigherOrderComponent(
 	BlockEdit => props => {
 		const { name, clientId, isSelected, attributes, setAttributes } = props || {};
 		const { hasParentBanner } = useContext( PaidBlockContext ) || {};
+		const { tracks } = useAnalytics();
 
 		const requiredPlan = getRequiredPlan( name );
 
@@ -41,8 +43,9 @@ export default createHigherOrderComponent(
 				plan: requiredPlan,
 				blockName: name,
 				context: bannerContext,
+				tracks,
 			} ),
-			[ requiredPlan, name, bannerContext ]
+			[ requiredPlan, name, tracks ]
 		);
 
 		// Record event just once, the first time.
