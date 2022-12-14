@@ -703,7 +703,7 @@ class Jetpack_Protect {
 		}
 
 		$badge_timestamp = self::get_waf_upgrade_badge_timestamp();
-		$seven_days      = strtotime( '-30 seconds' );
+		$seven_days      = strtotime( '-7 days' );
 		if ( $badge_timestamp > $seven_days ) {
 			return true;
 		}
