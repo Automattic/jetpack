@@ -70,6 +70,15 @@ $matrix[] = array(
 	'timeout'      => 15,
 	'experimental' => true,
 );
+// Merge this into the above once we decide PHP 8.2 is stable and WP latest works with 8.2.
+$matrix[] = array(
+	'name'         => 'PHP tests: PHP 8.2 WP trunk',
+	'script'       => 'test-php',
+	'php'          => '8.2',
+	'wp'           => 'trunk',
+	'timeout'      => 15,
+	'experimental' => true,
+);
 
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
