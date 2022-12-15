@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Extensions: use isCurrentUserConnected from package instead of from internally shared function.
