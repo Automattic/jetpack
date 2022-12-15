@@ -23,7 +23,8 @@ class Waf_Initializer {
 		}
 
 		// Update the WAF after installing or upgrading a relevant Jetpack plugin
-		add_action( 'upgrader_post_install', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
+		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
+		add_action( 'plugins_loaded', __CLASS__ . '::check_for_waf_update' );
 
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
@@ -53,27 +54,39 @@ class Waf_Initializer {
 	/**
 	 * Updates the WAF after upgrader process is complete.
 	 *
-	 * @param bool|WP_Error $response    Installation response.
-	 * @param array         $hook_extra  Extra arguments passed to hooked filters.
+	 * @param WP_Upgrader $upgrader    WP_Upgrader instance. In other contexts this might be a Theme_Upgrader, Plugin_Upgrader, Core_Upgrade, or Language_Pack_Upgrader instance.
+	 * @param array       $hook_extra  Array of bulk item update data.
 	 *
-	 * @return bool Installation response.
+	 * @return void
 	 */
-	public static function update_waf_after_plugin_upgrade( $response, $hook_extra ) {
+	public static function update_waf_after_plugin_upgrade( $upgrader, $hook_extra ) {
 		$jetpack_plugins_with_waf = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
 		// Only run on upgrades affecting plugins
 		if ( empty( $hook_extra['plugins'] ) ) {
-			return $response;
+			return;
 		}
 
 		// Only run when Jetpack plugins were affected
 		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
-			return $response;
+			return;
 		}
 
-		Waf_Runner::update_waf();
+		set_transient( 'jetpack_waf_needs_update', 1 );
+	}
 
-		return $response;
+	/**
+	 * Check for WAF update
+	 *
+	 * Updates the WAF when the transient is present.
+	 *
+	 * @return void
+	 */
+	public static function check_for_waf_update() {
+		if ( get_transient( 'jetpack_waf_needs_update' ) ) {
+			delete_transient( 'jetpack_waf_needs_update' );
+			Waf_Runner::update_waf();
+		}
 	}
 
 	/**
