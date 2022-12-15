@@ -11,7 +11,13 @@ export default function JetpackField( props ) {
 	return (
 		<>
 			<div className="jetpack-field">
-				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
+				<div style={ { color: attributes.labelColor } }>
+					<JetpackFieldLabel
+						required={ required }
+						label={ label }
+						setAttributes={ setAttributes }
+					/>
+				</div>
 				<Disabled>
 					<TextControl
 						type={ type }
@@ -24,7 +30,7 @@ export default function JetpackField( props ) {
 							borderWidth: attributes.borderWidth,
 							lineHeight: attributes.lineHeight,
 							borderColor: attributes.borderColor,
-							color: attributes.textColor,
+							color: attributes.inputColor,
 							backgroundColor: attributes.backgroundColor,
 						} }
 					/>

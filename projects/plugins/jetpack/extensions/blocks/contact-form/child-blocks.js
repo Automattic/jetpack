@@ -59,7 +59,11 @@ const FieldDefaults = {
 			type: 'number',
 			default: 1.5,
 		},
-		textColor: {
+		inputColor: {
+			type: 'string',
+			default: '#000000',
+		},
+		labelColor: {
 			type: 'string',
 			default: '#000000',
 		},

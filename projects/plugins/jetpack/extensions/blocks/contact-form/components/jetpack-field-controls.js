@@ -100,9 +100,14 @@ const JetpackFieldControls = ( {
 					initialOpen={ false }
 					colorSettings={ [
 						{
-							value: attributes.textColor,
-							onChange: value => setAttributes( { textColor: value } ),
-							label: __( 'Text color', 'jetpack' ),
+							value: attributes.labelColor,
+							onChange: value => setAttributes( { labelColor: value } ),
+							label: __( 'Label text color', 'jetpack' ),
+						},
+						{
+							value: attributes.inputColor,
+							onChange: value => setAttributes( { inputColor: value } ),
+							label: __( 'Field text color', 'jetpack' ),
 						},
 						{
 							value: attributes.backgroundColor,
