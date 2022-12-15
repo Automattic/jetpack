@@ -6,7 +6,7 @@
  */
 
 // Feature name.
-const FEATURE_NAME = 'launchpad-save-modal';
+const EXTENSION_SLUG = 'launchpad-save-modal';
 
 function enque_script() {
 	wp_enqueue_script(
@@ -39,7 +39,7 @@ add_filter(
 		return array_merge(
 			$extensions,
 			array(
-				FEATURE_NAME,
+				EXTENSION_SLUG,
 			)
 		);
 	}
@@ -49,6 +49,6 @@ add_filter(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );
+		\Jetpack_Gutenberg::set_extension_available( EXTENSION_SLUG );
 	}
 );
