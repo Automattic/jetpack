@@ -166,6 +166,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_new_page() {
 		$this->post->post_type = 'page';
+		wp_insert_post( $this->post );
 
 		$this->sender->do_sync();
 
