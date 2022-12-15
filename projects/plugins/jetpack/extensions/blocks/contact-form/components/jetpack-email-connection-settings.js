@@ -117,10 +117,6 @@ const JetpackEmailConnectionSettings = ( {
 				value={ emailSubject }
 				placeholder={ __( 'Enter a subject', 'jetpack' ) }
 				onChange={ newSubject => setAttributes( { subject: newSubject } ) }
-				help={ __(
-					'Choose a subject line that you recognize as an email from your website.',
-					'jetpack'
-				) }
 			/>
 		</>
 	);

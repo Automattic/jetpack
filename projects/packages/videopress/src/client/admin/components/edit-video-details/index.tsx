@@ -9,6 +9,7 @@ import {
 	Container,
 	Col,
 	useBreakpointMatch,
+	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
@@ -22,8 +23,8 @@ import { Link } from 'react-router-dom';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
+import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
-import Logo from '../logo';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoThumbnail from '../video-thumbnail';
@@ -50,7 +51,7 @@ const Header = ( {
 	return (
 		<div className={ classnames( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
 			<button onClick={ () => history.push( '/' ) } className={ styles[ 'logo-button' ] }>
-				<Logo />
+				<JetpackVideoPressLogo />
 			</button>
 			<div className={ styles[ 'header-content' ] }>
 				<div className={ styles.breadcrumb }>
@@ -72,11 +73,12 @@ const Header = ( {
 };
 
 const GoBackLink = () => {
-	const history = useHistory();
+	const { page } = useVideosQuery();
+	const to = page > 1 ? `/?page=${ page }` : '/';
 
 	return (
 		<div className={ styles[ 'back-link' ] }>
-			<Link to="#" className={ styles.link } onClick={ () => history.push( '/' ) }>
+			<Link to={ to } className={ styles.link }>
 				<Icon icon={ arrowLeft } className={ styles.icon } />
 				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
 			</Link>

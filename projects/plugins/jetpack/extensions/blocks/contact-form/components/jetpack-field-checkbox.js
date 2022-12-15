@@ -6,7 +6,16 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 function JetpackFieldCheckbox( props ) {
-	const { id, instanceId, required, label, setAttributes, width, defaultValue } = props;
+	const {
+		id,
+		instanceId,
+		required,
+		requiredText,
+		label,
+		setAttributes,
+		width,
+		defaultValue,
+	} = props;
 
 	return (
 		<BaseControl
@@ -22,6 +31,7 @@ function JetpackFieldCheckbox( props ) {
 					/>
 					<JetpackFieldLabel
 						required={ required }
+						requiredText={ requiredText }
 						label={ label }
 						setAttributes={ setAttributes }
 					/>

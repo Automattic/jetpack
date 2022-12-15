@@ -67,18 +67,28 @@ export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) 
 		return videoPressUploadTrack( { kind, srcLang, label, tmpFile }, guid );
 	}
 
-	return apiFetch( {
-		method: 'POST',
-		path: `/videos/${ guid }/tracks`,
-		apiNamespace: 'rest/v1.1',
-		global: true,
-		parse: false,
-		formData: [
-			[ 'kind', kind ],
-			[ 'srclang', srcLang ],
-			[ 'label', label ],
-			[ 'vtt', tmpFile ],
-		],
+	return new Promise( function ( resolve, reject ) {
+		return apiFetch( {
+			method: 'POST',
+			path: `/videos/${ guid }/tracks`,
+			apiNamespace: 'rest/v1.1',
+			global: true,
+			parse: false,
+			formData: [
+				[ 'kind', kind ],
+				[ 'srclang', srcLang ],
+				[ 'label', label ],
+				[ 'vtt', tmpFile ],
+			],
+		} )
+			.then( data => {
+				try {
+					return resolve( data.json() );
+				} catch ( error ) {
+					return reject( error );
+				}
+			} )
+			.catch( reject );
 	} );
 };
 
