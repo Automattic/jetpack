@@ -1192,8 +1192,8 @@ class Grunion_Admin {
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
 				<div class="feedback-export-modal__header">
-					<h1 class="feedback-export-modal__header-title">Export your Form Responses</h1>
-					<p class="feedback-export-modal__header-subtitle">Choose your favorite file format or export destination:</p>
+					<h1 class="feedback-export-modal__header-title"><?php echo esc_html( __( 'Export your Form Responses', 'jetpack' ) ); ?></h1>
+					<p class="feedback-export-modal__header-subtitle"><?php echo esc_html( __( 'Choose your favorite file format or export destination:', 'jetpack' ) ); ?></p>
 				</div>
 				<div class="feedback-export-modal__content">
 					<?php $this->get_csv_export_section(); ?>
