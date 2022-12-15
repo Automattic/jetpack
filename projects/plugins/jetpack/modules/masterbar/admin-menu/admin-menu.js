@@ -110,11 +110,11 @@
 			);
 		}
 
-		document.querySelectorAll('li.wp-has-submenu.wp-not-current-submenu').forEach( function (el) {
-			const submenu = el.querySelector('.wp-submenu');
-			const linkElement = el.querySelector('a');
+		document.querySelectorAll( 'li.wp-has-submenu.wp-not-current-submenu' ).forEach( function ( el ) {
+			const submenu = el.querySelector( '.wp-submenu' );
+			const linkElement = el.querySelector( 'a' );
 
-			el.addEventListener('mouseover', function() {
+			el.addEventListener( 'mouseover', function() {
 				submenu.style.display = null;
 				submenu.style.top = '-1px';
 				if ( ! isElementInViewport( submenu ) ) {
@@ -123,14 +123,14 @@
 				linkElement.focus();
 			} );
 
-			el.addEventListener('mouseleave', function() {
+			el.addEventListener( 'mouseleave', function() {
 				submenu.style.display = 'none';
 				submenu.style.top = null;
 			} );
 		} );
 	}
 
-	function isElementInViewport (el) {
+	function isElementInViewport( el ) {
 		var rect = el.getBoundingClientRect();
 
 		return (

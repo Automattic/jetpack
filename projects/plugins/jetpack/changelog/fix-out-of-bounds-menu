@@ -1,3 +1,3 @@
 Significance: patch
 Type: bugfix
-Comment: Fix the submenus shown outside of screen
+Comment: Fix the submenu positioning for the masterbar left nav
