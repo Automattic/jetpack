@@ -98,6 +98,15 @@ function jetpack_add_google_fonts_provider() {
 
 	wp_register_webfont_provider( 'jetpack-google-fonts', '\Automattic\Jetpack\Fonts\Google_Fonts_Provider' );
 
+	/**
+	 * Curated list of Google Fonts.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since 10.8
+	 *
+	 * @param array $fonts Array of Google Font names to register.
+	 */
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
 
 	foreach ( $fonts_to_register as $font_family ) {
