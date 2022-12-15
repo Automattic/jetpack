@@ -1,7 +1,7 @@
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
-import type { MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
+import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
  * This function looks for the closest parent that is

@@ -9,6 +9,7 @@ module.exports = {
 		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
+	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		babelOptions: {
 			configFile: require.resolve( './babel.config.js' ),
