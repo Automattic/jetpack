@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ea318c5b67c34073b1cb1af0cea2d85b",
+    "content-hash": "5043cd885627f71f43998b37df4cbadc",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1061,7 +1061,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "58d96de1ef0d28ac6d02b0250a44d100089c59fa"
+                "reference": "e1361b207ed7ddaddcd764020b0d4e455fd49014"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1072,7 +1072,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.0",
+                "automattic/wordbless": "0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
@@ -1463,16 +1463,16 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "0.4.0",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "4811e4562e14679dbeedcf84bed2547db4ea5c03"
+                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/4811e4562e14679dbeedcf84bed2547db4ea5c03",
-                "reference": "4811e4562e14679dbeedcf84bed2547db4ea5c03",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/8cd8d874d42a2faf01a979ba36924fe60d1ba399",
+                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399",
                 "shasum": ""
             },
             "require": {
@@ -1501,9 +1501,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/0.4.0"
+                "source": "https://github.com/Automattic/wordbless/tree/0.4.1"
             },
-            "time": "2022-09-14T14:01:05+00:00"
+            "time": "2022-10-03T13:15:30+00:00"
         },
         {
             "name": "brain/monkey",
