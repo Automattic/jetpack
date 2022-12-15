@@ -1,25 +1,24 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useConnection } from '@automattic/jetpack-connection';
 import { useEffect } from '@wordpress/element';
-import getJetpackData from './../get-jetpack-data';
-import isCurrentUserConnected from './../is-current-user-connected';
 
 const useAnalytics = () => {
-	const { userid, username } = getJetpackData()?.tracksUserData ?? {};
-	const blog_id = getJetpackData()?.wpcomBlogId ?? undefined;
+	const { isUserConnected, userConnectionData = {} } = useConnection();
+	const { wpcomUser: { login, ID } = {}, blogId } = userConnectionData.currentUser || {};
 
 	/**
 	 * Initialize tracks with user and blog data.
 	 * This will only work if the user is connected.
 	 */
 	useEffect( () => {
-		if ( ! isCurrentUserConnected || ! userid || ! username || ! blog_id ) {
+		if ( ! isUserConnected || ! ID || ! login || ! blogId ) {
 			return;
 		}
 
-		jetpackAnalytics.initialize( userid, username, {
-			blog_id,
+		jetpackAnalytics.initialize( ID, login, {
+			blog_id: blogId,
 		} );
-	}, [ blog_id, userid, username ] );
+	}, [ blogId, ID, login, isUserConnected ] );
 
 	return jetpackAnalytics;
 };

@@ -16,6 +16,7 @@
 	"scripts": {},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@wordpress/compose": "5.20.0",
 		"@wordpress/element": "4.20.0",
 		"@wordpress/i18n": "4.22.0",
