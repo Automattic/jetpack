@@ -73,7 +73,13 @@ test.describe( 'Paid blocks', () => {
 			'Publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
 				await blockEditor.setTitle( 'Pay with PayPal block' );
-				await blockEditor.publishPost();
+
+				const testUrl = /^https?:\/\/.*%2Fwp%2Fv2%2Fjp_pay_product/;
+
+				await Promise.all( [
+					page.waitForResponse( resp => testUrl.test( resp.url() ) ),
+					blockEditor.publishPost(),
+				] );
 				await blockEditor.viewPost();
 				const frontend = await PostFrontendPage.init( page );
 				expect(
