@@ -230,6 +230,9 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'launch-status'                                => 'unlaunched',
 			'jetpack_blogging_prompts_enabled'             => jetpack_has_write_intent() || jetpack_has_posts_page(),
 			'wpcom_subscription_emails_use_excerpt'        => false,
+			'launchpad_checklist_tasks_statuses'           => array(),
+			'launchpad_screen'                             => 'full',
+
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );

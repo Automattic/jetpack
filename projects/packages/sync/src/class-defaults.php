@@ -104,6 +104,8 @@ class Defaults {
 		'large_size_h',
 		'large_size_w',
 		'launch-status',
+		'launchpad_checklist_tasks_statuses',
+		'launchpad_screen',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
