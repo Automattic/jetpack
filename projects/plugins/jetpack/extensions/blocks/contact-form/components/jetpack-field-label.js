@@ -8,26 +8,29 @@ const JetpackFieldLabel = ( {
 	placeholder,
 	resetFocus,
 	required,
+	attributes,
 } ) => {
 	return (
 		<div className="jetpack-field-label">
-			<RichText
-				tagName="label"
-				value={ label }
-				className="jetpack-field-label__input"
-				onChange={ value => {
-					resetFocus && resetFocus();
-					if ( labelFieldName ) {
-						setAttributes( { [ labelFieldName ]: value } );
-						return;
-					}
-					setAttributes( { label: value } );
-				} }
-				placeholder={ placeholder ?? __( 'Add label…', 'jetpack' ) }
-				withoutInteractiveFormatting
-				allowedFormats={ [ 'core/bold', 'core/italic' ] }
-			/>
-			{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
+			<div style={ { color: attributes.labelColor } }>
+				<RichText
+					tagName="label"
+					value={ label }
+					className="jetpack-field-label__input"
+					onChange={ value => {
+						resetFocus && resetFocus();
+						if ( labelFieldName ) {
+							setAttributes( { [ labelFieldName ]: value } );
+							return;
+						}
+						setAttributes( { label: value } );
+					} }
+					placeholder={ placeholder ?? __( 'Add label…', 'jetpack' ) }
+					withoutInteractiveFormatting
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				/>
+				{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
+			</div>
 		</div>
 	);
 };

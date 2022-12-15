@@ -11,13 +11,12 @@ export default function JetpackField( props ) {
 	return (
 		<>
 			<div className="jetpack-field">
-				<div style={ { color: attributes.labelColor } }>
-					<JetpackFieldLabel
-						required={ required }
-						label={ label }
-						setAttributes={ setAttributes }
-					/>
-				</div>
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+				/>
 				<Disabled>
 					<TextControl
 						type={ type }
