@@ -3948,7 +3948,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'consenttype'            => null,
 				'implicitconsentmessage' => null,
 				'explicitconsentmessage' => null,
-				'attributes'             => null,
+				'borderradius'           => null,
 			),
 			$attributes,
 			'contact-field'
