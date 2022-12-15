@@ -3,8 +3,6 @@
 	import { __ } from '@wordpress/i18n';
 	import LeftArrow from '../svg/left-arrow.svg';
 
-	// This isn't react
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const navigate = useNavigate();
 
 	export let route = -1;
