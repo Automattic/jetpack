@@ -11,6 +11,9 @@ import {
 
 domReady( function () {
 	const form = document.querySelector( '.wp-block-jetpack-subscriptions__container form' );
+	if ( ! form ) {
+		return;
+	}
 	let premiumContentJWTToken = '';
 	if ( ! form.payments_attached ) {
 		form.payments_attached = true;
