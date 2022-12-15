@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Add a contact form button to the post composition screen
@@ -1378,7 +1379,7 @@ class Grunion_Admin {
 						// TODO: write/link a support doc for connections
 						echo sprintf(
 							'<a href="%s" title="%s" target="_blank" rel="noopener noreferer">%s</a>',
-							'https://wordpress.com/marketing/connections',
+							esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
 							esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
 							esc_html( __( 'connect to Google Drive.', 'jetpack' ) )
 						);
