@@ -125,6 +125,7 @@ class Waf_Runner {
 	/**
 	 * Determines if the WAF is supported in the current environment.
 	 *
+	 * @since 0.8.0
 	 * @return bool
 	 */
 	public static function is_supported_environment() {
