@@ -77,6 +77,20 @@ const JetpackFieldControls = ( {
 						type="number"
 						style={ { marginLeft: '15px', width: '25%' } }
 					/>
+					<TextControl
+						label={ __( 'Border width', 'jetpack' ) }
+						value={ attributes.borderWidth }
+						onChange={ value => setAttributes( { borderWidth: parseInt( value, 10 ) || 1 } ) }
+						type="number"
+						style={ { marginLeft: '15px', width: '25%' } }
+					/>
+					<TextControl
+						label={ __( 'Line Height', 'jetpack' ) }
+						value={ attributes.lineHeight }
+						onChange={ value => setAttributes( { lineHeight: parseFloat( value, 10 ) || 1.5 } ) }
+						type="number"
+						style={ { marginLeft: '15px', width: '25%' } }
+					/>
 
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>

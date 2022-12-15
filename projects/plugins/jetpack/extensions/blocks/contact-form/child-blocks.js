@@ -51,6 +51,14 @@ const FieldDefaults = {
 			type: 'number',
 			default: 10,
 		},
+		borderWidth: {
+			type: 'number',
+			default: 1,
+		},
+		lineHeight: {
+			type: 'number',
+			default: 1.5,
+		},
 	},
 	transforms: {
 		to: [

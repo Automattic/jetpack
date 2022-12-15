@@ -3949,6 +3949,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'implicitconsentmessage' => null,
 				'explicitconsentmessage' => null,
 				'borderradius'           => null,
+				'borderwidth'            => null,
+				'lineheight'             => null,
 			),
 			$attributes,
 			'contact-field'
@@ -4121,8 +4123,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_width       = $this->get_attribute( 'width' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		$field_styles          = array();
-		$field_styles['style'] = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px';
+		$field_styles           = array();
+		$field_styles['style']  = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		$field_styles['style'] .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+		$field_styles['style'] .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' );
 
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;
