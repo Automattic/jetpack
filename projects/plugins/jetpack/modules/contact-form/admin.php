@@ -1353,7 +1353,8 @@ class Grunion_Admin {
 			);
 		} else {
 			$button_html = sprintf(
-				'<a href="https://wordpress.com/marketing/connections" class="button button-primary export-button export-gdrive" title="%s" rel="noopener noreferer" target="_blank">%s</a>',
+				'<a href="%1$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
+				esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
 				esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
 				esc_html( __( 'Connect Google Drive', 'jetpack' ) )
 			);
@@ -1373,15 +1374,11 @@ class Grunion_Admin {
 					<div>
 						<?php echo esc_html( __( 'Export your data into a Google Sheets file.', 'jetpack' ) ); ?>
 						<?php
-						/** Translators: Link to "connect to Google Drive" follows */
-						echo esc_html( __( 'You need to', 'jetpack' ) );
-						echo ' ';
-						// TODO: write/link a support doc for connections
 						echo sprintf(
-							'<a href="%s" title="%s" target="_blank" rel="noopener noreferer">%s</a>',
+							'<a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferer">%3$s</a>',
 							esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
-							esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
-							esc_html( __( 'connect to Google Drive.', 'jetpack' ) )
+							esc_attr__( 'connect to Google Drive', 'jetpack' ),
+							esc_html__( 'You need to connect to Google Drive.', 'jetpack' )
 						);
 						?>
 					</div>
