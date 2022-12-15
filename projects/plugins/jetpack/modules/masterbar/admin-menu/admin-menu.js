@@ -138,6 +138,8 @@
 		return (
 			rect.top >= 0 &&
 			rect.left >= 0 &&
+			// Tries to primarily use the window viewport, but if that's not available, uses the documentElement.
+			// The innerWidth attribute must return the viewport width including the size of a rendered scroll bar (if any), or zero if there is no viewport.
 			rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
 			rect.right <= (window.innerWidth || document.documentElement.clientWidth)
 		);
