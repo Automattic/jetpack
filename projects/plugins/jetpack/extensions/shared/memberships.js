@@ -1,5 +1,8 @@
 /* global tb_show, tb_remove */
 
+import { Modal } from '@wordpress/components';
+import { render, useState } from '@wordpress/element';
+
 /**
  * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
  *
@@ -16,32 +19,67 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
-function setUpThickbox( button ) {
-	console.log('loading thickbox');
-	// button.addEventListener( 'click', event => {
-	// 	event.preventDefault();
-	// 	const url = button.getAttribute( 'href' );
-	// 	window.scrollTo( 0, 0 );
-	// 	tb_show( null, url + '&display=alternate&TB_iframe=true', null );
-	// 	window.addEventListener( 'message', handleIframeResult, false );
-	// 	const tbWindow = document.querySelector( '#TB_window' );
-	// 	tbWindow.classList.add( 'jetpack-memberships-modal' );
+const MyModal = (props) => {
+	console.info( props );
 
-	// 	// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
-	// 	window.scrollTo( 0, 0 );
-	// } );
+	const [ isOpen, setOpen ] = useState( false );
+	const openModal = () => setOpen( true );
+	const closeModal = () => setOpen( false );
+
+	return (
+		<>
+			<button onClick={ openModal }>hi</button>
+			{ isOpen && (
+				<Modal title='title' onRequestClose={ closeModal }>
+					<button onClick={ closeModal }>close</button>
+				</Modal>
+			) }
+			{/* { isOpen && (
+				<button onClick={ closeModal }>close it</button>
+			) } */}
+		</>
+	);
 }
 
+/**
+ *
+ * For each membership button, Create a modal that wraps the subscribe.wordpress.com site in an iframe.
+ *
+ * @param {*} button
+ */
+function setUpModal( button ) {
+	console.log('loading modal');
+	// Puts the modal in a temporary div so we can replace the existing button with our modal button.
+	const temp = document.createElement( 'div' );
+	temp.classList.add( 'n3f' );
+	const modal = render(
+		<MyModal/>,
+		button.parentNode,
+		() => {
+			console.log('here');
+			button.remove();
+			// `replaceWith` doesn't work because the event listeners (e.g. onClick) are removed.
+			// button.replaceWith(...Array.from( temp.childNodes ) )
+ 		}
+	);
+	console.log(modal);
+}
+
+/**
+ *
+ * This loops through all the membership buttons on the page and initializes them.
+ *
+ * @param {*} selector
+ */
 export const initializeMembershipButtons = selector => {
-	const membershipButtons = Array.prototype.slice.call( document.querySelectorAll( selector ) );
+	const membershipButtons =[ ... document.querySelectorAll( selector ) ];
 	membershipButtons.forEach( button => {
 		if ( button.getAttribute( 'data-jetpack-memberships-button-initialized' ) === 'true' ) {
 			return;
 		}
 
 		try {
-			// setUpThickbox( button );
-			console.warn( 'loading thickbox', button );
+			setUpModal( button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
 			console.error( 'Problem setting up Thickbox', err );
