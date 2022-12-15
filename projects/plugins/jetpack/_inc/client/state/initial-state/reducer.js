@@ -327,6 +327,7 @@ export function arePromotionsActive( state ) {
  * @returns {boolean} True if this is an WoA site, false otherwise.
  */
 export function isAtomicSite( state ) {
+	console.log( state );
 	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
 }
 
