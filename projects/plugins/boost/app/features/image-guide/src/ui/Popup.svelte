@@ -145,10 +145,6 @@
 		font-weight: 600 !important;
 	}
 
-	:global( .jetpack-boost-guide.relative ) {
-		position: relative;
-	}
-
 	.preview {
 		display: flex;
 		gap: 15px;
