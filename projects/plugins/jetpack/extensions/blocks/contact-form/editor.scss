@@ -309,6 +309,10 @@ input.components-text-control__input {
 		border-color: currentColor;
 		opacity: 1;
 	}
+
+	.jetpack-field-consent__checkbox + .jetpack-field-label {
+		line-height: normal;
+	}
 }
 
 .jetpack-field-label__width {
