@@ -112,6 +112,7 @@
 
 		document.querySelectorAll('li.wp-has-submenu.wp-not-current-submenu').forEach( function (el) {
 			const submenu = el.querySelector('.wp-submenu');
+			const linkElement = el.querySelector('a');
 
 			el.addEventListener('mouseover', function() {
 				submenu.style.display = null;
@@ -119,6 +120,7 @@
 				if ( ! isElementInViewport( submenu ) ) {
 					submenu.style.top = ( 34 - submenu.clientHeight ) + 'px';
 				}
+				linkElement.focus();
 			} );
 
 			el.addEventListener('mouseleave', function() {
