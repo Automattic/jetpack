@@ -75,6 +75,7 @@ const JetpackFieldControls = ( {
 						value={ borderRadius }
 						onChange={ value => setAttributes( { borderRadius: parseInt( value, 10 ) || 0 } ) }
 						type="number"
+						style={ { marginLeft: '15px', width: '25%' } }
 					/>
 
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
