@@ -289,11 +289,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$GLOBALS['post'] = get_post( $post_id );
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
 
-		$subscription_service = new WPCOM_Online_Subscription_Service();
-
 		if ( 'regular_non_subscriber_id' === $type_user_id || empty( $type_user_id ) ) {
 			$this->assertFalse( $should_email_be_sent, ' regular_non_subscriber_id won\'t be called in the async job on WPCOM' );
 		} else {
+			$subscription_service = new WPCOM_Offline_Subscription_Service();
 			$this->assertEquals(
 				$should_email_be_sent,
 				$subscription_service->subscriber_can_receive_post_by_mail( $user_id, $post_id ),
@@ -303,8 +302,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		if ( $token_set ) {
 			$this->set_returned_token( $payload );
-			$online_subscription_service = new WPCOM_Token_Subscription_Service();
-			$result                      = $online_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
+			$token_subscription_service = new WPCOM_Token_Subscription_Service();
+			$result                     = $token_subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level );
 		} else {
 			if ( $logged ) {
 				wp_set_current_user( $user_id );

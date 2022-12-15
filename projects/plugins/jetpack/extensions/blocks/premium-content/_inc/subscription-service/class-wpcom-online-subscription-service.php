@@ -1,10 +1,6 @@
 <?php
 /**
- * This subscription service is used when a subscriber is offline and a token is not available.
- * This subscription service will be used when rendering content in email and reader on WPCOM only.
- * When content is being rendered, the current user and site are set.
- * This allows us to lookup a users subscriptions and determine if the
- * offline visitor can view content that has been deemed "Premium content".
+ * This subscription service is used when a subscriber is online
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content
  */
@@ -64,7 +60,7 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 *
 	 * @return bool
 	 */
-	private function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
+	protected function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
 		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
 		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
@@ -72,36 +68,6 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 		$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 
 		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id );
-	}
-
-	/**
-	 * Check if the subscriber can receive the newsletter.
-	 * This is the only method where is user does not need to be logged in.
-	 *
-	 * @param int $user_id User id.
-	 * @param int $post_id Post id.
-	 *
-	 * @return bool
-	 * @throws \Exception Throws an exception when used outside of WPCOM.
-	 */
-	public function subscriber_can_receive_post_by_mail( $user_id, $post_id ) {
-
-		if ( 0 === $user_id || empty( $user_id ) ) {
-			// Email cannot be sent to non-users
-			return false;
-		}
-
-		$previous_user = wp_get_current_user();
-		wp_set_current_user( $user_id );
-
-		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$is_blog_subscriber = true; // it is a subscriber as this is used in async when lopping through subscribers...
-		$allowed            = $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id );
-
-		wp_set_current_user( $previous_user->ID );
-
-		return $allowed;
 	}
 
 	/**
