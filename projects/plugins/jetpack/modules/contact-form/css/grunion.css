@@ -65,6 +65,12 @@
 	display: block;
 }
 
+.contact-form label.consent {
+	font-size: 13px;
+	font-weight: normal;
+	text-transform: uppercase;
+}
+
 .contact-form label.consent-implicit input {
 	display: none;
 }
@@ -77,13 +83,6 @@
 	font-weight: normal;
 	display: inline-flex;
 	align-items: center;
-}
-
-.contact-form .grunion-field-checkbox-wrap,
-.contact-form .grunion-field-consent-wrap,
-.contact-form .grunion-field-checkbox-multiple-wrap,
-.contact-form .grunion-field-radio-wrap {
-	margin-bottom: 1em;
 }
 
 .contact-form label span {
