@@ -23,6 +23,9 @@ export default function JetpackField( props ) {
 							borderRadius: attributes.borderRadius,
 							borderWidth: attributes.borderWidth,
 							lineHeight: attributes.lineHeight,
+							borderColor: attributes.borderColor,
+							color: attributes.textColor,
+							backgroundColor: attributes.backgroundColor,
 						} }
 					/>
 				</Disabled>

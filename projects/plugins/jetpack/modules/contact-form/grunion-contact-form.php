@@ -3951,6 +3951,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'borderradius'           => null,
 				'borderwidth'            => null,
 				'lineheight'             => null,
+				'bordercolor'            => null,
 			),
 			$attributes,
 			'contact-field'
@@ -4126,7 +4127,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_styles           = array();
 		$field_styles['style']  = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
 		$field_styles['style'] .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
-		$field_styles['style'] .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' );
+		$field_styles['style'] .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+		$field_styles['style'] .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+		$field_styles['style'] .= 'color: ' . esc_attr( $this->get_attribute( 'textcolor' ) ) . ';';
+		$field_styles['style'] .= 'background-color: ' . esc_attr( $this->get_attribute( 'backgroundcolor' ) ) . ';';
 
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;

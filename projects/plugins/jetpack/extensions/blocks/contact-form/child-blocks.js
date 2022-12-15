@@ -59,6 +59,18 @@ const FieldDefaults = {
 			type: 'number',
 			default: 1.5,
 		},
+		textColor: {
+			type: 'string',
+			default: '#000000',
+		},
+		backgroundColor: {
+			type: 'string',
+			default: '#ffffff',
+		},
+		borderColor: {
+			type: 'string',
+			default: '#000000',
+		},
 	},
 	transforms: {
 		to: [

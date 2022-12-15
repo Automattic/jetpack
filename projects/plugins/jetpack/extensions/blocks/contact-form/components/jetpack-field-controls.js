@@ -2,6 +2,7 @@ import {
 	InspectorAdvancedControls,
 	InspectorControls,
 	BlockControls,
+	PanelColorSettings,
 } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -94,6 +95,27 @@ const JetpackFieldControls = ( {
 
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
+				<PanelColorSettings
+					title={ __( 'Block styling', 'jetpack' ) }
+					initialOpen={ false }
+					colorSettings={ [
+						{
+							value: attributes.textColor,
+							onChange: value => setAttributes( { textColor: value } ),
+							label: __( 'Text color', 'jetpack' ),
+						},
+						{
+							value: attributes.backgroundColor,
+							onChange: value => setAttributes( { backgroundColor: value } ),
+							label: __( 'Background color', 'jetpack' ),
+						},
+						{
+							value: attributes.borderColor,
+							onChange: value => setAttributes( { borderColor: value } ),
+							label: __( 'Border color', 'jetpack' ),
+						},
+					] }
+				></PanelColorSettings>
 			</InspectorControls>
 
 			<InspectorAdvancedControls>
