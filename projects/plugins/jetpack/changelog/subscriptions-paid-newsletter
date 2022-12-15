@@ -1,4 +1,6 @@
 Significance: major
 Type: enhancement
 
-Paid Newsletter functionality: If the site owner creates one or more "newsletter" paid plans for purchase, subscribers will be asked to pay in the Subscribe block.
+Paid Newsletter functionality:
+If the site owner creates one or more "newsletter" paid plans available for purchase, subscribers will be given an option to pay while subscribing through the subscribe block.
+This change goes together with ./add-post-visibility-setting to create a paid newsletter functionality.
