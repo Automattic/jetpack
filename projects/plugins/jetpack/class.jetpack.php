@@ -6775,7 +6775,7 @@ endif;
 		);
 
 		$products['security'] = array(
-			'title'             => __( 'Security', 'jetpack' ),
+			'title'             => _x( 'Security', 'Jetpack product name', 'jetpack' ),
 			'slug'              => 'jetpack_security_t1_yearly',
 			'description'       => __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack' ),
 			'show_promotion'    => true,
