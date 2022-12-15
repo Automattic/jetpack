@@ -29,7 +29,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.0",
+		"automattic/wordbless": "0.4.1",
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.4"
 	},
