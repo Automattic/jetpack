@@ -200,6 +200,7 @@ class Dashboard {
 			'env_id'                         => 'production',
 			'google_analytics_key'           => 'UA-10673494-15',
 			'google_maps_and_places_api_key' => '',
+			'hostname'                       => wp_parse_url( get_site_url(), PHP_URL_HOST ),
 			'i18n_default_locale_slug'       => 'en',
 			'i18n_locale_slug'               => static::get_site_locale(),
 			'mc_analytics_enabled'           => false,
@@ -225,6 +226,9 @@ class Dashboard {
 							'jetpack'      => true,
 							'visible'      => true,
 							'capabilities' => $empty_object,
+							'options'      => array(
+								'admin_url' => admin_url(),
+							),
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 						),
