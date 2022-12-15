@@ -23,7 +23,7 @@ const JetpackFieldControls = ( {
 	id,
 	required,
 	placeholder,
-	borderRadius,
+	attributes,
 } ) => {
 	return (
 		<>
@@ -72,7 +72,7 @@ const JetpackFieldControls = ( {
 					/>
 					<TextControl
 						label={ __( 'Corner radius', 'jetpack' ) }
-						value={ borderRadius }
+						value={ attributes.borderRadius }
 						onChange={ value => setAttributes( { borderRadius: parseInt( value, 10 ) || 0 } ) }
 						type="number"
 						style={ { marginLeft: '15px', width: '25%' } }

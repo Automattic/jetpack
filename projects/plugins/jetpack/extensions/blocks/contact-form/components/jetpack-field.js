@@ -6,7 +6,7 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackField( props ) {
-	const { id, type, required, label, setAttributes, placeholder, width, borderRadius } = props;
+	const { id, type, required, label, setAttributes, placeholder, width, attributes } = props;
 
 	return (
 		<>
@@ -19,7 +19,7 @@ export default function JetpackField( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ { borderRadius: borderRadius } }
+						style={ { borderRadius: attributes.borderRadius } }
 					/>
 				</Disabled>
 			</div>
@@ -30,7 +30,7 @@ export default function JetpackField( props ) {
 				width={ width }
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
-				borderRadius={ borderRadius }
+				attributes={ attributes }
 			/>
 		</>
 	);

@@ -176,7 +176,7 @@ const editField = type => props => {
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
-			borderRadius={ props.attributes.borderRadius }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -194,6 +194,7 @@ const editMultiField = type => props => {
 			isSelected={ props.isSelected }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -368,6 +369,7 @@ export const childBlocks = [
 						placeholder={ props.attributes.placeholder }
 						id={ props.attributes.id }
 						width={ props.attributes.width }
+						attributes={ props.attributes }
 					/>
 				);
 			},

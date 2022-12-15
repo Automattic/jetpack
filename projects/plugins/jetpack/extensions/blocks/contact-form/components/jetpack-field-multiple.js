@@ -17,6 +17,7 @@ function JetpackFieldMultiple( props ) {
 		isSelected,
 		width,
 		options,
+		attributes,
 	} = props;
 
 	const [ inFocus, setInFocus ] = useState( null );
@@ -103,6 +104,7 @@ function JetpackFieldMultiple( props ) {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				attributes={ attributes }
 			/>
 		</Fragment>
 	);
