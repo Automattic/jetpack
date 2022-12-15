@@ -957,8 +957,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'featured_image_email_enabled':
-					update_option( 'featured_image_email_enabled', (int) (bool) $value );
-					$updated[ $key ] = (int) (bool) $value;
+					update_option( 'featured_image_email_enabled', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				case 'jetpack_are_blogging_prompts_enabled':
