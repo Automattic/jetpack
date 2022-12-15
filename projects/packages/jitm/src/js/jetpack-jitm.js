@@ -248,7 +248,20 @@ jQuery( document ).ready( function ( $ ) {
 				}
 
 				// for now, always take the first response
-				setJITMContent( $el, response[ 0 ], redirect );
+				const data = response [ 0 ];
+
+				const LICENSE_ACTIVATION_NOTICE_KEYS = [
+					'single_licensing_activation_notice',
+					'multiple_licensing_activation_notice',
+				];
+
+				const inJPLicenseActivationPage = window?.location?.href.indexOf( 'jetpack#/add-license' ) >= 0;
+				const isJPLicenseActivationNotice = LICENSE_ACTIVATION_NOTICE_KEYS.includes( data.id );
+
+				// We do not want to display License Activation JITM in the activation page
+				if ( !( isJPLicenseActivationNotice && inJPLicenseActivationPage) ) {
+					setJITMContent( $el, data, redirect );
+				}
 			} );
 		} );
 	};
@@ -256,9 +269,10 @@ jQuery( document ).ready( function ( $ ) {
 	reFetch();
 
 	$( window ).on( 'hashchange', function ( e ) {
-		var newURL = e.originalEvent.newURL;
+		const newURL = e.originalEvent.newURL;
+		const isJetpackPage = newURL.indexOf( 'jetpack#/' ) >= 0 || newURL.indexOf( 'my-jetpack' ) >= 0;
 
-		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );
 			if ( jitm_card ) {
 				jitm_card.remove();
