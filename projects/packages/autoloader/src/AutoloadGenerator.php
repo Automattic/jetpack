@@ -39,6 +39,13 @@ use Composer\Util\PackageSorter;
 class AutoloadGenerator {
 
 	/**
+	 * IO object.
+	 *
+	 * @var IOInterface IO object.
+	 */
+	private $io;
+
+	/**
 	 * The filesystem utility.
 	 *
 	 * @var Filesystem
