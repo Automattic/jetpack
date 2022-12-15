@@ -21,6 +21,13 @@ class Test_Roles extends TestCase {
 	use MockeryPHPUnitIntegration;
 
 	/**
+	 * Roles instance.
+	 *
+	 * @var Roles
+	 */
+	protected $roles;
+
+	/**
 	 * Test setup.
 	 *
 	 * @before
