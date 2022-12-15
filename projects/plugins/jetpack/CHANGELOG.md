@@ -2,6 +2,26 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.7-a.3 - 2022-12-12
+### Enhancements
+- Form block: update Form blocks descriptions. [#27819]
+- Form block: simplify Form block sidebar to make the UI easier to use. [#27820]
+- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers. [#27879]
+- Writing prompts: add filter for whether prompts are enabled or not [#27778]
+
+### Bug fixes
+- Admin Page: avoid querying for WAF settings when the feature is not active. [#27777]
+- VideoPress block: fix video player issue in some VideoMaker theme patterns. [#27859]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Backport changelog and readme. [#27776]
+- Google fonts: Update composer with latest version of google-fonts-provider package. [#27719]
+- Stats: use config package to init stats admin. [#27565]
+- Updating changelog entries. [#27774]
+- VideoPress block: convert on-the-fly video block instances on WordPress.com. [#27831]
+- VideoPress block: convert core/embed block, videopress variation, to VideoPress video block, on the fly. Only relevant for WordPress.com sites. [#27857]
+- VideoPress block: remove video block transform to/from videopress/video for WordPress.com sites. [#27834]
+
 ## 11.7-a.1 - 2022-12-06
 ### Enhancements
 - Form block: change form placeholder background color to prevent styling issues on colored backgrounds. [#27629]

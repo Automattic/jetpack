@@ -341,7 +341,7 @@ div.jp-carousel-buttons a:hover {
 
 .jp-swiper-pagination .swiper-pagination-bullet {
 	background: var(--jp-carousel-primary-subtle-color);
-	margin: 0 9px;
+	margin: 0 4px;
 }
 
 .jp-swiper-pagination .swiper-pagination-bullet.swiper-pagination-bullet-active {
