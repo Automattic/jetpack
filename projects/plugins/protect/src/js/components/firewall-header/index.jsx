@@ -97,11 +97,34 @@ const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
 const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
-	const lastThirtyArgs = {
+	const oneDayArgs = {
 		className: hasRequiredPlan ? styles.active : styles.disabled,
 		icon: (
 			<div className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ shield } />
+				{ ! hasRequiredPlan && (
+					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
+				) }
+			</div>
+		),
+		label: isSmall ? (
+			<span>{ __( 'Blocked requests last 24 hours', 'jetpack-protect' ) }</span>
+		) : (
+			<div className={ styles[ 'stat-card-label' ] }>
+				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
+				<br />
+				<span>{ __( 'Last 24 hours', 'jetpack-protect' ) }</span>
+			</div>
+		),
+		value: hasRequiredPlan ? 0 : 0,
+		variant: isSmall ? 'horizontal' : 'square',
+	};
+
+	const thirtyDayArgs = {
+		className: hasRequiredPlan ? styles.active : styles.disabled,
+		icon: (
+			<div className={ styles[ 'stat-card-icon' ] }>
+				<Icon icon={ chartBar } />
 				{ ! hasRequiredPlan && (
 					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
@@ -117,29 +140,6 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 			</div>
 		),
 		value: hasRequiredPlan ? 0 : 0, // Add actual stats here
-		variant: isSmall ? 'horizontal' : 'square',
-	};
-
-	const allTimeArgs = {
-		className: hasRequiredPlan ? styles.active : styles.disabled,
-		icon: (
-			<div className={ styles[ 'stat-card-icon' ] }>
-				<Icon icon={ chartBar } />
-				{ ! hasRequiredPlan && (
-					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
-				) }
-			</div>
-		),
-		label: isSmall ? (
-			<span>{ __( 'Blocked requests all time', 'jetpack-protect' ) }</span>
-		) : (
-			<div className={ styles[ 'stat-card-label' ] }>
-				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
-				<br />
-				<span>{ __( 'All time', 'jetpack-protect' ) }</span>
-			</div>
-		),
-		value: hasRequiredPlan ? 0 : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
@@ -207,8 +207,8 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 				</Col>
 				<Col>
 					<div className={ styles[ 'stat-card-wrapper' ] }>
-						<StatCard { ...lastThirtyArgs } />
-						<StatCard { ...allTimeArgs } />
+						<StatCard { ...oneDayArgs } />
+						<StatCard { ...thirtyDayArgs } />
 					</div>
 				</Col>
 			</Container>
