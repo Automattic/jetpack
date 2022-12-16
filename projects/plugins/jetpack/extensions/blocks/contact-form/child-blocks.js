@@ -368,10 +368,6 @@ export const childBlocks = [
 			},
 			attributes: {
 				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: '',
-				},
 			},
 		},
 	},
@@ -393,7 +389,7 @@ export const childBlocks = [
 
 				return (
 					<JetpackFieldCheckbox
-						label={ props.attributes.label } // label intentinally left blank
+						label={ props.attributes.label } // label intentionally left blank
 						required={ props.attributes.required }
 						requiredText={ props.attributes.requiredText }
 						setAttributes={ props.setAttributes }

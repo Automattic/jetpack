@@ -2843,10 +2843,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					continue;
 				}
 
-				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+
 				$compiled_form[ $field_index ] = sprintf(
-					'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
-					wp_kses( $field->get_attribute( 'label' ), array() ),
+					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
+					wp_kses( $field_label, array() ),
 					self::escape_and_sanitize_field_value( $value )
 				);
 			}
@@ -3040,9 +3042,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				break;
 			case 'textarea':
 				$str = __( 'Message', 'jetpack' );
-				break;
-			case 'checkbox':
-				$str = __( 'Checkbox', 'jetpack' );
 				break;
 			case 'checkbox-multiple':
 				$str = __( 'Choose several', 'jetpack' );
