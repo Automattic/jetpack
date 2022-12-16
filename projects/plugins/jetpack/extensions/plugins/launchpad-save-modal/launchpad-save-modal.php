@@ -8,7 +8,9 @@
 // Feature name.
 const LAUNCHPAD_SAVE_MODAL_SLUG = 'launchpad-save-modal';
 
-// Load the script at the correct time to avoind warnings
+/**
+ * Load the script at the correct time to avoind warnings
+ */
 function enque_script() {
 	wp_enqueue_script(
 		'launchpad-save-modal',

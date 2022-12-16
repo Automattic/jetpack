@@ -4,7 +4,7 @@ import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
+import { useTranslate } from 'i18n-calypso';
 import { useEffect, useState } from 'react';
 import './editor.scss';
 
@@ -12,6 +12,7 @@ export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
+		const translate = useTranslate();
 		const isSaving = useSelect(
 			select => select( editorStore ).isSavingNonPostEntityChanges(),
 			[]
@@ -49,10 +50,10 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Your site is ready to launch!', 'jetpack' ) }
+								{ translate( 'Your site is ready to launch!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
-								{ __(
+								{ translate(
 									'Launching your Link in Bio will allow you to share a link with others and promote your site.',
 									'jetpack'
 								) }
@@ -60,7 +61,7 @@ export const settings = {
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
-								label={ __( "Don't show this again.", 'jetpack' ) }
+								label={ translate( "Don't show this again.", 'jetpack' ) }
 								checked={ isChecked }
 								onChange={ () => setIsChecked( ! isChecked ) }
 							/>
@@ -73,7 +74,7 @@ export const settings = {
 										setIsModalOpen( false );
 									} }
 								>
-									{ __( 'Back to Edit', 'jetpack' ) }
+									{ translate( 'Back to Edit', 'jetpack' ) }
 								</Button>
 								<Button
 									size="normal"
@@ -82,7 +83,7 @@ export const settings = {
 										window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
 									} }
 								>
-									{ __( 'Next Steps', 'jetpack' ) }
+									{ translate( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
