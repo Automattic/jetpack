@@ -2,6 +2,7 @@
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import Spinner from './Spinner.svelte';
+	import Checkmark from './assets/Checkmark.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 
 	export let index: number;
@@ -26,9 +27,13 @@
 			<div class="bubble-inner">
 				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
 					{#if $oversizedRatio > 9}
-						{Math.floor( $oversizedRatio )}x
+						{Math.floor($oversizedRatio)}x
 					{:else if $oversizedRatio > 1}
-						{$oversizedRatio.toFixed( 1 )}x
+						{#if severity === 'normal'}
+							<Checkmark />
+						{:else}
+							{$oversizedRatio.toFixed(1)}x
+						{/if}
 					{:else}
 						<span style="font-size: 0.75em;">&lt;</span> 1x
 					{/if}
@@ -44,6 +49,7 @@
 
 <style lang="scss">
 	/**
+	* This makes it easier to interact with the bubble,
 	* by setting the interactive area larger than the bubble itself.
 	*/
 	.interaction-area {
@@ -69,7 +75,7 @@
 		border-radius: 50%;
 		text-align: center;
 
-		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
+		text-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
 		cursor: default;
 		transition: background-color 300ms ease;
 
@@ -96,7 +102,7 @@
 		margin: auto;
 	}
 
-	:global( .guide.small ) {
+	:global(.guide.small) {
 		.interaction-area {
 			padding: 15px;
 		}
@@ -108,7 +114,7 @@
 		}
 	}
 
-	:global( .guide.micro ) {
+	:global(.guide.micro) {
 		.interaction-area {
 			padding: 10px;
 			// Offset .guide
