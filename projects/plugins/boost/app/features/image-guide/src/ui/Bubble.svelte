@@ -44,7 +44,6 @@
 
 <style lang="scss">
 	/**
-	* This makes it easier to interact with the bable,
 	* by setting the interactive area larger than the bubble itself.
 	*/
 	.interaction-area {

@@ -18,7 +18,7 @@
 	 * when multiple bubbles are active.
 	 *
 	 * Note that in Main.svelte only the properties of this component
-	 * change to avoid creating mulitple components.
+	 * change to avoid creating multiple components.
 	 */
 	$: isLoading = store.loading;
 	$: oversizedRatio = store.oversizedRatio;
