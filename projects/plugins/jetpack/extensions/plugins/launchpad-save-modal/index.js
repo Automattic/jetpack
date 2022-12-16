@@ -1,5 +1,5 @@
-/* global launchpadModalOptions */
-
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -20,8 +20,14 @@ export const settings = {
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
-		const [ , siteSlug ] = launchpadModalOptions.siteUrlOption.split( '//' );
+
+		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = window.location.href.includes( 'site-editor' );
+
+		const siteFragment = getSiteFragment();
+		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
+			query: `siteSlug=${ siteFragment }`,
+		} );
 
 		useEffect( () => {
 			if ( prevIsSaving === true && isSaving === false ) {
@@ -30,9 +36,9 @@ export const settings = {
 		}, [ isSaving, prevIsSaving ] );
 
 		const showModal =
-			launchpadModalOptions.launchpadScreenOption === 'full' &&
-			launchpadModalOptions.siteIntentOption === 'link-in-bio' &&
 			isInsideSiteEditor &&
+			launchpadScreenOption === 'full' &&
+			siteIntentOption === 'link-in-bio' &&
 			! dontShowAgain &&
 			isModalOpen;
 
@@ -66,7 +72,6 @@ export const settings = {
 							/>
 							<div className="launchpad__save-modal-buttons">
 								<Button
-									size="normal"
 									variant="secondary"
 									onClick={ () => {
 										setDontShowAgain( isChecked );
@@ -75,13 +80,7 @@ export const settings = {
 								>
 									{ __( 'Back to Edit', 'jetpack' ) }
 								</Button>
-								<Button
-									size="normal"
-									variant="primary"
-									onClick={ () => {
-										window.top.location.href = `https://www.wordpress.com/setup/link-in-bio/launchpad?siteSlug=${ siteSlug }`;
-									} }
-								>
+								<Button variant="primary" href={ launchPadUrl } target="_top">
 									{ __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
