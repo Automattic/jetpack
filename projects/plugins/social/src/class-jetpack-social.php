@@ -314,6 +314,7 @@ class Jetpack_Social {
 		// Connection initial state is expected when the connection JS package is in the bundle
 		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
 		// Conditionally load analytics scripts
+		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
 			Tracking::register_tracks_functions_scripts( true );
 		}

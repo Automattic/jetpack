@@ -4,13 +4,13 @@
  */
 
 import { Button, ThemeProvider } from '@automattic/jetpack-components';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import useAnalyticsTracksForConnectedUser from '../../hooks/use-anaytics-tracks-for-connected-user';
 import styles from './styles.module.scss';
 
 const ReviewPrompt = ( { href, onClose } ) => {
-	const { recordEvent } = useAnalyticsTracksForConnectedUser( {
+	const { recordEvent } = useAnalytics( {
 		pageViewEventName: 'social_plugin_review_prompt',
 		pageViewNamespace: 'jetpack',
 		pageViewSuffix: 'view',

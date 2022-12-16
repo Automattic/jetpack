@@ -45,8 +45,8 @@ registerPlugin( 'jetpack-social', {
 
 const JetpackSocialSidebar = () => {
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
-	const [ isReviewRequestVisible, setIsReviewRequestVisible ] = useState(
-		getJetpackData()?.social?.reviewRequestDismissed ?? false
+	const [ isReviewRequestDismissed, setIsReviewRequestDismissed ] = useState(
+		getJetpackData()?.social?.reviewRequestDismissed ?? true
 	);
 
 	const openModal = useCallback( () => setIsModalOpened( true ), [] );
@@ -80,7 +80,7 @@ const JetpackSocialSidebar = () => {
 			throw error;
 		} );
 
-		setIsReviewRequestVisible( false );
+		setIsReviewRequestDismissed( true );
 	}, [] );
 
 	return (
@@ -118,7 +118,7 @@ const JetpackSocialSidebar = () => {
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
 
-			{ isReviewRequestVisible && isPublicizeEnabled && hasEnabledConnections && (
+			{ ! isReviewRequestDismissed && isPublicizeEnabled && hasEnabledConnections && (
 				<PluginPostPublishPanel id="publicize-title">
 					<ReviewPrompt
 						href={ getRedirectUrl( 'jetpack-social-plugin-reviews' ) }
