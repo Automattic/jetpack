@@ -57,6 +57,8 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
+		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
@@ -139,24 +141,6 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Determines if automatic rules are enabled.
-	 *
-	 * @return bool
-	 */
-	public static function automatic_rules_enabled() {
-		// for backwards compatibility, if the automatic rules option does not exist and the
-		// module is active, consider automatic rules enabled
-		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
-		if ( ! $option_exists && self::is_enabled() ) {
-			$is_enabled = true;
-		} else {
-			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-		}
-
-		return $is_enabled;
-	}
-
-	/**
 	 * Enables the WAF module on the site.
 	 */
 	public static function enable() {
@@ -177,7 +161,7 @@ class Waf_Runner {
 	 */
 	public static function get_config() {
 		return array(
-			self::AUTOMATIC_RULES_ENABLED_OPTION_NAME => self::automatic_rules_enabled(),
+			self::AUTOMATIC_RULES_ENABLED_OPTION_NAME => get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ),
 			self::IP_LISTS_ENABLED_OPTION_NAME        => get_option( self::IP_LISTS_ENABLED_OPTION_NAME ),
 			self::IP_ALLOW_LIST_OPTION_NAME           => get_option( self::IP_ALLOW_LIST_OPTION_NAME ),
 			self::IP_BLOCK_LIST_OPTION_NAME           => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
@@ -289,8 +273,6 @@ class Waf_Runner {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
 
-		add_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-		add_option( self::IP_LISTS_ENABLED_OPTION_NAME, false );
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
@@ -468,7 +450,7 @@ class Waf_Runner {
 		$throw_api_exception = true;
 
 		// Add automatic rules
-		if ( self::automatic_rules_enabled() ) {
+		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
 			try {
 				$rules = self::get_rules_from_api();
 			} catch ( \Exception $e ) {

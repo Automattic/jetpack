@@ -86,24 +86,29 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function update_waf( $request ) {
+		// Automatic Rules Enabled
+		if ( isset( $request[ Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
+			add_option( Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+		}
+
 		// IP Lists Enabled
 		if ( isset( $request[ Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ) );
+			add_option( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ) );
 		}
 
 		// IP Block List
 		if ( isset( $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] );
+			add_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] );
 		}
 
 		// IP Allow List
 		if ( isset( $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] );
+			add_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] );
 		}
 
 		// Share Data
 		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+			add_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
 		}
 
 		Waf_Runner::update_waf();
