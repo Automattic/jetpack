@@ -141,6 +141,16 @@ if ( '1' === getenv( 'LEGACY_FULL_SYNC' ) ) {
 
 require $test_root . '/includes/bootstrap.php';
 
+// Disable warning about deprecated request library.
+// @todo Remove this once we drop support for WordPress 6.1
+define( 'REQUESTS_SILENCE_PSR0_DEPRECATIONS', true );
+
+// Work around https://core.trac.wordpress.org/ticket/57341
+// Remove this once that's fixed.
+if ( ! class_exists( 'Requests' ) ) {
+	require ABSPATH . WPINC . '/class-requests.php';
+}
+
 // Load the shortcodes module to test properly.
 if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstall_group() ) {
 	require __DIR__ . '/../../modules/shortcodes.php';
