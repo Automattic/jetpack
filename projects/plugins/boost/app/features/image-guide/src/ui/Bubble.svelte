@@ -2,6 +2,7 @@
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import Spinner from './Spinner.svelte';
+	import Checkmark from './assets/Checkmark.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 
 	export let index: number;
@@ -28,7 +29,11 @@
 					{#if $oversizedRatio > 9}
 						{Math.floor( $oversizedRatio )}x
 					{:else if $oversizedRatio > 1}
-						{$oversizedRatio.toFixed( 1 )}x
+						{#if severity === 'normal'}
+							<Checkmark />
+						{:else}
+							{$oversizedRatio.toFixed( 1 )}x
+						{/if}
 					{:else}
 						<span style="font-size: 0.75em;">&lt;</span> 1x
 					{/if}
@@ -44,7 +49,7 @@
 
 <style lang="scss">
 	/**
-	* This makes it easier to interact with the bable,
+	* This makes it easier to interact with the bubble,
 	* by setting the interactive area larger than the bubble itself.
 	*/
 	.interaction-area {

@@ -123,7 +123,6 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 
 		$generator = new AutoloadGenerator( $this->io );
 		$generator->dump( $this->composer, $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
-		$this->generated = true;
 	}
 
 	/**

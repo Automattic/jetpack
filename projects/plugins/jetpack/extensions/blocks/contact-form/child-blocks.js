@@ -27,6 +27,9 @@ const FieldDefaults = {
 			type: 'boolean',
 			default: false,
 		},
+		requiredText: {
+			type: 'string',
+		},
 		options: {
 			type: 'array',
 			default: [],
@@ -166,6 +169,7 @@ const editField = type => props => {
 			type={ type }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
@@ -183,6 +187,7 @@ const editMultiField = type => props => {
 		<JetpackFieldMultiple
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
 			options={ props.attributes.options }
 			setAttributes={ props.setAttributes }
 			type={ type }
@@ -351,6 +356,7 @@ export const childBlocks = [
 					<JetpackFieldTextarea
 						label={ props.attributes.label }
 						required={ props.attributes.required }
+						requiredText={ props.attributes.requiredText }
 						setAttributes={ props.setAttributes }
 						isSelected={ props.isSelected }
 						defaultValue={ props.attributes.defaultValue }
@@ -362,10 +368,6 @@ export const childBlocks = [
 			},
 			attributes: {
 				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: '',
-				},
 			},
 		},
 	},
@@ -387,8 +389,9 @@ export const childBlocks = [
 
 				return (
 					<JetpackFieldCheckbox
-						label={ props.attributes.label } // label intentinally left blank
+						label={ props.attributes.label } // label intentionally left blank
 						required={ props.attributes.required }
+						requiredText={ props.attributes.requiredText }
 						setAttributes={ props.setAttributes }
 						isSelected={ props.isSelected }
 						defaultValue={ props.attributes.defaultValue }
