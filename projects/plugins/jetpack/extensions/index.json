@@ -47,11 +47,11 @@
 	"beta": [
 		"amazon",
 		"google-docs-embed",
+		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
 		"videopress/video",
-		"videopress/video-chapters",
-		"launchpad-save-modal"
+		"videopress/video-chapters"
 	],
 	"experimental": [
 		"anchor-fm",
