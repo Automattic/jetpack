@@ -5,6 +5,13 @@ require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 	/**
+	 * Jetpack_Display_Posts_Widget object.
+	 *
+	 * @var Jetpack_Display_Posts_Widget
+	 */
+	private $inst;
+
+	/**
 	 * WP_Test_Jetpack_Display_Posts_Widget constructor.
 	 */
 	public function __construct() {
