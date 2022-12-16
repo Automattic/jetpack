@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove last place that uses maybe_inline_styles
