@@ -119,8 +119,8 @@
 					submenu.style.display = null;
 					submenu.style.top = '-1px';
 					if ( ! isElementInViewport( submenu ) ) {
-						// Repoisition the submenu to the top of the menu item. 34px is the height of the menu item.
-						submenu.style.top = ( 34 - submenu.clientHeight ) + 'px';
+						// Repoisition the submenu to the top of the menu item.
+						submenu.style.top = ( linkElement.clientHeight - submenu.clientHeight ) + 'px';
 					}
 					linkElement.focus();
 				} );
