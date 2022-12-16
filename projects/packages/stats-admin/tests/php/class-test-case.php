@@ -124,10 +124,10 @@ class Test_Case extends TestCase {
 		if ( strpos( $url, '/sites/999/' ) !== false ) {
 			return array(
 				'response' => array(
-					'code'    => 403,
-					'message' => 'forbidden',
+					'code'    => 200,
+					'message' => 'ok',
 				),
-				'body'     => '{"code"=>"forbidden"}',
+				'body'     => '{}',
 			);
 		}
 

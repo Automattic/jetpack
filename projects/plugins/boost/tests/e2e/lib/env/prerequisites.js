@@ -12,7 +12,7 @@ export function boostPrerequisitesBuilder( page ) {
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
-		gotStarted: undefined,
+		getStarted: false,
 	};
 
 	return {
@@ -40,8 +40,8 @@ export function boostPrerequisitesBuilder( page ) {
 			state.clean = true;
 			return this;
 		},
-		withGotStarted() {
-			state.gotStarted = true;
+		withGetStarted( shouldGetStarted ) {
+			state.getStarted = shouldGetStarted;
 			return this;
 		},
 		async build() {
@@ -57,7 +57,7 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
-		gotStarted: () => ensureGotStartedState( state.gotStarted, page ),
+		getStarted: () => ensureGetStartedState( state.getStarted, page ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -99,8 +99,11 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	}
 }
 
-export async function ensureGotStartedState( shouldGetStarted ) {
+export async function ensureGetStartedState( shouldGetStarted ) {
 	if ( shouldGetStarted ) {
+		logger.prerequisites( 'Enabling getting started' );
+		await execWpCommand( 'jetpack-boost getting_started true' );
+	} else {
 		logger.prerequisites( 'Disabling getting started' );
 		await execWpCommand( 'jetpack-boost getting_started false' );
 	}

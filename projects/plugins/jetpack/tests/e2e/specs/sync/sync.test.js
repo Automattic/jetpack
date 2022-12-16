@@ -93,7 +93,7 @@ test.describe( 'Sync', () => {
 				'Previously created post should NOT be present in the synced posts'
 			).toContainEqual(
 				expect.not.objectContaining( {
-					title: 'Disabled Sync',
+					title: postTitle,
 				} )
 			);
 		} );

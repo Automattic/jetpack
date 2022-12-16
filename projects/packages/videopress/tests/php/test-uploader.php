@@ -21,6 +21,13 @@ use WP_Error;
 class Test_Uploader extends BaseTestCase {
 
 	/**
+	 * Attachment ID.
+	 *
+	 * @var int
+	 */
+	protected $valid_attachment_id;
+
+	/**
 	 * Creates a new upload
 	 *
 	 * @param string  $file Path to a file.

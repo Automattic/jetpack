@@ -28,6 +28,14 @@ class Jetpack_Signature {
 	public $secret;
 
 	/**
+	 * Timezone difference (in seconds).
+	 *
+	 * @access public
+	 * @var int
+	 */
+	public $time_diff;
+
+	/**
 	 * The current request URL.
 	 *
 	 * @access public

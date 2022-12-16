@@ -18,14 +18,9 @@
 
 		// Need to await in this case because the generation request needs to go after the backend has enabled the module.
 		await updateModuleState( 'critical-css', true );
-
+		await recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} );
 		navigate( '/' );
 	};
-
-	onMount( () => {
-		// Throw away promise, as we don't need to wait for it.
-		void recordBoostEvent( 'view_getting_started_page_in_plugin', {} );
-	} );
 
 	const choosePaidPlan = async () => {
 		await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} );
