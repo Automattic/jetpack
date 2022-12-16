@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Fix tests for WordPress trunk's new Requests library.
+
+
