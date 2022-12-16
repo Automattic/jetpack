@@ -14,6 +14,9 @@ require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.ph
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
+	private $post;
+	private $plugin;
+
 	/**
 	 * Sets up the test environment before the class tests begin.
 	 */
