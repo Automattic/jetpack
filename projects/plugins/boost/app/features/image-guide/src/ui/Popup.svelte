@@ -36,6 +36,8 @@
 	$: previewWidth = size === 'normal' ? 100 : 50;
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
+
+	const DOCUMENTATION_URL = `https://jetpack.com/support/jetpack-boost/image-performance-guide/`;
 </script>
 
 <div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -73,6 +75,7 @@
 					but pay attention whether the image appears blurry.
 				</div>
 			{/if}
+			<a class="documentation" href="{DOCUMENTATION_URL}" target="_blank noreferrer">Learn more</a>
 		</div>
 		{#if $imageURL}
 			<img
@@ -148,6 +151,11 @@
 	a {
 		color: #069e08 !important;
 		font-weight: 600 !important;
+
+		&.documentation {
+			color: #3c434a !important;
+			font-weight: 500 !important;
+		}
 	}
 
 	.preview {
