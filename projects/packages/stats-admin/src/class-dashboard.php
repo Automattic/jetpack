@@ -159,7 +159,7 @@ class Dashboard {
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 3 ) );
+		$response = wp_remote_get( sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to the package version.
@@ -169,7 +169,7 @@ class Dashboard {
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! empty( $build_meta['cache_buster'] ) ) {
 			// Cache the cache buster for a day.
-			set_transient( self::CALYPSO_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], DAY_IN_SECONDS );
+			set_transient( self::CALYPSO_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
 			return $build_meta['cache_buster'];
 		}
 
