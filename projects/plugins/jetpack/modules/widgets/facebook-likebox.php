@@ -95,6 +95,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			array(),
 			JETPACK__VERSION
 		);
+		// Inline styles. @see wp_maybe_inline_styles()
 		wp_style_add_data( 'jetpack_facebook_likebox', 'path', plugin_dir_path( __FILE__ ) . 'facebook-likebox/style.css' );
 	}
 

@@ -706,6 +706,7 @@ class Jetpack {
 
 		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
 		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2 );
+		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
@@ -5740,6 +5741,22 @@ endif;
 		}
 
 		return $src;
+	}
+
+	/**
+	 * Maybe inlines a stylesheet.
+	 *
+	 * @deprecated since $$next-version$$.
+	 *
+	 * @param string $tag The tag that would link to the external asset.
+	 * @param string $handle The registered handle of the script in question.
+	 *
+	 * @return string
+	 */
+	public static function maybe_inline_style( $tag, $handle ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$', 'wp_maybe_inline_styles' );
+
+		return $tag;
 	}
 
 	/**
