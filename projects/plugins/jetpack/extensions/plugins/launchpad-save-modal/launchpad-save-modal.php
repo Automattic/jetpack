@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+namespace Automattic\Jetpack\Extensions\LaunchpadModal;
+
 // Feature name.
 const FEATURE_NAME = 'launchpad-save-modal';
 
