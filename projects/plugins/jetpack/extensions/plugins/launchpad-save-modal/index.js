@@ -6,7 +6,6 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getEditorType, SITE_EDITOR } from '../../shared/get-editor-type';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
@@ -23,7 +22,7 @@ export const settings = {
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
-		const isInsideSiteEditor = getEditorType() === SITE_EDITOR;
+		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
