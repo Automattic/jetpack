@@ -146,62 +146,63 @@ add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
  * @return WP_Theme_JSON_Data_Gutenberg Class with updated Global Styles settings.
  */
 function jetpack_rename_google_font_names( $theme_json ) {
-	// Skip at front of the site; renaming is needed only when in the editor and API requests
-	if ( ! is_admin() || ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
-		return $theme_json;
-	}
 
-	$raw_data = $theme_json->get_data();
+	// Rename only in the editor and API requests
+	if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		$raw_data = $theme_json->get_data();
 
-	// Skip if fontFamilies are not defined in the variation.
-	if (
-		empty( $raw_data['settings'] ) ||
-		empty( $raw_data['settings']['typography'] ) ||
-		empty( $raw_data['settings']['typography']['fontFamilies'] ) ||
-		empty( $raw_data['settings']['typography']['fontFamilies']['theme'] )
-	) {
-		return $theme_json;
-	}
-
-	$font_families = $raw_data['settings']['typography']['fontFamilies']['theme'];
-
-	$renamed_fonts = array(
-		'Alexandria'           => _x( 'Alexandria (Arabic)', 'Font name', 'jetpack' ),
-		'IBM Plex Sans Arabic' => _x( 'IBM Plex Sans (Arabic)', 'Font name', 'jetpack' ),
-		'Noto Sans Hebrew'     => _x( 'Noto Sans (Hebrew)', 'Font name', 'jetpack' ),
-		'Noto Sans HK'         => _x( 'Noto Sans (Hong Kong)', 'Font name', 'jetpack' ),
-		'Noto Sans JP'         => _x( 'Noto Sans (Japanese)', 'Font name', 'jetpack' ),
-		'Noto Sans KR'         => _x( 'Noto Sans (Korean)', 'Font name', 'jetpack' ),
-		'Noto Sans SC'         => _x( 'Noto Sans (Simplified Chinese)', 'Font name', 'jetpack' ),
-		'Noto Sans TC'         => _x( 'Noto Sans (Traditional Chinese)', 'Font name', 'jetpack' ),
-		'Noto Sans Telugu'     => _x( 'Noto Sans (Telugu)', 'Font name', 'jetpack' ),
-		'Noto Serif Hebrew'    => _x( 'Noto Serif (Hebrew)', 'Font name', 'jetpack' ),
-		'Noto Serif HK'        => _x( 'Noto Serif (Hong Kong)', 'Font name', 'jetpack' ),
-		'Noto Serif JP'        => _x( 'Noto Serif (Japanese)', 'Font name', 'jetpack' ),
-		'Noto Serif KR'        => _x( 'Noto Serif (Korean)', 'Font name', 'jetpack' ),
-		'Noto Serif SC'        => _x( 'Noto Serif (Simplified Chinese)', 'Font name', 'jetpack' ),
-		'Noto Serif TC'        => _x( 'Noto Serif (Traditional Chinese)', 'Font name', 'jetpack' ),
-	);
-
-	foreach ( $font_families as $key => $font_family ) {
-		$font_name = $font_family['name'];
-
-		if ( array_key_exists( $font_name, $renamed_fonts ) ) {
-			$font_families[ $key ]['name'] = $renamed_fonts[ $font_name ];
+		// Skip if fontFamilies are not defined in the variation.
+		if (
+			empty( $raw_data['settings'] ) ||
+			empty( $raw_data['settings']['typography'] ) ||
+			empty( $raw_data['settings']['typography']['fontFamilies'] ) ||
+			empty( $raw_data['settings']['typography']['fontFamilies']['theme'] )
+		) {
+			return $theme_json;
 		}
+
+		$font_families = $raw_data['settings']['typography']['fontFamilies']['theme'];
+
+		$renamed_fonts = array(
+			'Alexandria'           => _x( 'Alexandria (Arabic)', 'Font name', 'jetpack' ),
+			'IBM Plex Sans Arabic' => _x( 'IBM Plex Sans (Arabic)', 'Font name', 'jetpack' ),
+			'Noto Sans Hebrew'     => _x( 'Noto Sans (Hebrew)', 'Font name', 'jetpack' ),
+			'Noto Sans HK'         => _x( 'Noto Sans (Hong Kong)', 'Font name', 'jetpack' ),
+			'Noto Sans JP'         => _x( 'Noto Sans (Japanese)', 'Font name', 'jetpack' ),
+			'Noto Sans KR'         => _x( 'Noto Sans (Korean)', 'Font name', 'jetpack' ),
+			'Noto Sans SC'         => _x( 'Noto Sans (Simplified Chinese)', 'Font name', 'jetpack' ),
+			'Noto Sans TC'         => _x( 'Noto Sans (Traditional Chinese)', 'Font name', 'jetpack' ),
+			'Noto Sans Telugu'     => _x( 'Noto Sans (Telugu)', 'Font name', 'jetpack' ),
+			'Noto Serif Hebrew'    => _x( 'Noto Serif (Hebrew)', 'Font name', 'jetpack' ),
+			'Noto Serif HK'        => _x( 'Noto Serif (Hong Kong)', 'Font name', 'jetpack' ),
+			'Noto Serif JP'        => _x( 'Noto Serif (Japanese)', 'Font name', 'jetpack' ),
+			'Noto Serif KR'        => _x( 'Noto Serif (Korean)', 'Font name', 'jetpack' ),
+			'Noto Serif SC'        => _x( 'Noto Serif (Simplified Chinese)', 'Font name', 'jetpack' ),
+			'Noto Serif TC'        => _x( 'Noto Serif (Traditional Chinese)', 'Font name', 'jetpack' ),
+		);
+
+		foreach ( $font_families as $key => $font_family ) {
+			$font_name = $font_family['name'];
+
+			if ( array_key_exists( $font_name, $renamed_fonts ) ) {
+				$font_families[ $key ]['name'] = $renamed_fonts[ $font_name ];
+			}
+		}
+
+		// See https://developer.wordpress.org/block-editor/reference-guides/theme-json-reference/theme-json-living/#typography
+		$updated_fonts = array(
+			'version'  => 2,
+			'settings' => array(
+				'typography' => array(
+					'fontFamilies' => $font_families,
+				),
+			),
+		);
+
+		return $theme_json->update_with( $updated_fonts );
 	}
 
-	// See https://developer.wordpress.org/block-editor/reference-guides/theme-json-reference/theme-json-living/#typography
-	$updated_fonts = array(
-		'version'  => 2,
-		'settings' => array(
-			'typography' => array(
-				'fontFamilies' => $font_families,
-			),
-		),
-	);
-
-	return $theme_json->update_with( $updated_fonts );
+	return $theme_json;
 }
 add_filter( 'wp_theme_json_data_theme', 'jetpack_rename_google_font_names' );
 
