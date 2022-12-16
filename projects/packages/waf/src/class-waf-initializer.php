@@ -24,7 +24,7 @@ class Waf_Initializer {
 
 		// Update the WAF after installing or upgrading a relevant Jetpack plugin
 		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
-		add_action( 'plugins_loaded', __CLASS__ . '::check_for_waf_update' );
+		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
