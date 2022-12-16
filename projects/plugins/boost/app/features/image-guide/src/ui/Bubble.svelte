@@ -27,12 +27,12 @@
 			<div class="bubble-inner">
 				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
 					{#if $oversizedRatio > 9}
-						{Math.floor($oversizedRatio)}x
+						{Math.floor( $oversizedRatio )}x
 					{:else if $oversizedRatio > 1}
 						{#if severity === 'normal'}
 							<Checkmark />
 						{:else}
-							{$oversizedRatio.toFixed(1)}x
+							{$oversizedRatio.toFixed( 1 )}x
 						{/if}
 					{:else}
 						<span style="font-size: 0.75em;">&lt;</span> 1x
@@ -75,7 +75,7 @@
 		border-radius: 50%;
 		text-align: center;
 
-		text-shadow: 0 0 1px rgba(0, 0, 0, 0.25);
+		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
 		cursor: default;
 		transition: background-color 300ms ease;
 
@@ -102,7 +102,7 @@
 		margin: auto;
 	}
 
-	:global(.guide.small) {
+	:global( .guide.small ) {
 		.interaction-area {
 			padding: 15px;
 		}
@@ -114,7 +114,7 @@
 		}
 	}
 
-	:global(.guide.micro) {
+	:global( .guide.micro ) {
 		.interaction-area {
 			padding: 10px;
 			// Offset .guide

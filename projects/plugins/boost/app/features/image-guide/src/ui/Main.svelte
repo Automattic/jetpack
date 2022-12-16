@@ -66,8 +66,8 @@
 {/if}
 
 <style lang="scss">
-	:global(.jetpack-boost-guide) {
-		&:not(.relative) {
+	:global( .jetpack-boost-guide ) {
+		&:not( .relative ) {
 			position: absolute;
 			top: 0;
 			left: 0;
