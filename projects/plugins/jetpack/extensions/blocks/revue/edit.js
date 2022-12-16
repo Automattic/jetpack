@@ -8,6 +8,7 @@ import './view.scss';
 export default function RevueEdit( { className } ) {
 	const supportLink =
 		'http://help.getrevue.co/en/articles/6819675-we-ve-made-the-difficult-decision-to-shut-down-revue';
+	const migrationLink = 'https://wordpress.com/support/launch-a-newsletter/#add-subscribers';
 
 	return (
 		<div className={ className }>
@@ -23,6 +24,14 @@ export default function RevueEdit( { className } ) {
 					<div className={ `components-placeholder__learn-more` }>
 						<ExternalLink href={ supportLink }>
 							{ __( 'Find out more about Revue shutting down here.', 'jetpack' ) }
+						</ExternalLink>
+					</div>
+					<div className={ `components-placeholder__learn-more` }>
+						<ExternalLink href={ migrationLink }>
+							{ __(
+								'You can move your newsletter to WordPress.com - migrate your subscribers here.',
+								'jetpack'
+							) }
 						</ExternalLink>
 					</div>
 				</Placeholder>
