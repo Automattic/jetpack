@@ -79,7 +79,6 @@ $matrix[] = array(
 	'timeout'      => 15,
 	'experimental' => true,
 );
-
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",

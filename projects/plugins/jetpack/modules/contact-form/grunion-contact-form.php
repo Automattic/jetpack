@@ -767,7 +767,7 @@ class Grunion_Contact_Form_Plugin {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Checked below for logged-in users only, see https://plugins.trac.wordpress.org/ticket/1859
 		$id   = isset( $_POST['contact-form-id'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-id'] ) ) : null;
 		$hash = isset( $_POST['contact-form-hash'] ) ? sanitize_text_field( wp_unslash( $_POST['contact-form-hash'] ) ) : null;
-		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
+		$hash = is_string( $hash ) ? preg_replace( '/[^\da-f]/i', '', $hash ) : $hash;
 		// phpcs:enable
 
 		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
@@ -2843,10 +2843,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					continue;
 				}
 
-				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+
 				$compiled_form[ $field_index ] = sprintf(
-					'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
-					wp_kses( $field->get_attribute( 'label' ), array() ),
+					'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
+					wp_kses( $field_label, array() ),
 					self::escape_and_sanitize_field_value( $value )
 				);
 			}
@@ -3040,9 +3042,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				break;
 			case 'textarea':
 				$str = __( 'Message', 'jetpack' );
-				break;
-			case 'checkbox':
-				$str = __( 'Checkbox', 'jetpack' );
 				break;
 			case 'checkbox-multiple':
 				$str = __( 'Choose several', 'jetpack' );

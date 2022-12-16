@@ -40,6 +40,13 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 class Jetpack_Likes {
 
 	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
+
+	/**
 	 * Initialize class
 	 */
 	public static function init() {

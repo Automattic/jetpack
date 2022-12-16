@@ -11,6 +11,7 @@ import {
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
+	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -36,7 +37,6 @@ import { useSearchParam } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
-import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -158,7 +158,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <Logo /> }
+			header={ <JetpackVideoPressLogo /> }
 		>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
