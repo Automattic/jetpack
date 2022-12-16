@@ -3,6 +3,7 @@
 	"description": "Enhances your site with features powered by WordPress.com",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
+	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
