@@ -5,6 +5,7 @@ require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subsc
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
