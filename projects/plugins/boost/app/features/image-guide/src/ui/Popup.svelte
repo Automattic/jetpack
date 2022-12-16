@@ -132,7 +132,7 @@
 				{:else if $isLoading}
 					Loading...
 				{:else}
-					<em>--</em>
+					<em>N/A</em>
 				{/if}
 			</div>
 		</div>
