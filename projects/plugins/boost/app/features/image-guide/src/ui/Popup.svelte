@@ -63,9 +63,8 @@
 				<div class="explanation">
 					The image size is very close to the size it appears in the browser.
 					{#if ratio > 1}
-						Because there are various screen sizes, it's okay for the image to be <strong
-							>{ratio}x</strong
-						> than it appears on the page.
+						Because there are various screen sizes, it's okay for the image to be
+						<strong>{ratio}x</strong> than it appears on the page.
 					{/if}
 				</div>
 			{:else}
