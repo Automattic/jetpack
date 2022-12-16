@@ -22,8 +22,8 @@ function add_launchpad_options() {
 	}
 
 	$launchpad_options = array(
-		'launchpadScreenOption' => get_option( 'launchpad_screen', 'full' ),
-		'siteIntentOption'      => get_option( 'site_intent', 'link-in-bio' ),
+		'launchpadScreenOption' => get_option( 'launchpad_screen' ),
+		'siteIntentOption'      => get_option( 'site_intent' ),
 	);
 	wp_add_inline_script(
 		'jetpack-blocks-editor',
