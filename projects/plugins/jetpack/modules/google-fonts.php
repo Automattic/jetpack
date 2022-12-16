@@ -187,7 +187,7 @@ function jetpack_rename_google_font_names( $theme_json ) {
 
 	return $theme_json->update_with( $updated_fonts );
 }
-add_filter( 'wp_theme_json_data_theme', 'jetpack_rename_google_font_names', 10, 1 );
+add_filter( 'wp_theme_json_data_theme', 'jetpack_rename_google_font_names' );
 
 add_filter( 'wp_resource_hints', '\Automattic\Jetpack\Fonts\Utils::font_source_resource_hint', 10, 2 );
 add_filter( 'pre_render_block', '\Automattic\Jetpack\Fonts\Introspectors\Blocks::enqueue_block_fonts', 10, 2 );
