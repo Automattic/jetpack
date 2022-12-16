@@ -6,7 +6,7 @@ The hook function also accepts parameters to record a "page view" event when the
 ```es6
 
 const Component = () => {
-	const { recordEvent } = useAnalyticsTracks( {
+	const { recordEvent } = useAnalyticsTracksForConnectedUser( {
 			pageViewEventName: 'view_event_name',
 			pageViewNamespace: 'jetpack',
 			pageViewSuffix: '',
