@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update wpcom_gifting_subscription default value based on plan expiration
