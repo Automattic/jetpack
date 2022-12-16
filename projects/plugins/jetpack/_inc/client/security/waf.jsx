@@ -289,7 +289,7 @@ export const Waf = class extends Component {
 					'jetpack_waf_ip_block_list',
 				] ) }
 			>
-				<QueryWafSettings />
+				{ isWafActive && <QueryWafSettings /> }
 				<SettingsGroup
 					disableInOfflineMode
 					module={ this.props.getModule( 'waf' ) }
