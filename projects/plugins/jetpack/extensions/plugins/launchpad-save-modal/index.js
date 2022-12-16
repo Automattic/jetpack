@@ -4,8 +4,8 @@ import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
