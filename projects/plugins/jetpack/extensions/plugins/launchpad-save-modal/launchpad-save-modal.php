@@ -2,37 +2,36 @@
 /**
  * Launchpad Save Modal
  *
+ * @since $$next-version$$
+ *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\LaunchpadModal;
+namespace Automattic\Jetpack\Extensions\LaunchpadSaveModal;
 
 // Feature name.
 const FEATURE_NAME = 'launchpad-save-modal';
 
-function enque_script() {
-	wp_enqueue_script(
-		'launchpad-save-modal',
-		plugins_url( 'index.js', __FILE__ ),
-		array(),
-		JETPACK__VERSION,
-		true
-	);
+/**
+ * Inject Launchpad options when in the block editor.
+ */
+function add_launchpad_options() {
+	// Return early if we are not in the block editor.
+	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+		return;
+	}
 
+	$launchpad_options = array(
+		'launchpadScreenOption' => get_option( 'launchpad_screen', 'full' ),
+		'siteIntentOption'      => get_option( 'site_intent', 'link-in-bio' ),
+	);
 	wp_add_inline_script(
-		'launchpad-save-modal',
-		'const launchpadModalOptions = ' . wp_json_encode(
-			array(
-				'launchpadScreenOption' => get_option( 'launchpad_screen' ),
-				'siteUrlOption'         => get_option( 'siteurl' ),
-				'siteIntentOption'      => get_option( 'site_intent' ),
-			)
-		),
+		'jetpack-blocks-editor',
+		'var Jetpack_LaunchpadSaveModal = ' . wp_json_encode( $launchpad_options, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 		'before'
 	);
 }
-
-add_action( 'enqueue_block_editor_assets', 'enque_script' );
+add_action( 'enqueue_block_assets', __NAMESPACE__ . '\add_launchpad_options' );
 
 // Populate the available extensions with launchpad-save-modal.
 add_filter(
@@ -47,7 +46,7 @@ add_filter(
 	}
 );
 
-// Set the launchpad-save-modal availability, depending on the site plan.
+// Set the launchpad-save-modal availability.
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
