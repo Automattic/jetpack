@@ -67,6 +67,11 @@ class Waf_Initializer {
 			return;
 		}
 
+		// Only run on updates and installations
+		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ) ) ) {
+			return;
+		}
+
 		// Only run when Jetpack plugins were affected
 		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
 			return;
