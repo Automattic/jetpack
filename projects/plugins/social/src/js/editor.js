@@ -45,17 +45,12 @@ registerPlugin( 'jetpack-social', {
 
 const JetpackSocialSidebar = () => {
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
-	const isReviewRequestDismissed = getJetpackData()?.social?.reviewRequestDismissed ?? false;
-	const reviewRequestDismissUpdatePath = getJetpackData()?.social?.dismissReviewRequestPath ?? null;
 	const [ isReviewRequestVisible, setIsReviewRequestVisible ] = useState(
-		! isReviewRequestDismissed
+		getJetpackData()?.social?.reviewRequestDismissed ?? false
 	);
 
 	const openModal = useCallback( () => setIsModalOpened( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
-	const hideReviewRequest = useCallback( () => setIsReviewRequestVisible( false ), [
-		setIsReviewRequestVisible,
-	] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
 	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
@@ -74,20 +69,19 @@ const JetpackSocialSidebar = () => {
 
 	// Handle when the review request is dismissed
 	const handleReviewDismiss = useCallback( () => {
+		const reviewRequestDismissUpdatePath =
+			getJetpackData()?.social?.dismissReviewRequestPath ?? null;
 		// Save that the user has dismissed this by calling to the social plugin API method
 		apiFetch( {
 			path: reviewRequestDismissUpdatePath,
 			method: 'POST',
 			data: { dismissed: true },
-		} )
-			.then( () => {
-				// there's nothing to do here.
-			} )
-			.catch( () => {
-				// there's nothing to do here.
-			} );
-		hideReviewRequest();
-	}, [ hideReviewRequest, reviewRequestDismissUpdatePath ] );
+		} ).catch( error => {
+			throw error;
+		} );
+
+		setIsReviewRequestVisible( false );
+	}, [] );
 
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">

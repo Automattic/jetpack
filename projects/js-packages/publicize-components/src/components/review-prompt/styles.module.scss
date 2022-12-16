@@ -1,17 +1,16 @@
 .prompt {
-	--spacing-base: 8px;
 	border: 2px solid var( --jp-green-40 );
 	border-radius: 4px;
-	padding: calc( var(--spacing-base) * 2 ) calc( var(--spacing-base) * 3 );
+	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
 	display: block;
 	justify-content: space-between;
 	align-items: center;
-	gap: calc( var(--spacing-base) * 3 );
+	gap: calc( var( --spacing-base ) * 3 );
 	text-align: left;
 	background: none;
 	margin: 0;
 	width: 100%;
-	text-decoration:none;
+	text-decoration: none;
 	color: var( --jp-gray-90 );
 
 	&:focus, &:active {

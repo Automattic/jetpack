@@ -21,6 +21,8 @@
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/social-previews": "1.1.5",
 		"@wordpress/api-fetch": "6.19.0",
 		"@wordpress/blocks": "11.21.0",
@@ -43,8 +45,6 @@
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@automattic/jetpack-analytics": "workspace:*",
-		"@automattic/jetpack-connection": "workspace:*",
 		"@babel/core": "7.20.5",
 		"@babel/plugin-transform-react-jsx": "7.19.0",
 		"@babel/preset-react": "7.18.6",

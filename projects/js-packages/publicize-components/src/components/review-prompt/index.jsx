@@ -4,34 +4,36 @@
  */
 
 import { Button, ThemeProvider } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import useAnalyticsTracks from '../../hooks/use-anaytics-tracks';
+import useAnalyticsTracksForConnectedUser from '../../hooks/use-anaytics-tracks-for-connected-user';
 import styles from './styles.module.scss';
 
-const ReviewPrompt = props => {
-	const { href, onClose } = props;
-	const { recordEventHandler, recordEvent } = useAnalyticsTracks( {
+const ReviewPrompt = ( { href, onClose } ) => {
+	const { recordEvent } = useAnalyticsTracksForConnectedUser( {
 		pageViewEventName: 'social_plugin_review_prompt',
 		pageViewNamespace: 'jetpack',
 		pageViewSuffix: 'view',
 	} );
-	const recordReviewClick = recordEventHandler(
-		'jetpack_social_plugin_review_prompt_new_review_click',
-		{}
-	);
+
+	const recordReviewClick = useCallback( () => {
+		recordEvent( 'jetpack_social_plugin_review_prompt_new_review_click' );
+	}, [ recordEvent ] );
 
 	const handleDismiss = useCallback( () => {
-		recordEvent( 'jetpack_social_plugin_review_prompt_dismiss_click', {} );
+		recordEvent( 'jetpack_social_plugin_review_prompt_dismiss_click' );
 		onClose();
 	}, [ recordEvent, onClose ] );
 
 	return (
 		<ThemeProvider>
 			<div className={ styles.prompt }>
-				<p>
-					<strong className={ styles.header }>{ __( 'Presto!', 'jetpack' ) } 🎉</strong>
-				</p>
+				<h2 className={ styles.header }>
+					{
+						/* translators: %s is the celebration emoji */
+						sprintf( __( 'Presto! %s', 'jetpack' ), String.fromCodePoint( 0x1f389 ) )
+					}
+				</h2>
 				<p>
 					{ __(
 						'Just like that, Jetpack Social has shared your post to your connected social accounts.',

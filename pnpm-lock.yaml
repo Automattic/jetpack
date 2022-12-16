@@ -495,7 +495,9 @@ importers:
       refx: 3.1.1
       rememo: 4.0.1
     dependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
       '@automattic/social-previews': 1.1.5_jpwft5hzbbmso7udylr5tohhxm
       '@wordpress/annotations': 2.22.0_react@17.0.2
@@ -516,9 +518,7 @@ importers:
       rememo: 4.0.1
     devDependencies:
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-base-styles': link:../base-styles
-      '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-webpack-config': link:../webpack-config
       '@babel/core': 7.20.5
       '@babel/plugin-transform-react-jsx': 7.19.0_@babel+core@7.20.5
