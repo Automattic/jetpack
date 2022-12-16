@@ -119,6 +119,7 @@
 					submenu.style.display = null;
 					submenu.style.top = '-1px';
 					if ( ! isElementInViewport( submenu ) ) {
+						// Repoisition the submenu to the top of the menu item. 34px is the height of the menu item.
 						submenu.style.top = ( 34 - submenu.clientHeight ) + 'px';
 					}
 					linkElement.focus();
@@ -127,6 +128,9 @@
 				el.addEventListener( 'mouseleave', function() {
 					submenu.style.display = 'none';
 					submenu.style.top = null;
+					if ( document.activeElement === linkElement ) {
+						linkElement.blur();
+					}
 				} );
 			} );
 		}
