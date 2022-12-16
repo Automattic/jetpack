@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+PHP Unit tests: update Transports library after changes in WP Core.

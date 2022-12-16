@@ -8,7 +8,7 @@
 /**
  * Helper class for loading fixtures when testing Tweetstorm external requests.
  */
-class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
+class Tweetstorm_Requests_Transport_Override implements WpOrg\Requests\Transport {
 	/**
 	 * Perform a request.
 	 *
