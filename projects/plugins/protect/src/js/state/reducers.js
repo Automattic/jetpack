@@ -19,7 +19,6 @@ import {
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
 	SET_WAF_IS_SEEN,
-	SET_WAF_UPGRADE_IS_SEEN,
 	SET_WAF_IS_ENABLED,
 	SET_WAF_IS_UPDATING,
 	SET_WAF_IS_TOGGLING,
@@ -160,7 +159,6 @@ const hasRequiredPlan = ( state = false, action ) => {
 
 const defaultWaf = {
 	isSeen: false,
-	upgradeIsSeen: false,
 	isEnabled: false,
 	isUpdating: false,
 	isToggling: false,
@@ -170,8 +168,6 @@ const waf = ( state = defaultWaf, action ) => {
 	switch ( action.type ) {
 		case SET_WAF_IS_SEEN:
 			return { ...state, isSeen: action.isSeen };
-		case SET_WAF_UPGRADE_IS_SEEN:
-			return { ...state, upgradeIsSeen: action.upgradeIsSeen };
 		case SET_WAF_IS_ENABLED:
 			return { ...state, isEnabled: action.isEnabled };
 		case SET_WAF_CONFIG:
