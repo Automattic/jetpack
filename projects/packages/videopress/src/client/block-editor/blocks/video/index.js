@@ -30,7 +30,7 @@ registerBlockType( name, {
 			{
 				type: 'block',
 				blocks: [ 'core/embed' ],
-				isMatch: attrs => attrs.providerNameSlug !== 'videopress' && pickGUIDFromUrl( attrs?.url ),
+				isMatch: attrs => attrs.providerNameSlug === 'videopress' && pickGUIDFromUrl( attrs?.url ),
 				transform: attrs => {
 					const { url, providerNameSlug } = attrs;
 					const guid = pickGUIDFromUrl( url );
