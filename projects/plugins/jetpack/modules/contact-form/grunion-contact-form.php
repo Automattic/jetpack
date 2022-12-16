@@ -2934,10 +2934,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					continue;
 				}
 
-				$field_index                   = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
+				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
+
 				$compiled_form[ $field_index ] = sprintf(
-					'<p><strong>%1$s:</strong><br /><span>%2$s</span></p>',
-					wp_kses( $field->get_attribute( 'label' ), array() ),
+					'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+					wp_kses( $field_label, array() ),
 					self::escape_and_sanitize_field_value( $value )
 				);
 			}
@@ -2960,11 +2962,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
 
-					$label = $field->get_attribute( 'label' );
+					$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
 					$compiled_form[ $field_index ] = sprintf(
-						'<p><strong>%1$s:</strong><br /><span>%2$s</span></p>',
-						wp_kses( $label, array() ),
+						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+						wp_kses( $field_label, array() ),
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
