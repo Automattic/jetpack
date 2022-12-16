@@ -150,7 +150,7 @@ jobs:
               fi
 
               if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
-                VER=$(composer --format=json --working-dir="$DIR" show | jq '.installed[] | select( .name == "roots/wordpress" ) | .version')
+                VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
                 if [[ -n "$VER" ]]; then
                   echo 'Supposed to run tests against WordPress trunk, so upgrading roots/wordpress to dev-nightly'
                   composer --working-dir="$DIR" require --dev roots/wordpress="dev-nightly as $VER"
