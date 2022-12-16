@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Set `REQUESTS_SILENCE_PSR0_DEPRECATIONS` when running tests for compat with WP trunk.
+
+
