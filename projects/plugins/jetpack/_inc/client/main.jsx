@@ -63,6 +63,7 @@ import {
 	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
+	isAtomicSite,
 	isWoASite,
 	isWooCommerceActive,
 } from 'state/initial-state';
@@ -582,6 +583,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
+			! this.props.isAtomicSite &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
@@ -784,6 +786,7 @@ export default connect(
 			pluginBaseUrl: getPluginBaseUrl( state ),
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
+			isAtomicSite: isAtomicSite( state ),
 			isWoaSite: isWoASite( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
