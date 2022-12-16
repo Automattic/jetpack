@@ -1,6 +1,6 @@
-import { BaseControl, Button } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
-import { Fragment, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -56,21 +56,19 @@ function JetpackFieldMultiple( props ) {
 	};
 
 	return (
-		<Fragment>
-			<BaseControl
+		<>
+			<div
 				id={ `jetpack-field-multiple-${ instanceId }` }
 				className="jetpack-field jetpack-field-multiple"
-				label={
-					<JetpackFieldLabel
-						required={ required }
-						requiredText={ requiredText }
-						label={ label }
-						setAttributes={ setAttributes }
-						isSelected={ isSelected }
-						resetFocus={ () => setInFocus( null ) }
-					/>
-				}
 			>
+				<JetpackFieldLabel
+					required={ required }
+					requiredText={ requiredText }
+					label={ label }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
+					resetFocus={ () => setInFocus( null ) }
+				/>
 				<ol
 					className="jetpack-field-multiple__list"
 					id={ `jetpack-field-multiple-${ instanceId }` }
@@ -98,7 +96,7 @@ function JetpackFieldMultiple( props ) {
 						{ __( 'Add option', 'jetpack' ) }
 					</Button>
 				) }
-			</BaseControl>
+			</div>
 
 			<JetpackFieldControls
 				id={ id }
@@ -106,7 +104,7 @@ function JetpackFieldMultiple( props ) {
 				setAttributes={ setAttributes }
 				width={ width }
 			/>
-		</Fragment>
+		</>
 	);
 }
 

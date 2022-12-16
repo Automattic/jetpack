@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`
