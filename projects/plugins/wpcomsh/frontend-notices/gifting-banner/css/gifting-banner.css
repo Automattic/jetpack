@@ -1,6 +1,7 @@
 /* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
 
-.wpcom-coming-soon-body .wpcom-gifting-banner {
+.wpcom-coming-soon-body .wpcom-gifting-banner,
+.wpcom-coming-soon-private-default-body .wpcom-gifting-banner {
 	display: none;
 }
 

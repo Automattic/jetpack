@@ -39,7 +39,7 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	$login_link = site_url() . '/wp-login.php?redirect_to=' . set_url_scheme( original_request_url() );
 	?>
 </head>
-<body class="body">
+<body class="body wpcom-coming-soon-private-default-body">
 	<div class="inner">
 		<div class="main">
 			<div class="name"><?php echo esc_html( get_bloginfo( 'name' ) ); ?></div>
