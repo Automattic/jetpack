@@ -3,6 +3,7 @@ import { WpPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
 import { Plans, prerequisitesBuilder } from 'jetpack-e2e-commons/env/index.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
+import { enableAutomaticRules } from '../../helpers/waf-helper.js';
 
 test.describe.parallel( 'WAF Blocking', () => {
 	test.beforeAll( async ( { browser } ) => {
@@ -18,6 +19,7 @@ test.describe.parallel( 'WAF Blocking', () => {
 			.withPlan( Plans.Complete )
 			.withActiveModules( [ 'waf' ] )
 			.build();
+		await enableAutomaticRules();
 		await page.close();
 	} );
 

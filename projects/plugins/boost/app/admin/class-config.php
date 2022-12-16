@@ -21,7 +21,7 @@ class Config {
 	/**
 	 * Name of option to store status of show/hide rating and score prompts
 	 */
-	const SHOW_SCORE_PROMPT_OPTION = 'jb_show_score_prompt';
+	const DISMISSED_MODALS_OPTION = 'jb_show_score_prompt';
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
@@ -102,11 +102,11 @@ class Config {
 				}
 
 				// get the current dismissed modals
-				$is_dismissed = $this->get_dismissed_modals();
-				array_push( $is_dismissed, $modal_to_banish );
-				$is_dismissed = array_unique( $is_dismissed );
+				$dismissed_modals = $this->get_dismissed_modals();
+				array_push( $dismissed_modals, $modal_to_banish );
+				$dismissed_modals = array_unique( $dismissed_modals );
 
-				\update_option( self::SHOW_SCORE_PROMPT_OPTION, $is_dismissed, false );
+				\update_option( self::DISMISSED_MODALS_OPTION, $dismissed_modals, false );
 			}
 
 			wp_send_json( $response );
@@ -135,22 +135,22 @@ class Config {
 	 */
 	public function get_dismissed_modals() {
 		// get the option. This will be false, or an empty array
-		$score_prompts = \get_option( self::SHOW_SCORE_PROMPT_OPTION, array() );
+		$dismissed_modals = \get_option( self::DISMISSED_MODALS_OPTION, array() );
 		// if the value is false - "rate boost" was dismissed so the score-increase modal should not show.
-		if ( $score_prompts === false ) {
-			$score_prompts = array( 'score-increase' );
+		if ( $dismissed_modals === false ) {
+			$dismissed_modals = array( 'score-increase' );
 			// if an empty array then no score prompts have been dismissed yet.
-		} elseif ( $score_prompts === array( '' ) ) {
-			$score_prompts = array();
+		} elseif ( $dismissed_modals === array( '' ) ) {
+			$dismissed_modals = array();
 		}
-		return $score_prompts;
+		return $dismissed_modals;
 	}
 
 	/**
 	 * Clear the status of show_score_prompt
 	 */
 	public static function clear_show_score_prompt() {
-		\delete_option( self::SHOW_SCORE_PROMPT_OPTION );
+		\delete_option( self::DISMISSED_MODALS_OPTION );
 	}
 
 	/**

@@ -24,20 +24,25 @@ class Test_REST_Controller extends Stats_Test_Case {
 		'/jetpack/v4/stats-app/sites/999/stats/top-authors',
 		'/jetpack/v4/stats-app/sites/999/stats/video-plays',
 		'/jetpack/v4/stats-app/sites/999/posts',
+		'/jetpack/v4/stats-app/sites/999/posts/1000',
+		'/jetpack/v4/stats-app/sites/999/posts/1000/likes',
 		'/jetpack/v4/stats-app/sites/999/stats/streak',
 		'/jetpack/v4/stats-app/sites/999/stats/tags',
 		'/jetpack/v4/stats-app/sites/999/stats/followers',
+		'/jetpack/v4/stats-app/sites/999/stats/file-downloads',
+		'/jetpack/v4/stats-app/sites/999/stats/insights',
 		'/jetpack/v4/stats-app/sites/999/stats/publicize',
 		'/jetpack/v4/stats-app/sites/999/stats/comments',
-		'/jetpack/v4/stats-app/sites/999/stats/comment-follower',
+		'/jetpack/v4/stats-app/sites/999/stats/comment-followers',
+		'/jetpack/v4/stats-app/sites/999/stats/post/1',
+		'/jetpack/v4/stats-app/sites/999/stats/video/1',
+		'/jetpack/v4/stats-app/sites/999/site-has-never-published-post',
+	);
 
-		// TODO: investigate how we could remove these calls.
-		// '/jetpack/v4/stats-app/sites/999/rewind',
-		// '/jetpack/v4/stats-app/sites/999/plugins',
-		// '/jetpack/v4/stats-app/sites/999/keyrings',
-		// '/jetpack/v4/stats-app/me/connections',
-		// '/jetpack/v4/stats-app/jetpack-blogs/999/rest-api/',
-		// '/jetpack/v4/stats-app/sites/999/sharing-buttons',
+	const UNSUPPORTED_ROUTES = array(
+		'/jetpack/v4/stats-app/sites/999/stats/this-is-not-supported',
+		'/jetpack/v4/stats-app/sites/999/rewind',
+		'/jetpack/v4/stats-app/sites/999/stats/some-post-type/1',
 	);
 
 	/**
@@ -88,10 +93,20 @@ class Test_REST_Controller extends Stats_Test_Case {
 	/**
 	 * Test /stats exists.
 	 */
-	public function test_blog_stats_endpoint_exists() {
+	public function test_blog_stats_endpoints_exists() {
 		wp_set_current_user( $this->admin_id );
 		foreach ( self::SUPPORTED_ROUTES as $route ) {
 			$this->assert_route_exists( $route );
+		}
+	}
+
+	/**
+	 * Test not supported endpoints.
+	 */
+	public function test_blog_stats_endpoints_not_supported() {
+		wp_set_current_user( $this->admin_id );
+		foreach ( self::UNSUPPORTED_ROUTES as $route ) {
+			$this->assert_route_not_supported( $route );
 		}
 	}
 
@@ -105,7 +120,20 @@ class Test_REST_Controller extends Stats_Test_Case {
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertNotEquals( 'rest_no_route', $response->get_data()['code'] );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Ensure required routes exists
+	 *
+	 * @param string $route The route to check.
+	 */
+	public function assert_route_not_supported( $route ) {
+		$request = new WP_REST_Request( 'GET', $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 200, $response->get_status() );
 	}
 
 	/**

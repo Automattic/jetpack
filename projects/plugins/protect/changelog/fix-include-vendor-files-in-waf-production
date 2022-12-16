@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Include required WAF files in production build.
