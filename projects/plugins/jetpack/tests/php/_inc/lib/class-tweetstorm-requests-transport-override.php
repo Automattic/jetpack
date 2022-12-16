@@ -73,9 +73,11 @@ class Tweetstorm_Requests_Transport_Override implements WpOrg\Requests\Transport
 	/**
 	 * Self-test whether the transport can be used.
 	 *
+	 * @param array<string, bool> $capabilities Optional. Associative array of capabilities to test against, i.e. `['<capability>' => true]`.
+	 *
 	 * @return bool
 	 */
-	public static function test() {
+	public static function test( $capabilities = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 }
