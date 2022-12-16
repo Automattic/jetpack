@@ -40,7 +40,7 @@ class Upcoming_Events_Shortcode {
 			'number'  => absint( $atts['number'] ),
 		);
 
-		if ( ! empty( $atts['url'] ) ) {
+		if (  empty( $atts['url'] ) ) {
 			// If the current user can access the Appearance->Widgets page.
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				return sprintf( '<p>%s</p>', __( 'You must specify a URL to an iCalendar feed in the shortcode. This notice is only displayed to administrators.', 'jetpack' ) );
