@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->pre_http_req_function = function ( $preempt, $parsed_args, $url ) {
+		$pre_http_req_function = function ( $preempt, $parsed_args, $url ) {
 			if ( 'https://embedr.flickr.com/photos/49931239842' === $url ) {
 				return array(
 					'body' => '<div class="slide slide-video" data-rapid="video" data-slideshow-position="" >
@@ -41,18 +41,10 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 		add_filter(
 			'pre_http_request',
-			$this->pre_http_req_function,
+			$pre_http_req_function,
 			10,
 			3
 		);
-	}
-
-	/**
-	 * Runs on every test.
-	 */
-	public function tear_down() {
-		remove_filter( 'pre_http_request', $this->pre_http_req_function );
-		parent::tear_down();
 	}
 
 	/**
