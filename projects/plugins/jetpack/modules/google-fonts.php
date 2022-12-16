@@ -146,7 +146,23 @@ add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
  * @return WP_Theme_JSON_Data_Gutenberg Class with updated Global Styles settings.
  */
 function jetpack_rename_google_font_names( $theme_json ) {
-	$raw_data      = $theme_json->get_data();
+	// Skip at front of the site; renaming is needed only when in the editor and API requests
+	if ( ! is_admin() || ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		return $theme_json;
+	}
+
+	$raw_data = $theme_json->get_data();
+
+	// Skip if fontFamilies are not defined in the variation.
+	if (
+		empty( $raw_data['settings'] ) ||
+		empty( $raw_data['settings']['typography'] ) ||
+		empty( $raw_data['settings']['typography']['fontFamilies'] ) ||
+		empty( $raw_data['settings']['typography']['fontFamilies']['theme'] )
+	) {
+		return $theme_json;
+	}
+
 	$font_families = $raw_data['settings']['typography']['fontFamilies']['theme'];
 
 	$renamed_fonts = array(
