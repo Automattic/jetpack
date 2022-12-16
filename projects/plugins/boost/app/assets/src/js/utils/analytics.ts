@@ -6,9 +6,20 @@ export async function recordBoostEvent(
 	eventName: string,
 	eventProp: TracksEventProperties
 ): Promise< RecordSuccess > {
-	if ( ! ( 'boost_version' in eventProp ) && 'version' in Jetpack_Boost ) {
-		eventProp.boost_version = Jetpack_Boost.version;
+	const defaultProps: { [ key: string ]: string } = {};
+	if ( 'version' in Jetpack_Boost ) {
+		defaultProps.boost_version = Jetpack_Boost.version;
 	}
+	if ( 'connection' in Jetpack_Boost ) {
+		defaultProps.jetpack_connection = Jetpack_Boost.connection.connected
+			? 'connected'
+			: 'disconnected';
+	}
+	if ( 'optimizations' in Jetpack_Boost ) {
+		defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
+	}
+
+	eventProp = { ...defaultProps, ...eventProp };
 
 	return new Promise( ( resolve, reject ) => {
 		if (

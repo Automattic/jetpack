@@ -6,12 +6,17 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackField( props ) {
-	const { id, type, required, label, setAttributes, placeholder, width } = props;
+	const { id, type, required, requiredText, label, setAttributes, placeholder, width } = props;
 
 	return (
 		<>
 			<div className="jetpack-field">
-				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
+				<JetpackFieldLabel
+					required={ required }
+					requiredText={ requiredText }
+					label={ label }
+					setAttributes={ setAttributes }
+				/>
 				<Disabled>
 					<TextControl
 						type={ type }

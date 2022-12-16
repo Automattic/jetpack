@@ -63,3 +63,19 @@ export function getClassNames( html, existingClassNames = '', allowResponsive = 
 export const removeFileNameExtension = name => {
 	return name.replace( /\.[^/.]+$/, '' );
 };
+
+export const pickGUIDFromUrl = url => {
+	if ( ! url ) {
+		return null;
+	}
+
+	const urlParts = url.match(
+		/^https?:\/\/(?<host>video(?:\.word)?press\.com)\/(?:v|embed)\/(?<guid>[a-zA-Z\d]{8})/
+	);
+
+	if ( ! urlParts?.groups?.guid ) {
+		return null;
+	}
+
+	return urlParts.groups.guid;
+};
