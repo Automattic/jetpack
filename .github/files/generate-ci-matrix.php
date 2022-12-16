@@ -70,9 +70,7 @@ $matrix[] = array(
 	'timeout'      => 15,
 	'experimental' => true,
 );
-// Uncomment this once WP trunk finally works with 8.2. Then merge into the above once WP latest does and we've cleaned up any problems in our own code.
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
-/*
+// Merge this into the above once we decide PHP 8.2 is stable and WP latest works with 8.2.
 $matrix[] = array(
 	'name'         => 'PHP tests: PHP 8.2 WP trunk',
 	'script'       => 'test-php',
@@ -81,7 +79,6 @@ $matrix[] = array(
 	'timeout'      => 15,
 	'experimental' => true,
 );
-*/
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
