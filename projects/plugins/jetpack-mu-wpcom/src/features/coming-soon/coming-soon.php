@@ -59,8 +59,6 @@ function get_share_code() {
  * Then it validates the code against blog option, and if sharing code is valid,
  * it allows bypassing the Coming Soon page.
  *
- * Finally, it sets a code in cookie and sets header that prevents robots from indexing.
- *
  * @param string $share_code Share code to check against blog option value.
  *
  * @return bool
