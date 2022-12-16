@@ -847,7 +847,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
 
-		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
+		$helper_all->array_override = array( '<a href="fun.php">fun 😀</a>' );
 		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
 
 		$helper_jetpack                 = new Jetpack_Sync_Test_Helper();
@@ -862,7 +862,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$expected_array = array(
 			'hello.php'           => array(
-				'fun' => admin_url( 'fun.php' ),
+				'fun 😀' => admin_url( 'fun.php' ),
 			),
 			'jetpack/jetpack.php' => array(
 				'settings' => admin_url( 'settings.php' ),
