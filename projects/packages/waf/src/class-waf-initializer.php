@@ -68,7 +68,7 @@ class Waf_Initializer {
 		}
 
 		// Only run on updates and installations
-		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ) ) ) {
+		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ), true ) ) {
 			return;
 		}
 
