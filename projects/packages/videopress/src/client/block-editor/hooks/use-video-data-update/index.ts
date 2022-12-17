@@ -362,7 +362,7 @@ export function useSyncMedia(
 				}
 			} )
 			.catch( ( updateMediaError: Error ) => {
-				debug( 'Error while syncing data: ', updateMediaError );
+				debug( '[%o] Error while syncing data: %o', attributes?.guid, updateMediaError );
 				setError( updateMediaError );
 			} );
 	}, [
