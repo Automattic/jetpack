@@ -3,13 +3,15 @@
  *
  * Plugin Name: WordPress.com Features
  * Description: Enhances your site with features powered by WordPress.com
- * Version: 0.1.0-alpha
+ * Version: 0.2.0-alpha
  * Author: Automattic
  * License: GPLv2 or later
  * Text Domain: jetpack-mu-wpcom
  *
  * @package automattic/jetpack-mu-wpcom
  */
+
+namespace Jetpack\Mu_Wpcom;
 
 /*
 This program is free software; you can redistribute it and/or
@@ -31,3 +33,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JETPACK_MU_WPCOM__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+
+// Shared code for src/features
+require_once __DIR__ . '/src/common/index.php';
+
+/**
+ * Load the Coming Soon feature.
+ */
+function load_coming_soon() {
+	if (
+		( defined( 'WPCOM_PUBLIC_COMING_SOON' ) && WPCOM_PUBLIC_COMING_SOON ) ||
+		apply_filters( 'a8c_enable_public_coming_soon', false )
+	) {
+		require_once __DIR__ . '/src/features/coming-soon/coming-soon.php';
+	}
+}
+// Todo: once coming-soon is removed from ETK, we can remove this check.
+if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
+	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_coming_soon' );
+}
