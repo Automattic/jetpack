@@ -1,9 +1,4 @@
-// $black: #000;
-// $white: #fff;
-// $shadow-modal: 0 0.7px 1px rgba($black, 0.15), 0 2.7px 3.8px -0.2px rgba($black, 0.15), 0 5.5px 7.8px -0.3px rgba($black, 0.15), 0.1px 11.5px 16.4px -0.5px rgba($black, 0.15);
-// $radius-block-ui: 2px;
 $break-small: 600px;
-// $modal-min-width: 360px;
 @import '@wordpress/base-styles/_variables.scss';
 @import '@wordpress/base-styles/_mixins.scss';
 @import '@wordpress/base-styles/_breakpoints.scss';
@@ -14,78 +9,4 @@ $break-small: 600px;
 	@include reduce-motion("animation");
 }
 
-// @mixin reduce-motion($property: "") {
-
-// 	@if $property == "transition" {
-// 		@media (prefers-reduced-motion: reduce) {
-// 			transition-duration: 0s;
-// 			transition-delay: 0s;
-// 		}
-// 	} @else if $property == "animation" {
-// 		@media (prefers-reduced-motion: reduce) {
-// 			animation-duration: 1ms;
-// 			animation-delay: 0s;
-// 		}
-// 	} @else {
-// 		@media (prefers-reduced-motion: reduce) {
-// 			transition-duration: 0s;
-// 			transition-delay: 0s;
-// 			animation-duration: 1ms;
-// 			animation-delay: 0s;
-// 		}
-// 	}
-// }
-
-// @mixin break-small() {
-// 	@media (min-width: #{ ($break-small) }) {
-// 		@content;
-// 	}
-// }
-
-// @mixin break-large() {
-// 	@media (min-width: #{ ($break-large) }) {
-// 		@content;
-// 	}
-// }
-
 @import '@wordpress/components/src/modal/style.scss';
-
-/* Additional styling to thickbox that displays modal */
-/* stylelint-disable selector-max-id */
-
-.jetpack-memberships-modal #TB_title {
-	display: none;
-}
-#TB_window.jetpack-memberships-modal {
-	background-color: transparent;
-	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
-	background-size: 50px;
-	background-repeat: no-repeat;
-	background-position: center 150px;
-	margin: 0 !important;
-	box-shadow: none;
-	-webkit-box-shadow: none;
-	-moz-box-shadow: none;
-	border: none;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	top: 0;
-	width: 100% !important;
-	height: 100%;
-}
-
-.jetpack-memberships-modal #TB_iframeContent {
-	margin: 0 !important;
-	height: 100% !important;
-	width: 100% !important;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
-/* This is a class added by Thickbox on open modals. */
-BODY.modal-open {
-	overflow: hidden;
-}
