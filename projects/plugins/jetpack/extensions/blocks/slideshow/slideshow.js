@@ -1,11 +1,17 @@
+/**
+ * External dependencies
+ */
 import { isBlobURL } from '@wordpress/blob';
 import { RichText } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
 import { Component, createRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEqual } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
+/**
+ * Internal dependencies
+ */
 import createSwiper from './create-swiper';
 import {
 	swiperApplyAria,
@@ -14,6 +20,37 @@ import {
 	swiperResize,
 } from './swiper-callbacks';
 
+export function paginationCustomRender( swiper, current, total ) {
+	let markup = '';
+
+	// Print dots pagination when total slides are less than six.
+	if ( total <= 5 ) {
+		for ( let i = 1; i <= total; i++ ) {
+			const active = i === current ? ' swiper-pagination-bullet-active' : '';
+			const cssClass = `swiper-pagination-bullet${ active }`;
+			const ariaLabel = sprintf(
+				/* translators: placeholder is the the video number to navigate to */
+				__( 'Go to slide %s', 'jetpack' ),
+				i
+			);
+
+			markup +=
+				'<button ' +
+				'class="' +
+				cssClass +
+				'" ' +
+				'tab-index="0" ' +
+				'role="button" ' +
+				'aria-label="' +
+				ariaLabel +
+				'"></button>';
+		}
+	} else {
+		markup += `<div class="swiper-pagination-simple">${ current } / ${ total }</div>`;
+	}
+
+	return markup;
+}
 class Slideshow extends Component {
 	pendingRequestAnimationFrame = null;
 	resizeObserver = null;
@@ -215,7 +252,8 @@ class Slideshow extends Component {
 				pagination: {
 					clickable: true,
 					el: this.paginationRef.current,
-					type: 'bullets',
+					type: 'custom',
+					renderCustom: paginationCustomRender,
 				},
 			},
 			{
