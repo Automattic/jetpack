@@ -34,6 +34,7 @@ export default function DetailsPanel( {
 	attributes,
 	setAttributes,
 	isRequestingVideoData,
+	updateError,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
@@ -69,7 +70,7 @@ export default function DetailsPanel( {
 					filename?.length ? `${ filename } video` : __( 'Video title', 'jetpack-videopress-pkg' )
 				}
 				onChange={ value => setAttributes( { title: value } ) }
-				disabled={ isRequestingVideoData }
+				disabled={ isRequestingVideoData || !! updateError }
 			/>
 
 			<TextareaControl
@@ -78,7 +79,7 @@ export default function DetailsPanel( {
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
 				onChange={ value => setAttributes( { description: value } ) }
 				rows={ descriptionControlRows }
-				disabled={ isRequestingVideoData }
+				disabled={ isRequestingVideoData || !! updateError }
 				help={ descriptionHelp }
 			/>
 
