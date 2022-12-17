@@ -101,6 +101,12 @@ export default function DetailsPanel( {
 				</Notice>
 			) }
 
+			{ !! updateError && (
+				<Notice status="error" className="details-panel__error" isDismissible={ false }>
+					{ __( 'Error updating the video details.', 'jetpack-videopress-pkg' ) }
+				</Notice>
+			) }
+
 			<LearnHowModal onClose={ () => setIsModalOpen( false ) } isOpen={ isModalOpen } />
 		</PanelBody>
 	);
