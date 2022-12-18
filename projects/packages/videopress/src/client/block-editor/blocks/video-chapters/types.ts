@@ -1,11 +1,11 @@
 import { VideoGUID, VideoId } from '../video/types';
 
-export type VideoChaptersBlockAttributes = {
+export interface VideoChaptersBlockAttributes {
 	id?: VideoId;
 	guid?: VideoGUID;
-};
+}
 
-export type VideoChaptersBlockPropertiesProps = {
+export interface VideoChaptersBlockPropertiesProps {
 	attributes: VideoChaptersBlockAttributes;
 	setAttributes: ( attributes: VideoChaptersBlockAttributes ) => void;
-};
+}

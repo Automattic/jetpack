@@ -24,7 +24,7 @@ import type React from 'react';
 export default function VideoPressChaptersEdit( {
 	attributes,
 	setAttributes,
-}: VideoChaptersBlockPropertiesProps ) {
+}: React.PropsWithChildren< VideoChaptersBlockPropertiesProps > ) {
 	const chapters = useChapters();
 
 	const blockProps = useBlockProps( {
