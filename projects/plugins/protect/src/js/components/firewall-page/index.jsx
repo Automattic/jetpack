@@ -10,7 +10,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
 import API from '../../api';
@@ -52,18 +52,27 @@ const FirewallPage = () => {
 		},
 		isEnabled,
 		isSeen,
+		rules,
 		isUpdating,
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
+	const { version, lastUpdated } = rules;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
 	const { recordEventHandler } = useAnalyticsTracks();
+
+	/**
+	 * Number of IP block list entries
+	 */
+	const jetpackWafIpBlockListLength = jetpackWafIpBlockList.split( '\n' ).length;
+
+	const [ automaticRulesInstallationError, setAutomaticRulesInstallationError ] = useState( false );
 
 	/**
 	 * Form State
@@ -172,6 +181,7 @@ const FirewallPage = () => {
 				} )
 			)
 			.catch( () => {
+				setAutomaticRulesInstallationError( true );
 				setNotice( {
 					type: 'error',
 					message: errorMessage,
@@ -317,6 +327,42 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
+					<div className={ styles[ 'automatic-rules-details-section' ] }>
+						{ jetpackWafAutomaticRules && (
+							<div className={ styles[ 'automatic-rules-details-text' ] }>
+								<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
+									{ sprintf(
+										// translators: placeholder is the latest rules version i.e. "v2.0".
+										__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
+										version
+									) }
+								</Text>
+								<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
+									{ sprintf(
+										// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
+										__( 'Last updated on %s.', 'jetpack-protect' ),
+										lastUpdated
+									) }
+								</Text>
+							</div>
+						) }
+						{ automaticRulesInstallationError && (
+							<>
+								<Text
+									className={ styles[ 'failed-install-text' ] }
+									variant={ 'body-small' }
+									mt={ 2 }
+								>
+									{ __( 'Failed to install automatic rules.', 'jetpack-protect' ) }
+								</Text>
+								<Button variant={ 'link' } href={ PLUGIN_SUPPORT_URL }>
+									<Text variant={ 'body-small' }>
+										{ __( 'Contact support', 'jetpack-protect' ) }
+									</Text>
+								</Button>
+							</>
+						) }
+					</div>
 				</div>
 			</div>
 			{ ! hasRequiredPlan && (
@@ -353,12 +399,26 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					{ jetpackWafIpList && (
-						<div className={ styles[ 'edit-manual-rules-section' ] }>
-							<Text variant={ 'body-small' } mt={ 2 }>
-								{ '' === jetpackWafIpAllowList &&
-									'' === jetpackWafIpBlockList &&
-									__( 'No manual rules are being applied.', 'jetpack-protect' ) }
-							</Text>
+						<div className={ styles[ 'manual-rules-details-section' ] }>
+							{ '' === jetpackWafIpAllowList && '' === jetpackWafIpBlockList && (
+								<Text className={ styles[ 'no-rules-text' ] } variant={ 'body-small' } mt={ 2 }>
+									{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
+								</Text>
+							) }
+							{ '' !== jetpackWafIpBlockList && jetpackWafIpBlockListLength > 0 && (
+								<Text className={ styles[ 'block-list-text' ] } variant={ 'body-small' } mt={ 2 }>
+									{ sprintf(
+										// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
+										_n(
+											'%s IP is being blocked.',
+											'%s IPs are being blocked.',
+											jetpackWafIpBlockListLength,
+											'jetpack-protect'
+										),
+										jetpackWafIpBlockListLength === 1 ? 'One' : jetpackWafIpBlockListLength
+									) }
+								</Text>
+							) }
 							<Button variant={ 'link' } disabled={ ! isEnabled }>
 								<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
 									{ __( 'Edit manual rules', 'jetpack-protect' ) }
