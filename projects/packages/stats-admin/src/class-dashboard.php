@@ -17,12 +17,12 @@ use Jetpack_Options;
  * @package jetpack-stats-admin
  */
 class Dashboard {
-	const CALYPSO_CDN_URL = 'https://widgets.wp.com/calypso-stats/%s/%s';
+	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s';
 	/**
 	 * We bump the asset version when the Jetpack back end is not compatible anymore.
 	 */
-	const CALYPSO_STATS_VERSION                = 'v1';
-	const CALYPSO_STATS_CACHE_BUSTER_CACHE_KEY = 'jetpack_stats_admin_asset_cache_buster';
+	const ODYSSEY_STATS_VERSION                = 'v1';
+	const ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY = 'odyssey_stats_admin_asset_cache_buster';
 
 	/**
 	 * Whether the class has been initialized
@@ -88,7 +88,7 @@ class Dashboard {
 		<script>
 			jQuery(document).ready(function($) {
 				// Load SVG sprite.
-				$.get("https://widgets.wp.com/calypso-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
+				$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
 					var div = document.createElement("div");
 					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
 					div.style = 'display: none';
@@ -133,8 +133,8 @@ class Dashboard {
 		} else {
 			// In production, we load the assets from our CDN.
 			$css_url = 'build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			wp_register_script( 'jp-stats-dashboard', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build.min.js' ), array( 'react', 'react-dom', 'wp-polyfill' ), $this->get_cdn_asset_cache_buster(), true );
-			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
+			wp_register_script( 'jp-stats-dashboard', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build.min.js' ), array( 'react', 'react-dom', 'wp-polyfill' ), $this->get_cdn_asset_cache_buster(), true );
+			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
 			wp_enqueue_script( 'jp-stats-dashboard' );
 			wp_enqueue_style( 'jp-stats-dashboard-style' );
 		}
@@ -153,13 +153,13 @@ class Dashboard {
 	 */
 	protected function get_cdn_asset_cache_buster() {
 		// Use cached cache buster in production.
-		$remote_asset_version = get_transient( self::CALYPSO_STATS_CACHE_BUSTER_CACHE_KEY );
+		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 		if ( ! empty( $remote_asset_version ) ) {
 			return $remote_asset_version;
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::CALYPSO_CDN_URL, self::CALYPSO_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to the package version.
@@ -169,7 +169,7 @@ class Dashboard {
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! empty( $build_meta['cache_buster'] ) ) {
 			// Cache the cache buster for a day.
-			set_transient( self::CALYPSO_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
+			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
 			return $build_meta['cache_buster'];
 		}
 

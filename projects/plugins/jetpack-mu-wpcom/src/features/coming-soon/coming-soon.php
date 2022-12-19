@@ -139,7 +139,7 @@ function render_fallback_coming_soon_page() {
 	add_filter( 'woocommerce_demo_store', '__return_false' ); // Prevent the the wocommerce demo store notice from displaying.
 	add_filter( 'jetpack_open_graph_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default OG image.
 	add_filter( 'jetpack_twitter_cards_image_default', __NAMESPACE__ . '\coming_soon_share_image' ); // Set the default Twitter Card image.
-	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), A8C_ETK_PLUGIN_VERSION );
+	wp_enqueue_style( 'recoleta-font', '//s1.wp.com/i/fonts/recoleta/css/400.min.css', array(), JETPACK_MU_WPCOM__PLUGIN_VERSION );
 
 	include __DIR__ . '/fallback-coming-soon-page.php';
 }
