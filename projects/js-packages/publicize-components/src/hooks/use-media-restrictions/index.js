@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { RESTRICTIONS } from './restrictions';
 
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
@@ -25,6 +25,32 @@ const reduceVideoLimits = ( prev, current ) => ( {
 	minLength: getMax( prev.minLength, current.minLength ),
 } );
 
+const getVideoLimits = enabledConnections =>
+	enabledConnections
+		.map( connection => RESTRICTIONS[ connection.service_name ].video )
+		.reduce( reduceVideoLimits, {
+			minSize: 0,
+			maxSize: Infinity,
+			maxLength: Infinity,
+			minLength: 0,
+		} );
+
+/**
+ * Returns the currently allowed media types
+ *
+ * @param {Array} enabledConnections - Currently enabled connections.
+ * @returns {Array} Array of allowed types
+ */
+const getAllowedMediaTypes = enabledConnections => {
+	const typeArrays = enabledConnections.map(
+		connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+	);
+	if ( typeArrays.length === 0 ) {
+		return [];
+	}
+	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
+};
+
 /**
  * Hooks to deal with the media restrictions
  *
@@ -36,29 +62,10 @@ export default function useMediaRestrictions( enabledConnections ) {
 		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].image.maxSize )
 	);
 
-	const videoLimits = enabledConnections
-		.map( connection => RESTRICTIONS[ connection.service_name ].video )
-		.reduce( reduceVideoLimits, {
-			minSize: 0,
-			maxSize: Infinity,
-			maxLength: Infinity,
-			minLength: 0,
-		} );
-
-	/**
-	 * Returns the currently allowed media types
-	 *
-	 * @returns {Array} Array of allowed types
-	 */
-	const getAllowedMediaTypes = useCallback( () => {
-		const typeArrays = enabledConnections.map(
-			connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
-		);
-		if ( typeArrays.length === 0 ) {
-			return [];
-		}
-		return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
-	}, [ enabledConnections ] );
+	const [ videoLimits, allowedMediaTypes ] = useMemo(
+		() => [ getVideoLimits( enabledConnections ), getAllowedMediaTypes( enabledConnections ) ],
+		[ enabledConnections ]
+	);
 
 	/**
 	 * This function is used to check if the provided image is valid based on it's size and type.
@@ -112,7 +119,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 			const { mime, fileSize } = metaData;
 
 			const isMimeValid = mimeToTest =>
-				mimeToTest && getAllowedMediaTypes().includes( mimeToTest.toLowerCase() );
+				mimeToTest && allowedMediaTypes.includes( mimeToTest.toLowerCase() );
 
 			if ( ! isMimeValid( mime ) ) {
 				return FILE_TYPE_ERROR;
@@ -124,13 +131,13 @@ export default function useMediaRestrictions( enabledConnections ) {
 				? getVideoValidationError( sizeInMb, metaData.length )
 				: getImageValidationError( sizeInMb );
 		},
-		[ getImageValidationError, getVideoValidationError, getAllowedMediaTypes ]
+		[ getImageValidationError, getVideoValidationError, allowedMediaTypes ]
 	);
 
 	return {
 		maxImageSize,
 		videoLimits,
+		allowedMediaTypes,
 		getValidationError,
-		getAllowedMediaTypes,
 	};
 }

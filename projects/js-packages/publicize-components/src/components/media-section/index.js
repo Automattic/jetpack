@@ -83,10 +83,9 @@ export default function MediaSection() {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const { maxImageSize, getValidationError, getAllowedMediaTypes } = useMediaRestrictions(
+	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
 	);
-	const allowedMediaTypes = getAllowedMediaTypes();
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( attachedMedia[ 0 ]?.id || null, { context: 'view' } ),
