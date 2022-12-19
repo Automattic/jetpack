@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: do not convert core/embed to videopress/video on-the-fly

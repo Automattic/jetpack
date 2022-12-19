@@ -33,6 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+define( 'JETPACK_MU_WPCOM__PLUGIN_VERSION', '0.2.0-alpha' );
 define( 'JETPACK_MU_WPCOM__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // Shared code for src/features
