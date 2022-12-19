@@ -19,7 +19,7 @@
 
 ### Improved compatibility
 - Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`. [#27843]
-- Styling: Removed custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
+- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
 - Writing prompts: hide placeholder prompts by default. [#27919]
 
 ### Bug fixes
