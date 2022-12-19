@@ -170,6 +170,11 @@ jobs:
                 FAIL=true
                 EXIT=1
               fi
+
+              # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
+              # We don't do it for JS stuff, as that might break things with how JS does package deps.
+              rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
+
               echo "::endgroup::"
               $FAIL && echo "::error::Tests for $SLUG failed!"
             fi
