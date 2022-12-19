@@ -152,12 +152,7 @@ function jetpack_rename_google_font_names( $theme_json ) {
 		$raw_data = $theme_json->get_data();
 
 		// Skip if fontFamilies are not defined in the variation.
-		if (
-			empty( $raw_data['settings'] ) ||
-			empty( $raw_data['settings']['typography'] ) ||
-			empty( $raw_data['settings']['typography']['fontFamilies'] ) ||
-			empty( $raw_data['settings']['typography']['fontFamilies']['theme'] )
-		) {
+		if ( empty( $raw_data['settings']['typography']['fontFamilies']['theme'] ) ) {
 			return $theme_json;
 		}
 
