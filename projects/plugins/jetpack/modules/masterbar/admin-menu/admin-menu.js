@@ -110,7 +110,7 @@
 			);
 		}
 
-		if ( document.querySelector('body.jetpack-masterbar') ) {
+		if ( jetpackAdminMenu.isAtomic ) {
 			document.querySelectorAll( 'li.wp-has-submenu.wp-not-current-submenu' ).forEach( function ( el ) {
 				const submenu = el.querySelector( '.wp-submenu' );
 				const linkElement = el.querySelector( 'a' );
@@ -144,8 +144,8 @@
 			rect.left >= 0 &&
 			// Tries to primarily use the window viewport, but if that's not available, uses the documentElement.
 			// The innerWidth attribute must return the viewport width including the size of a rendered scroll bar (if any), or zero if there is no viewport.
-			rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
-			rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+			rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) &&
+			rect.right <= ( window.innerWidth || document.documentElement.clientWidth )
 		);
 	}
 
