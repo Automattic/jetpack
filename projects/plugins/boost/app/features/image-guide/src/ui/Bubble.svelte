@@ -125,6 +125,9 @@
 			width: 14px;
 			height: 14px;
 			font-size: 0px;
+			:global(svg) {
+				display: none;
+			}
 		}
 	}
 </style>
