@@ -1,7 +1,7 @@
 <?php
 /**
  * The Stats Rest Controller class.
- * Registers the REST routes for Calypso Stats.
+ * Registers the REST routes for Odyssey Stats.
  *
  * @package automattic/jetpack-stats-admin
  */
@@ -42,9 +42,9 @@ class REST_Controller {
 	}
 
 	/**
-	 * Registers the REST routes for Calypso Stats.
+	 * Registers the REST routes for Odyssey Stats.
 	 *
-	 * The Calypso Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
+	 * Odyssey Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
 	 * The current Site ID is added as part of the route, so that the front end doesn't have to handle the differences.
 	 *
 	 * @access public

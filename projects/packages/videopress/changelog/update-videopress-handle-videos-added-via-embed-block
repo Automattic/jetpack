@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: sync video `post_id` with block attribute `id`
