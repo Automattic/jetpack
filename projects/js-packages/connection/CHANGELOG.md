@@ -4,7 +4,7 @@
 
 ## 0.24.2 - 2022-12-19
 ### Added
-- Allow to pass custom logo and icon to connection screen [#27802]
+- Allow passing the custom logo and icon to connection screen [#27802]
 
 ### Changed
 - Updated package dependencies. [#27916]
