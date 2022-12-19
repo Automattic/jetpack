@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-CSS: Removed custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0
