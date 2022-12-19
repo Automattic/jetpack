@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add `JETPACK_MU_WPCOM__PLUGIN_VERSION` in `.extra.version-constants`.
