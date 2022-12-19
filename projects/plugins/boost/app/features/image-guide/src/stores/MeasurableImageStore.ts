@@ -1,4 +1,4 @@
-import { MeasurableImage, type Dimensions, type Weight } from '@automattic/jetpack-image-guide';
+import { Dimensions, MeasurableImage, Weight } from '@automattic/jetpack-image-guide';
 import { Writable, Readable, writable, derived } from 'svelte/store';
 
 /**
