@@ -113,7 +113,7 @@
 				<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 				<p slot="description">
 					{__(
-						`This feature helps you speed up your website by showing you which images are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
+						`This feature helps you discover the images are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
 						'jetpack-boost'
 					)}
 				</p>
