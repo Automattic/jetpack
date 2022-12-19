@@ -36,6 +36,5 @@
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"main": "build/index.js",
-	"types": "build/index.d.ts"
+	"main": "./build/index.js"
 }
