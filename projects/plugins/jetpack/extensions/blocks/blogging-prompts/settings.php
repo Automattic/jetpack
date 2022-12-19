@@ -46,7 +46,7 @@ function init() {
 			'type'         => 'boolean',
 			'description'  => __( 'Show a writing prompt in the editor when starting a new post.', 'jetpack' ),
 			'show_in_rest' => true,
-			'default'      => jetpack_has_write_intent() || jetpack_has_posts_page(),
+			'default'      => false,
 		)
 	);
 

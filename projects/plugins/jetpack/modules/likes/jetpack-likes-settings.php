@@ -8,6 +8,13 @@ use Automattic\Jetpack\Sync\Settings;
 class Jetpack_Likes_Settings {
 
 	/**
+	 * False if running on WPCOM Simple
+	 *
+	 * @var bool
+	 */
+	public $in_jetpack;
+
+	/**
 	 * Constructor function.
 	 */
 	public function __construct() {

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: filter the video fields that re-renders the player when change

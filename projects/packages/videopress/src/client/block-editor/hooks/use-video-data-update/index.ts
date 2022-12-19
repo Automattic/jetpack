@@ -84,6 +84,22 @@ const mapFieldsToAttributes = {
 	is_private: 'isPrivate',
 };
 
+/*
+ * Fields list that should invalidate the resolution of the embed (player)
+ * when some of them change.
+ *
+ * Keep in mind some field changes
+ * are handled inidrectly by the VideoPress video URL,
+ * for instance, `loop`, `autoplay`, `color`, etc...
+ */
+const invalidateEmbedResolutionFields = [
+	'title',
+	'privacy_setting',
+	'is_private',
+	'allow_download',
+	'display_embed',
+];
+
 /**
  * Re-arrange the tracks to match the block attribute format.
  * Also, check if the tracks is out of sync with the media item.
@@ -327,8 +343,15 @@ export function useSyncMedia(
 					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 				} );
 			} else {
-				const videoPressUrl = getVideoPressUrl( guid, attributes );
-				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				const shouldInvalidateResolution = Object.keys( dataToUpdate ).filter( key =>
+					invalidateEmbedResolutionFields.includes( key )
+				);
+
+				if ( shouldInvalidateResolution?.length ) {
+					debug( 'Invalidate resolution because of %o', shouldInvalidateResolution.join( ', ' ) );
+					const videoPressUrl = getVideoPressUrl( guid, attributes );
+					invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+				}
 			}
 		} );
 	}, [
