@@ -468,3 +468,30 @@ input.components-text-control__input {
 .jetpack-contact-form__crm_toggle p {
 	margin-bottom: 0;
 }
+
+.jetpack-select {
+	display: inline-flex;
+	flex-direction: column;
+	min-width: 200px;
+
+	&__toggle {
+		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		background-color: var(--jetpack--contact-form--background-color);
+		color: var(--jetpack--contact-form--text-color);
+		font-size: var(--jetpack--contact-form--font-size);
+		line-height: var(--jetpack--contact-form--line-height);
+		padding: var(--jetpack--contact-form--input-padding);
+		display: flex;
+		align-items: center;
+	}
+
+	&__popover {
+		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		background-color: var(--jetpack--contact-form--background-color);
+		color: var(--jetpack--contact-form--text-color);
+		font-size: var(--jetpack--contact-form--font-size);
+		padding: var(--jetpack--contact-form--input-padding);
+	}
+}

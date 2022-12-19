@@ -386,6 +386,29 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		wp_enqueue_style(
+			'jquery-ui-css',
+			'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',
+			array(),
+			JETPACK__VERSION
+		);
+
+		wp_enqueue_script(
+			'jquery-ui',
+			'https://code.jquery.com/ui/1.13.2/jquery-ui.js',
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+
+		wp_enqueue_script(
+			'jetpack-dropdown-test',
+			plugins_url( 'js/form-style.js', __FILE__ ),
+			array( 'jquery', 'jquery-ui' ),
+			JETPACK__VERSION,
+			true
+		);
+
 		self::register_contact_form_blocks();
 	}
 
@@ -4645,6 +4668,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+
+		if ( $type === 'select' ) {
+			$class .= 'jetpack-select';
+		}
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";

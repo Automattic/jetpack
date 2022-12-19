@@ -245,3 +245,36 @@
 .wp-block-jetpack-contact-form .wp-block-spacer {
 	width: 100%;
 }
+
+
+body {
+	--jetpack--theme--primary-color: #1a4548;
+	--jetpack--theme--background-color: white;
+	--jetpack--theme--border-width: 2px;
+	--jetpack--theme--input-height: 40px;
+}
+
+.ui-selectmenu-button.ui-button {
+	min-width: 200px;
+	box-sizing: border-box;
+	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	background-color: var(--jetpack--contact-form--background-color);
+	color: var(--jetpack--contact-form--text-color);
+	font-size: var(--jetpack--contact-form--font-size);
+	line-height: var(--jetpack--contact-form--line-height);
+	padding: var(--jetpack--contact-form--input-padding);
+}
+
+.ui-selectmenu-menu ul.ui-menu {
+	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+	background-color: var(--jetpack--contact-form--background-color);
+}
+
+.ui-selectmenu-menu .ui-menu-item-wrapper.ui-state-active {
+	position: relative;
+	border: none;
+	background-color: unset;
+	color: var(--jetpack--contact-form--text-color);
+}
+
