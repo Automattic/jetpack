@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove testing workaround for https://core.trac.wordpress.org/ticket/57341. No change to the plugin itself.
+
+
