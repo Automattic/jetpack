@@ -5745,7 +5745,7 @@ endif;
 	/**
 	 * Maybe inlines a stylesheet.
 	 *
-	 * @deprecated since $$next-version$$.
+	 * @deprecated since 11.7.
 	 *
 	 * @param string $tag The tag that would link to the external asset.
 	 * @param string $handle The registered handle of the script in question.
@@ -5753,7 +5753,7 @@ endif;
 	 * @return string
 	 */
 	public static function maybe_inline_style( $tag, $handle ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$', 'wp_maybe_inline_styles' );
+		_deprecated_function( __METHOD__, '11.7', 'wp_maybe_inline_styles' );
 
 		return $tag;
 	}

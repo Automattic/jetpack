@@ -2,6 +2,55 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.7-a.5 - 2022-12-19
+### Enhancements
+- Activate license key dropdown selector in Jetpack plugin's activation page. [#27974]
+- add context to blogging prompt placeholder [#27895]
+- Add new fonts to Global Style options. [#27441]
+- Allow Form required field text to be changed [#27913]
+- Assistant: update Akismet and Backup names [#27844]
+- Block editor: add a new panel allowing you to promote your posts after publishing them. [#27928]
+- Hides agencies module on jetpack dashboard if site is atomic [#27966]
+- Jetpack: switch pagination style in the slideshow block [#27936]
+- Slideshow block: Update block description [#27899]
+- Update Backup, Anti-spam, and VideoPress logos [#27847]
+- Update Form block default labels [#27628]
+- Update Form block placeholder styles [#27855]
+- Update Form fields styles to comply with WYSIWYG [#27967]
+
+### Improved compatibility
+- Blogging prompts: hide placeholder prompts by default [#27919]
+- CSS: Removed custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0 [#27965]
+- General: Fix deprecation warnings when running with PHP 8.2. [#27968]
+- Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses` [#27843]
+
+### Bug fixes
+- Add translation context to Security product name [#27920]
+- Fixes email formatting for contact form submissions [#27929]
+- Fix the initialization of the firewall. [#27846]
+- Minor Hovercards & AMP compatibility bug [#27828]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add export to Google Drive feature on form responses table [#27690]
+- Blocks: add missing Jetpack config external. [#27978]
+- Blocks: enqueue connection data in post editor, to be used by blocks. [#27937]
+- E2E tests: add a new tests for Form block [#27933]
+- Extensions: use isCurrentUserConnected from package instead of from internally shared function. [#27924]
+- Fix PHP Warning on subscription block [#27884]
+- Improve stability of Pay with Paypal test [#27951]
+- Jetpack Slideshow: Change the labels for Image Size and Transition Effect options. [#27898]
+- Option: Update featured_image_email_enabled option name to wpcom_featured_image_in_email [#27955]
+- Options: Added new site option of 'wpcom-subscription-emails-use-excerpt' [#27908]
+- Remove dead static-site-generator-webpack-plugin dep, copy a cleaned-up version into the repo. [#27889]
+- Remove last place that uses maybe_inline_styles [#27983]
+- Slideshow block: Change the arrow's style to match the gallery current style. [#27907]
+- Stats: fix stats chart in masterbar when new experience is turned on [#27825]
+- Stats Admin: update dependencies [#27948]
+- Updated package dependencies. [#27874]
+- Updated package dependencies. [#27887]
+- Updated package dependencies. [#27916]
+- Updating changelog entries. [#27886]
+
 ## 11.7-a.3 - 2022-12-12
 ### Enhancements
 - Form block: update Form blocks descriptions. [#27819]

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stats: added `hostname` and `admin_url` to config
