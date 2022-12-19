@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.45.0] - 2022-12-19
+### Added
+- Adding new boolean site option of 'wpcom-subscription-emails-use-excerpt'. [#27908]
+- Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`. [#27843]
+
+### Changed
+- Option: Update featured_image_email_enabled option name to wpcom_featured_image_in_email. [#27955]
+
+### Fixed
+- Improve PHP 8.2 compatibility. [#27968]
+
 ## [1.44.2] - 2022-12-06
 ### Changed
 - Updated package dependencies.
@@ -784,6 +795,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.45.0]: https://github.com/Automattic/jetpack-sync/compare/v1.44.2...v1.45.0
 [1.44.2]: https://github.com/Automattic/jetpack-sync/compare/v1.44.1...v1.44.2
 [1.44.1]: https://github.com/Automattic/jetpack-sync/compare/v1.44.0...v1.44.1
 [1.44.0]: https://github.com/Automattic/jetpack-sync/compare/v1.43.2...v1.44.0
