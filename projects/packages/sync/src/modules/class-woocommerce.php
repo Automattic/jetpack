@@ -428,6 +428,10 @@ class WooCommerce extends Module {
 		'woocommerce_bacs_settings',
 		'woocommerce_admin_install_timestamp',
 		'woocommerce_task_list_tracked_completed_tasks',
+		'woocommerce_woocommerce_payments_settings',
+		'woocommerce_woocommerce_payments_version',
+		'woocommerce_subscriptions_is_active',
+		'woocommerce_subscriptions_active_version',
 	);
 
 	/**
