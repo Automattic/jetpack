@@ -1119,8 +1119,7 @@ add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
 /**
  * Class Grunion_Admin
  *
- * Stop the global scope madness, use static methods on this class to provide for wp-admin responses area.
- * Might turn into singleton in the future.
+ * Singleton for Grunion admin area support.
  */
 class Grunion_Admin {
 	/**
@@ -1152,9 +1151,7 @@ class Grunion_Admin {
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_action( 'admin_footer-edit.php', array( $this, 'print_export_modal' ) );
 
-		if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS || ( defined( 'IS_WPCOM' ) && IS_WPCOM && is_automattician() ) ) {
-			add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
-		}
+		add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
 	}
 
 	/**
@@ -1197,11 +1194,7 @@ class Grunion_Admin {
 				</div>
 				<div class="feedback-export-modal__content">
 					<?php $this->get_csv_export_section(); ?>
-					<?php
-					if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS || ( defined( 'IS_WPCOM' ) && IS_WPCOM && is_automattician() ) ) {
-						$this->get_gdrive_export_section();
-					}
-					?>
+					<?php $this->get_gdrive_export_section(); ?>
 				</div>
 				<div class="feedback-export-modal__footer">
 					<div class="feedback-export-modal__footer-column">
