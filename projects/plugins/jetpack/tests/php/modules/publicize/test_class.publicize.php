@@ -38,6 +38,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 */
 	private $user_id;
 
+	private $publicize;
+
 	/**
 	 * Index in 'publicize_connections' test data of normal connection.
 	 *

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Hides agencies module on jetpack dashboard if site is atomic

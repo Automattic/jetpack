@@ -53,21 +53,21 @@ class Jetpack_Admin {
 	/** Constructor. */
 	private function __construct() {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
-		$this->jetpack_react = new Jetpack_React_Page();
+		$jetpack_react = new Jetpack_React_Page();
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-settings-page.php';
-		$this->fallback_page = new Jetpack_Settings_Page();
+		$fallback_page = new Jetpack_Settings_Page();
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-about-page.php';
-		$this->jetpack_about = new Jetpack_About_Page();
+		$jetpack_about = new Jetpack_About_Page();
 
-		add_action( 'admin_init', array( $this->jetpack_react, 'react_redirects' ), 0 );
-		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
+		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
+		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
+		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
+		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
-		add_action( 'jetpack_admin_menu', array( $this->fallback_page, 'add_actions' ) );
-		add_action( 'jetpack_admin_menu', array( $this->jetpack_about, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );

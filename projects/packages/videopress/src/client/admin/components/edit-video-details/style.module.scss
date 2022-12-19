@@ -17,7 +17,7 @@
 .header-wrapper {
 	&:not( .small ) {
 		display: flex;
-		align-items: start;
+		align-items: center;
 	}
 
 	&.small .header-content {
