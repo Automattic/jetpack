@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove dead static-site-generator-webpack-plugin dep, copy a cleaned-up version into the repo.

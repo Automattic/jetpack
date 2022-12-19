@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Promote_Posts {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -45,7 +45,7 @@ class Promote_Posts {
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
-			 * @since $$next-version$$
+			 * @since 0.1.0
 			 */
 			do_action( 'jetpack_on_promote_posts_init' );
 		}
