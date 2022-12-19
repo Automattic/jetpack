@@ -1392,9 +1392,9 @@ importers:
 
   projects/plugins/boost:
     specifiers:
-      '@automattic/jetpack-base-styles': workspace:0.3.16
-      '@automattic/jetpack-components': workspace:0.26.4-alpha
-      '@automattic/jetpack-image-guide': workspace:0.1.0-alpha
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-image-guide': workspace:*
       '@babel/core': 7.20.5
       '@babel/preset-env': 7.20.2
       '@babel/preset-react': 7.18.6
