@@ -86,6 +86,11 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function update_waf( $request ) {
+		// Automatic Rules Enabled
+		if ( isset( $request[ Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+		}
+
 		// IP Lists Enabled
 		if ( isset( $request[ Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
 			update_option( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ) );

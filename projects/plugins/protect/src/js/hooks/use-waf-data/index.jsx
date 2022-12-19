@@ -15,7 +15,7 @@ const useWafData = () => {
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
 	/**
-	 * Refresh WAF
+	 * Refresh WAF Configuration
 	 *
 	 * Fetches the firewall data and updates it in application state.
 	 */
@@ -30,7 +30,7 @@ const useWafData = () => {
 	}, [ setWafConfig, setWafIsEnabled, setWafIsUpdating ] );
 
 	/**
-	 * Toggle WAF
+	 * Toggle WAF Module
 	 *
 	 * Flips the switch on the WAF module, and then refreshes the data.
 	 */
@@ -48,16 +48,43 @@ const useWafData = () => {
 	}, [ refreshWaf, waf.isEnabled, setWafIsToggling, setWafIsUpdating ] );
 
 	/**
+	 * Ensure WAF Module Is Enabled
+	 */
+	const ensureModuleIsEnabled = useCallback( () => {
+		if ( ! waf.isEnabled ) {
+			return toggleWaf();
+		}
+
+		return Promise.resolve();
+	}, [ toggleWaf, waf.isEnabled ] );
+
+	/**
+	 * Toggle Automatic Rules
+	 *
+	 * Flips the switch on the WAF automatic rules feature, and then refreshes the data.
+	 */
+	const toggleAutomaticRules = useCallback( () => {
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () =>
+				API.updateWaf( { jetpack_waf_automatic_rules: ! waf.config.jetpackWafAutomaticRules } )
+			)
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafAutomaticRules ] );
+
+	/**
 	 * Toggle Manual Rules
 	 *
 	 * Flips the switch on the WAF IP list feature, and then refreshes the data.
 	 */
 	const toggleManualRules = useCallback( () => {
 		setWafIsUpdating( true );
-		return API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } )
+		return ensureModuleIsEnabled()
+			.then( () => API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } ) )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
 
 	/**
 	 * Toggle Share Data
@@ -66,19 +93,24 @@ const useWafData = () => {
 	 */
 	const toggleShareData = useCallback( () => {
 		setWafIsUpdating( true );
-		return API.updateWaf( { jetpack_waf_share_data: ! waf.config.jetpackWafShareData } )
+		return ensureModuleIsEnabled()
+			.then( () => API.updateWaf( { jetpack_waf_share_data: ! waf.config.jetpackWafShareData } ) )
 			.then( refreshWaf )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
 
+	/**
+	 * Update Config
+	 */
 	const updateConfig = useCallback(
 		update => {
 			setWafIsUpdating( true );
-			return API.updateWaf( update )
+			return ensureModuleIsEnabled()
+				.then( () => API.updateWaf( update ) )
 				.then( refreshWaf )
 				.finally( () => setWafIsUpdating( false ) );
 		},
-		[ refreshWaf, setWafIsUpdating ]
+		[ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating ]
 	);
 
 	/**
@@ -94,6 +126,7 @@ const useWafData = () => {
 		...waf,
 		refreshWaf,
 		toggleWaf,
+		toggleAutomaticRules,
 		toggleManualRules,
 		toggleShareData,
 		updateConfig,
