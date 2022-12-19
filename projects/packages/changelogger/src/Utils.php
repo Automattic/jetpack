@@ -188,9 +188,12 @@ class Utils {
 				// PR number.
 				if ( isset( $cmd_output[1] ) ) {
 					$matches = array();
-					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
-					if ( isset( $matches[1] ) ) {
-						$repo_data['pr-num'] = $matches[1];
+					preg_match( '/(Merge pull request #(\d+))|(\(#(\d+)\))/', $cmd_output[1], $matches );
+					if ( isset( $matches[2] ) && ! empty( $matches[2] ) ) {
+						$repo_data['pr-num'] = $matches[2];
+					}
+					if ( isset( $matches[4] ) && ! empty( $matches[4] ) ) {
+						$repo_data['pr-num'] = $matches[4];
 					}
 				}
 			}
