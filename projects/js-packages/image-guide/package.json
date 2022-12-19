@@ -37,7 +37,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"exports": {
-		".": "./build/index.d.js"
+		".": "./build/index.d.ts"
 	},
-	"main": "src/index.d.js"
+	"main": "build/index.d.ts"
 }
