@@ -68,6 +68,12 @@ const ActivationScreen = props => {
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
 	useEffect( () => {
+		const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	}, [] );
+
+	useEffect( () => {
 		if ( availableLicenses && availableLicenses[ 0 ] ) {
 			setLicense( availableLicenses[ 0 ].license_key );
 		}
