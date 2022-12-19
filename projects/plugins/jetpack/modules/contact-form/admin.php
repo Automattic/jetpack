@@ -1192,8 +1192,8 @@ class Grunion_Admin {
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
 				<div class="feedback-export-modal__header">
-					<h1 class="feedback-export-modal__header-title"><?php echo esc_html( __( 'Export your Form Responses', 'jetpack' ) ); ?></h1>
-					<p class="feedback-export-modal__header-subtitle"><?php echo esc_html( __( 'Choose your favorite file format or export destination:', 'jetpack' ) ); ?></p>
+					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export your Form Responses', 'jetpack' ); ?></h1>
+					<p class="feedback-export-modal__header-subtitle"><?php esc_html_e( 'Choose your favorite file format or export destination:', 'jetpack' ); ?></p>
 				</div>
 				<div class="feedback-export-modal__content">
 					<?php $this->get_csv_export_section(); ?>
@@ -1208,7 +1208,9 @@ class Grunion_Admin {
 						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="Jetpack Forms" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
 							<?php echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
-						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="Jetpack Forms" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">Jetpack Forms</a>
+						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="Jetpack Forms" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+							<?php esc_html_e( 'Jetpack Forms', 'jetpack' ); ?>
+						</a>
 					</div>
 					<div class="feedback-export-modal__footer-column">
 						<a href="https://automattic.com" title="Automattic" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
@@ -1223,7 +1225,7 @@ class Grunion_Admin {
 			</div>
 		</div>
 		<?php
-		$opener_label        = esc_html( __( 'Export', 'jetpack' ) );
+		$opener_label        = esc_html__( 'Export', 'jetpack' );
 		$export_modal_opener = wp_is_mobile()
 			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=550&inlineId=feedback-export-modal'>{$opener_label}</a>"
 			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
@@ -1297,7 +1299,7 @@ class Grunion_Admin {
 	 */
 	public function get_csv_export_section() {
 		$button_csv_html = get_submit_button(
-			esc_html( __( 'Download', 'jetpack' ) ),
+			esc_html__( 'Download', 'jetpack' ),
 			'primary export-button export-csv',
 			'jetpack-export-feedback-csv',
 			false,
@@ -1309,11 +1311,11 @@ class Grunion_Admin {
 				<svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M11.2309 5.04199L10.0797 2.73945C9.98086 2.54183 9.77887 2.41699 9.55792 2.41699H2.83333C2.51117 2.41699 2.25 2.67816 2.25 3.00033V16.7087C2.25 17.0308 2.51117 17.292 2.83333 17.292H19.1667C19.4888 17.292 19.75 17.0308 19.75 16.7087V5.62533C19.75 5.30316 19.4888 5.04199 19.1667 5.04199H11.2309ZM12.3125 3.29199L11.6449 1.95683C11.2497 1.16633 10.4417 0.666992 9.55792 0.666992H2.83333C1.54467 0.666992 0.5 1.71166 0.5 3.00033V16.7087C0.5 17.9973 1.54467 19.042 2.83333 19.042H19.1667C20.4553 19.042 21.5 17.9973 21.5 16.7087V5.62533C21.5 4.33666 20.4553 3.29199 19.1667 3.29199H12.3125Z" fill="#008710"/>
 				</svg>
-				<div class="export-card__header-title"><?php echo esc_html( __( 'CSV File', 'jetpack' ) ); ?></div>
+				<div class="export-card__header-title"><?php esc_html_e( 'CSV File', 'jetpack' ); ?></div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
-					<?php echo esc_html( __( 'Download your response form data via CSV file.', 'jetpack' ) ); ?>
+					<?php esc_html_e( 'Download your response form data via CSV file.', 'jetpack' ); ?>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
@@ -1345,7 +1347,7 @@ class Grunion_Admin {
 
 		if ( $has_valid_connection ) {
 			$button_html = get_submit_button(
-				esc_html( __( 'Export', 'jetpack' ) ),
+				esc_html__( 'Export', 'jetpack' ),
 				'primary export-button export-gdrive',
 				'jetpack-export-feedback-gdrive',
 				false,
@@ -1355,8 +1357,8 @@ class Grunion_Admin {
 			$button_html = sprintf(
 				'<a href="%1$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
 				esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
-				esc_attr( __( 'connect to Google Drive', 'jetpack' ) ),
-				esc_html( __( 'Connect Google Drive', 'jetpack' ) )
+				esc_attr__( 'connect to Google Drive', 'jetpack' ),
+				esc_html__( 'Connect Google Drive', 'jetpack' )
 			);
 		}
 
@@ -1366,15 +1368,15 @@ class Grunion_Admin {
 				<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
 				</svg>
-				<div class="export-card__header-title"><?php echo esc_html( __( 'Google Sheets', 'jetpack' ) ); ?></div>
+				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack' ); ?></div>
 				<div class="export-card__beta-badge">BETA</div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
 					<div>
-						<?php echo esc_html( __( 'Export your data into a Google Sheets file.', 'jetpack' ) ); ?>
+						<?php esc_html_e( 'Export your data into a Google Sheets file.', 'jetpack' ); ?>
 						<?php
-						echo sprintf(
+						printf(
 							'<a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferer">%3$s</a>',
 							esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 							esc_attr__( 'connect to Google Drive', 'jetpack' ),
@@ -1382,7 +1384,7 @@ class Grunion_Admin {
 						);
 						?>
 					</div>
-					<p class="export-card__body-description-footer"><?php echo esc_html( __( 'This premium feature is currently free to use in beta.', 'jetpack' ) ); ?></p>
+					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack' ); ?></p>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
