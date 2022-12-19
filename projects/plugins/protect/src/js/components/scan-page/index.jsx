@@ -18,8 +18,6 @@ import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
 
-export const JETPACK_SCAN = 'jetpack_scan';
-
 const ScanPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
 	const { hasConnectionError } = useConnectionErrorNotice();
