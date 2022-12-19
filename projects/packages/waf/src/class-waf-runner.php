@@ -141,24 +141,6 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Determines if automatic rules are enabled.
-	 *
-	 * @return bool
-	 */
-	public static function automatic_rules_enabled() {
-		// for backwards compatibility, if the automatic rules option does not exist and the
-		// module is active, consider automatic rules enabled
-		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
-		if ( ! $option_exists && self::is_enabled() ) {
-			$is_enabled = true;
-		} else {
-			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-		}
-
-		return $is_enabled;
-	}
-
-	/**
 	 * Enables the WAF module on the site.
 	 */
 	public static function enable() {
@@ -291,8 +273,6 @@ class Waf_Runner {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
 
-		add_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-		add_option( self::IP_LISTS_ENABLED_OPTION_NAME, false );
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
