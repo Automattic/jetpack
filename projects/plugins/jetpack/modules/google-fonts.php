@@ -159,21 +159,36 @@ function jetpack_rename_google_font_names( $theme_json ) {
 		$font_families = $raw_data['settings']['typography']['fontFamilies']['theme'];
 
 		$renamed_fonts = array(
-			'Alexandria'           => _x( 'Alexandria (Arabic)', 'Font name', 'jetpack' ),
-			'IBM Plex Sans Arabic' => _x( 'IBM Plex Sans (Arabic)', 'Font name', 'jetpack' ),
-			'Noto Sans Hebrew'     => _x( 'Noto Sans (Hebrew)', 'Font name', 'jetpack' ),
-			'Noto Sans HK'         => _x( 'Noto Sans (Hong Kong)', 'Font name', 'jetpack' ),
-			'Noto Sans JP'         => _x( 'Noto Sans (Japanese)', 'Font name', 'jetpack' ),
-			'Noto Sans KR'         => _x( 'Noto Sans (Korean)', 'Font name', 'jetpack' ),
-			'Noto Sans SC'         => _x( 'Noto Sans (Simplified Chinese)', 'Font name', 'jetpack' ),
-			'Noto Sans TC'         => _x( 'Noto Sans (Traditional Chinese)', 'Font name', 'jetpack' ),
-			'Noto Sans Telugu'     => _x( 'Noto Sans (Telugu)', 'Font name', 'jetpack' ),
-			'Noto Serif Hebrew'    => _x( 'Noto Serif (Hebrew)', 'Font name', 'jetpack' ),
-			'Noto Serif HK'        => _x( 'Noto Serif (Hong Kong)', 'Font name', 'jetpack' ),
-			'Noto Serif JP'        => _x( 'Noto Serif (Japanese)', 'Font name', 'jetpack' ),
-			'Noto Serif KR'        => _x( 'Noto Serif (Korean)', 'Font name', 'jetpack' ),
-			'Noto Serif SC'        => _x( 'Noto Serif (Simplified Chinese)', 'Font name', 'jetpack' ),
-			'Noto Serif TC'        => _x( 'Noto Serif (Traditional Chinese)', 'Font name', 'jetpack' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Alexandria'           => sprintf( __( '%s (Arabic)', 'jetpack' ), 'Alexandria' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'IBM Plex Sans Arabic' => sprintf( __( '%s (Arabic)', 'jetpack' ), 'IBM Plex Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans Hebrew'     => sprintf( __( '%s (Hebrew)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans HK'         => sprintf( __( '%s (Hong Kong)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans JP'         => sprintf( __( '%s (Japanese)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans KR'         => sprintf( __( '%s (Korean)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans SC'         => sprintf( __( '%s (Simplified Chinese)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans TC'         => sprintf( __( '%s (Traditional Chinese)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Sans Telugu'     => sprintf( __( '%s (Telugu)', 'jetpack' ), 'Noto Sans' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif Hebrew'    => sprintf( __( '%s (Hebrew)', 'jetpack' ), 'Noto Serif' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif HK'        => sprintf( __( '%s (Hong Kong)', 'jetpack' ), 'Noto Serif' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif JP'        => sprintf( __( '%s (Japanese)', 'jetpack' ), 'Noto Serif' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif KR'        => sprintf( __( '%s (Korean)', 'jetpack' ), 'Noto Serif' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif SC'        => sprintf( __( '%s (Simplified Chinese)', 'jetpack' ), 'Noto Serif' ),
+			/* translators: %s is a font name, followed by character set/script name. */
+			'Noto Serif TC'        => sprintf( __( '%s (Traditional Chinese)', 'jetpack' ), 'Noto Serif' ),
 		);
 
 		foreach ( $font_families as $key => $font_family ) {
