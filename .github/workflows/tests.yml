@@ -91,9 +91,15 @@ jobs:
 
       - name: Run project tests
         env:
-          EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
+          FORCE_PACKAGE_TESTS: ${{ matrix.force-package-tests && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
+          # If we're going to be making WorDBless use WP "nightlies", remove the relevant package from Composer's cache to get the latest version.
+          if [[ "$WP_BRANCH" == 'trunk' && ( "$TEST_SCRIPT" == "test-php" || "$TEST_SCRIPT" == "test-coverage" ) ]]; then
+            DIR=$(composer config cache-files-dir)
+            rm -rf "$DIR/roots/wordpress"
+          fi
+
           EXIT=0
           mkdir artifacts
           [[ "$TEST_SCRIPT" == "test-coverage" ]] && mkdir coverage
@@ -111,7 +117,7 @@ jobs:
               if [[ "$WP_BRANCH" != 'none' ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
-            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$EXPERIMENTAL" != "true" ]]; then
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$FORCE_PACKAGE_TESTS" != "true" ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
             fi
@@ -153,6 +159,8 @@ jobs:
                 VER=$(composer --format=json --working-dir="$DIR" show | jq -r '.installed[] | select( .name == "roots/wordpress" ) | .version')
                 if [[ -n "$VER" ]]; then
                   echo 'Supposed to run tests against WordPress trunk, so upgrading roots/wordpress to dev-nightly'
+                  # Composer seems to sometimes have issues with deleting the wordpress dir on its own, so do it manually first.
+                  rm -rf "$DIR/wordpress"
                   composer --working-dir="$DIR" require --dev roots/wordpress="dev-nightly as $VER"
                 fi
               fi
@@ -168,6 +176,11 @@ jobs:
                 FAIL=true
                 EXIT=1
               fi
+
+              # Actions seems to slow down if there are a lot of files, so clean up Composer stuff after each test.
+              # We don't do it for JS stuff, as that might break things with how JS does package deps.
+              rm -rf "$DIR/vendor" "$DIR/jetpack_vendor" "$DIR/wordpress"
+
               echo "::endgroup::"
               $FAIL && echo "::error::Tests for $SLUG failed!"
             fi

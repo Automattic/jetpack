@@ -48,6 +48,9 @@
 		"autotagger": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
+		},
+		"version-constants": {
+			"JETPACK_MU_WPCOM__PLUGIN_VERSION": "jetpack-mu-wpcom.php"
 		}
 	},
 	"config": {

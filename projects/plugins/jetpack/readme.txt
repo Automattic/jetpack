@@ -242,16 +242,33 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.3 - 2022-12-12
+### 11.7-a.5 - 2022-12-19
 #### Enhancements
-- Form block: update Form blocks descriptions.
-- Form block: simplify Form block sidebar to make the UI easier to use.
-- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
-- Writing prompts: add filter for whether prompts are enabled or not
+- Assistant: update Akismet and Backup names.
+- Block editor: add a new panel that gives the ability to promote posts after publishing them.
+- Dashboard: activate license key dropdown selector in the main Jetpack dashboard licenses activation page.
+- Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
+- Dashboard: update Backup, Anti-spam, and VideoPress logos.
+- Form block: allow the required field text to be changed.
+- Form block: update the default labels logic to allow fields without any label.
+- Form block: update block placeholder styles and update form fields styles to comply with WYSIWYG. [#27855, #27967]
+- Google fonts: add new fonts to Global Style options.
+- Slideshow block: implement pagination numbers with more than 5 images.
+- Slideshow block: update block description.
+- Writing prompts: add context to blogging prompt placeholder.
+
+#### Improved compatibility
+- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
+- Styling: Removed custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
+- Writing prompts: hide placeholder prompts by default.
 
 #### Bug fixes
-- Admin Page: avoid querying for WAF settings when the feature is not active.
-- VideoPress block: fix video player issue in some VideoMaker theme patterns.
+- Dashboard: add translation context to Security product name.
+- Form block: fix email formatting for contact form submissions.
+- General: Fix deprecation warnings when running with PHP 8.2.
+- Hovercards: fix minor Hovercards & AMP compatibility bug
+- Subscription block: fix PHP Warning.
+- WAF: fix the initialization of the firewall.
 
 --------
 
