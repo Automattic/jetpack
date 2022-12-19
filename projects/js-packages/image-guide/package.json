@@ -39,5 +39,5 @@
 	"exports": {
 		".": "./build/index.d.js"
 	},
-	"main": "src/index.ts"
+	"main": "src/index.d.js"
 }
