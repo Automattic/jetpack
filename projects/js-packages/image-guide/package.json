@@ -20,7 +20,8 @@
 		"build": "tsc",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
-		"test": "jest --config=tests/jest.config.js"
+		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:1.3.19",

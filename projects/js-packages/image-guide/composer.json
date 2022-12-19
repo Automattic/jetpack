@@ -14,15 +14,6 @@
 		]
 	},
 	"scripts": {
-		"phpunit": [
-			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
-		"test-php": [
-			"@composer phpunit"
-		],
 		"build-development": [
 			"pnpm run build"
 		],
@@ -32,6 +23,12 @@
 		"watch": [
 			"Composer\\Config::disableProcessTimeout",
 			"pnpm run watch"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-coverage": [
+			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

@@ -12,7 +12,7 @@ module.exports = {
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
 		babelOptions: {
-			configFile: require.resolve( './babel.config.js' ),
+			configFile: require.resolve( './babel.config.cjs' ),
 		},
 		sourceType: 'module',
 		tsconfigRootDir: __dirname,
