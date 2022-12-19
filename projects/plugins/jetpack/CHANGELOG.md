@@ -13,7 +13,7 @@
 - Form block: update the default labels logic to allow fields without any label. [#27628]
 - Form block: update block placeholder styles and update form fields styles to comply with WYSIWYG. [#27855, #27967]
 - Google fonts: add new fonts to Global Style options. [#27441]
-- Slideshow block: implement pagination numbers with more than 5 images. [#27936]
+- Slideshow block: implement pagination styles when a gallery has more than five images. [#27936]
 - Slideshow block: update block description. [#27899]
 - Writing prompts: add context to blogging prompt placeholder. [#27895]
 
