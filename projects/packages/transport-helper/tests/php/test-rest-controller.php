@@ -25,6 +25,13 @@ class Test_REST_Controller extends TestCase {
 	private $server;
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before

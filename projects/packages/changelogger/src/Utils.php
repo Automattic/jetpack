@@ -84,7 +84,7 @@ class Utils {
 	 *   - warnings: An array of warning messages and applicable lines.
 	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
-	 * @throws \RuntimeException On error.
+	 * @throws LoadChangeFileException On error.
 	 */
 	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
@@ -93,19 +93,19 @@ class Utils {
 		);
 
 		if ( ! file_exists( $filename ) ) {
-			$ex           = new \RuntimeException( 'File does not exist.' );
+			$ex           = new LoadChangeFileException( 'File does not exist.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
 		$fileinfo = new \SplFileInfo( $filename );
 		if ( $fileinfo->getType() !== 'file' ) {
-			$ex           = new \RuntimeException( "Expected a file, got {$fileinfo->getType()}." );
+			$ex           = new LoadChangeFileException( "Expected a file, got {$fileinfo->getType()}." );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 		if ( ! $fileinfo->isReadable() ) {
-			$ex           = new \RuntimeException( 'File is not readable.' );
+			$ex           = new LoadChangeFileException( 'File is not readable.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -115,7 +115,7 @@ class Utils {
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
-			$ex           = new \RuntimeException( "Failed to read file: {$err['message']}" );
+			$ex           = new LoadChangeFileException( "Failed to read file: {$err['message']}" );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -138,7 +138,7 @@ class Utils {
 		}
 
 		if ( '' !== $contents && "\n" !== $contents[0] ) {
-			$ex           = new \RuntimeException( 'Invalid header.' );
+			$ex           = new LoadChangeFileException( 'Invalid header.' );
 			$ex->fileLine = $line;
 			throw $ex;
 		}
@@ -240,7 +240,7 @@ class Utils {
 			$files[ $name ] = 0;
 			try {
 				$data = self::loadChangeFile( $path, $diagnostics );
-			} catch ( \RuntimeException $ex ) {
+			} catch ( LoadChangeFileException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
 				continue;
