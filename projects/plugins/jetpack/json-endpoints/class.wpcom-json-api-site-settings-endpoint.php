@@ -517,7 +517,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 * We set default value as false when expiration date not match the following:
 					 * - 54 days before the annual plan expiration.
 					 * - 5 days before the monthly plan expiration.
-					 * This is to match the gifting banner logic```
+					 * This is to match the gifting banner logic.
 					 */
 					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
 					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
