@@ -41,6 +41,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'generate_cloud_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
+		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
@@ -212,5 +213,29 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$constants['criticalCssStatus'] = $generator->get_critical_css_status();
 
 		return $constants;
+	}
+
+	/**
+	 * Return whether the Cloud CSS has an error or not.
+	 *
+	 * @return boolean
+	 */
+	public function has_health_problem() {
+		$cloud_css = new Critical_CSS_State( 'cloud' );
+
+		return $cloud_css->get_status() === 'error';
+	}
+
+	/**
+	 * Updates the total problem count for Boost if something's
+	 * wrong with Cloud CSS.
+	 *
+	 * @param  int $count The current problem count.
+	 * @return int
+	 */
+	public function update_total_problem_count( $count ) {
+		$has_problem = $this->has_health_problem();
+
+		return $has_problem ? ++$count : $count;
 	}
 }
