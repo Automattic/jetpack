@@ -14,6 +14,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
@@ -112,10 +113,14 @@
 				<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 				<p slot="description">
 					{__(
-						`Detect images that are too large on the site to help you catch images that are too large while you browse the site.`,
+						`This feature helps you speed up your website by showing you which images are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
 						'jetpack-boost'
 					)}
 				</p>
+				<!-- svelte-ignore missing-declaration -->
+				{#if false === Jetpack_Boost.site.canResizeImages}
+					<ResizingUnavailable />
+				{/if}
 			</Module>
 		</div>
 	{/if}
