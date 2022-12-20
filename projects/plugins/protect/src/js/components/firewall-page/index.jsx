@@ -167,7 +167,8 @@ const FirewallPage = () => {
 			jetpack_waf_automatic_rules: newValue,
 		} );
 		toggleAutomaticRules()
-			.then( () =>
+			.then( () => {
+				setAutomaticRulesInstallationError( false );
 				setNotice( {
 					type: 'success',
 					duration: SUCCESS_NOTICE_DURATION,
@@ -178,8 +179,8 @@ const FirewallPage = () => {
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
-				} )
-			)
+				} );
+			} )
 			.catch( () => {
 				setAutomaticRulesInstallationError( true );
 				setNotice( {
@@ -328,7 +329,7 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					<div className={ styles[ 'toggle-section__details' ] }>
-						{ jetpackWafAutomaticRules && (
+						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
 							<div className={ styles[ 'automatic-rules-details-text' ] }>
 								<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
 									{ sprintf(
