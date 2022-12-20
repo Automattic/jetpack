@@ -2,6 +2,8 @@
 
 class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
+	private $custom_photon_domain;
+
 	/**
 	 * Tear down.
 	 */

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.11.0",
+	"version": "0.11.1",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -47,9 +47,9 @@
 		"@babel/plugin-transform-react-jsx": "7.19.0",
 		"@babel/preset-react": "7.18.6",
 		"@babel/runtime": "7.20.6",
-		"@testing-library/dom": "8.16.0",
+		"@testing-library/dom": "8.19.0",
 		"@testing-library/react": "12.1.5",
-		"@testing-library/user-event": "14.2.1",
+		"@testing-library/user-event": "14.4.3",
 		"@testing-library/react-hooks": "8.0.1",
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.5.0",
 		"babel-jest": "29.3.1",

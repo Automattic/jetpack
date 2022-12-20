@@ -27,6 +27,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 		showConnectButton,
 		displayButtonError,
 		buttonIsLoading,
+		logo,
 	} = props;
 
 	const tos = createInterpolateElement(
@@ -68,6 +69,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 				'jp-connection__connect-screen-required-plan' +
 				( isLoading ? ' jp-connection__connect-screen-required-plan__loading' : '' )
 			}
+			logo={ logo }
 		>
 			<div className="jp-connection__connect-screen-required-plan__content">
 				{ children }
@@ -116,7 +118,7 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	/** The Connect Button label. */
 	buttonLabel: PropTypes.string,
 	/** The Pricing Card Icon. */
-	pricingIcon: PropTypes.string,
+	pricingIcon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	/** Whether the connection status is still loading. */
 	isLoading: PropTypes.bool,
 	/** Callback that is applied into click for all buttons. */
@@ -127,6 +129,8 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	displayButtonError: PropTypes.bool,
 	/** Whether the button loading state is active or not. */
 	buttonIsLoading: PropTypes.bool,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 ConnectScreenRequiredPlanVisual.defaultProps = {

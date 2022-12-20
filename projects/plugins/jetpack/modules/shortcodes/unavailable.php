@@ -11,6 +11,15 @@
  */
 class Jetpack_Shortcode_Unavailable {
 	/**
+	 * Shortcodes that are unavailable.
+	 *
+	 * Key is the shortcode, value is string explaining why.
+	 *
+	 * @var array
+	 */
+	public $shortcodes;
+
+	/**
 	 * Set up the actions and filters for the class to listen to.
 	 *
 	 * @param array $shortcodes An associative array of keys being the shortcodes that are unavailable, and a string explaining why.
