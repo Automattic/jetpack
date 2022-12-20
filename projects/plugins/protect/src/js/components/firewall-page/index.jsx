@@ -59,7 +59,7 @@ const FirewallPage = () => {
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
-	const { ipBlockListCount, rulesVersion, rulesLastUpdated } = stats;
+	const { ipAllowListCount, ipBlockListCount, rulesVersion, rulesLastUpdated } = stats;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -401,12 +401,12 @@ const FirewallPage = () => {
 					</Text>
 					{ jetpackWafIpList && (
 						<div className={ styles[ 'toggle-section__details' ] }>
-							{ '' === jetpackWafIpAllowList && '' === jetpackWafIpBlockList && (
+							{ ipAllowListCount === 0 && ipBlockListCount === 0 && (
 								<Text className={ styles[ 'no-rules-text' ] } variant={ 'body-small' } mt={ 2 }>
 									{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
 								</Text>
 							) }
-							{ '' !== jetpackWafIpBlockList && ipBlockListCount > 0 && (
+							{ ipBlockListCount > 0 && (
 								<Text className={ styles[ 'block-list-text' ] } variant={ 'body-small' } mt={ 2 }>
 									{ sprintf(
 										// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
