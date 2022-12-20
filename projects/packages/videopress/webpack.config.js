@@ -47,6 +47,10 @@ module.exports = [
 						from: './*/block.json',
 						to: './block-editor/blocks/[path]/[name].json',
 					},
+					{
+						from: 'src/client/block-editor/extensions/index.json',
+						to: './block-editor/extensions/index.json',
+					},
 				],
 			} ),
 		],
