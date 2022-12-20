@@ -327,7 +327,7 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
-					<div className={ styles[ 'automatic-rules-details-section' ] }>
+					<div className={ styles[ 'toggle-section__details' ] }>
 						{ jetpackWafAutomaticRules && (
 							<div className={ styles[ 'automatic-rules-details-text' ] }>
 								<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
@@ -399,7 +399,7 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					{ jetpackWafIpList && (
-						<div className={ styles[ 'manual-rules-details-section' ] }>
+						<div className={ styles[ 'toggle-section__details' ] }>
 							{ '' === jetpackWafIpAllowList && '' === jetpackWafIpBlockList && (
 								<Text className={ styles[ 'no-rules-text' ] } variant={ 'body-small' } mt={ 2 }>
 									{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
