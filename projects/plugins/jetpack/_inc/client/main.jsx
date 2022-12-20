@@ -68,7 +68,10 @@ import {
 	isWooCommerceActive,
 } from 'state/initial-state';
 import {
+	getDetachedLicenses as getAvailableLicenses,
+	getDetachedLicensesLoadingInfo as getFetchingAvailableLicense,
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
+	updateUserLicenses as updateUserLicensesAction,
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
 import { fetchModules as fetchModulesAction } from 'state/modules';
@@ -475,10 +478,12 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
+							availableLicenses={ this.props.availableLicenses }
+							currentRecommendationsStep={ this.props.currentRecommendationsStep }
+							fetchingAvailableLicenses={ this.props.fetchingAvailableLicenses }
 							siteRawUrl={ this.props.siteRawUrl }
 							onActivationSuccess={ this.onLicenseActivationSuccess }
 							siteAdminUrl={ this.props.siteAdminUrl }
-							currentRecommendationsStep={ this.props.currentRecommendationsStep }
 						/>
 					);
 				} else {
@@ -718,6 +723,9 @@ class Main extends React.Component {
 
 		if ( this.isLicensingScreen() ) {
 			jpClasses.push( 'jp-licensing-screen' );
+
+			// Loads current user licenses
+			this.props.isSiteConnected && this.props.updateUserLicenses();
 		}
 
 		return (
@@ -784,6 +792,8 @@ export default connect(
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
+			availableLicenses: getAvailableLicenses( state ),
+			fetchingAvailableLicenses: getFetchingAvailableLicense( state ),
 		};
 	},
 	dispatch => ( {
@@ -798,6 +808,9 @@ export default connect(
 		},
 		resetConnectUser: () => {
 			return dispatch( resetConnectUser() );
+		},
+		updateUserLicenses: () => {
+			return dispatch( updateUserLicensesAction() );
 		},
 		updateLicensingActivationNoticeDismiss: () => {
 			return dispatch( updateLicensingActivationNoticeDismissAction() );
