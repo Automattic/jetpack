@@ -169,6 +169,10 @@ class Main extends React.Component {
 				state: { previousPath: this.props.location.pathname },
 			} );
 		}
+
+		if ( this.shouldUpdateUserLicenses() ) {
+			this.props.updateUserLicenses();
+		}
 	}
 
 	/*
@@ -220,8 +224,10 @@ class Main extends React.Component {
 	}
 
 	componentDidUpdate( prevProps ) {
+		const hasLocationChange = prevProps.location.pathname !== this.props.location.pathname;
+
 		// Track page view on change only
-		prevProps.location.pathname !== this.props.location.pathname &&
+		hasLocationChange &&
 			this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
 				path: this.props.location.pathname,
@@ -239,6 +245,10 @@ class Main extends React.Component {
 		}
 
 		this.props.setConnectionStatus( this.props.connectionStatus );
+
+		if ( hasLocationChange && this.shouldUpdateUserLicenses() ) {
+			this.props.updateUserLicenses();
+		}
 	}
 
 	renderMainContent = route => {
@@ -683,6 +693,15 @@ class Main extends React.Component {
 	}
 
 	/**
+	 * Check if we should update user licenses.
+	 *
+	 * @returns {boolean} Whether we should update user licenses.
+	 */
+	shouldUpdateUserLicenses() {
+		return this.isLicensingScreen() && this.props.isConnectionOwner;
+	}
+
+	/**
 	 * Check if the connection flow should get triggered automatically.
 	 *
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
@@ -723,9 +742,6 @@ class Main extends React.Component {
 
 		if ( this.isLicensingScreen() ) {
 			jpClasses.push( 'jp-licensing-screen' );
-
-			// Loads current user licenses
-			this.props.isSiteConnected && this.props.updateUserLicenses();
 		}
 
 		return (
