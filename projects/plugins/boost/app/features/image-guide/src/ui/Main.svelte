@@ -22,12 +22,7 @@
 		if (
 			e.relatedTarget &&
 			// Don't exit when hovering the Popup
-			( e.relatedTarget.classList.contains( 'details' ) ||
-				// Don't exit when mouse is over the backdrop
-				// The Backdrop
-				( e.relatedTarget.classList.contains( 'guide' ) &&
-					// Make sure the backdrop isn't a neighboring guide.
-					e.relatedTarget.classList.contains( 'show' ) ) )
+			e.relatedTarget.classList.contains( 'image-guide-keep-open' )
 		) {
 			return;
 		}
@@ -74,7 +69,10 @@
 </script>
 
 {#if $guideState === 'active' || $guideState === 'always_on'}
-	<div class="guide {size}" class:show={show !== false} on:mouseleave={closeDetails}>
+	<div class="guide {size}"
+	class:show={show !== false}
+	class:image-guide-keep-open={show !== false}
+	on:mouseleave={closeDetails}>
 		<div class="previews">
 			{#each stores as store, index}
 				<Bubble {index} {store} on:hover={hover} />
