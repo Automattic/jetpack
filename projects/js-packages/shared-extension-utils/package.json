@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-shared-extension-utils",
-	"version": "0.6.10",
+	"version": "0.7.0",
 	"description": "Utility functions used by the block editor extensions",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/shared-extension-utils/#readme",
 	"bugs": {
@@ -15,7 +15,10 @@
 	"author": "Automattic",
 	"scripts": {},
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@wordpress/compose": "5.20.0",
+		"@wordpress/element": "4.20.0",
 		"@wordpress/i18n": "4.22.0",
 		"@wordpress/plugins": "4.20.0",
 		"@wordpress/url": "3.23.0",

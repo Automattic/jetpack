@@ -16,6 +16,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 export { default as JetpackLogo } from './components/jetpack-logo';
 export { default as JetpackSearchLogo } from './components/jetpack-search-logo';
+export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vaultpress-backup-logo';
+export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';

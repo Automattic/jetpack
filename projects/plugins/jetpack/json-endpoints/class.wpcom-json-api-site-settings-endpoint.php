@@ -435,9 +435,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
+						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -933,6 +934,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					update_option( 'rss_use_excerpt', (int) (bool) $value );
 					break;
 
+				case 'wpcom_subscription_emails_use_excerpt':
+					update_option( 'wpcom_subscription_emails_use_excerpt', (bool) $value );
+					$updated[ $key ] = (bool) $value;
+					break;
+
 				case 'instant_search_enabled':
 					update_option( 'instant_search_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
@@ -950,8 +956,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) $value;
 					break;
 
-				case 'featured_image_email_enabled':
-					update_option( 'featured_image_email_enabled', (int) (bool) $value );
+				case 'wpcom_featured_image_in_email':
+					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
@@ -1030,5 +1036,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'updated' => $updated,
 		);
 
+	}
+
+	/**
+	 * Get the value of the wpcom_subscription_emails_use_excerpt option.
+	 * When the option is not set, it will return the value of the rss_use_excerpt option.
+	 *
+	 * @return bool
+	 */
+	protected function get_wpcom_subscription_emails_use_excerpt_option() {
+		$wpcom_subscription_emails_use_excerpt = get_option( 'wpcom_subscription_emails_use_excerpt', null );
+
+		if ( $wpcom_subscription_emails_use_excerpt === null ) {
+			$rss_use_excerpt                       = get_option( 'rss_use_excerpt', null );
+			$wpcom_subscription_emails_use_excerpt = $rss_use_excerpt === null ? false : $rss_use_excerpt;
+		}
+
+		return (bool) $wpcom_subscription_emails_use_excerpt;
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: set v1.1/videos endpoint as global when requesting video data
