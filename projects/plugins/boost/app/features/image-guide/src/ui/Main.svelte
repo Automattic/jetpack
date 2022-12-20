@@ -99,10 +99,9 @@
 		height: 100%;
 		z-index: 8000;
 		line-height: 1.55;
-		padding: 15px;
+		padding: 20px;
 		&.small {
 			font-size: 13px;
-			padding: 15px;
 		}
 
 		&.micro {
