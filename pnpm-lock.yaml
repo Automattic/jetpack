@@ -1188,6 +1188,7 @@ importers:
       '@wordpress/url': 3.23.0
       autoprefixer: 10.4.12
       classnames: 2.3.1
+      copy-webpack-plugin: 11.0.0
       debug: 4.3.4
       filesize: 8.0.6
       jest: 29.3.1
@@ -1227,6 +1228,7 @@ importers:
       '@wordpress/icons': 9.13.0
       '@wordpress/url': 3.23.0
       classnames: 2.3.1
+      copy-webpack-plugin: 11.0.0_webpack@5.72.1
       debug: 4.3.4
       filesize: 8.0.6
       react: 17.0.2
@@ -3761,6 +3763,7 @@ packages:
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics/2.0.3:
