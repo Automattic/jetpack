@@ -4,14 +4,23 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'block-editor/index': './src/client/block-editor/index.js',
-			'block-editor/view': './src/client/block-editor/view.js',
-			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
-			'admin/index': './src/client/admin/index.js',
-			'block-editor/extensions/index': './src/client/block-editor/extensions/index.ts',
-			'block-editor/video-chapters/index':
+			// Video block
+			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.js',
+			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.js',
+
+			// Video Chapters block
+			'block-editor/blocks/video-chapters/index':
 				'./src/client/block-editor/blocks/video-chapters/index.js',
-			'block-editor/video-chapters/view': './src/client/block-editor/blocks/video-chapters/view.js',
+			'block-editor/blocks/video-chapters/view':
+				'./src/client/block-editor/blocks/video-chapters/view.js',
+
+			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
+
+			// VideoPress dashboard page
+			'admin/index': './src/client/admin/index.js',
+
+			// Block editor extensions
+			'block-editor/extensions/index': './src/client/block-editor/extensions/index.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
