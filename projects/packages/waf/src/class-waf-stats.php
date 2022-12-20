@@ -104,7 +104,7 @@ class Waf_Stats {
 	 */
 	public static function get_waf_stats() {
 		return array(
-			'blocked_requests'       => true, // self::get_stats_from_api(),
+			'blocked_requests'       => 'placeholder',
 			'ip_allow_list_count'    => self::get_ip_allow_list_count(),
 			'ip_block_list_count'    => self::get_ip_block_list_count(),
 			'rules_version'          => self::get_rules_version(),
