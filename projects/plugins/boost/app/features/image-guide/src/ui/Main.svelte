@@ -22,7 +22,7 @@
 		if (
 			e.relatedTarget &&
 			// Don't exit when hovering the Popup
-			e.relatedTarget.classList.contains( 'image-guide-keep-open' )
+			e.relatedTarget.classList.contains( 'keep-guide-open' )
 		) {
 			return;
 		}
@@ -71,7 +71,7 @@
 {#if $guideState === 'active' || $guideState === 'always_on'}
 	<div class="guide {size}"
 	class:show={show !== false}
-	class:image-guide-keep-open={show !== false}
+	class:keep-guide-open={show !== false}
 	on:mouseleave={closeDetails}>
 		<div class="previews">
 			{#each stores as store, index}

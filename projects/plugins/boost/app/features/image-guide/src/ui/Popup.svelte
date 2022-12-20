@@ -71,7 +71,7 @@
 <svelte:window bind:scrollY />
 <Portal>
 	<div
-		class="image-guide-popup image-guide-keep-open"
+		class="jetpack-boost-guide-popup keep-guide-open"
 		in:fly={{ duration: 150, y: 4, easing: backOut }}
 		style:top="{position.top}px"
 		style:left="{position.left}px"
@@ -212,7 +212,7 @@
 		font-size: 0.9em;
 	}
 
-	.image-guide-popup {
+	.jetpack-boost-guide-popup {
 		color: #3c434a;
 		padding: 25px;
 		font-family: sans-serif;
