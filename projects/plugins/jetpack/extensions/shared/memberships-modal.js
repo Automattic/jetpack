@@ -1,29 +1,33 @@
 import { Modal } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { createRef, useState } from '@wordpress/element';
+import { useEffect } from 'react';
 
 export default function MembershipsModal( props ) {
-	const { text = '', url = null } = props;
+	const { text = '', uniqueId = '', url = null } = props;
+
+	const modalRef = createRef();
 
 	const [ isOpen, setOpen ] = useState( false );
-	const openModal = () => {
-		setOpen( true );
-		// Listen for messages from the iframe.
-		window.addEventListener( 'message', handleIframeResult );
-	};
+	const openModal = () => setOpen( true );
+	const closeModal = () => setOpen( false );
 
-	const closeModal = evt => {
-		// If the user clicks on the iframe, don't close the modal. (Loop through all the iframes
-		// and check if the user clicked on one of them.)
-		if ( evt && evt.type === 'blur' ) {
-			for ( const el of document.querySelectorAll( '.jetpack-memberships-modal iframe' ) ) {
-				if ( document.activeElement === el ) {
-					return;
-				}
+	// Listen for messages from the iframe & close the modal if the user clicks off it.
+	useEffect( () => {
+		const clickCallback = (e) => {
+			// Close the modal if the user clicks outside of the iframe.
+			if ( e.target === modalRef.current ) {
+				closeModal();
 			}
+		};
+		if ( isOpen ) {
+			window.addEventListener( 'message', handleIframeResult );
+			modalRef?.current?.addEventListener( 'click', clickCallback );
 		}
-		setOpen( false );
-		window.removeEventListener( 'message', handleIframeResult );
-	};
+		return () => {
+			window.removeEventListener( 'message', handleIframeResult );
+			modalRef?.current?.removeEventListener( 'click', clickCallback );
+		};
+	}, [ isOpen ] );
 
 	function handleIframeResult( evt ) {
 		if ( evt.origin !== 'https://subscribe.wordpress.com' || ! evt.data ) {
@@ -38,12 +42,14 @@ export default function MembershipsModal( props ) {
 
 	return (
 		<>
-			<button onClick={ openModal }>{ text }</button>
+			<button id={ uniqueId } onClick={ openModal }>{ text }</button>
 			{ isOpen && (
 				<Modal
+					ref={ modalRef }
 					onRequestClose={ closeModal }
+					shouldCloseOnClickOutside={ false }
 					__experimentalHideHeader={ true }
-					isFullScreen={ true }
+					// isFullScreen={ true }
 					className="jetpack-memberships-modal"
 				>
 					{ url && <iframe title="subscribe-iframe" src={ url } /> }

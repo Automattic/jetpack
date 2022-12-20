@@ -9,7 +9,11 @@ import MembershipsModal from './memberships-modal';
  */
 function setUpModal( button ) {
 	render(
-		<MembershipsModal text={ button.text } url={ button.getAttribute( 'href' ) } />,
+		<MembershipsModal
+			uniqueId={ button.id }
+			text={ button.text }
+			url={ button.getAttribute( 'href' ) }
+		/>,
 		button.parentNode,
 		() => {
 			// `replaceWith` doesn't work because the event listeners (e.g. onClick) are removed.
