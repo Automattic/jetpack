@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 
 module.exports = [
 	{
@@ -38,6 +39,15 @@ module.exports = [
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+			new CopyWebpackPlugin( {
+				patterns: [
+					{
+						context: 'src/client/block-editor/blocks',
+						from: './*/block.json',
+						to: './block-editor/blocks/[path]/[name].json',
+					},
+				],
 			} ),
 		],
 		module: {
