@@ -23,6 +23,7 @@ import {
 	SET_WAF_IS_UPDATING,
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
+	SET_WAF_STATS,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -163,6 +164,7 @@ const defaultWaf = {
 	isUpdating: false,
 	isToggling: false,
 	config: undefined,
+	stats: undefined,
 };
 const waf = ( state = defaultWaf, action ) => {
 	switch ( action.type ) {
@@ -172,6 +174,8 @@ const waf = ( state = defaultWaf, action ) => {
 			return { ...state, isEnabled: action.isEnabled };
 		case SET_WAF_CONFIG:
 			return { ...state, config: action.config };
+		case SET_WAF_STATS:
+			return { ...state, stats: action.stats };
 		case SET_WAF_IS_UPDATING:
 			return { ...state, isUpdating: action.isUpdating };
 		case SET_WAF_IS_TOGGLING:
