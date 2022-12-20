@@ -89,9 +89,9 @@ class Waf_Stats {
 	}
 
 	/**
-	 * Get Rules version last updated
+	 * Get Rules last updated date
 	 *
-	 * @return string The date the current stored rules version was last updated
+	 * @return string The date the current stored rules was last updated
 	 */
 	public static function get_rules_last_updated() {
 		$rules_last_updated = get_option( Waf_Runner::RULE_LAST_UPDATED_OPTION_NAME );
