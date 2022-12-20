@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\BloggingPrompts;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 require_once __DIR__ . '/settings.php';
 
@@ -35,6 +36,11 @@ function register_extension() {
 function inject_blogging_prompts() {
 	// Return early if we are not in the block editor.
 	if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+		return;
+	}
+
+	// Or if the editor's loading in a webview within the mobile app.
+	if ( User_Agent_Info::is_mobile_app() ) {
 		return;
 	}
 
