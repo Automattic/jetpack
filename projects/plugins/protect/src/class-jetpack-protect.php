@@ -207,10 +207,6 @@ class Jetpack_Protect {
 				'isToggling' => false,
 				'isUpdating' => false,
 				'config'     => Waf_Runner::get_config(),
-				'rules'      => array(
-					'version'     => get_option( Waf_Runner::VERSION_OPTION_NAME ),
-					'lastUpdated' => gmdate( 'F j, Y', get_option( Waf_Runner::RULE_LAST_UPDATED_OPTION_NAME ) ),
-				),
 			),
 		);
 

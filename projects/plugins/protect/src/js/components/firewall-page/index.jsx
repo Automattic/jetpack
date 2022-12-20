@@ -52,14 +52,12 @@ const FirewallPage = () => {
 		},
 		isEnabled,
 		isSeen,
-		rules,
 		isUpdating,
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
-	const { version, lastUpdated } = rules;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -72,6 +70,11 @@ const FirewallPage = () => {
 	 */
 	const jetpackWafIpBlockListLength = jetpackWafIpBlockList.split( '\n' ).length;
 
+	/**
+	 * Automatic Rules Installation Error State
+	 *
+	 * @member {boolean} automaticRulesInstallationError - Whether or not automatic rules installation failed.
+	 */
 	const [ automaticRulesInstallationError, setAutomaticRulesInstallationError ] = useState( false );
 
 	/**
@@ -335,14 +338,14 @@ const FirewallPage = () => {
 									{ sprintf(
 										// translators: placeholder is the latest rules version i.e. "v2.0".
 										__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
-										version
+										'placeholder'
 									) }
 								</Text>
 								<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
 									{ sprintf(
 										// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
 										__( 'Last updated on %s.', 'jetpack-protect' ),
-										lastUpdated
+										'placeholder'
 									) }
 								</Text>
 							</div>
