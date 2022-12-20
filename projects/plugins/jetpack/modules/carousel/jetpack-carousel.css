@@ -81,6 +81,11 @@ so we have to target all affected elements in touch devices.
 	border-radius: 4px;
 }
 
+.jp-carousel-overlay .swiper-button-prev svg:hover,
+.jp-carousel-overlay .swiper-button-next svg:hover {
+	background: var(--jp-carousel-primary-subtle-color);
+}
+
 .jp-carousel-overlay {
 	font-family: 'Helvetica Neue', sans-serif !important;
 	z-index: 2147483647;
@@ -304,6 +309,10 @@ div.jp-carousel-buttons a:hover {
 	padding: 3px 2px;
 	background: var(--jp-carousel-bg-color);
 	border-radius: 4px;
+}
+
+.jp-carousel-close-hint svg:hover {
+	background: var(--jp-carousel-primary-subtle-color);
 }
 
 .jp-carousel-close-hint:hover {
@@ -900,7 +909,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 .jp-carousel-icon {
 	border: none;
-	pointer-events: none;
 	display: inline-block;
 	line-height: 0;
 	font-weight: 400;
@@ -908,6 +916,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 4px;
 	width: 31px; /* Prevent comments indicator from changing icon width */
 	padding: 4px 3px 3px;
+}
+
+.jp-carousel-icon:hover {
+	background: var(--jp-carousel-primary-subtle-color);
 }
 
 .jp-carousel-icon svg {
