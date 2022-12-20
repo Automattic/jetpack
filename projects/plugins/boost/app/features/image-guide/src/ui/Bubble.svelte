@@ -35,10 +35,15 @@
 	}
 </script>
 
-<div class="interaction-area {severity}" on:mouseenter={onHover} transition:fly={scaleTransition}>
+<div
+	class="interaction-area {severity}"
+	bind:this={bubble}
+	on:mouseenter={onHover}
+	transition:fly={scaleTransition}
+>
 	<div class="bubble">
 		{#if false === $isLoading}
-			<div class="bubble-inner" bind:this={bubble}>
+			<div class="bubble-inner">
 				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
 					{#if $oversizedRatio > 9}
 						{Math.floor( $oversizedRatio )}x

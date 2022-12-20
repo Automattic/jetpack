@@ -3,6 +3,7 @@
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
+	import Portal from './Portal.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
@@ -20,7 +21,7 @@
 	/**
 	 * This is assigning a lot of reactive variables
 	 * to avoid re-rendering the component
-	 * when multiple bubbles are active.
+	 * when browsing between multiple bubbles next to each other.
 	 *
 	 * Note that in Main.svelte only the properties of this component
 	 * change to avoid creating multiple components.
@@ -64,121 +65,123 @@
 		initialScrollY = scrollY;
 		initialTop = position.top;
 	} );
-
 	$: repositionOnScroll( scrollY );
 </script>
 
 <svelte:window bind:scrollY />
-<div
-	class="details"
-	in:fly={{ duration: 150, y: 4, easing: backOut }}
-	style:top="{position.top}px"
-	style:left="{position.left}px"
->
-	<div class="logo">
-		<JetpackLogo size={250} />
-	</div>
-
-	<div class="preview">
-		<div class="description">
-			<div class="title">
-				<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
-			</div>
-			{#if ratio >= 1.3}
-				<div class="explanation">
-					The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
-					{#if $fileSize.weight > 450}
-						Try using a smaller image or reduce the file size by compressing it.
-					{/if}
-				</div>
-			{:else if ratio === 1}
-				<div class="explanation">The image is exactly the correct size for this screen.</div>
-			{:else if ratio >= 0.99 && ratio < 1.3}
-				<div class="explanation">
-					The image size is very close to the size it appears in the browser.
-					{#if ratio > 1}
-						Because there are various screen sizes, it's okay for the image to be
-						<strong>{ratio}x</strong> than it appears on the page.
-					{/if}
-				</div>
-			{:else}
-				{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
-				<div class="explanation">
-					The image file is {stretchedBy}x smaller than expected on this screen. This might be okay,
-					but pay attention whether the image appears blurry.
-				</div>
-			{/if}
-			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
+<Portal>
+	<div
+		class="details"
+		in:fly={{ duration: 150, y: 4, easing: backOut }}
+		style:top="{position.top}px"
+		style:left="{position.left}px"
+		on:mouseleave
+	>
+		<div class="logo">
+			<JetpackLogo size={250} />
 		</div>
-		{#if $imageURL}
-			<img
-				src={$imageURL}
-				alt={imageName}
-				style="width: {previewWidth}px; height: {previewHeight}px;"
-				width={previewWidth}
-				height={previewHeight}
-			/>
-		{/if}
-	</div>
 
-	<div class="meta">
-		<div class="row">
-			<div class="label">Image File Dimensions</div>
-			{#if $fileSize.width > 0 && $fileSize.height > 0}
-				<div class="value">{$fileSize.width} x {$fileSize.height}</div>
-			{:else}
+		<div class="preview">
+			<div class="description">
+				<div class="title">
+					<a href={$imageURL} target="_blank noreferrer">{imageName}</a>
+				</div>
+				{#if ratio >= 1.3}
+					<div class="explanation">
+						The image loaded is <strong>{ratio}x</strong> larger than it appears in the browser.
+						{#if $fileSize.weight > 450}
+							Try using a smaller image or reduce the file size by compressing it.
+						{/if}
+					</div>
+				{:else if ratio === 1}
+					<div class="explanation">The image is exactly the correct size for this screen.</div>
+				{:else if ratio >= 0.99 && ratio < 1.3}
+					<div class="explanation">
+						The image size is very close to the size it appears in the browser.
+						{#if ratio > 1}
+							Because there are various screen sizes, it's okay for the image to be
+							<strong>{ratio}x</strong> than it appears on the page.
+						{/if}
+					</div>
+				{:else}
+					{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
+					<div class="explanation">
+						The image file is {stretchedBy}x smaller than expected on this screen. This might be
+						okay, but pay attention whether the image appears blurry.
+					</div>
+				{/if}
+				<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
+			</div>
+			{#if $imageURL}
+				<img
+					src={$imageURL}
+					alt={imageName}
+					style="width: {previewWidth}px; height: {previewHeight}px;"
+					width={previewWidth}
+					height={previewHeight}
+				/>
+			{/if}
+		</div>
+
+		<div class="meta">
+			<div class="row">
+				<div class="label">Image File Dimensions</div>
+				{#if $fileSize.width > 0 && $fileSize.height > 0}
+					<div class="value">{$fileSize.width} x {$fileSize.height}</div>
+				{:else}
+					<div class="value">
+						{#if $isLoading}
+							Loading...
+						{:else}
+							<em>Unknown</em>
+						{/if}
+					</div>
+				{/if}
+			</div>
+
+			<div class="row">
+				<div class="label">Expected Dimensions</div>
+				<div class="value">{$expectedSize.width} x {$expectedSize.height}</div>
+			</div>
+
+			<div class="row">
+				<div class="label">Size on screen</div>
+				<div class="value">{$sizeOnPage.width} x {$sizeOnPage.height}</div>
+			</div>
+
+			<div class="row">
+				<div class="label">Image Size</div>
 				<div class="value">
-					{#if $isLoading}
+					{#if $fileSize.weight > 0}
+						{Math.round( $fileSize.weight )} KB
+					{:else if $isLoading}
 						Loading...
 					{:else}
 						<em>Unknown</em>
 					{/if}
 				</div>
+			</div>
+
+			<div class="row">
+				<div class="label">Potential savings</div>
+				<div class="value">
+					{#if $potentialSavings > 0}
+						<strong>{$potentialSavings} KB</strong>
+					{:else if $isLoading}
+						Loading...
+					{:else}
+						<em>N/A</em>
+					{/if}
+				</div>
+			</div>
+			{#if imageOrigin !== origin}
+				<div class="info">
+					Unable to estimate file size savings because the image is hosted on a different domain.
+				</div>
 			{/if}
 		</div>
-
-		<div class="row">
-			<div class="label">Expected Dimensions</div>
-			<div class="value">{$expectedSize.width} x {$expectedSize.height}</div>
-		</div>
-
-		<div class="row">
-			<div class="label">Size on screen</div>
-			<div class="value">{$sizeOnPage.width} x {$sizeOnPage.height}</div>
-		</div>
-
-		<div class="row">
-			<div class="label">Image Size</div>
-			<div class="value">
-				{#if $fileSize.weight > 0}
-					{Math.round( $fileSize.weight )} KB
-				{:else if $isLoading}
-					Loading...
-				{:else}
-					<em>Unknown</em>
-				{/if}
-			</div>
-		</div>
-
-		<div class="row">
-			<div class="label">Potential savings</div>
-			<div class="value">
-				{#if $potentialSavings > 0}
-					<strong>{$potentialSavings} KB</strong>
-				{:else if $isLoading}
-					Loading...
-				{:else}
-					<em>N/A</em>
-				{/if}
-			</div>
-		</div>
-		{#if imageOrigin !== origin}
-			<div class="info">
-				Unable to estimate file size savings because the image is hosted on a different domain.
-			</div>
-		{/if}
 	</div>
-</div>
+</Portal>
 
 <style lang="scss">
 	a {
@@ -224,8 +227,7 @@
 		overflow: hidden;
 
 		position: fixed;
-		top: 25%;
-		left: 25%;
+		z-index: 90000;
 
 		text-align: left;
 	}

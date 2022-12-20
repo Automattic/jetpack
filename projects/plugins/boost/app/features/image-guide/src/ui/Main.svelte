@@ -17,7 +17,21 @@
 		stores.forEach( store => store.updateDimensions() );
 	} );
 
-	function onMouseLeave() {
+	function closeDetails( e ) {
+		// Don't exit when hovering the Portal
+		if (
+			e.relatedTarget &&
+			// Don't exit when hovering the Popup
+			( e.relatedTarget.classList.contains( 'details' ) ||
+				// Don't exit when mouse is over the backdrop
+				// The Backdrop
+				( e.relatedTarget.classList.contains( 'guide' ) &&
+					// Make sure the backdrop isn't a neighboring guide.
+					e.relatedTarget.classList.contains( 'show' ) ) )
+		) {
+			return;
+		}
+
 		if ( $guideState !== 'always_on' ) {
 			show = false;
 		}
@@ -60,7 +74,7 @@
 </script>
 
 {#if $guideState === 'active' || $guideState === 'always_on'}
-	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
+	<div class="guide {size}" class:show={show !== false} on:mouseleave={closeDetails}>
 		<div class="previews">
 			{#each stores as store, index}
 				<Bubble {index} {store} on:hover={hover} />
@@ -71,7 +85,7 @@
 				Intentionally using only a single component here.
 				See <Popup> component source for details.
 			 -->
-			<Popup store={stores[ show ]} {size} {position} />
+			<Popup store={stores[ show ]} {size} {position} on:mouseleave={closeDetails} />
 		{/if}
 	</div>
 {/if}
