@@ -562,11 +562,20 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
-				<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+				<form
+					action="#"
+					method="post"
+					accept-charset="utf-8"
+					data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
+					id="<?php echo esc_attr( $form_id ); ?>"
+				>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
@@ -592,6 +601,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 						<?php endif; ?>
 					>
 						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="blog_id" value="<?php echo (int) get_current_blog_id(); ?> "/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
