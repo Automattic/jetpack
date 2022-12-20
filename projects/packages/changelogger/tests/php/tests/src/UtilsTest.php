@@ -421,6 +421,96 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
+	 * Test getRepoData with merge commit.
+	 */
+	public function testGetRepoDataWithMerge() {
+		$this->useTempDir();
+
+		if ( in_array( '--debug', $GLOBALS['argv'], true ) ) {
+			$output = new ConsoleOutput();
+			$output->setVerbosity( ConsoleOutput::VERBOSITY_DEBUG );
+		} else {
+			$output = new NullOutput();
+		}
+		$helper = new DebugFormatterHelper();
+
+		// Create a non-git file in a non-git checkout.
+		touch( 'not-in-git.txt', 1614124800 );
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
+
+		// Create a file in a git checkout.
+		file_put_contents( 'in-git.txt', '' );
+		$args = array(
+			$output,
+			$helper,
+			array(
+				'mustRun' => true,
+				'env'     => array(
+					'GIT_AUTHOR_NAME'     => 'Dummy',
+					'GIT_AUTHOR_EMAIL'    => 'dummy@example.com',
+					'GIT_AUTHOR_DATE'     => '2021-01-01T11:11:11Z',
+					'GIT_COMMITTER_NAME'  => 'Dummy',
+					'GIT_COMMITTER_EMAIL' => 'dummy@example.com',
+					'GIT_COMMITTER_DATE'  => '2021-02-02T22:22:22Z',
+				),
+			),
+		);
+		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		// Let's create another branch, add a commit and merge to trunk.
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
+		file_put_contents( 'in-git2.txt', '' );
+		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
+
+
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '123',
+			),
+			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
+
+		// Test the second commit.
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '124',
+			),
+			Utils::getRepoData( 'in-git2.txt', $output, $helper )
+		);
+
+		// Test our non-git file again.
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-24T00:00:00Z',
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'not-in-git.txt', $output, $helper )
+		);
+
+		// Nonexistent file.
+		$this->assertSame(
+			array(
+				'timestamp' => null,
+				'pr-num'    => null,
+			),
+			Utils::getRepoData( 'missing.txt', $output, $helper )
+		);
+	}
+
+	/**
 	 * Test loadAllChanges.
 	 */
 	public function testLoadAllChanges() {
