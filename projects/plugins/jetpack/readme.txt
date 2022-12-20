@@ -242,23 +242,32 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.1 - 2022-12-06
+### 11.7-a.7 - 2022-12-19
 #### Enhancements
-- Form block: change form placeholder background color to prevent styling issues on colored backgrounds.
-- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
-- Subscription block: add a checkbox to include/exclude social followers.
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
+- Assistant: update Akismet and Backup names.
+- Block editor: add a new panel that gives the ability to promote posts after publishing them.
+- Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
+- Dashboard: update Backup, Anti-spam, and VideoPress logos.
+- Form block: allow the required field text to be changed.
+- Form block: update the default labels logic to allow fields without any label.
+- Form block: update block placeholder styles and update form fields styles to comply with WYSIWYG. [#27855, #27967]
+- Google fonts: add new fonts to Global Style options.
+- Slideshow block: implement pagination styles when a gallery has more than five images.
+- Slideshow block: update block description.
+- Writing prompts: add context to blogging prompt placeholder.
 
 #### Improved compatibility
-- Site Editor: dashboard link points to wordpress.com.
+- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
+- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
+- Writing prompts: hide placeholder prompts by default.
 
 #### Bug fixes
-- Form block: add line breaks back to plain text email submissions.
-- Form block: fix patterns modal scrollbar behavior.
-- Form block: fix contact form view responses URL.
-- Form block: update form patterns modal filter query.
-- WAF: fix WPA click tracking in Agencies card.
-- WAF: fix Jetpack Settings WAF module plan check.
+- Dashboard: add translation context to Security product name.
+- Form block: fix email formatting for contact form submissions.
+- General: Fix deprecation warnings when running with PHP 8.2.
+- Hovercards: fix minor Hovercards & AMP compatibility bug
+- Subscription block: fix PHP Warning.
+- WAF: fix the initialization of the firewall.
 
 --------
 

@@ -57,7 +57,6 @@ class Defaults {
 		'disabled_reblogs',
 		'disallowed_keys',
 		'enable_header_ad',
-		'featured_image_email_enabled',
 		'gmt_offset',
 		'gravatar_disable_hovercards',
 		'highlander_comment_form_prompt',
@@ -104,6 +103,8 @@ class Defaults {
 		'large_size_h',
 		'large_size_w',
 		'launch-status',
+		'launchpad_checklist_tasks_statuses',
+		'launchpad_screen',
 		'mailserver_login', // Not syncing contents, only the option name.
 		'mailserver_pass', // Not syncing contents, only the option name.
 		'mailserver_port',
@@ -172,9 +173,11 @@ class Defaults {
 		'wp_mobile_excerpt',
 		'wp_mobile_featured_images',
 		'wp_page_for_privacy_policy',
+		'wpcom_featured_image_in_email',
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
 		'wpcom_gifting_subscription',
 	);

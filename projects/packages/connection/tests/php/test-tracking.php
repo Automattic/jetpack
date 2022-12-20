@@ -16,6 +16,20 @@ use PHPUnit\Framework\TestCase;
 class Test_Tracking extends TestCase {
 
 	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	public $connection;
+
+	/**
+	 * Tracking object.
+	 *
+	 * @var Tracking
+	 */
+	public $tracking;
+
+	/**
 	 * Test setup.
 	 *
 	 * @before

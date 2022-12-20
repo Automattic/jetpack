@@ -26,6 +26,27 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 class Jetpack_Comment_Likes {
 
 	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
+
+	/**
+	 * Blog ID
+	 *
+	 * @var int
+	 */
+	public $blog_id;
+
+	/**
+	 * Site home URL domain
+	 *
+	 * @var string
+	 */
+	public $domain;
+
+	/**
 	 * Initialize comment like module
 	 */
 	public static function init() {
@@ -42,11 +63,10 @@ class Jetpack_Comment_Likes {
 	 * Construct comment like module.
 	 */
 	private function __construct() {
-		$this->settings  = new Jetpack_Likes_Settings();
-		$this->blog_id   = Jetpack_Options::get_option( 'id' );
-		$this->url       = home_url();
-		$this->url_parts = wp_parse_url( $this->url );
-		$this->domain    = $this->url_parts['host'];
+		$this->settings = new Jetpack_Likes_Settings();
+		$this->blog_id  = Jetpack_Options::get_option( 'id' );
+		$url_parts      = wp_parse_url( home_url() );
+		$this->domain   = $url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );

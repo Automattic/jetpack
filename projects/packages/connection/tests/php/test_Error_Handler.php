@@ -16,6 +16,13 @@ class Error_Handler_Test extends BaseTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
+	 * Error_Handler instance.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler;
+
+	/**
 	 * Initialize tests
 	 *
 	 * @before

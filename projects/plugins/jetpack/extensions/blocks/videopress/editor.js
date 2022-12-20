@@ -506,7 +506,7 @@ const isVideoPressBlockBasedOnAttributes = attributes => {
  *
  * Blocks list:
  * - core/video
- * - core/embed
+ * - core/embed is not auto-converted for the moment. @todo: consider to do it in the future.
  */
 const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( BlockListBlock => {
 	return props => {
@@ -551,13 +551,15 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 			isSimple
 		);
 
+		// Note: it does not convert
 		const shouldConvertCoreEmbedToVideoPressVideoBlock = !! (
 			isCoreEmbedBlock && // Only auto-convert if the block is a core/embed block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreEmbedVideoPressVariation && // Only auto-convert if the block is a embed VideoPress variation
 			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
-			// Only auto-convert if the site is Simple
-			isSimple
+			isSimple && // Only auto-convert if the site is Simple
+			// Disable auto-conversion for now.
+			false
 		);
 
 		const shouldConvertToVideoPressVideoBlock =

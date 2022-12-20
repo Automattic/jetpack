@@ -44,6 +44,13 @@ class REST_Controller {
 	protected $search_module;
 
 	/**
+	 * Plan object.
+	 *
+	 * @var Plan
+	 */
+	public $plan;
+
+	/**
 	 * Constructor
 	 *
 	 * @param bool                $is_wpcom - Whether it's run on WPCOM.
