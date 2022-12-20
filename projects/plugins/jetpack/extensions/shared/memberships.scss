@@ -10,3 +10,21 @@ $break-small: 600px;
 }
 
 @import '@wordpress/components/src/modal/style.scss';
+
+.components-modal__screen-overlay {
+	z-index: 999999;
+}
+
+div.components-modal__content > iframe {
+	border: 0;
+    height: calc( 100% - 9px);
+    width: 100%;
+    max-height: 100%;
+	max-width: 100%;
+}
+
+/* This prevents the background from scrolling when the modal is open */
+html:has( .jetpack-memberships-modal ) {
+	/* remove the main scrollbar when dialog is open */
+	overflow: hidden;
+}
