@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
@@ -7,6 +8,10 @@
 
 	export let store: MeasurableImageStore;
 	export let size: GuideSize;
+	export let position: {
+		top: number;
+		left: number;
+	};
 
 	function maybeDecimals( num: number ) {
 		return num % 1 === 0 ? num : parseFloat( num.toFixed( 2 ) );
@@ -38,9 +43,38 @@
 	$: ratio = maybeDecimals( $oversizedRatio );
 
 	const DOCUMENTATION_URL = `https://jetpack.com/support/jetpack-boost/image-performance-guide/`;
+
+	/**
+	 * The pop-up is a fixed position element.
+	 * This makes the pop-up behave as it would be positioned absolutely.
+	 * Otherwise the pop-up could get cut off by the viewport, making a part of it inaccessible..
+	 */
+	let scrollY = 0;
+	let initialScrollY = 0;
+	let initialTop = 0;
+
+	function repositionOnScroll( scrollPosY ) {
+		if ( scrollPosY === 0 || initialScrollY === scrollPosY ) {
+			return;
+		}
+		position.top = initialTop + ( initialScrollY - scrollPosY );
+	}
+
+	onMount( () => {
+		initialScrollY = scrollY;
+		initialTop = position.top;
+	} );
+
+	$: repositionOnScroll( scrollY );
 </script>
 
-<div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
+<svelte:window bind:scrollY />
+<div
+	class="details"
+	in:fly={{ duration: 150, y: 4, easing: backOut }}
+	style:top="{position.top}px"
+	style:left="{position.left}px"
+>
 	<div class="logo">
 		<JetpackLogo size={250} />
 	</div>
@@ -187,8 +221,11 @@
 		min-width: 320px;
 		border-radius: 6px;
 
-		position: relative;
 		overflow: hidden;
+
+		position: fixed;
+		top: 25%;
+		left: 25%;
 
 		text-align: left;
 	}

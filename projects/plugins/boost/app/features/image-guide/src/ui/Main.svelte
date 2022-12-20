@@ -46,13 +46,24 @@
 
 	$: show = $guideState === 'always_on' ? 0 : false;
 	$: toggleBackdrop( show !== false );
+	let position = {
+		top: 0,
+		left: 0,
+	};
+
+	function hover( e: CustomEvent ) {
+		const detail = e.detail;
+		const index = detail.index;
+		position = detail.position;
+		show = index;
+	}
 </script>
 
 {#if $guideState === 'active' || $guideState === 'always_on'}
 	<div class="guide {size}" class:show={show !== false} on:mouseleave={onMouseLeave}>
 		<div class="previews">
 			{#each stores as store, index}
-				<Bubble {index} {store} on:mouseenter={() => ( show = index )} />
+				<Bubble {index} {store} on:hover={hover} />
 			{/each}
 		</div>
 		{#if show !== false}
@@ -60,7 +71,7 @@
 				Intentionally using only a single component here.
 				See <Popup> component source for details.
 			 -->
-			<Popup store={stores[ show ]} {size} />
+			<Popup store={stores[ show ]} {size} {position} />
 		{/if}
 	</div>
 {/if}
