@@ -23,7 +23,10 @@ export default function usePublicizeConfig() {
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	const isPostAlreadyShared = getJetpackData()?.social?.isPostAlreadyShared ?? false;
+	const isPostAlreadyShared = useSelect(
+		select => select( 'jetpack/publicize' ).getJetpackSocialPostAlreadyShared(),
+		[]
+	);
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';

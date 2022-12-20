@@ -307,7 +307,6 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                 => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isPostAlreadyShared'         => $publicize->post_is_done_sharing(), // defaults to current post
 				),
 			)
 		);
