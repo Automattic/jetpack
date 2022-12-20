@@ -53,22 +53,19 @@ const FirewallPage = () => {
 		isEnabled,
 		isSeen,
 		isUpdating,
+		stats,
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
+	const { ipBlockListCount, rulesVersion, rulesLastUpdated } = stats;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
 	const { recordEventHandler } = useAnalyticsTracks();
-
-	/**
-	 * Number of IP block list entries
-	 */
-	const jetpackWafIpBlockListLength = jetpackWafIpBlockList.split( '\n' ).length;
 
 	/**
 	 * Automatic Rules Installation Error State
@@ -338,14 +335,14 @@ const FirewallPage = () => {
 									{ sprintf(
 										// translators: placeholder is the latest rules version i.e. "v2.0".
 										__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
-										'placeholder'
+										rulesVersion
 									) }
 								</Text>
 								<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
 									{ sprintf(
 										// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
 										__( 'Last updated on %s.', 'jetpack-protect' ),
-										'placeholder'
+										rulesLastUpdated
 									) }
 								</Text>
 							</div>
@@ -409,17 +406,17 @@ const FirewallPage = () => {
 									{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
 								</Text>
 							) }
-							{ '' !== jetpackWafIpBlockList && jetpackWafIpBlockListLength > 0 && (
+							{ '' !== jetpackWafIpBlockList && ipBlockListCount > 0 && (
 								<Text className={ styles[ 'block-list-text' ] } variant={ 'body-small' } mt={ 2 }>
 									{ sprintf(
 										// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
 										_n(
 											'%s IP is being blocked.',
 											'%s IPs are being blocked.',
-											jetpackWafIpBlockListLength,
+											ipBlockListCount,
 											'jetpack-protect'
 										),
-										jetpackWafIpBlockListLength === 1 ? 'One' : jetpackWafIpBlockListLength
+										ipBlockListCount === 1 ? 'One' : ipBlockListCount
 									) }
 								</Text>
 							) }
