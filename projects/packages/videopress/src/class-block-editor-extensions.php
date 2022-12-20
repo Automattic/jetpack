@@ -67,7 +67,7 @@ class Block_Editor_Extensions {
 	public static function enqueue_extensions() {
 		self::enqueue_script();
 
-		$videopress_extensions_file        = __DIR__ . '/client/block-editor/extensions/index.json';
+		$videopress_extensions_file        = __DIR__ . '/../build/block-editor/extensions/index.json';
 		$videopress_extensions_file_exists = file_exists( $videopress_extensions_file );
 		if ( ! $videopress_extensions_file_exists ) {
 			return;
