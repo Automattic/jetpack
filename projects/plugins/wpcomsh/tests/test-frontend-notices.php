@@ -199,9 +199,9 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test should display gift notice when plan auto renew on and gifting toggle it true.
+	 * Test should display gift notice when gifting toggle it true.
 	 */
-	public function test_should_display_gift_notice_when_plan_auto_renew_on_and_option_true() {
+	public function test_should_display_gift_notice_when_option_true() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
 			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),

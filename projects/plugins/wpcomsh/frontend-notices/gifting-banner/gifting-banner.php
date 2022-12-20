@@ -50,6 +50,11 @@ class Gifting_Banner {
 			return false;
 		}
 
+		// If wpcom_gifting_subscription option exists, we show/hide the banner based on it.
+		if ( 'option-not-exists' !== get_option( 'wpcom_gifting_subscription', 'option-not-exists' ) ) {
+			return (bool) get_option( 'wpcom_gifting_subscription' );
+		}
+
 		// Create parity between WPCOM and WPCOMSH for auto_renew.
 		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
 			$this->current_plan->user_allows_auto_renew = $this->current_plan->auto_renew;
