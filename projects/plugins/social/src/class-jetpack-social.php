@@ -307,6 +307,7 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                 => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isPostAlreadyShared'         => $publicize->post_is_done_sharing(), // defaults to current post
 				),
 			)
 		);
@@ -411,11 +412,15 @@ class Jetpack_Social {
 
 	/**
 	 * Check to see if the request to review the plugin has already been dismissed.
+	 * This will also return true if Jetpack promotions are disabled via a filter ( allows this prompt to be disabled )
 	 *
 	 * @return bool
 	 */
 	public static function is_review_request_dismissed() {
-		return (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
+		$saved_as_dismissed         = (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
+		$jetpack_promotions_enabled = apply_filters( 'jetpack_show_promotions', true );
+
+		return $saved_as_dismissed || ! $jetpack_promotions_enabled;
 	}
 
 	/**

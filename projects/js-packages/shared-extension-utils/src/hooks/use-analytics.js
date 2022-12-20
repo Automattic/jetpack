@@ -1,7 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { useConnection } from '@automattic/jetpack-connection';
-import { useEffect } from '@wordpress/element';
-import { useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 
 const { tracks } = jetpackAnalytics;
 const { recordEvent } = tracks;
