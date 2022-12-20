@@ -473,7 +473,6 @@ class UtilsTest extends TestCase {
 		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
 		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
 
-
 		$this->assertSame(
 			array(
 				'timestamp' => '2021-02-02T22:22:22+00:00',
