@@ -49,19 +49,6 @@ class Block_Editor_Extensions {
 	}
 
 	/**
-	 * Gets the bridge script URL depending on the environment we are in
-	 *
-	 * @return string
-	 */
-	public static function get_block_editor_extensions_url() {
-		return Assets::get_file_url_for_environment(
-			'../build/block-editor/extensions/index.js', // <- production
-			'client/block-editor/extensions/index.js', // <- development
-			__FILE__
-		);
-	}
-
-	/**
 	 * Enqueues the jwt bridge script.
 	 */
 	public static function enqueue_extensions() {
@@ -110,17 +97,18 @@ class Block_Editor_Extensions {
 	 * Enqueues only the JS script
 	 *
 	 * @param string $handle The script handle to identify the script.
-	 * @return bool True if the script was successfully localized, false otherwise.
 	 */
 	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
-		$enqueued = wp_enqueue_script(
+		Assets::register_script(
 			$handle,
-			self::get_block_editor_extensions_url(),
-			array(),
-			Package_Version::PACKAGE_VERSION,
-			false
+			'../build/block-editor/extensions/index.js',
+			__FILE__,
+			array(
+				'in_footer'  => false,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
 		);
 
-		return $enqueued;
+		Assets::enqueue_script( $handle );
 	}
 }
