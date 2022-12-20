@@ -1049,7 +1049,7 @@ abstract class Publicize_Base {
 			'type'          => 'boolean',
 			'description'   => __( 'Whether or not the post has already been shared.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => true,
+			'default'       => false,
 			'show_in_rest'  => array(
 				'name' => 'jetpack_social_post_already_shared',
 			),
