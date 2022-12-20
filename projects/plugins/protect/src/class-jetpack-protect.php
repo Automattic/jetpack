@@ -28,6 +28,7 @@ use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Stats;
 
 /**
  * Class Jetpack_Protect
@@ -202,6 +203,7 @@ class Jetpack_Protect {
 				'isToggling' => false,
 				'isUpdating' => false,
 				'config'     => Waf_Runner::get_config(),
+				'stats'      => Waf_Stats::get_waf_stats(),
 			),
 		);
 

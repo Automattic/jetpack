@@ -52,4 +52,63 @@ class Waf_Stats {
 
 		return $stats['data'];
 	}
+
+	/**
+	 * Get IP allow list count
+	 *
+	 * @return integer The number of valid IP addresses in the block list
+	 */
+	public static function get_ip_allow_list_count() {
+		$ip_allow_list = get_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME );
+
+		$results = Waf_Runner::ip_option_to_array( $ip_allow_list );
+
+		return count( $results );
+	}
+
+	/**
+	 * Get IP block list count
+	 *
+	 * @return integer The number of valid IP addresses in the allow list
+	 */
+	public static function get_ip_block_list_count() {
+		$ip_block_list = get_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME );
+
+		$results = Waf_Runner::ip_option_to_array( $ip_block_list );
+
+		return count( $results );
+	}
+
+	/**
+	 * Get Rules version
+	 *
+	 * @return string The current stored rules version
+	 */
+	public static function get_rules_version() {
+		return get_option( Waf_Runner::VERSION_OPTION_NAME );
+	}
+
+	/**
+	 * Get Rules version last updated timestamp
+	 *
+	 * @return string The timestamp the current stored rules version was last updated
+	 */
+	public static function get_rules_last_updated_timestamp() {
+		return get_option( Waf_Runner::RULE_LAST_UPDATED_OPTION_NAME );
+	}
+
+	/**
+	 * Get WAF stats
+	 *
+	 * @return array The available WAF stats
+	 */
+	public static function get_waf_stats() {
+		return array(
+			'blocked_requests'       => true, // self::get_stats_from_api(),
+			'ip_allow_list_count'    => self::get_ip_allow_list_count(),
+			'ip_block_list_count'    => self::get_ip_block_list_count(),
+			'rules_version'          => self::get_rules_version(),
+			'last_updated_timestamp' => self::get_rules_last_updated_timestamp(),
+		);
+	}
 }
