@@ -75,52 +75,52 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan } ) => {
+const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	const oneDayArgs = {
 		className: hasRequiredPlan ? styles.active : styles.disabled,
 		icon: (
-			<div className={ styles[ 'stat-card-icon' ] }>
+			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ shield } />
 				{ ! hasRequiredPlan && (
 					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
-			</div>
+			</span>
 		),
 		label: isSmall ? (
 			<span>{ __( 'Blocked requests last 24 hours', 'jetpack-protect' ) }</span>
 		) : (
-			<div className={ styles[ 'stat-card-label' ] }>
+			<span className={ styles[ 'stat-card-label' ] }>
 				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
 				<br />
 				<span>{ __( 'Last 24 hours', 'jetpack-protect' ) }</span>
-			</div>
+			</span>
 		),
-		value: hasRequiredPlan ? 0 : 0,
+		value: hasRequiredPlan ? oneDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
 	const thirtyDayArgs = {
 		className: hasRequiredPlan ? styles.active : styles.disabled,
 		icon: (
-			<div className={ styles[ 'stat-card-icon' ] }>
+			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ chartBar } />
 				{ ! hasRequiredPlan && (
 					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
-			</div>
+			</span>
 		),
 		label: isSmall ? (
 			<span>{ __( 'Blocked requests last 30 days', 'jetpack-protect' ) }</span>
 		) : (
-			<div className={ styles[ 'stat-card-label' ] }>
+			<span className={ styles[ 'stat-card-label' ] }>
 				<span>{ __( 'Blocked requests', 'jetpack-protect' ) }</span>
 				<br />
 				<span>{ __( 'Last 30 days', 'jetpack-protect' ) }</span>
-			</div>
+			</span>
 		),
-		value: hasRequiredPlan ? 0 : 0, // Add actual stats here
+		value: hasRequiredPlan ? thirtyDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
@@ -184,7 +184,9 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, isToggling } = useWafData();
+	const { isEnabled, isToggling, stats } = useWafData();
+	const { blockedRequests } = stats;
+	const { oneDayStats, thirtyDayStats } = blockedRequests;
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus = isEnabled ? 'on' : 'off';
 
@@ -192,6 +194,8 @@ const ConnectedFirewallHeader = () => {
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
+			oneDayStats={ oneDayStats }
+			thirtyDayStats={ thirtyDayStats }
 		/>
 	);
 };
