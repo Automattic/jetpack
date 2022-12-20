@@ -18,7 +18,6 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 
 	// Keep track of ancestor elements that do not have a "z-index" set
 	let elementsWithoutZIndex: HTMLElement[] = [];
-
 	while ( current && current instanceof HTMLElement ) {
 		// Don't go past the body element
 		if ( current === document.body ) {
@@ -98,10 +97,7 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		wrapper.classList.add( 'jetpack-boost-guide' );
 		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
 		if ( parentStyle.position === 'static' ) {
-			wrapper.classList.add( 'relative' );
-			Array.from( ancestor.children )
-				.reverse()
-				.forEach( child => wrapper.appendChild( child ) );
+			ancestor.style.position = 'relative';
 		}
 
 		ancestor.prepend( wrapper );
