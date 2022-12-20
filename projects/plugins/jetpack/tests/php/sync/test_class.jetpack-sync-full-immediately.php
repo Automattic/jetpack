@@ -17,9 +17,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
 	private $full_sync_end_checksum;
+	private $full_sync_end_range;
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
+	private $started_sync_count  = 0;
 	private $test_posts_count    = 20;
 	private $test_comments_count = 11;
 
@@ -1232,9 +1234,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_previous_interval_end_on_comments() {
-		$this->post_id = self::factory()->post->create();
+		$post_id = self::factory()->post->create();
 		for ( $i = 0; $i < 25; $i ++ ) {
-			self::factory()->comment->create_post_comments( $this->post_id );
+			self::factory()->comment->create_post_comments( $post_id );
 		}
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'comments' => true ) );

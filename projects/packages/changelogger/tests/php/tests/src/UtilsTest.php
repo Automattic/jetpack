@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Changelogger\Tests;
 
 use Automattic\Jetpack\Changelog\ChangeEntry;
 use Automattic\Jetpack\Changelogger\FormatterPlugin;
+use Automattic\Jetpack\Changelogger\LoadChangeFileException;
 use Automattic\Jetpack\Changelogger\Utils;
 use Symfony\Component\Console\Helper\DebugFormatterHelper;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -175,7 +176,7 @@ class UtilsTest extends TestCase {
 				try {
 					Utils::loadChangeFile( $temp );
 					$this->fail( 'Expcected exception not thrown' );
-				} catch ( \RuntimeException $ex ) {
+				} catch ( LoadChangeFileException $ex ) {
 					$this->assertInstanceOf( get_class( $expect ), $ex );
 					$this->assertMatchesRegularExpression( $expect->getMessage(), $ex->getMessage() );
 					$this->assertObjectHasAttribute( 'fileLine', $ex );
@@ -192,7 +193,7 @@ class UtilsTest extends TestCase {
 	 */
 	public function provideLoadChangeFile() {
 		$ex = function ( $msg, $line ) {
-			$ret           = new \RuntimeException( $msg );
+			$ret           = new LoadChangeFileException( $msg );
 			$ret->fileLine = $line;
 			return $ret;
 		};

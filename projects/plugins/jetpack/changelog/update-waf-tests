@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Update tests for compat with new firewall settings
