@@ -30,8 +30,22 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 			( style.position === 'static' || style.position === 'relative' )
 		) {
 			elementsWithoutZIndex.push( current );
+		}
+
+		// Ok. This works, but by sheer luck. Not a good solution.
+		else if ( style.position !== 'absolute' ) {
+			elementsWithoutZIndex = [ current ];
 		} else {
-			elementsWithoutZIndex = [];
+			// The idea here was to reset elementsWithoutZIndex array
+			// whenever we encounter an element that has a z-index set.
+			// But that breaks the portfolio in the portfolio plugin layout.
+			// By not resetting the array, we're keeping
+			// tracks of first static element in the tree.
+			// This seems to work out ok for now,
+			// But at this point, the logic here now
+			// has changed from "reset the array when we encounter a z-indexed element"
+			// to "reset when we encounter a non-static element that's absolutely positioned"
+			// elementsWithoutZIndex = [];
 		}
 
 		// Move on to the next parent element
