@@ -7,21 +7,56 @@ export default {
 };
 
 export const FirewallOn = () => {
-	return <FirewallHeader status={ 'on' } hasRequiredPlan={ false } />;
+	return (
+		<FirewallHeader
+			status={ 'on' }
+			hasRequiredPlan={ false }
+			oneDayStats={ 25 }
+			thirtyDayStats={ 250 }
+		/>
+	);
 };
 
 export const FirewallOnPaid = () => {
-	return <FirewallHeader status={ 'on' } hasRequiredPlan={ true } />;
+	return (
+		<FirewallHeader
+			status={ 'on' }
+			hasRequiredPlan={ true }
+			oneDayStats={ 25 }
+			thirtyDayStats={ 250 }
+		/>
+	);
 };
 
 export const FirewallOff = () => {
-	return <FirewallHeader status={ 'off' } hasRequiredPlan={ false } />;
+	return (
+		<FirewallHeader
+			status={ 'off' }
+			hasRequiredPlan={ false }
+			oneDayStats={ 25 }
+			thirtyDayStats={ 250 }
+		/>
+	);
 };
 
 export const FirewallOffPaid = () => {
-	return <FirewallHeader status={ 'off' } hasRequiredPlan={ true } />;
+	return (
+		<FirewallHeader
+			status={ 'off' }
+			hasRequiredPlan={ true }
+			oneDayStats={ 25 }
+			thirtyDayStats={ 250 }
+		/>
+	);
 };
 
 export const FirewallLoading = () => {
-	return <FirewallHeader status={ 'loading' } hasRequiredPlan={ true } />;
+	return (
+		<FirewallHeader
+			status={ 'loading' }
+			hasRequiredPlan={ true }
+			oneDayStats={ 25 }
+			thirtyDayStats={ 250 }
+		/>
+	);
 };
