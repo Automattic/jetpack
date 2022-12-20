@@ -21,7 +21,11 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
-import { getWafBootstrapPath, isFetchingWafSettings } from '../state/waf/reducer';
+import {
+	getAutomaticRulesAvailable,
+	getWafBootstrapPath,
+	isFetchingWafSettings,
+} from '../state/waf/reducer';
 
 export const Waf = class extends Component {
 	/**
@@ -96,10 +100,14 @@ export const Waf = class extends Component {
 		const automaticRulesSettings = (
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.props.hasScan ? this.state.jetpack_waf_automatic_rules : false }
+					checked={
+						this.props.hasScan || this.props.automaticRulesAvailable
+							? this.state.jetpack_waf_automatic_rules
+							: false
+					}
 					disabled={
 						! isWafActive ||
-						! this.props.hasScan ||
+						( ! this.props.hasScan && ! this.props.automaticRulesAvailable ) ||
 						unavailableInOfflineMode ||
 						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_automatic_rules' ] )
 					}
@@ -331,6 +339,7 @@ export default connect( state => {
 	return {
 		hasScan: siteHasFeature( state, 'scan' ),
 		bootstrapPath: getWafBootstrapPath( state ),
+		automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 		isFetchingWafSettings: isFetchingWafSettings( state ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,
