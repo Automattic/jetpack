@@ -4,34 +4,48 @@ import type { MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
 
 /**
- * This function looks for the closest parent that is
- * able to contain the image guide component.
+ * Returns the closest parent element that is able to contain the image guide component.
  *
- * @param  node The node to start looking from
+ * This is necessary to ensure that the image guide component is positioned correctly
+ * within the DOM tree, and to prevent it from  being obscured
+ * by other elements with a higher z-index.
+ *
+ * @param  node The node to start searching from
+ * @return The closest parent element that is able to contain the image guide component
  */
-function closestStableParent( node: HTMLElement ): HTMLElement | null {
-	if ( ! node.parentNode ) {
-		return null;
+function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
+	let current: HTMLElement | null = node.parentElement;
+
+	// Keep track of ancestor elements that do not have a "z-index" set
+	let elementsWithoutZIndex: HTMLElement[] = [];
+
+	while ( current && current instanceof HTMLElement ) {
+		// Don't go past the body element
+		if ( current === document.body ) {
+			break;
+		}
+
+		const style = getComputedStyle( current );
+		if (
+			style.zIndex === 'auto' &&
+			( style.position === 'static' || style.position === 'relative' )
+		) {
+			elementsWithoutZIndex.push( current );
+		} else {
+			elementsWithoutZIndex = [];
+		}
+
+		// Move on to the next parent element
+		current = current.parentElement;
 	}
 
-	if ( ! ( node.parentNode instanceof HTMLElement ) ) {
-		return null;
+	// Return the first ancestor element that isn't affected by z-index
+	if ( elementsWithoutZIndex.length > 0 ) {
+		return elementsWithoutZIndex[ 0 ];
 	}
 
-	// Stop searching at body.
-	if ( node.parentNode.tagName === 'BODY' ) {
-		return node.parentNode;
-	}
-	if ( node.parentNode.classList.contains( 'jetpack-boost-guide' ) ) {
-		return node.parentNode;
-	}
-
-	const position = getComputedStyle( node.parentNode ).position;
-	if ( position === 'static' || position === 'relative' ) {
-		return node.parentNode;
-	}
-
-	return closestStableParent( node.parentNode );
+	// If no element was found, return the body element
+	return document.body;
 }
 
 /**
@@ -61,18 +75,18 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		return;
 	}
 
-	const parent = closestStableParent( node );
+	const ancestor = getClosestContainingAncestor( node );
 
-	if ( parent?.classList.contains( 'jetpack-boost-guide' ) ) {
-		return parent;
+	if ( ancestor?.classList.contains( 'jetpack-boost-guide' ) ) {
+		return ancestor;
 	}
 
-	if ( parent ) {
-		const parentStyle = getComputedStyle( parent );
+	if ( ancestor ) {
+		const parentStyle = getComputedStyle( ancestor );
 
 		// If this is a relative parent, see if any boost guide-elements are in here already
 		if ( parentStyle.position === 'relative' ) {
-			const existing = Array.from( parent.children ).find( child =>
+			const existing = Array.from( ancestor.children ).find( child =>
 				child.classList.contains( 'jetpack-boost-guide' )
 			);
 			if ( existing && existing instanceof HTMLElement ) {
@@ -85,12 +99,12 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
 		if ( parentStyle.position === 'static' ) {
 			wrapper.classList.add( 'relative' );
-			Array.from( parent.children )
+			Array.from( ancestor.children )
 				.reverse()
 				.forEach( child => wrapper.appendChild( child ) );
 		}
 
-		parent.prepend( wrapper );
+		ancestor.prepend( wrapper );
 		return wrapper;
 	}
 

@@ -57,21 +57,30 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
-
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
-			'Boost',
-			'manage_options',
-			JETPACK_BOOST_SLUG,
-			array( $this, 'render_settings' )
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
 
 		// Set up Super Cache info system if WP Super Cache available.
 		Super_Cache_Info::init();
 
 		// Admin Notices
 		Regenerate_Admin_Notice::init();
+	}
+
+	public function handle_admin_menu() {
+		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
+		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
+		if ( $total_problems ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_problems );
+		}
+
+		$page_suffix = Admin_Menu::add_menu(
+			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
+			$menu_label,
+			'manage_options',
+			JETPACK_BOOST_SLUG,
+			array( $this, 'render_settings' )
+		);
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**

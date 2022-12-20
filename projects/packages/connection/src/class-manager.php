@@ -46,6 +46,20 @@ class Manager {
 	private $plugin = null;
 
 	/**
+	 * Error handler object.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler = null;
+
+	/**
+	 * Jetpack_XMLRPC_Server object
+	 *
+	 * @var Jetpack_XMLRPC_Server
+	 */
+	public $xmlrpc_server = null;
+
+	/**
 	 * Holds extra parameters that will be sent along in the register request body.
 	 *
 	 * Use Manager::add_register_request_param to add values to this array.

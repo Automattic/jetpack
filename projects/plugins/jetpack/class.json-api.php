@@ -31,6 +31,13 @@ class WPCOM_JSON_API {
 	public $endpoints = array();
 
 	/**
+	 * Endpoint being processed.
+	 *
+	 * @var WPCOM_JSON_API_Endpoint
+	 */
+	public $endpoint = null;
+
+	/**
 	 * Token details.
 	 *
 	 * @var array
