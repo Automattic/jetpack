@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Activation screen component setting incorrect Rest API config during mount..
