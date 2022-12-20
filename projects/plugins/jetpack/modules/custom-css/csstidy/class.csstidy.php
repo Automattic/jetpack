@@ -72,6 +72,7 @@ require __DIR__ . '/class.csstidy-optimise.php';
  * @author Florian Schmitz (floele at gmail dot com) 2005-2006
  * @version 1.3.1
  */
+#[AllowDynamicProperties]
 class csstidy { // phpcs:ignore
 
 	/**

@@ -13,6 +13,7 @@ export type UseSyncMediaProps = {
 	forceInitialState: ( data: WPComV2VideopressPostMetaEndpointBodyProps ) => void;
 	videoData: VideoDataProps;
 	isRequestingVideoData: boolean;
+	error: object | null;
 };
 
 export type ArrangeTracksAttributesProps = [ Array< TrackProps >, boolean ];

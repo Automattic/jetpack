@@ -22,12 +22,20 @@ class Queue {
 	 * @var string
 	 */
 	public $id;
+
 	/**
 	 * Keeps track of the rows.
 	 *
 	 * @var int
 	 */
 	private $row_iterator;
+
+	/**
+	 * Random number.
+	 *
+	 * @var int
+	 */
+	public $random_int;
 
 	/**
 	 * Queue constructor.
