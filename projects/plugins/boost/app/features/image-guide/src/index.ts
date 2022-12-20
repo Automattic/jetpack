@@ -50,7 +50,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 const stores: MeasurableImageStore[] = [];
 
 /**
- * Guides need to recaculate dimensions and possibly weights.
+ * Guides need to recalculate dimensions and possibly weights.
  * This is done when the window is resized,
  * but because that event is fired multiple times,
  * it's better to debounce it.

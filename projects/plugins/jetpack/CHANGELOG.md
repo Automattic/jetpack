@@ -2,6 +2,50 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.7-a.7 - 2022-12-19
+### Enhancements
+- Assistant: update Akismet and Backup names. [#27844]
+- Block editor: add a new panel that gives the ability to promote posts after publishing them. [#27928]
+- Dashboard: hide agencies module on Jetpack dashboard if site is WoA. [#27966]
+- Dashboard: update Backup, Anti-spam, and VideoPress logos. [#27847]
+- Form block: allow the required field text to be changed. [#27913]
+- Form block: update the default labels logic to allow fields without any label. [#27628]
+- Form block: update block placeholder styles and update form fields styles to comply with WYSIWYG. [#27855, #27967]
+- Google fonts: add new fonts to Global Style options. [#27441]
+- Slideshow block: implement pagination styles when a gallery has more than five images. [#27936]
+- Slideshow block: update block description. [#27899]
+- Writing prompts: add context to blogging prompt placeholder. [#27895]
+
+### Improved compatibility
+- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`. [#27843]
+- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
+- Writing prompts: hide placeholder prompts by default. [#27919]
+
+### Bug fixes
+- Dashboard: add translation context to Security product name. [#27920]
+- Form block: fix email formatting for contact form submissions. [#27929]
+- General: Fix deprecation warnings when running with PHP 8.2. [#27968]
+- Hovercards: fix minor Hovercards & AMP compatibility bug [#27828]
+- Subscription block: fix PHP Warning. [#27884]
+- WAF: fix the initialization of the firewall. [#27846]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin page: avoid blank connection screen. [#28001]
+- Blocks: add missing Jetpack config external, and enqueue connection data in post editor, to be used by blocks. [#27978, #27937]
+- Contact form: add export to Google Drive feature on form responses table. [#27690]
+- E2E tests: add a new tests for Form block. [#27933]
+- Extensions: use isCurrentUserConnected from package instead of from internally shared function. [#27924]
+- Options: Update featured_image_email_enabled option name to wpcom_featured_image_in_email. [#27955]
+- Options: Added new site option of 'wpcom-subscription-emails-use-excerpt'. [#27908]
+- PayPal block: improve stability of Pay with Paypal test. [#27951]
+- Slideshow block: change the labels for Image Size and Transition Effect options. [#27898]
+- Slideshow block: change the arrow's style to match the gallery current style. [#27907]
+- Stats: fix stats chart in masterbar when new experience is turned on. [#27825]
+- Stats Admin: update dependencies. [#27948]
+- Tools: remove dead static-site-generator-webpack-plugin dep, copy a cleaned-up version into the repo. [#27889]
+- Updated package dependencies. [#27874, #27887, #27916]
+- Updating changelog entries. [#27886, #28000]
+
 ## 11.7-a.5 - 2022-12-19
 ### Enhancements
 - Assistant: update Akismet and Backup names. [#27844]
