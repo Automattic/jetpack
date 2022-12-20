@@ -142,6 +142,7 @@ class CLI extends WP_CLI_Command {
 	 */
 	public function generate_rules() {
 		try {
+			Waf_Runner::generate_automatic_rules();
 			Waf_Runner::generate_rules();
 		} catch ( \Exception $e ) {
 
