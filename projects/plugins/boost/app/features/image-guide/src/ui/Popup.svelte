@@ -74,7 +74,7 @@
 					but pay attention whether the image appears blurry.
 				</div>
 			{/if}
-			<a class="documentation" href="{DOCUMENTATION_URL}" target="_blank noreferrer">Learn more</a>
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
 		</div>
 		{#if $imageURL}
 			<img
