@@ -6,9 +6,7 @@ import './view.scss';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function RevueEdit( { className } ) {
-	const supportLink =
-		'http://help.getrevue.co/en/articles/6819675-we-ve-made-the-difficult-decision-to-shut-down-revue';
-	const migrationLink = 'https://wordpress.com/support/launch-a-newsletter/#add-subscribers';
+	const migrationLink = 'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/';
 
 	return (
 		<div className={ className }>
@@ -22,14 +20,9 @@ export default function RevueEdit( { className } ) {
 					label={ __( 'Revue', 'jetpack' ) }
 				>
 					<div className={ `components-placeholder__learn-more` }>
-						<ExternalLink href={ supportLink }>
-							{ __( 'Find out more about Revue shutting down here.', 'jetpack' ) }
-						</ExternalLink>
-					</div>
-					<div className={ `components-placeholder__learn-more` }>
 						<ExternalLink href={ migrationLink }>
 							{ __(
-								'You can move your newsletter to WordPress.com - migrate your subscribers here.',
+								'You can migrate from Revue to the WordPress.com Newsletter - find out more here.',
 								'jetpack'
 							) }
 						</ExternalLink>

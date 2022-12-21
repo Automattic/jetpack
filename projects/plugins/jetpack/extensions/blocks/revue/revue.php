@@ -37,22 +37,16 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_block( $attributes ) {
 	if ( current_user_can( 'manage_options' ) ) {
-		$revue_url            = esc_url( 'http://help.getrevue.co/en/articles/6819675-we-ve-made-the-difficult-decision-to-shut-down-revue' );
-		$wpcom_newsletter_url = esc_url( 'https://wordpress.com/support/launch-a-newsletter/#add-subscribers' );
+		$wpcom_newsletter_url = esc_url( 'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/' );
 		$message              = sprintf(
 			'<br/>'
 			/* Translators: %s contains the words 'shutting down', which links to a Revue help article about the feature being shut down. */
-			. esc_html__( 'Revue is %1$s. The Revue signup form will no longer be displayed to your visitors and as such this block should be removed. %2$s You can move your newsletter to WordPress.com - migrate your subscribers %3$s.', 'jetpack' ),
-			sprintf(
-				'<a href="%1$s" target="_blank">%2$s</a>',
-				$revue_url,
-				esc_html__( 'shutting down', 'jetpack' )
-			),
+			. esc_html__( 'Revue is shutting down. The Revue signup form will no longer be displayed to your visitors and as such this block should be removed. %1$s You can migrate from Revue to the WordPress.com Newsletter - %2$s.', 'jetpack' ),
 			'<br/> <br/>',
 			sprintf(
 				'<a href="%1$s" target="_blank">%2$s</a>',
 				$wpcom_newsletter_url,
-				esc_html__( 'by following these steps', 'jetpack' )
+				esc_html__( 'find out more here', 'jetpack' )
 			)
 		);
 		return sprintf(
