@@ -8,6 +8,6 @@ import type React from 'react';
  *
  * @returns {React.ReactElement}    Component template
  */
-export default function save(): React.ReactElement {
+export default function save(): React.ReactNode {
 	return null;
 }
