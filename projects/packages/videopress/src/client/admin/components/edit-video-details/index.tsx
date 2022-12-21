@@ -203,10 +203,9 @@ const EditVideoDetails = () => {
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
 
-	const shortcode =
-		width && height
-			? `[jetpack_videopress guid=${ guid } width=${ width } height=${ height }]`
-			: null;
+	const shortcode = `[videopress ${ guid }${ width ? ` w=${ width }` : '' }${
+		height ? ` h=${ height }` : ''
+	}]`;
 
 	return (
 		<>
