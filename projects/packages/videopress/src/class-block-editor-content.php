@@ -133,10 +133,10 @@ class Block_Editor_Content {
 
 			$base_url     = 'https://videopress.com/v/' . $guid;
 			$query_params = array(
-				'resizeToParent'  => true,
-				'cover'           => true,
+				'resizeToParent'  => 'true',
+				'cover'           => 'true',
 				'preloadContent'  => 'metadata',
-				'useAverageColor' => true,
+				'useAverageColor' => 'true',
 			);
 			$url          = esc_url( add_query_arg( $query_params, $base_url ) );
 
