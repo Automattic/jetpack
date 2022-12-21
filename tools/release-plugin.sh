@@ -55,20 +55,30 @@ if [[ ${#ARGS[@]} -ne 1 ]]; then
 fi
 
 # This gets us $PLUGIN_DIR
+# Do more checks to 
 process_plugin_arg "${ARGS[0]}"
 
-# Make sure we're standing on trunk
+# Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
-	# proceed_p "Not currently checked out to trunk. Check out trunk before continuing?"
+	# proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
 	# git checkout trunk && git pull
 	echo "hi"
 fi
 
-GIT=$( git status )
-echo "$GIT"
-echo "$CURRENT_BRANCH"
+if [[ "$(git status --porcelain)" ]]; then
+	red "Working directory not clean, make sure you're working from a clean checkout and try again."
+	#exit
+fi
+
 # Check out pre-release branch
+BRANCHES="$( git branch )"
+if [[ "$BRANCHES" =~ "prerelease" ]]; then
+	proceed_p "Existing prerelease branch found." "Delete it?"
+	git branch -D prerelease
+fi
+echo "End of file"
+
 # Run tools/changelogger-release.sh <plugin> [ -a, -b ] --add-pr-num
 # When it completes, wait for user to edit anything then want, then push key to continue.
 # If we're running a beta, amend the changelog.
