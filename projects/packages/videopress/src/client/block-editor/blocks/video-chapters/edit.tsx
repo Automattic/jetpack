@@ -19,7 +19,7 @@ import type React from 'react';
  * VideoPress Chapters block Edit react components
  *
  * @param {VideoChaptersBlockPropertiesProps} props - Component props.
- * @returns {React.ReactElement}                      React component.
+ * @returns {React.ReactNode}                         React component.
  */
 export default function VideoPressChaptersEdit( {
 	attributes,
