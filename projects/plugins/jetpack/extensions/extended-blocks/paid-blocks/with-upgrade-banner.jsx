@@ -78,19 +78,17 @@ export default createHigherOrderComponent(
 				onBannerVisibilityChange={ setIsVisible }
 				hasParentBanner={ isBannerVisible }
 			>
-				<div { ...blockProps }>
-					<div className="jetpack-block-upgrade-banner-container">
-						<UpgradePlanBanner
-							className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
-							title={ null }
-							align={ attributes?.align }
-							visible={ isBannerVisible }
-							description={ usableBlocksProps?.description }
-							requiredPlan={ requiredPlan }
-							context={ bannerContext }
-							onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
-						/>
-					</div>
+				<div ref={ blockProps.ref }>
+					<UpgradePlanBanner
+						className={ `is-${ name.replace( /\//, '-' ) }-paid-block` }
+						title={ null }
+						align={ attributes?.align }
+						visible={ isBannerVisible }
+						description={ usableBlocksProps?.description }
+						requiredPlan={ requiredPlan }
+						context={ bannerContext }
+						onRedirect={ () => trackUpgradeClickEvent( trackEventData ) }
+					/>
 					<BlockEdit { ...props } />
 				</div>
 			</PaidBlockProvider>
