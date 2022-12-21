@@ -21,13 +21,11 @@ class Block_Editor_Content {
 			return;
 		}
 
-		global $shortcode_tags;
-
 		// Remove the videopress shortcodes added by the Jetpack plugin.
-		if ( array_key_exists( 'videopress', $shortcode_tags ) ) {
+		if ( shortcode_exists( 'videopress' ) ) {
 			remove_shortcode( 'videopress' );
 		}
-		if ( array_key_exists( 'wpvideo', $shortcode_tags ) ) {
+		if ( shortcode_exists( 'wpvideo' ) ) {
 			remove_shortcode( 'wpvideo' );
 		}
 

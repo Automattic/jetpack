@@ -17,10 +17,8 @@ class VideoPress_Shortcode {
 	 * VideoPress_Shortcode constructor.
 	 */
 	protected function __construct() {
-		global $shortcode_tags;
-
 		// Only add the shortcode if it hasn't already been added by the standalone VideoPress plugin.
-		if ( ! array_key_exists( 'videopress', $shortcode_tags ) ) {
+		if ( ! shortcode_exists( 'videopress' ) ) {
 			add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 			add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
 
