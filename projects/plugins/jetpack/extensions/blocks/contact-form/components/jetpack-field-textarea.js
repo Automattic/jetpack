@@ -9,7 +9,12 @@ export default function JetpackFieldTextarea( props ) {
 	return (
 		<>
 			<div className="jetpack-field">
-				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+				/>
 				<Disabled>
 					<TextareaControl
 						placeholder={ placeholder }
