@@ -12,4 +12,6 @@ namespace Automattic\Jetpack;
  */
 class Package_Name {
 
+	const PACKAGE_VERSION = '1.0.0-alpha';
+
 }
