@@ -148,7 +148,7 @@
 		font-size: 13px;
 		padding: 0;
 
-		&:hover, &:active, &:focus {
+		&, &:hover, &:active, &:focus {
 			background-color: unset;
 			color: var(--wp-admin-theme-color)
 		}
