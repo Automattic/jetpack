@@ -799,7 +799,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					array_walk_recursive(
 						$sanitized_value,
 						function ( &$value ) {
-							$value = sanitize_text_field( $value );
+							$value = sanitize_textarea_field( $value );
 						}
 					);
 					if ( update_option( $key, $sanitized_value ) ) {
