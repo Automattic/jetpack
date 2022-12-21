@@ -106,25 +106,27 @@ const JetpackFieldControls = ( {
 						},
 					] }
 				></PanelColorSettings>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Typography', 'jetpack' ) }>
 					<TextControl
-						label={ __( 'Corner radius', 'jetpack' ) }
+						label={ __( 'Line Height', 'jetpack' ) }
+						value={ attributes.lineHeight }
+						onChange={ value => setAttributes( { lineHeight: parseFloat( value, 10 ) || 1.5 } ) }
+						type="number"
+						style={ { marginLeft: '15px', width: '25%' } }
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Border', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Radius', 'jetpack' ) }
 						value={ attributes.borderRadius }
 						onChange={ value => setAttributes( { borderRadius: parseInt( value, 10 ) || 0 } ) }
 						type="number"
 						style={ { marginLeft: '15px', width: '25%' } }
 					/>
 					<TextControl
-						label={ __( 'Border width', 'jetpack' ) }
+						label={ __( 'Line', 'jetpack' ) }
 						value={ attributes.borderWidth }
 						onChange={ value => setAttributes( { borderWidth: parseInt( value, 10 ) || 1 } ) }
-						type="number"
-						style={ { marginLeft: '15px', width: '25%' } }
-					/>
-					<TextControl
-						label={ __( 'Line Height', 'jetpack' ) }
-						value={ attributes.lineHeight }
-						onChange={ value => setAttributes( { lineHeight: parseFloat( value, 10 ) || 1.5 } ) }
 						type="number"
 						style={ { marginLeft: '15px', width: '25%' } }
 					/>
