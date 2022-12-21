@@ -3137,7 +3137,7 @@ function wpsc_get_htaccess_info() {
 		"\n",
 		array_map(
 			function ( $line ) {
-				return "  ${line}";
+				return "  $line";
 			},
 			$expires_rules
 		)
