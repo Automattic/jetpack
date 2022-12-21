@@ -109,26 +109,27 @@ function jetpack_add_google_fonts_provider() {
 	 */
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
 
+	$fonts = array();
+
 	foreach ( $fonts_to_register as $font_family ) {
-		wp_register_webfonts(
-			array(
-				array(
-					'font-family'  => $font_family,
-					'font-weight'  => '100 900',
-					'font-style'   => 'normal',
-					'font-display' => 'fallback',
-					'provider'     => 'jetpack-google-fonts',
-				),
-				array(
-					'font-family'  => $font_family,
-					'font-weight'  => '100 900',
-					'font-style'   => 'italic',
-					'font-display' => 'fallback',
-					'provider'     => 'jetpack-google-fonts',
-				),
-			)
+		$fonts[ $font_family ] = array(
+			$font_family . '-normal' => array(
+				'font-display' => 'fallback',
+				'font-family'  => $font_family,
+				'font-style'   => 'normal',
+				'font-weight'  => '100 900',
+				'provider'     => 'jetpack-google-fonts',
+			),
+			$font_family . '-italic' => array(
+				'font-display' => 'fallback',
+				'font-family'  => $font_family,
+				'font-style'   => 'italic',
+				'font-weight'  => '100 900',
+				'provider'     => 'jetpack-google-fonts',
+			),
 		);
 	}
+	wp_register_webfonts( $fonts );
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
