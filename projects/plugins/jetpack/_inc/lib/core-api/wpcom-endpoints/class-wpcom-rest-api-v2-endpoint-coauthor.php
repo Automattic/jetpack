@@ -25,23 +25,25 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	public $rest_base = 'coauthor';
 
 	/**
-	 * Allow new completion every X seconds. Will return cached result otherwise.
-	 *
-	 * @var int
-	 */
-	public $text_completion_cooldown_seconds = 10;
-
-	/**
-	 * Cache images for a prompt for a month.
-	 *
-	 * @var int
-	 */
-	public $image_generation_cache_timeout = MONTH_IN_SECONDS;
-
-	/**
 	 * WPCOM_REST_API_V2_Endpoint_Coauthor constructor.
 	 */
 	public function __construct() {
+		$this->is_wpcom = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->is_wpcom = true;
+
+			// On WordPress.com, we can get the data in a more straightforward way.
+			// We'll have a helper class there to do just that.
+			if ( ! class_exists( 'WPCOM_Coauthor' ) ) {
+				\require_lib( 'coauthor' );
+			}
+		}
+
+		if ( ! class_exists( 'Jetpack_Coauthor_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-coauthor-helper.php';
+		}
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -56,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_gpt_completion' ),
-					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'permission_callback' => array( 'Jetpack_Coauthor_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'content' => array( 'required' => true ),
@@ -71,7 +73,7 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_dalle_generation' ),
-					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'permission_callback' => array( 'Jetpack_Coauthor_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'prompt' => array( 'required' => true ),
@@ -82,31 +84,12 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	}
 
 	/**
-	 * Ensure the user has proper permissions
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 * @return boolean
-	 */
-	public function get_status_permission_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Sorry, you are not allowed to access CoAuthor help on this site.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Get completions for a given text.
 	 *
 	 * @param  WP_REST_Request $request The request.
 	 */
-	public function request_gpt_completion( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Here we can make requests as site or as user to fetch data from WordPress.com.
-		return 'something';
+	public function request_gpt_completion( $request ) {
+		return Jetpack_Coauthor_Helper::get_gpt_completion( $request['content'] );
 	}
 
 	/**
@@ -114,9 +97,8 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	 *
 	 * @param  WP_REST_Request $request The request.
 	 */
-	public function request_dalle_generation( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		// Here we can make requests as site or as user to fetch data from WordPress.com.
-		return 'something';
+	public function request_dalle_generation( $request ) {
+		return Jetpack_Coauthor_Helper::get_dalle_generation( $request['prompt'] );
 	}
 }
 
