@@ -69,6 +69,7 @@ class Block_Editor_Content {
 			'at'              => 0,     // How many seconds in to initially seek to
 			'loop'            => false, // Whether to loop the video repeatedly
 			'autoplay'        => false, // Whether to autoplay the video on load
+			'cover'           => true,  // Whether to scale the video to its container
 			'muted'           => false, // Whether the video should start without sound
 			'controls'        => true,  // Whether the video should display controls
 			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this)
@@ -93,6 +94,12 @@ class Block_Editor_Content {
 		$width  = absint( $atts['w'] );
 		$height = absint( $atts['h'] );
 
+		// Make sure "false" will be actually false.
+		if ( is_string( $atts['cover'] ) && 'false' === strtolower( $atts['cover'] ) ) {
+			$atts['cover'] = false;
+		}
+		$cover = $atts['cover'] ? ' data-resize-to-parent="true"' : '';
+
 		$block_template =
 		'<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
 			'<div class="jetpack-videopress-player__wrapper">' .
@@ -103,7 +110,7 @@ class Block_Editor_Content {
 					'width="%s"' .
 					'height="%s" ' .
 					'frameborder="0" ' .
-					'allowfullscreen data-resize-to-parent="true" allow="clipboard-write">' .
+					'allowfullscreen%s allow="clipboard-write">' .
 				'</iframe>' .
 			'</div>' .
 		'</figure>';
@@ -111,7 +118,7 @@ class Block_Editor_Content {
 		$version = Package_Version::PACKAGE_VERSION;
 		wp_enqueue_script( 'videopress-iframe', 'https://videopress.com/videopress-iframe.js', array(), $version, true );
 
-		return sprintf( $block_template, $src, $width, $height );
+		return sprintf( $block_template, $src, $width, $height, $cover );
 	}
 
 	/**
