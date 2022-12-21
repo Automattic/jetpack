@@ -438,6 +438,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
+						'subscription_options'             => (array) get_option( 'subscription_options', array() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
@@ -790,6 +791,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					 */
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'subscription_options':
+					$sanitized_value = (array) $value;
+					array_walk_recursive(
+						$sanitized_value,
+						function ( &$value ) {
+							$value = sanitize_text_field( $value );
+						}
+					);
+					if ( update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
 					}
 					break;
 
