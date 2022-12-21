@@ -20,6 +20,7 @@ function usage {
 		Options:
 			--stable <stable> If we're releasing a stable.
 			--beta <beta> If we're releasing a beta
+			--alpha <alpha> If we're releasing an alpha version
 			--version <ver> What version we're releasing.  
 
 	EOH
@@ -39,9 +40,6 @@ while [[ $# -gt 0 ]]; do
 			TYPE="$1"
 			shift
 			;;
-		--dir=*)
-			BUILD_DIR="${arg#--dir=}"
-			;;
 		--help)
 			usage
 			;;
@@ -55,7 +53,7 @@ if [[ ${#ARGS[@]} -ne 1 ]]; then
 fi
 
 # This gets us $PLUGIN_DIR
-# Do more checks to 
+# Do more checks to get any other plugin info we might need.
 process_plugin_arg "${ARGS[0]}"
 
 # Make sure we're standing on trunk and working directory is clean
@@ -71,7 +69,7 @@ if [[ "$(git status --porcelain)" ]]; then
 	#exit
 fi
 
-# Check out pre-release branch
+# Check out and push pre-release branch
 BRANCHES="$( git branch )"
 if [[ "$BRANCHES" =~ "prerelease" ]]; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
@@ -79,7 +77,9 @@ if [[ "$BRANCHES" =~ "prerelease" ]]; then
 fi
 
 git checkout -b prerelease
-git push -u origin HEAD
+if ! git push -u origin HEAD; then
+	red "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+fi
 echo "End of file"
 
 # Run tools/changelogger-release.sh <plugin> [ -a, -b ] --add-pr-num
