@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.2 - 2022-12-19
+### Added
+- Allow passing the custom logo and icon to connection screen [#27802]
+
+### Changed
+- Updated package dependencies. [#27916]
+
 ## 0.24.1 - 2022-12-12
 ### Changed
 - Updated package dependencies. [#27888]

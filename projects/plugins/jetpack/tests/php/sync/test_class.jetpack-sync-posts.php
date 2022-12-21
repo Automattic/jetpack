@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $post_id;
 	protected $test_already = false;
 
 	/**
@@ -166,7 +167,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_new_page() {
 		$this->post->post_type = 'page';
-		$this->post_id         = wp_insert_post( $this->post );
+		wp_insert_post( $this->post );
 
 		$this->sender->do_sync();
 
@@ -1284,10 +1285,11 @@ That was a cool video.';
 	 * @return array[] Test parameters.
 	 */
 	public function provider_jetpack_published_post_no_action() {
+		// @todo This seems somewhat broken, $this->post isn't set yet when this runs.
 		return array(
 			array( null, $this->post ),
 			array( 'alpha', $this->post ),
-			array( $this->post_id, null ),
+			array( isset( $this->post->ID ) ? $this->post->ID : null, null ),
 			array( -1111, $this->post ),
 		);
 	}
