@@ -21,7 +21,7 @@ module.exports = [
 			'admin/index': './src/client/admin/index.js',
 
 			// Block editor extensions
-			'block-editor/extensions/index': './src/client/block-editor/extensions/index.ts',
+			'block-editor/index': './src/client/block-editor/index.ts',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,

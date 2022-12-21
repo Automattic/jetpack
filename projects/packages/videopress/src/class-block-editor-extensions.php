@@ -129,7 +129,7 @@ class Block_Editor_Extensions {
 	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
 		Assets::register_script(
 			$handle,
-			'../build/block-editor/extensions/index.js',
+			'../build/block-editor/index.js',
 			__FILE__,
 			array(
 				'in_footer'  => false,
