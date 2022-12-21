@@ -17,10 +17,15 @@ class VideoPress_Shortcode {
 	 * VideoPress_Shortcode constructor.
 	 */
 	protected function __construct() {
-		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
-		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
+		global $shortcode_tags;
 
-		add_filter( 'wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4 );
+		// Only add the shortcode if it hasn't already been added by the standalone VideoPress plugin.
+		if ( ! array_key_exists( 'videopress', $shortcode_tags ) ) {
+			add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
+			add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
+
+			add_filter( 'wp_video_shortcode_override', array( $this, 'video_shortcode_override' ), 10, 4 );
+		}
 
 		$this->add_video_embed_hander();
 	}
