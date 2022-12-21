@@ -1,0 +1,12 @@
+{
+	"name": "automattic/jetpack-ai",
+	"description": "AI package gathers all AI-related plugins.",
+	"homepage": "https://github.com/artpi/wp-writers-block-block",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": ""
+	},
+	"require": {},
+	"require-dev": {}
+}
