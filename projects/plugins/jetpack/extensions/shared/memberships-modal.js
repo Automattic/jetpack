@@ -40,6 +40,10 @@ export default function MembershipsModal( props ) {
 		}
 	}
 
+	const iframeLoaded = ( evt ) => {
+		modalRef?.current.classList.add( 'loaded' );
+	}
+
 	return (
 		<>
 			<button id={ uniqueId } onClick={ openModal }>{ text }</button>
@@ -52,7 +56,8 @@ export default function MembershipsModal( props ) {
 					// isFullScreen={ true }
 					className="jetpack-memberships-modal"
 				>
-					{ url && <iframe title="subscribe-iframe" src={ url } /> }
+					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
+					{ url && <iframe scrolling="yes" title="subscribe-iframe" src={ url } onLoad={ iframeLoaded }/> }
 				</Modal>
 			) }
 		</>
