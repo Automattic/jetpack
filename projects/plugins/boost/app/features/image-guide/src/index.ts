@@ -1,9 +1,9 @@
-import { MeasurableImage } from './MeasurableImage';
-import { getMeasurableImages } from './find-image-elements';
+import { getMeasurableImages } from '@automattic/jetpack-image-guide';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 import type { MeasurableImageStore } from './stores/MeasurableImageStore';
+import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
  * A helper function to filter out images
@@ -50,7 +50,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 const stores: MeasurableImageStore[] = [];
 
 /**
- * Guides need to recaculate dimensions and possibly weights.
+ * Guides need to recalculate dimensions and possibly weights.
  * This is done when the window is resized,
  * but because that event is fired multiple times,
  * it's better to debounce it.

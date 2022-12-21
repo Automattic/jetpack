@@ -210,18 +210,18 @@
 		padding: 10px 0 2px;
 		position: relative;
 		display: flex;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: 8px;
 
 		.swiper-pagination-bullet {
 			background: currentColor;
 			color: currentColor;
-			height: 16px;
+			height: 8px;
 			opacity: 0.5;
 			transform: scale( 0.75 );
 			transition: opacity 250ms, transform 250ms;
 			vertical-align: top;
-			width: 16px;
+			width: 8px;
 
 			&:focus,
 			&:hover {
