@@ -136,7 +136,7 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! You may want to update the readme.txt bt running 'jetpack release ${ argv.project } readme' \n`;
+			argv.next = `Finished! You may want to update the readme.txt by running 'jetpack release ${ argv.project } readme' \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
