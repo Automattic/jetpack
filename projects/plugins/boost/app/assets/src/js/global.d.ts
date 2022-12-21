@@ -45,6 +45,7 @@ declare global {
 			online: boolean;
 			assetPath: string;
 			getStarted: boolean;
+			canResizeImages: boolean;
 		};
 		optimizations: Optimizations;
 		shownAdminNoticeIds: string[];

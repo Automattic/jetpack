@@ -46,6 +46,20 @@ class Manager {
 	private $plugin = null;
 
 	/**
+	 * Error handler object.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler = null;
+
+	/**
+	 * Jetpack_XMLRPC_Server object
+	 *
+	 * @var Jetpack_XMLRPC_Server
+	 */
+	public $xmlrpc_server = null;
+
+	/**
 	 * Holds extra parameters that will be sent along in the register request body.
 	 *
 	 * Use Manager::add_register_request_param to add values to this array.
@@ -1857,7 +1871,7 @@ class Manager {
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
 				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
-				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
+				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),

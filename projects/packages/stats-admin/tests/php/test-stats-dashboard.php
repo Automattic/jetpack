@@ -46,7 +46,7 @@ class Test_Plan extends Stats_Test_Case {
 		$dashboard   = new Dashboard();
 		$config_data = new \ReflectionMethod( $dashboard, 'get_config_data_js' );
 		$config_data->setAccessible( true );
-		$this->assertMatchesRegularExpression( '/window\.configData/', $config_data->invoke( $dashboard ) );
+		$this->assertTrue( strpos( $config_data->invoke( $dashboard ), 'window.configData' ) === 0 );
 	}
 
 	/**
@@ -67,6 +67,6 @@ class Test_Plan extends Stats_Test_Case {
 		$this->assertArrayHasKey( 'nonce', $data );
 		$this->assertArrayHasKey( 'site_name', $data );
 		$this->assertArrayHasKey( 'intial_state', $data );
-		$this->assertEmpty( $data->features );
+		$this->assertEmpty( $data['features'] );
 	}
 }

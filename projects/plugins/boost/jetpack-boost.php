@@ -128,6 +128,27 @@ add_action( 'plugins_loaded', '\Automattic\Jetpack_Boost\run_jetpack_boost', 1 )
 
 register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boost', 'activate' ) );
 
+// Redirect to plugin page when the plugin is activated.
+add_action( 'activated_plugin', __NAMESPACE__ . '\jetpack_boost_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @access public
+ * @static
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_boost_plugin_activation( $plugin ) {
+	if (
+		JETPACK_BOOST_PLUGIN_BASE === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BOOST_PLUGIN_BASE )
+	) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-boost' ) ) );
+		exit;
+	}
+}
+
 /**
  * Extra tweaks to make Jetpack Boost work better with others.
  */
