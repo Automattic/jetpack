@@ -67,7 +67,11 @@ const FieldDefaults = {
 			type: 'string',
 			default: '#000000',
 		},
-		backgroundColor: {
+		fieldBackgroundColor: {
+			type: 'string',
+			default: '#ffffff',
+		},
+		blockBackgroundColor: {
 			type: 'string',
 			default: '#ffffff',
 		},

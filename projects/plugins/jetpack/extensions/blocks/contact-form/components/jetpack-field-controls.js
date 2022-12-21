@@ -71,6 +71,42 @@ const JetpackFieldControls = ( {
 							'jetpack'
 						) }
 					/>
+
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+				</PanelBody>
+
+				<PanelColorSettings
+					title={ __( 'Color', 'jetpack' ) }
+					initialOpen={ false }
+					colorSettings={ [
+						{
+							value: attributes.labelColor,
+							onChange: value => setAttributes( { labelColor: value } ),
+							label: __( 'Label text', 'jetpack' ),
+						},
+						{
+							value: attributes.inputColor,
+							onChange: value => setAttributes( { inputColor: value } ),
+							label: __( 'Field text', 'jetpack' ),
+						},
+						{
+							value: attributes.fieldBackgroundColor,
+							onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+							label: __( 'Field Background', 'jetpack' ),
+						},
+						{
+							value: attributes.blockBackgroundColor,
+							onChange: value => setAttributes( { blockBackgroundColor: value } ),
+							label: __( 'Block Background', 'jetpack' ),
+						},
+						{
+							value: attributes.borderColor,
+							onChange: value => setAttributes( { borderColor: value } ),
+							label: __( 'Border', 'jetpack' ),
+						},
+					] }
+				></PanelColorSettings>
+				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 					<TextControl
 						label={ __( 'Corner radius', 'jetpack' ) }
 						value={ attributes.borderRadius }
@@ -92,35 +128,7 @@ const JetpackFieldControls = ( {
 						type="number"
 						style={ { marginLeft: '15px', width: '25%' } }
 					/>
-
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
-				<PanelColorSettings
-					title={ __( 'Block styling', 'jetpack' ) }
-					initialOpen={ false }
-					colorSettings={ [
-						{
-							value: attributes.labelColor,
-							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label text color', 'jetpack' ),
-						},
-						{
-							value: attributes.inputColor,
-							onChange: value => setAttributes( { inputColor: value } ),
-							label: __( 'Field text color', 'jetpack' ),
-						},
-						{
-							value: attributes.backgroundColor,
-							onChange: value => setAttributes( { backgroundColor: value } ),
-							label: __( 'Background color', 'jetpack' ),
-						},
-						{
-							value: attributes.borderColor,
-							onChange: value => setAttributes( { borderColor: value } ),
-							label: __( 'Border color', 'jetpack' ),
-						},
-					] }
-				></PanelColorSettings>
 			</InspectorControls>
 
 			<InspectorAdvancedControls>
