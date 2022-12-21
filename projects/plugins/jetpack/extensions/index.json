@@ -46,6 +46,8 @@
 	],
 	"beta": [
 		"amazon",
+		"coauthor-image",
+		"coauthor-paragraph",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"paid-newsletters-in-subscriptions",
