@@ -439,6 +439,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'show_on_front'                    => (string) get_option( 'show_on_front' ),
+						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -820,6 +822,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'date_format':
 				case 'time_format':
+				case 'show_on_front':
+				case 'page_on_front':
 					// settings are stored as strings.
 					// raw_value is used to help preserve any escaped characters that might exist in the formatted string.
 					$sanitized_value = sanitize_text_field( $raw_value );
