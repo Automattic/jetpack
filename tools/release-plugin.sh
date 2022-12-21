@@ -77,6 +77,9 @@ if [[ "$BRANCHES" =~ "prerelease" ]]; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
 	git branch -D prerelease
 fi
+
+git checkout -b prerelease
+git push -u origin HEAD
 echo "End of file"
 
 # Run tools/changelogger-release.sh <plugin> [ -a, -b ] --add-pr-num
