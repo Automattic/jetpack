@@ -1,4 +1,4 @@
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -195,6 +195,19 @@ export class RelatedPostsEdit extends Component {
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
 					<div className={ previewClassName } data-layout={ postLayout }>
+						<InnerBlocks
+							lock={ { remove: true } }
+							template={ [
+								[
+									'core/heading',
+									{
+										className: `jp-related-posts-i2__headline`,
+										level: 3,
+										placeholder: __( 'Related Posts Title', 'jetpack' ),
+									},
+								],
+							] }
+						/>
 						<RelatedPostsPreviewRows posts={ displayPosts } />
 					</div>
 				</div>

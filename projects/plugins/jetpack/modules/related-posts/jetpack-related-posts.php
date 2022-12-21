@@ -430,10 +430,11 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
-	 * @param array $attributes Block attributes.
+	 * @param array  $attributes Block attributes.
+	 * @param string $content    Block default content.
 	 * @return string
 	 */
-	public function render_block( $attributes ) {
+	public function render_block( $attributes, $content ) {
 		$post_id          = get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
@@ -487,10 +488,11 @@ EOT;
 		}
 
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s%6$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
+			$content,
 			$block_attributes['headline'],
 			$rows_markup
 		);
