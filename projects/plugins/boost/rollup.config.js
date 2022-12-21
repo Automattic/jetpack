@@ -221,6 +221,15 @@ export default [
 			file: `${ GUIDE_PATH }/dist/guide.js`,
 		},
 		plugins: [
+			replace( {
+				preventAssignment: true,
+				delimiters: [ '', '' ],
+				values: {
+					"@import '@automattic": "@import '~@automattic",
+					'process.env.NODE_ENV': '"production"',
+				},
+			} ),
+
 			resolve( {
 				browser: true,
 				preferBuiltins: false,
