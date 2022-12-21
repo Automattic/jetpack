@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix global CSS import in beta blocks styles
