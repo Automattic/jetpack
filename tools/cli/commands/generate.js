@@ -268,6 +268,11 @@ export async function generateProject(
 	switch ( answers.type ) {
 		case 'package':
 			await renameClassFile( projDir, answers.name );
+			await searchReplaceInFolder(
+				projDir,
+				'Package_Name',
+				transformToReadableName( answers.name )
+			);
 			break;
 		case 'js-package':
 			break;
