@@ -79,6 +79,8 @@ function debounceDimensionUpdates() {
  * to look for new images.
  */
 function initialize() {
+	ImageGuideAnalytics.trackInitialState();
+
 	guideState.subscribe( async $state => {
 		if ( $state === 'paused' ) {
 			return;

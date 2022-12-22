@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { recordBoostEvent } from '../../../assets/src/js/utils/analytics';
+import { guideState } from './stores/GuideState';
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import type { Dimensions, Weight } from '@automattic/jetpack-image-guide';
 
@@ -44,7 +45,7 @@ export default class ImageGuideAnalytics {
 						imageURL,
 					};
 	
-					recordBoostEvent( 'image_guide_image_state', {
+					recordBoostEvent( 'image_guide_image_outcome', {
 						...props,
 						windowDimensions: {
 							width: window.innerWidth,
@@ -91,6 +92,24 @@ export default class ImageGuideAnalytics {
 				height: window.innerHeight,
 			},
 			devicePixelRatio: window.devicePixelRatio,
+		} );
+	}
+
+	/**
+	 * Track the state of the UI when the user loads a page.
+	 */
+	public static trackInitialState() {
+		recordBoostEvent( 'image_guide_initial_ui_state', {
+			imageGuideState: get( guideState )
+		} );
+	}
+
+	/**
+	 * Track the state of the UI when the user changes it.
+	 */
+	public static trackUIStateChange() {
+		recordBoostEvent( 'image_guide_ui_state_change', {
+			imageGuideState: get( guideState )
 		} );
 	}
 }

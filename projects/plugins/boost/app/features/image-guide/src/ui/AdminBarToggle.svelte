@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { recordBoostEvent } from '../../../../assets/src/js/utils/analytics';
+	import ImageGuideAnalytics from '../analytics';
 	import { guideState, guideLabel } from '../stores/GuideState';
 	import JetpackLogo from './JetpackLogo.svelte';
 
@@ -7,7 +7,7 @@
 
 	function toggleUI() {
 		guideState.cycle();
-		recordBoostEvent( 'cycle_image_guide_ui', { state: $guideState } );
+		ImageGuideAnalytics.trackUIStateChange();
 	}
 </script>
 
