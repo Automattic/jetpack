@@ -809,7 +809,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							);
 						}
 					);
-					if ( update_option( $key, $sanitized_value ) ) {
+
+					$has_correct_length  = count( $sanitized_value ) === 2;
+					$required_keys_exist = array_key_exists( 'invitation', $sanitized_value )
+						&& array_key_exists( 'comment_follow', $sanitized_value );
+					$is_valid            = $has_correct_length && $required_keys_exist;
+
+					if ( $is_valid && update_option( $key, $sanitized_value ) ) {
 						$updated[ $key ] = $sanitized_value;
 					}
 					break;
