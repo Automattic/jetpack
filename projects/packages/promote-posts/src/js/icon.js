@@ -1,5 +1,10 @@
 import { SVG, Path } from '@wordpress/components';
 
+/**
+ * Blaze Fire Icon.
+ *
+ * @returns {Element} Icon component.
+ */
 export default function BlazeIcon() {
 	return (
 		<SVG width="16" height="22" viewBox="0 0 16 22" fill="none" xmlns="http://www.w3.org/2000/svg">

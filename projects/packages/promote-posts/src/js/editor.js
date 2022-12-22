@@ -15,13 +15,14 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
+import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
 import BlazeIcon from './icon';
 
 /**
- * Return the allowed file mime types for the site.
+ * Return the connected WordPress.com's user locale.
  *
- * @returns {object} Allowed Mime Types.
+ * @returns {string} User locale.
  */
 function getConnectedUserLocale() {
 	return getJetpackData()?.tracksUserData?.user_locale || 'en';
@@ -30,7 +31,7 @@ function getConnectedUserLocale() {
 const BlazePostPublishPanel = () => {
 	const panelBodyProps = {
 		name: 'blaze-panel',
-		title: __( 'Blaze this post', 'jetpack' ),
+		title: __( 'Blaze this post', 'jetpack-promote-posts' ),
 		className: 'blaze-panel',
 		icon: <BlazeIcon />,
 		initialOpen: true,
@@ -92,7 +93,7 @@ const BlazePostPublishPanel = () => {
 				<p>
 					{ __(
 						'Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.',
-						'jetpack'
+						'jetpack-promote-posts'
 					) }
 				</p>
 			</PanelRow>
@@ -104,7 +105,7 @@ const BlazePostPublishPanel = () => {
 				onKeyDown={ trackClick }
 			>
 				<Button variant="secondary" href={ promoteUrl } target="_top">
-					{ __( 'Blaze', 'jetpack' ) }{ ' ' }
+					{ __( 'Blaze', 'jetpack-promote-posts' ) }{ ' ' }
 					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 				</Button>
 			</div>
@@ -112,7 +113,10 @@ const BlazePostPublishPanel = () => {
 	);
 };
 
-export const name = 'blaze';
-export const settings = {
-	render: BlazePostPublishPanel,
-};
+// Check if a plugin with the same name has already been registered.
+if ( ! getPlugin( 'jetpack-blaze' ) ) {
+	// If not, register our plugin.
+	registerPlugin( 'jetpack-blaze', {
+		render: BlazePostPublishPanel,
+	} );
+}

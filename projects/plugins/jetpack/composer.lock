@@ -1622,9 +1622,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/promote-posts",
-                "reference": "ddf550db9b7cae4e076c897577888096260c0db0"
+                "reference": "5179ac6c9aa39e0416fbb3ed58f94043662095d3"
             },
             "require-dev": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1636,7 +1637,7 @@
                     "link-template": "https://github.com/automattic/jetpack-promote-posts/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-promote-posts",
                 "version-constants": {
@@ -1659,10 +1660,10 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
                 ]
             },
             "license": [
