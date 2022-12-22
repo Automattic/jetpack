@@ -32,7 +32,6 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
-import useQueryStringPages from '../../hooks/use-query-string-pages';
 import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
@@ -60,8 +59,8 @@ const useDashboardVideos = () => {
 	const { hasVideoPressPurchase } = usePlan();
 
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
-	const pageFromSearchParam = parseInt( useSearchParams().getParam( 'page', '1' ) );
-	const { forceFirstPage } = useQueryStringPages();
+	const searchParams = useSearchParams();
+	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
 		if ( 1 <= pageFromSearchParam && pageFromSearchParam <= totalOfPages ) {
@@ -69,7 +68,7 @@ const useDashboardVideos = () => {
 				setVideosQuery( { page: pageFromSearchParam } );
 			}
 		} else {
-			forceFirstPage();
+			searchParams.reset();
 		}
 	}, [ totalOfPages, pageFromSearchParam ] );
 
