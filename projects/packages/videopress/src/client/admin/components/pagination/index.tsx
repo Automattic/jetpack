@@ -7,7 +7,7 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import useQueryStringPages from '../../hooks/use-query-string-pages';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
@@ -151,7 +151,11 @@ const Pagination: React.FC< PaginationProps > = ( {
 };
 
 export const ConnectPagination = ( props: { className: string; disabled?: boolean } ) => {
-	const { setPageOnURL } = useQueryStringPages();
+	const searchParams = useSearchParams();
+	const setPageOnURL = page => {
+		searchParams.setParam( 'page', page );
+		searchParams.update();
+	};
 
 	const { page, itemsPerPage, total, isFetching } = useVideos();
 	return total <= itemsPerPage ? (

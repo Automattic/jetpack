@@ -11,7 +11,7 @@ import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useQueryStringPages from '../../hooks/use-query-string-pages';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
@@ -51,11 +51,12 @@ const VideoLibraryWrapper = ( {
 	disabled?: boolean;
 } ) => {
 	const { setSearch, search, isFetching } = useVideos();
-	const { setPageOnURL } = useQueryStringPages();
+	const searchParams = useSearchParams();
 
 	const onSearchHandler = searchQuery => {
 		// clear the pagination, setting it back to page 1
-		setPageOnURL( 1 );
+		searchParams.setParam( 'page', null );
+		searchParams.update();
 		setSearch( searchQuery );
 	};
 
