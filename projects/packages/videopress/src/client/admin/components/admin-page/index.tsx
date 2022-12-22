@@ -33,7 +33,7 @@ import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
 import useQueryStringPages from '../../hooks/use-query-string-pages';
-import { useSearchParam } from '../../hooks/use-search-params';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
@@ -60,7 +60,7 @@ const useDashboardVideos = () => {
 	const { hasVideoPressPurchase } = usePlan();
 
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
-	const pageFromSearchParam = parseInt( useSearchParam( 'page', '1' ) );
+	const pageFromSearchParam = parseInt( useSearchParams().getParam( 'page', '1' ) );
 	const { forceFirstPage } = useQueryStringPages();
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
