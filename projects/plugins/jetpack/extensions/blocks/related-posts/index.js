@@ -36,6 +36,10 @@ export const settings = {
 			type: 'string',
 			default: 'grid',
 		},
+		displayHeadline: {
+			type: 'boolean',
+			default: false,
+		},
 		displayDate: {
 			type: 'boolean',
 			default: true,

@@ -142,7 +142,14 @@ function RelatedPostsPreviewRows( props ) {
 export class RelatedPostsEdit extends Component {
 	render() {
 		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
-		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
+		const {
+			displayContext,
+			displayDate,
+			displayHeading,
+			displayThumbnails,
+			postLayout,
+			postsToShow,
+		} = attributes;
 
 		// To prevent the block from crashing, we need to limit ourselves to the
 		// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -195,19 +202,21 @@ export class RelatedPostsEdit extends Component {
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
 					<div className={ previewClassName } data-layout={ postLayout }>
-						<InnerBlocks
-							lock={ { remove: true } }
-							template={ [
-								[
-									'core/heading',
-									{
-										className: `jp-related-posts-i2__headline`,
-										level: 3,
-										placeholder: __( 'Related Posts Title', 'jetpack' ),
-									},
-								],
-							] }
-						/>
+						{ displayHeading && (
+							<InnerBlocks
+								lock={ { remove: true } }
+								template={ [
+									[
+										'core/heading',
+										{
+											className: `jp-related-posts-i2__headline`,
+											level: 3,
+											placeholder: __( 'Related Posts Title', 'jetpack' ),
+										},
+									],
+								] }
+							/>
+						) }
 						<RelatedPostsPreviewRows posts={ displayPosts } />
 					</div>
 				</div>

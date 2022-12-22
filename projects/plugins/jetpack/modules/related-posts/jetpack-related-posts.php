@@ -265,10 +265,11 @@ class Jetpack_RelatedPosts {
 	 * @return string Rendered related posts HTML.
 	 */
 	public function get_server_rendered_html() {
-		$rp_settings       = $this->get_options();
+		$rp_settings = $this->get_options();
+
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
-			'showHeadline'      => $rp_settings['show_headline'],
+			'headline'          => $rp_settings['show_headline'],
 			'displayDate'       => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
 			'displayContext'    => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
 			'postLayout'        => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
@@ -445,6 +446,10 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
+		if ( isset( $attributes['displayHealine'] ) && true === $attributes['displayHealine'] ) {
+			$block_attributes['headline'] = $content;
+		}
+
 		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
 		$related_posts = $this->get_for_post_id(
@@ -488,11 +493,10 @@ EOT;
 		}
 
 		$display_markup = sprintf(
-			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s%6$s</nav>',
+			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
-			$content,
 			$block_attributes['headline'],
 			$rows_markup
 		);
