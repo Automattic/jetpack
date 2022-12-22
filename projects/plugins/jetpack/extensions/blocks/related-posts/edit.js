@@ -204,7 +204,7 @@ export class RelatedPostsEdit extends Component {
 					<div className={ previewClassName } data-layout={ postLayout }>
 						{ displayHeadline && (
 							<InnerBlocks
-								lock={ { remove: true } }
+								lock={ { remove: false } }
 								template={ [
 									[
 										'core/heading',
