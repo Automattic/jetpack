@@ -120,6 +120,12 @@
 		margin-bottom: 16px;
 	}
 
+	.block-editor-block-variation-picker__variation {
+		svg path:not(.icon-filler) {
+			fill: currentColor;
+		}
+	}
+
 	.form-placeholder__footer {
 		display: flex;
 		flex-direction: column;
