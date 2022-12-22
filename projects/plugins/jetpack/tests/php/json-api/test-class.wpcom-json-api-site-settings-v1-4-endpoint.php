@@ -335,11 +335,11 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 				'subscription_options',
 				array(
 					'invitation'     => '<strong>Test</strong> string <a href="#">link</a>',
-					'comment_follow' => 'Test string 2\n\n Other line',
+					'comment_follow' => "Test string 2\n\n Other line",
 				),
 				array(
 					'invitation'     => 'Test string <a href="#">link</a>',
-					'comment_follow' => 'Test string 2\n\n Other line',
+					'comment_follow' => "Test string 2\n\n Other line",
 				),
 			),
 		);
