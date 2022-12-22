@@ -183,6 +183,12 @@ class Waf_Runner {
 	 */
 	public static function get_waf_file_path( $file ) {
 		Waf_Constants::initialize_constants();
+
+		// Ensure the file path starts with a slash.
+		if ( '/' !== substr( $file, 0, 1 ) ) {
+			$file = "/$file";
+		}
+
 		return JETPACK_WAF_DIR . $file;
 	}
 
