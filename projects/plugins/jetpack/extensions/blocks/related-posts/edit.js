@@ -145,7 +145,7 @@ export class RelatedPostsEdit extends Component {
 		const {
 			displayContext,
 			displayDate,
-			displayHeading,
+			displayHeadline,
 			displayThumbnails,
 			postLayout,
 			postsToShow,
@@ -202,7 +202,7 @@ export class RelatedPostsEdit extends Component {
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
 					<div className={ previewClassName } data-layout={ postLayout }>
-						{ displayHeading && (
+						{ displayHeadline && (
 							<InnerBlocks
 								lock={ { remove: true } }
 								template={ [
