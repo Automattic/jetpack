@@ -1,5 +1,5 @@
 {
-	"private": true,
+	"private": false,
 	"name": "@automattic/jetpack-image-guide",
 	"version": "0.1.0-alpha",
 	"description": "Go through the dom to analyze image size on screen vs actual file size.",
