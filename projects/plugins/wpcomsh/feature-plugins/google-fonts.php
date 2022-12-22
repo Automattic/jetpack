@@ -57,3 +57,4 @@ add_filter( 'style_loader_src', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'wp_resource_hints', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'jetpack_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
 add_filter( 'custom_fonts_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
+add_filter( 'jetpack_global_styles_google_fonts_api_url', 'wpcomsh_google_fonts_proxy' );
