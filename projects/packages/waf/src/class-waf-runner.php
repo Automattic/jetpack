@@ -466,8 +466,8 @@ class Waf_Runner {
 		$ip_allow_rules = self::ALLOW_IP_FILE;
 		$ip_block_rules = self::BLOCK_IP_FILE;
 
-		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
-			"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
+		$ip_list_code = "if ( file_exists( '$ip_allow_rules' ) ) { if ( require( '$ip_allow_rules' ) ) { return; } }\n" .
+			"if ( file_exists( '$ip_block_rules' ) ) { if ( require( '$ip_block_rules' ) ) { return \$waf->block('block', -1, 'ip block list'); } }\n";
 
 		$rules_divided_by_line = explode( "\n", $rules );
 		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
