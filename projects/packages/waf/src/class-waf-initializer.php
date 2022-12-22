@@ -75,6 +75,7 @@ class Waf_Initializer {
 			return;
 		}
 
+		Waf_Compatibility::migrate_rules();
 		Waf_Runner::update_waf();
 	}
 }
