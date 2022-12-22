@@ -1,16 +1,15 @@
-import { RichText, store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Circle, Path } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { Fragment, useEffect } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { noop, split, trim } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
-import JetpackFieldLabel from './components/jetpack-field-label';
+import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 
@@ -34,7 +33,7 @@ const FieldDefaults = {
 		},
 		options: {
 			type: 'array',
-			default: [],
+			default: [ '' ],
 		},
 		defaultValue: {
 			type: 'string',
@@ -548,111 +547,12 @@ export const childBlocks = [
 			icon: renderMaterialIcon(
 				<Path fill={ getIconColor() } d="M3 17h18v2H3zm16-5v1H5v-1h14m2-2H3v5h18v-5zM3 6h18v2H3z" />
 			),
-			edit: ( { attributes, isSelected, setAttributes } ) => {
-				const { label, options, required, requiredText, toggleLabel } = attributes;
-
-				const handleSingleValue = ( index, value ) => {
-					const _options = [ ...options ];
-
-					_options[ index ] = value;
-
-					setAttributes( { options: _options } );
-				};
-
-				const handleMultiValues = ( index, array ) => {
-					const _options = [ ...attributes.options ];
-
-					if ( _options[ index ] ) {
-						_options[ index ] = array.shift();
-						index++;
-					}
-
-					_options.splice( index, 0, ...array );
-
-					setAttributes( { options: _options } );
-				};
-
-				const handleChangeOption = ( index, cursorToEnd ) => value => {
-					const values = split( value, '\n' ).filter( op => op && trim( op ) !== '' );
-
-					if ( ! values.length ) {
-						return;
-					}
-
-					if ( values.length > 1 ) {
-						handleMultiValues( index, values );
-					} else {
-						handleSingleValue( index, values.pop(), cursorToEnd );
-					}
-				};
-
-				const handleSplitOption = index => value => {
-					const splitValue = attributes.options[ index ].slice( value.length );
-					handleMultiValues( index, [ value, splitValue ] );
-				};
-
-				const handleDeleteOption = index => () => {
-					const _options = [ ...attributes.options ];
-					_options.splice( index, 1 );
-					setAttributes( { options: _options } );
-				};
-
-				return (
-					<>
-						<JetpackFieldLabel
-							required={ required }
-							requiredText={ requiredText }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-						<div className="jetpack-select">
-							<RichText
-								value={ toggleLabel }
-								className="jetpack-select__toggle"
-								onChange={ value => {
-									setAttributes( { toggleLabel: value } );
-								} }
-								placeholder={ __( 'Select…', 'jetpack' ) }
-								allowedFormats={ [ 'core/bold', 'core/italic' ] }
-								withoutInteractiveFormatting
-							/>
-							{ isSelected && (
-								<div className="jetpack-select__popover">
-									{ options.map( ( option, index ) => (
-										<RichText
-											key={ index }
-											value={ option }
-											onChange={ handleChangeOption( index ) }
-											onSplit={ handleSplitOption( index ) }
-											onRemove={ handleDeleteOption( index ) }
-											onReplace={ noop }
-											placeholder="Add option"
-										/>
-									) ) }
-									{ ! options.length && (
-										<RichText
-											key="placeholder"
-											onChange={ handleChangeOption( 0 ) }
-											onSplit={ handleSplitOption( 0 ) }
-											onReplace={ noop }
-											placeholder="Add option"
-										/>
-									) }
-								</div>
-							) }
-						</div>
-					</>
-				);
-			},
+			edit: JetpackDropdownEdit,
 			attributes: {
 				...FieldDefaults.attributes,
-				label: {
-					type: 'string',
-					default: 'Select one option',
-				},
 				toggleLabel: {
 					type: 'string',
+					default: 'Select one option',
 				},
 			},
 		},
