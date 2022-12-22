@@ -261,6 +261,7 @@
 .ui-selectmenu-menu ul.ui-menu {
 	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
 	background-color: var(--jetpack--contact-form--background-color);
+	border-radius: var(--jetpack--contact-form--border-radius);
 }
 
 .ui-selectmenu-menu .ui-menu-item-wrapper.ui-state-active {

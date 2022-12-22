@@ -1,22 +1,26 @@
 jQuery( function ( $ ) {
 	$( document ).ready( function () {
-		$( '.contact-form .jetpack-select' ).selectmenu();
+		const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
+		const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 
-		generateStyleVariables( '.wp-block-jetpack-contact-form-container' );
-		generateStyleVariables( '[data-type="jetpack/contact-form"]' );
+		if ( $( FRONTEND_SELECTOR ).length ) {
+			generateStyleVariables( 'body' );
+		}
+
+		generateStyleVariables( EDITOR_SELECTOR );
 	} );
 
 	function generateStyleVariables( selector ) {
 		const HTML = `
-		<div class="style-probe" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
-			<div class="wp-block-button is-style-outline">
-				<div class="wp-block-button__link">Test</div>
+			<div class="contact-form__style-probe" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
+				<div class="wp-block-button is-style-outline">
+					<div class="wp-block-button__link">Test</div>
+				</div>
+				<div class="jetpack-field">
+					<input class="components-text-control__input" type="text">
+				</div>
 			</div>
-			<div class="jetpack-field">
-				<input class="components-text-control__input" type="text">
-			</div>
-		</div>
-	`;
+		`;
 
 		if ( $( '.style-probe' ).length ) {
 			return;

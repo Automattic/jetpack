@@ -386,30 +386,21 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		wp_enqueue_style(
-			'jquery-ui-css',
-			'https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',
-			array(),
-			JETPACK__VERSION
-		);
+		self::enqueue_contact_forms_style_script();
+		self::register_contact_form_blocks();
+	}
 
+	/**
+	 * Enqueue scripts responsible for handling contact form styles.
+	 */
+	private static function enqueue_contact_forms_style_script() {
 		wp_enqueue_script(
-			'jquery-ui',
-			'https://code.jquery.com/ui/1.13.2/jquery-ui.js',
+			'contact-form-styles',
+			plugins_url( 'js/form-styles.js', __FILE__ ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
 		);
-
-		wp_enqueue_script(
-			'jetpack-dropdown-test',
-			plugins_url( 'js/form-style.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui' ),
-			JETPACK__VERSION,
-			true
-		);
-
-		self::register_contact_form_blocks();
 	}
 
 	/**
@@ -4585,6 +4576,24 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 		$field .= "\t</select>\n";
+
+		wp_enqueue_style(
+			'jquery-ui-css',
+			'//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',
+			array(),
+			'1.13.2'
+		);
+
+		wp_enqueue_script( 'jquery-ui-selectmenu' );
+
+		wp_enqueue_script(
+			'contact-form-dropdown',
+			plugins_url( 'js/dropdown.js', __FILE__ ),
+			array( 'jquery', 'jquery-ui-selectmenu' ),
+			JETPACK__VERSION,
+			true
+		);
+
 		return $field;
 	}
 
