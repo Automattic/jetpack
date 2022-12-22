@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Revue;
 
 use Automattic\Jetpack\Blocks;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'revue';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -35,24 +36,20 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  *
  * @return string
  */
-function render_block( $attributes ) {
+function render_block( $attributes ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	if ( current_user_can( 'manage_options' ) ) {
-		$wpcom_newsletter_url = esc_url( 'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/' );
-		$message              = sprintf(
-			'<br/>'
-			/* Translators: %s contains the words 'shutting down', which links to a Revue help article about the feature being shut down. */
-			. esc_html__( 'Revue is shutting down. The Revue signup form will no longer be displayed to your visitors and as such this block should be removed. %1$s You can migrate from Revue to the WordPress.com Newsletter - %2$s.', 'jetpack' ),
-			'<br/> <br/>',
-			sprintf(
-				'<a href="%1$s" target="_blank">%2$s</a>',
-				$wpcom_newsletter_url,
-				esc_html__( 'find out more here', 'jetpack' )
-			)
+		$message  = esc_html__( 'Revue is shutting down. The Revue signup form will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' );
+		$message .= '<br/><br/>';
+		$message .= sprintf(
+			' <a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s</a>',
+			esc_url( 'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/' ),
+			esc_html__( 'You can migrate from Revue to the WordPress.com Newsletter - find out more here.', 'jetpack' )
 		);
-		return sprintf(
-			'<div class="jetpack-block__notice info %1$s" style="border-left:5px solid #dba617;padding:1em;background-color:#f8f9f9;">%2$s</div>',
-			esc_attr( Blocks::classes( FEATURE_NAME, $attributes ) ),
-			$message
+
+		return Jetpack_Gutenberg::notice(
+			$message,
+			'warning',
+			Blocks::classes( FEATURE_NAME, $attributes )
 		);
 	}
 }
