@@ -31,7 +31,7 @@ class Waf_Compatibility {
 
 		if ( $wp_filesystem->exists( __DIR__ . '/../rules' ) ) {
 			// Copy the existing rule files into the WAF content directory.
-			$dir_copied = $wp_filesystem->copy_dir( __DIR__ . '/../rules', Waf_Runner::get_waf_file_path( 'rules' ) );
+			$dir_copied = $wp_filesystem->copy( __DIR__ . '/../rules', Waf_Runner::get_waf_file_path( 'rules' ) );
 			if ( is_wp_error( $dir_copied ) ) {
 				throw new \Exception( 'Failed copying rules directory to: ' . Waf_Runner::get_waf_file_path( 'rules' ) );
 			}
