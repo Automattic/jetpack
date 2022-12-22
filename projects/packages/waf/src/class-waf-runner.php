@@ -212,8 +212,10 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			// phpcs:ignore
-			include self::RULES_FILE;
+			if ( file_exists( self::RULES_FILE ) ) {
+				// phpcs:ignore
+				include self::RULES_FILE;
+			}
 		} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
