@@ -12,14 +12,13 @@ import { useRef } from 'react';
  * Internal dependencies
  */
 import { uploadFromLibrary, useResumableUploader } from '../../../../../hooks/use-uploader';
+import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
 import './style.scss';
-
-const ALLOWED_MEDIA_TYPES = [ 'video' ];
 
 const VideoPressUploader = ( {
 	attributes,
@@ -333,7 +332,7 @@ const VideoPressUploader = ( {
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
 			accept="video/*"
-			allowedTypes={ ALLOWED_MEDIA_TYPES }
+			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			value={ attributes }
 			notices={ noticeUI }
 			onError={ function ( error ) {
