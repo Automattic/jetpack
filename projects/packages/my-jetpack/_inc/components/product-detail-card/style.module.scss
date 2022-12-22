@@ -3,6 +3,7 @@
 	height: 100%;
 	padding: calc( var( --spacing-base ) * 8 );
 	position: relative;
+	box-sizing: border-box;
 }
 
 .container {
