@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+VideoPress: Do not register videopress shortcode if standalone VideoPress plugin already registered it

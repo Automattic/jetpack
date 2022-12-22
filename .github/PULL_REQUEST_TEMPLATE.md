@@ -13,6 +13,7 @@ Fixes #
 
 - [ ] Have you written new tests for your changes, if applicable?
 - [ ] Have you checked the E2E test CI results, and verified that your changes do not break them?
+- [ ] Have you tested your changes on WordPress.com, if applicable (if so, you'll see a generated comment below with a script to run)?
 
 #### Jetpack product discussion
 <!-- If you're an Automattician, include a shortlink to the p2 discussion with Jetpack Product here. -->

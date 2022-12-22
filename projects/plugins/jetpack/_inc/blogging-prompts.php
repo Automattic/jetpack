@@ -57,7 +57,7 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  * @return boolean
  */
 function jetpack_are_blogging_prompts_enabled() {
-	$prompts_enabled = (bool) get_option( 'jetpack_blogging_prompts_enabled', jetpack_has_write_intent() || jetpack_has_posts_page() );
+	$prompts_enabled = (bool) get_option( 'jetpack_blogging_prompts_enabled', false );
 
 	/**
 	 * Filters whether blogging prompts are enabled.

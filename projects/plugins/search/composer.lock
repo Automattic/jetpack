@@ -238,14 +238,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "ecd8142558fa54149518f7071f5cc8e7104fe520"
+                "reference": "29045282abaf0e8823b5585028d634b07601599a"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "composer/composer": "2.2.12",
+                "composer/composer": "^2.2 || ^2.4",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "composer-plugin",
@@ -327,7 +327,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d9974434c1a7705cbc3b4e1d59d7c561c750051d"
+                "reference": "e0f0b7f402d10acfff4a4c986c077dbb5c270310"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -355,7 +355,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.47.x-dev"
+                    "dev-trunk": "1.48.x-dev"
                 }
             },
             "autoload": {
@@ -745,7 +745,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "f525760662fd374d27bd7d4c92faeedaaf5941a4"
+                "reference": "6933e1a9f9cf005f0448c845a5a85d625a56c83b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -771,7 +771,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.6.x-dev"
+                    "dev-trunk": "2.7.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1096,7 +1096,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "c41a3180fcefc306ade95bef53eae230b205e994"
+                "reference": "2e89301b4063073eb8c2abc3110735e057b02b15"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1108,7 +1108,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.0",
+                "automattic/wordbless": "0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
@@ -1290,7 +1290,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fa77060ba7ac1c88363f04f02edb1207779cd3f0"
+                "reference": "49f76caad933fe811cd60fc31c4f47b29d8365b1"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1317,7 +1317,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.44.x-dev"
+                    "dev-trunk": "1.45.x-dev"
                 }
             },
             "autoload": {
@@ -1358,7 +1358,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
+                "reference": "902e0f17e8f54dd4b36f83e808a1385e4d001c72"
             },
             "require": {
                 "php": ">=5.6",
@@ -1377,7 +1377,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {

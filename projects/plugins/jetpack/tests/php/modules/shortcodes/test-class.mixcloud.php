@@ -14,6 +14,8 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
+	private $invalid_markup;
+
 	/**
 	 * Runs before every test
 	 *

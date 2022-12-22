@@ -9,8 +9,6 @@
 	export let when: boolean;
 	export let to: string;
 
-	// This ain't React.
-	// eslint-disable-next-line react-hooks/rules-of-hooks
 	const navigate = useNavigate();
 
 	if ( when ) {
