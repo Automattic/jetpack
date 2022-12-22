@@ -4346,6 +4346,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
+		                style='" . $this->field_styles['style'] . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20' "

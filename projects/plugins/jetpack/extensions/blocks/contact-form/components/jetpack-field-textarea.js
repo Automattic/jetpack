@@ -6,9 +6,13 @@ import JetpackFieldLabel from './jetpack-field-label';
 export default function JetpackFieldTextarea( props ) {
 	const { id, required, label, setAttributes, placeholder, width, attributes } = props;
 
+	const divStyle = {
+		backgroundColor: attributes.blockBackgroundColor,
+	};
+
 	return (
 		<>
-			<div className="jetpack-field">
+			<div style={ divStyle } className="jetpack-field">
 				<JetpackFieldLabel
 					required={ required }
 					label={ label }
