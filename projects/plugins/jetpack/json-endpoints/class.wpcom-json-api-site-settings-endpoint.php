@@ -814,6 +814,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'woocommerce_store_city':
 				case 'woocommerce_default_country':
 				case 'woocommerce_store_postcode':
+				case 'page_on_front':
 					$sanitized_value = sanitize_text_field( $value );
 					if ( update_option( $key, $sanitized_value ) ) {
 						$updated[ $key ] = $sanitized_value;
@@ -822,8 +823,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'date_format':
 				case 'time_format':
-				case 'show_on_front':
-				case 'page_on_front':
 					// settings are stored as strings.
 					// raw_value is used to help preserve any escaped characters that might exist in the formatted string.
 					$sanitized_value = sanitize_text_field( $raw_value );
@@ -981,6 +980,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_are_blogging_prompts_enabled':
 					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'show_on_front':
+					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'page_on_front':
+					$all_page_ids = get_all_page_ids();
+
+					$valid_page_id = false;
+					foreach ( $all_page_ids as $page_id ) {
+						if ( $page_id === (string) $value ) {
+							$valid_page_id = true;
+							break;
+						}
+					}
+
+					if ( $valid_page_id && update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
 					break;
 
 				default:
