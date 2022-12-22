@@ -3900,16 +3900,16 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Styles to be applied to the field
 	 *
-	 * @var array
+	 * @var string
 	 */
-	public $field_styles = array();
+	public $field_styles = '';
 
 	/**
 	 * Styles to be applied to the field
 	 *
-	 * @var array
+	 * @var string
 	 */
-	public $label_styles = array();
+	public $label_styles = '';
 
 	/**
 	 * Constructor function.
@@ -4116,16 +4116,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_width       = $this->get_attribute( 'width' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		$this->field_styles           = array();
-		$this->field_styles['style']  = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
-		$this->field_styles['style'] .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
-		$this->field_styles['style'] .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
-		$this->field_styles['style'] .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
-		$this->field_styles['style'] .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-		$this->field_styles['style'] .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+		$this->field_styles  = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+		$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+		$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+		$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+		$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 
-		$this->label_styles          = array();
-		$this->label_styles['style'] = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+		$this->label_styles = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
 
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;
@@ -4215,6 +4213,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array() ) {
+
+		if ( ! empty( $this->label_styles ) ) {
+			$extra_attrs['style'] = $this->label_styles;
+		}
+
 		$extra_attrs_string = '';
 		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
@@ -4248,6 +4251,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_input_field( $type, $id, $value, $class, $placeholder, $required, $extra_attrs = array() ) {
 		$extra_attrs_string = '';
+
+		if ( ! empty( $this->field_styles ) ) {
+			$extra_attrs['style'] = $this->field_styles;
+		}
+
 		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
@@ -4346,7 +4354,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
-		                style='" . $this->field_styles['style'] . "'
+		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20' "
@@ -4566,8 +4574,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_default_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder, $type ) {
-		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text, $this->label_styles );
-		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required, $this->field_styles );
+		$field  = $this->render_label( $type, $id, $label, $required, $required_field_text );
+		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 		return $field;
 	}
 
