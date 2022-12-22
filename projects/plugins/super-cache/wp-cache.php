@@ -3088,7 +3088,7 @@ function wpsc_get_htaccess_info() {
 
 	// Allow users to override the Vary header with WPSC_VARY_HEADER.
 	if ( defined( 'WPSC_VARY_HEADER' ) && ! empty( WPSC_VARY_HEADER ) ) {
-		$headers['Vary'] = "'" . addcslashes( WPSC_VARY_HEADER, "'" ) . "'";
+		$headers['Vary'] = WPSC_VARY_HEADER;
 	}
 
 	// Allow users to override Cache-control header with WPSC_CACHE_CONTROL_HEADER
@@ -3104,7 +3104,7 @@ function wpsc_get_htaccess_info() {
 		"\n",
 		array_map(
 			function ( $key, $value ) {
-				return "  Header set $key $value";
+				return "  Header set $key '" . addcslashes( $value, "'" ) . "'";
 			},
 			array_keys( $headers ),
 			array_values( $headers )
