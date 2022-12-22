@@ -55,7 +55,7 @@ const VideoLibraryWrapper = ( {
 
 	const onSearchHandler = searchQuery => {
 		// clear the pagination, setting it back to page 1
-		searchParams.setParam( 'page', null );
+		searchParams.setParam( 'page', '1' );
 		searchParams.update();
 		setSearch( searchQuery );
 	};
