@@ -2905,31 +2905,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @return string
 	 */
 	private static function esc_shortcode_val( $val ) {
-		if ( is_array( $val ) ) {
-			if ( isset( $val['link'] ) ) {
-				return 'link: ' . self::esc_shortcode_val( $val['link']['color']['text'] );
-			}
-
-			$style = array();
-			if ( isset( $val['padding'] ) ) {
-				$att     = $val['padding'];
-				$style[] = 'padding: ' . self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['top'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['right'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['bottom'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['left'] ) ) . 'px';
-			}
-			if ( isset( $val['margin'] ) ) {
-				$att     = $val['margin'];
-				$style[] = 'margin: ' . self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['top'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['right'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['bottom'] ) ) . 'px ' .
-					self::esc_shortcode_val( str_replace( 'var:preset|spacing|', '', $att['left'] ) ) . 'px';
-			}
-			if ( isset( $val['text'] ) ) {
-				$style[] = 'color: ' . $val['text'];
-			}
-			return implode( ';', $style );
-		}
 		return strtr(
 			esc_html( $val ),
 			array(
@@ -2970,7 +2945,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					}
 					if ( is_array( $val ) ) {
 						$val        = array_filter( $val, array( __CLASS__, 'remove_empty' ) ); // removes any empty strings
-						$att_strs[] = esc_html( $att ) . '="' . implode( ';', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
+						$att_strs[] = esc_html( $att ) . '="' . implode( ',', array_map( array( __CLASS__, 'esc_shortcode_val' ), $val ) ) . '"';
 					} elseif ( is_bool( $val ) ) {
 						$att_strs[] = esc_html( $att ) . '="' . ( $val ? '1' : '' ) . '"';
 					} else {
@@ -3938,7 +3913,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'options'                => array(),
 				'id'                     => null,
 				'style'                  => null,
-				'backgroundcolor'        => null,
+				'blockbackgroundcolor'   => null,
+				'fieldbackgroundcolor'   => null,
 				'textcolor'              => null,
 				'default'                => null,
 				'values'                 => null,
@@ -4132,7 +4108,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_styles['style'] .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		$field_styles['style'] .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		$field_styles['style'] .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-		$field_styles['style'] .= 'background-color: ' . esc_attr( $this->get_attribute( 'backgroundcolor' ) ) . ';';
+		$field_styles['style'] .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 
 		$label_styles          = array();
 		$label_styles['style'] = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
@@ -4381,10 +4357,18 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+
+		$field_style = 'style="';
+		if ( $this->get_attribute( 'fieldbackgroundcolor' ) ) {
+			$field_style .= 'border-width: ' . $this->get_attribute( 'borderwidth' ) . '; background-color: ' . $this->get_attribute( 'fieldbackgroundcolor' );
+		}
+		$field_style .= '"';
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "<span {$field_style}>";
 				$field .= "<input
 									type='radio'
 									name='" . esc_attr( $id ) . "'
@@ -4393,7 +4377,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-				$field .= esc_html( $option ) . "</label>\n";
+				$field .= esc_html( $option ) . "</span></label>\n";
 				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
@@ -4458,12 +4442,19 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+
+		$field_style = 'style="';
+		if ( $this->get_attribute( 'fieldbackgroundcolor' ) ) {
+			$field_style .= 'background-color: ' . $this->get_attribute( 'fieldbackgroundcolor' );
+		}
+		$field_style .= '"';
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
-				$field .= esc_html( $option ) . "</label>\n";
+				$field .= "<span {$field_style}><input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
+				$field .= esc_html( $option ) . "</span></label>\n";
 				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
@@ -4600,7 +4591,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ) );
 
-		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		$block_style = 'style="';
+		if ( $this->get_attribute( 'blockbackgroundcolor' ) ) {
+			$block_style .= 'background-color: ' . $this->get_attribute( 'blockbackgroundcolor' );
+		}
+		$block_style .= '"';
+
+		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 
 		// If they are logged in, and this is their site, don't pre-populate fields
 		if ( current_user_can( 'manage_options' ) ) {

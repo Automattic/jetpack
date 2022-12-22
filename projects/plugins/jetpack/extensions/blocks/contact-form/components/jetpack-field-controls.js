@@ -99,11 +99,6 @@ const JetpackFieldControls = ( {
 							onChange: value => setAttributes( { blockBackgroundColor: value } ),
 							label: __( 'Block Background', 'jetpack' ),
 						},
-						{
-							value: attributes.borderColor,
-							onChange: value => setAttributes( { borderColor: value } ),
-							label: __( 'Border', 'jetpack' ),
-						},
 					] }
 				></PanelColorSettings>
 				<PanelBody title={ __( 'Typography', 'jetpack' ) }>

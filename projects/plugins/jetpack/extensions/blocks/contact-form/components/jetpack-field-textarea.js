@@ -21,6 +21,14 @@ export default function JetpackFieldTextarea( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
+						style={ {
+							borderRadius: attributes.borderRadius,
+							borderWidth: attributes.borderWidth,
+							lineHeight: attributes.lineHeight,
+							borderColor: attributes.borderColor,
+							color: attributes.inputColor,
+							backgroundColor: attributes.fieldBackgroundColor,
+						} }
 					/>
 				</Disabled>
 			</div>
