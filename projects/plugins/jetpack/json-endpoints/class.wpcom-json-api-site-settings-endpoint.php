@@ -814,7 +814,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'woocommerce_store_city':
 				case 'woocommerce_default_country':
 				case 'woocommerce_store_postcode':
-				case 'page_on_front':
 					$sanitized_value = sanitize_text_field( $value );
 					if ( update_option( $key, $sanitized_value ) ) {
 						$updated[ $key ] = $sanitized_value;
