@@ -446,7 +446,7 @@ EOT;
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
 
-		if ( isset( $attributes['displayHealine'] ) && true === $attributes['displayHealine'] ) {
+		if ( isset( $attributes['displayHeadline'] ) && true === $attributes['displayHeadline'] ) {
 			$block_attributes['headline'] = $content;
 		}
 
