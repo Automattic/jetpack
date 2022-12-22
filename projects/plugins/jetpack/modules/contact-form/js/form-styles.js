@@ -4,15 +4,18 @@ jQuery( function ( $ ) {
 		const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 
 		if ( $( FRONTEND_SELECTOR ).length ) {
-			generateStyleVariables( 'body' );
+			generateStyleVariables( FRONTEND_SELECTOR );
 		}
 
-		generateStyleVariables( EDITOR_SELECTOR );
+		if ( $( EDITOR_SELECTOR ).length ) {
+			generateStyleVariables( EDITOR_SELECTOR );
+		}
 	} );
 
-	function generateStyleVariables( selector ) {
+	function generateStyleVariables( selector, outputSelector = 'body' ) {
+		const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 		const HTML = `
-			<div class="contact-form__style-probe" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
+			<div class="${ STYLE_PROBE_CLASS }" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
 				<div class="wp-block-button is-style-outline">
 					<div class="wp-block-button__link">Test</div>
 				</div>
@@ -22,10 +25,11 @@ jQuery( function ( $ ) {
 			</div>
 		`;
 
-		if ( $( '.style-probe' ).length ) {
+		if ( $( `.${ STYLE_PROBE_CLASS }` ).length ) {
 			return;
 		}
 
+		const outputContainer = $( outputSelector );
 		const container = $( selector );
 		const styleProbe = $( HTML );
 		const styleProbeEl = styleProbe[ 0 ];
@@ -44,13 +48,13 @@ jQuery( function ( $ ) {
 		const fontSize = window.getComputedStyle( inputNode ).fontSize;
 		const lineHeight = window.getComputedStyle( inputNode ).lineHeight;
 
-		container.css( '--jetpack--contact-form--primary-color', primaryColor );
-		container.css( '--jetpack--contact-form--background-color', backgroundColor );
-		container.css( '--jetpack--contact-form--text-color', textColor );
-		container.css( '--jetpack--contact-form--border-size', borderWidth );
-		container.css( '--jetpack--contact-form--border-radius', borderRadius );
-		container.css( '--jetpack--contact-form--input-padding', padding );
-		container.css( '--jetpack--contact-form--font-size', fontSize );
-		container.css( '--jetpack--contact-form--line-height', lineHeight );
+		outputContainer.css( '--jetpack--contact-form--primary-color', primaryColor );
+		outputContainer.css( '--jetpack--contact-form--background-color', backgroundColor );
+		outputContainer.css( '--jetpack--contact-form--text-color', textColor );
+		outputContainer.css( '--jetpack--contact-form--border-size', borderWidth );
+		outputContainer.css( '--jetpack--contact-form--border-radius', borderRadius );
+		outputContainer.css( '--jetpack--contact-form--input-padding', padding );
+		outputContainer.css( '--jetpack--contact-form--font-size', fontSize );
+		outputContainer.css( '--jetpack--contact-form--line-height', lineHeight );
 	}
 } );
