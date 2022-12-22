@@ -268,7 +268,7 @@ class Jetpack_RelatedPosts {
 		$rp_settings       = $this->get_options();
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
-			'show_headline'     => $rp_settings['show_headline'],
+			'showHeadline'      => $rp_settings['show_headline'],
 			'displayDate'       => isset( $rp_settings['show_date'] ) ? (bool) $rp_settings['show_date'] : true,
 			'displayContext'    => isset( $rp_settings['show_context'] ) && $rp_settings['show_context'],
 			'postLayout'        => isset( $rp_settings['layout'] ) ? $rp_settings['layout'] : 'grid',
