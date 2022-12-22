@@ -1,4 +1,5 @@
 import { getMeasurableImages } from '@automattic/jetpack-image-guide';
+import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
@@ -91,6 +92,8 @@ function initialize() {
 		);
 		const filteredImages = discardSmallImages( measurableImages );
 		stores.push( ...attachGuides( filteredImages ) );
+
+		ImageGuideAnalytics.trackPage( stores );
 	} );
 }
 
