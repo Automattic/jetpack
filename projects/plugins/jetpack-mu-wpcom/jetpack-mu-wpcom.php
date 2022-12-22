@@ -3,7 +3,7 @@
  *
  * Plugin Name: WordPress.com Features
  * Description: Enhances your site with features powered by WordPress.com
- * Version: 0.2.0-alpha
+ * Version: 1.0.1-alpha
  * Author: Automattic
  * License: GPLv2 or later
  * Text Domain: jetpack-mu-wpcom
@@ -33,7 +33,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'JETPACK_MU_WPCOM__PLUGIN_VERSION', '0.2.0-alpha' );
+define( 'JETPACK_MU_WPCOM__PLUGIN_VERSION', '1.0.1-alpha' );
 define( 'JETPACK_MU_WPCOM__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 // Shared code for src/features

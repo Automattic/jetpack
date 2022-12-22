@@ -73,6 +73,7 @@
   paths:
    - 'projects/plugins/boost/**'
    - 'projects/plugins/super-cache/**'
+   - 'projects/js-packages/image-guide/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

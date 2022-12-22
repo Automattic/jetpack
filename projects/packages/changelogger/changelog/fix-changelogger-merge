@@ -1,0 +1,5 @@
+Significance: minor
+Type: changed
+
+Support merge strategy for jetpack changelogger, assuming that merge commits contains the pr number in the merge commit with format (#{pr_number}) towards the end.
+

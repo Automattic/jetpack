@@ -154,8 +154,6 @@ export type VideoPressVideo = {
 	needsPlaybackToken?: OriginalVideoPressVideo[ 'jetpack_videopress' ][ 'needs_playback_token' ];
 	poster?: {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
-		width: OriginalVideoPressVideo[ 'media_details' ][ 'width' ];
-		height: OriginalVideoPressVideo[ 'media_details' ][ 'height' ];
 	};
 	finished?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
 	filename?: OriginalVideoPressVideo[ 'slug' ];

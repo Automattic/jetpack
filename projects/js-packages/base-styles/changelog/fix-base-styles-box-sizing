@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Base styles: Removed box-sizing which caused a style issue in the customizer-themes dashboard.

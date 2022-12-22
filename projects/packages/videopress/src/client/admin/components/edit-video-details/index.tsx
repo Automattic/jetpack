@@ -134,11 +134,14 @@ const Infos = ( {
 const EditVideoDetails = () => {
 	const {
 		// Video Data
+		guid,
 		duration,
 		posterImage,
 		filename,
 		uploadDate,
 		url,
+		width,
+		height,
 		title,
 		description,
 		// Playback Token
@@ -200,6 +203,10 @@ const EditVideoDetails = () => {
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
 
+	const shortcode = `[videopress ${ guid }${ width ? ` w=${ width }` : '' }${
+		height ? ` h=${ height }` : ''
+	}]`;
+
 	return (
 		<>
 			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
@@ -251,6 +258,7 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
+								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
 							/>
 						</Col>
