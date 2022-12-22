@@ -6,7 +6,9 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Add a contact form button to the post composition screen
@@ -810,22 +812,6 @@ function grunion_ajax_spam() {
 	exit;
 }
 
-add_action( 'admin_enqueue_scripts', 'grunion_enable_export_button' );
-/**
- * Add the scripts that will add the "Export" button to the Feedbacks dashboard page.
- */
-function grunion_enable_export_button() {
-	$screen = get_current_screen();
-
-	// Only add to feedback, only to non-spam view
-	if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
-		return;
-	}
-
-	// Add the export feedback button
-	add_action( 'admin_head', 'grunion_export_button' );
-}
-
 /**
  * Add the scripts that will add the "Check for Spam" button to the Feedbacks dashboard page.
  */
@@ -1130,24 +1116,142 @@ function grunion_feedback_admin_notice() {
 }
 add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
 
-if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
-	add_action( 'admin_enqueue_scripts', array( 'Grunion_Admin', 'maybe_enable_gdrive_export_button' ) );
-	add_action( 'wp_ajax_grunion_export_to_gdrive', array( 'Grunion_Admin', 'export_to_gdrive' ) );
-}
-
 /**
  * Class Grunion_Admin
  *
- * Stop the global scope madness, use static methods on this class to provide for wp-admin responses area.
- * Might turn into singleton in the future.
+ * Singleton for Grunion admin area support.
  */
 class Grunion_Admin {
 	/**
+	 * Define nonce field name
+	 *
+	 * @var string The nonce field name.
+	 */
+	private $export_nonce_field = 'feedback_export_nonce';
+
+	/**
+	 * Instantiates this singleton class
+	 *
+	 * @return Grunion_Admin The Grunion Admin class instance.
+	 */
+	public static function init() {
+		static $instance = false;
+
+		if ( ! $instance ) {
+			$instance = new Grunion_Admin();
+		}
+
+		return $instance;
+	}
+
+	/**
+	 * Grunion_Admin constructor
+	 */
+	public function __construct() {
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_footer-edit.php', array( $this, 'print_export_modal' ) );
+
+		add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
+	}
+
+	/**
+	 * Hook handler for admin_enqueue_scripts hook
+	 */
+	public function admin_enqueue_scripts() {
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+		add_thickbox();
+		wp_localize_script( 'grunion-admin', 'exportParameters', array( 'exportError' => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ) ) );
+	}
+
+	/**
+	 * Prints the modal markup with export buttons/content.
+	 */
+	public function print_export_modal() {
+		if ( ! current_user_can( 'export' ) ) {
+			return;
+		}
+
+		// if there aren't any feedbacks, bail out
+		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+			return;
+		}
+
+		$current_screen = get_current_screen();
+		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
+			return;
+		}
+
+		$jetpack_logo = new Logo();
+		?>
+		<div id="feedback-export-modal" style="display: none;">
+			<div class="feedback-export-modal__wrapper">
+				<div class="feedback-export-modal__header">
+					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export your Form Responses', 'jetpack' ); ?></h1>
+					<p class="feedback-export-modal__header-subtitle"><?php esc_html_e( 'Choose your favorite file format or export destination:', 'jetpack' ); ?></p>
+				</div>
+				<div class="feedback-export-modal__content">
+					<?php $this->get_csv_export_section(); ?>
+					<?php $this->get_gdrive_export_section(); ?>
+				</div>
+				<div class="feedback-export-modal__footer">
+					<div class="feedback-export-modal__footer-column">
+						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+							<?php echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						</a>
+						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+							<?php echo esc_html_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>
+						</a>
+					</div>
+					<div class="feedback-export-modal__footer-column">
+						<a href="https://automattic.com" title="Automattic" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+							<svg role="img" x="0" y="0" viewBox="0 0 935 38.2" enable-background="new 0 0 935 38.2" aria-labelledby="jp-automattic-byline-logo-title" height="7" class="jp-automattic-byline-logo">
+								<desc id="jp-automattic-byline-logo-title"><?php esc_html_e( 'An Automattic Airline', 'jetpack' ); ?></desc>
+								<path d="M317.1 38.2c-12.6 0-20.7-9.1-20.7-18.5v-1.2c0-9.6 8.2-18.5 20.7-18.5 12.6 0 20.8 8.9 20.8 18.5v1.2C337.9 29.1 329.7 38.2 317.1 38.2zM331.2 18.6c0-6.9-5-13-14.1-13s-14 6.1-14 13v0.9c0 6.9 5 13.1 14 13.1s14.1-6.2 14.1-13.1V18.6zM175 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7L157 1.3h5.5L182 36.8H175zM159.7 8.2L152 23.1h15.7L159.7 8.2zM212.4 38.2c-12.7 0-18.7-6.9-18.7-16.2V1.3h6.6v20.9c0 6.6 4.3 10.5 12.5 10.5 8.4 0 11.9-3.9 11.9-10.5V1.3h6.7V22C231.4 30.8 225.8 38.2 212.4 38.2zM268.6 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H268.6zM397.3 36.8V8.7l-1.8 3.1 -14.9 25h-3.3l-14.7-25 -1.8-3.1v28.1h-6.5V1.3h9.2l14 24.4 1.7 3 1.7-3 13.9-24.4h9.1v35.5H397.3zM454.4 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7l19.2-35.5h5.5l19.5 35.5H454.4zM439.1 8.2l-7.7 14.9h15.7L439.1 8.2zM488.4 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H488.4zM537.3 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H537.3zM569.3 36.8V4.6c2.7 0 3.7-1.4 3.7-3.4h2.8v35.5L569.3 36.8 569.3 36.8zM628 11.3c-3.2-2.9-7.9-5.7-14.2-5.7 -9.5 0-14.8 6.5-14.8 13.3v0.7c0 6.7 5.4 13 15.3 13 5.9 0 10.8-2.8 13.9-5.7l4 4.2c-3.9 3.8-10.5 7.1-18.3 7.1 -13.4 0-21.6-8.7-21.6-18.3v-1.2c0-9.6 8.9-18.7 21.9-18.7 7.5 0 14.3 3.1 18 7.1L628 11.3zM321.5 12.4c1.2 0.8 1.5 2.4 0.8 3.6l-6.1 9.4c-0.8 1.2-2.4 1.6-3.6 0.8l0 0c-1.2-0.8-1.5-2.4-0.8-3.6l6.1-9.4C318.7 11.9 320.3 11.6 321.5 12.4L321.5 12.4z"></path><path d="M37.5 36.7l-4.7-8.9H11.7l-4.6 8.9H0L19.4 0.8H25l19.7 35.9H37.5zM22 7.8l-7.8 15.1h15.9L22 7.8zM82.8 36.7l-23.3-24 -2.3-2.5v26.6h-6.7v-36H57l22.6 24 2.3 2.6V0.8h6.7v35.9H82.8z"></path>
+								<path d="M719.9 37l-4.8-8.9H694l-4.6 8.9h-7.1l19.5-36h5.6l19.8 36H719.9zM704.4 8l-7.8 15.1h15.9L704.4 8zM733 37V1h6.8v36H733zM781 37c-1.8 0-2.6-2.5-2.9-5.8l-0.2-3.7c-0.2-3.6-1.7-5.1-8.4-5.1h-12.8V37H750V1h19.6c10.8 0 15.7 4.3 15.7 9.9 0 3.9-2 7.7-9 9 7 0.5 8.5 3.7 8.6 7.9l0.1 3c0.1 2.5 0.5 4.3 2.2 6.1V37H781zM778.5 11.8c0-2.6-2.1-5.1-7.9-5.1h-13.8v10.8h14.4c5 0 7.3-2.4 7.3-5.2V11.8zM794.8 37V1h6.8v30.4h28.2V37H794.8zM836.7 37V1h6.8v36H836.7zM886.2 37l-23.4-24.1 -2.3-2.5V37h-6.8V1h6.5l22.7 24.1 2.3 2.6V1h6.8v36H886.2zM902.3 37V1H935v5.6h-26v9.2h20v5.5h-20v10.1h26V37H902.3z"></path>
+							</svg>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<?php
+		$opener_label        = esc_html__( 'Export', 'jetpack' );
+		$export_modal_opener = wp_is_mobile()
+			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=550&inlineId=feedback-export-modal'>{$opener_label}</a>"
+			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
+		?>
+		<script type="text/javascript">
+			jQuery( function( $ ) {
+				$( '#posts-filter #post-query-submit' ).after( <?php echo wp_json_encode( $export_modal_opener ); ?> );
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Ajax handler for wp_ajax_grunion_export_to_gdrive.
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Grunion_Contact_Form_Plugin::get_feedback_entries_from_post
 	 */
-	public static function export_to_gdrive() {
+	public function export_to_gdrive() {
+		$post_data = wp_unslash( $_POST );
+		if (
+			! current_user_can( 'export' )
+			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field ] ) )
+			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field ] ), 'feedback_export' )
+		) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+
+			return;
+		}
+
 		$grunion     = Grunion_Contact_Form_Plugin::init();
 		$export_data = $grunion->get_feedback_entries_from_post();
 
@@ -1184,40 +1288,48 @@ class Grunion_Admin {
 	}
 
 	/**
-	 * (maybe) Add the script that will add the "Export to Google Drive" button to the Feedbacks dashboard page.
+	 * Return HTML markup for the CSV download button.
 	 */
-	public static function maybe_enable_gdrive_export_button() {
-		$screen = get_current_screen();
-
-		// Only add to feedback, only to non-spam view
-		if ( 'edit-feedback' !== $screen->id || ( ! empty( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making site changes with this check.
-			return;
-		}
-
-		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-		if ( ! $user_connected ) {
-			return;
-		}
-
-		// Add the export feedback button
-		add_action( 'admin_head', array( 'Grunion_Admin', 'print_export_gdrive_button' ) );
+	public function get_csv_export_section() {
+		$button_csv_html = get_submit_button(
+			esc_html__( 'Download', 'jetpack' ),
+			'primary export-button export-csv',
+			'jetpack-export-feedback-csv',
+			false,
+			array( 'data-nonce-name' => $this->export_nonce_field )
+		);
+		?>
+		<div class="export-card">
+			<div class="export-card__header">
+				<svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path fill-rule="evenodd" clip-rule="evenodd" d="M11.2309 5.04199L10.0797 2.73945C9.98086 2.54183 9.77887 2.41699 9.55792 2.41699H2.83333C2.51117 2.41699 2.25 2.67816 2.25 3.00033V16.7087C2.25 17.0308 2.51117 17.292 2.83333 17.292H19.1667C19.4888 17.292 19.75 17.0308 19.75 16.7087V5.62533C19.75 5.30316 19.4888 5.04199 19.1667 5.04199H11.2309ZM12.3125 3.29199L11.6449 1.95683C11.2497 1.16633 10.4417 0.666992 9.55792 0.666992H2.83333C1.54467 0.666992 0.5 1.71166 0.5 3.00033V16.7087C0.5 17.9973 1.54467 19.042 2.83333 19.042H19.1667C20.4553 19.042 21.5 17.9973 21.5 16.7087V5.62533C21.5 4.33666 20.4553 3.29199 19.1667 3.29199H12.3125Z" fill="#008710"/>
+				</svg>
+				<div class="export-card__header-title"><?php esc_html_e( 'CSV File', 'jetpack' ); ?></div>
+			</div>
+			<div class="export-card__body">
+				<div class="export-card__body-description">
+					<?php esc_html_e( 'Download your response form data via CSV file.', 'jetpack' ); ?>
+				</div>
+				<div class="export-card__body-cta">
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
+					echo $button_csv_html;
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
+					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+					?>
+				</div>
+			</div>
+		</div>
+		<?php
 	}
 
 	/**
-	 * Print "Export to Google Drive" button.
+	 * Return HTML markup for the export to gdrive button.
+	 * If the user doesn't hold a Google Drive connection, it will return get_gdrive_connection_hint().
 	 */
-	public static function print_export_gdrive_button() {
-		$current_screen = get_current_screen();
-		if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'feedback_page_feedback-export' ), true ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'export' ) ) {
-			return;
-		}
-
-		// if there aren't any feedbacks, bail out
-		if ( ! (int) wp_count_posts( 'feedback' )->publish ) {
+	public function get_gdrive_export_section() {
+		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		if ( ! $user_connected ) {
 			return;
 		}
 
@@ -1225,33 +1337,60 @@ class Grunion_Admin {
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
-		// hint user to connect at 'https://wordpress.com/marketing/connections'
 
-		$nonce_name = 'feedback_export_nonce';
-
-		$attributes = array(
-			'data-nonce-name' => $nonce_name,
-		);
-
-		if ( ! $has_valid_connection ) {
-			$attributes['disabled'] = 'disabled';
+		if ( $has_valid_connection ) {
+			$button_html = get_submit_button(
+				esc_html__( 'Export', 'jetpack' ),
+				'primary export-button export-gdrive',
+				'jetpack-export-feedback-gdrive',
+				false,
+				array( 'data-nonce-name' => $this->export_nonce_field )
+			);
+		} else {
+			$button_html = sprintf(
+				'<a href="%1$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
+				esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
+				esc_attr__( 'connect to Google Drive', 'jetpack' ),
+				esc_html__( 'Connect Google Drive', 'jetpack' )
+			);
 		}
 
-		$button_html = get_submit_button(
-			__( 'Export to Google Drive', 'jetpack' ),
-			'primary',
-			'jetpack-export-feedback-to-gdrive',
-			false,
-			$attributes
-		);
-
-		$button_html .= wp_nonce_field( 'feedback_export', $nonce_name, false, false );
 		?>
-		<script type="text/javascript">
-			jQuery( function ( $ ) {
-				$( '#posts-filter #post-query-submit' ).parent().append( <?php echo wp_json_encode( $button_html ); ?> );
-			} );
-		</script>
+		<div class="export-card">
+			<div class="export-card__header">
+				<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
+				</svg>
+				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack' ); ?></div>
+				<div class="export-card__beta-badge">BETA</div>
+			</div>
+			<div class="export-card__body">
+				<div class="export-card__body-description">
+					<div>
+						<?php esc_html_e( 'Export your data into a Google Sheets file.', 'jetpack' ); ?>
+						<?php
+						printf(
+							'<a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferer">%3$s</a>',
+							esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+							esc_attr__( 'connect to Google Drive', 'jetpack' ),
+							esc_html__( 'You need to connect to Google Drive.', 'jetpack' )
+						);
+						?>
+					</div>
+					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack' ); ?></p>
+				</div>
+				<div class="export-card__body-cta">
+					<?php
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
+					echo $button_html;
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
+					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+					?>
+				</div>
+			</div>
+		</div>
 		<?php
 	}
 }
+
+Grunion_admin::init();
