@@ -327,7 +327,7 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_onboarding_profile string'     => array( 'woocommerce_onboarding_profile', 'string', array( 'string' ) ),
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
-			'show_on_front'                             => array( 'show_on_front', 'page' ),
+			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
 		);
 	}
 }
