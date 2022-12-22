@@ -15,7 +15,7 @@ jQuery( function ( $ ) {
 	function generateStyleVariables( selector, outputSelector = 'body' ) {
 		const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 		const HTML = `
-			<div class="${ STYLE_PROBE_CLASS }" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
+			<div class="${ STYLE_PROBE_CLASS } contact-form" style="position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden">
 				<div class="wp-block-button is-style-outline">
 					<div class="wp-block-button__link">Test</div>
 				</div>

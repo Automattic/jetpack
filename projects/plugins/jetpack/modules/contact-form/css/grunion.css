@@ -249,6 +249,10 @@
 .contact-form-dropdown__button.ui-button {
 	min-width: 200px;
 	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	flex-direction: row-reverse;
+	justify-content: space-between;
 	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--background-color);
