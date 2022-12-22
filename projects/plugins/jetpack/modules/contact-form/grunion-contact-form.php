@@ -4033,6 +4033,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$attributes = shortcode_atts(
 			array(
 				'label'                  => null,
+				'togglelabel'            => null,
 				'type'                   => 'text',
 				'required'               => false,
 				'requiredtext'           => null,
@@ -4565,6 +4566,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
+
+		if ( $this->get_attribute( 'togglelabel' ) ) {
+			$field .= "\t\t<option>" . $this->get_attribute( 'togglelabel' ) . "</option>\n";
+		}
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
@@ -4677,9 +4683,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
-
 		if ( $type === 'select' ) {
-			$class .= 'jetpack-select';
+			$class .= 'contact-form-dropdown';
 		}
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';

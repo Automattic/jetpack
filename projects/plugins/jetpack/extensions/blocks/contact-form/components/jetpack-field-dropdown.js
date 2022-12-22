@@ -79,6 +79,10 @@ export const JetpackDropdownEdit = ( { attributes, isSelected, setAttributes } )
 		if ( isNil( label ) ) {
 			setAttributes( { label: '' } );
 		}
+
+		if ( isNil( toggleLabel ) ) {
+			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack' ) } );
+		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -91,19 +95,18 @@ export const JetpackDropdownEdit = ( { attributes, isSelected, setAttributes } )
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
 			/>
-			<div className="jetpack-select">
+			<div className="jetpack-field-dropdown">
 				<RichText
 					value={ toggleLabel }
-					className="jetpack-select__toggle"
+					className="jetpack-field-dropdown__toggle"
 					onChange={ value => {
 						setAttributes( { toggleLabel: value } );
 					} }
-					placeholder={ __( 'Select…', 'jetpack' ) }
 					allowedFormats={ [ 'core/bold', 'core/italic' ] }
 					withoutInteractiveFormatting
 				/>
 				{ isSelected && (
-					<div className="jetpack-select__popover" ref={ optionsWrapper }>
+					<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
 						{ options.map( ( option, index ) => (
 							<RichText
 								key={ index }
@@ -112,7 +115,7 @@ export const JetpackDropdownEdit = ( { attributes, isSelected, setAttributes } )
 								onSplit={ handleSplitOption( index ) }
 								onRemove={ handleDeleteOption( index ) }
 								onReplace={ noop }
-								placeholder="Add option"
+								placeholder={ __( 'Add option…', 'jetpack' ) }
 								__unstableDisableFormats
 							/>
 						) ) }

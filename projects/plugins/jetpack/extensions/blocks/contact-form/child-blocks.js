@@ -552,7 +552,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				toggleLabel: {
 					type: 'string',
-					default: 'Select one option',
+					default: null,
 				},
 			},
 		},
