@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add additional methods to useAnalytics hook, allow for view event by passing initial props
