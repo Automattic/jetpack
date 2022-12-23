@@ -17,18 +17,15 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		// Do not run in the WPCOM context
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return;
-		}
-
-		// Check if killswitch is defined as true
-		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+		// Do not run in unsupported environments
+		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
+		if ( ! Waf_Runner::is_supported_environment() ) {
 			return;
 		}
 
 		// Update the WAF after installing or upgrading a relevant Jetpack plugin
 		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
+		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
@@ -70,11 +67,46 @@ class Waf_Initializer {
 			return;
 		}
 
+		// Only run on updates and installations
+		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ), true ) ) {
+			return;
+		}
+
 		// Only run when Jetpack plugins were affected
 		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
 			return;
 		}
 
-		Waf_Runner::update_waf();
+		set_transient( 'jetpack_waf_needs_update', 1 );
+	}
+
+	/**
+	 * Check for WAF update
+	 *
+	 * Updates the WAF when the transient is present.
+	 *
+	 * @return void
+	 */
+	public static function check_for_waf_update() {
+		if ( get_transient( 'jetpack_waf_needs_update' ) ) {
+			delete_transient( 'jetpack_waf_needs_update' );
+			Waf_Runner::update_waf();
+		}
+	}
+
+	/**
+	 * Disables the WAF module when on an supported platform.
+	 *
+	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
+	 *
+	 * @return array Array of module slugs.
+	 */
+	public static function remove_module_on_unsupported_environments( $modules ) {
+		if ( ! Waf_Runner::is_supported_environment() ) {
+			// WAF should never be available on unsupported platforms.
+			unset( $modules['waf'] );
+		}
+
+		return $modules;
 	}
 }

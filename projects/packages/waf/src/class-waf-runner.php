@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -119,6 +120,31 @@ class Waf_Runner {
 		);
 
 		return in_array( $option, $allowed_modes, true );
+	}
+
+	/**
+	 * Determines if the WAF is supported in the current environment.
+	 *
+	 * @since 0.8.0
+	 * @return bool
+	 */
+	public static function is_supported_environment() {
+		// Do not run when killswitch is enabled
+		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+			return false;
+		}
+
+		// Do not run in the WPCOM context
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return false;
+		}
+
+		// Do not run on the Atomic platform
+		if ( ( new Host() )->is_atomic_platform() ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
