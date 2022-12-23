@@ -1622,7 +1622,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/promote-posts",
-                "reference": "5179ac6c9aa39e0416fbb3ed58f94043662095d3"
+                "reference": "d168b466f3282f9c7fff4755b5c232eb898aae1e"
             },
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
@@ -1664,6 +1664,10 @@
                 ],
                 "build-development": [
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
