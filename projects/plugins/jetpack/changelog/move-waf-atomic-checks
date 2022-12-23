@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move atomic checks for the WAF to the WAF package.
