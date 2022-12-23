@@ -51,7 +51,7 @@ const BlazePostPublishPanel = () => {
 
 	const { tracks } = useAnalytics();
 	const trackClick = useCallback(
-		() => tracks.recordEvent( 'jetpack_editor_promote_post_publish_click' ),
+		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
 		[ tracks ]
 	);
 

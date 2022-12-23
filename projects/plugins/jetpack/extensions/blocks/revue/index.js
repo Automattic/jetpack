@@ -6,14 +6,6 @@ import edit from './edit';
 import icon from './icon';
 import save from './save';
 
-export const innerButtonBlock = {
-	name: 'jetpack/button',
-	attributes: {
-		element: 'button',
-		text: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
-	},
-};
-
 export const name = 'revue';
 
 export const settings = {
@@ -32,13 +24,13 @@ export const settings = {
 	],
 	supports: {
 		html: false,
+		inserter: false,
 	},
 	attributes,
 	edit,
 	save,
 	example: {
 		attributes: { revueUsername: 'example' },
-		innerBlocks: [ innerButtonBlock ],
 	},
 	deprecated: [ deprecatedV1 ],
 };

@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Revue block: Removed functionality due to Revue shutting down, adding placeholder messaging instead.
