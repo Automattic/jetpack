@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
+"PO-Revision-Date: 2022-12-06 16:56:32+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,22 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: lv\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "E-komercijas plānam <strong>%3$s</strong> beidzās %2$s. <a href=\"%1$s\">Atkārtoti aktivizējiet savu plānu</a>, lai saglabātu e-komercijas plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un phpMyAdmin piekļuvi."
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Profesionāļa plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atjaunojiet savu plānu</a>, lai saglabātu Profesionāļa plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un phpMyAdmin piekļuvi."
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "eKomercijas plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atjaunojiet savu plānu</a>, lai saglabātu eKomercijas plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un phpMyAdmin piekļuvi."
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Biznesa plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atjaunojiet savu plānu</a>, lai saglabātu Biznesa plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un phpMyAdmin piekļuvi."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -37,11 +53,11 @@ msgstr "Rediģēt"
 
 #: private-site/logged-in-banner.php:96
 msgid "My Home"
-msgstr ""
+msgstr "Manas mājas"
 
 #: private-site/logged-in-banner.php:69
 msgid "Launch"
-msgstr ""
+msgstr "Palaist"
 
 #: private-site/logged-in-banner.php:65
 msgid "Update"
@@ -49,60 +65,60 @@ msgstr "Saglabāt"
 
 #: notices/plan-notices.php:121
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Premium plāns <strong>%3$s</strong> beidzās %2$s. <a href=\"%1$s\">Atkārtoti aktivizējiet savu plānu</a>, lai saglabātu Premium plāna funkcijas, piemēram, vietņu monetizāciju, VideoPress un Google Analytics atbalstu."
 
 #: notices/plan-notices.php:116
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Personīgais plāns <strong>%3$s</strong> beidzās %2$s. <a href=\"%1$s\">Atkārtoti aktivizējiet savu plānu</a>, lai saglabātu personīgā plāna funkcijas, piemēram, 6 GB krātuves vietu, bez WordPress.com reklāmām un tikai abonentiem paredzētu saturu."
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Premium plāna termiņš <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atjaunojiet savu plānu</a>, lai saglabātu Premium plāna funkcijas, piemēram, vietņu monetizāciju, VideoPress un Google Analytics atbalstu."
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Personīgais plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atjaunojiet plānu</a>, lai saglabātu personīgā plāna funkcijas, piemēram, 6 GB krātuves vietu, bez WordPress.com reklāmām un tikai abonentiem paredzētu saturu."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
-msgstr ""
+msgstr "Jūs pašlaik izmantojat PHP <strong>%1$s</strong>, kas vairs nesaņems drošības atjauninājumus no %2$s. Lūdzu, jauniniet uz PHP %3$s vai jaunāku versiju, mainot <a href=\"%4$s\">mitināšanas konfigurāciju</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
-msgstr ""
+msgstr "Dāvana"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
-msgstr ""
+msgstr "Uzdāviniet autoram WordPress.com dalību."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
-msgstr ""
+msgstr "Vai jums patīk šī vietne?"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
-msgstr ""
+msgstr "Turpināt apmeklēt vietni"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:151
 msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr ""
+msgstr "Ja vietne jums patīk, lūdzu, paziņojiet vietnes īpašniekam, ka viņu plāns ir beidzies. Varbūt viņu kontaktinformācija ir vietnē?"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
-msgstr ""
+msgstr "Šī vietne drīzumā būs bezsaistē."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Uzmanību! Pašlaik meklētājprogrammas neveic jūsu vietnes indeksēšanu. Ja vēlaties, lai meklētājprogrammas parādītu šo vietni savos meklēšanas rezultātos, jums ir jāpalaiž sava vietne. %1$sSpiediet šeit%2$s, lai mainītu vietnes konfidencialitātes iestatījumus."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Uzmanību! Jūsu vietne pašlaik ir gaidīšanas režīmā. Ja vēlaties, lai meklētājprogrammas parādītu šo vietni savos meklēšanas rezultātos, jums ir jāpalaiž vietne. %1$sSpiediet šeit%2$s, lai mainītu vietnes konfidencialitātes iestatījumus."
 
 #: feature-plugins/class-template-first-themes.php:406
 msgid "Home"
@@ -114,15 +130,15 @@ msgstr "Emuārs"
 
 #: feature-plugins/hooks.php:130
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
-msgstr ""
+msgstr "Tikai starpniekserveris: Jūs varat to redzēt, jo esat starpniekservera lietotājs. Neizmantojiet to, ja nezināt, kāpēc esat šeit."
 
 #: feature-plugins/hooks.php:119
 msgid "You do not have permission to access this page."
-msgstr ""
+msgstr "Jums nav atļaujas piekļūt šai lapai."
 
 #: feature-plugins/masterbar.php:90
 msgid "Set your color scheme on WordPress.com."
-msgstr ""
+msgstr "Iestatiet savu krāsu shēmu vietnē WordPress.com."
 
 #: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
 msgid "Additional CSS"
@@ -130,7 +146,7 @@ msgstr "Papildus CSS"
 
 #: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
 msgid "CSS"
-msgstr ""
+msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
@@ -149,11 +165,11 @@ msgstr "Jauninājumus pārvalda WordPress.com"
 
 #: notices/plan-notices.php:126
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Vietnes <strong>%3$s</strong> biznesa plāns beidzas pēc %2$s. <a href=\"%1$s\"> Atjaunojiet plānu </a>, lai saglabātu biznesa plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un piekļuvi phpMyAdmin."
 
 #: notices/plan-notices.php:136
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Profesionāļu plāns vietnei <strong>%3$s</strong> beidzas pēc%2$s. <a href=\"%1$s\"> Atjaunojiet plānu </a>, lai saglabātu e-komercijas plāna funkcijas, piemēram, pielāgotus spraudņus un motīvus, SFTP un piekļuvi phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
@@ -286,7 +302,7 @@ msgstr "Twitter jauninājumi"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr "Lūdzu, konfigurējiet savu Twitter lietotājvārdu šim <a href =  \"%s \"> Twitter logrīks</a>."
+msgstr "Lūdzu, konfigurējiet savu Twitter lietotājvārdu šim <a href=\"%s\"> Twitter logrīkam</a>."
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
@@ -432,9 +448,73 @@ msgstr "Parādiet savu about.me profilu ar sīktēlu"
 msgid "Unable to fetch the requested data."
 msgstr "Nevar ienest pieprasītos datus."
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "Veidojiet bezmaksas vietni vietnē WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Darbojas ar WordPress.com"
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "WordPress.com blogs"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "WordPress.com vietne"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com logotips"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "Kājenes kredīts"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "Jauniniet uz uzņēmējdarbību"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "Slēpt (nepieciešams biznesa plāns)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Slēpt"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Noklusējums"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Projektējis"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "līdz"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Tēma"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Ar lepnumu nodrošina WordPress"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"
@@ -894,7 +974,7 @@ msgstr "Veidot logotipu"
 
 #: logo-tool/logo-tool.php:68
 msgid "Add a logo to display on your site. No logo? Buy a pro one today — Click “Create logo” to start."
-msgstr ""
+msgstr "Pievienojiet logotipu, kas tiks parādīts jūsu vietnē. Nav logotipa? Iegādājieties profesionālo logotipu jau šodien - klikšķiniet uz \"Izveidot logotipu\", lai sāktu."
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

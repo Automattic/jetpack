@@ -11,6 +11,22 @@ msgstr ""
 "Language: zh_SG\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的电子商务套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留电子商务套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的专业版套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留专业版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的电子商务套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留电子商务套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "<strong>%3$s</strong> 的商务版套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a> 以保留商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
+
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "您已经用尽了您的空间配额，请在上传前删除一些文件。"
@@ -49,60 +65,60 @@ msgstr "更新"
 
 #: notices/plan-notices.php:121
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的高级套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留高级套餐功能，如站点盈利、VideoPress 和 Google Analytics（分析）支持。"
 
 #: notices/plan-notices.php:116
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的个人套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留个人套餐功能，例如 6 GB 存储空间、无 WordPress.com 广告和订阅者专享内容。"
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的高级套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留高级套餐功能，如站点盈利、VideoPress 和 Google Analytics（分析）支持。"
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的个人套餐将于 %2$s到期。 <a href=\"%1$s\">续订您的套餐</a>以保留个人套餐功能，例如 6 GB 存储空间、无 WordPress.com 广告和订阅者专享内容。"
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
-msgstr ""
+msgstr "您当前使用的是 PHP <strong>%1$s</strong>，自 %2$s起将不再接收安全更新。 请通过更改<a href=\"%4$s\">托管服务配置</a>，更新到 PHP %3$s 或更高版本。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr "礼品"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr "向作者赠送 WordPress.com 会员。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr "喜欢这个站点？"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
-msgstr ""
+msgstr "继续前往站点"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:151
 msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr ""
+msgstr "如果您喜欢该站点，请告知站点所有者其套餐已过期。 站点上可能会有他们的联系信息？"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
-msgstr ""
+msgstr "此站点即将离线。"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "注意！ 目前我们不建议搜索引擎为您的站点编制索引。 如果您希望搜索引擎在搜索结果中显示此站点，则必须先发布站点。 %1$s点击此处%2$s更改您站点的隐私设置。"
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "注意！ 您的站点当前处于“即将推出”模式。 如果您希望搜索引擎在搜索结果中显示此站点，则必须先发布站点。 %1$s点击此处%2$s更改您站点的隐私设置。"
 
 #: feature-plugins/class-template-first-themes.php:406
 msgid "Home"
@@ -149,11 +165,11 @@ msgstr "更新由 WordPress.com 进行管理"
 
 #: notices/plan-notices.php:126
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的商务版套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留商务版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
 #: notices/plan-notices.php:136
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "<strong>%3$s</strong> 的专业版套餐已于 %2$s到期。 <a href=\"%1$s\">重新激活您的套餐</a>以保留专业版套餐功能，例如自定义插件和主题、SFTP 和 phpMyAdmin 访问。"
 
 #: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
@@ -438,9 +454,73 @@ msgstr "以缩略图形式显示您的 about.me 个人资料"
 msgid "Unable to fetch the requested data."
 msgstr "无法提取所请求的数据。"
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "通过访问 WordPress.com 创建免费网站或博客"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "通过访问 WordPress.com 创建免费网站"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "由 WordPress.com 提供支持"
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "在WordPress.com的博客"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "WordPress.com 站点"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com 徽标"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "在 WordPress.com 上创建免费网站或博客"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "注脚文本"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "升级至企业版"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "隐藏（需订阅商务版套餐）"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "隐藏"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "默认"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "设计者"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "由"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "主题"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "由 WordPress 强力驱动"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"

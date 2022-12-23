@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
+"PO-Revision-Date: 2022-12-09 17:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,22 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: nl\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het eCommerce-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het eCommerce-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Pro-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Pro-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het eCommerce-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> de functies uit het eCommerce-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "Het Business-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Business-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -49,60 +65,60 @@ msgstr "Bijwerken"
 
 #: notices/plan-notices.php:121
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Het Premium-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Premium-abonnement te behouden, zoals het genereren van inkomsten via je site, VideoPress en Google Analytics-ondersteuning."
 
 #: notices/plan-notices.php:116
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Het Personal-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Personal-abonnement te behouden zoals 6 GB oplsagruimte, geen WordPress.com-advertenties en exclusieve content voor abonnees."
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "Het Premium-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Premium-abonnement te behouden, zoals het genereren van inkomsten via je site, VideoPress en Google Analytics-ondersteuning."
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "Het Personal-abonnement voor <strong>%3$s</strong> verloopt op %2$s. <a href=\"%1$s\">Verleng je abonnement</a> om de functies uit het Personal-abonnement te behouden zoals 6 GB oplsagruimte, geen WordPress.com-advertenties en exclusieve content voor abonnees."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
-msgstr ""
+msgstr "Je maakt momenteel gebruik van PHP <strong>%1$s</strong>, dat vanaf %2$s niet langer beveiligingsupdates zal ontvangen. Update naar PHP %3$s of hoger door je <a href=\"%4$s\">hosting-configuratie</a> aan te passen."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr "Geschenk"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr "Geef de auteur een WordPress.com-lidmaatschap."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr "Vind je deze site leuk?"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
-msgstr ""
+msgstr "Doorgaan naar site"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:151
 msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr ""
+msgstr "Vind je de site leuk? Laat de site-eigenaar dan weten dat z’n abonnement is verlopen. Misschien vind je de contactgegevens wel op de site."
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
-msgstr ""
+msgstr "Deze site gaat binnenkort offline."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Let op! Zoekmachines worden momenteel ontmoedigd om je site te indexeren. Als je wilt dat zoekmachines je site opnemen in hun zoekresultaten, moet je je site lanceren. %1$sKlik hier%2$s om de privacyinstellingen van je site te veranderen."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Let op! Je site heeft momenteel in de status Binnenkort beschikbaar. Als je wilt dat zoekmachines je site opnemen in hun zoekresultaten, moet je je site lanceren. %1$sKlik hier%2$s om de privacyinstellingen van je site te veranderen."
 
 #: feature-plugins/class-template-first-themes.php:406
 msgid "Home"
@@ -149,11 +165,11 @@ msgstr "Updates beheerd door WordPress.com"
 
 #: notices/plan-notices.php:126
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Het Business-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Business-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
 
 #: notices/plan-notices.php:136
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "Het Pro-abonnement voor <strong>%3$s</strong> is verlopen op %2$s. <a href=\"%1$s\">Heractiveer je abonnement</a> om de functies uit het Pro-abonnement te behouden, zoals aangepaste plugins en thema’s, SFTP en toegang tot phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
@@ -432,9 +448,73 @@ msgstr "Toon je over.mij profiel met miniatuurweergave"
 msgid "Unable to fetch the requested data."
 msgstr "Kan de aangevraagde gegevens niet ophalen."
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Maak een gratis website of blog op WordPress.com"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "Maak een gratis website op WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Mogelijk gemaakt door WordPress.com"
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "Blog op WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "Een WordPress.com website"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com logo"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "Maak een website of blog op WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "Inhoud voettekst"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "Upgraden naar Business"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "Verberg (Business abonnement vereist)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Verbergen"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Standaard"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Design van"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "door"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Thema"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Mogelijk gemaakt door WordPress"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"

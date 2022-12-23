@@ -11,6 +11,22 @@ msgstr ""
 "Language: me\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr ""
+
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Prekoračili ste dozvoljeni limit za prostor. Molimo vas da obrišete neke datoteke prije ponovnog dodavanja."
@@ -67,18 +83,18 @@ msgstr ""
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr ""
 
@@ -432,8 +448,72 @@ msgstr ""
 msgid "Unable to fetch the requested data."
 msgstr ""
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Sakrij"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Standardno"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Tema"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
 msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:26

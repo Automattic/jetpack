@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
+"PO-Revision-Date: 2022-12-07 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,22 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ar\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "انتهت صلاحية خطة التجارة الإلكترونية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة التجارة الإلكترونية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية الخطة الاحترافية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة الاحترافية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية خطة التجارة الإلكترونية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة التجارة الإلكترونية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "تنتهي صلاحية خطة الأعمال لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات خطة الأعمال، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -49,60 +65,60 @@ msgstr "التحديث"
 
 #: notices/plan-notices.php:121
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "انتهت صلاحية الخطة المتميزة لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات الخطة المتميزة، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم Google Analytics."
 
 #: notices/plan-notices.php:116
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "انتهت صلاحية الخطة الشخصية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات الخطة الشخصية، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "تنتهي صلاحية الخطة المتميزة لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة المتميزة، مثل: تحقيق أرباح من الموقع وفيديوبرس ودعم Google Analytics."
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "تنتهي صلاحية الخطة الشخصية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة الشخصية، مثل: مساحة تخزين بسعة 6 جيجابايت وعدم وجود إعلانات في ووردبريس.كوم ومحتوى للمشتركين فقط."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
-msgstr ""
+msgstr "تستخدم الآن PHP <strong>%1$s</strong> التي لا تتلقى تحديثات الأمان بعد الآن بدءًا من %2$s. يرجى التحديث إلى PHP ⁦%3$s⁩ أو أعلى من خلال تغيير <a href=\"%4$s\">تكوينات الاستضافة</a> لديك."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr "هدية"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr "قم بإهداء المؤلف عضوية في ووردبريس.كوم."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr "هل تستمتع بهذا الموقع؟"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
-msgstr ""
+msgstr "المتابعة إلى الموقع"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:151
 msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr ""
+msgstr "إذا كنت تستمتع بالموقع، فيرجى السماح لمالك الموقع بمعرفة أن خطته قد انتهت صلاحيتها. فربما تكون معلومات الاتصال الخاصة به موجودة على الموقع."
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
-msgstr ""
+msgstr "لن يصبح هذا الموقع متصلاً بالإنترنت قريبًا."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "انتباه! لا تُشجَّع محركات البحث حاليًا على فهرسة موقعك.  إذا كنت تريد محركات البحث لعرض هذا الموقع في نتائج البحث لديها، فعليك بتشغيل موقعك. ⁦%1$s⁩انقر هنا⁦%2$s⁩ لتغيير إعدادات الخصوصية في موقعك."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "انتباه! موقعك حاليًا في وضع \"قريبًا\". إذا كنت تريد محركات البحث لعرض هذا الموقع في نتائج البحث لديها، فعليك بتشغيل موقعك. ⁦%1$s⁩انقر هنا⁦%2$s⁩ لتغيير إعدادات الخصوصية في موقعك."
 
 #: feature-plugins/class-template-first-themes.php:406
 msgid "Home"
@@ -149,11 +165,11 @@ msgstr "التحديثات المُدارة بواسطة ووردبريس.كوم
 
 #: notices/plan-notices.php:126
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "انتهت صلاحية خطة الأعمال لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">أعد تفعيل خطتك</a> للاحتفاظ بميزات خطة الأعمال، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
 #: notices/plan-notices.php:136
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "انتهت صلاحية الخطة الاحترافية لـ <strong>%3$s</strong> في %2$s. <a href=\"%1$s\">قم بتجديد خطتك</a> للاحتفاظ بميزات الخطة الاحترافية، مثل: الإضافات والقوالب المخصصة، وSFTP، والوصول إلى phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
@@ -432,9 +448,73 @@ msgstr "عرض ملفك الشخصي about.me مع صورة مصغَّرة"
 msgid "Unable to fetch the requested data."
 msgstr "يتعذَّر إحضار البيانات المطلوبة."
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "أنشئ موقعاً أو مدونة مجانية على ووردبريس دوت كوم."
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "إنشاء موقع مجاني على وردبرس.كوم"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "يعمل من خلال WordPress.com"
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "المدونة لدى وردبرس.كوم"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "موقع ووردبريس.كوم على الويب"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "شعار وردبرس.كوم"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "إنشاء موقع على الويب أو مدونة على ووردبريس.كوم"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "رصيد التذييل"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "الترقية إلى إصدار الشركات"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "إخفاء (خطة الأعمال مطلوبة)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "إخفاء "
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "إفتراضي"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "التصميم بواسطة"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "بواسطة"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "الثيم"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "بكل فخر مشغلة من قِبل وردبرس"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"

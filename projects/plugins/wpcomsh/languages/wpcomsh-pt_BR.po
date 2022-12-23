@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
+"PO-Revision-Date: 2022-12-08 15:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,22 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: pt_BR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: notices/plan-notices.php:131
+msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "O plano eCommerce para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano eCommerce, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
+
+#: notices/plan-notices.php:105
+msgid "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "O plano Pro para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Pro, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
+
+#: notices/plan-notices.php:100
+msgid "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "O plano eCommerce para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano eCommerce, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
+
+#: notices/plan-notices.php:95
+msgid "The Business plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
+msgstr "O plano Negócios para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Negócios, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
 #: storage/storage.php:33
 msgid "You have used your space quota. Please delete files before uploading."
@@ -49,60 +65,60 @@ msgstr "Atualizar"
 
 #: notices/plan-notices.php:121
 msgid "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "O plano Premium para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Premium, como monetização do site, VideoPress e suporte para Google Analytics."
 
 #: notices/plan-notices.php:116
 msgid "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "O plano Pessoal para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Pessoal, como espaço de armazenamento de 6 GB, sem publicidade no WordPress.com e conteúdo exclusivo do assinante."
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr ""
+msgstr "O plano Premium para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Premium, como monetização do site, VideoPress e suporte para Google Analytics."
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
-msgstr ""
+msgstr "O plano Pessoal para <strong>%3$s</strong> expira em %2$s. <a href=\"%1$s\">Renove seu plano</a> para manter os recursos do plano Pessoal, como espaço de armazenamento de 6 GB, sem publicidade no WordPress.com e conteúdo exclusivo do assinante."
 
 #: notices/php-version-notices.php:30
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
-msgstr ""
+msgstr "Você está usando o PHP <strong>%1$s</strong>, que deixará de receber atualizações de segurança a partir de %2$s. Atualize para o PHP %3$s ou uma versão superior alterando sua <a href=\"%4$s\">configuração de hospedagem</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:113
-#: frontend-notices/gifting-banner/gifting-banner.php:140
+#: frontend-notices/gifting-banner/gifting-banner.php:102
+#: frontend-notices/gifting-banner/gifting-banner.php:129
 msgid "Gift"
 msgstr "Presente"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:109
-#: frontend-notices/gifting-banner/gifting-banner.php:136
+#: frontend-notices/gifting-banner/gifting-banner.php:98
+#: frontend-notices/gifting-banner/gifting-banner.php:125
 msgid "Gift the author a WordPress.com membership."
 msgstr "Dê uma assinatura do WordPress.com de presente para o autor."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:105
-#: frontend-notices/gifting-banner/gifting-banner.php:132
+#: frontend-notices/gifting-banner/gifting-banner.php:94
+#: frontend-notices/gifting-banner/gifting-banner.php:121
 msgid "Enjoy this site?"
 msgstr "Gostou desse site?"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
-msgstr ""
+msgstr "Continuar para o site"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:151
 msgid "If you enjoy the site, please let the site owner know their plan has expired. Maybe their contact information is on the site?"
-msgstr ""
+msgstr "Se você gosta do site, avise ao proprietário que o plano expirou. Quem sabe as informações de contato não estão no site?"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:150
 msgid "This site is going offline soon."
-msgstr ""
+msgstr "Este site ficará offline em breve."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:130
 msgid "Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Aviso! No momento, os mecanismos de busca não estão indexando seu site. Se quiser que os mecanismos de busca mostrem este site nos resultados, é preciso iniciar seu site. %1$sClique aqui%2$s para alterar as configurações de privacidade do seu site."
 
 #. translators: 1: opening anchor tag; 2: closing anchor tag.
 #: feature-plugins/full-site-editing.php:127
 msgid "Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site's privacy settings."
-msgstr ""
+msgstr "Aviso! Seu site está no modo Em breve. Se quiser que os mecanismos de busca mostrem este site nos resultados, é preciso iniciar seu site. %1$sClique aqui%2$s para alterar as configurações de privacidade do seu site."
 
 #: feature-plugins/class-template-first-themes.php:406
 msgid "Home"
@@ -149,11 +165,11 @@ msgstr ""
 
 #: notices/plan-notices.php:126
 msgid "The Business plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Business plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "O plano Negócios para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Negócios, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
 #: notices/plan-notices.php:136
 msgid "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain Pro plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
-msgstr ""
+msgstr "O plano Pro para <strong>%3$s</strong> expirou em %2$s. <a href=\"%1$s\">Reative seu plano</a> para manter os recursos do plano Pro, como plugins e temas personalizados, SFTP e acesso ao phpMyAdmin."
 
 #: private-site/access-denied-preview-login-template.php:63
 msgid "This site is private. You need to log in to the preview to see it."
@@ -432,9 +448,73 @@ msgstr "Exibir seu perfil about.me com miniatura"
 msgid "Unable to fetch the requested data."
 msgstr "Não foi possível obter os dados solicitados."
 
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Crie um website ou blog gratuito no WordPress.com"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "Crie um website gratuito no WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Com tecnologia WordPress.com"
+
 #: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "Blog no WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "Um site WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "Logotipo do WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "Crie um site ou blog no WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "Créditos no rodapé"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "Fazer upgrade para Negócios"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "Esconder (Obrigatório plano empresarial)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Esconder"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Padrão"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Design de"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "por"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Tema"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Orgulhosamente operado pelo WordPress"
 
 #: customizer-fixes/customizer-fixes.php:26
 msgid "Save Settings"
