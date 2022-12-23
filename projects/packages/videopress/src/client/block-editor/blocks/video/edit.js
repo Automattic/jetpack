@@ -319,6 +319,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		className: 'wp-block-jetpack-videopress',
 	} );
 
+	// Setting video media process
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+
+	// Render Example block view
 	if ( isExample ) {
 		return (
 			<img
@@ -334,12 +338,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		);
 	}
 
-	/*
-	 * Handling all the upload/select file step.
-	 * This is the first action for the user.
-	 */
-	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
-
+	// Render uploading block view
 	if ( isUploadingFile ) {
 		const handleDoneUpload = () => {
 			setIsUploadingFile( false );
