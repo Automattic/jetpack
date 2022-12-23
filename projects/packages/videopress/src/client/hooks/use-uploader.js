@@ -2,7 +2,6 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import * as tus from 'tus-js-client';
 
@@ -186,16 +185,11 @@ export const uploadFromLibrary = attachmentId => {
 };
 
 export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
-	const [ data ] = useState( {} );
-	const [ error ] = useState( null );
-
-	const uploaded = file =>
+	return file =>
 		uploadVideo( {
 			file,
 			onProgress,
 			onSuccess,
 			onError,
 		} );
-
-	return [ uploaded, data, error ];
 };
