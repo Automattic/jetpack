@@ -1,8 +1,6 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
@@ -12,6 +10,7 @@ import JetpackFieldConsent from './components/jetpack-field-consent';
 import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
+import { validateFormWrapper } from './util/form';
 
 const FieldDefaults = {
 	category: 'contact-form',
@@ -124,38 +123,6 @@ const FieldDefaults = {
 	},
 	save: () => null,
 	example: {},
-};
-
-const validateFormWrapper = ( { attributes, clientId, name } ) => {
-	const FORM_BLOCK_NAME = 'jetpack/contact-form';
-	const BUTTON_BLOCK_NAME = 'jetpack/button';
-	const SUBMIT_BUTTON_ATTR = {
-		text: __( 'Submit', 'jetpack' ),
-		element: 'button',
-		lock: { remove: true },
-	};
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const { replaceBlock } = useDispatch( blockEditorStore );
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const parents = useSelect( select => {
-		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
-	} );
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect( () => {
-		if ( ! parents?.length ) {
-			replaceBlock(
-				clientId,
-				createBlock( FORM_BLOCK_NAME, {}, [
-					createBlock( name, attributes ),
-					createBlock( BUTTON_BLOCK_NAME, SUBMIT_BUTTON_ATTR ),
-				] )
-			);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
 };
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {

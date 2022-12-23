@@ -1,16 +1,24 @@
 jQuery( function ( $ ) {
+	const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
+	const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
+
 	$( document ).ready( function () {
-		const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
-		const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
-
-		if ( $( FRONTEND_SELECTOR ).length ) {
-			generateStyleVariables( FRONTEND_SELECTOR );
-		}
-
-		if ( $( EDITOR_SELECTOR ).length ) {
-			generateStyleVariables( EDITOR_SELECTOR );
-		}
+		generateStyleVariables( FRONTEND_SELECTOR );
+		generateStyleVariables( EDITOR_SELECTOR );
+		observeContentChanges();
 	} );
+
+	function observeContentChanges() {
+		const observer = new MutationObserver( () => {
+			generateStyleVariables( FRONTEND_SELECTOR );
+			generateStyleVariables( EDITOR_SELECTOR );
+		} );
+
+		observer.observe( document.querySelector( 'body' ), {
+			childList: true,
+			subtree: true,
+		} );
+	}
 
 	function generateStyleVariables( selector, outputSelector = 'body' ) {
 		const STYLE_PROBE_CLASS = 'contact-form__style-probe';
@@ -25,7 +33,7 @@ jQuery( function ( $ ) {
 			</div>
 		`;
 
-		if ( $( `.${ STYLE_PROBE_CLASS }` ).length ) {
+		if ( ! $( selector ).length || $( `.${ STYLE_PROBE_CLASS }` ).length ) {
 			return;
 		}
 
