@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import * as tus from 'tus-js-client';
 
@@ -26,13 +27,11 @@ export const getJWT = function () {
 	} );
 };
 
-export const uploadVideo = ( { file, onProgress, onSuccess, onError, onGetJWT } ) => {
-	let upload;
-
+export const uploadVideo = ( { file, onProgress, onSuccess, onError, onGetJWT, onReady } ) => {
 	getJWT()
 		.then( data => {
 			onGetJWT && onGetJWT( data );
-			upload = new tus.Upload( file, {
+			const upload = new tus.Upload( file, {
 				onError: onError,
 				onProgress: onProgress,
 				endpoint: data.url,
@@ -139,13 +138,12 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, onGetJWT } 
 
 				upload.start();
 			} );
+
+			onReady?.( upload );
 		} )
 		.catch( jwtError => {
-			// setError( jwtError );
 			onError?.( jwtError );
 		} );
-
-	return upload;
 };
 
 export const uploadFromLibrary = attachmentId => {
@@ -185,11 +183,15 @@ export const uploadFromLibrary = attachmentId => {
 };
 
 export const useResumableUploader = ( { onError, onProgress, onSuccess } ) => {
-	return file =>
+	const [ uploader, setUploader ] = useState( null );
+	const handler = file =>
 		uploadVideo( {
 			file,
 			onProgress,
 			onSuccess,
 			onError,
+			onReady: setUploader,
 		} );
+
+	return [ handler, uploader ];
 };

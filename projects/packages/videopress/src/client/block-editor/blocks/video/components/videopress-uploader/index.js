@@ -7,7 +7,6 @@ import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useRef } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,7 +30,6 @@ const VideoPressUploader = ( {
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
-	const tusUploader = useRef( null );
 
 	/*
 	 * Storing the file to get it name and size for progress.
@@ -81,7 +79,7 @@ const VideoPressUploader = ( {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	// eslint-disable-next-line no-unused-vars
-	const videoPressUploader = useResumableUploader( {
+	const [ videoPressUploader, uploader ] = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: handleUploadSuccess,
@@ -146,7 +144,7 @@ const VideoPressUploader = ( {
 		setIsUploadingInProgress( true );
 
 		// Upload file to VideoPress infrastructure.
-		tusUploader.current = videoPressUploader( file );
+		videoPressUploader( file );
 	};
 
 	const startUploadFromLibrary = attachmentId => {
@@ -160,8 +158,6 @@ const VideoPressUploader = ( {
 	};
 
 	const pauseOrResumeUpload = () => {
-		const uploader = tusUploader?.current;
-
 		if ( uploader ) {
 			const uploaderCall = uploadPaused ? 'start' : 'abort';
 			uploader[ uploaderCall ]();
@@ -303,7 +299,7 @@ const VideoPressUploader = ( {
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
 				onDone={ handleDoneUpload }
-				supportPauseOrResume={ Boolean( tusUploader?.current ) }
+				supportPauseOrResume={ Boolean( uploader ) }
 			/>
 		);
 	}
