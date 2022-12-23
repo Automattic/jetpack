@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3c2e42630fe094fbac80c53c82f733b5",
+    "content-hash": "dc0cbe8e26c2170694a504dd282d294a",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -433,6 +433,68 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-blaze",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/blaze",
+                "reference": "bc4b104ad51496d55c2ff5bc8d470dda61b3b808"
+            },
+            "require-dev": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-blaze",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "textdomain": "jetpack-blaze",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-blaze.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Attract high-quality traffic to your site using Blaze.",
             "transport-options": {
                 "relative": true
             }
@@ -1612,68 +1674,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Enhance the classic view of the Admin section of your WordPress site",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-promote-posts",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/promote-posts",
-                "reference": "d168b466f3282f9c7fff4755b5c232eb898aae1e"
-            },
-            "require-dev": {
-                "automattic/jetpack-assets": "@dev",
-                "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.4"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "autotagger": true,
-                "mirror-repo": "Automattic/jetpack-promote-posts",
-                "changelogger": {
-                    "link-template": "https://github.com/automattic/jetpack-promote-posts/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
-                },
-                "textdomain": "jetpack-promote-posts",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-promote-posts.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Attract high-quality traffic to your site using Promoted Posts.",
             "transport-options": {
                 "relative": true
             }
@@ -2974,16 +2974,16 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.19",
+            "version": "9.2.22",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559"
+                "reference": "e4bf60d2220b4baaa0572986b5d69870226b06df"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c77b56b63e3d2031bd8997fcec43c1925ae46559",
-                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/e4bf60d2220b4baaa0572986b5d69870226b06df",
+                "reference": "e4bf60d2220b4baaa0572986b5d69870226b06df",
                 "shasum": ""
             },
             "require": {
@@ -3039,7 +3039,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.19"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.22"
             },
             "funding": [
                 {
@@ -3047,7 +3047,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-11-18T07:47:47+00:00"
+            "time": "2022-12-18T16:40:55+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5238,6 +5238,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-blaze": 20,
         "automattic/jetpack-blocks": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-composer-plugin": 20,
@@ -5256,7 +5257,6 @@
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-plugins-installer": 20,
         "automattic/jetpack-post-list": 20,
-        "automattic/jetpack-promote-posts": 20,
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
