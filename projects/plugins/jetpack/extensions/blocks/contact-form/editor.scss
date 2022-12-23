@@ -480,6 +480,7 @@ input.components-text-control__input {
 	width: 100%;
 	display: inline-flex;
 	flex-direction: column;
+	font-family: var(--jetpack--contact-form--font-family);
 
 	&__toggle {
 		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);

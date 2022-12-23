@@ -55,6 +55,7 @@ jQuery( function ( $ ) {
 		const borderRadius = window.getComputedStyle( inputNode ).borderRadius;
 		const inputPadding = window.getComputedStyle( inputNode ).padding;
 		const fontSize = window.getComputedStyle( inputNode ).fontSize;
+		const fontFamily = window.getComputedStyle( inputNode ).fontFamily;
 		const lineHeight = window.getComputedStyle( inputNode ).lineHeight;
 
 		outputContainer.css( '--jetpack--contact-form--primary-color', primaryColor );
@@ -65,6 +66,7 @@ jQuery( function ( $ ) {
 		outputContainer.css( '--jetpack--contact-form--border-radius', borderRadius );
 		outputContainer.css( '--jetpack--contact-form--input-padding', inputPadding );
 		outputContainer.css( '--jetpack--contact-form--font-size', fontSize );
+		outputContainer.css( '--jetpack--contact-form--font-family', fontFamily );
 		outputContainer.css( '--jetpack--contact-form--line-height', lineHeight );
 	}
 } );

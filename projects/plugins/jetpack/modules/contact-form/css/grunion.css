@@ -258,6 +258,7 @@
 	background-color: var(--jetpack--contact-form--background-color);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
 	line-height: var(--jetpack--contact-form--line-height);
 	padding: var(--jetpack--contact-form--input-padding);
 }
@@ -302,6 +303,7 @@
 	background-color: var(--jetpack--contact-form--background-color);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
 	padding: 0;
 	line-height: normal;
 }
