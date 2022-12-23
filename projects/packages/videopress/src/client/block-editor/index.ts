@@ -1,8 +1,3 @@
-/**
- * Internal dependencies
- */
-import './blocks/video';
-
 /*
  * Extensibility
  */
