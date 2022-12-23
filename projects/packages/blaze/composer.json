@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-blaze",
-	"description": "Attract high-quality traffic to your site using Promoted Posts.",
+	"description": "Attract high-quality traffic to your site using Blaze.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},

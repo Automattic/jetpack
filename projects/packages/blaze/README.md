@@ -1,6 +1,6 @@
 # blaze
 
-Attract high-quality traffic to your site using Promoted Posts. Using this service, you can advertise a post or page on some of the millions of pages across WordPress.com and Tumblr.
+Attract high-quality traffic to your site using Blaze. Using this service, you can advertise a post or page on some of the millions of pages across WordPress.com and Tumblr.
 
 ## How to install blaze
 
