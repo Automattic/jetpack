@@ -39,12 +39,11 @@ class Blaze {
 	 */
 	public function register() {
 
-		if ( ! self::should_initialize() ) {
-			return;
-		}
-
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
-			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
+			if ( self::should_initialize() ) {
+				add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
+				add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+			}
 
 			/**
 			 * Action called after initializing Blaze.
@@ -53,8 +52,6 @@ class Blaze {
 			 */
 			do_action( 'jetpack_on_blaze_init' );
 		}
-
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -65,29 +62,27 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function should_initialize() {
+		$should_initialize = true;
+
+		// These features currently only work on WordPress.com, so they should be connected for best experience.
+		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			$should_initialize = false;
+		}
+
+		// The whole thing is also powered by Sync!
+		if ( ! Sync_Settings::is_sync_enabled() ) {
+			$should_initialize = false;
+		}
+
 		/**
 		 * Filter to disable all Blaze functionality.
 		 *
 		 * @since $$next-version$$
 		 * @since-jetpack $$next-version$$
 		 *
-		 * @param bool true Whether Blaze should be enabled. Default to true.
+		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
 		 */
-		if ( ! apply_filters( 'jetpack_blaze_enabled', true ) ) {
-			return false;
-		}
-
-		// These features currently only work on WordPress.com, so they should be connected for best experience.
-		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
-			return false;
-		}
-
-		// The whole thing is also powered by Sync!
-		if ( ! Sync_Settings::is_sync_enabled() ) {
-			return false;
-		}
-
-		return true;
+		return apply_filters( 'jetpack_blaze_enabled', $should_initialize );
 	}
 
 	/**
