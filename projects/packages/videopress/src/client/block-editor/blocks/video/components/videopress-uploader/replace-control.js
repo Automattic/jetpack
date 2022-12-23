@@ -15,7 +15,7 @@ const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary } ) => {
 	 * @param {File} media - media file to upload
 	 * @returns {void}
 	 */
-	function onSelectVideo( media ) {
+	function onFileUploadHandler( media ) {
 		/*
 		 * Allow uploading only (the first) one file
 		 * @todo: Allow uploading multiple files
@@ -30,13 +30,29 @@ const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary } ) => {
 		onUploadFileStart( media );
 	}
 
+	/**
+	 * Selecting media handler.
+	 *
+	 * @param {object} media - media file to upload
+	 * @returns {void}
+	 */
+	function onSelectHandler( media ) {
+		// videopress_guid is an array of guids ¯\_(ツ)_/¯
+		media.videopress_guid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+
+		if ( media?.guid ) {
+			media.videopress_url = `https://videopress.com/v/${ media.guid }`;
+		}
+		onSelectVideoFromLibrary( media );
+	}
+
 	return (
 		<MediaReplaceFlow
 			handleUpload={ true }
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-			onFilesUpload={ onSelectVideo }
-			onSelect={ onSelectVideoFromLibrary }
+			onFilesUpload={ onFileUploadHandler }
+			onSelect={ onSelectHandler }
 		/>
 	);
 };

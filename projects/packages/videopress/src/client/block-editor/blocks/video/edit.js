@@ -430,21 +430,23 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					onUploadFileStart={ media => {
-						setAttributes( {
-							id: null,
-							guid: null,
-							title: '',
-							description: '',
-							caption: '',
-							src: '',
-							cacheHtml: '',
-							poster: '',
-							maxWidth: '100%',
-							tracks: [],
-						} );
+						setAttributes( { id: null, guid: null } );
 
 						setIsUploadingFile( true );
 						setFileToUpload( media );
+					} }
+					onSelectVideoFromLibrary={ media => {
+						if ( ! media?.videopress_guid ) {
+							return;
+						}
+
+						setAttributes( {
+							guid: media.videopress_guid,
+							id: media.id,
+							src: media.videopress_url,
+							title: media.title,
+							description: media.description,
+						} );
 					} }
 				/>
 			</BlockControls>
