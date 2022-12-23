@@ -929,9 +929,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
+
+		$css_class = "grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap";
+
+		if ( 'select' === $attributes['type'] ) {
+			$css_class .= ' contact-form-dropdown-wrap';
+		}
+
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
-			"grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap",
+			$css_class,
 			'div class attribute doesn\'t match'
 		);
 
