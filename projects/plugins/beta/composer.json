@@ -8,6 +8,7 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"composer/semver": "3.3.2",
 		"erusev/parsedown": "1.7.4"
