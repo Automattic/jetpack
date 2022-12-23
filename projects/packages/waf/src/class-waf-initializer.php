@@ -18,6 +18,7 @@ class Waf_Initializer {
 	 */
 	public static function init() {
 		// Do not run in unsupported environments
+		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
 		if ( ! Waf_Runner::is_supported_environment() ) {
 			return;
 		}
@@ -29,7 +30,6 @@ class Waf_Initializer {
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
-		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
 
 		// Run the WAF
 		Waf_Runner::initialize();
