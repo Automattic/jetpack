@@ -8,7 +8,7 @@ import { MediaReplaceFlow } from '@wordpress/block-editor';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import './style.scss';
 
-const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary } ) => {
+const ReplaceControl = ( { attributes, onUploadFileStart, onSelectVideoFromLibrary } ) => {
 	/**
 	 * Uploading file handler.
 	 *
@@ -38,7 +38,7 @@ const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary } ) => {
 	 */
 	function onSelectHandler( media ) {
 		// videopress_guid is an array of guids ¯\_(ツ)_/¯
-		media.videopress_guid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+		media.videopress_guid = media?.videopress_guid?.[ 0 ] ?? media.videopress_guid;
 
 		if ( media?.guid ) {
 			media.videopress_url = `https://videopress.com/v/${ media.guid }`;
@@ -48,6 +48,7 @@ const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary } ) => {
 
 	return (
 		<MediaReplaceFlow
+			mediaId={ attributes.id }
 			handleUpload={ true }
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
