@@ -118,9 +118,6 @@ class Test_Hybrid_Product extends TestCase {
 	 * Tests Search Manage URL with Jetpack plugin
 	 */
 	public function test_search_manage_url_with_jetpack() {
-		// activate_plugins( 'jetpack/jetpack.php' );
-		// deactivate_plugins( Search::get_installed_plugin_filename() );
-		// $this->assertSame( Redirect::get_url( 'my-jetpack-manage-seach' ), Search::get_manage_url() );
 		$this->markTestSkipped( 'TODO: Make this work' );
 	}
 
