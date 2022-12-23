@@ -85,7 +85,7 @@
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
-				errorMessage: castToString( err.message ),
+				error_message: castToString( err.message ),
 			} );
 			// eslint-disable-next-line no-console
 			console.log( err );
