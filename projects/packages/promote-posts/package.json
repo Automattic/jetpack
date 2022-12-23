@@ -19,7 +19,7 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"clean": "rm -rf build/ .cache/",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "pnpm run build --watch"
+		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
