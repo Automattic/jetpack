@@ -19,7 +19,7 @@ class Blaze {
 	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
-	public static function configure() {
+	public static function init() {
 		$blaze = self::get_instance();
 		$blaze->register();
 	}

@@ -12,6 +12,7 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
+use Automattic\Jetpack\Blaze as Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
@@ -155,6 +156,10 @@ class Config {
 		}
 		if ( $this->config['stats_admin'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
+		}
+
+		if ( $this->config['blaze'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Blaze' ) && $this->ensure_feature( 'blaze' );
 		}
 	}
 
@@ -338,6 +343,14 @@ class Config {
 		if ( ! empty( $options ) ) {
 			VideoPress_Pkg_Initializer::update_init_options( $options );
 		}
+		return true;
+	}
+
+	/**
+	 * Enables Blaze.
+	 */
+	protected function enable_blaze() {
+		Blaze::init();
 		return true;
 	}
 
