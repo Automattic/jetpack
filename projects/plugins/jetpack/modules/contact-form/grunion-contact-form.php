@@ -4684,7 +4684,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
 		if ( $type === 'select' ) {
-			$class .= 'contact-form-dropdown';
+			$class .= ' contact-form-dropdown';
 		}
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
