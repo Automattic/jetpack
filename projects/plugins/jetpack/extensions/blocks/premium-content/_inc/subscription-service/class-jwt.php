@@ -193,12 +193,12 @@ class JWT {
 		}
 
 		$segments      = array();
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $header ) );
-		$segments[]    = static::urlsafe_b64_decode( static::json_encode( $payload ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $header ) );
+		$segments[]    = static::urlsafe_b64_encode( static::json_encode( $payload ) );
 		$signing_input = implode( '.', $segments );
 
 		$signature  = static::sign( $signing_input, $key, $alg );
-		$segments[] = static::urlsafe_b64_decode( $signature );
+		$segments[] = static::urlsafe_b64_encode( $signature );
 
 		return implode( '.', $segments );
 	}

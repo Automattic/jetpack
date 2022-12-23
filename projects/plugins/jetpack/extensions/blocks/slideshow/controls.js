@@ -1,5 +1,6 @@
 import { MediaUpload } from '@wordpress/block-editor';
 import {
+	Button,
 	PanelBody,
 	RangeControl,
 	SelectControl,
@@ -10,7 +11,6 @@ import {
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
-import EditButton from '../../shared/edit-button';
 
 export function PanelControls( {
 	attributes: { autoplay, delay, effect, images, sizeSlug },
@@ -96,7 +96,9 @@ export function ToolbarControls( { allowedMediaTypes, attributes: { images }, on
 								gallery
 								value={ images.map( img => img.id ) }
 								render={ ( { open } ) => (
-									<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+									<Button label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open }>
+										{ __( 'Edit', 'jetpack' ) }
+									</Button>
 								) }
 							/>
 						) }
