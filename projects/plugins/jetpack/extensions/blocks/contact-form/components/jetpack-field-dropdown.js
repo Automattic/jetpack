@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { isEmpty, isNil, noop, split, trim } from 'lodash';
 import { setFocus } from '../util/focus';
 import { validateFormWrapper } from '../util/form';
+import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export const JetpackDropdownEdit = ( {
@@ -13,7 +14,7 @@ export const JetpackDropdownEdit = ( {
 	name,
 	setAttributes,
 } ) => {
-	const { label, options, required, requiredText, toggleLabel } = attributes;
+	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef();
 
 	validateFormWrapper( { attributes, clientId, name } );
@@ -105,15 +106,18 @@ export const JetpackDropdownEdit = ( {
 				isSelected={ isSelected }
 			/>
 			<div className="jetpack-field-dropdown">
-				<RichText
-					value={ toggleLabel }
-					className="jetpack-field-dropdown__toggle"
-					onChange={ value => {
-						setAttributes( { toggleLabel: value } );
-					} }
-					allowedFormats={ [ 'core/bold', 'core/italic' ] }
-					withoutInteractiveFormatting
-				/>
+				<div className="jetpack-field-dropdown__toggle">
+					<RichText
+						value={ toggleLabel }
+						onChange={ value => {
+							setAttributes( { toggleLabel: value } );
+						} }
+						allowedFormats={ [ 'core/bold', 'core/italic' ] }
+						withoutInteractiveFormatting
+					/>
+					<span className="jetpack-field-dropdown__icon" />
+				</div>
+
 				{ isSelected && (
 					<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
 						{ options.map( ( option, index ) => (
@@ -131,6 +135,13 @@ export const JetpackDropdownEdit = ( {
 					</div>
 				) }
 			</div>
+
+			<JetpackFieldControls
+				id={ id }
+				required={ required }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
 		</>
 	);
 };

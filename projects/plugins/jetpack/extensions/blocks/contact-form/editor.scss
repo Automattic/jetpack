@@ -477,12 +477,12 @@ input.components-text-control__input {
 }
 
 .jetpack-field-dropdown {
+	width: 100%;
 	display: inline-flex;
 	flex-direction: column;
-	min-width: 200px;
 
 	&__toggle {
-		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--background-color);
 		color: var(--jetpack--contact-form--text-color);
@@ -491,15 +491,45 @@ input.components-text-control__input {
 		padding: var(--jetpack--contact-form--input-padding);
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
+	}
+
+	&__icon {
+		width: 1em;
+		height: 1em;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		border: 2px solid transparent;
+		overflow: visible;
+	}
+
+	&__icon::after {
+		content: "";
+		display: block;
+		box-sizing: border-box;
+		width: 100%;
+		height: 100%;
+		border-bottom: 2px solid;
+		border-right: 2px solid;
+		transform: rotate(45deg);
+		margin-top: -2px;
 	}
 
 	&__popover {
-		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--background-color);
 		color: var(--jetpack--contact-form--text-color);
 		font-size: var(--jetpack--contact-form--font-size);
-		padding: var(--jetpack--contact-form--input-padding);
-		line-height: 2;
+		padding: 0;
+		line-height: normal;
+		margin-top: 8px;
+
+		.rich-text {
+			padding: var(--jetpack--contact-form--input-padding);
+		}
 	}
 }

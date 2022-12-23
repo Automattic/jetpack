@@ -247,13 +247,13 @@
 }
 
 .contact-form-dropdown__button.ui-button {
-	min-width: 200px;
+	width: 100%;
 	box-sizing: border-box;
 	display: flex;
 	align-items: center;
 	flex-direction: row-reverse;
 	justify-content: space-between;
-	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--background-color);
 	color: var(--jetpack--contact-form--text-color);
@@ -262,24 +262,61 @@
 	padding: var(--jetpack--contact-form--input-padding);
 }
 
+.contact-form-dropdown__button.ui-button .ui-selectmenu-icon.ui-icon {
+	background: none;
+}
+
+.contact-form-dropdown__button .ui-selectmenu-icon,
+.contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
+	width: 1em;
+	height: 1em;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border: 2px solid transparent;
+	overflow: visible;
+}
+
+.contact-form-dropdown__button .ui-selectmenu-icon::after {
+	content: "";
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border-bottom: 2px solid;
+	border-right: 2px solid;
+	transform: rotate(45deg);
+	margin-top: -5px;
+}
+
+.contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
+	transform: rotate(225deg);
+	margin-top: 8px;
+}
+
 .contact-form-dropdown__menu ul.ui-menu {
-	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--primary-color);
+	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--background-color);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
-	padding: var(--jetpack--contact-form--input-padding);
-	line-height: 2;
+	padding: 0;
+	line-height: normal;
+}
+
+.contact-form-dropdown__menu .ui-menu {
+	margin-top: 8px;
 }
 
 .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper {
-	padding: 0
+	padding: var(--jetpack--contact-form--input-padding);
 }
 
 .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
 	position: relative;
 	border: none;
-	background-color: unset;
-	color: var(--jetpack--contact-form--text-color);
+	color: var(--jetpack--contact-form--background-color);
+	background-color: var(--jetpack--contact-form--primary-color);
 }
-

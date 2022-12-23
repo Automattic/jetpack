@@ -50,18 +50,20 @@ jQuery( function ( $ ) {
 		const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
 		const backgroundColor = window.getComputedStyle( bodyNode ).backgroundColor;
 		const textColor = window.getComputedStyle( buttonNode ).color;
-		const borderWidth = window.getComputedStyle( buttonNode ).borderWidth;
-		const borderRadius = window.getComputedStyle( buttonNode ).borderRadius;
-		const padding = window.getComputedStyle( inputNode ).padding;
+		const borderColor = window.getComputedStyle( inputNode ).borderColor;
+		const borderWidth = window.getComputedStyle( inputNode ).borderWidth;
+		const borderRadius = window.getComputedStyle( inputNode ).borderRadius;
+		const inputPadding = window.getComputedStyle( inputNode ).padding;
 		const fontSize = window.getComputedStyle( inputNode ).fontSize;
 		const lineHeight = window.getComputedStyle( inputNode ).lineHeight;
 
 		outputContainer.css( '--jetpack--contact-form--primary-color', primaryColor );
 		outputContainer.css( '--jetpack--contact-form--background-color', backgroundColor );
 		outputContainer.css( '--jetpack--contact-form--text-color', textColor );
+		outputContainer.css( '--jetpack--contact-form--border-color', borderColor );
 		outputContainer.css( '--jetpack--contact-form--border-size', borderWidth );
 		outputContainer.css( '--jetpack--contact-form--border-radius', borderRadius );
-		outputContainer.css( '--jetpack--contact-form--input-padding', padding );
+		outputContainer.css( '--jetpack--contact-form--input-padding', inputPadding );
 		outputContainer.css( '--jetpack--contact-form--font-size', fontSize );
 		outputContainer.css( '--jetpack--contact-form--line-height', lineHeight );
 	}
