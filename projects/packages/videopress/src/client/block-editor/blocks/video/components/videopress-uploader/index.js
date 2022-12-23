@@ -5,7 +5,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
-import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
+import { useCallback, useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -25,6 +25,7 @@ const VideoPressUploader = ( {
 	noticeUI,
 	noticeOperations,
 	handleDoneUpload,
+	fileToUpload,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
@@ -35,6 +36,14 @@ const VideoPressUploader = ( {
 	 * Storing the file to get it name and size for progress.
 	 */
 	const [ uploadFile, setFile ] = useState( null );
+
+	useEffect( () => {
+		if ( ! fileToUpload ) {
+			return;
+		}
+
+		startUpload( fileToUpload );
+	}, [ fileToUpload ] );
 
 	/*
 	 * Tracking state when uploading the video file.

@@ -30,6 +30,7 @@ import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
+import ReplaceControl from './components/videopress-uploader/replace-control';
 import { description, title } from '.';
 import './editor.scss';
 
@@ -321,6 +322,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 
 	// Setting video media process
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+	const [ fileToUpload, setFileToUpload ] = useState( null );
 
 	// Render Example block view
 	if ( isExample ) {
@@ -350,6 +352,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					handleDoneUpload={ handleDoneUpload }
+					fileToUpload={ fileToUpload }
 				/>
 			</div>
 		);
@@ -420,6 +423,30 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				/>
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
+			</BlockControls>
+
+			<BlockControls group="other">
+				<ReplaceControl
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+					onUploadFileStart={ media => {
+						setAttributes( {
+							id: null,
+							guid: null,
+							title: '',
+							description: '',
+							caption: '',
+							src: '',
+							cacheHtml: '',
+							poster: '',
+							maxWidth: '100%',
+							tracks: [],
+						} );
+
+						setIsUploadingFile( true );
+						setFileToUpload( media );
+					} }
+				/>
 			</BlockControls>
 
 			<InspectorControls>
