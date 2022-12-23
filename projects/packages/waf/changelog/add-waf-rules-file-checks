@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add file existance checks before requiring rule files in the WAF.

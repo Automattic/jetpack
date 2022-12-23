@@ -439,6 +439,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'show_on_front'                    => (string) get_option( 'show_on_front' ),
+						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -513,6 +515,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			foreach ( $purchases as $purchase ) {
 				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
+					/*
+					 * We set default value as false when expiration date not match the following:
+					 * - 54 days before the annual plan expiration.
+					 * - 5 days before the monthly plan expiration.
+					 * This is to match the gifting banner logic.
+					 */
+					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
+					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
+						return false;
+					}
+
+					// We set default to the inverse of auto-renew.
 					if ( isset( $purchase->auto_renew ) ) {
 						return ! $purchase->auto_renew;
 					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
@@ -964,6 +979,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_are_blogging_prompts_enabled':
 					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'show_on_front':
+					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'page_on_front':
+					$all_page_ids = get_all_page_ids();
+
+					$valid_page_id = false;
+					foreach ( $all_page_ids as $page_id ) {
+						if ( $page_id === (string) $value ) {
+							$valid_page_id = true;
+							break;
+						}
+					}
+
+					if ( $valid_page_id && update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
 					break;
 
 				default:
