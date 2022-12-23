@@ -44,7 +44,7 @@ const BlazePostPublishPanel = () => {
 		postVisibility: selector( editorStore ).getEditedPostVisibility(),
 	} ) );
 
-	const promoteUrl = getRedirectUrl( 'jetpack-blaze', {
+	const blazeUrl = getRedirectUrl( 'jetpack-blaze', {
 		site: getSiteFragment(),
 		query: `blazepress-widget=post-${ postId }`,
 	} );

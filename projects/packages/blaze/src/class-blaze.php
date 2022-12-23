@@ -23,7 +23,7 @@ class Blaze {
 	}
 
 	/**
-	 * Initialize Promote Posts UIs.
+	 * Initialize Blaze UIs.
 	 *
 	 * @return Blaze Blaze instance.
 	 */
@@ -65,7 +65,7 @@ class Blaze {
 		$post_id = $post->ID;
 
 		// @todo wrap in method call, for general use?
-		$promote_post_url = Redirect::get_url(
+		$blaze_url = Redirect::get_url(
 			'jetpack-blaze',
 			array(
 				'query' => 'blazepress-widget=post-' . esc_attr( $post_id ),
@@ -77,9 +77,9 @@ class Blaze {
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
 		$label                   = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
-		$post_actions['promote'] = sprintf(
+		$post_actions['blaze'] = sprintf(
 			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s">%3$s</a>',
-			esc_url( $promote_post_url ),
+			esc_url( $blaze_url ),
 			esc_attr( $label ),
 			esc_html( $text )
 		);
