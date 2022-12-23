@@ -46,9 +46,10 @@
 	],
 	"beta": [
 		"amazon",
+		"blaze",
 		"google-docs-embed",
 		"launchpad-save-modal",
-		"post-publish-promote-post-panel",
+		"paid-newsletters-in-subscriptions",
 		"recipe",
 		"videopress/video",
 		"videopress/video-chapters"

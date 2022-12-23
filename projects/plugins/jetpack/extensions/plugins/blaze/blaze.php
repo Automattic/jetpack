@@ -5,10 +5,10 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\PromotePosts;
+namespace Automattic\Jetpack\Extensions\Blaze;
 
 // Feature name.
-const FEATURE_NAME = 'post-publish-promote-post-panel';
+const FEATURE_NAME = 'blaze';
 
 add_filter(
 	'jetpack_set_available_extensions',
@@ -22,7 +22,7 @@ add_filter(
 	}
 );
 
-// Set the  post-publish-promote-post-panel availability, depending on the site plan.
+// Set the  blaze availability, depending on the site plan.
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {

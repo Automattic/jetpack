@@ -31,7 +31,7 @@ class DashSecurityBundle extends Component {
 				id: 'backup',
 				text: _x(
 					'VaultPress Backup',
-					'The Jetpack Backup product name, without the Jetpack prefix',
+					'The Jetpack VaultPress Backup product name, without the Jetpack prefix',
 					'jetpack'
 				),
 			},

@@ -134,6 +134,7 @@
 	}
 
 	.form-placeholder__footer-links {
+		font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -145,6 +146,12 @@
 
 	.form-placeholder__external-link {
 		font-size: 13px;
+		padding: 0;
+
+		&:hover, &:active, &:focus {
+			background-color: unset;
+			color: var(--wp-admin-theme-color)
+		}
 
 		svg {
 			width: 1.4em;

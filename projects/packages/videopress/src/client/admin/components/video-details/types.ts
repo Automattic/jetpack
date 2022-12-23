@@ -10,6 +10,11 @@ export type VideoDetailsProps = {
 	src: string;
 
 	/**
+	 * VideoPress embed shortcode.
+	 */
+	shortcode: string;
+
+	/**
 	 * Video uploaded date
 	 */
 	uploadDate: string;
