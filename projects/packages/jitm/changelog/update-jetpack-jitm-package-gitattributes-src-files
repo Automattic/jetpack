@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove src/js files from final bundle

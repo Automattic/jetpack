@@ -10,11 +10,7 @@ test.describe( 'Critical CSS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-		await boostPrerequisitesBuilder( page )
-			.withCleanEnv( true )
-			.withConnection( true )
-			.withGotStarted()
-			.build();
+		await boostPrerequisitesBuilder( page ).withCleanEnv( true ).withConnection( true ).build();
 	} );
 
 	test.afterAll( async ( { browser } ) => {

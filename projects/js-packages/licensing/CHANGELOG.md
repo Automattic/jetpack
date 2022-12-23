@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.1 - 2022-12-19
+### Changed
+- Updated package dependencies.
+
+## 0.7.0 - 2022-12-19
+### Added
+- Add license key selector in My Jetpack activation screen. [#27609]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+### Fixed
+- Remove useEffect that sets API root and nonce value in JP REST API client causing issue in Jetpack plugin activation page. [#27974]
+
 ## 0.6.9 - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27697]

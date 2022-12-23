@@ -209,7 +209,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
 	wp_cache_disable_plugin( false ); // don't delete configuration file
-	delete_option( 'wpsc_2022_boost_banner' );
+	delete_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
@@ -321,7 +321,7 @@ function wpsc_is_boost_active() {
  */
 function wpsc_hide_boost_banner() {
 	check_ajax_referer( 'wpsc_dismiss_boost_banner', 'nonce' );
-	update_option( 'wpsc_2022_boost_banner', 0, 'no' );
+	update_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner', '1' );
 
 	wp_die();
 }
@@ -347,7 +347,8 @@ add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
  */
 function wpsc_jetpack_boost_install_banner() {
 	// Don't show the banner if Boost is installed, or the banner has been dismissed.
-	if ( wpsc_is_boost_active() || ! get_option( 'wpsc_2022_boost_banner', true ) ) {
+	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_banner' );
+	if ( wpsc_is_boost_active() || $is_dismissed ) {
 		return;
 	}
 
@@ -371,7 +372,7 @@ function wpsc_jetpack_boost_install_banner() {
 					<p id="wpsc-install-invitation">
 						<?php
 							esc_html_e(
-								'Caching is a great start, but there is so much more to speeding up your site. Find out how much your cache is speeding up your site, and more with Jetpack Boost.',
+								'Caching is a great start, but there is more to maximize your site speed. Find out how much your cache speeds up your site and make it blazing fast with Jetpack Boost, the easiest WordPress speed optimization plugin developed by Super Cache engineers.',
 								'wp-super-cache'
 							);
 						?>

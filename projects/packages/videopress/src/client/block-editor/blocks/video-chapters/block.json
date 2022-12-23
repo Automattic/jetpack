@@ -20,8 +20,8 @@
 		}
 	},
 	"textdomain": "jetpack-videopress",
-	"editorScript": "file:../../../../../build/block-editor/video-chapters/index.js",
-	"editorStyle": "file:../../../../../build/block-editor/video-chapters/index.css",
-	"style": "file:../../../../../build/block-editor/video-chapters/style-index.css",
-	"viewScript": "file:../../../../../build/block-editor/video-chapters/view.js"
+	"editorScript": "file:index.js",
+	"editorStyle": "file:index.css",
+	"style": "file:style-index.css",
+	"viewScript": "file:view.js"
 }
