@@ -443,7 +443,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "9b42f741c0b206d65447e39c41e2d392f22a0265"
+                "reference": "6295db6c59ce1a3c56b7d3453393f8011afc4dff"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -452,6 +452,7 @@
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
@@ -493,6 +494,12 @@
                 "watch": [
                     "Composer\\Config::disableProcessTimeout",
                     "pnpm run watch"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
