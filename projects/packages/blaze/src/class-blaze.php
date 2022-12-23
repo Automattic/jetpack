@@ -78,7 +78,6 @@ class Blaze {
 		 * Filter to disable all Blaze functionality.
 		 *
 		 * @since $$next-version$$
-		 * @since-jetpack $$next-version$$
 		 *
 		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
 		 */
