@@ -82,6 +82,8 @@ class Blaze {
 		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
 			return false;
 		}
+
+		return true;
 	}
 
 	/**
