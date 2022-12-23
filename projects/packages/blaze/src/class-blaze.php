@@ -35,7 +35,20 @@ class Blaze {
 	 * Sets up Post List action callbacks.
 	 */
 	public function register() {
-		// @todo filter to turn it off.
+
+		/**
+		 * Filter to disable all Blaze functionality.
+		 *
+		 * @since $$next-version$$
+		 * @since-jetpack $$next-version$$
+		 *
+		 * @param bool true Whether to show just in time messages.
+		 * @param string $string->id The ID of the current screen.
+		 */
+		if ( ! apply_filters( 'jetpack_blaze_enabled', true ) ) {
+			return false;
+		}
+
 		// @todo criteria for enabling: User connected, etc
 		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
 		// @todo Organize tracks events.
