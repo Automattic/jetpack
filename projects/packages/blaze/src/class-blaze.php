@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Class for promoting posts.
@@ -58,9 +59,6 @@ class Blaze {
 
 	/**
 	 * Determines if criteria is met to enable Blaze features.
-	 * Needs to be:
-	 * - Not filtered out.
-	 * - Blaze enabled.
 	 *
 	 * @todo - Get response from API if requirements are met on the wpcom-side.
 	 *
@@ -79,7 +77,13 @@ class Blaze {
 			return false;
 		}
 
+		// These features currently only work on WordPress.com, so they should be connected for best experience.
 		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			return false;
+		}
+
+		// The whole thing is also powered by Sync!
+		if ( ! Sync_Settings::is_sync_enabled() ) {
 			return false;
 		}
 
