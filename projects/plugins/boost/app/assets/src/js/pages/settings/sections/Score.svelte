@@ -14,6 +14,8 @@
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
+	import { recordBoostEvent } from '../../../utils/analytics';
+	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
@@ -82,6 +84,9 @@
 			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
+			recordBoostEvent( 'speed_score_request_error', {
+				errorMessage: castToString( err.message ),
+			} );
 			// eslint-disable-next-line no-console
 			console.log( err );
 			loadError = err;
