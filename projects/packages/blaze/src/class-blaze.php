@@ -42,13 +42,11 @@ class Blaze {
 			return;
 		}
 
-		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
-		// @todo Organize tracks events.
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
 			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
 
 			/**
-			 * Action called after initializing Post_List Admin resources.
+			 * Action called after initializing Blaze.
 			 *
 			 * @since 0.1.0
 			 */
@@ -65,6 +63,8 @@ class Blaze {
 	 * - Blaze enabled.
 	 *
 	 * @todo - Get response from API if requirements are met on the wpcom-side.
+	 *
+	 * @return bool
 	 */
 	public static function should_initialize() {
 		/**
@@ -97,7 +97,7 @@ class Blaze {
 	public function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
-		// @todo wrap in method call, for general use?
+		// Might be useful to wrap in a method call for general use without post_id.
 		$blaze_url = Redirect::get_url(
 			'jetpack-blaze',
 			array(
