@@ -475,10 +475,8 @@ importers:
   projects/js-packages/publicize-components:
     specifiers:
       '@automattic/color-studio': 2.5.0
-      '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
-      '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/social-previews': 1.1.5
@@ -513,9 +511,7 @@ importers:
       refx: 3.1.1
       rememo: 4.0.1
     dependencies:
-      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-components': link:../components
-      '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
       '@automattic/social-previews': 1.1.5_jpwft5hzbbmso7udylr5tohhxm
       '@wordpress/annotations': 2.22.0_react@17.0.2
@@ -1820,7 +1816,6 @@ importers:
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-publicize-components': workspace:*
-      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.5
       '@babel/preset-env': 7.20.2
@@ -1857,7 +1852,6 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
-      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/components': 22.1.0_oh345hcsaunslvozv24xisnbli
       '@wordpress/data': 7.6.0_react@17.0.2

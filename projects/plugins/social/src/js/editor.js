@@ -1,15 +1,11 @@
-import { JetpackLogo, SocialIcon, getRedirectUrl } from '@automattic/jetpack-components';
+import { JetpackLogo, SocialIcon } from '@automattic/jetpack-components';
 import {
 	SocialPreviewsModal,
 	SocialPreviewsPanel,
 	usePublicizeConfig,
 	useSocialMediaConnections,
 	PublicizePanel,
-	ReviewPrompt,
-	usePostStartedPublishing,
 } from '@automattic/jetpack-publicize-components';
-import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
 import { PanelBody } from '@wordpress/components';
 import { dispatch, useSelect } from '@wordpress/data';
 import domReady from '@wordpress/dom-ready';
@@ -17,7 +13,6 @@ import {
 	PluginSidebar,
 	PluginSidebarMoreMenuItem,
 	PluginPrePublishPanel,
-	PluginPostPublishPanel,
 } from '@wordpress/edit-post';
 import { store as editorStore, PostTypeSupportCheck } from '@wordpress/editor';
 import { useState, useCallback } from '@wordpress/element';
@@ -46,25 +41,13 @@ registerPlugin( 'jetpack-social', {
 
 const JetpackSocialSidebar = () => {
 	const [ isModalOpened, setIsModalOpened ] = useState( false );
-	const [ isReviewRequestDismissed, setIsReviewRequestDismissed ] = useState(
-		getJetpackData()?.social?.reviewRequestDismissed ?? true
-	);
-	const [ shouldReviewRequestShow, setShouldReviewRequestShow ] = useState( false );
 
 	const openModal = useCallback( () => setIsModalOpened( true ), [] );
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, hidePublicizeFeature, isPostAlreadyShared } = usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
-	// Determine if the review request should show right before the post publishes
-	// The publicize-enabled meta and related connections are disabled after publishing
-	usePostStartedPublishing( () => {
-		setShouldReviewRequestShow(
-			! isPostAlreadyShared && isPublicizeEnabled && hasEnabledConnections
-		);
-	}, [ isPostAlreadyShared, hasEnabledConnections, isPublicizeEnabled ] );
-
 	const PanelDescription = () => (
 		<Description
 			{ ...{
@@ -76,23 +59,6 @@ const JetpackSocialSidebar = () => {
 			} }
 		/>
 	);
-
-	// Handle when the review request is dismissed
-	const handleReviewDismiss = useCallback( () => {
-		const reviewRequestDismissUpdatePath =
-			getJetpackData()?.social?.dismissReviewRequestPath ?? null;
-		// Save that the user has dismissed this by calling to the social plugin API method
-		apiFetch( {
-			path: reviewRequestDismissUpdatePath,
-			method: 'POST',
-			data: { dismissed: true },
-		} ).catch( error => {
-			throw error;
-		} );
-
-		setIsReviewRequestDismissed( true );
-	}, [] );
-
 	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			{ isModalOpened && <SocialPreviewsModal onClose={ closeModal } /> }
@@ -127,15 +93,6 @@ const JetpackSocialSidebar = () => {
 			>
 				<SocialPreviewsPanel openModal={ openModal } />
 			</PluginPrePublishPanel>
-
-			{ ! isReviewRequestDismissed && shouldReviewRequestShow && (
-				<PluginPostPublishPanel id="publicize-title">
-					<ReviewPrompt
-						href={ getRedirectUrl( 'jetpack-social-plugin-reviews' ) }
-						onClose={ handleReviewDismiss }
-					/>
-				</PluginPostPublishPanel>
-			) }
 		</PostTypeSupportCheck>
 	);
 };
