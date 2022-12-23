@@ -406,6 +406,7 @@ class WooCommerce extends Module {
 		'woocommerce_allow_tracking',
 		'woocommerce_task_list_hidden',
 		'woocommerce_onboarding_profile',
+		'woocommerce_cod_settings',
 	);
 
 	/**

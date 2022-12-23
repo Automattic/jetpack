@@ -222,8 +222,10 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			// phpcs:ignore
-			include self::RULES_ENTRYPOINT_FILE;
+			if ( file_exists( self::RULES_ENTRYPOINT_FILE ) ) {
+				// phpcs:ignore
+				include self::RULES_ENTRYPOINT_FILE;
+			}
 		} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
@@ -438,6 +440,17 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Wraps a require statement in a file_exists check.
+	 *
+	 * @param string $required_file The file to check if exists and require.
+	 * @param string $return_code   The PHP code to execute if the file require returns true. Defaults to 'return;'.
+	 * @return string The wrapped require statement.
+	 */
+	private static function wrap_require( $required_file, $return_code = 'return;' ) {
+		return "if ( file_exists( '$required_file' ) ) { if ( require( '$required_file' ) ) { $return_code } }";
+	}
+
+	/**
 	 * Generates the rules.php script
 	 *
 	 * @throws \Exception If file writing fails.
@@ -467,13 +480,13 @@ class Waf_Runner {
 
 		// Add manual rules
 		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
-			$rules .= "if ( require('" . self::IP_ALLOW_RULES_FILE . "') ) { return; }\n";
-			$rules .= "if ( require('" . self::IP_BLOCK_RULES_FILE . "') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
+			$rules .= self::wrap_require( self::IP_ALLOW_RULES_FILE ) . "\n";
+			$rules .= self::wrap_require( self::IP_BLOCK_RULES_FILE, "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 
 		// Add automatic rules
 		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
-			$rules .= "require('" . self::AUTOMATIC_RULES_FILE . "');\n";
+			$rules .= self::wrap_require( self::AUTOMATIC_RULES_FILE ) . "\n";
 		}
 
 		// Ensure that the folder exists

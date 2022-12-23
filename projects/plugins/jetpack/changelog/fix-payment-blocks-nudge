@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Payment blocks: Fixed the upgrade nudge for Payment blocks

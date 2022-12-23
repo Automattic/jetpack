@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blaze: move out of the plugin, and into the Promote Posts package.
