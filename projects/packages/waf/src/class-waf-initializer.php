@@ -34,6 +34,9 @@ class Waf_Initializer {
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
 
+		// Ensure backwards compatibility
+		Waf_Compatibility::add_compatibility_hooks();
+
 		// Run the WAF
 		Waf_Runner::initialize();
 	}
