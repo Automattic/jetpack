@@ -6,11 +6,11 @@ const { tracks } = jetpackAnalytics;
 const { recordEvent } = tracks;
 
 const useAnalytics = ( {
-	pageViewEventName,
+	pageViewEventName = null,
 	pageViewNamespace = 'jetpack',
 	pageViewSuffix = 'page_view',
 	pageViewEventProperties = {},
-} ) => {
+} = {} ) => {
 	const [ pageViewRecorded, setPageViewRecorded ] = useState( false );
 	const { isUserConnected, isRegistered, userConnectionData = {} } = useConnection();
 	const { wpcomUser: { login, ID } = {}, blogId } = userConnectionData.currentUser || {};
