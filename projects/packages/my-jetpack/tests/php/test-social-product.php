@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\My_Jetpack\Products\Search;
+use Automattic\Jetpack\My_Jetpack\Products\Social;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -15,7 +15,7 @@ use WorDBless\Users as WorDBless_Users;
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Rest_Products
  */
-class Test_Hybrid_Product extends TestCase {
+class Test_Social_Product extends TestCase {
 
 	/**
 	 * The current user id.
@@ -56,14 +56,14 @@ class Test_Hybrid_Product extends TestCase {
 	 * @return void
 	 */
 	public function install_mock_plugins() {
-		$plugin_dir = WP_PLUGIN_DIR . '/' . Search::$plugin_slug;
+		$plugin_dir = WP_PLUGIN_DIR . '/' . Social::$plugin_slug;
 		if ( ! file_exists( $plugin_dir ) ) {
 			mkdir( $plugin_dir, 0777, true );
 		}
 		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
 			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
 		}
-		copy( __DIR__ . '/assets/search-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-search/jetpack-search.php' );
+		copy( __DIR__ . '/assets/social-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-social/jetpack-social.php' );
 		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 	}
 
@@ -82,89 +82,91 @@ class Test_Hybrid_Product extends TestCase {
 	/**
 	 * Tests with Jetpack active
 	 */
-	public function test_if_jetpack_active_return_true() {
+	public function test_if_jetpack_active_return_false() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertTrue( Search::is_plugin_active() );
+		$this->assertFalse( Social::is_plugin_active() );
 	}
 
 	/**
-	 * Tests with Search active
+	 * Tests with Social active
 	 */
-	public function test_if_jetpack_inactive_and_search_active_return_true() {
+	public function test_if_jetpack_inactive_and_social_active_return_true() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertTrue( Search::is_plugin_active() );
+		activate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertTrue( Social::is_plugin_active() );
 	}
 
 	/**
 	 * Tests with both inactive
 	 */
-	public function test_if_jetpack_inactive_and_search_inactive_return_false() {
+	public function test_if_jetpack_inactive_and_social_inactive_return_false() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertFalse( Search::is_active() );
+		deactivate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertFalse( Social::is_active() );
 	}
 
 	/**
-	 * Tests Search Manage URL with Search plugin
+	 * Tests Social Manage URL with Social plugin
 	 */
-	public function test_search_manage_url_with_search() {
+	public function test_social_manage_url_with_social() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertSame( admin_url( 'admin.php?page=jetpack-search' ), Search::get_manage_url() );
+		activate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), Social::get_manage_url() );
 	}
 
 	/**
-	 * Tests Search Manage URL with Jetpack plugin
+	 * Tests Social Manage URL with Jetpack plugin
 	 */
-	public function test_search_manage_url_with_jetpack() {
-		$this->markTestSkipped( 'TODO: Make this work' );
-	}
-
-	/**
-	 * Tests Search Post Activation URL with Jetpack disconected
-	 */
-	public function test_search_post_activation_url_with_jetpack_disconnected() {
+	public function test_social_manage_url_with_jetpack() {
 		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertSame( '', Search::get_post_activation_url() );
+		deactivate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( null, Social::get_manage_url() );
 	}
 
 	/**
-	 * Tests Search Post Activation URL with Search disconected
+	 * Tests Social Post Activation URL with Jetpack disconected
 	 */
-	public function test_search_post_activation_url_with_search_disconnected() {
+	public function test_social_post_activation_url_with_jetpack_disconnected() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( null, Social::get_post_activation_url() );
+	}
+
+	/**
+	 * Tests Social Post Activation URL with Social disconected
+	 */
+	public function test_social_post_activation_url_with_social_disconnected() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertSame( '', Search::get_post_activation_url() );
+		activate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), Social::get_post_activation_url() );
 	}
 
 	/**
-	 * Tests Search Post Activation URL with Jetpack conected
+	 * Tests Social Post Activation URL with Jetpack conected
 	 */
-	public function test_search_post_activation_url_with_jetpack_connected() {
+	public function test_social_post_activation_url_with_jetpack_connected() {
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 
 		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertSame( '', Search::get_post_activation_url() );
+		deactivate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( null, Social::get_post_activation_url() );
 	}
 
 	/**
-	 * Tests Search Post Activation URL with Search conected
+	 * Tests Social Post Activation URL with Social conected
 	 */
-	public function test_search_post_activation_url_with_search_connected() {
+	public function test_social_post_activation_url_with_social_connected() {
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Search::get_installed_plugin_filename() );
-		$this->assertSame( '', Search::get_post_activation_url() );
+		activate_plugins( Social::get_installed_plugin_filename() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-social' ), Social::get_post_activation_url() );
 	}
 
 }
