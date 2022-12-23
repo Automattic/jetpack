@@ -54,6 +54,7 @@ class Config {
 		'videopress'      => false,
 		'stats'           => false,
 		'stats_admin'     => false,
+		'blaze'           => false,
 	);
 
 	/**
