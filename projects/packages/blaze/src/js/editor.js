@@ -104,7 +104,7 @@ const BlazePostPublishPanel = () => {
 				onClick={ trackClick }
 				onKeyDown={ trackClick }
 			>
-				<Button variant="secondary" href={ promoteUrl } target="_top">
+				<Button variant="secondary" href={ blazeUrl } target="_top">
 					{ __( 'Blaze', 'jetpack-blaze' ) }{ ' ' }
 					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 				</Button>

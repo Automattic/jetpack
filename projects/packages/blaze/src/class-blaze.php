@@ -76,7 +76,7 @@ class Blaze {
 		$text  = _x( 'Promote', 'Verb', 'jetpack-blaze' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                   = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
+		$label                 = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
 		$post_actions['blaze'] = sprintf(
 			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s">%3$s</a>',
 			esc_url( $blaze_url ),
