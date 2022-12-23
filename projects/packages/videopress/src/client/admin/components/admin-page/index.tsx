@@ -61,16 +61,29 @@ const useDashboardVideos = () => {
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
 	const searchParams = useSearchParams();
 	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
+	const searchFromSearchParam = searchParams.getParam( 'q', '' );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
 		if ( 1 <= pageFromSearchParam && pageFromSearchParam <= totalOfPages ) {
 			if ( page !== pageFromSearchParam ) {
-				setVideosQuery( { page: pageFromSearchParam } );
+				setVideosQuery( {
+					page: pageFromSearchParam,
+				} );
+
+				return;
 			}
 		} else {
 			searchParams.reset();
 		}
-	}, [ totalOfPages, pageFromSearchParam ] );
+
+		if ( search !== searchFromSearchParam ) {
+			setVideosQuery( {
+				search: searchFromSearchParam,
+			} );
+
+			return;
+		}
+	}, [ totalOfPages, pageFromSearchParam, searchFromSearchParam ] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
