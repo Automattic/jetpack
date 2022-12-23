@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Promote_Posts {
 
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -49,6 +49,8 @@ class Promote_Posts {
 			 */
 			do_action( 'jetpack_on_promote_posts_init' );
 		}
+
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -83,5 +85,21 @@ class Promote_Posts {
 		);
 
 		return $post_actions;
+	}
+
+	/**
+	 * Enqueue block editor assets.
+	 */
+	public function enqueue_block_editor_assets() {
+		Assets::register_script(
+			'jetpack-promote-editor',
+			'../build/editor.js',
+			__FILE__,
+			array(
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-promote-posts',
+			)
+		);
 	}
 }

@@ -1622,9 +1622,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/promote-posts",
-                "reference": "ddf550db9b7cae4e076c897577888096260c0db0"
+                "reference": "d168b466f3282f9c7fff4755b5c232eb898aae1e"
             },
             "require-dev": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1636,7 +1637,7 @@
                     "link-template": "https://github.com/automattic/jetpack-promote-posts/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-promote-posts",
                 "version-constants": {
@@ -1659,10 +1660,14 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -2106,7 +2111,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "49f76caad933fe811cd60fc31c4f47b29d8365b1"
+                "reference": "575fcee63967fb62bd6a838d0ac59b33325ce9e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2133,7 +2138,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.45.x-dev"
+                    "dev-trunk": "1.46.x-dev"
                 }
             },
             "autoload": {
