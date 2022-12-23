@@ -7,6 +7,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Blaze;
+Blaze::configure();
+
 /**
  * Features available all the time:
  *    - When in offline mode.

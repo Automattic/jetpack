@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+
 /**
  * Class for promoting posts.
  */
@@ -36,20 +38,10 @@ class Blaze {
 	 */
 	public function register() {
 
-		/**
-		 * Filter to disable all Blaze functionality.
-		 *
-		 * @since $$next-version$$
-		 * @since-jetpack $$next-version$$
-		 *
-		 * @param bool true Whether to show just in time messages.
-		 * @param string $string->id The ID of the current screen.
-		 */
-		if ( ! apply_filters( 'jetpack_blaze_enabled', true ) ) {
-			return false;
+		if ( ! self::should_initialize() ) {
+			return;
 		}
 
-		// @todo criteria for enabling: User connected, etc
 		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
 		// @todo Organize tracks events.
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
@@ -64,6 +56,32 @@ class Blaze {
 		}
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+	}
+
+	/**
+	 * Determines if criteria is met to enable Blaze features.
+	 * Needs to be:
+	 * - Not filtered out.
+	 * - Blaze enabled.
+	 *
+	 * @todo - Get response from API if requirements are met on the wpcom-side.
+	 */
+	public static function should_initialize() {
+		/**
+		 * Filter to disable all Blaze functionality.
+		 *
+		 * @since $$next-version$$
+		 * @since-jetpack $$next-version$$
+		 *
+		 * @param bool true Whether Blaze should be enabled. Default to true.
+		 */
+		if ( ! apply_filters( 'jetpack_blaze_enabled', true ) ) {
+			return false;
+		}
+
+		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			return false;
+		}
 	}
 
 	/**
