@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Site Settings API: Exposing `show_on_front` and `page_on_front` options

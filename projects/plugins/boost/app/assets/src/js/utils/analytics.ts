@@ -3,16 +3,24 @@ export async function recordBoostEvent(
 	eventProp: TracksEventProperties
 ): Promise< void > {
 	const defaultProps: { [ key: string ]: string } = {};
-	if ( 'version' in Jetpack_Boost ) {
-		defaultProps.boost_version = Jetpack_Boost.version;
-	}
-	if ( 'connection' in Jetpack_Boost ) {
-		defaultProps.jetpack_connection = Jetpack_Boost.connection.connected
-			? 'connected'
-			: 'disconnected';
-	}
-	if ( 'optimizations' in Jetpack_Boost ) {
-		defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
+
+	/**
+	 * Jetpack Boost constant is not available on the front end.
+	 *
+	 * So we need to check if it exists before using it in case this function is called from the front end.
+	 */
+	if ( typeof Jetpack_Boost !== 'undefined' ) {
+		if ( 'version' in Jetpack_Boost ) {
+			defaultProps.boost_version = Jetpack_Boost.version;
+		}
+		if ( 'connection' in Jetpack_Boost ) {
+			defaultProps.jetpack_connection = Jetpack_Boost.connection.connected
+				? 'connected'
+				: 'disconnected';
+		}
+		if ( 'optimizations' in Jetpack_Boost ) {
+			defaultProps.optimizations = JSON.stringify( Jetpack_Boost.optimizations );
+		}
 	}
 
 	eventProp = { ...defaultProps, ...eventProp };

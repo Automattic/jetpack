@@ -439,6 +439,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'show_on_front'                    => (string) get_option( 'show_on_front' ),
+						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -977,6 +979,29 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_are_blogging_prompts_enabled':
 					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'show_on_front':
+					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'page_on_front':
+					$all_page_ids = get_all_page_ids();
+
+					$valid_page_id = false;
+					foreach ( $all_page_ids as $page_id ) {
+						if ( $page_id === (string) $value ) {
+							$valid_page_id = true;
+							break;
+						}
+					}
+
+					if ( $valid_page_id && update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
 					break;
 
 				default:

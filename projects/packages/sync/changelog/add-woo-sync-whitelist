@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added woocommerce_cod_settings to the options whitelist.

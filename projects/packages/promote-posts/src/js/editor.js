@@ -1,4 +1,4 @@
-import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import {
 	isAtomicSite,
 	isPrivateSite,
@@ -6,29 +6,34 @@ import {
 	getJetpackData,
 	isCurrentUserConnected,
 	getSiteFragment,
+	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink } from '@wordpress/components';
+import { Button, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import analytics from '../../../_inc/client/lib/analytics';
+import { external, Icon } from '@wordpress/icons';
+import { getPlugin, registerPlugin } from '@wordpress/plugins';
+import './editor.scss';
+import BlazeIcon from './icon';
 
 /**
- * Return the allowed file mime types for the site.
+ * Return the connected WordPress.com's user locale.
  *
- * @returns {object} Allowed Mime Types.
+ * @returns {string} User locale.
  */
 function getConnectedUserLocale() {
 	return getJetpackData()?.tracksUserData?.user_locale || 'en';
 }
 
-const PluginPostPublishPanelPromotePost = () => {
+const BlazePostPublishPanel = () => {
 	const panelBodyProps = {
-		name: 'post-publish-promote-post-panel',
-		title: __( 'Promote this post', 'jetpack' ),
-		className: 'post-publish-promote-post-panel',
-		icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+		name: 'blaze-panel',
+		title: __( 'Blaze this post', 'jetpack-promote-posts' ),
+		className: 'blaze-panel',
+		icon: <BlazeIcon />,
 		initialOpen: true,
 	};
 
@@ -44,9 +49,11 @@ const PluginPostPublishPanelPromotePost = () => {
 		query: `blazepress-widget=post-${ postId }`,
 	} );
 
-	const trackClick = () => {
-		analytics.tracks.recordEvent( 'jetpack_editor_promote_post_publish_click' );
-	};
+	const { tracks } = useAnalytics();
+	const trackClick = useCallback(
+		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
+		[ tracks ]
+	);
 
 	// Only show the panel for Posts, Pages, and Products.
 	if ( ! [ 'page', 'post', 'product' ].includes( postType ) ) {
@@ -82,22 +89,34 @@ const PluginPostPublishPanelPromotePost = () => {
 
 	return (
 		<PluginPostPublishPanel { ...panelBodyProps }>
-			<p>
-				{ __(
-					'Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.',
-					'jetpack'
-				) }
-			</p>
-			<p>
-				<ExternalLink href={ promoteUrl } onClick={ trackClick }>
-					{ __( 'Promote Post', 'jetpack' ) }
-				</ExternalLink>
-			</p>
+			<PanelRow>
+				<p>
+					{ __(
+						'Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.',
+						'jetpack-promote-posts'
+					) }
+				</p>
+			</PanelRow>
+			<div
+				role="link"
+				className="post-publish-panel__postpublish-buttons"
+				tabIndex={ 0 }
+				onClick={ trackClick }
+				onKeyDown={ trackClick }
+			>
+				<Button variant="secondary" href={ promoteUrl } target="_top">
+					{ __( 'Blaze', 'jetpack-promote-posts' ) }{ ' ' }
+					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
+				</Button>
+			</div>
 		</PluginPostPublishPanel>
 	);
 };
 
-export const name = 'post-publish-promote-post-panel';
-export const settings = {
-	render: PluginPostPublishPanelPromotePost,
-};
+// Check if a plugin with the same name has already been registered.
+if ( ! getPlugin( 'jetpack-blaze' ) ) {
+	// If not, register our plugin.
+	registerPlugin( 'jetpack-blaze', {
+		render: BlazePostPublishPanel,
+	} );
+}

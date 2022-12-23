@@ -229,8 +229,12 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			// phpcs:ignore
-			include self::get_waf_file_path( self::RULES_FILE );
+      $rules_file_path = self::get_waf_file_path( self::RULES_FILE );
+			if ( file_exists( $rules_file_path ) ) {
+				// phpcs:ignore
+				include $rules_file_path
+			}
+
 		} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
@@ -485,8 +489,8 @@ class Waf_Runner {
 		$ip_allow_rules = self::get_waf_file_path( self::ALLOW_IP_FILE );
 		$ip_block_rules = self::get_waf_file_path( self::BLOCK_IP_FILE );
 
-		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
-			"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
+		$ip_list_code = "if ( file_exists( '$ip_allow_rules' ) ) { if ( require( '$ip_allow_rules' ) ) { return; } }\n" .
+			"if ( file_exists( '$ip_block_rules' ) ) { if ( require( '$ip_block_rules' ) ) { return \$waf->block('block', -1, 'ip block list'); } }\n";
 
 		$rules_divided_by_line = explode( "\n", $rules );
 		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
