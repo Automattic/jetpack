@@ -10,7 +10,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-promote-posts',
+				allowedTextDomain: 'jetpack-blaze',
 			},
 		],
 	},
