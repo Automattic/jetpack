@@ -92,17 +92,12 @@ class Gifting_Banner {
 	 * Inject the gifting banner on WPCOM.
 	 */
 	public function inject_gifting_banner_wpcom() {
+		$days_to_expire        = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
 		$data                  = array();
 		$data['checkout_link'] = $this->get_checkout_link();
 		$data['i18n']          = array(
-			'title'       => __(
-				'Enjoy this site?',
-				'gifting-banner'
-			),
-			'subtitle'    => __(
-				'Gift the author a WordPress.com membership.',
-				'gifting-banner'
-			),
+			'title'       => $this->get_title_texts( $days_to_expire ),
+			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
 			'button_text' => __(
 				'Gift',
 				'gifting-banner'
@@ -119,17 +114,12 @@ class Gifting_Banner {
 	 * Inject the gifting banner on WPCOMSH.
 	 */
 	public function inject_gifting_banner_wpcomsh() {
+		$days_to_expire        = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
 		$data                  = array();
 		$data['checkout_link'] = $this->get_checkout_link();
 		$data['i18n']          = array(
-			'title'       => __(
-				'Enjoy this site?',
-				'wpcomsh'
-			),
-			'subtitle'    => __(
-				'Gift the author a WordPress.com membership.',
-				'wpcomsh'
-			),
+			'title'       => $this->get_title_texts( $days_to_expire ),
+			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
 			'button_text' => __(
 				'Gift',
 				'wpcomsh'
@@ -159,6 +149,74 @@ class Gifting_Banner {
 
 		return null;
 	}
+
+	/**
+	 * Get title based on days.
+	 *
+	 * @param int $days_to_expire Days to expire
+	 * @return object|null
+	 */
+	private static function get_title_texts( $days_to_expire ) {
+
+		if ( $days_to_expire < 1 ) {
+			return __(
+				'This site\'s plan has expired.',
+				'wpcomsh'
+			);
+		}
+
+		return __(
+			'Enjoy this site?',
+			'wpcomsh'
+		);
+	}
+
+	/**
+	 * Get subtitle based on days & type of plan.
+	 * - Plan expired
+	 * - Annual Plan < 2 weeks before expiration
+	 * - Monthly Plan or Annual plan > 2 weeks before expiration
+	 *
+	 * @param object $current_plan Current Plan
+	 * @param int    $days_to_expire Days to expire
+	 * @return object|null
+	 */
+	private static function get_subtitle_texts( $current_plan, $days_to_expire ) {
+
+		if ( $days_to_expire < 1 ) {
+			return sprintf(
+				/* translators: Banner to show the visitor the site gifting option on expired sites. */
+				__(
+					'Gift the author a WordPress.com upgrade.',
+					'wpcomsh'
+				),
+				$days_to_expire
+			);
+		}
+
+		if ( ! strpos( $current_plan->product_slug, 'monthly' ) && $days_to_expire < 15 ) {
+			return sprintf(
+				/* translators: Banner to show the visitor the site gifting option on days before expires. */
+				_n(
+					'Gift the author a WordPress.com plan before it expires in %d day.',
+					'Gift the author a WordPress.com plan before it expires in %d days.',
+					$days_to_expire,
+					'wpcomsh'
+				),
+				$days_to_expire
+			);
+		}
+
+		return sprintf(
+			/* translators: Banner to show the visitor the site gifting option, no days shown. */
+			__(
+				'Gift the author a WordPress.com plan.',
+				'wpcomsh'
+			),
+			$days_to_expire
+		);
+	}
+
 }
 
 /**
