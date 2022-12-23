@@ -443,7 +443,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "ffad51f030d1019aa0b58b3b66b5590abc80f402"
+                "reference": "bc4b104ad51496d55c2ff5bc8d470dda61b3b808"
             },
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
@@ -494,7 +494,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Attract high-quality traffic to your site using Promoted Posts.",
+            "description": "Attract high-quality traffic to your site using Blaze.",
             "transport-options": {
                 "relative": true
             }
