@@ -141,6 +141,8 @@ export const JetpackDropdownEdit = ( {
 				required={ required }
 				setAttributes={ setAttributes }
 				width={ width }
+				placeholder={ toggleLabel }
+				placeholderField="toggleLabel"
 			/>
 		</>
 	);
