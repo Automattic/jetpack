@@ -89,13 +89,21 @@ class Gifting_Banner {
 	}
 
 	/**
+	 * Get how many days the banner should be dismissed based on plan type (30 days for monthly, 1 year for yearly)
+	 */
+	public function get_days_to_dismiss_banner() {
+		return false !== strpos( $this->current_plan->product_slug, 'monthly' ) ? 30 : 365;
+	}
+
+	/**
 	 * Inject the gifting banner on WPCOM.
 	 */
 	public function inject_gifting_banner_wpcom() {
-		$days_to_expire        = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
-		$data                  = array();
-		$data['checkout_link'] = $this->get_checkout_link();
-		$data['i18n']          = array(
+		$days_to_expire             = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
+		$data                       = array();
+		$data['dismiss_days_count'] = $this->get_days_to_dismiss_banner();
+		$data['checkout_link']      = $this->get_checkout_link();
+		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
 			'button_text' => __(
@@ -103,9 +111,10 @@ class Gifting_Banner {
 				'gifting-banner'
 			),
 		);
-		// Change the version if associated files are updated, current: 20221103.
-		wp_enqueue_style( 'gifting-banner', plugins_url( 'gifting-banner/css/gifting-banner.css', __FILE__ ), array(), '20221103' );
-		wp_enqueue_script( 'gifting-banner', plugins_url( 'gifting-banner/js/gifting-banner.js', __FILE__ ), array(), '20221103', true );
+
+		// Change the version if associated files are updated, current: 20221223.
+		wp_enqueue_style( 'gifting-banner', plugins_url( 'gifting-banner/css/gifting-banner.css', __FILE__ ), array(), '20221223' );
+		wp_enqueue_script( 'gifting-banner', plugins_url( 'gifting-banner/js/gifting-banner.js', __FILE__ ), array(), '20221223', true );
 		wp_localize_script( 'gifting-banner', 'gifting_banner', $data );
 		wp_set_script_translations( 'gifting-banner', 'gifting-banner' );
 	}
@@ -114,10 +123,11 @@ class Gifting_Banner {
 	 * Inject the gifting banner on WPCOMSH.
 	 */
 	public function inject_gifting_banner_wpcomsh() {
-		$days_to_expire        = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
-		$data                  = array();
-		$data['checkout_link'] = $this->get_checkout_link();
-		$data['i18n']          = array(
+		$days_to_expire             = ceil( ( strtotime( $this->current_plan->expiry_date ) - time() ) / DAY_IN_SECONDS );
+		$data                       = array();
+		$data['dismiss_days_count'] = $this->get_days_to_dismiss_banner();
+		$data['checkout_link']      = $this->get_checkout_link();
+		$data['i18n']               = array(
 			'title'       => $this->get_title_texts( $days_to_expire ),
 			'subtitle'    => $this->get_subtitle_texts( $this->current_plan, $days_to_expire ),
 			'button_text' => __(
