@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-06 16:56:32+0000\n"
+"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,25 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: lv\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr "Uzdāviniet autoram WordPress.com plānu."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienas."
+msgstr[1] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienām."
+msgstr[2] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienām."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Uzdāviniet autoram WordPress.com jauninājumu."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr "Šīs vietnes plāns ir beidzies."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -31,27 +50,27 @@ msgstr "Biznesa plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\">Atja
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Jūs esat izmantojis visu jums piešķirto vietu. Lūdzu, izdzēsiet vienu vai vairākus no esošajiem failiem pirms nākamās augšupielādes."
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "Mainīt tēmu"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "Mainīt"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "Rediģēt lapu"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "Labot Ierakstu"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "Rediģēt"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "Manas mājas"
 
@@ -84,17 +103,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "Jūs pašlaik izmantojat PHP <strong>%1$s</strong>, kas vairs nesaņems drošības atjauninājumus no %2$s. Lūdzu, jauniniet uz PHP %3$s vai jaunāku versiju, mainot <a href=\"%4$s\">mitināšanas konfigurāciju</a>."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "Dāvana"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "Uzdāviniet autoram WordPress.com dalību."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "Vai jums patīk šī vietne?"
 
@@ -128,11 +141,11 @@ msgstr "Sākumlapa"
 msgid "Blog"
 msgstr "Emuārs"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Tikai starpniekserveris: Jūs varat to redzēt, jo esat starpniekservera lietotājs. Neizmantojiet to, ja nezināt, kāpēc esat šeit."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "Jums nav atļaujas piekļūt šai lapai."
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-08 15:54:03+0000\n"
+"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,24 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: sv_SE\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr "Ge författaren ett WordPress.com-paket i gåva."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Fă-i cadou autorului un plan WordPress.com înainte de a expira peste o zi."
+msgstr[1] "Ge författaren ett WordPress.com-paket i gåva innan den löper ut om %d dagar."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Ge författaren en gåva för en WordPress.com-uppgradering."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr "Detta webbplatspaket har löpt ut."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -31,27 +49,27 @@ msgstr "Ditt Business-paket för <strong>%3$s</strong> löper ut den %2$s. <a hr
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Du har utnyttjat hela ditt tilldelade filutrymme. Radera några filer innan du försöker ladda upp."
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "Byt tema"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "Ändra"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "Redigera sida"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "Redigera inlägg"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "Redigera"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "Min startsida"
 
@@ -84,17 +102,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "Du använder för närvarande PHP <strong>%1$s</strong>, som från och med %2$s inte längre kommer att få några säkerhetsuppdateringar. Uppdatera till PHP %3$s eller högre genom att ändra din <a href=\"%4$s\">värdkonfiguration</a>."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "Gåva"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "Ge författaren en gåva för ett WordPress.com-medlemskap."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "Gillar du denna webbplats?"
 
@@ -128,11 +140,11 @@ msgstr "Hem"
 msgid "Blog"
 msgstr "Blogg"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Endast via proxy: Du kan se detta eftersom ditt besök sker via proxy. Använd inte detta om du inte vet varför du är här."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "Du har inte behörighet att komma åt denna sida."
 

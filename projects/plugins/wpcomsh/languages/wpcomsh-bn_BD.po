@@ -11,6 +11,24 @@ msgstr ""
 "Language: bn\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr ""
+
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
@@ -31,27 +49,27 @@ msgstr ""
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "স্টোরেজে আর জায়গা খালি নেই। নতুন কিছু আপলোড করার আগে পুরনো ফাইল ডিলিট করে জায়গা খালি করুন।"
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "থিম পরিবর্তন করুন"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "পরিবর্তন"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "এডিট পেজ"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "এডিট পোস্ট"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "এডিট করুন"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr ""
 
@@ -84,17 +102,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr ""
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr ""
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr ""
 
@@ -128,11 +140,11 @@ msgstr "প্রথম পাতা"
 msgid "Blog"
 msgstr "ব্লগ"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr ""
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "এই পাতাটিতে প্রবেশ করার অনুমতি আপনার নেই।"
 

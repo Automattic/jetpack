@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-09 15:54:03+0000\n"
+"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,23 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr "글쓴이에게 워드프레스닷컴 요금제를 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "글쓴이에게 워드프레스닷컴 요금제를 %d일 후에 만료되기 전에 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "글쓴이에게 워드프레스닷컴 업그레이드를 선물합니다."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr "이 사이트의 요금제가 만료되었습니다."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -31,27 +48,27 @@ msgstr "<strong>%3$s</strong>의 비즈니스 요금제가 %2$s에 만료됩니�
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "할당 용량을 모두 사용했습니다. 업로드하기 전에 파일을 삭제해주세요"
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "테마 변경"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "변경"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "페이지 편집"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "이 글 편집"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "편집"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "내 홈"
 
@@ -84,17 +101,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "%2$s부터 보안 업데이트가 수신되지 않는 PHP <strong>%1$s</strong>을(를) 현재 사용 중이십니다. <a href=\"%4$s\">호스팅 구성</a>을 변경하여 PHP %3$s 이상으로 업데이트하세요."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "선물"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "글쓴이에게 워드프레스닷컴 멤버십을 선물합니다."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "이 사이트가 마음에 드시나요?"
 
@@ -128,11 +139,11 @@ msgstr "홈"
 msgid "Blog"
 msgstr "블로그"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "프록시 설정됨에만 해당: 프록시가 설정되어서 이 내용을 볼 수 있습니다. 여기로 이동한 이유를 모르면 사용하지 마세요."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "이 페이지에 접근할 권한이 없습니다."
 

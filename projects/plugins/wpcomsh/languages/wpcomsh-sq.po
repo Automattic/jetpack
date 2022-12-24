@@ -11,6 +11,24 @@ msgstr ""
 "Language: sq_AL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] ""
+msgstr[1] ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr ""
+
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr "Plani eTregti për <strong>%3$s</strong> skadoi më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a> që të mbani veçori eTregtie të tilla si, shtojca dhe tema të përshtatura, SFTP dhe përdorim të phpMyAdmin-it."
@@ -31,27 +49,27 @@ msgstr "Plani Biznes për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "E keni përdorur sasinë tuaj të hapësirës. Ju lutemi, fshini ca kartela para se të ngarkoni."
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "Ndërroni temën"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "Ndryshoje"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "Përpunoni faqen"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "Përpunoni Postimin"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "Përpunoni"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "Shtëpia Ime"
 
@@ -84,17 +102,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "Aktualisht po përdorni PHP <strong>%1$s</strong>, që s’do të përfitojë më përditësime sigurie pas %2$s. Ju lutemi, përditësojeni me PHP %3$s ose më sipër, duke ndryshuar <a href=\"%4$s\">formësimin e strehimit tuaj</a>."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "Dhuratë"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "Dhurojini autorit një anëtarësi në WordPress.com."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "Po kënaqeni me këtë sajt?"
 
@@ -128,11 +140,11 @@ msgstr "Kreu"
 msgid "Blog"
 msgstr "Blog"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Vetëm përmes ndërmjetësi: Mund ta shihni këtë ngaqë jeni kaluar përmes ndërmjetësi. Mos e përdorni këtë, nëse s’e dini pse gjendeni këtu."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "S’keni leje për të hyrë në këtë faqe."
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-11 16:54:03+0000\n"
+"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,24 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: he_IL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד יום %d."
+msgstr[1] "אפשר להעניק למחבר תוכנית ב-WordPress.com במתנה לפני שתוקפה יפוג בעוד %d ימים."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "אפשר להעניק למחבר שדרוג ב-WordPress.com במתנה."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr "תוקפה של תוכנית האתר פג."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -31,27 +49,27 @@ msgstr "התוקף של התוכנית לעסקים עבור <strong>%3$s</stron
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "השתמשת במכסת נפח האחסון שלך. יש למחוק קבצים לפני העלאה."
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "החלפת ערכת עיצוב"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "שינוי"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "לערוך את העמוד"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "עריכה"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "ערוך"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "הבית שלי"
 
@@ -84,17 +102,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "גרסת PHP שמשמשת אותך כרגע, <strong>%1$s</strong>, תצא משימוש ותפסיק לקבל עדכונים החל מ-%2$s. יש לעדכן את PHP לגרסה ⁦%3$s⁩ ומעלה על ידי שינוי <a href=\"%4$s\">הגדרות התצורה לאחסון</a>."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "מתנה"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "אפשר להעניק למחבר חברות ב-WordPress.com במתנה."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "נהנית מהאתר הזה?"
 
@@ -128,11 +140,11 @@ msgstr "דף הבית"
 msgid "Blog"
 msgstr "אתר"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "רק למי שבוצעה לו פעולת Proxy: באפשרותך לראות את התוכן הזה מאחר שבוצעה לך פעולת Proxy. אין להשתמש בהגדרה הזאת אם לא ידוע לך למה הגעת לכאן."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "אין לך הרשאות מתאימות בשביל לראות את העמוד הזה."
 

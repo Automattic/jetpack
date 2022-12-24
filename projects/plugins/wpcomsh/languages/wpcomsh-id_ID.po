@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-12 09:54:03+0000\n"
+"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,6 +10,24 @@ msgstr ""
 "X-Generator: GlotPress/2.4.0-alpha\n"
 "Language: id\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:213
+msgid "Gift the author a WordPress.com plan."
+msgstr "Beri hadiah paket WordPress.com kepada penulis."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:201
+msgid "Gift the author a WordPress.com plan before it expires in %d day."
+msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
+msgstr[0] "Beri hadiah paket WordPress.com kepada penulis sebelum kedaluwarsa dalam %d hari."
+msgstr[1] "Beri hadiah paket WordPress.com kepada penulis sebelum kedaluwarsa dalam %d hari."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:190
+msgid "Gift the author a WordPress.com upgrade."
+msgstr "Beri hadiah upgrade WordPress.com kepada penulis."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:163
+msgid "This site's plan has expired."
+msgstr "Paket situs ini telah kedaluwarsa."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -31,27 +49,27 @@ msgstr "Paket Bisnis untuk <strong>%3$s</strong> akan kedaluwarsa pada %2$s. <a 
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr "Anda telah menggunakan habis kuota Anda. Silakan hapus berkas sebelum mengunggah."
 
-#: private-site/logged-in-banner.php:117
+#: private-site/logged-in-banner.php:110
 msgid "Change theme"
 msgstr "Ganti tema"
 
-#: private-site/logged-in-banner.php:116
+#: private-site/logged-in-banner.php:109
 msgid "Change"
 msgstr "Ubah"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit page"
 msgstr "Sunting halaman"
 
-#: private-site/logged-in-banner.php:107
+#: private-site/logged-in-banner.php:96
 msgid "Edit post"
 msgstr "Sunting pos"
 
-#: private-site/logged-in-banner.php:106
+#: private-site/logged-in-banner.php:95
 msgid "Edit"
 msgstr "Sunting"
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:146
 msgid "My Home"
 msgstr "Beranda Saya"
 
@@ -84,17 +102,11 @@ msgid "You are currently using PHP <strong>%1$s</strong> which will no longer re
 msgstr "Saat ini Anda menggunakan PHP <strong>%1$s</strong> yang tidak akan menerima pembaruan keamanan lagi setelah %2$s. Harap perbarui ke PHP %3$s atau yang lebih baru dengan mengubah <a href=\"%4$s\">konfigurasi hosting</a> Anda."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:129
+#: frontend-notices/gifting-banner/gifting-banner.php:124
 msgid "Gift"
 msgstr "Hadiah"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:98
-#: frontend-notices/gifting-banner/gifting-banner.php:125
-msgid "Gift the author a WordPress.com membership."
-msgstr "Beri hadiah keanggotaan WordPress.com kepada penulis."
-
-#: frontend-notices/gifting-banner/gifting-banner.php:94
-#: frontend-notices/gifting-banner/gifting-banner.php:121
+#: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
 msgstr "Suka situs ini?"
 
@@ -128,11 +140,11 @@ msgstr "Beranda"
 msgid "Blog"
 msgstr "Blog"
 
-#: feature-plugins/hooks.php:130
+#: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Khusus terproxy: Anda dapat melihatnya karena Anda terproxy. Jangan gunakan fitur ini jika Anda tidak tahu alasan Anda berada di sini."
 
-#: feature-plugins/hooks.php:119
+#: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
 msgstr "Anda tidak punya hak akses untuk mengakses halaman ini."
 
