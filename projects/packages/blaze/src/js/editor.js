@@ -31,7 +31,7 @@ function getConnectedUserLocale() {
 const BlazePostPublishPanel = () => {
 	const panelBodyProps = {
 		name: 'blaze-panel',
-		title: __( 'Blaze this post', 'jetpack-promote-posts' ),
+		title: __( 'Blaze this post', 'jetpack-blaze' ),
 		className: 'blaze-panel',
 		icon: <BlazeIcon />,
 		initialOpen: true,
@@ -44,7 +44,7 @@ const BlazePostPublishPanel = () => {
 		postVisibility: selector( editorStore ).getEditedPostVisibility(),
 	} ) );
 
-	const promoteUrl = getRedirectUrl( 'jetpack-promote-posts', {
+	const blazeUrl = getRedirectUrl( 'jetpack-blaze', {
 		site: getSiteFragment(),
 		query: `blazepress-widget=post-${ postId }`,
 	} );
@@ -93,7 +93,7 @@ const BlazePostPublishPanel = () => {
 				<p>
 					{ __(
 						'Reach a larger audience boosting the content to the WordPress.com community of blogs and sites.',
-						'jetpack-promote-posts'
+						'jetpack-blaze'
 					) }
 				</p>
 			</PanelRow>
@@ -104,8 +104,8 @@ const BlazePostPublishPanel = () => {
 				onClick={ trackClick }
 				onKeyDown={ trackClick }
 			>
-				<Button variant="secondary" href={ promoteUrl } target="_top">
-					{ __( 'Blaze', 'jetpack-promote-posts' ) }{ ' ' }
+				<Button variant="secondary" href={ blazeUrl } target="_top">
+					{ __( 'Blaze', 'jetpack-blaze' ) }{ ' ' }
 					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 				</Button>
 			</div>

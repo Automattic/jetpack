@@ -2,7 +2,7 @@
 /**
  * Attract high-quality traffic to your site.
  *
- * @package automattic/jetpack-promote-posts
+ * @package automattic/jetpack-blaze
  */
 
 namespace Automattic\Jetpack;
@@ -10,7 +10,7 @@ namespace Automattic\Jetpack;
 /**
  * Class for promoting posts.
  */
-class Promote_Posts {
+class Blaze {
 
 	const PACKAGE_VERSION = '0.2.0-alpha';
 
@@ -18,17 +18,17 @@ class Promote_Posts {
 	 * The configuration method that is called from the jetpack-config package.
 	 */
 	public static function configure() {
-		$promote_posts = self::get_instance();
-		$promote_posts->register();
+		$blaze = self::get_instance();
+		$blaze->register();
 	}
 
 	/**
-	 * Initialize Promote Posts UIs.
+	 * Initialize Blaze UIs.
 	 *
-	 * @return Promote_Posts Promote_Posts instance.
+	 * @return Blaze Blaze instance.
 	 */
 	public static function get_instance() {
-		return new Promote_Posts();
+		return new Blaze();
 	}
 
 	/**
@@ -39,15 +39,15 @@ class Promote_Posts {
 		// @todo criteria for enabling: User connected, etc
 		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
 		// @todo Organize tracks events.
-		if ( ! did_action( 'jetpack_on_promote_posts_init' ) ) {
-			add_filter( 'post_row_actions', array( $this, 'jetpack_promote_posts_row_action' ), 10, 2 );
+		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
+			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
 
 			/**
 			 * Action called after initializing Post_List Admin resources.
 			 *
 			 * @since 0.1.0
 			 */
-			do_action( 'jetpack_on_promote_posts_init' );
+			do_action( 'jetpack_on_blaze_init' );
 		}
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
@@ -61,25 +61,25 @@ class Promote_Posts {
 	 *
 	 * @return array
 	 */
-	public function jetpack_promote_posts_row_action( $post_actions, $post ) {
+	public function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
 		// @todo wrap in method call, for general use?
-		$promote_post_url = Redirect::get_url(
-			'jetpack-promote-posts',
+		$blaze_url = Redirect::get_url(
+			'jetpack-blaze',
 			array(
 				'query' => 'blazepress-widget=post-' . esc_attr( $post_id ),
 			)
 		);
 
 		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Promote', 'Verb', 'jetpack-promote-posts' );
+		$text  = _x( 'Promote', 'Verb', 'jetpack-blaze' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                   = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-promote-posts' ), $title );
-		$post_actions['promote'] = sprintf(
+		$label                 = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
+		$post_actions['blaze'] = sprintf(
 			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s">%3$s</a>',
-			esc_url( $promote_post_url ),
+			esc_url( $blaze_url ),
 			esc_attr( $label ),
 			esc_html( $text )
 		);
@@ -98,7 +98,7 @@ class Promote_Posts {
 			array(
 				'enqueue'    => true,
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-promote-posts',
+				'textdomain' => 'jetpack-blaze',
 			)
 		);
 	}

@@ -10,7 +10,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-promote-posts',
+				consumer_slug: 'jetpack-blaze',
 			} ),
 		},
 		mode: jetpackWebpackConfig.mode,
