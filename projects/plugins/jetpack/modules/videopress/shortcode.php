@@ -190,12 +190,10 @@ class VideoPress_Shortcode {
 	 * @return string
 	 */
 	public function video_shortcode_override( $html, $attr, $content, $instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 		$videopress_guid = null;
 
 		if ( isset( $attr['videopress_guid'] ) ) {
 			$videopress_guid = $attr['videopress_guid'];
-
 		} else {
 			// Handle the different possible url attributes
 			$url_keys = array( 'src', 'mp4' );
@@ -227,6 +225,9 @@ class VideoPress_Shortcode {
 			$videopress_attr = array( $videopress_guid );
 			if ( isset( $attr['width'] ) ) {
 				$videopress_attr['w'] = (int) $attr['width'];
+			}
+			if ( isset( $attr['muted'] ) ) {
+				$videopress_attr['muted'] = $attr['muted'];
 			}
 			if ( isset( $attr['autoplay'] ) ) {
 				$videopress_attr['autoplay'] = $attr['autoplay'];

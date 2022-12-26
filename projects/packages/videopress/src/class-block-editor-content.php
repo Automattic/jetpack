@@ -206,8 +206,12 @@ class Block_Editor_Content {
 		if ( $videopress_guid ) {
 			$videopress_atts = array( $videopress_guid );
 
+			// height is ignored on video block, so we don't pass it.
 			if ( isset( $attr['width'] ) ) {
 				$videopress_atts['w'] = (int) $attr['width'];
+			}
+			if ( isset( $attr['muted'] ) ) {
+				$videopress_atts['muted'] = $attr['muted'];
 			}
 			if ( isset( $attr['autoplay'] ) ) {
 				$videopress_atts['autoplay'] = $attr['autoplay'];
