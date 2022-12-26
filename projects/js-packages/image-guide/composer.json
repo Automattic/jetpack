@@ -48,7 +48,6 @@
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-image-guide/compare/v${old}...v${new}"
 		},
-		"autotagger": true,
-		"release-branch-prefix": "image-guide"
+		"autotagger": true
 	}
 }
