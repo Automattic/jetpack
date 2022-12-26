@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Minor package.json change - removing private entry.
