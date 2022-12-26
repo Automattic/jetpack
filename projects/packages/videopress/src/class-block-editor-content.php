@@ -17,7 +17,7 @@ class Block_Editor_Content {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
-		if ( ! Status::is_active() ) {
+		if ( ! Status::is_standalone_plugin_active() ) {
 			return;
 		}
 
