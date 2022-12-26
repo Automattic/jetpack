@@ -15,7 +15,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"prepare": "pnpm build",
 		"build": "tsc",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
