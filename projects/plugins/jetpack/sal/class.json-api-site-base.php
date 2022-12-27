@@ -850,6 +850,16 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option storing the TLD restriction for this site.
+	 *
+	 * @return string
+	 */
+	public function get_restricted_tld() {
+		return get_option( 'restricted_tld' );
+	}
+
+
+	/**
 	 * Returns a date/time string with the date the site was last updated, or a default date/time string otherwise.
 	 *
 	 * @return string
@@ -1387,15 +1397,6 @@ abstract class SAL_Site {
 	 */
 	public function get_anchor_podcast() {
 		return get_option( 'anchor_podcast' );
-	}
-
-	/**
-	 * Get the option storing the allowed TLD for this site.
-	 *
-	 * @return string
-	 */
-	public function get_allowed_tld() {
-		return get_option( 'allowed_tld' );
 	}
 
 	/**
