@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2022-12-27
+### Added
+- VideoPress: add core/embed transform from/to video block [#27979]
+- VideoPress: Add videopress shortcode [#27842]
+- VideoPress: improve blocks building process [#28025]
+- VideoPress: show error notice when updating data video fails [#27992]
+- VideoPress: sync video `post_id` with block attribute `id` [#27864]
+
+### Changed
+- Fix layout visual issues [#28055]
+- Updated package dependency. [#28006]
+- VideoPress: do not convert core/embed to videopress/video on-the-fly [#27942]
+
+### Removed
+- VideoPress: remove video editor.js unused file [#28060]
+
 ## [0.9.2] - 2022-12-19
 ### Changed
 - VideoPress: filter the video fields that re-renders the player when changed. [#27862]
@@ -552,6 +568,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.2...v0.10.0
 [0.9.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.8.4...v0.9.0

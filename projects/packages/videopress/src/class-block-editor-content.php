@@ -17,7 +17,7 @@ class Block_Editor_Content {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
-		if ( ! Status::is_active() ) {
+		if ( ! Status::is_standalone_plugin_active() ) {
 			return;
 		}
 
@@ -64,8 +64,8 @@ class Block_Editor_Content {
 		 * Set the defaults
 		 */
 		$defaults = array(
-			'w'               => 854,   // Width of the video player, in pixels
-			'h'               => 480,   // Height of the video player, in pixels
+			'w'               => 640,   // Width of the video player, in pixels
+			'h'               => 0,     // Height of the video player, in pixels
 			'at'              => 0,     // How many seconds in to initially seek to
 			'loop'            => false, // Whether to loop the video repeatedly
 			'autoplay'        => false, // Whether to autoplay the video on load
@@ -76,6 +76,13 @@ class Block_Editor_Content {
 			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color
 			// 'defaultlangcode' => false, // Default language code. Currently ignored by the player.
 		);
+
+		// Make sure "false" will be actually false.
+		foreach ( $atts as $key => $value ) {
+			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
+				$atts[ $key ] = false;
+			}
+		}
 
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );
 
@@ -91,13 +98,14 @@ class Block_Editor_Content {
 		);
 		$src          = esc_url( add_query_arg( $query_params, $base_url ) );
 
-		$width  = absint( $atts['w'] );
-		$height = absint( $atts['h'] );
-
-		// Make sure "false" will be actually false.
-		if ( is_string( $atts['cover'] ) && 'false' === strtolower( $atts['cover'] ) ) {
-			$atts['cover'] = false;
+		$width = absint( $atts['w'] );
+		if ( ! $atts['h'] ) {
+			$aspect_ratio = 16 / 9; // TODO: Get the correct aspect ratio for the video.
+			$height       = $width / $aspect_ratio;
+		} else {
+			$height = absint( $atts['h'] );
 		}
+
 		$cover = $atts['cover'] ? ' data-resize-to-parent="true"' : '';
 
 		$block_template =
@@ -206,8 +214,12 @@ class Block_Editor_Content {
 		if ( $videopress_guid ) {
 			$videopress_atts = array( $videopress_guid );
 
+			// height is ignored on jetpack video block, so we don't pass it for consistency.
 			if ( isset( $attr['width'] ) ) {
 				$videopress_atts['w'] = (int) $attr['width'];
+			}
+			if ( isset( $attr['muted'] ) ) {
+				$videopress_atts['muted'] = $attr['muted'];
 			}
 			if ( isset( $attr['autoplay'] ) ) {
 				$videopress_atts['autoplay'] = $attr['autoplay'];
@@ -215,6 +227,8 @@ class Block_Editor_Content {
 			if ( isset( $attr['loop'] ) ) {
 				$videopress_atts['loop'] = $attr['loop'];
 			}
+			// The core video block doesn't support the cover attribute, setting it to false for consistency.
+			$videopress_atts['cover'] = false;
 
 			// Then display the VideoPress version of the stored GUID!
 			return self::videopress_embed_shortcode( $videopress_atts );
