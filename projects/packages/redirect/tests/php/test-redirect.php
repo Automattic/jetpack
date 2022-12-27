@@ -23,7 +23,6 @@ class RedirectTest extends TestCase {
 	 */
 	public function set_up() {
 		Monkey\setUp();
-		$this->status = new Status();
 	}
 
 	/**

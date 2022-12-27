@@ -49,25 +49,12 @@ class Block_Editor_Extensions {
 	}
 
 	/**
-	 * Gets the bridge script URL depending on the environment we are in
+	 * Return the extensions list
 	 *
-	 * @return string
+	 * @return array The extensions list.
 	 */
-	public static function get_block_editor_extensions_url() {
-		return Assets::get_file_url_for_environment(
-			'../build/block-editor/extensions/index.js', // <- production
-			'client/block-editor/extensions/index.js', // <- development
-			__FILE__
-		);
-	}
-
-	/**
-	 * Enqueues the jwt bridge script.
-	 */
-	public static function enqueue_extensions() {
-		self::enqueue_script();
-
-		$videopress_extensions_file        = __DIR__ . '/client/block-editor/extensions/index.json';
+	public static function get_list() {
+		$videopress_extensions_file        = __DIR__ . '/../build/block-editor/extensions/index.json';
 		$videopress_extensions_file_exists = file_exists( $videopress_extensions_file );
 		if ( ! $videopress_extensions_file_exists ) {
 			return;
@@ -78,7 +65,7 @@ class Block_Editor_Extensions {
 			file_get_contents( $videopress_extensions_file )
 		);
 
-		$beta_extensions = array_map(
+		$extensions_list = array_map(
 			function ( $extension ) {
 				return (array) array(
 					'name'      => $extension,
@@ -88,6 +75,34 @@ class Block_Editor_Extensions {
 			},
 			$videopress_extensions_data['beta']
 		);
+
+		return $extensions_list;
+	}
+
+	/**
+	 * Check if the extension is available
+	 *
+	 * @param string $slug The extension slug.
+	 * @return boolean True if the extension is available, false otherwise.
+	 */
+	public static function is_extension_available( $slug ) {
+		$extensions_list = self::get_list();
+		foreach ( $extensions_list as $extension ) {
+			if ( $extension['name'] === $slug ) {
+				return $extension['isEnabled'];
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Enqueues the extensions script.
+	 */
+	public static function enqueue_extensions() {
+		self::enqueue_script();
+
+		$extensions_list = self::get_list();
 
 		$site_type = 'jetpack';
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -100,7 +115,7 @@ class Block_Editor_Extensions {
 			self::SCRIPT_HANDLE,
 			'videoPressEditorState',
 			array(
-				'extensions' => $beta_extensions,
+				'extensions' => $extensions_list,
 				'siteType'   => $site_type,
 			)
 		);
@@ -110,17 +125,18 @@ class Block_Editor_Extensions {
 	 * Enqueues only the JS script
 	 *
 	 * @param string $handle The script handle to identify the script.
-	 * @return bool True if the script was successfully localized, false otherwise.
 	 */
 	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
-		$enqueued = wp_enqueue_script(
+		Assets::register_script(
 			$handle,
-			self::get_block_editor_extensions_url(),
-			array(),
-			Package_Version::PACKAGE_VERSION,
-			false
+			'../build/block-editor/index.js',
+			__FILE__,
+			array(
+				'in_footer'  => false,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
 		);
 
-		return $enqueued;
+		Assets::enqueue_script( $handle );
 	}
 }

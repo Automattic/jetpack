@@ -242,23 +242,35 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.1 - 2022-12-06
+### 11.7-a.9 - 2022-12-27
+#### Major Enhancements
+- Blocks: add launchpad on save modal.
+- Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead.
+
 #### Enhancements
-- Form block: change form placeholder background color to prevent styling issues on colored backgrounds.
-- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
-- Subscription block: add a checkbox to include/exclude social followers.
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
+- Contact form: move responses export to a modal triggered by a single "Export" button.
+- Dashboard: use minimized CSS for the stats widget.
+- Global Styles: add new fonts for better i18n.
+- Form block: adjust Form placeholder icon and link colors for better consistency.
+- Form block: update Form child blocks icons.
+- Slideshow block: reduce bullet size and change the CSS justify-content to flex-start.
+- Slideshow block: replace pencil icon with edit text.
+- Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans.
+- VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites).
+
 
 #### Improved compatibility
-- Site Editor: dashboard link points to wordpress.com.
+- VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it.
 
 #### Bug fixes
-- Form block: add line breaks back to plain text email submissions.
-- Form block: fix patterns modal scrollbar behavior.
-- Form block: fix contact form view responses URL.
-- Form block: update form patterns modal filter query.
-- WAF: fix WPA click tracking in Agencies card.
-- WAF: fix Jetpack Settings WAF module plan check.
+- Form block: adjust Form placeholder footer links style to prevent theme clashes.
+- Internationalization: fix context for translated product name.
+- Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites.
+- Premium Content block: fix bug in JWT library encode() method.
+- Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version.
+- Subscription block: ensure custom button spacing is correct when the button is on its own line.
+- Writing Prompts: do not display within mobile app.
+
 
 --------
 

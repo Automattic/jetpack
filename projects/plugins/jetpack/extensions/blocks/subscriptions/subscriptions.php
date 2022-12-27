@@ -11,10 +11,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
+use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
-const FEATURE_NAME = 'subscriptions';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+require_once __DIR__ . '/constants.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -48,6 +48,41 @@ function register_block() {
 				),
 			)
 		);
+	}
+
+	register_post_meta(
+		'post',
+		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'string',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		},
+		10
+	);
+
+	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
+
+	if ( \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
+		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+
+		// Close comments on the front-end
+		add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments' );
+		add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments' );
+
+		// Hide existing comments
+		add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
@@ -251,7 +286,7 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100% - %spx;', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
+			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
 			: 'width: 100%;';
 	}
 
@@ -306,13 +341,25 @@ function get_element_styles_from_attributes( $attributes ) {
 /**
  * Subscriptions block render callback.
  *
- * @param array  $attributes Array containing the block attributes.
- * @param string $content    String containing the block content.
+ * @param array $attributes Array containing the block attributes.
  *
  * @return string
  */
-function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+function render_block( $attributes ) {
+	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+	if (
+		\Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) &&
+		class_exists( 'Jetpack_Memberships' ) &&
+		Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
+	) {
+		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+		if ( ! wp_style_is( 'enqueued' ) ) {
+			wp_enqueue_style( 'thickbox' );
+		}
+	} else {
+		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	}
 
 	$subscribe_email = '';
 
@@ -362,6 +409,20 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 }
 
 /**
+ * Generates the source parameter to pass to the iframe
+ *
+ * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+ */
+function get_post_access_level() {
+	global $post;
+	$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	if ( empty( $meta ) ) {
+		$meta = 'everybody';
+	}
+	return $meta;
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -384,6 +445,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -391,6 +454,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
+				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -497,11 +562,21 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$blog_id           = \Jetpack_Options::get_option( 'id' );
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
-				<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+				<form
+					action="#"
+					method="post"
+					accept-charset="utf-8"
+					data-blog="<?php echo esc_attr( $blog_id ); ?>"
+					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
+					id="<?php echo esc_attr( $form_id ); ?>"
+				>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
@@ -527,6 +602,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 						<?php endif; ?>
 					>
 						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
@@ -568,4 +644,90 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	<?php
 
 	return ob_get_clean();
+}
+
+/**
+ * Filter excerpts looking for subscription data.
+ *
+ * @param string   $excerpt The extrapolated excerpt string.
+ * @param \WP_Post $post    The current post being processed (in `get_the_excerpt`).
+ *
+ * @return mixed
+ */
+function jetpack_filter_excerpt_for_newsletter( $excerpt, $post ) {
+	if ( false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+		$excerpt .= sprintf(
+			// translators: %s is the permalink url to the current post.
+			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
+			get_post_permalink()
+		);
+	}
+	return $excerpt;
+}
+
+/**
+ * Gate access to posts
+ *
+ * @param string $the_content Post content.
+ *
+ * @return string
+ */
+function maybe_get_locked_content( $the_content ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $the_content;
+	}
+	return get_locked_content_placeholder_text();
+}
+
+/**
+ * Gate access to comments
+ *
+ * @return bool
+ */
+function maybe_close_comments() {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	return Jetpack_Memberships::user_can_view_post();
+}
+
+/**
+ * Gate access to exisiting comments
+ *
+ * @param string $comment The comment.
+ *
+ * @return string
+ */
+function maybe_gate_existing_comments( $comment ) {
+	if ( empty( $comment ) ) {
+		return $comment;
+	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $comment;
+	}
+	return '';
+}
+
+/**
+ * Placeholder text for non-subscribers
+ *
+ * @return string
+ */
+function get_locked_content_placeholder_text() {
+	return do_blocks(
+		'<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"},"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"backgroundColor":"tertiary"} -->
+			<div class="wp-block-group has-tertiary-background-color has-background" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center"} -->
+			<h2 class="has-text-align-center">' . esc_html__( 'Subscribe to get access.', 'jetpack' ) . '</h2>
+			<!-- /wp:heading -->
+
+			<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
+			<p class="has-text-align-center has-small-font-size">' . esc_html__( 'Read more of this content if you subscribe today.', 'jetpack' ) . '</p>
+			<!-- /wp:paragraph -->
+
+			<!-- wp:jetpack/subscriptions {"className":"is-style-compact"} /-->
+			</div>
+		<!-- /wp:group -->'
+	);
 }

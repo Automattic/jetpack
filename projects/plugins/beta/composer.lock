@@ -4,8 +4,66 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7b8ce066f47ddea0c60dd1c0104ed54",
+    "content-hash": "92efc2ebd18c5e82b5a0160a2e03169a",
     "packages": [
+        {
+            "name": "automattic/jetpack-admin-ui",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/admin-ui",
+                "reference": "9405b138a2b173706dd3f977c71ca2ea55e3710b"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-admin-ui",
+                "textdomain": "jetpack-admin-ui",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-admin-menu.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-autoloader",
             "version": "dev-trunk",
@@ -63,23 +121,23 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.2.7",
+            "version": "3.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "deac27056b57e46faf136fae7b449eeaa71661ee"
+                "reference": "3953f23262f2bff1919fc82183ad9acb13ff62c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/deac27056b57e46faf136fae7b449eeaa71661ee",
-                "reference": "deac27056b57e46faf136fae7b449eeaa71661ee",
+                "url": "https://api.github.com/repos/composer/semver/zipball/3953f23262f2bff1919fc82183ad9acb13ff62c9",
+                "reference": "3953f23262f2bff1919fc82183ad9acb13ff62c9",
                 "shasum": ""
             },
             "require": {
                 "php": "^5.3.2 || ^7.0 || ^8.0"
             },
             "require-dev": {
-                "phpstan/phpstan": "^0.12.54",
+                "phpstan/phpstan": "^1.4",
                 "symfony/phpunit-bridge": "^4.2 || ^5"
             },
             "type": "library",
@@ -124,7 +182,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.2.7"
+                "source": "https://github.com/composer/semver/tree/3.3.2"
             },
             "funding": [
                 {
@@ -140,7 +198,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-04T09:57:54+00:00"
+            "time": "2022-04-01T19:23:25+00:00"
         },
         {
             "name": "erusev/parsedown",
@@ -200,7 +258,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
+                "reference": "902e0f17e8f54dd4b36f83e808a1385e4d001c72"
             },
             "require": {
                 "php": ">=5.6",
@@ -219,7 +277,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
@@ -321,16 +379,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.0.15",
+            "version": "v6.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "b0b910724a0a0326b4481e4f8a30abb2dd442efb"
+                "reference": "be294423f337dda97c810733138c0caec1bb0575"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/b0b910724a0a0326b4481e4f8a30abb2dd442efb",
-                "reference": "b0b910724a0a0326b4481e4f8a30abb2dd442efb",
+                "url": "https://api.github.com/repos/symfony/console/zipball/be294423f337dda97c810733138c0caec1bb0575",
+                "reference": "be294423f337dda97c810733138c0caec1bb0575",
                 "shasum": ""
             },
             "require": {
@@ -396,7 +454,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.0.15"
+                "source": "https://github.com/symfony/console/tree/v6.0.16"
             },
             "funding": [
                 {
@@ -412,20 +470,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-26T21:42:20+00:00"
+            "time": "2022-11-25T18:58:46+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-ctype.git",
-                "reference": "6fd1b9a79f6e3cf65f9e679b23af304cd9e010d4"
+                "reference": "5bbc823adecdae860bb64756d639ecfec17b050a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/6fd1b9a79f6e3cf65f9e679b23af304cd9e010d4",
-                "reference": "6fd1b9a79f6e3cf65f9e679b23af304cd9e010d4",
+                "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/5bbc823adecdae860bb64756d639ecfec17b050a",
+                "reference": "5bbc823adecdae860bb64756d639ecfec17b050a",
                 "shasum": ""
             },
             "require": {
@@ -440,7 +498,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -478,7 +536,7 @@
                 "portable"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-ctype/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -494,20 +552,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
-                "reference": "433d05519ce6990bf3530fba6957499d327395c2"
+                "reference": "511a08c03c1960e08a883f4cffcacd219b758354"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/433d05519ce6990bf3530fba6957499d327395c2",
-                "reference": "433d05519ce6990bf3530fba6957499d327395c2",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/511a08c03c1960e08a883f4cffcacd219b758354",
+                "reference": "511a08c03c1960e08a883f4cffcacd219b758354",
                 "shasum": ""
             },
             "require": {
@@ -519,7 +577,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -559,7 +617,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -575,20 +633,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd"
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/219aa369ceff116e673852dce47c3a41794c14bd",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/19bd1e4fcd5b91116f14d8533c57831ed00571b6",
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6",
                 "shasum": ""
             },
             "require": {
@@ -600,7 +658,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -643,7 +701,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -659,20 +717,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e"
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
                 "shasum": ""
             },
             "require": {
@@ -687,7 +745,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -726,7 +784,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -742,7 +800,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/process",
@@ -1031,6 +1089,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-changelogger": 20
     },

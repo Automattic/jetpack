@@ -80,6 +80,34 @@ abstract class WPCOM_JSON_API_Endpoint {
 	public $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
 	/**
+	 * Forced endpoint environment when running on WPCOM
+	 *
+	 * @var string '', 'wpcom', 'secure', or 'jetpack'
+	 */
+	public $force = '';
+
+	/**
+	 * Whether the endpoint is deprecated
+	 *
+	 * @var bool
+	 */
+	public $deprecated = false;
+
+	/**
+	 * Version of the endpoint this endpoint is deprecated in favor of.
+	 *
+	 * @var string
+	 */
+	protected $new_version = WPCOM_JSON_API__CURRENT_VERSION;
+
+	/**
+	 * Whether the endpoint is only available on WordPress.com hosted blogs
+	 *
+	 * @var bool
+	 */
+	public $jp_disabled = false;
+
+	/**
 	 * Path at which to serve this endpoint: sprintf() format.
 	 *
 	 * @var string
@@ -189,6 +217,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @var string
 	 */
 	public $example_response = '';
+
+	/**
+	 * OAuth2 scope required when running on WPCOM
+	 *
+	 * @var string
+	 */
+	public $required_scope = '';
 
 	/**
 	 * Set to true if the endpoint implements its own filtering instead of the standard `fields` query method

@@ -51,8 +51,7 @@ export default function useVideos() {
 
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
-		setSearch: querySearch =>
-			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),
+		setSearch: querySearch => dispatch( STORE_ID ).setVideosQuery( { search: querySearch } ),
 		setFilter: dispatch( STORE_ID ).setVideosFilter,
 	};
 }
@@ -80,4 +79,15 @@ export const useLocalVideos = () => {
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setLocalVideosQuery( { page } ),
 	};
+};
+
+/**
+ * React custom hook to get the videos query.
+ *
+ * @returns {object} search query information
+ */
+export const useVideosQuery = () => {
+	// Data
+	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
+	return query;
 };

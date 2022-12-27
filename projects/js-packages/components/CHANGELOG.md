@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.26.4 - 2022-12-19
+### Added
+- Add Jetpack VaultPress Backup Logo [#27802]
+- Add Jetpack VideoPress logo [#27807]
+
+### Changed
+- Update Backup, Anti-spam, and VideoPress logos [#27847]
+- Updated package dependencies. [#27916]
+
+## 0.26.3 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.26.2 - 2022-12-12
+### Added
+- RNA: Add props to ActionPopover related to link on action button [#27714]
+
 ## 0.26.1 - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27699]

@@ -114,7 +114,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
@@ -222,6 +221,15 @@ export default [
 			file: `${ GUIDE_PATH }/dist/guide.js`,
 		},
 		plugins: [
+			replace( {
+				preventAssignment: true,
+				delimiters: [ '', '' ],
+				values: {
+					"@import '@automattic": "@import '~@automattic",
+					'process.env.NODE_ENV': '"production"',
+				},
+			} ),
+
 			resolve( {
 				browser: true,
 				preferBuiltins: false,
@@ -233,7 +241,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
