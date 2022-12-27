@@ -1390,6 +1390,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get the option storing the allowed TLD for this site.
+	 *
+	 * @return string
+	 */
+	public function get_allowed_tld() {
+		return get_option( 'allowed_tld' );
+	}
+
+	/**
 	 * Check if the site is currently being built by the DIFM Lite team.
 	 *
 	 * @return bool

@@ -144,6 +144,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'default_post_format',
 		'default_category',
 		'allowed_file_types',
+		'allowed_tld',
 		'show_on_front',
 		/** This filter is documented in modules/likes.php */
 		'default_likes_enabled',
@@ -657,6 +658,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'allowed_file_types':
 					$options[ $key ] = $site->allowed_file_types();
+					break;
+				case 'allowed_tld':
+					$options[ $key ] = $site->allowed_tld();
 					break;
 				case 'show_on_front':
 					$options[ $key ] = $site->get_show_on_front();
