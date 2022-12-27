@@ -4,51 +4,44 @@
 
 ## 11.7-a.9 - 2022-12-27
 ### Major Enhancements
-- add launchpad on save modal [#27976]
+- Blocks: add launchpad on save modal. [#27976]
+- Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead. [#27961]
 
 ### Enhancements
-- Add new fonts for better i18n [#27854]
-- Adjust Form placeholder colors for better consistency [#28044]
-- Admin: use minimized CSS for the stats widget [#27788]
-- Also support git merge strategy for changelog.' [#27881]
-- Entire posts can now be restricted to either paid subscribers, or email subscribers. This will enable site owners to:
-  - reward their paying subscribers with secret Lasagna recipes
-  - create paid-only issues of their newsletters
-  - create incentives and landing pages to gain subscribers
-  - create paid courses, and pursue other subscriber-only models
-  - support themselves financially without sacrificing creative freedom
-  - buy literal jetpacks from all the money they make on their sites (outcome not guaranteed) [#26417]
-- Jetpack: do not convert core/embed to videopress/video on-the-fly [#27942]
-- Move responses export to a modal triggered by a single "Export" button. This allows for more options to be added there as the listtable page offers very few space for it. [#27821]
-- Paid Newsletter functionality:
-  If the site owner creates one or more "newsletter" paid plans available for purchase, subscribers will be given an option to pay while subscribing through the subscribe block.
-  This change goes together with ./add-post-visibility-setting to create a paid newsletter functionality. [#26417]
-- Slideshow: Reduce bullet size and move it to flex-start [#28002]
-- Slideshow: Replace pencil icon with edit text [#28004]
-- Update Form child blocks icons [#28047]
+- Contact form: move responses export to a modal triggered by a single "Export" button. [#27821]
+- Dashboard: use minimized CSS for the stats widget. [#27788]
+- Global Styles: add new fonts for better i18n. [#27854]
+- Form block: adjust Form placeholder icon and link colors for better consistency. [#28044]
+- Form block: update Form child blocks icons. [#28047]
+- Slideshow block: reduce bullet size and change the CSS justify-content to flex-start. [#28002]
+- Slideshow block: replace pencil icon with edit text. [#28004]
+- Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans. [#26417]
+- VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites). [#27942]
+
 
 ### Improved compatibility
-- Revue block: Removed functionality due to Revue shutting down, adding placeholder messaging instead. [#27961]
-- VideoPress: Do not register videopress shortcode if standalone VideoPress plugin already registered it [#27842]
+- VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it. [#27842]
 
 ### Bug fixes
-- Adjust Form placeholder footer links style [#28008]
-- Blogging Prompts: Don't display within mobile app [#28023]
+- Form block: adjust Form placeholder footer links style to prevent theme clashes. [#28008]
 - Internationalization: fix context for translated product name. [#28035]
-- Payment blocks: Fixed the upgrade nudge for Payment blocks [#27909]
-- Premium-content block is shipped with a JWT lib that had a bug in its encode() method [#26417]
-- Subscribe Block: ensure custom button spacing is correct when the button is on its own line. [#28057]
-- Update the Mixcloud oEmbed API Endpoint to the new version [#28061]
+- Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites. [#27909]
+- Premium Content block: fix bug in JWT library encode() method. [#26417]
+- Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version. [#28061]
+- Subscription block: ensure custom button spacing is correct when the button is on its own line. [#28057]
+- Writing Prompts: do not display within mobile app. [#28023]
+
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Blaze: move out of the plugin, and into the Promote Posts package. [#28062]
+- Blaze: changing Promote Post package reference to new name: Blaze. [#28073]
+- Blaze: move out of the plugin, and into a package. [#28062]
+- Blaze: update the look of the Blaze button on the post-publish button. [#27960]
 - Blocks: switch to using the new, shared and extracted version of Tracks. [#27940]
-- Blocks: update the look of the Promote button on the post-publish button. [#27960]
-- Move atomic checks for the WAF to the WAF package. [#27939]
-- Site Settings API: Exposing `show_on_front` and `page_on_front` options [#28042]
-- Update Promote Post package reference to new name: Blaze [#28073]
-- Update wpcom_gifting_subscription default value based on plan expiration [#27987]
-- Updating changelog entries [#28006]
+- Gift subscription: update wpcom_gifting_subscription default value based on plan expiration. [#27987]
+- Reading Settings API: expose `show_on_front` and `page_on_front` options. [#28042]
+- Scripts: support git merge strategy for changelog. [#27881]
+- Updating changelog entries. [#28006]
+- WAF: move WoA checks for the WAF to the WAF package. [#27939]
 
 ## 11.7-a.7 - 2022-12-19
 ### Enhancements
