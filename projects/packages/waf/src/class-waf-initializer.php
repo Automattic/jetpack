@@ -90,6 +90,7 @@ class Waf_Initializer {
 	public static function check_for_waf_update() {
 		if ( get_transient( 'jetpack_waf_needs_update' ) ) {
 			delete_transient( 'jetpack_waf_needs_update' );
+			Waf_Compatibility::migrate_rules();
 			Waf_Runner::update_waf();
 		}
 	}
