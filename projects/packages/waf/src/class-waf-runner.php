@@ -255,13 +255,12 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-      $rules_file_path = self::get_waf_file_path( self::RULES_FILE );
+			$rules_file_path = self::get_waf_file_path( self::RULES_FILE );
 			if ( file_exists( $rules_file_path ) ) {
 				// phpcs:ignore
-				include $rules_file_path
+				include $rules_file_path;
 			}
-
-		} catch ( \Exception $err ) { // phpcs:ignore
+} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
 
