@@ -660,7 +660,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->allowed_file_types();
 					break;
 				case 'allowed_tld':
-					$options[ $key ] = $site->allowed_tld();
+					$options[ $key ] = $site->get_allowed_tld();
 					break;
 				case 'show_on_front':
 					$options[ $key ] = $site->get_show_on_front();
