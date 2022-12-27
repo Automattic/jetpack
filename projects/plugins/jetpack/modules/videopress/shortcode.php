@@ -92,6 +92,13 @@ class VideoPress_Shortcode {
 			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color.
 		);
 
+		// Make sure "false" will be actually false.
+		foreach ( $attr as $key => $value ) {
+			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
+				$attr[ $key ] = false;
+			}
+		}
+
 		$attr = shortcode_atts( $defaults, $attr, 'videopress' );
 
 		/**
@@ -100,7 +107,6 @@ class VideoPress_Shortcode {
 		$attr['width']   = absint( $attr['w'] );
 		$attr['hd']      = (bool) $attr['hd'];
 		$attr['freedom'] = (bool) $attr['freedom'];
-		$attr['cover']   = (bool) $attr['cover'];
 
 		/**
 		 * If the provided width is less than the minimum allowed
@@ -126,11 +132,6 @@ class VideoPress_Shortcode {
 			$attr['width'] --;
 		}
 
-		// Make sure "false" being passed as useaveragecolor will be actually false.
-		if ( is_string( $attr['useaveragecolor'] ) && 'false' === strtolower( $attr['useaveragecolor'] ) ) {
-			$attr['useaveragecolor'] = false;
-		}
-
 		/**
 		 * Filter the default VideoPress shortcode options.
 		 *
@@ -145,7 +146,7 @@ class VideoPress_Shortcode {
 			array(
 				'at'              => (int) $attr['at'],
 				'hd'              => $attr['hd'],
-				'cover'           => $attr['cover'],
+				'cover'           => (bool) $attr['cover'],
 				'loop'            => $attr['loop'],
 				'freedom'         => $attr['freedom'],
 				'autoplay'        => $attr['autoplay'],
@@ -190,12 +191,10 @@ class VideoPress_Shortcode {
 	 * @return string
 	 */
 	public function video_shortcode_override( $html, $attr, $content, $instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 		$videopress_guid = null;
 
 		if ( isset( $attr['videopress_guid'] ) ) {
 			$videopress_guid = $attr['videopress_guid'];
-
 		} else {
 			// Handle the different possible url attributes
 			$url_keys = array( 'src', 'mp4' );
@@ -228,12 +227,17 @@ class VideoPress_Shortcode {
 			if ( isset( $attr['width'] ) ) {
 				$videopress_attr['w'] = (int) $attr['width'];
 			}
+			if ( isset( $attr['muted'] ) ) {
+				$videopress_attr['muted'] = $attr['muted'];
+			}
 			if ( isset( $attr['autoplay'] ) ) {
 				$videopress_attr['autoplay'] = $attr['autoplay'];
 			}
 			if ( isset( $attr['loop'] ) ) {
 				$videopress_attr['loop'] = $attr['loop'];
 			}
+			// The core video block doesn't support the cover attribute, setting it to false for consistency.
+			$videopress_attr['cover'] = false;
 
 			// Then display the VideoPress version of the stored GUID!
 			return $this->shortcode_callback( $videopress_attr );
