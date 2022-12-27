@@ -12,7 +12,7 @@ namespace Automattic\Jetpack;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
