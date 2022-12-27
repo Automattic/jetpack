@@ -109,27 +109,37 @@ function jetpack_add_google_fonts_provider() {
 	 */
 	$fonts_to_register = apply_filters( 'jetpack_google_fonts_list', JETPACK_GOOGLE_FONTS_LIST );
 
-	$fonts = array();
-
 	foreach ( $fonts_to_register as $font_family ) {
-		$fonts[ $font_family ] = array(
-			$font_family . '-normal' => array(
-				'font-display' => 'fallback',
-				'font-family'  => $font_family,
-				'font-style'   => 'normal',
-				'font-weight'  => '100 900',
-				'provider'     => 'jetpack-google-fonts',
-			),
-			$font_family . '-italic' => array(
-				'font-display' => 'fallback',
-				'font-family'  => $font_family,
-				'font-style'   => 'italic',
-				'font-weight'  => '100 900',
-				'provider'     => 'jetpack-google-fonts',
-			),
+		$fonts = array();
+
+		$font_italic = array(
+			'font-family'  => $font_family,
+			'font-weight'  => '100 900',
+			'font-style'   => 'normal',
+			'font-display' => 'fallback',
+			'provider'     => 'jetpack-google-fonts',
 		);
+
+		$font_normal = array(
+			'font-family'  => $font_family,
+			'font-weight'  => '100 900',
+			'font-style'   => 'italic',
+			'font-display' => 'fallback',
+			'provider'     => 'jetpack-google-fonts',
+		);
+
+		// New WP Fonts API format since Gutenberg 14.9 requires keyed array
+		// See https://github.com/Automattic/jetpack/issues/28063
+		if ( class_exists( 'WP_Fonts' ) ) {
+			$fonts = array(
+				$font_family => array( $font_normal, $font_italic ),
+			);
+		} elseif ( class_exists( 'WP_Webfonts' ) ) {
+			$fonts = array( $font_normal, $font_italic );
+		}
+
+		wp_register_webfonts( $fonts );
 	}
-	wp_register_webfonts( $fonts );
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );
 
