@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { TrackProps, VideoGUID, VideoId } from '../../blocks/video/types';
+import { TrackProps, VideoGUIDProp, VideoIdProp } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
-	id?: VideoId;
-	guid?: VideoGUID;
+	id?: VideoIdProp;
+	guid?: VideoGUIDProp;
 	isPrivate?: boolean;
 };
 

@@ -8,6 +8,7 @@ import * as tus from 'tus-js-client';
 /**
  * Types
  */
+import { VideoIdProp } from '../../block-editor/blocks/video/types';
 import { MediaTokenProps } from '../../lib/get-media-token/types';
 import type React from 'react';
 
@@ -155,6 +156,8 @@ type UploadingDataProps = {
 	status: StatusProp;
 };
 
+type onSuccessProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
+
 export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
 		bytesSent: 0,
@@ -186,14 +189,14 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 				const resumableHandler = uploadVideo( {
 					file,
 					tokenData,
-					onProgress: ( bytesSent, bytesTotal ) => {
+					onProgress: ( bytesSent: number, bytesTotal: number ) => {
 						const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
 						setUploadingData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
 						onProgress( bytesSent, bytesTotal );
 					},
-					onSuccess: () => {
-						setUploadingData( prev => ( { ...prev, status: 'done' } ) );
-						onSuccess();
+					onSuccess: ( data: onSuccessProps ) => {
+						setUploadingData( prev => ( { ...data, ...prev, status: 'done' } ) );
+						onSuccess( data );
 					},
 					onError: ( err: Error ) => {
 						setUploadingData( prev => ( { ...prev, status: 'error' } ) );

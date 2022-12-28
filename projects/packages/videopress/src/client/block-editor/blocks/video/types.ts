@@ -1,7 +1,7 @@
 import { trackKindOptionProps } from '../../../lib/video-tracks/types';
 
-export type VideoId = number;
-export type VideoGUID = string;
+export type VideoIdProp = number;
+export type VideoGUIDProp = string;
 
 export type TrackProps = {
 	label: string;
@@ -17,8 +17,8 @@ export type VideoBlockColorAttributesProps = {
 };
 
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
-	id?: VideoId;
-	guid?: VideoGUID;
+	id?: VideoIdProp;
+	guid?: VideoGUIDProp;
 	src?: string;
 
 	title?: string;
