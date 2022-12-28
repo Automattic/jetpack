@@ -152,9 +152,10 @@ const ConnectionStatusCard = props => {
 								onClick={ openManageConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
-									/* translators: placeholder is user name */
-									__( 'Connected as %s.', 'jetpack-my-jetpack' ),
-									userConnectionData.currentUser?.wpcomUser?.display_name
+									/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
+									__( 'Connected as %1$s %2$s.', 'jetpack-my-jetpack' ),
+									userConnectionData.currentUser?.wpcomUser?.display_name,
+									userConnectionData.currentUser?.isMaster ? '(Owner)' : ''
 								) }
 							/>
 						) }
