@@ -49,44 +49,6 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 			filetype: file.type,
 		},
 		retryDelays: [ 0, 1000, 3000, 5000, 10000 ],
-		onAfterResponse: function ( req, res ) {
-			// Why is this not showing the x-headers?
-			if ( res.getStatus() >= 400 ) {
-				return;
-			}
-
-			const GUID_HEADER = 'x-videopress-upload-guid';
-			const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
-			const SRC_URL_HEADER = 'x-videopress-upload-src-url';
-
-			const guid = res.getHeader( GUID_HEADER );
-			const mediaId = res.getHeader( MEDIA_ID_HEADER );
-			const src = res.getHeader( SRC_URL_HEADER );
-
-			if ( guid && mediaId && src ) {
-				onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
-				return;
-			}
-
-			const headerMap = {
-				'x-videopress-upload-key-token': 'token',
-				'x-videopress-upload-key': 'key',
-			};
-
-			const _tokenData = {};
-			Object.keys( headerMap ).forEach( function ( header ) {
-				const value = res.getHeader( header );
-				if ( ! value ) {
-					return;
-				}
-
-				_tokenData[ headerMap[ header ] ] = value;
-			} );
-
-			if ( _tokenData.key && _tokenData.token ) {
-				jwtsForKeys[ _tokenData.key ] = _tokenData.token;
-			}
-		},
 		onBeforeRequest: function ( req ) {
 			// make ALL requests be either POST or GET to honor the public-api.wordpress.com "contract".
 			const method = req._method;
@@ -133,6 +95,44 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 
 			return Promise.resolve( req );
 		},
+		onAfterResponse: function ( req, res ) {
+			// Why is this not showing the x-headers?
+			if ( res.getStatus() >= 400 ) {
+				return;
+			}
+
+			const GUID_HEADER = 'x-videopress-upload-guid';
+			const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
+			const SRC_URL_HEADER = 'x-videopress-upload-src-url';
+
+			const guid = res.getHeader( GUID_HEADER );
+			const mediaId = res.getHeader( MEDIA_ID_HEADER );
+			const src = res.getHeader( SRC_URL_HEADER );
+
+			if ( guid && mediaId && src ) {
+				onSuccess && onSuccess( { id: Number( mediaId ), guid, src }, file );
+				return;
+			}
+
+			const headerMap = {
+				'x-videopress-upload-key-token': 'token',
+				'x-videopress-upload-key': 'key',
+			};
+
+			const _tokenData = {};
+			Object.keys( headerMap ).forEach( function ( header ) {
+				const value = res.getHeader( header );
+				if ( ! value ) {
+					return;
+				}
+
+				_tokenData[ headerMap[ header ] ] = value;
+			} );
+
+			if ( _tokenData.key && _tokenData.token ) {
+				jwtsForKeys[ _tokenData.key ] = _tokenData.token;
+			}
+		},
 	} );
 
 	upload.findPreviousUploads().then( function ( previousUploads ) {
@@ -146,9 +146,9 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 	return upload;
 };
 
-type StatusProp = 'idle' | 'aborted' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
+type StatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
-type UploaderDataProps = {
+type UploadingDataProps = {
 	bytesSent: number;
 	bytesTotal: number;
 	percent: number;
@@ -156,7 +156,7 @@ type UploaderDataProps = {
 };
 
 export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
-	const [ data, setData ] = useState< UploaderDataProps >( {
+	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
 		bytesSent: 0,
 		bytesTotal: 0,
 		percent: 0,
@@ -180,7 +180,7 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 				}
 
 				if ( status === 'idle' ) {
-					setData( prev => ( { ...prev, status: 'uploading' } ) );
+					setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 				}
 
 				const resumableHandler = uploadVideo( {
@@ -188,15 +188,15 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 					tokenData,
 					onProgress: ( bytesSent, bytesTotal ) => {
 						const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
-						setData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
+						setUploadingData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
 						onProgress( bytesSent, bytesTotal );
 					},
 					onSuccess: () => {
-						setData( prev => ( { ...prev, status: 'done' } ) );
+						setUploadingData( prev => ( { ...prev, status: 'done' } ) );
 						onSuccess();
 					},
 					onError: ( err: Error ) => {
-						setData( prev => ( { ...prev, status: 'error' } ) );
+						setUploadingData( prev => ( { ...prev, status: 'error' } ) );
 						setError( err );
 						onError( err );
 					},
@@ -205,11 +205,11 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 				const resumable = {
 					...resumableHandler,
 					start: () => {
-						setData( prev => ( { ...prev, status: 'uploading' } ) );
+						setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 						resumableHandler.start();
 					},
 					abort: () => {
-						setData( prev => ( { ...prev, status: 'aborted' } ) );
+						setUploadingData( prev => ( { ...prev, status: 'aborted' } ) );
 						resumableHandler.abort();
 					},
 				};
@@ -236,5 +236,5 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 		uploadhandler( file );
 	}
 
-	return { onUploadHandler, uploadhandler, resumeHandler, data, error };
+	return { onUploadHandler, uploadhandler, resumeHandler, uploadingData, error };
 };
