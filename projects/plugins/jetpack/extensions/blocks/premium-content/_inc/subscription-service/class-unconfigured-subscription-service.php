@@ -39,10 +39,9 @@ class Unconfigured_Subscription_Service implements Subscription_Service {
 	/**
 	 * No subscription service available, no users can see this content.
 	 *
-	 * @param array  $valid_plan_ids .
-	 * @param string $access_level   .
+	 * @param array $valid_plan_ids .
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+	public function visitor_can_view_content( $valid_plan_ids ) {
 		return false;
 	}
 
