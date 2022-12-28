@@ -4,6 +4,7 @@
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
+
 ### Blaze
 
 There have been some behind the scenes changes to Blaze (including renaming, and moving it into it's own package), as well as feature additions. To test:
@@ -11,6 +12,7 @@ There have been some behind the scenes changes to Blaze (including renaming, and
 - Make sure your site is connected to Jetpack and your WordPress.com account is connected. Make sure the site is public.
 - On WoA (not Jetpack self-hosted): Publish a new post (or unpublish then republish a post). Notice the post-publish sidebar - it should show a 'Blaze your post' message and button saying 'Blaze'.
 - On a Jetpack test site (not WoA): Hover over a post in the posts list (wp-admin/edit.php), and you should see a "promote" link. Clicking it should take you to Blaze page.
+
 ### Form Block
 
 The Form Block received several updates and bug fixes in this version. To test:
