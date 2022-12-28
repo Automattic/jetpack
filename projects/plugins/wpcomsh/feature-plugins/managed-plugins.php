@@ -68,7 +68,8 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 		 * For those cases, we check against the purchases of a site as a fallback, but that only works for
 		 * purchases of products with slugs that have not been shortened.
 		 */
-		$marketplace_purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'marketplace_plugin' ) );
+		$marketplace_purchases = wpcomsh_filter_marketplace_purchases_from_site_purchases();
+
 		if ( empty( $marketplace_purchases ) ) {
 			return false;
 		}
@@ -85,6 +86,22 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 	}
 
 	return false;
+}
+
+/**
+ * Filter marketplace product purchases from site purchases.
+ *
+ * @return array The filtered marketplace purchases.
+ */
+function wpcomsh_filter_marketplace_purchases_from_site_purchases() {
+	$site_purchases = wpcom_get_site_purchases();
+
+	return array_filter(
+		$site_purchases,
+		function ( $purchase ) {
+			return in_array( $purchase->product_type, array( 'marketplace_plugin', 'saas_plugin' ), true );
+		}
+	);
 }
 
 /**

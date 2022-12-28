@@ -342,7 +342,7 @@ class WPCOM_Features {
 		self::ATOMIC                        => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
-			array( 'product_type' => array( 'marketplace_plugin' ) ),
+			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
 		),
 		// BACKUPS - Site has *any* kind of backups.
 		self::BACKUPS                       => array(
