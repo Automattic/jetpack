@@ -8,7 +8,7 @@ import * as tus from 'tus-js-client';
 /**
  * Types
  */
-import { VideoIdProp } from '../../block-editor/blocks/video/types';
+import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
 import { MediaTokenProps } from '../../lib/get-media-token/types';
 import type React from 'react';
 
@@ -106,7 +106,7 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 			const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
 			const SRC_URL_HEADER = 'x-videopress-upload-src-url';
 
-			const guid = res.getHeader( GUID_HEADER );
+			const guid: VideoGUIDProp = res.getHeader( GUID_HEADER );
 			const mediaId = res.getHeader( MEDIA_ID_HEADER );
 			const src = res.getHeader( SRC_URL_HEADER );
 
@@ -149,14 +149,14 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 
 type StatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
-type UploadingDataProps = {
+type onSuccessProps = { id?: VideoIdProp; guid?: VideoIdProp; src?: string };
+
+type UploadingDataProps = onSuccessProps & {
 	bytesSent: number;
 	bytesTotal: number;
 	percent: number;
 	status: StatusProp;
 };
-
-type onSuccessProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
 
 export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
