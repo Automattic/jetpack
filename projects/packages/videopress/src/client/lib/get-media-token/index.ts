@@ -1,4 +1,4 @@
-import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
+import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
 import {
 	MediaTokenScopeProps,
 	MediaTokenScopeAdminAjaxResponseBodyProps,
@@ -28,8 +28,8 @@ const getMediaToken = function (
 		let adminAjaxAction: AdminAjaxTokenProps;
 
 		const data: {
-			guid?: VideoGUID;
-			id?: VideoId;
+			guid?: VideoGUIDProp;
+			id?: VideoIdProp;
 		} = {};
 
 		switch ( scope ) {
