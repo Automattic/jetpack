@@ -30,9 +30,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'Does not render the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'renders the "You’re not connected" error list item', () => {
@@ -63,9 +63,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'Does not render the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'Render the "You’re not connected" error list item', () => {
@@ -98,9 +98,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'renders the "Manage" buttons', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 2 );
 		} );
 
 		it( 'renders the "Logged in as" success list item', () => {
