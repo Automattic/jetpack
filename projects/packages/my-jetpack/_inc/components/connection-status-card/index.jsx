@@ -1,4 +1,4 @@
-import { Button, H3, Text } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl, H3, Text } from '@automattic/jetpack-components';
 import {
 	ManageConnectionDialog,
 	useConnection,
@@ -105,6 +105,14 @@ const ConnectionStatusCard = props => {
 
 			<Text variant="body" mb={ 3 }>
 				{ connectionInfoText }
+				<Button
+					href={ getRedirectUrl( 'why-the-wordpress-com-connection-is-important-for-jetpack' ) }
+					variant="link"
+					weight="regular"
+					isExternalLink={ true }
+				>
+					{ __( 'Learn more about connections', 'jetpack-my-jetpack' ) }
+				</Button>
 			</Text>
 
 			<div className={ styles.status }>
@@ -137,7 +145,7 @@ const ConnectionStatusCard = props => {
 						<ConnectionListItem
 							onClick={ openManageConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
-							actionText={ ! isUserConnected ? __( 'Manage', 'jetpack-my-jetpack' ) : null }
+							actionText={ isUserConnected ? __( 'Manage', 'jetpack-my-jetpack' ) : null }
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
@@ -205,7 +213,7 @@ ConnectionStatusCard.propTypes = {
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack-my-jetpack' ),
 	connectionInfoText: __(
-		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
+		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features. ',
 		'jetpack-my-jetpack'
 	),
 	redirectUri: null,
