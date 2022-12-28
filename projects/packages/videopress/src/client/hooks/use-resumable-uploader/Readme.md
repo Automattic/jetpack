@@ -47,7 +47,7 @@ function UploadFormComponent() {
 
 ### resumeHandler
 
-### data
+### uploadingData
 
 ### error
 
