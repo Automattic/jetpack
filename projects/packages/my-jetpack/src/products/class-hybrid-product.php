@@ -15,7 +15,7 @@ use WP_Error;
  *
  * DEPRECATED: This class is deprecated and will be removed in a future version.
  *
- * All product classes has been moved out of the hybrid class concept
+ * All product classes have been moved out of the hybrid class concept
  *
  * @deprecated 2.7.2
  *
