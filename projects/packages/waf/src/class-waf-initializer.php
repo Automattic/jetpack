@@ -60,20 +60,24 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function update_waf_after_plugin_upgrade( $upgrader, $hook_extra ) {
-		$jetpack_plugins_with_waf = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
+		$jetpack_text_domains_with_waf = array( 'jetpack', 'jetpack-protect' );
+		$jetpack_plugins_with_waf      = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
 		// Only run on upgrades affecting plugins
-		if ( empty( $hook_extra['plugins'] ) ) {
+		if ( 'plugin' === $hook_extra['type'] ) {
 			return;
 		}
 
 		// Only run on updates and installations
-		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ), true ) ) {
+		if ( 'update' !== $hook_extra['action'] && 'install' !== $hook_extra['action'] ) {
 			return;
 		}
 
 		// Only run when Jetpack plugins were affected
-		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
+		if ( 'update' === $hook_extra['action'] && empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
+			return;
+		}
+		if ( 'install' === $hook_extra['action'] && empty( array_intersect( $jetpack_text_domains_with_waf, $upgrader->new_plugin_data['TextDomain'] ) ) ) {
 			return;
 		}
 
