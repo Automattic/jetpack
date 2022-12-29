@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Fix box-sizing layout issue on Manage Connection modal

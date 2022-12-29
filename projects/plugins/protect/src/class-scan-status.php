@@ -146,6 +146,7 @@ class Scan_Status extends Status {
 		$status->num_themes_threats  = 0;
 		$status->num_plugins_threats = 0;
 		$status->has_unchecked_items = false;
+		$status->current_progress    = isset( $scan_data->current->progress ) ? $scan_data->current->progress : null;
 
 		if ( ! empty( $scan_data->most_recent->timestamp ) ) {
 			$date = new \DateTime( $scan_data->most_recent->timestamp );
