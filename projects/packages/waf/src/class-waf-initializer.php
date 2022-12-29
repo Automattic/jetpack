@@ -11,6 +11,14 @@ namespace Automattic\Jetpack\Waf;
  * Initializes the module
  */
 class Waf_Initializer {
+
+	/**
+	 * Option for storing whether or not the WAF files are potentially out of date.
+	 *
+	 * @var string NEEDS_UPDATE_OPTION_NAME
+	 */
+	const NEEDS_UPDATE_OPTION_NAME = 'jetpack_waf_needs_update';
+
 	/**
 	 * Initializes the configurations needed for the waf module.
 	 *
@@ -81,7 +89,7 @@ class Waf_Initializer {
 			return;
 		}
 
-		set_transient( 'jetpack_waf_needs_update', 1 );
+		update_option( self::NEEDS_UPDATE_OPTION_NAME, 1 );
 	}
 
 	/**
@@ -92,8 +100,12 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function check_for_waf_update() {
-		if ( get_transient( 'jetpack_waf_needs_update' ) ) {
-			delete_transient( 'jetpack_waf_needs_update' );
+		$update_option        = get_option( self::NEEDS_UPDATE_OPTION_NAME );
+		$update_option_exists = false === $update_option;
+
+		// For backwards compatibility, if the option doesn't exist, assume the WAF needs to be updated.
+		if ( ! $update_option_exists || $update_option ) {
+			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );
 			Waf_Compatibility::migrate_rules();
 			Waf_Runner::update_waf();
 		}
