@@ -64,7 +64,7 @@ class Waf_Initializer {
 		$jetpack_plugins_with_waf      = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
 		// Only run on upgrades affecting plugins
-		if ( 'plugin' === $hook_extra['type'] ) {
+		if ( 'plugin' !== $hook_extra['type'] ) {
 			return;
 		}
 
