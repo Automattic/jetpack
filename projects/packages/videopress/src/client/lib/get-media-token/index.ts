@@ -65,13 +65,6 @@ const getMediaToken = function (
 			.then( ( response: MediaTokenScopeAdminAjaxResponseBodyProps ) => {
 				switch ( scope ) {
 					case 'upload':
-						resolve( {
-							token: response.upload_token,
-							blogId: response.upload_blog_id,
-							url: response.upload_action_url,
-						} );
-						break;
-
 					case 'upload-jwt':
 						resolve( {
 							token: response.upload_token,
