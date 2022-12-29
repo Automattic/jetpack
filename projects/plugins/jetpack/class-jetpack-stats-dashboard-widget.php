@@ -5,6 +5,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -51,7 +52,15 @@ class Jetpack_Stats_Dashboard_Widget {
 				$widget_title,
 				array( __CLASS__, 'dashboard_widget' )
 			);
-			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			wp_enqueue_style(
+				'jetpack-dashboard-widget',
+				Assets::get_file_url_for_environment(
+					'css/dashboard-widget.min.css',
+					'css/dashboard-widget.css'
+				),
+				array(),
+				JETPACK__VERSION
+			);
 			wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
 		}
 	}

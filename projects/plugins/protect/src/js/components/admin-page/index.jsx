@@ -17,7 +17,7 @@ import useRegistrationWatcher from './use-registration-watcher';
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
-	const { isSeen: wafSeen } = useWafData();
+	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -54,17 +54,19 @@ const AdminPage = ( { children } ) => {
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
-					<Tab
-						link="/firewall"
-						label={
-							<>
-								{ __( 'Firewall', 'jetpack-protect' ) }
-								{ wafSeen === false && (
-									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
-								) }
-							</>
-						}
-					/>
+					{ wafSupported && (
+						<Tab
+							link="/firewall"
+							label={
+								<>
+									{ __( 'Firewall', 'jetpack-protect' ) }
+									{ wafSeen === false && (
+										<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
+									) }
+								</>
+							}
+						/>
+					) }
 				</Tabs>
 			</Container>
 			{ children }

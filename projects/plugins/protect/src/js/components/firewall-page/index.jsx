@@ -13,6 +13,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import API from '../../api';
 import { JETPACK_SCAN_SLUG, PLUGIN_SUPPORT_URL } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -52,6 +53,7 @@ const FirewallPage = () => {
 		},
 		isEnabled,
 		isSeen,
+		isSupported,
 		isUpdating,
 		stats,
 		toggleAutomaticRules,
@@ -481,6 +483,13 @@ const FirewallPage = () => {
 			</Button>
 		</div>
 	);
+
+	/**
+	 * Do not allow this page to be accessed on unsupported platforms.
+	 */
+	if ( ! isSupported ) {
+		return <Navigate replace to="/" />;
+	}
 
 	/**
 	 * Render
