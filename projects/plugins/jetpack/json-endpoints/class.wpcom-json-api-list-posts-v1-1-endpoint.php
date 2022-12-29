@@ -21,7 +21,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'query_parameters'                     => array(
-			'number'          => '(int=20) The number of posts to return. Limit: 100.',
+			'number'          => '(int=20) The number of posts to return. Limit: 100. Setting the value to -1 and having type set to \'page\' will return all pages without any limits.',
 			'offset'          => '(int=0) 0-indexed offset.',
 			'page'            => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
 			'page_handle'     => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
@@ -123,8 +123,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		$args                        = $this->query_args();
 		$is_eligible_for_page_handle = true;
 		$site                        = $this->get_platform()->get_site( $blog_id );
+		$query_all_pages             = $args['number'] === -1 && $args['type'] === 'page';
 
-		if ( $args['number'] < 1 && $args['number'] !== -1 ) {
+		if ( $query_all_pages ) {
+			$is_eligible_for_page_handle = false;
+		} elseif ( $args['number'] < 1 ) {
 			$args['number'] = 20;
 		} elseif ( 100 < $args['number'] ) {
 			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
@@ -207,21 +210,16 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		$query = array(
-			'order'       => $args['order'],
-			'orderby'     => $args['order_by'],
-			'post_type'   => $args['type'],
-			'post_status' => $status,
-			'post_parent' => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
-			'author'      => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
-			's'           => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
-			'fields'      => 'ids',
+			'posts_per_page' => $query_all_pages ? null : $args['number'],
+			'order'          => $args['order'],
+			'orderby'        => $args['order_by'],
+			'post_type'      => $args['type'],
+			'post_status'    => $status,
+			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
+			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
+			'fields'         => 'ids',
 		);
-
-		if ( $args['number'] === -1 ) {
-			$is_eligible_for_page_handle = false;
-		} else {
-			$query['posts_per_page'] = $args['number'];
-		}
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;

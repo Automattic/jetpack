@@ -86,8 +86,11 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 		$args                        = $this->query_args();
 		$is_eligible_for_page_handle = true;
 		$site                        = $this->get_platform()->get_site( $blog_id );
+		$query_all_pages             = $args['number'] === -1 && $args['type'] === 'page';
 
-		if ( $args['number'] < 1 && $args['number'] !== -1 ) {
+		if ( $query_all_pages ) {
+			$is_eligible_for_page_handle = false;
+		} elseif ( $args['number'] < 1 ) {
 			$args['number'] = 20;
 		} elseif ( 100 < $args['number'] ) {
 			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
@@ -174,21 +177,16 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 		}
 
 		$query = array(
-			'order'       => $args['order'],
-			'orderby'     => $args['order_by'],
-			'post_type'   => $args['type'],
-			'post_status' => $status,
-			'post_parent' => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
-			'author'      => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
-			's'           => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
-			'fields'      => 'ids',
+			'posts_per_page' => $query_all_pages ? null : $args['number'],
+			'order'          => $args['order'],
+			'orderby'        => $args['order_by'],
+			'post_type'      => $args['type'],
+			'post_status'    => $status,
+			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
+			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
+			'fields'         => 'ids',
 		);
-
-		if ( $args['number'] === -1 ) {
-			$is_eligible_for_page_handle = false;
-		} else {
-			$query['posts_per_page'] = $args['number'];
-		}
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
