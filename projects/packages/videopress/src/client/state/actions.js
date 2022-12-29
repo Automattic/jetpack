@@ -6,7 +6,11 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
+import {
+	uploadVideo as videoPressUpload,
+	getJWT,
+	uploadFromLibrary,
+} from '../hooks/use-resumable-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -255,7 +259,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	};
 
 	videoPressUpload( {
-		data: jwt,
+		tokenData: jwt,
 		file,
 		onError: noop,
 		onProgress,
