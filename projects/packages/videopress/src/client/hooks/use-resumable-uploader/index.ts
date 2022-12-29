@@ -149,16 +149,29 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 
 type StatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
-type onSuccessProps = { id?: VideoIdProp; guid?: VideoIdProp; src?: string };
+type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
 
-type UploadingDataProps = onSuccessProps & {
+type UploadingDataProps = {
 	bytesSent: number;
 	bytesTotal: number;
 	percent: number;
 	status: StatusProp;
 };
 
-export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
+type UseResumableUploader = {
+	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
+	uploadhandler: ( file: File ) => void;
+	resumeHandler: () => void;
+	uploadingData: UploadingDataProps;
+	media: VideoMediaProps;
+	error: string;
+};
+
+export const useResumableUploader = ( {
+	onProgress,
+	onSuccess,
+	onError,
+} ): UseResumableUploader => {
 	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
 		bytesSent: 0,
 		bytesTotal: 0,
@@ -166,6 +179,7 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 		status: 'idle',
 	} );
 
+	const [ media, setMedia ] = useState< VideoMediaProps >();
 	const [ error, setError ] = useState( null );
 	const [ resumeHandler, setResumeHandler ] = useState( null );
 
@@ -194,8 +208,9 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 						setUploadingData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
 						onProgress( bytesSent, bytesTotal );
 					},
-					onSuccess: ( data: onSuccessProps ) => {
-						setUploadingData( prev => ( { ...data, ...prev, status: 'done' } ) );
+					onSuccess: ( data: VideoMediaProps ) => {
+						setUploadingData( prev => ( { ...prev, status: 'done' } ) );
+						setMedia( data );
 						onSuccess( data );
 					},
 					onError: ( err: Error ) => {
@@ -239,5 +254,5 @@ export const useResumableUploader = ( { onProgress, onSuccess, onError } ) => {
 		uploadhandler( file );
 	}
 
-	return { onUploadHandler, uploadhandler, resumeHandler, uploadingData, error };
+	return { onUploadHandler, uploadhandler, resumeHandler, uploadingData, media, error };
 };
