@@ -858,7 +858,6 @@ abstract class SAL_Site {
 		return get_option( 'restricted_tld' );
 	}
 
-
 	/**
 	 * Returns a date/time string with the date the site was last updated, or a default date/time string otherwise.
 	 *
