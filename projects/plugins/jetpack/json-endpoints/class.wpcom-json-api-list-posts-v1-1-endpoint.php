@@ -124,7 +124,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		$is_eligible_for_page_handle = true;
 		$site                        = $this->get_platform()->get_site( $blog_id );
 
-		if ( $args['number'] < 1 ) {
+		if ( $args['number'] < 1 && $args['number'] !== -1 ) {
 			$args['number'] = 20;
 		} elseif ( 100 < $args['number'] ) {
 			return new WP_Error( 'invalid_number', 'The NUMBER parameter must be less than or equal to 100.', 400 );
@@ -207,16 +207,21 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		$query = array(
-			'posts_per_page' => $args['number'],
-			'order'          => $args['order'],
-			'orderby'        => $args['order_by'],
-			'post_type'      => $args['type'],
-			'post_status'    => $status,
-			'post_parent'    => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
-			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
-			's'              => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
-			'fields'         => 'ids',
+			'order'       => $args['order'],
+			'orderby'     => $args['order_by'],
+			'post_type'   => $args['type'],
+			'post_status' => $status,
+			'post_parent' => isset( $args['parent_id'] ) ? $args['parent_id'] : null,
+			'author'      => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
+			's'           => isset( $args['search'] ) && '' !== $args['search'] ? $args['search'] : null,
+			'fields'      => 'ids',
 		);
+
+		if ( $args['number'] === -1 ) {
+			$is_eligible_for_page_handle = false;
+		} else {
+			$query['posts_per_page'] = $args['number'];
+		}
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
