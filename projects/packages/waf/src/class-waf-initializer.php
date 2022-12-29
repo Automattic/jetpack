@@ -39,6 +39,9 @@ class Waf_Initializer {
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
 
+		// Ensure backwards compatibility
+		Waf_Compatibility::add_compatibility_hooks();
+
 		// Run the WAF
 		Waf_Runner::initialize();
 	}
@@ -100,11 +103,7 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function check_for_waf_update() {
-		$update_option        = get_option( self::NEEDS_UPDATE_OPTION_NAME );
-		$update_option_exists = false === $update_option;
-
-		// For backwards compatibility, if the option doesn't exist, assume the WAF needs to be updated.
-		if ( ! $update_option_exists || $update_option ) {
+		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
 			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );
 			Waf_Compatibility::migrate_rules();
 			Waf_Runner::update_waf();
