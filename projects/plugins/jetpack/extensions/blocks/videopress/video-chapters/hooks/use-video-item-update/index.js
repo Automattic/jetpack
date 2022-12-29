@@ -8,6 +8,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
@@ -15,6 +16,8 @@ import { uploadTrackForGuid } from '../../../tracks-editor';
 import { getVideoPressUrl } from '../../../url';
 import extractVideoChapters from '../../utils/extract-video-chapters';
 import generateChaptersFile from '../../utils/generate-chapters-file';
+
+const debug = debugFactory( 'videopress:video-chapters' );
 
 export default function useMediaItemUpdate( id ) {
 	const updateMediaItem = data => {
@@ -58,10 +61,13 @@ export function useSyncMedia( attributes ) {
 	const updateMedia = useMediaItemUpdate( id );
 
 	useEffect( () => {
+		debug( '===============' );
+		debug( 1, isSaving, wasSaving );
 		if ( ! isSaving || wasSaving ) {
 			return;
 		}
 
+		debug( 2, id );
 		if ( ! id ) {
 			return;
 		}
@@ -76,6 +82,7 @@ export function useSyncMedia( attributes ) {
 			dataToUpdate.description = description;
 		}
 
+		debug( 3, Object.keys( dataToUpdate ).length );
 		if ( ! Object.keys( dataToUpdate ).length ) {
 			return;
 		}
@@ -83,12 +90,14 @@ export function useSyncMedia( attributes ) {
 		updateMedia( dataToUpdate ).then( () => updateInitialState( { title, description } ) );
 
 		// Video Chapters //
+		debug( 4, dataToUpdate?.description?.length );
 		if ( ! dataToUpdate?.description?.length ) {
 			return;
 		}
 
 		// Upload .vtt file if it description contains chapters
 		const chapters = extractVideoChapters( dataToUpdate.description );
+		debug( 5, chapters?.length );
 		if ( ! chapters?.length ) {
 			return;
 		}
@@ -100,9 +109,11 @@ export function useSyncMedia( attributes ) {
 			tmpFile: generateChaptersFile( dataToUpdate.description ),
 		};
 
+		debug( 6, track );
 		uploadTrackForGuid( track, guid ).then( () => {
 			const videoPressUrl = getVideoPressUrl( guid, attributes );
 			invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
+			debug( '===============' );
 		} );
 	}, [
 		isSaving,
