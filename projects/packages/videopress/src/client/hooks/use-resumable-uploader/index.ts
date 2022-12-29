@@ -200,15 +200,22 @@ export const useResumableUploader = ( {
 					setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 				}
 
+				let isDone = false;
 				const resumableHandler = uploadVideo( {
 					file,
 					tokenData,
 					onProgress: ( bytesSent: number, bytesTotal: number ) => {
+						// If the upload is done, don't update the progress
+						if ( isDone ) {
+							return;
+						}
+
 						const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
 						setUploadingData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
 						onProgress( bytesSent, bytesTotal );
 					},
 					onSuccess: ( data: VideoMediaProps ) => {
+						isDone = true;
 						setUploadingData( prev => ( { ...prev, status: 'done' } ) );
 						setMedia( data );
 						onSuccess( data );
