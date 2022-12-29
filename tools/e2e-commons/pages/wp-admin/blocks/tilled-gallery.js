@@ -1,4 +1,4 @@
-import { execContainerShellCommand } from '../../../helpers/utils-helper.cjs';
+import { execContainerShellCommand, execShellCommand } from '../../../helpers/utils-helper.cjs';
 import PageActions from '../../page-actions.js';
 
 export default class TiledGallery extends PageActions {
@@ -18,6 +18,13 @@ export default class TiledGallery extends PageActions {
 
 	async addImages() {
 		console.log( '++++++++++++++++++++++++++++++++++++++++++++++++' );
+		console.log( await execShellCommand( 'pwd' ) );
+		console.log( '================================================' );
+		console.log( process.cwd() );
+		console.log( '================================================' );
+		console.log( process.env );
+
+		console.log( '++++++++++++++++++++++++++++++++++++++++++++++++' );
 		console.log( await execContainerShellCommand( 'pwd' ) );
 		console.log( '================================================' );
 		console.log( await execContainerShellCommand( 'stat wp-content/uploads/' ) );
@@ -25,7 +32,9 @@ export default class TiledGallery extends PageActions {
 		console.log( await execContainerShellCommand( 'stat wp-content/uploads/2022/12/' ) );
 		console.log( '================================================' );
 		console.log(
-			await execContainerShellCommand( 'chown -R www-data:www-data wp-content/uploads' )
+			await execContainerShellCommand(
+				'chown -R www-data:www-data /var/www/html/wp-content/uploads'
+			)
 		);
 		console.log( '================================================' );
 
