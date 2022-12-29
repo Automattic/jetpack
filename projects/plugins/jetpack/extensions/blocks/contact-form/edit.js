@@ -10,7 +10,6 @@ import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
 	Button,
-	ExternalLink,
 	Modal,
 	PanelBody,
 	SelectControl,
@@ -206,15 +205,22 @@ export function JetpackContactFormEdit( {
 						{ __( 'Explore Form Patterns', 'jetpack' ) }
 					</Button>
 					<div className="form-placeholder__footer-links">
-						<ExternalLink
+						<Button
+							variant="link"
 							className="form-placeholder__external-link"
 							href={ CUSTOMIZING_FORMS_URL }
+							target="_blank"
 						>
-							{ __( 'Learn more about customizing forms.', 'jetpack' ) }
-						</ExternalLink>
-						<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
-							{ __( 'View and export your form responses here.', 'jetpack' ) }
-						</ExternalLink>
+							{ __( 'Learn more about customizing forms', 'jetpack' ) }
+						</Button>
+						<Button
+							variant="link"
+							className="form-placeholder__external-link"
+							href={ RESPONSES_PATH }
+							target="_blank"
+						>
+							{ __( 'View and export your form responses here', 'jetpack' ) }
+						</Button>
 					</div>
 				</div>
 				{ isPatternsModalOpen && (

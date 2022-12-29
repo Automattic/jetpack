@@ -183,7 +183,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_video_block() {
-		$videopress_video_metadata_file        = __DIR__ . '/client/block-editor/blocks/video/block.json';
+		$videopress_video_metadata_file        = __DIR__ . '/../build/block-editor/blocks/video/block.json';
 		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
 		if ( ! $videopress_video_metadata_file_exists ) {
 			return;
@@ -209,7 +209,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_chapters_block() {
-		$videopress_chapters_metadata_file        = __DIR__ . '/client/block-editor/blocks/video-chapters/block.json';
+		$videopress_chapters_metadata_file        = __DIR__ . '/../build/block-editor/blocks/video-chapters/block.json';
 		$videopress_chapters_metadata_file_exists = file_exists( $videopress_chapters_metadata_file );
 
 		if ( ! $videopress_chapters_metadata_file_exists ) {
