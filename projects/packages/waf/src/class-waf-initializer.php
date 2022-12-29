@@ -85,10 +85,16 @@ class Waf_Initializer {
 		}
 
 		// Only run when Jetpack plugins were affected
-		if ( 'update' === $hook_extra['action'] && empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
+		if ( 'update' === $hook_extra['action'] &&
+			! empty( $hook_extra['plugins'] ) &&
+			empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) )
+		) {
 			return;
 		}
-		if ( 'install' === $hook_extra['action'] && empty( in_array( $upgrader->new_plugin_data['TextDomain'], $jetpack_text_domains_with_waf, true ) ) ) {
+		if ( 'install' === $hook_extra['action'] &&
+			! empty( $upgrader->new_plugin_data['TextDomain'] ) &&
+			empty( in_array( $upgrader->new_plugin_data['TextDomain'], $jetpack_text_domains_with_waf, true ) )
+		) {
 			return;
 		}
 
