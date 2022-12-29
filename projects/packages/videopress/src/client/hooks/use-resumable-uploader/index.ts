@@ -128,14 +128,7 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 };
 
 // eslint-disable-next-line no-shadow
-enum UploadingStatus {
-	idle = 'idle',
-	resumed = 'resumed',
-	aborted = 'aborted',
-	uploading = 'uploading',
-	done = 'done',
-	error = 'error',
-}
+type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
 type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
 
@@ -143,7 +136,7 @@ type UploadingDataProps = {
 	bytesSent: number;
 	bytesTotal: number;
 	percent: number;
-	status: UploadingStatus;
+	status: UploadingStatusProp;
 };
 
 type UseResumableUploader = {
@@ -164,7 +157,7 @@ export const useResumableUploader = ( {
 		bytesSent: 0,
 		bytesTotal: 0,
 		percent: 0,
-		status: UploadingStatus.idle,
+		status: 'idle',
 	} );
 
 	const [ media, setMedia ] = useState< VideoMediaProps >();
@@ -182,9 +175,9 @@ export const useResumableUploader = ( {
 			return onError( 'No token provided' );
 		}
 
-		if ( uploadingData.status === UploadingStatus.idle ) {
+		if ( uploadingData.status === 'idle' ) {
 			setUploadingData( prev => {
-				return { ...prev, status: UploadingStatus.uploading };
+				return { ...prev, status: 'uploading' };
 			} );
 		}
 
@@ -203,18 +196,18 @@ export const useResumableUploader = ( {
 					bytesSent,
 					bytesTotal,
 					percent,
-					status: UploadingStatus.uploading,
+					status: 'uploading',
 				} );
 				onProgress( bytesSent, bytesTotal );
 			},
 			onSuccess: ( data: VideoMediaProps ) => {
 				isDone = true;
-				setUploadingData( prev => ( { ...prev, status: UploadingStatus.done } ) );
+				setUploadingData( prev => ( { ...prev, status: 'done' } ) );
 				setMedia( data );
 				onSuccess( data );
 			},
 			onError: ( err: Error ) => {
-				setUploadingData( prev => ( { ...prev, status: UploadingStatus.error } ) );
+				setUploadingData( prev => ( { ...prev, status: 'error' } ) );
 				setError( err );
 				onError( err );
 			},
@@ -223,11 +216,11 @@ export const useResumableUploader = ( {
 		const resumable = {
 			...resumableHandler,
 			start: () => {
-				setUploadingData( prev => ( { ...prev, status: UploadingStatus.uploading } ) );
+				setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 				resumableHandler.start();
 			},
 			abort: () => {
-				setUploadingData( prev => ( { ...prev, status: UploadingStatus.aborted } ) );
+				setUploadingData( prev => ( { ...prev, status: 'aborted' } ) );
 				resumableHandler.abort();
 			},
 		};
