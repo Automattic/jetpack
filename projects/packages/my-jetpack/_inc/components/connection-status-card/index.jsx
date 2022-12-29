@@ -145,7 +145,11 @@ const ConnectionStatusCard = props => {
 						<ConnectionListItem
 							onClick={ openManageConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
-							actionText={ isUserConnected ? __( 'Manage', 'jetpack-my-jetpack' ) : null }
+							actionText={
+								isUserConnected && userConnectionData.currentUser?.isMaster
+									? __( 'Manage', 'jetpack-my-jetpack' )
+									: null
+							}
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
@@ -158,6 +162,17 @@ const ConnectionStatusCard = props => {
 									userConnectionData.currentUser?.isMaster
 										? __( ' (Owner)', 'jetpack-my-jetpack' )
 										: ''
+								) }
+							/>
+						) }
+						{ isUserConnected && ! userConnectionData.currentUser?.isMaster && (
+							<ConnectionListItem
+								onClick={ openManageConnectionDialog }
+								actionText={ null }
+								text={ sprintf(
+									/* translators: placeholder is the username of the Jetpack connection owner */
+									__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
+									userConnectionData.connectionOwner
 								) }
 							/>
 						) }
