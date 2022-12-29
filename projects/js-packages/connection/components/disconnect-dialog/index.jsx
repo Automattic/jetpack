@@ -223,7 +223,7 @@ const DisconnectDialog = props => {
 	 * Need to have the ID of the connected user and the ID of the connected site.
 	 */
 	const canProvideFeedback = useCallback( () => {
-		return connectedUser.ID && connectedSiteId;
+		return !! ( connectedUser.ID && connectedSiteId );
 	}, [ connectedUser, connectedSiteId ] );
 
 	/**

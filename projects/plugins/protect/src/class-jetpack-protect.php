@@ -202,6 +202,7 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
+				'isSupported'         => Waf_Runner::is_supported_environment(),
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
