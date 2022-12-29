@@ -8,9 +8,9 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import {
 	uploadVideo as videoPressUpload,
-	getJWT,
 	uploadFromLibrary,
 } from '../hooks/use-resumable-uploader';
+import getMediaToken from '../lib/get-media-token';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -246,7 +246,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 	// @todo: this should be stored in the state
-	const jwt = await getJWT();
+	const jwt = await getMediaToken( 'upload-jwt' );
 
 	const onSuccess = async data => {
 		dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
