@@ -21,7 +21,7 @@ new WPCOM_JSON_API_List_Posts_v1_2_Endpoint(
 		'allow_fallback_to_jetpack_blog_token' => true,
 
 		'query_parameters'                     => array(
-			'number'                => '(int=20) The number of posts to return. Limit: 100.',
+			'number'                => '(int=20) The number of posts to return. Limit: 100. Setting the value to -1 and having type set to \'page\' will return all pages without any limits.',
 			'offset'                => '(int=0) 0-indexed offset.',
 			'page'                  => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
 			'page_handle'           => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
