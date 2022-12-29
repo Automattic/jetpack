@@ -104,7 +104,7 @@ const ConnectionStatusCard = props => {
 			<H3>{ title }</H3>
 
 			<Text variant="body" mb={ 3 }>
-				{ connectionInfoText }
+				{ `${ connectionInfoText } ` }
 				<Button
 					href={ getRedirectUrl( 'why-the-wordpress-com-connection-is-important-for-jetpack' ) }
 					variant="link"
@@ -153,9 +153,11 @@ const ConnectionStatusCard = props => {
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
 									/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
-									__( 'Connected as %1$s %2$s.', 'jetpack-my-jetpack' ),
+									__( 'Connected as %1$s%2$s.', 'jetpack-my-jetpack' ),
 									userConnectionData.currentUser?.wpcomUser?.display_name,
-									userConnectionData.currentUser?.isMaster ? '(Owner)' : ''
+									userConnectionData.currentUser?.isMaster
+										? __( ' (Owner)', 'jetpack-my-jetpack' )
+										: ''
 								) }
 							/>
 						) }
@@ -214,7 +216,7 @@ ConnectionStatusCard.propTypes = {
 ConnectionStatusCard.defaultProps = {
 	title: __( 'Connection', 'jetpack-my-jetpack' ),
 	connectionInfoText: __(
-		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features. ',
+		'Jetpack connects your site and user account to the WordPress.com cloud to provide more powerful features.',
 		'jetpack-my-jetpack'
 	),
 	redirectUri: null,
