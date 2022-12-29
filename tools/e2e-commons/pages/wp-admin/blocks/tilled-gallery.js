@@ -24,7 +24,9 @@ export default class TiledGallery extends PageActions {
 		console.log( '================================================' );
 		console.log( await execContainerShellCommand( 'stat wp-content/uploads/2022/12/' ) );
 		console.log( '================================================' );
-		console.log( await execContainerShellCommand( 'chown -R www-data wp-content/uploads' ) );
+		console.log(
+			await execContainerShellCommand( 'chown -R www-data:www-data wp-content/uploads' )
+		);
 		console.log( '================================================' );
 
 		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
