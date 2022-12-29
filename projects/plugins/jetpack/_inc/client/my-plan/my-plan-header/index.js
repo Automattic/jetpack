@@ -216,7 +216,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t1-plan':
@@ -236,7 +236,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-backup-t2-plan':
@@ -256,7 +256,7 @@ class MyPlanHeader extends React.Component {
 						),
 						{ strong: <strong /> }
 					),
-					title: __( 'Jetpack Backup', 'jetpack' ),
+					title: __( 'VaultPress Backup', 'jetpack' ),
 				};
 
 			case 'is-search-plan':
@@ -296,7 +296,7 @@ class MyPlanHeader extends React.Component {
 						'Automatically clear spam from comments and forms. Save time, get more responses, give your visitors a better experience – all without lifting a finger.',
 						'jetpack'
 					),
-					title: __( 'Jetpack Anti-Spam', 'jetpack' ),
+					title: __( 'Akismet Anti-Spam', 'jetpack' ),
 				};
 
 			// DEPRECATED: Daily and Real-time variations will soon be retired.

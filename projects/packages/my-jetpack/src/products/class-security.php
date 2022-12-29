@@ -38,7 +38,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'Security', 'jetpack-my-jetpack' );
+		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -47,7 +47,7 @@ class Security extends Module_Product {
 	 * @return string
 	 */
 	public static function get_title() {
-		return __( 'Security', 'jetpack-my-jetpack' );
+		return _x( 'Security', 'Jetpack product name', 'jetpack-my-jetpack' );
 	}
 
 	/**

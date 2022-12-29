@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -122,6 +123,31 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Determines if the WAF is supported in the current environment.
+	 *
+	 * @since 0.8.0
+	 * @return bool
+	 */
+	public static function is_supported_environment() {
+		// Do not run when killswitch is enabled
+		if ( defined( 'DISABLE_JETPACK_WAF' ) && DISABLE_JETPACK_WAF ) {
+			return false;
+		}
+
+		// Do not run in the WPCOM context
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return false;
+		}
+
+		// Do not run on the Atomic platform
+		if ( ( new Host() )->is_atomic_platform() ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines if the WAF module is enabled on the site.
 	 *
 	 * @return bool
@@ -212,8 +238,10 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			// phpcs:ignore
-			include self::RULES_FILE;
+			if ( file_exists( self::RULES_FILE ) ) {
+				// phpcs:ignore
+				include self::RULES_FILE;
+			}
 		} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
@@ -466,8 +494,8 @@ class Waf_Runner {
 		$ip_allow_rules = self::ALLOW_IP_FILE;
 		$ip_block_rules = self::BLOCK_IP_FILE;
 
-		$ip_list_code = "if ( require('$ip_allow_rules') ) { return; }\n" .
-			"if ( require('$ip_block_rules') ) { return \$waf->block('block', -1, 'ip block list'); }\n";
+		$ip_list_code = "if ( file_exists( '$ip_allow_rules' ) ) { if ( require( '$ip_allow_rules' ) ) { return; } }\n" .
+			"if ( file_exists( '$ip_block_rules' ) ) { if ( require( '$ip_block_rules' ) ) { return \$waf->block('block', -1, 'ip block list'); } }\n";
 
 		$rules_divided_by_line = explode( "\n", $rules );
 		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );

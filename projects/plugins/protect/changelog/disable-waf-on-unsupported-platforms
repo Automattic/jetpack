@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Disable Jetpack Firewall on unsupported environments.

@@ -4,7 +4,7 @@ import { JetpackBoostPage } from '../lib/pages/index.js';
 
 let jetpackBoostPage;
 
-test.describe.skip( 'Speed Score feature', () => {
+test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();

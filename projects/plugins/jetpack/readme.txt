@@ -242,16 +242,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.3 - 2022-12-12
-#### Enhancements
-- Form block: update Form blocks descriptions.
-- Form block: simplify Form block sidebar to make the UI easier to use.
-- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
-- Writing prompts: add filter for whether prompts are enabled or not
-
+### 11.7-a.11 - 2022-12-29
 #### Bug fixes
-- Admin Page: avoid querying for WAF settings when the feature is not active.
-- VideoPress block: fix video player issue in some VideoMaker theme patterns.
+- Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production.
 
 --------
 

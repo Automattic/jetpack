@@ -6,7 +6,8 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
-		"automattic/jetpack-changelogger": "@dev"
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "^0.4.0"
 	},
 	"autoload": {
 		"classmap": [
@@ -24,7 +25,9 @@
 			"@composer phpunit"
 		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
-		"build-development": "echo 'Add your build step to composer.json, please!'"
+		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -45,6 +48,14 @@
 		"autotagger": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-mu-wpcom/compare/v${old}...v${new}"
+		},
+		"version-constants": {
+			"JETPACK_MU_WPCOM__PLUGIN_VERSION": "jetpack-mu-wpcom.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

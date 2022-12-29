@@ -87,7 +87,7 @@ class DashAkismet extends Component {
 
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Anti-spam', 'jetpack' );
+		const labelName = __( 'Akismet Anti-spam', 'jetpack' );
 
 		const support = {
 			text: __(
@@ -100,7 +100,7 @@ class DashAkismet extends Component {
 
 		const getAkismetUpgradeBanner = () => {
 			const description = createInterpolateElement(
-				__( 'Already have a key? <Button>Activate Akismet</Button>', 'jetpack' ),
+				__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>', 'jetpack' ),
 				{
 					Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
 				}
