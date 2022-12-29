@@ -85,7 +85,7 @@ class Waf_Initializer {
 		if ( 'update' === $hook_extra['action'] && empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
 			return;
 		}
-		if ( 'install' === $hook_extra['action'] && empty( array_intersect( $jetpack_text_domains_with_waf, $upgrader->new_plugin_data['TextDomain'] ) ) ) {
+		if ( 'install' === $hook_extra['action'] && empty( in_array( $upgrader->new_plugin_data['TextDomain'], $jetpack_text_domains_with_waf, true ) ) ) {
 			return;
 		}
 
