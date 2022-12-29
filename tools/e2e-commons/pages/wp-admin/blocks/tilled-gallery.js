@@ -1,3 +1,4 @@
+import { execShellCommand } from '../../../helpers/utils-helper.cjs';
 import PageActions from '../../page-actions.js';
 
 export default class TiledGallery extends PageActions {
@@ -16,6 +17,16 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async addImages() {
+		console.log( '++++++++++++++++++++++++++++++++++++++++++++++++' );
+		console.log( await execShellCommand( 'ls -la wp-content/' ) );
+		console.log( '================================================' );
+		console.log( await execShellCommand( 'stat wp-content/uploads/' ) );
+		console.log( '================================================' );
+		console.log( await execShellCommand( 'stat wp-content/uploads/2022/12/' ) );
+		console.log( '================================================' );
+		console.log( await execShellCommand( 'chown -R www-data wp-content/uploads' ) );
+		console.log( '================================================' );
+
 		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
 		await this.click( 'text=Openverse' );
 		const modal = this.page.getByRole( 'dialog' );
