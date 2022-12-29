@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-# 11.7-a.12 - unreleased
+## 11.7-a.12 - unreleased
 
 This is an alpha version! The changes listed here are not final.
 
