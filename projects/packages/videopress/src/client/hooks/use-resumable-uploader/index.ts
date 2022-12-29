@@ -196,8 +196,10 @@ export const useResumableUploader = ( {
 					return;
 				}
 
-				if ( status === 'idle' ) {
-					setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
+				if ( uploadingData.status === 'idle' ) {
+					setUploadingData( prev => {
+						return { ...prev, status: 'uploading' };
+					} );
 				}
 
 				let isDone = false;
