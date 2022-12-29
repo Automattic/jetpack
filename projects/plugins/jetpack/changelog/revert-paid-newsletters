@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production.
