@@ -128,7 +128,15 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 	return upload;
 };
 
-type StatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
+// eslint-disable-next-line no-shadow
+enum UploadingStatus {
+	idle = 'idle',
+	resumed = 'resumed',
+	aborted = 'aborted',
+	uploading = 'uploading',
+	done = 'done',
+	error = 'error',
+}
 
 type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
 
@@ -136,7 +144,7 @@ type UploadingDataProps = {
 	bytesSent: number;
 	bytesTotal: number;
 	percent: number;
-	status: StatusProp;
+	status: UploadingStatus;
 };
 
 type UseResumableUploader = {
@@ -157,7 +165,7 @@ export const useResumableUploader = ( {
 		bytesSent: 0,
 		bytesTotal: 0,
 		percent: 0,
-		status: 'idle',
+		status: UploadingStatus.idle,
 	} );
 
 	const [ media, setMedia ] = useState< VideoMediaProps >();
@@ -177,9 +185,9 @@ export const useResumableUploader = ( {
 					return;
 				}
 
-				if ( uploadingData.status === 'idle' ) {
+				if ( uploadingData.status === UploadingStatus.idle ) {
 					setUploadingData( prev => {
-						return { ...prev, status: 'uploading' };
+						return { ...prev, status: UploadingStatus.uploading };
 					} );
 				}
 
@@ -194,17 +202,22 @@ export const useResumableUploader = ( {
 						}
 
 						const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
-						setUploadingData( { bytesSent, bytesTotal, percent, status: 'uploading' } );
+						setUploadingData( {
+							bytesSent,
+							bytesTotal,
+							percent,
+							status: UploadingStatus.uploading,
+						} );
 						onProgress( bytesSent, bytesTotal );
 					},
 					onSuccess: ( data: VideoMediaProps ) => {
 						isDone = true;
-						setUploadingData( prev => ( { ...prev, status: 'done' } ) );
+						setUploadingData( prev => ( { ...prev, status: UploadingStatus.done } ) );
 						setMedia( data );
 						onSuccess( data );
 					},
 					onError: ( err: Error ) => {
-						setUploadingData( prev => ( { ...prev, status: 'error' } ) );
+						setUploadingData( prev => ( { ...prev, status: UploadingStatus.error } ) );
 						setError( err );
 						onError( err );
 					},
@@ -213,11 +226,11 @@ export const useResumableUploader = ( {
 				const resumable = {
 					...resumableHandler,
 					start: () => {
-						setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
+						setUploadingData( prev => ( { ...prev, status: UploadingStatus.uploading } ) );
 						resumableHandler.start();
 					},
 					abort: () => {
-						setUploadingData( prev => ( { ...prev, status: 'aborted' } ) );
+						setUploadingData( prev => ( { ...prev, status: UploadingStatus.aborted } ) );
 						resumableHandler.abort();
 					},
 				};
