@@ -176,7 +176,7 @@ class Utils {
 		);
 
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', "--format=%cI\n%s", $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
 				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
 
@@ -188,9 +188,12 @@ class Utils {
 				// PR number.
 				if ( isset( $cmd_output[1] ) ) {
 					$matches = array();
-					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
-					if ( isset( $matches[1] ) ) {
+					preg_match( '/(?:^Merge pull request #(\d+))|(?:\(#(\d+)\)$)/', $cmd_output[1], $matches );
+					if ( ! empty( $matches[1] ) ) {
 						$repo_data['pr-num'] = $matches[1];
+					}
+					if ( ! empty( $matches[2] ) ) {
+						$repo_data['pr-num'] = $matches[2];
 					}
 				}
 			}

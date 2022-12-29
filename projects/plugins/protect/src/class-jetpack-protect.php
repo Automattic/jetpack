@@ -203,11 +203,12 @@ class Jetpack_Protect {
 			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSeen'     => self::get_waf_seen_status(),
-				'isEnabled'  => Waf_Runner::is_enabled(),
-				'isToggling' => false,
-				'isUpdating' => false,
-				'config'     => Waf_Runner::get_config(),
+				'isSupported' => Waf_Runner::is_supported_environment(),
+				'isSeen'      => self::get_waf_seen_status(),
+				'isEnabled'   => Waf_Runner::is_enabled(),
+				'isToggling'  => false,
+				'isUpdating'  => false,
+				'config'      => Waf_Runner::get_config(),
 				'stats'      => Waf_Stats::get_waf_stats(),
 			),
 		);
