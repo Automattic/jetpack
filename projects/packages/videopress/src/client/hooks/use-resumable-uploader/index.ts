@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 import debugFactory from 'debug';
 import * as tus from 'tus-js-client';
@@ -9,31 +8,13 @@ import * as tus from 'tus-js-client';
  * Types
  */
 import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
+import getMediaToken from '../../lib/get-media-token';
 import { MediaTokenProps } from '../../lib/get-media-token/types';
 import type React from 'react';
 
 const debug = debugFactory( 'videopress:resumable-upload' );
 
 const jwtsForKeys = {};
-
-export const getJWT = function () {
-	return new Promise( function ( resolve, reject ) {
-		apiFetch( {
-			path: '/wpcom/v2/videopress/upload-jwt',
-			method: 'POST',
-		} )
-			.then( response => {
-				resolve( {
-					token: response.upload_token,
-					blogId: response.upload_blog_id,
-					url: response.upload_url,
-				} );
-			} )
-			.catch( error => {
-				reject( error );
-			} );
-	} );
-};
 
 export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData } ) => {
 	const upload = new tus.Upload( file, {
@@ -86,7 +67,7 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 				if ( jwtsForKeys[ maybeUploadkey ] ) {
 					req.setHeader( 'x-videopress-upload-token', jwtsForKeys[ maybeUploadkey ] );
 				} else if ( 'HEAD' === method ) {
-					return getJWT( maybeUploadkey ).then( responseData => {
+					return getMediaToken( 'upload-jwt' ).then( responseData => {
 						jwtsForKeys[ maybeUploadkey ] = responseData.token;
 						req.setHeader( 'x-videopress-upload-token', responseData.token );
 						return req;
@@ -189,7 +170,7 @@ export const useResumableUploader = ( {
 	 * @param {File} file - the file to upload
 	 */
 	function uploadhandler( file: File ) {
-		getJWT()
+		getMediaToken( 'upload-jwt' )
 			.then( ( tokenData: MediaTokenProps ) => {
 				if ( ! tokenData.token ) {
 					debug( 'No token data' );
