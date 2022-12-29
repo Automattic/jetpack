@@ -18,7 +18,7 @@ use Jetpack_Options;
 class Waf_Runner {
 
 	const WAF_MODULE_NAME               = 'waf';
-	const WAF_RULES_VERSION             = '1.0.1';
+	const WAF_RULES_VERSION             = '1.0.0';
 	const MODE_OPTION_NAME              = 'jetpack_waf_mode';
 	const IP_LISTS_ENABLED_OPTION_NAME  = 'jetpack_waf_ip_list';
 	const IP_ALLOW_LIST_OPTION_NAME     = 'jetpack_waf_ip_allow_list';
