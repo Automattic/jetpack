@@ -209,7 +209,7 @@ class Jetpack_Protect {
 				'isToggling'  => false,
 				'isUpdating'  => false,
 				'config'      => Waf_Runner::get_config(),
-				'stats'      => Waf_Stats::get_waf_stats(),
+				'stats'       => Waf_Stats::get_waf_stats(),
 			),
 		);
 
