@@ -9,7 +9,6 @@ import * as tus from 'tus-js-client';
  */
 import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../../lib/get-media-token';
-import { MediaTokenProps } from '../../lib/get-media-token/types';
 import type React from 'react';
 
 const debug = debugFactory( 'videopress:resumable-upload' );
@@ -177,69 +176,63 @@ export const useResumableUploader = ( {
 	 *
 	 * @param {File} file - the file to upload
 	 */
-	function uploadhandler( file: File ) {
-		getMediaToken( 'upload-jwt' )
-			.then( ( tokenData: MediaTokenProps ) => {
-				if ( ! tokenData.token ) {
-					debug( 'No token data' );
+	async function uploadhandler( file: File ) {
+		const tokenData = await getMediaToken( 'upload-jwt' );
+		if ( ! tokenData.token ) {
+			return onError( 'No token provided' );
+		}
+
+		if ( uploadingData.status === UploadingStatus.idle ) {
+			setUploadingData( prev => {
+				return { ...prev, status: UploadingStatus.uploading };
+			} );
+		}
+
+		let isDone = false;
+		const resumableHandler = uploadVideo( {
+			file,
+			tokenData,
+			onProgress: ( bytesSent: number, bytesTotal: number ) => {
+				// If the upload is done, don't update the progress
+				if ( isDone ) {
 					return;
 				}
 
-				if ( uploadingData.status === UploadingStatus.idle ) {
-					setUploadingData( prev => {
-						return { ...prev, status: UploadingStatus.uploading };
-					} );
-				}
-
-				let isDone = false;
-				const resumableHandler = uploadVideo( {
-					file,
-					tokenData,
-					onProgress: ( bytesSent: number, bytesTotal: number ) => {
-						// If the upload is done, don't update the progress
-						if ( isDone ) {
-							return;
-						}
-
-						const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
-						setUploadingData( {
-							bytesSent,
-							bytesTotal,
-							percent,
-							status: UploadingStatus.uploading,
-						} );
-						onProgress( bytesSent, bytesTotal );
-					},
-					onSuccess: ( data: VideoMediaProps ) => {
-						isDone = true;
-						setUploadingData( prev => ( { ...prev, status: UploadingStatus.done } ) );
-						setMedia( data );
-						onSuccess( data );
-					},
-					onError: ( err: Error ) => {
-						setUploadingData( prev => ( { ...prev, status: UploadingStatus.error } ) );
-						setError( err );
-						onError( err );
-					},
+				const percent = Math.round( ( bytesSent / bytesTotal ) * 100 );
+				setUploadingData( {
+					bytesSent,
+					bytesTotal,
+					percent,
+					status: UploadingStatus.uploading,
 				} );
+				onProgress( bytesSent, bytesTotal );
+			},
+			onSuccess: ( data: VideoMediaProps ) => {
+				isDone = true;
+				setUploadingData( prev => ( { ...prev, status: UploadingStatus.done } ) );
+				setMedia( data );
+				onSuccess( data );
+			},
+			onError: ( err: Error ) => {
+				setUploadingData( prev => ( { ...prev, status: UploadingStatus.error } ) );
+				setError( err );
+				onError( err );
+			},
+		} );
 
-				const resumable = {
-					...resumableHandler,
-					start: () => {
-						setUploadingData( prev => ( { ...prev, status: UploadingStatus.uploading } ) );
-						resumableHandler.start();
-					},
-					abort: () => {
-						setUploadingData( prev => ( { ...prev, status: UploadingStatus.aborted } ) );
-						resumableHandler.abort();
-					},
-				};
+		const resumable = {
+			...resumableHandler,
+			start: () => {
+				setUploadingData( prev => ( { ...prev, status: UploadingStatus.uploading } ) );
+				resumableHandler.start();
+			},
+			abort: () => {
+				setUploadingData( prev => ( { ...prev, status: UploadingStatus.aborted } ) );
+				resumableHandler.abort();
+			},
+		};
 
-				setResumeHandler( resumable );
-			} )
-			.catch( jwtError => {
-				setError( jwtError );
-			} );
+		setResumeHandler( resumable );
 	}
 
 	/**
