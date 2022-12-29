@@ -37,6 +37,10 @@ const getMediaToken = function (
 				adminAjaxAction = 'videopress-get-upload-token';
 				break;
 
+			case 'upload-jwt':
+				adminAjaxAction = 'videopress-get-upload-jwt';
+				break;
+
 			case 'playback':
 				adminAjaxAction = 'videopress-get-playback-jwt';
 				data.id = id;
@@ -52,6 +56,14 @@ const getMediaToken = function (
 			.then( ( response: MediaTokenScopeAdminAjaxResponseBodyProps ) => {
 				switch ( scope ) {
 					case 'upload':
+						resolve( {
+							token: response.upload_token,
+							blogId: response.upload_blog_id,
+							url: response.upload_action_url,
+						} );
+						break;
+
+					case 'upload-jwt':
 						resolve( {
 							token: response.upload_token,
 							blogId: response.upload_blog_id,
