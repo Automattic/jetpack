@@ -5,6 +5,7 @@ import camelize from 'camelize';
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
+const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
@@ -28,6 +29,10 @@ const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
+};
+
+const setStatusProgress = currentProgress => {
+	return { type: SET_STATUS_PROGRESS, currentProgress };
 };
 
 const startScanOptimistically = () => {
@@ -375,6 +380,7 @@ const actions = {
 	setCredentials,
 	setCredentialsIsFetching,
 	setStatus,
+	setStatusProgress,
 	startScanOptimistically,
 	refreshStatus,
 	setStatusIsFetching,
@@ -403,6 +409,7 @@ export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
+	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_UNAVAILABLE,
