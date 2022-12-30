@@ -51,7 +51,7 @@ export default class TiledGallery extends PageActions {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		await page.waitForSelector( '???' );
+		await page.waitForSelector( '.tiled-gallery__gallery' );
 	}
 
 	#getSelector( selector ) {
