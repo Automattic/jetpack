@@ -5,17 +5,60 @@ import { useState } from '@wordpress/element';
 import debugFactory from 'debug';
 import * as tus from 'tus-js-client';
 /**
- * Types
+ * Internal dependencies
  */
 import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../../lib/get-media-token';
+/**
+ * Types
+ */
+import type { MediaTokenProps } from '../../lib/get-media-token/types';
 import type React from 'react';
 
 const debug = debugFactory( 'videopress:resumable-upload' );
 
 const jwtsForKeys = {};
+// eslint-disable-next-line no-shadow
+type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
-export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData } ) => {
+type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
+
+type UploadingDataProps = {
+	bytesSent: number;
+	bytesTotal: number;
+	percent: number;
+	status: UploadingStatusProp;
+};
+
+type ResumaHandlerProps = {
+	start: () => void;
+	abort: () => void;
+};
+
+type UseResumableUploader = {
+	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
+	uploadhandler: ( file: File ) => void;
+	resumeHandler: ResumaHandlerProps;
+	uploadingData: UploadingDataProps;
+	media: VideoMediaProps;
+	error: string;
+};
+
+type UploadVideoArguments = {
+	file: File;
+	onProgress: ( bytesSent: number, bytesTotal: number ) => void;
+	onSuccess: ( media: VideoMediaProps ) => void;
+	onError: ( error ) => void;
+	tokenData: MediaTokenProps;
+};
+
+export const uploadVideo = ( {
+	file,
+	onProgress,
+	onSuccess,
+	onError,
+	tokenData,
+}: UploadVideoArguments ) => {
 	const upload = new tus.Upload( file, {
 		onError: onError,
 		onProgress,
@@ -127,27 +170,6 @@ export const uploadVideo = ( { file, onProgress, onSuccess, onError, tokenData }
 	return upload;
 };
 
-// eslint-disable-next-line no-shadow
-type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
-
-type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
-
-type UploadingDataProps = {
-	bytesSent: number;
-	bytesTotal: number;
-	percent: number;
-	status: UploadingStatusProp;
-};
-
-type UseResumableUploader = {
-	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
-	uploadhandler: ( file: File ) => void;
-	resumeHandler: () => void;
-	uploadingData: UploadingDataProps;
-	media: VideoMediaProps;
-	error: string;
-};
-
 export const useResumableUploader = ( {
 	onProgress,
 	onSuccess,
@@ -162,7 +184,7 @@ export const useResumableUploader = ( {
 
 	const [ media, setMedia ] = useState< VideoMediaProps >();
 	const [ error, setError ] = useState( null );
-	const [ resumeHandler, setResumeHandler ] = useState( null );
+	const [ resumeHandler, setResumeHandler ] = useState< ResumaHandlerProps >();
 
 	/**
 	 * Upload a file
@@ -175,6 +197,7 @@ export const useResumableUploader = ( {
 			return onError( 'No token provided' );
 		}
 
+		// The file starts to upload automatically, so we need to set the status to uploading
 		if ( uploadingData.status === 'idle' ) {
 			setUploadingData( prev => {
 				return { ...prev, status: 'uploading' };
@@ -214,7 +237,6 @@ export const useResumableUploader = ( {
 		} );
 
 		const resumable = {
-			...resumableHandler,
 			start: () => {
 				setUploadingData( prev => ( { ...prev, status: 'uploading' } ) );
 				resumableHandler.start();
