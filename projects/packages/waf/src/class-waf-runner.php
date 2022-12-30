@@ -515,6 +515,14 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
+		$rules                = "<?php\n";
+		$entrypoint_file_path = self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
+
+		// Ensure that the folder exists
+		if ( ! $wp_filesystem->is_dir( dirname( $entrypoint_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $entrypoint_file_path ) );
+		}
+
 		// Ensure all potentially required rule files exist
 		$rule_files = array( self::RULES_ENTRYPOINT_FILE, self::AUTOMATIC_RULES_FILE, self::IP_ALLOW_RULES_FILE, self::IP_BLOCK_RULES_FILE );
 		foreach ( $rule_files as $rule_file ) {
@@ -526,23 +534,15 @@ class Waf_Runner {
 			}
 		}
 
-		$rules                = "<?php\n";
-		$entrypoint_file_path = self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
-
 		// Add manual rules
 		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
-			$rules .= self::wrap_require( self::IP_ALLOW_RULES_FILE ) . "\n";
-			$rules .= self::wrap_require( self::IP_BLOCK_RULES_FILE, "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
+			$rules .= self::wrap_require( self::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
+			$rules .= self::wrap_require( self::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 
 		// Add automatic rules
 		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
-			$rules .= self::wrap_require( self::AUTOMATIC_RULES_FILE ) . "\n";
-		}
-
-		// Ensure that the folder exists
-		if ( ! $wp_filesystem->is_dir( dirname( $entrypoint_file_path ) ) ) {
-			$wp_filesystem->mkdir( dirname( $entrypoint_file_path ) );
+			$rules .= self::wrap_require( self::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) ) . "\n";
 		}
 
 		// Update the rules file
@@ -567,9 +567,11 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
+		$automatic_rules_file_path = self::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
+
 		// Ensure that the folder exists.
-		if ( ! $wp_filesystem->is_dir( dirname( self::AUTOMATIC_RULES_FILE ) ) ) {
-			$wp_filesystem->mkdir( dirname( self::AUTOMATIC_RULES_FILE ) );
+		if ( ! $wp_filesystem->is_dir( dirname( $automatic_rules_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $automatic_rules_file_path ) );
 		}
 
 		try {
@@ -581,8 +583,13 @@ class Waf_Runner {
 			}
 		}
 
-		if ( ! $wp_filesystem->put_contents( self::AUTOMATIC_RULES_FILE, $rules ) ) {
-			throw new \Exception( 'Failed writing automatic rules file to: ' . self::AUTOMATIC_RULES_FILE );
+		// If there are no rules available, don't overwrite the existing file.
+		if ( empty( $rules ) ) {
+			return;
+		}
+
+		if ( ! $wp_filesystem->put_contents( $automatic_rules_file_path, $rules ) ) {
+			throw new \Exception( 'Failed writing automatic rules file to: ' . $automatic_rules_file_path );
 		}
 
 		update_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME, time() );
