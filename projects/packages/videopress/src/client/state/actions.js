@@ -6,10 +6,8 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import {
-	uploadVideo as videoPressUpload,
-	uploadFromLibrary,
-} from '../hooks/use-resumable-uploader';
+import { uploadVideo as videoPressUpload } from '../hooks/use-resumable-uploader';
+import { uploadFromLibrary } from '../hooks/use-uploader';
 import getMediaToken from '../lib/get-media-token';
 import uid from '../utils/uid';
 import {
