@@ -20,7 +20,7 @@ export default function useVideoData( {
 	id,
 	guid,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
-	const [ videoData, setVideoData ] = useState< VideoDataProps >();
+	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
