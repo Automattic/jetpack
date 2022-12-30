@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { TrackProps, VideoGUIDProp, VideoIdProp } from '../../blocks/video/types';
+import { PrivacySettingProp, RatingProp, VideoTracksResponseBodyProps } from '../../../types';
+import { VideoGUIDProp, VideoIdProp } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
 	id?: VideoIdProp;
@@ -10,9 +11,17 @@ export type UseVideoDataArgumentsProps = {
 };
 
 export type VideoDataProps = {
-	title?: string;
+	allow_download?: boolean;
 	description?: string;
-	tracks?: Array< TrackProps >;
+	display_embed?: boolean;
+	filename?: string;
+	guid?: VideoGUIDProp;
+	is_private?: boolean;
+	post_id?: number;
+	privacy_setting?: PrivacySettingProp;
+	rating?: RatingProp;
+	title?: string;
+	tracks?: VideoTracksResponseBodyProps;
 };
 
 export type UseVideoDataProps = {
