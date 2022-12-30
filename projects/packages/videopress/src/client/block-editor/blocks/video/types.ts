@@ -1,5 +1,11 @@
 import { trackKindOptionProps } from '../../../lib/video-tracks/types';
 
+// Attributes
+
+// Support
+
+type Align = 'left' | 'center' | 'right' | 'wide' | 'full';
+
 export type VideoIdProp = number;
 export type VideoGUIDProp = string;
 
@@ -21,12 +27,16 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	guid?: VideoGUIDProp;
 	src?: string;
 
+	// Data
 	title?: string;
 	description?: string;
 
 	poster?: string;
 	videoRatio?: number;
 	tracks?: Array< TrackProps >;
+
+	// Layout
+	align?: Align;
 
 	// Playback types
 	autoplay?: boolean;
