@@ -12,8 +12,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { useResumableUploader } from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { PlaceholderWrapper } from '../../edit.js';
-import { description, title } from '../../index.js';
+import { PlaceholderWrapper } from '../../edit';
+import { description, title } from '../../index';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
