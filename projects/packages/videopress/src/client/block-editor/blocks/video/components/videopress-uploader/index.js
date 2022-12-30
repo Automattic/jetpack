@@ -7,11 +7,11 @@ import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
 import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useRef } from 'react';
 /**
  * Internal dependencies
  */
-import { uploadFromLibrary, useResumableUploader } from '../../../../../hooks/use-uploader';
+import { useResumableUploader } from '../../../../../hooks/use-resumable-uploader';
+import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
@@ -32,7 +32,6 @@ const VideoPressUploader = ( {
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
-	const tusUploader = useRef( null );
 
 	/*
 	 * Storing the file to get it name and size for progress.
@@ -82,7 +81,7 @@ const VideoPressUploader = ( {
 
 	// Helper instance to upload the video to the VideoPress infrastructure.
 	// eslint-disable-next-line no-unused-vars
-	const [ videoPressUploader, jwtData, jwtError ] = useResumableUploader( {
+	const { uploadhandler, resumeHandler, error: jwtError, uploadingData } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: handleUploadSuccess,
@@ -147,7 +146,7 @@ const VideoPressUploader = ( {
 		setIsUploadingInProgress( true );
 
 		// Upload file to VideoPress infrastructure.
-		tusUploader.current = videoPressUploader( file );
+		uploadhandler( file );
 	};
 
 	const startUploadFromLibrary = attachmentId => {
@@ -161,13 +160,13 @@ const VideoPressUploader = ( {
 	};
 
 	const pauseOrResumeUpload = () => {
-		const uploader = tusUploader?.current;
-
-		if ( uploader ) {
-			const uploaderCall = uploadPaused ? 'start' : 'abort';
-			uploader[ uploaderCall ]();
-			setUploadPaused( ! uploadPaused );
+		if ( ! resumeHandler ) {
+			return;
 		}
+
+		const resumablerCall = uploadPaused ? 'start' : 'abort';
+		resumeHandler[ resumablerCall ]();
+		setUploadPaused( ! uploadPaused );
 	};
 
 	/**
@@ -304,7 +303,7 @@ const VideoPressUploader = ( {
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
 				onDone={ handleDoneUpload }
-				supportPauseOrResume={ Boolean( tusUploader?.current ) }
+				supportPauseOrResume={ !! resumeHandler }
 			/>
 		);
 	}
