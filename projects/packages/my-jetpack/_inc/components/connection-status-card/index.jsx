@@ -167,8 +167,6 @@ const ConnectionStatusCard = props => {
 						) }
 						{ isUserConnected && ! userConnectionData.currentUser?.isMaster && (
 							<ConnectionListItem
-								onClick={ openManageConnectionDialog }
-								actionText={ null }
 								text={ sprintf(
 									/* translators: placeholder is the username of the Jetpack connection owner */
 									__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
