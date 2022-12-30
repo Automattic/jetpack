@@ -54,9 +54,7 @@ gb_setup() {
 }
 
 configure_wp_env() {
-	$BASE_CMD exec-silent -- ls -la /var/www/html/wp-content/uploads
 	$BASE_CMD exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/uploads
-	$BASE_CMD exec-silent -- ls -la /var/www/html/wp-content/uploads
 	$BASE_CMD wp plugin status
 
 	$BASE_CMD wp plugin activate jetpack

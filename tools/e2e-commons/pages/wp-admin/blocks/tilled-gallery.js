@@ -1,4 +1,3 @@
-import { execContainerShellCommand, execShellCommand } from '../../../helpers/utils-helper.cjs';
 import PageActions from '../../page-actions.js';
 
 export default class TiledGallery extends PageActions {
@@ -17,27 +16,6 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async addImages() {
-		console.log( '++++++++++++++++++++++++++++++++++++++++++++++++' );
-		console.log( await execShellCommand( 'pwd' ) );
-		console.log( '================================================' );
-		console.log( process.cwd() );
-		console.log( '================================================' );
-		console.log( process.env );
-
-		console.log( '++++++++++++++++++++++++++++++++++++++++++++++++' );
-		console.log( await execContainerShellCommand( 'pwd' ) );
-		console.log( '================================================' );
-		console.log( await execContainerShellCommand( 'stat wp-content/uploads/' ) );
-		console.log( '================================================' );
-		console.log( await execContainerShellCommand( 'stat wp-content/uploads/2022/12/' ) );
-		console.log( '================================================' );
-		console.log(
-			await execContainerShellCommand(
-				'chown -R www-data:www-data /var/www/html/wp-content/uploads'
-			)
-		);
-		console.log( '================================================' );
-
 		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
 		await this.click( 'text=Openverse' );
 		const modal = this.page.getByRole( 'dialog' );
@@ -50,7 +28,14 @@ export default class TiledGallery extends PageActions {
 
 		await modal.getByRole( 'button', { name: 'Select' } ).click();
 
-		modal.waitFor( { state: 'hidden' } );
+		await modal.waitFor( { state: 'hidden' } );
+		await this.waitForResponse();
+	}
+
+	async waitForResponse() {
+		const testUrl = /^https?:\/\/.*%2Fwp%2Fv2%2Fmedia/;
+
+		await this.page.waitForResponse( resp => testUrl.test( resp.url() ) );
 	}
 
 	async linkToAttachment() {
