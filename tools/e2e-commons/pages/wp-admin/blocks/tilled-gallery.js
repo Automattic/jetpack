@@ -5,6 +5,7 @@ export default class TiledGallery extends PageActions {
 		super( page, 'Tiled Gallery block' );
 		this.blockTitle = TiledGallery.title();
 		this.blockSelector = '#block-' + blockId;
+		this.linkTo = false;
 	}
 
 	static name() {
@@ -41,8 +42,7 @@ export default class TiledGallery extends PageActions {
 	async linkToAttachment() {
 		await this.click( "button[data-label='Block']" );
 		await this.selectOption( 'select.components-select-control__input', 'Attachment Page' );
-		// await this.page.getByRole('button', { name: 'Block (selected)' }).click();
-		// await this.page.getByRole('combobox', { name: 'Link To' }).selectOption('attachment');
+		this.linkTo = 'attachment';
 	}
 
 	/**
@@ -52,6 +52,9 @@ export default class TiledGallery extends PageActions {
 	 */
 	static async isRendered( page ) {
 		await page.waitForSelector( '.tiled-gallery__gallery' );
+		if ( this.linkTo === 'attachment' ) {
+			await page.waitForSelector( 'figure.tiled-gallery__item a[href*="/?attachment_id"]' );
+		}
 	}
 
 	#getSelector( selector ) {

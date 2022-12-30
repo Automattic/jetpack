@@ -120,7 +120,9 @@ test.describe.parallel( 'Free blocks', () => {
 			);
 			const block = new TiledGalleryBlock( blockId, page );
 			await block.addImages();
-			// await block.linkToAttachment();
+
+			await blockEditor.openSettingsSidebar();
+			await block.linkToAttachment();
 		} );
 
 		await test.step( 'Can publish a post with a Tiled Gallery block', async () => {
