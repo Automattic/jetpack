@@ -1,4 +1,5 @@
 import { trackKindOptionProps } from '../../../lib/video-tracks/types';
+import { PrivacySettingProp } from '../../../types';
 
 // Attributes
 
@@ -54,7 +55,7 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	useAverageColor?: boolean;
 
 	// Privacy and Rating types
-	privacySetting?: number;
+	privacySetting?: PrivacySettingProp;
 	allowDownload?: boolean;
 	displayEmbed?: boolean;
 	rating?: string;

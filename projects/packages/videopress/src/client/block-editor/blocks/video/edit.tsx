@@ -200,7 +200,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Pick video properties from preview.
 	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
 		? preview
-		: { html: null, scripts: [] };
+		: { html: null, scripts: [], width: null, height: null };
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -252,7 +252,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef();
+	const rePreviewAttemptTimer = useRef< NodeJS.Timeout >();
 
 	/**
 	 * Clean the generating process timer.
@@ -264,7 +264,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			return;
 		}
 
-		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
+		clearInterval( rePreviewAttemptTimer.current );
 	}
 
 	useEffect( () => {
