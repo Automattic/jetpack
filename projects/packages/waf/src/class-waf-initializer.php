@@ -104,15 +104,22 @@ class Waf_Initializer {
 	/**
 	 * Check for WAF update
 	 *
-	 * Updates the WAF when the transient is present.
+	 * Updates the WAF when the "needs update" option is enabled.
 	 *
 	 * @return void
 	 */
 	public static function check_for_waf_update() {
 		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
+			Waf_Runner::define_mode();
+			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+				return;
+			}
+
+			Waf_Runner::generate_ip_rules();
+			Waf_Runner::generate_rules();
+			( new Waf_Standalone_Bootstrap() )->generate();
+
 			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );
-			Waf_Compatibility::migrate_rules();
-			Waf_Runner::update_waf();
 		}
 	}
 
