@@ -15,7 +15,7 @@ use WorDBless\Users as WorDBless_Users;
  * @package automattic/my-jetpack
  * @see \Automattic\Jetpack\My_Jetpack\Rest_Products
  */
-class Test_Hybrid_Product extends TestCase {
+class Test_Search_Product extends TestCase {
 
 	/**
 	 * The current user id.
@@ -30,16 +30,10 @@ class Test_Hybrid_Product extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
-		// Mark this as deprecated since no class is using Hybrid_Product.
-		$deprecated = true;
 
 		// See https://stackoverflow.com/a/41611876.
 		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
-		}
-
-		if ( $deprecated ) {
-			$this->markTestSkipped( 'Hybrid_Product is deprecated.' );
 		}
 
 		$this->install_mock_plugins();
@@ -79,18 +73,16 @@ class Test_Hybrid_Product extends TestCase {
 	 * @after
 	 */
 	public function tear_down() {
-
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
-
 	}
 
 	/**
 	 * Tests with Jetpack active
 	 */
-	public function test_if_jetpack_active_return_true() {
+	public function test_if_jetpack_active_return_false() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertTrue( Search::is_plugin_active() );
+		$this->assertFalse( Search::is_plugin_active() );
 	}
 
 	/**
@@ -124,7 +116,9 @@ class Test_Hybrid_Product extends TestCase {
 	 * Tests Search Manage URL with Jetpack plugin
 	 */
 	public function test_search_manage_url_with_jetpack() {
-		$this->markTestSkipped( 'TODO: Make this work' );
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search' ), Search::get_manage_url() );
 	}
 
 	/**
@@ -172,5 +166,4 @@ class Test_Hybrid_Product extends TestCase {
 		activate_plugins( Search::get_installed_plugin_filename() );
 		$this->assertSame( '', Search::get_post_activation_url() );
 	}
-
 }
