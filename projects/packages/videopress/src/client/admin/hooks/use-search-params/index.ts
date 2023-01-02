@@ -45,11 +45,10 @@ export const useSearchParams = () => {
 	 * Force an empty query string.
 	 */
 	const reset = () => {
-		const searchFragment = '';
-		if ( searchFragment !== history.location.search ) {
+		if ( '' !== history.location.search ) {
 			history.replace( {
 				pathname: history.location.pathname,
-				search: searchFragment,
+				search: '',
 			} );
 		}
 	};
