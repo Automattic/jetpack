@@ -45,8 +45,6 @@ The Revue newsletter service is shutting down on 18th January, so as part of pre
 ### Subscription Block
 
 The Subscription Block received several updates and bug fixes in this version. To test:
-
-
 - On a Jetpack-connected test site, add a Subscription block. Make sure subscribing is enabled first, via Jetpack -> Settings -> Discussion.
 - In the block settings sidebar, under Settings, there should be a toggle to include social followers in the count. Make sure the follower amounts match the subscribers and connected social followers, if there are any.
 - If you have a social network connected via the WordPress.com dashboard at Tools -> Marketing -> Connections, you can also test the social followers are included when publishing if the toggle is enabled.
