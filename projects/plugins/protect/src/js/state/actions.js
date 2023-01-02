@@ -169,10 +169,6 @@ const setJetpackScan = scan => {
 	return { type: SET_JETPACK_SCAN, scan };
 };
 
-const setProductData = productData => {
-	return { type: SET_PRODUCT_DATA, productData };
-};
-
 const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
@@ -393,7 +389,6 @@ const actions = {
 	setInstalledThemes,
 	setwpVersion,
 	setJetpackScan,
-	setProductData,
 	ignoreThreat,
 	setModal,
 	setNotice,
