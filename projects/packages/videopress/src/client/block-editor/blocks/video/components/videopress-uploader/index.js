@@ -164,7 +164,7 @@ const VideoPressUploader = ( {
 			return;
 		}
 
-		const resumablerCall = uploadPaused ? 'start' : 'abort';
+		const resumableCall = uploadPaused ? 'start' : 'abort';
 		resumeHandler[ resumablerCall ]();
 		setUploadPaused( ! uploadPaused );
 	};
