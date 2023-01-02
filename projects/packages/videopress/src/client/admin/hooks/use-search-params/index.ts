@@ -30,6 +30,16 @@ export const useSearchParams = () => {
 	};
 
 	/**
+	 * Deletes a given parameter from the search query data, which results on removing
+	 * it from the URL when it gets updated.
+	 *
+	 * @param {string} parameterName - The name of the parameter to delete.
+	 */
+	const deleteParam = ( parameterName: string ) => {
+		searchParams.delete( parameterName );
+	};
+
+	/**
 	 * Update the URL query string with the current values of the searchParams object.
 	 */
 	const update = () => {
@@ -56,6 +66,7 @@ export const useSearchParams = () => {
 	return {
 		getParam,
 		setParam,
+		deleteParam,
 		update,
 		reset,
 	};
