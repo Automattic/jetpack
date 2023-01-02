@@ -18,6 +18,24 @@ wp_oembed_add_provider( '#https?://(www\.)?icloud\.com\.cn/keynote/.*#i', 'https
 wp_oembed_add_provider( '#https?://((song|album|artist|pods|playlist)\.link|odesli\.com?|mylink\.page)/.*#', 'https://odesli.co/oembed', true );
 wp_oembed_add_provider( '#https?://(www\.)?loom\.com/share/.*#i', 'https://www.loom.com/v1/oembed', true );
 
+// TODO: Remove this. This should hopefully be a temporary hack since Apple's oEmbed often seems to take more than 5 seconds to respond. 10 is an arbitrary number of seconds that seems to work better.
+
+/**
+ * Filters the HTTP request timeout value so that we can increase the timeout for iCloud oEmbeds.
+ *
+ * @param int    $timeout The timeout value in seconds.
+ * @param string $url     The URL to fetch.
+ *
+ * @return int The timeout value in seconds.
+ */
+function jetpack_oembed_timeout_override( $timeout, $url ) {
+	if ( 0 === strpos( $url, 'icloud.com.cn/iwmb/oembed' ) ) {
+		return 10;
+	}
+	return $timeout;
+}
+add_filter( 'http_request_timeout', 'jetpack_oembed_timeout_override', 10, 2 );
+
 /**
  * Conditionally add PocketCasts as an oEmbed provider in advanced of its inclusion in WP 6.1.
  *
