@@ -15,7 +15,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.0-alpha';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -77,7 +77,7 @@ class Blaze {
 		/**
 		 * Filter to disable all Blaze functionality.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.3.0
 		 *
 		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
 		 */

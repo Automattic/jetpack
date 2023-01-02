@@ -552,6 +552,17 @@ export function getJetpackSocialOptions() {
 }
 
 /**
+ * Get whether the post has already been shared.
+ *
+ * @returns {Object} Object with Jetpack Social options.
+ */
+export function getJetpackSocialPostAlreadyShared() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_social_post_already_shared' ], {} );
+}
+
+/**
  * Get a list of all attached media.
  *
  * @returns {Array} An array of media IDs.

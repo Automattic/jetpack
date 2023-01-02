@@ -100,7 +100,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the "Manage" buttons', () => {
 			setup();
-			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 2 );
+			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the "Logged in as" success list item', () => {
