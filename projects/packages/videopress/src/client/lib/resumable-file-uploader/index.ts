@@ -5,7 +5,7 @@ import * as tus from 'tus-js-client';
 /**
  * Internal dependencies
  */
-import { VideoGuid } from '../../block-editor/blocks/video/types';
+import { VideoGUID } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../get-media-token';
 import { VideoMediaProps } from './types';
 import type { MediaTokenProps } from '../../lib/get-media-token/types';
@@ -97,7 +97,7 @@ const resumableFileUploader = ( {
 			const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
 			const SRC_URL_HEADER = 'x-videopress-upload-src-url';
 
-			const guid: VideoGuid = res.getHeader( GUID_HEADER );
+			const guid: VideoGUID = res.getHeader( GUID_HEADER );
 			const mediaId = res.getHeader( MEDIA_ID_HEADER );
 			const src = res.getHeader( SRC_URL_HEADER );
 

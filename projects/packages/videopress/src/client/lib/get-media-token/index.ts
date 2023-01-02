@@ -5,7 +5,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { VideoGuid, VideoId } from '../../block-editor/blocks/video/types';
+import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
 import {
 	MediaTokenScopeProps,
 	MediaTokenScopeAdminAjaxResponseBodyProps,
@@ -37,7 +37,7 @@ const getMediaToken = function (
 		let adminAjaxAction: AdminAjaxTokenProps;
 
 		const data: {
-			guid?: VideoGuid;
+			guid?: VideoGUID;
 			id?: VideoId;
 		} = {};
 
