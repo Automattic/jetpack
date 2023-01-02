@@ -30,10 +30,16 @@ class Test_Hybrid_Product extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		// Mark this as deprecated since no class is using Hybrid_Product.
+		$deprecated = true;
 
 		// See https://stackoverflow.com/a/41611876.
 		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
+		if ( $deprecated ) {
+			$this->markTestSkipped( 'Hybrid_Product is deprecated.' );
 		}
 
 		$this->install_mock_plugins();

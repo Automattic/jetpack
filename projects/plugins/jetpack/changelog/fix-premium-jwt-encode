@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium-content block is shipped with a JWT lib that had a bug in its encode() method
