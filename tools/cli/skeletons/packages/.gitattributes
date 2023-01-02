@@ -14,3 +14,4 @@ changelog/**      production-exclude
 phpunit.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
 tests/**          production-exclude
+.phpcsignore      production-exclude

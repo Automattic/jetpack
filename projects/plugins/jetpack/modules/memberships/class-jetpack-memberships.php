@@ -8,8 +8,6 @@
 
 use Automattic\Jetpack\Blocks;
 
-require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
-
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -33,14 +31,6 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
-
-	/**
-	 * Post meta that will store the level of access for newsletters
-	 *
-	 * @var string
-	 */
-	public static $newsletter_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
-
 	/**
 	 * Button block type to use.
 	 *
@@ -425,15 +415,6 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Get the newsletter access level
-	 *
-	 * @return string|void
-	 */
-	public static function get_newsletter_access_level() {
-		return get_post_meta( get_the_ID(), self::$newsletter_access_level_meta_name, true );
-	}
-
-	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.
@@ -442,19 +423,6 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
-	}
-
-	/**
-	 * Determines whether the post can be viewed based on the newsletter access level
-	 *
-	 * @return bool Whether the post can be viewed
-	 */
-	public static function user_can_view_post() {
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-
-		$newsletter_access_level = self::get_newsletter_access_level();
-		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level, get_the_ID() );
 	}
 
 	/**
@@ -479,52 +447,9 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-		$api_available     = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
-		$supported_in_plan = Jetpack_Plan::supports( 'recurring-payments' );
-		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available && $supported_in_plan );
-	}
-
-	/**
-	 * Whether site has any paid plan.
-	 *
-	 * @param string $type - Type of a plan for which site is configured. For now supports empty and newsletter.
-	 *
-	 * @return bool
-	 */
-	public static function has_configured_plans_jetpack_recurring_payments( $type = '' ) {
-		if ( ! self::is_supported_jetpack_recurring_payments() ) {
-			return false;
-		}
-		$query = array(
-			'post_type'      => self::$post_type_plan,
-			'posts_per_page' => 1,
-		);
-
-		// We want to see if user has any plan marked as a newsletter set up.
-		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
-			$query['meta_value'] = true;
-		}
-
-		$plans = get_posts( $query );
-		return ( count( $plans ) > 0 );
-	}
-
-	/**
-	 * Return all plans
-	 *
-	 * @return array
-	 */
-	public static function get_all_plans_id_jetpack_recurring_payments() {
-		if ( ! self::is_supported_jetpack_recurring_payments() ) {
-			return array();
-		}
-		return get_posts(
-			array(
-				'post_type'      => self::$post_type_plan,
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			)
+		return (
+			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
+			Jetpack_Plan::supports( 'recurring-payments' )
 		);
 	}
 

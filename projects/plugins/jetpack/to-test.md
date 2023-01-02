@@ -1,49 +1,53 @@
-## Jetpack 11.6
+## Jetpack 11.7
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Jetpack Form Block
+### Blaze
 
-The Form Block received several updates and bug fixes in this version. To test, try the following:
+There have been some behind the scenes changes to Blaze (including renaming, and moving it into it's own package), as well as feature additions. To test:
 
-- Make sure the testing site has Jetpack connected to your account.
-- Create a post and add a Form block to it. 
-- Test much of the existing functionality as well as any new Form block features:
-  - Try the new "Explore Forms Patterns" button when adding the block.
-  - Try updating placeholder text.
-  - The page shown to visitors after submitting a form has had the design slightly modified for better readability across various themes. Check to make sure that the post-submission design looks good on your test site.
-  - After submitting forms, check out wp-admin -> Feedback and check out the new layout to make sure things look good.
+- Make sure your site is connected to Jetpack and your WordPress.com account is connected. Make sure the site is public.
+- On WoA (not Jetpack self-hosted): Publish a new post (or unpublish then republish a post). Notice the post-publish sidebar - it should show a 'Blaze your post' message and button saying 'Blaze'.
+- On a Jetpack test site (not WoA): Hover over a post in the posts list (wp-admin/edit.php), and you should see a "promote" link. Clicking it should take you to Blaze page.
 
-### SEO
+### Form Block
 
-There have been some new changes to SEO options available in the editor. One allows you to set a post or page as "noindex", instructing search engines to not show the page in search results. To test:
+The Form Block received several updates and bug fixes in this version. To test:
 
-- Make sure SEO and Sitemaps features are turned on in: /wp-admin/admin.php?page=jetpack#/traffic
-- Create a new test post or page and publish it without using the new "Hide page from search engines" checkbox feature.
-- Examine the published post source on the frontend and make sure there is not any `<meta name='robots' content='noindex'` or similar.
-	- If there is, double check your "Search engine visibility" in Reading settings: /wp-admin/options-reading.php
-- Now edit the same post and check the "Hide page from search engines" checkbox and save the post.
-- Refresh the post on the frontend to examine that it has a `<meta name="robots" content="noindex" />` tag.
-- Using a plugin like "WP Crontrol" or wp-cli commands, run the `jp_sitemap_cron_hook` event so that the Jetpack sitemap is generated.
-- Examine your Jetpack sitemap at `yourdomain/sitemap.xml` for the now non-indexed post, it should be absent from the freshly generated sitemap.
-- Setting the Jetpack SEO options should work equally well from both the Jetpack sidebar menu and the pre-publish panel (sidebar shown when publishing a new post).
+- On a Jetpack-connected test site, add a Form block. While in the form variation picker, you should see the Salesforce Lead form available.
+- Make form fields required and check if the "(required)" text can be changed.
+- Add other fields to the form, and check if those fields allow 'empty' labels.
+- Save the changes and check if they are applied to the live view.
+- On the front-end after adding a Form block, submit a test email, then view the email received in plain text to make sure there are now line breaks. In HTML it should also be properly formatted.
+- There have been various other minor UI changes, so make sure that the general Form block user flow and labels / icons appear as they should.
 
-We also have a new meta field in the SEO module that allows a custom value for the HTML `<title>` tag to be specified at the post/page level.
+#### Form Responses
 
-- Before beginning the test, make sure the SEO module is enabled by navigating to "Jetpack > Settings" and searching for "SEO". Turn this module on by clicking on the toggle:
-- Open an individual post on the front end of the site and take note of the page title displaying in the HTML/browser tab. This should be the default HTML title.
-- In the post editor, click on the Jetpack icon in the upper right-hand corner, this will show Jetpack-specific settings in the post editor sidebar.
-- Expand the "Jetpack SEO" menu item and in the "SEO title" field, set a custom title and then choose "Update" to update the post.
-- Refresh the post on the frontend of the site and confirm that the `<title>` tag and browser tab now display your custom title.
+As well as changes to the Form block, there is now an option to export form responses to Google Sheets. To test:
 
-Other notes for the new meta field that you can check out:
+- On a Jetpack-connected test site, make sure you have some contact form responses on your test site (showing in the Feedback area in wp-admin).
+- From that Feedback area, you should see a single "Export" button. Click it to open the Export modal.
+- From the Export modal, use either option to download a CSV file or export to Google Sheets.
+- If you didn't successfully connect to Google Drive, the Export button should read "Connect Google Drive").
 
-- If you have the Jetpack social connections module enabled, you should also see the og:title meta tag updated to contain your custom title string.
-- There were some small modifications to how the custom SEO description is fetched, please check that adding custom SEO descriptions still work as expected for posts and pages.
-- Change a post status to "Draft", then in the editor click "Publish". The pre-publish sidebar should contain the "Jetpack SEO" menu item.
+### Revue Block
+
+The Revue newsletter service is shutting down on 18th January, so as part of preparing for that the Revue block is now no longer discoverable. Existing instances of the Revue block will show a message leading to our WordPress.com article explaining more about the shut-down and how to migrate subcribers to WordPress.com (there is no Jetpack specific article at this time). To test:
+
+- On a Jetpack-connected test site, it is possible to test the Revue block notice on the back and front end by adding the following markup to a post/page: `<!-- wp:jetpack/revue --> <div class="wp-block-jetpack-revue"><a class="wp-block-jetpack-revue__fallback" href="https://www.getrevue.co/profile/undefined">https://www.getrevue.co/profile/undefined</a></div> <!-- /wp:jetpack/revue -->`.
+- The editor should now show a message and link related to Revue shutting down, suggesting the block should be removed and adding a CTA to migrate subscribers via WordPress.com.
+- On the front-end, if you are logged in as an admin you should see an info notice with similar messaging. View the same post / page whilst not logged in or not as an admin and you shouldn't see that notice.
+- Search for the Revue block to add to a post / page - it shouldn't be visible.
+
+### Subscription Block
+
+The Subscription Block received several updates and bug fixes in this version. To test:
+- On a Jetpack-connected test site, add a Subscription block. Make sure subscribing is enabled first, via Jetpack -> Settings -> Discussion.
+- In the block settings sidebar, under Settings, there should be a toggle to include social followers in the count. Make sure the follower amounts match the subscribers and connected social followers, if there are any.
+- If you have a social network connected via the WordPress.com dashboard at Tools -> Marketing -> Connections, you can also test the social followers are included when publishing if the toggle is enabled.
 
 ### And More!
 

@@ -41,12 +41,11 @@ interface Subscription_Service {
 	 * Given a token (this could be from a cookie, a querystring, or some other means)
 	 * can the visitor see the premium content?
 	 *
-	 * @param array  $valid_plan_ids .
-	 * @param string $access_level   .
+	 * @param array $valid_plan_ids .
 	 *
 	 * @return boolean
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level );
+	public function visitor_can_view_content( $valid_plan_ids );
 
 	/**
 	 * The current visitor would like to obtain access. Where do they go?
