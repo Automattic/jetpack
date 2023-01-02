@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { useResumableUploader } from '../../../../../hooks/use-resumable-uploader';
+import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
@@ -79,9 +79,11 @@ const VideoPressUploader = ( {
 		setUploadCompleted( true );
 	};
 
-	// Helper instance to upload the video to the VideoPress infrastructure.
-	// eslint-disable-next-line no-unused-vars
-	const { uploadhandler, resumeHandler, error: jwtError, uploadingData } = useResumableUploader( {
+	/*
+	 * Helper instance to upload the video to the VideoPress infrastructure.
+	 * eslint-disable-next-line no-unused-vars
+	 */
+	const { uploadhandler, resumeHandler, error: jwtError } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: handleUploadSuccess,
@@ -164,7 +166,7 @@ const VideoPressUploader = ( {
 			return;
 		}
 
-		const resumableCall = uploadPaused ? 'start' : 'abort';
+		const resumablerCall = uploadPaused ? 'start' : 'abort';
 		resumeHandler[ resumablerCall ]();
 		setUploadPaused( ! uploadPaused );
 	};
