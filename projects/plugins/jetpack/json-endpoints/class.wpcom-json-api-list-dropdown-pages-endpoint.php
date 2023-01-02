@@ -53,6 +53,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 		}
 
 		$pages = self::get_pages();
+		return $pages;
 	}
 
 	/**
