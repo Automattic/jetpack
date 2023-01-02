@@ -151,7 +151,7 @@ class WP_Test_Jetpack_Shortcodes_Others extends WP_UnitTestCase {
 	}
 
 	public function test_oembed_timeout_for_icloud_embed() {
-		$timeout = apply_filterr( 'http_request_timeout', 5, 'https://iwmb.icloud.com.cn/iwmb/oembed?maxwidth=600&maxheight=750&url=https://www.icloud.com.cn/keynote/0ccKYFwX7dNwplSTdXuXLzvlQ%23Presentation_9&dnt=1&format=json' );
+		$timeout = apply_filters( 'http_request_timeout', 5, 'https://iwmb.icloud.com.cn/iwmb/oembed?maxwidth=600&maxheight=750&url=https://www.icloud.com.cn/keynote/0ccKYFwX7dNwplSTdXuXLzvlQ%23Presentation_9&dnt=1&format=json' );
 		$this->assertEquals( 10, $timeout );
 	}
 }
