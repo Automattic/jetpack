@@ -7,17 +7,20 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+
 /**
  * Class for promoting posts.
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 */
-	public static function configure() {
+	public static function init() {
 		$blaze = self::get_instance();
 		$blaze->register();
 	}
@@ -35,22 +38,50 @@ class Blaze {
 	 * Sets up Post List action callbacks.
 	 */
 	public function register() {
-		// @todo filter to turn it off.
-		// @todo criteria for enabling: User connected, etc
-		// @todo When showing for individual posts: Is it a supported post type? Basically anything that Jetpack syncs.
-		// @todo Organize tracks events.
+
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
-			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
+			if ( self::should_initialize() ) {
+				add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
+				add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+			}
 
 			/**
-			 * Action called after initializing Post_List Admin resources.
+			 * Action called after initializing Blaze.
 			 *
 			 * @since 0.1.0
 			 */
 			do_action( 'jetpack_on_blaze_init' );
 		}
+	}
 
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+	/**
+	 * Determines if criteria is met to enable Blaze features.
+	 *
+	 * @todo - Get response from API if requirements are met on the wpcom-side.
+	 *
+	 * @return bool
+	 */
+	public static function should_initialize() {
+		$should_initialize = true;
+
+		// These features currently only work on WordPress.com, so they should be connected for best experience.
+		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+			$should_initialize = false;
+		}
+
+		// The whole thing is also powered by Sync!
+		if ( ! Sync_Settings::is_sync_enabled() ) {
+			$should_initialize = false;
+		}
+
+		/**
+		 * Filter to disable all Blaze functionality.
+		 *
+		 * @since 0.3.0
+		 *
+		 * @param bool $should_initialize Whether Blaze should be enabled. Default to true.
+		 */
+		return apply_filters( 'jetpack_blaze_enabled', $should_initialize );
 	}
 
 	/**
@@ -64,7 +95,7 @@ class Blaze {
 	public function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
-		// @todo wrap in method call, for general use?
+		// Might be useful to wrap in a method call for general use without post_id.
 		$blaze_url = Redirect::get_url(
 			'jetpack-blaze',
 			array(

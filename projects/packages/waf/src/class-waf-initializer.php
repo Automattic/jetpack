@@ -11,6 +11,14 @@ namespace Automattic\Jetpack\Waf;
  * Initializes the module
  */
 class Waf_Initializer {
+
+	/**
+	 * Option for storing whether or not the WAF files are potentially out of date.
+	 *
+	 * @var string NEEDS_UPDATE_OPTION_NAME
+	 */
+	const NEEDS_UPDATE_OPTION_NAME = 'jetpack_waf_needs_update';
+
 	/**
 	 * Initializes the configurations needed for the waf module.
 	 *
@@ -30,6 +38,9 @@ class Waf_Initializer {
 		// Activation/Deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+
+		// Ensure backwards compatibility
+		Waf_Compatibility::add_compatibility_hooks();
 
 		// Run the WAF
 		Waf_Runner::initialize();
@@ -60,37 +71,55 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function update_waf_after_plugin_upgrade( $upgrader, $hook_extra ) {
-		$jetpack_plugins_with_waf = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
+		$jetpack_text_domains_with_waf = array( 'jetpack', 'jetpack-protect' );
+		$jetpack_plugins_with_waf      = array( 'jetpack/jetpack.php', 'jetpack-protect/jetpack-protect.php' );
 
 		// Only run on upgrades affecting plugins
-		if ( empty( $hook_extra['plugins'] ) ) {
+		if ( 'plugin' !== $hook_extra['type'] ) {
 			return;
 		}
 
 		// Only run on updates and installations
-		if ( ! in_array( $hook_extra['action'], array( 'update', 'install' ), true ) ) {
+		if ( 'update' !== $hook_extra['action'] && 'install' !== $hook_extra['action'] ) {
 			return;
 		}
 
 		// Only run when Jetpack plugins were affected
-		if ( empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) ) ) {
+		if ( 'update' === $hook_extra['action'] &&
+			! empty( $hook_extra['plugins'] ) &&
+			empty( array_intersect( $jetpack_plugins_with_waf, $hook_extra['plugins'] ) )
+		) {
+			return;
+		}
+		if ( 'install' === $hook_extra['action'] &&
+			! empty( $upgrader->new_plugin_data['TextDomain'] ) &&
+			empty( in_array( $upgrader->new_plugin_data['TextDomain'], $jetpack_text_domains_with_waf, true ) )
+		) {
 			return;
 		}
 
-		set_transient( 'jetpack_waf_needs_update', 1 );
+		update_option( self::NEEDS_UPDATE_OPTION_NAME, 1 );
 	}
 
 	/**
 	 * Check for WAF update
 	 *
-	 * Updates the WAF when the transient is present.
+	 * Updates the WAF when the "needs update" option is enabled.
 	 *
 	 * @return void
 	 */
 	public static function check_for_waf_update() {
-		if ( get_transient( 'jetpack_waf_needs_update' ) ) {
-			delete_transient( 'jetpack_waf_needs_update' );
-			Waf_Runner::update_waf();
+		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
+			Waf_Runner::define_mode();
+			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
+				return;
+			}
+
+			Waf_Runner::generate_ip_rules();
+			Waf_Runner::generate_rules();
+			( new Waf_Standalone_Bootstrap() )->generate();
+
+			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );
 		}
 	}
 
