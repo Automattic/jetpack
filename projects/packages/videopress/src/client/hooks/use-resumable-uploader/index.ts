@@ -30,7 +30,7 @@ type ResumaHandlerProps = {
 
 type UseResumableUploader = {
 	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
-	uploadhandler: ( file: File ) => void;
+	uploadHandler: ( file: File ) => void;
 	resumeHandler: ResumaHandlerProps;
 	uploadingData: UploadingDataProps;
 	media: VideoMediaProps;
