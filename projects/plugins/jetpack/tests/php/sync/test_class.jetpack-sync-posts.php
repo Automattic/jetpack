@@ -14,7 +14,6 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
-	protected $post_id;
 	protected $test_already = false;
 
 	/**
