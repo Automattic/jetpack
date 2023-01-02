@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
+import { VideoGuid, VideoId } from '../../block-editor/blocks/video/types';
 
 export const MEDIA_TOKEN_SCOPES = [ 'upload', 'playback', 'upload-jwt' ] as const;
 type MediaTokenScopesProps = typeof MEDIA_TOKEN_SCOPES;
@@ -16,8 +16,8 @@ export const TOKEN_ADMIN_AJAX_TYPES = [
 type AdminAjaxTokensProps = typeof TOKEN_ADMIN_AJAX_TYPES;
 
 export type GetMediaTokenArgsProps = {
-	id?: VideoIdProp;
-	guid?: VideoGUIDProp;
+	id?: VideoId;
+	guid?: VideoGuid;
 };
 
 export type AdminAjaxTokenProps = AdminAjaxTokensProps[ number ];

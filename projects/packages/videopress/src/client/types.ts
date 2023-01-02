@@ -1,4 +1,4 @@
-import { VideoGUIDProp } from './block-editor/blocks/video/types';
+import { VideoGuid } from './block-editor/blocks/video/types';
 
 /*
  * Video Privacy:
@@ -73,7 +73,7 @@ export type WPComV2VideopressPostMetaEndpointBodyProps = {
 export type WPV2mediaGetEndpointResponseProps = {
 	source_url: string;
 	jetpack_videopress?: {
-		guid: VideoGUIDProp;
+		guid: VideoGuid;
 		title: string;
 		description: string;
 		caption: string;
@@ -96,7 +96,7 @@ export type WPV2mediaGetEndpointResponseProps = {
 export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	// source_url: string;
 
-	guid: VideoGUIDProp;
+	guid: VideoGuid;
 	title: string;
 	description: string;
 	width: number;

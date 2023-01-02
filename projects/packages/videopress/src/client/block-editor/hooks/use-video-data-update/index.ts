@@ -25,7 +25,7 @@ import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
-	VideoIdProp,
+	VideoId,
 } from '../../blocks/video/types';
 import useVideoData from '../use-video-data';
 import { VideoDataProps } from '../use-video-data/types';
@@ -36,10 +36,10 @@ const debug = debugFactory( 'videopress:video:use-sync-media' );
 /**
  * Hook to update the media data by hitting the VideoPress API.
  *
- * @param {VideoIdProp} id - Media ID.
+ * @param {VideoId} id - Media ID.
  * @returns {Function}  Update Promise handler.
  */
-export default function useMediaDataUpdate( id: VideoIdProp ) {
+export default function useMediaDataUpdate( id: VideoId ) {
 	const updateMediaItem = data => {
 		return new Promise( ( resolve, reject ) => {
 			apiFetch( {

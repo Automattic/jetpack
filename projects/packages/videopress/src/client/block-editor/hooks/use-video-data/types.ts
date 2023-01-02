@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { PrivacySettingProp, RatingProp, VideoTracksResponseBodyProps } from '../../../types';
-import { VideoGUIDProp, VideoIdProp } from '../../blocks/video/types';
+import { VideoGuid, VideoId } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
-	id?: VideoIdProp;
-	guid?: VideoGUIDProp;
+	id?: VideoId;
+	guid?: VideoGuid;
 	isPrivate?: boolean;
 };
 
@@ -15,7 +15,7 @@ export type VideoDataProps = {
 	description?: string;
 	display_embed?: boolean;
 	filename?: string;
-	guid?: VideoGUIDProp;
+	guid?: VideoGuid;
 	is_private?: boolean;
 	post_id?: number;
 	privacy_setting?: PrivacySettingProp;

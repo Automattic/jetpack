@@ -7,7 +7,7 @@ import * as tus from 'tus-js-client';
 /**
  * Internal dependencies
  */
-import { VideoGUIDProp, VideoIdProp } from '../../block-editor/blocks/video/types';
+import { VideoGuid, VideoId } from '../../block-editor/blocks/video/types';
 import getMediaToken from '../../lib/get-media-token';
 /**
  * Types
@@ -21,7 +21,7 @@ const jwtsForKeys = {};
 // eslint-disable-next-line no-shadow
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
-type VideoMediaProps = { id: VideoIdProp; guid: VideoIdProp; src: string };
+type VideoMediaProps = { id: VideoId; guid: VideoId; src: string };
 
 type UploadingDataProps = {
 	bytesSent: number;
@@ -129,7 +129,7 @@ export const uploadVideo = ( {
 			const MEDIA_ID_HEADER = 'x-videopress-upload-media-id';
 			const SRC_URL_HEADER = 'x-videopress-upload-src-url';
 
-			const guid: VideoGUIDProp = res.getHeader( GUID_HEADER );
+			const guid: VideoGuid = res.getHeader( GUID_HEADER );
 			const mediaId = res.getHeader( MEDIA_ID_HEADER );
 			const src = res.getHeader( SRC_URL_HEADER );
 
