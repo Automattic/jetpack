@@ -95,6 +95,10 @@ class Blaze {
 	public function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
+		if ( $post->post_status !== 'publish' ) {
+			return $post_actions;
+		}
+
 		// Might be useful to wrap in a method call for general use without post_id.
 		$blaze_url = Redirect::get_url(
 			'jetpack-blaze',
