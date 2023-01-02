@@ -643,8 +643,10 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
  *
  * @return mixed
  */
-function jetpack_filter_excerpt_for_newsletter( $excerpt, $post ) {
-	if ( false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
+	// The blogmagazine theme is overidding WP core `get_the_excerpt` filter and only passing the excerpt
+	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
+	if ( $post && false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
 		$excerpt .= sprintf(
 			// translators: %s is the permalink url to the current post.
 			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
