@@ -186,7 +186,7 @@ export const ConnectFilterSection = props => {
 
 	const onFilterHandler = ( ...filterArgs ) => {
 		// clear the pagination, setting it back to page 1
-		searchParams.setParam( 'page', '1' );
+		searchParams.deleteParam( 'page' );
 		searchParams.update();
 		setFilter( ...filterArgs );
 	};
