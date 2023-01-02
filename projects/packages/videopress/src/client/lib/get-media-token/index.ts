@@ -1,8 +1,4 @@
 /**
- * External dependencies
- */
-import debugFactory from 'debug';
-/**
  * Internal dependencies
  */
 import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
@@ -14,8 +10,6 @@ import {
 	AdminAjaxTokenProps,
 	GetMediaTokenArgsProps,
 } from './types';
-
-const debug = debugFactory( 'videopress:get-media-token' );
 
 /**
  * Return media token data hiting the admin-ajax endpoint.
@@ -79,7 +73,7 @@ const getMediaToken = function (
 				}
 			} )
 			.catch( () => {
-				debug( 'Token is not achievable' );
+				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
 				resolve( { token: null } );
 			} );
 	} );
