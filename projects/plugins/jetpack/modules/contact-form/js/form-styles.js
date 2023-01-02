@@ -49,7 +49,7 @@ jQuery( function ( $ ) {
 
 		const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
 		const backgroundColor = window.getComputedStyle( bodyNode ).backgroundColor;
-		const textColor = window.getComputedStyle( buttonNode ).color;
+		const textColor = window.getComputedStyle( inputNode ).color;
 		const borderColor = window.getComputedStyle( inputNode ).borderColor;
 		const borderWidth = window.getComputedStyle( inputNode ).borderWidth;
 		const borderRadius = window.getComputedStyle( inputNode ).borderRadius;
