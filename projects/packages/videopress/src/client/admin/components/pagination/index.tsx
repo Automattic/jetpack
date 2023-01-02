@@ -153,7 +153,11 @@ const Pagination: React.FC< PaginationProps > = ( {
 export const ConnectPagination = ( props: { className: string; disabled?: boolean } ) => {
 	const searchParams = useSearchParams();
 	const setPageOnURL = page => {
-		searchParams.setParam( 'page', page );
+		if ( page > 1 ) {
+			searchParams.setParam( 'page', page );
+		} else {
+			searchParams.deleteParam( 'page' );
+		}
 		searchParams.update();
 	};
 
