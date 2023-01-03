@@ -250,7 +250,7 @@
 	z-index: unset;
 }
 
-.contact-form-dropdown__button.ui-button {
+.contact-form .contact-form-dropdown__button.ui-button {
 	width: 100%;
 	box-sizing: border-box;
 	display: flex;
@@ -267,12 +267,12 @@
 	padding: var(--jetpack--contact-form--input-padding);
 }
 
-.contact-form-dropdown__button.ui-button .ui-selectmenu-icon.ui-icon {
+.contact-form .contact-form-dropdown__button.ui-button .ui-selectmenu-icon.ui-icon {
 	background: none;
 }
 
-.contact-form-dropdown__button .ui-selectmenu-icon,
-.contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
+.contact-form .contact-form-dropdown__button .ui-selectmenu-icon,
+.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
 	width: 1em;
 	height: 1em;
 	position: relative;
@@ -285,7 +285,7 @@
 	margin-right: 4px;
 }
 
-.contact-form-dropdown__button .ui-selectmenu-icon::after {
+.contact-form .contact-form-dropdown__button .ui-selectmenu-icon::after {
 	content: "";
 	display: block;
 	box-sizing: border-box;
@@ -297,12 +297,12 @@
 	margin-top: -5px;
 }
 
-.contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
+.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
 	transform: rotate(225deg);
 	margin-top: 8px;
 }
 
-.contact-form-dropdown__menu ul.ui-menu {
+.contact-form .contact-form-dropdown__menu ul.ui-menu {
 	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--input-background);
@@ -313,15 +313,15 @@
 	line-height: normal;
 }
 
-.contact-form-dropdown__menu .ui-menu {
+.contact-form .contact-form-dropdown__menu .ui-menu {
 	margin-top: 8px;
 }
 
-.contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper {
+.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper {
 	padding: var(--jetpack--contact-form--input-padding);
 }
 
-.contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
+.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
 	position: relative;
 	border: none;
 	color: var(--jetpack--contact-form--input-background);
