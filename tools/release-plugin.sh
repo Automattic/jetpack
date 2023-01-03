@@ -81,7 +81,7 @@ fi
 BRANCHES="$( git branch )"
 if [[ "$BRANCHES" =~ "prerelease-2" ]]; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
-	git branch -D prerelease
+	git branch -D prerelease-2
 fi
 
 git checkout -b prerelease-2
