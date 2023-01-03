@@ -120,9 +120,9 @@ class Gifting_Banner {
 			),
 		);
 
-		// Change the version if associated files are updated, current: 20221223.
-		wp_enqueue_style( 'gifting-banner', plugins_url( 'gifting-banner/css/gifting-banner.css', __FILE__ ), array(), '20221223' );
-		wp_enqueue_script( 'gifting-banner', plugins_url( 'gifting-banner/js/gifting-banner.js', __FILE__ ), array(), '20221223', true );
+		// Change the version if associated files are updated, current: 20230103.
+		wp_enqueue_style( 'gifting-banner', plugins_url( 'gifting-banner/css/gifting-banner.css', __FILE__ ), array(), '20230103' );
+		wp_enqueue_script( 'gifting-banner', plugins_url( 'gifting-banner/js/gifting-banner.js', __FILE__ ), array(), '20230103', true );
 		wp_localize_script( 'gifting-banner', 'gifting_banner', $data );
 		wp_set_script_translations( 'gifting-banner', 'gifting-banner' );
 	}
