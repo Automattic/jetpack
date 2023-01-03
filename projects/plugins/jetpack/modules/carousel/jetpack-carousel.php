@@ -20,6 +20,13 @@ class Jetpack_Carousel {
 	public $prebuilt_widths = array( 370, 700, 1000, 1200, 1400, 2000 );
 
 	/**
+	 * Localization strings and other data for the JavaScript
+	 *
+	 * @var array
+	 */
+	public $localize_strings;
+
+	/**
 	 * Represents whether or not this is the first load of Carousel on a page. Default is true.
 	 *
 	 * @var bool

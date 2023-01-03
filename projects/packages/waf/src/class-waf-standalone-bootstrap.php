@@ -48,6 +48,10 @@ class Waf_Standalone_Bootstrap {
 	/**
 	 * Initialized the WP filesystem and serves as a mocking hook for tests.
 	 *
+	 * Should only be implemented after the wp_loaded action hook:
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/wp_filesystem/#more-information
+	 *
 	 * @return void
 	 */
 	protected function initialize_filesystem() {

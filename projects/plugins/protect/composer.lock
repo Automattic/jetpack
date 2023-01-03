@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a876d093957a75a4de5004b9c8357ce2",
+    "content-hash": "e257099869022a95d990ac8f28a8020e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -238,14 +238,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "ecd8142558fa54149518f7071f5cc8e7104fe520"
+                "reference": "29045282abaf0e8823b5585028d634b07601599a"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "composer/composer": "2.2.12",
+                "composer/composer": "^2.2 || ^2.4",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "composer-plugin",
@@ -291,7 +291,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "cbf1f469eb544e364568f907ecf5511abc441954"
+                "reference": "9fb269f82eb6bbe761c191e257ede2c234c7a15e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
@@ -305,7 +305,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.12.x-dev"
+                    "dev-trunk": "1.13.x-dev"
                 }
             },
             "autoload": {
@@ -327,7 +327,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d9974434c1a7705cbc3b4e1d59d7c561c750051d"
+                "reference": "e0f0b7f402d10acfff4a4c986c077dbb5c270310"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -355,7 +355,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.47.x-dev"
+                    "dev-trunk": "1.48.x-dev"
                 }
             },
             "autoload": {
@@ -745,7 +745,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "6933e1a9f9cf005f0448c845a5a85d625a56c83b"
+                "reference": "eb4eefaa216570b48bdb99116b7b001a949e7ec4"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -759,6 +759,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-videopress": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1211,7 +1212,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fa77060ba7ac1c88363f04f02edb1207779cd3f0"
+                "reference": "575fcee63967fb62bd6a838d0ac59b33325ce9e0"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1238,7 +1239,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.44.x-dev"
+                    "dev-trunk": "1.46.x-dev"
                 }
             },
             "autoload": {
@@ -1347,7 +1348,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "601cd835cb48a8fd698f40c2dd355fb2f1a576b9"
+                "reference": "1d5c7fe2ae0c66b80181f4f4aa55288ce157e421"
             },
             "require": {
                 "wikimedia/aho-corasick": "^1.0"
@@ -1365,7 +1366,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.8.x-dev"
                 }
             },
             "autoload": {
@@ -1457,7 +1458,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
+                "reference": "902e0f17e8f54dd4b36f83e808a1385e4d001c72"
             },
             "require": {
                 "php": ">=5.6",
@@ -1476,7 +1477,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
@@ -1525,16 +1526,16 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "0.4.0",
+            "version": "0.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "4811e4562e14679dbeedcf84bed2547db4ea5c03"
+                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/4811e4562e14679dbeedcf84bed2547db4ea5c03",
-                "reference": "4811e4562e14679dbeedcf84bed2547db4ea5c03",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/8cd8d874d42a2faf01a979ba36924fe60d1ba399",
+                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399",
                 "shasum": ""
             },
             "require": {
@@ -1563,9 +1564,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/0.4.0"
+                "source": "https://github.com/Automattic/wordbless/tree/0.4.1"
             },
-            "time": "2022-09-14T14:01:05+00:00"
+            "time": "2022-10-03T13:15:30+00:00"
         },
         {
             "name": "doctrine/instantiator",

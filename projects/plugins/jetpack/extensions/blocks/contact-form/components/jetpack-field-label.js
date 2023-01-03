@@ -1,5 +1,7 @@
 import { RichText } from '@wordpress/block-editor';
+import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { isNil } from 'lodash';
 
 const JetpackFieldLabel = ( {
 	setAttributes,
@@ -8,7 +10,15 @@ const JetpackFieldLabel = ( {
 	placeholder,
 	resetFocus,
 	required,
+	requiredText,
 } ) => {
+	useEffect( () => {
+		if ( isNil( requiredText ) ) {
+			setAttributes( { requiredText: __( '(required)', 'jetpack' ) } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
 	return (
 		<div className="jetpack-field-label">
 			<RichText
@@ -27,7 +37,18 @@ const JetpackFieldLabel = ( {
 				withoutInteractiveFormatting
 				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
-			{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
+			{ required && (
+				<RichText
+					tagName="span"
+					value={ requiredText }
+					className="required"
+					onChange={ value => {
+						setAttributes( { requiredText: value } );
+					} }
+					withoutInteractiveFormatting
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				/>
+			) }
 		</div>
 	);
 };
