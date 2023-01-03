@@ -27,6 +27,7 @@ import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
+import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
@@ -319,6 +320,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		className: 'wp-block-jetpack-videopress',
 	} );
 
+	// Setting video media process
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+	const [ fileToUpload, setFileToUpload ] = useState( null );
+
+	// Render Example block view
 	if ( isExample ) {
 		return (
 			<img
@@ -334,12 +340,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 		);
 	}
 
-	/*
-	 * Handling all the upload/select file step.
-	 * This is the first action for the user.
-	 */
-	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
-
+	// Render uploading block view
 	if ( isUploadingFile ) {
 		const handleDoneUpload = () => {
 			setIsUploadingFile( false );
@@ -351,6 +352,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					handleDoneUpload={ handleDoneUpload }
+					fileToUpload={ fileToUpload }
 				/>
 			</div>
 		);
@@ -421,6 +423,31 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 				/>
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
+			</BlockControls>
+
+			<BlockControls group="other">
+				<ReplaceControl
+					setAttributes={ setAttributes }
+					attributes={ attributes }
+					onUploadFileStart={ media => {
+						setAttributes( { id: null, guid: null } );
+						setIsUploadingFile( true );
+						setFileToUpload( media );
+					} }
+					onSelectVideoFromLibrary={ media => {
+						if ( ! media?.videopress_guid ) {
+							return;
+						}
+
+						setAttributes( {
+							guid: media.videopress_guid,
+							id: media.id,
+							src: media.videopress_url,
+							title: media.title,
+							description: media.description,
+						} );
+					} }
+				/>
 			</BlockControls>
 
 			<InspectorControls>
