@@ -483,7 +483,7 @@ input.components-text-control__input {
 	font-family: var(--jetpack--contact-form--font-family);
 
 	&__toggle {
-		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
+		border: var(--jetpack--contact-form--border);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -521,7 +521,7 @@ input.components-text-control__input {
 	}
 
 	&__popover {
-		border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
+		border: var(--jetpack--contact-form--border);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -529,6 +529,7 @@ input.components-text-control__input {
 		padding: 0;
 		line-height: normal;
 		margin-top: 8px;
+		box-shadow: 0 0.7px 1px rgb(0 0 0 / 10%), 0 1.2px 1.7px -0.2px rgb(0 0 0 / 10%), 0 2.3px 3.3px -0.5px rgb(0 0 0 / 10%);
 
 		.rich-text {
 			padding: var(--jetpack--contact-form--input-padding);
