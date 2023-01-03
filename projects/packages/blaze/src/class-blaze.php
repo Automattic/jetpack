@@ -108,7 +108,7 @@ class Blaze {
 		);
 
 		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Promote', 'Verb', 'jetpack-blaze' );
+		$text  = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
 		$label                 = sprintf( __( 'Blaze &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
