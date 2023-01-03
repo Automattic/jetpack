@@ -168,7 +168,7 @@ export function useSyncMedia(
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const [ initialState, setState ] = useState( {} );
+	const [ initialState, setState ] = useState< VideoDataProps >( {} );
 
 	const [ error, setError ] = useState( null );
 
@@ -195,48 +195,43 @@ export function useSyncMedia(
 		const attributesToUpdate: VideoBlockAttributes = {};
 
 		// Build an object with video data to use for the initial state.
-		const initialVideoData = videoFieldsToUpdate.reduce(
-			( acc, key ) => {
-				if ( typeof videoData[ key ] === 'undefined' ) {
-					return acc;
-				}
-
-				let videoDataValue = videoData[ key ];
-
-				// Cast privacy_setting to number to match the block attribute type.
-				if ( 'privacy_setting' === key ) {
-					videoDataValue = Number( videoDataValue );
-				}
-
-				acc[ key ] = videoDataValue;
-				const attrName = mapFieldsToAttributes[ key ] || snakeToCamel( key );
-
-				if ( videoDataValue !== attributes[ attrName ] ) {
-					debug(
-						'%o is out of sync. Updating %o attr from %o to %o ',
-						key,
-						attrName,
-						attributes[ attrName ],
-						videoDataValue
-					);
-					attributesToUpdate[ attrName ] = videoDataValue;
-				}
+		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
+			if ( typeof videoData[ key ] === 'undefined' ) {
 				return acc;
-			},
-			{
-				tracks: [],
 			}
-		);
+
+			let videoDataValue = videoData[ key ];
+
+			// Cast privacy_setting to number to match the block attribute type.
+			if ( 'privacy_setting' === key ) {
+				videoDataValue = Number( videoDataValue );
+			}
+
+			acc[ key ] = videoDataValue;
+			const attrName = mapFieldsToAttributes[ key ] || snakeToCamel( key );
+
+			if ( videoDataValue !== attributes[ attrName ] ) {
+				debug(
+					'%o is out of sync. Updating %o attr from %o to %o ',
+					key,
+					attrName,
+					attributes[ attrName ],
+					videoDataValue
+				);
+				attributesToUpdate[ attrName ] = videoDataValue;
+			}
+			return acc;
+		}, {} );
 
 		updateInitialState( initialVideoData );
+		debug( 'Initial state: ', initialVideoData );
 
 		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
 
-		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
-
 		// Sync video tracks if needed.
+		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
 		if ( tracksOufOfSync ) {
 			attributesToUpdate.tracks = tracks;
 		}
