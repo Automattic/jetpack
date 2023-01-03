@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blaze: Only show post row action to promote if the post is published.

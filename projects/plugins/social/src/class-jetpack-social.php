@@ -17,6 +17,8 @@ use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authent
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Class Jetpack_Social
@@ -25,6 +27,7 @@ class Jetpack_Social {
 	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
 	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
+	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION  = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -287,7 +290,6 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
@@ -296,6 +298,8 @@ class Jetpack_Social {
 				'social'       => array(
 					'adminUrl'                    => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                  => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'reviewRequestDismissed'      => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath'    => '/jetpack/v4/social/review-dismiss',
 					'connectionRefreshPath'       => '/jetpack/v4/publicize/connection-test-results',
 					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl'     => esc_url_raw(
@@ -307,6 +311,13 @@ class Jetpack_Social {
 			)
 		);
 
+		// Connection initial state is expected when the connection JS package is in the bundle
+		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
+		// Conditionally load analytics scripts
+		// The only component using analytics in the editor at the moment is the review request
+		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**
@@ -396,6 +407,31 @@ class Jetpack_Social {
 	 */
 	public static function should_show_pricing_page() {
 		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
+	}
+
+	/**
+	 * Check to see if the request to review the plugin has already been dismissed.
+	 * This will also return true if Jetpack promotions are disabled via a filter ( allows this prompt to be disabled )
+	 *
+	 * @return bool
+	 */
+	public static function is_review_request_dismissed() {
+		$saved_as_dismissed         = (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
+		$jetpack_promotions_enabled = apply_filters( 'jetpack_show_promotions', true );
+
+		return $saved_as_dismissed || ! $jetpack_promotions_enabled;
+	}
+
+	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
 
 	/**
