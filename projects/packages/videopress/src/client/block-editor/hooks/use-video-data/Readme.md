@@ -1,7 +1,7 @@
 # useVideoHook()
 
 React custom hook that requests the media endpoint,
-tweaking its response to be adequately delivered to be consumed by the component.
+tweaking it's response to be adequately delivered to be consumed by the component.
 
 ```jsx
 function myVideoComponent( { id, guid } ) {
