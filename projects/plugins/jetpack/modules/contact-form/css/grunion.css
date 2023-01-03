@@ -273,8 +273,8 @@
 
 .contact-form .contact-form-dropdown__button .ui-selectmenu-icon,
 .contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
-	width: 1em;
-	height: 1em;
+	width: 0.8em;
+	height: 0.8em;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -295,6 +295,7 @@
 	border-right: 2px solid;
 	transform: rotate(45deg);
 	margin-top: -5px;
+	transition: all 0.2s ease-in-out;
 }
 
 .contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
