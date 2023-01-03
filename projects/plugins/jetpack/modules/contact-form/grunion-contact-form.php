@@ -4585,7 +4585,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		wp_enqueue_style(
 			'jquery-ui-css',
-			'//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css',
+			plugins_url( 'css/jquery-ui.css', __FILE__ ),
 			array(),
 			'1.13.2'
 		);
