@@ -27,31 +27,46 @@ function usage {
 	exit 1
 }
 
+
 # Get the options passed and parse them.
 # Process args.
 ARGS=()
 VERSION=
-TYPE=
-while [[ $# -gt 0 ]]; do
-	arg="$1"
-	shift
-	case $arg in
-		--stable)
-			TYPE="$1"
-			shift
-			;;
-		--help)
+ALPHABETA=
+while getopts "v:abh" opt; do
+	case ${opt} in
+		v)
+			VERSION=$OPTARG
+		;;
+		a)
+			ALPHABETA='-a'
+		;;
+		b)
+			ALPHABETA='-b'
+		;;
+		h)
 			usage
-			;;
-		*)
-			ARGS+=( "$arg" )
-			;;
+		;;
+		?)
+			error "Invalid argument: -$OPTARG"
+			echo ""
+			usage
+		;;
 	esac
 done
-if [[ ${#ARGS[@]} -ne 1 ]]; then
-	usage
+shift "$(($OPTIND -1))"
+
+# Determine the project
+[[ -z "$1" ]] && die "A project slug must be specified."
+[[ $# -gt 1 ]] && die "Only one project slug must be specified, got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
+SLUG="${1#projects/}" # DWIM
+SLUG="${SLUG%/}" # Sanitize
+if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
+	die "Project $SLUG does not exist."
 fi
 
+echo "tools/changelogger-release.sh ${SLUG} ${ALPHABETA} --add-pr-num"
+exit;
 # This gets us $PLUGIN_DIR
 # Do more checks to get any other plugin info we might need.
 process_plugin_arg "${ARGS[0]}"
@@ -61,12 +76,11 @@ CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 	# proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
 	# git checkout trunk && git pull
-	echo "hi"
+	echo "fall through for testing"
 fi
 
 if [[ "$(git status --porcelain)" ]]; then
 	red "Working directory not clean, make sure you're working from a clean checkout and try again."
-	#exit
 fi
 
 # Check out and push pre-release branch
@@ -80,9 +94,12 @@ git checkout -b prerelease
 if ! git push -u origin HEAD; then
 	red "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
-echo "End of file"
 
 # Run tools/changelogger-release.sh <plugin> [ -a, -b ] --add-pr-num
+echo "tools/changelogger-release.sh ${SLUG} ${ALPHABETA} --add-pr-num"
+echo "End of file"
+
+
 # When it completes, wait for user to edit anything then want, then push key to continue.
 # If we're running a beta, amend the changelog.
 # Push the changes, then tell the user to wait for the builds to complete and things to update.
