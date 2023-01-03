@@ -2,3 +2,4 @@ Significance: patch
 Type: fixed
 
 Connection: Metro JS is unable to build the component SCSS files. Adding a native index file to only export the modules required for the mobile editor build.
+
