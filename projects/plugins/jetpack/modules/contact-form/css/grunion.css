@@ -246,6 +246,10 @@
 	width: 100%;
 }
 
+.contact-form-dropdown-wrap {
+	z-index: unset;
+}
+
 .contact-form-dropdown__button.ui-button {
 	width: 100%;
 	box-sizing: border-box;
@@ -255,7 +259,7 @@
 	justify-content: space-between;
 	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
-	background-color: var(--jetpack--contact-form--background-color);
+	background-color: var(--jetpack--contact-form--input-background);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
 	font-family: var(--jetpack--contact-form--font-family);
@@ -301,7 +305,7 @@
 .contact-form-dropdown__menu ul.ui-menu {
 	border: var(--jetpack--contact-form--border-size) solid var(--jetpack--contact-form--border-color);
 	border-radius: var(--jetpack--contact-form--border-radius);
-	background-color: var(--jetpack--contact-form--background-color);
+	background-color: var(--jetpack--contact-form--input-background);
 	color: var(--jetpack--contact-form--text-color);
 	font-size: var(--jetpack--contact-form--font-size);
 	font-family: var(--jetpack--contact-form--font-family);
@@ -320,6 +324,6 @@
 .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
 	position: relative;
 	border: none;
-	color: var(--jetpack--contact-form--background-color);
+	color: var(--jetpack--contact-form--input-background);
 	background-color: var(--jetpack--contact-form--primary-color);
 }
