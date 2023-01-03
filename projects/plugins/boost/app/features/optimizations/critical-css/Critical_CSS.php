@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -67,6 +68,10 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
 		REST_API::register( $this->get_endpoints() );
+
+		// Admin Notices
+		Regenerate_Admin_Notice::init();
+
 		return true;
 	}
 
