@@ -374,18 +374,18 @@
                 "reference": "37be35ba6d35c263bd2dfa4b6bb59fe75b70d801"
             },
             "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blaze/zipball/37be35ba6d35c263bd2dfa4b6bb59fe75b70d801",
-                "reference": "37be35ba6d35c263bd2dfa4b6bb59fe75b70d801",
-                "shasum": ""
+                "type": "path",
+                "url": "../../packages/blaze",
+                "reference": "bac1bf8e0acf71eaabe4e99f5016b38965c2041d"
             },
             "require": {
                 "automattic/jetpack-connection": "^1.48.1",
                 "automattic/jetpack-sync": "^1.46.0"
             },
             "require-dev": {
-                "automattic/jetpack-assets": "^1.17.28",
-                "automattic/jetpack-changelogger": "^3.3.0",
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
