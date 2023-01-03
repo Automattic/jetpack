@@ -226,7 +226,7 @@ jQuery( function ( $ ) {
 	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
 		e.preventDefault();
 
-		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
+		var nonceName = $( e.target ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );

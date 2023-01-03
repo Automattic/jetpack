@@ -1123,11 +1123,18 @@ add_action( 'admin_notices', 'grunion_feedback_admin_notice' );
  */
 class Grunion_Admin {
 	/**
-	 * Define nonce field name
+	 * CSV export nonce field name
 	 *
-	 * @var string The nonce field name.
+	 * @var string The nonce field name for CSV export.
 	 */
-	private $export_nonce_field = 'feedback_export_nonce';
+	private $export_nonce_field_csv = 'feedback_export_nonce_csv';
+
+	/**
+	 * GDrive export nonce field name
+	 *
+	 * @var string The nonce field name for GDrive export.
+	 */
+	private $export_nonce_field_gdrive = 'feedback_export_nonce_gdrive';
 
 	/**
 	 * Instantiates this singleton class
@@ -1241,8 +1248,8 @@ class Grunion_Admin {
 		$post_data = wp_unslash( $_POST );
 		if (
 			! current_user_can( 'export' )
-			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field ] ) )
-			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field ] ), 'feedback_export' )
+			|| empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) )
+			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack' ),
@@ -1296,7 +1303,7 @@ class Grunion_Admin {
 			'primary export-button export-csv',
 			'jetpack-export-feedback-csv',
 			false,
-			array( 'data-nonce-name' => $this->export_nonce_field )
+			array( 'data-nonce-name' => $this->export_nonce_field_csv )
 		);
 		?>
 		<div class="export-card">
@@ -1315,7 +1322,7 @@ class Grunion_Admin {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
 					echo $button_csv_html;
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
-					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field_csv, false, false );
 					?>
 				</div>
 			</div>
@@ -1344,7 +1351,7 @@ class Grunion_Admin {
 				'primary export-button export-gdrive',
 				'jetpack-export-feedback-gdrive',
 				false,
-				array( 'data-nonce-name' => $this->export_nonce_field )
+				array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
 			);
 		} else {
 			$button_html = sprintf(
@@ -1384,7 +1391,7 @@ class Grunion_Admin {
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
 					echo $button_html;
 					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- we're literally building all this html to output it
-					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field, false, false );
+					echo wp_nonce_field( 'feedback_export', $this->export_nonce_field_gdrive, false, false );
 					?>
 				</div>
 			</div>
