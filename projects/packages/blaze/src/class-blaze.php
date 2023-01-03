@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -15,7 +16,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.1';
+	const PACKAGE_VERSION = '0.3.2-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -74,6 +75,14 @@ class Blaze {
 			$should_initialize = false;
 		}
 
+		// Only show the UI on WordPress.com Simple and WoA sites for now.
+		if (
+			! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			&& ! ( new Host() )->is_woa_site()
+		) {
+			$should_initialize = false;
+		}
+
 		/**
 		 * Filter to disable all Blaze functionality.
 		 *
@@ -108,12 +117,12 @@ class Blaze {
 		);
 
 		// Add the link, make sure to tooltip hover.
-		$text  = _x( 'Promote', 'Verb', 'jetpack-blaze' );
+		$text  = _x( 'Blaze', 'Verb', 'jetpack-blaze' );
 		$title = _draft_or_post_title( $post );
 		/* translators: post title */
-		$label                 = sprintf( __( 'Promote &#8220;%s&#8221; via Jetpack Social', 'jetpack-blaze' ), $title );
+		$label                 = sprintf( __( 'Blaze &#8220;%s&#8221; to Tumblr and WordPress.com audiences.', 'jetpack-blaze' ), $title );
 		$post_actions['blaze'] = sprintf(
-			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s">%3$s</a>',
+			'<a href="%1$s" target="_blank" title="%2$s" aria-label="%2$s" rel="noopener noreferrer">%3$s</a>',
 			esc_url( $blaze_url ),
 			esc_attr( $label ),
 			esc_html( $text )
