@@ -65,12 +65,6 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 	die "Project $SLUG does not exist."
 fi
 
-echo "tools/changelogger-release.sh ${SLUG} ${ALPHABETA} --add-pr-num"
-exit;
-# This gets us $PLUGIN_DIR
-# Do more checks to get any other plugin info we might need.
-process_plugin_arg "${ARGS[0]}"
-
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
@@ -85,18 +79,18 @@ fi
 
 # Check out and push pre-release branch
 BRANCHES="$( git branch )"
-if [[ "$BRANCHES" =~ "prerelease" ]]; then
+if [[ "$BRANCHES" =~ "prerelease-2" ]]; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
 	git branch -D prerelease
 fi
 
-git checkout -b prerelease
+git checkout -b prerelease-2
 if ! git push -u origin HEAD; then
 	red "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 
-# Run tools/changelogger-release.sh <plugin> [ -a, -b ] --add-pr-num
-echo "tools/changelogger-release.sh ${SLUG} ${ALPHABETA} --add-pr-num"
+# Run tools/changelogger-release.sh [ -a, -b ] --add-pr-num <plugin> 
+tools/changelogger-release.sh "${ALPHABETA}" -p "${SLUG}"
 echo "End of file"
 
 
