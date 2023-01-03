@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.7-beta - 2023-01-02
+### Enhancements
+- Blaze: enable functionality within the Jetpack plugin. [#28077]
+- Stats: make the toggle for enabling Odyssey Stats visible for all users. [#28105]
+- VideoPress: fix cover attribute on player and add muted attribute on video shortcode. [#28083]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updating testing instructions for 11.7 [#28098]
+
+## 11.7-a.11 - 2022-12-29
+### Bug fixes
+- Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production. [#28102]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updating changelog entries for the Jetpack plugin [#28089]
+
 ## 11.7-a.9 - 2022-12-27
 ### Major Enhancements
 - Blocks: add launchpad on save modal. [#27976]
@@ -18,7 +34,6 @@
 - Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans. [#26417]
 - VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites). [#27942]
 
-
 ### Improved compatibility
 - VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it. [#27842]
 
@@ -30,7 +45,6 @@
 - Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version. [#28061]
 - Subscription block: ensure custom button spacing is correct when the button is on its own line. [#28057]
 - Writing Prompts: do not display within mobile app. [#28023]
-
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Blaze: changing Promote Post package reference to new name: Blaze. [#28073]

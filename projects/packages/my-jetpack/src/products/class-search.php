@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Jetpack_Options;
@@ -18,7 +18,7 @@ use WP_Error;
 /**
  * Class responsible for handling the Search product
  */
-class Search extends Hybrid_Product {
+class Search extends Product {
 	/**
 	 * The product slug
 	 *
