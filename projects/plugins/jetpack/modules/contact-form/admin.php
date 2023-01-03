@@ -1349,7 +1349,7 @@ class Grunion_Admin {
 		} else {
 			$button_html = sprintf(
 				'<a href="%1$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
-				esc_url( Redirect::get_url( 'calypso-marketing-connections-base' ) ),
+				esc_url( Redirect::get_url( 'jetpack-form-responses-connect' ) ),
 				esc_attr__( 'connect to Google Drive', 'jetpack' ),
 				esc_html__( 'Connect Google Drive', 'jetpack' )
 			);
