@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -71,6 +72,14 @@ class Blaze {
 
 		// The whole thing is also powered by Sync!
 		if ( ! Sync_Settings::is_sync_enabled() ) {
+			$should_initialize = false;
+		}
+
+		// Only show the UI on WordPress.com Simple and WoA sites for now.
+		if (
+			! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			&& ! ( new Host() )->is_woa_site()
+		) {
 			$should_initialize = false;
 		}
 
