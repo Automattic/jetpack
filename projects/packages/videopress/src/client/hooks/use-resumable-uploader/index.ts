@@ -128,7 +128,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 		uploadHandler( file );
 	}
 
-	return { onUploadHandler, uploadhandler, resumeHandler, uploadingData, media, error };
+	return { onUploadHandler, uploadHandler, resumeHandler, uploadingData, media, error };
 };
 
 export default useResumableUploader;

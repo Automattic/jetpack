@@ -83,7 +83,7 @@ const VideoPressUploader = ( {
 	 * Helper instance to upload the video to the VideoPress infrastructure.
 	 * eslint-disable-next-line no-unused-vars
 	 */
-	const { uploadhandler, resumeHandler, error: jwtError } = useResumableUploader( {
+	const { uploadHandler, resumeHandler, error: uploadingError } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: handleUploadSuccess,
@@ -148,7 +148,7 @@ const VideoPressUploader = ( {
 		setIsUploadingInProgress( true );
 
 		// Upload file to VideoPress infrastructure.
-		uploadhandler( file );
+		uploadHandler( file );
 	};
 
 	const startUploadFromLibrary = attachmentId => {
@@ -251,14 +251,14 @@ const VideoPressUploader = ( {
 		} );
 	}
 
-	if ( jwtError?.code === 'owner_not_connected' ) {
+	if ( uploadingError?.code === 'owner_not_connected' ) {
 		const connectUserDescription = createInterpolateElement(
 			__(
 				'<connectLink>Connect</connectLink> your site to use the <moreAboutVideoPressLink>VideoPress</moreAboutVideoPressLink> video block.',
 				'jetpack-videopress-pkg'
 			),
 			{
-				connectLink: <a href={ jwtError?.data?.connect_url } rel="noreferrer noopener" />,
+				connectLink: <a href={ uploadingError?.data?.connect_url } rel="noreferrer noopener" />,
 				moreAboutVideoPressLink: <ExternalLink href={ getRedirectUrl( 'jetpack-videopress' ) } />,
 			}
 		);
@@ -268,7 +268,7 @@ const VideoPressUploader = ( {
 				<Button
 					key="videopress-connect-user"
 					variant="primary"
-					href={ jwtError?.data?.connect_url }
+					href={ uploadingError?.data?.connect_url }
 				>
 					{ __( 'Connect', 'jetpack-videopress-pkg' ) }
 				</Button>
