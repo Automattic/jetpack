@@ -933,7 +933,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$css_class = "grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap";
 
 		if ( 'select' === $attributes['type'] ) {
-			$css_class .= ' contact-form-dropdown-wrap';
+			$css_class .= ' contact-form-dropdown-wrap ui-front';
 		}
 
 		$this->assertEquals(
