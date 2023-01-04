@@ -8,7 +8,7 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { uploadFromLibrary } from '../hooks/use-uploader';
 import getMediaToken from '../lib/get-media-token';
-import videoPressUpload from '../lib/resumable-file-uploader';
+import fileUploader from '../lib/resumable-file-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -256,7 +256,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 	};
 
-	videoPressUpload( {
+	fileUploader( {
 		tokenData,
 		file,
 		onError: noop,
