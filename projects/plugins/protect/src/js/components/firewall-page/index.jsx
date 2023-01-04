@@ -50,6 +50,7 @@ const FirewallPage = () => {
 			jetpackWafIpList,
 			jetpackWafIpBlockList,
 			jetpackWafIpAllowList,
+			automaticRulesAvailable,
 		},
 		isEnabled,
 		isSeen,
@@ -68,6 +69,8 @@ const FirewallPage = () => {
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
 	const { recordEventHandler } = useAnalyticsTracks();
+
+	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
 
 	/**
 	 * Automatic Rules Installation Error State
@@ -310,14 +313,14 @@ const FirewallPage = () => {
 		<div className={ styles[ 'toggle-wrapper' ] }>
 			<div
 				className={ `${ styles[ 'toggle-section' ] } ${
-					! hasRequiredPlan || ! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
+					! canToggleAutomaticRules ? styles[ 'toggle-section--disabled' ] : ''
 				}` }
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
-						checked={ hasRequiredPlan && isEnabled ? formState.jetpack_waf_automatic_rules : false }
+						checked={ canToggleAutomaticRules ? formState.jetpack_waf_automatic_rules : false }
 						onChange={ handleAutomaticRulesChange }
-						disabled={ ! hasRequiredPlan || formIsSubmitting || ! isEnabled }
+						disabled={ ! isEnabled || formIsSubmitting || ! canToggleAutomaticRules }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
@@ -372,8 +375,24 @@ const FirewallPage = () => {
 				<div className={ styles[ 'upgrade-trigger-section' ] }>
 					<ContextualUpgradeTrigger
 						className={ styles[ 'upgrade-trigger' ] }
-						description={ __( 'Setup automatic rules with one click', 'jetpack-protect' ) }
-						cta={ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+						description={
+							! canToggleAutomaticRules
+								? __( 'Setup automatic rules with one click', 'jetpack-protect' )
+								: __(
+										'Your site is not receiving the latest updates to automatic rules',
+										'jetpack-protect',
+										/* dummy arg to avoid bad minification */ 0
+								  )
+						}
+						cta={
+							! canToggleAutomaticRules
+								? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+								: __(
+										'Upgrade to keep your site secure with up-to-date firewall rules',
+										'jetpack-protect',
+										/* dummy arg to avoid bad minification */ 0
+								  )
+						}
 						onClick={ getScan }
 					/>
 				</div>
