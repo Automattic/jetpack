@@ -142,6 +142,7 @@ class CLI extends WP_CLI_Command {
 	 */
 	public function generate_rules() {
 		try {
+			Waf_Runner::generate_automatic_rules();
 			Waf_Runner::generate_rules();
 		} catch ( \Exception $e ) {
 
@@ -158,7 +159,7 @@ class CLI extends WP_CLI_Command {
 			sprintf(
 				/* translators: %1$s is the name of the mode that was just switched to. */
 				__( 'Jetpack WAF rules successfully created to: "%1$s".', 'jetpack-waf' ),
-				Waf_Runner::get_waf_file_path( Waf_Runner::RULES_FILE )
+				Waf_Runner::get_waf_file_path( Waf_Runner::RULES_ENTRYPOINT_FILE )
 			)
 		);
 	}

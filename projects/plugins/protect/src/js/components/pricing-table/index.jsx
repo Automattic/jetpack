@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 
 /**
  * Product Detail component.
@@ -30,6 +31,7 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
+	const { refreshWaf } = useWafData();
 	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
@@ -45,9 +47,8 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 		'jetpack_protect_pricing_table_get_scan_link_click',
 		onScanAdd
 	);
-	const getProtectFree = recordEventHandler(
-		'jetpack_protect_connected_product_activated',
-		handleRegisterSite
+	const getProtectFree = recordEventHandler( 'jetpack_protect_connected_product_activated', () =>
+		handleRegisterSite().then( refreshWaf )
 	);
 
 	const args = {
