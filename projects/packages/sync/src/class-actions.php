@@ -370,7 +370,6 @@ class Actions {
 		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
 
 		return $debug;
-
 	}
 
 	/**
@@ -705,7 +704,7 @@ class Actions {
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 
 			// # of send actions performed.
-			$executions ++;
+			++$executions;
 
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 

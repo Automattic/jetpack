@@ -281,7 +281,7 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		$this->created = time();
-		$this->retry_count++;
+		++$this->retry_count;
 		$this->store();
 
 		return true;

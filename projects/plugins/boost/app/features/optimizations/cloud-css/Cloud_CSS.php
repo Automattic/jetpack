@@ -34,7 +34,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function __construct() {
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
-
 	}
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );

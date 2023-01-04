@@ -359,131 +359,122 @@ if (
 					|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
 				) {
 					return $poll_link;
-				} else {
-					/*
-					 * Slider poll.
-					 */
-					if (
-						'slider' === $attributes['type']
-						&& ! $inline
-					) {
+				} elseif ( 'slider' === $attributes['type'] && ! $inline ) { // Slider poll.
+					if ( ! in_array(
+						$attributes['visit'],
+						array( 'single', 'multiple' ),
+						true
+					) ) {
+						$attributes['visit'] = 'single';
+					}
 
-						if ( ! in_array(
-							$attributes['visit'],
-							array( 'single', 'multiple' ),
-							true
-						) ) {
-							$attributes['visit'] = 'single';
+					$settings = array(
+						'type'  => 'slider',
+						'embed' => 'poll',
+						'delay' => (int) $attributes['delay'],
+						'visit' => $attributes['visit'],
+						'id'    => (int) $poll,
+						'site'  => $attributes['site'],
+					);
+
+					return $this->get_async_code( $settings, $poll_link, $poll_url );
+				} else {
+					if ( 1 === $attributes['cb'] ) {
+						$attributes['cb'] = '?cb=' . time();
+					} else {
+						$attributes['cb'] = false;
+					}
+					$margins = '';
+					$float   = '';
+
+					if ( in_array(
+						$attributes['align'],
+						array( 'right', 'left' ),
+						true
+					) ) {
+						$float = sprintf( 'float: %s;', $attributes['align'] );
+
+						if ( 'left' === $attributes['align'] ) {
+							$margins = 'margin: 0px 10px 0px 0px;';
+						} elseif ( 'right' === $attributes['align'] ) {
+							$margins = 'margin: 0px 0px 0px 10px';
+						}
+					}
+
+					/*
+					 * Force the normal style embed on single posts/pages
+					 * otherwise it's not rendered on infinite scroll themed blogs
+					 * ('infinite_scroll_render' isn't fired)
+					 */
+					if ( is_singular() ) {
+						$inline = true;
+					}
+
+					if ( false === $attributes['cb'] && ! $inline ) {
+						if ( false === self::$scripts ) {
+							self::$scripts = array();
 						}
 
-						$settings = array(
-							'type'  => 'slider',
-							'embed' => 'poll',
-							'delay' => (int) $attributes['delay'],
-							'visit' => $attributes['visit'],
-							'id'    => (int) $poll,
-							'site'  => $attributes['site'],
+						$data = array( 'url' => $poll_js );
+
+						self::$scripts['poll'][ (int) $poll ] = $data;
+
+						add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
+
+						wp_enqueue_script( 'crowdsignal-shortcode' );
+						wp_localize_script(
+							'crowdsignal-shortcode',
+							'crowdsignal_shortcode_options',
+							array(
+								'script_url' => esc_url_raw(
+									Assets::get_file_url_for_environment(
+										'_inc/build/polldaddy-shortcode.min.js',
+										'_inc/polldaddy-shortcode.js'
+									)
+								),
+							)
 						);
 
-						return $this->get_async_code( $settings, $poll_link, $poll_url );
-					} else {
-						if ( 1 === $attributes['cb'] ) {
-							$attributes['cb'] = '?cb=' . time();
-						} else {
-							$attributes['cb'] = false;
-						}
-						$margins = '';
-						$float   = '';
-
-						if ( in_array(
-							$attributes['align'],
-							array( 'right', 'left' ),
-							true
-						) ) {
-							$float = sprintf( 'float: %s;', $attributes['align'] );
-
-							if ( 'left' === $attributes['align'] ) {
-								$margins = 'margin: 0px 10px 0px 0px;';
-							} elseif ( 'right' === $attributes['align'] ) {
-								$margins = 'margin: 0px 0px 0px 10px';
-							}
-						}
-
-						/*
-						 * Force the normal style embed on single posts/pages
-						 * otherwise it's not rendered on infinite scroll themed blogs
-						 * ('infinite_scroll_render' isn't fired)
+						/**
+						 * Hook into the Crowdsignal shortcode before rendering.
+						 *
+						 * @since 8.4.0
+						 *
+						 * @param int $poll Poll ID.
 						 */
-						if ( is_singular() ) {
-							$inline = true;
+						do_action( 'crowdsignal_shortcode_before', (int) $poll );
+
+						return sprintf(
+							'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
+							absint( $poll ),
+							esc_attr( wp_json_encode( $data ) ),
+							$float,
+							$margins,
+							$poll_link
+						);
+					} else {
+						if ( $inline ) {
+							$attributes['cb'] = '';
 						}
 
-						if ( false === $attributes['cb'] && ! $inline ) {
-							if ( false === self::$scripts ) {
-								self::$scripts = array();
-							}
+						wp_enqueue_script(
+							'crowdsignal-' . absint( $poll ),
+							esc_url( $poll_js . $attributes['cb'] ),
+							array(),
+							JETPACK__VERSION,
+							true
+						);
 
-							$data = array( 'url' => $poll_js );
+						/** This action is already documented in modules/shortcodes/crowdsignal.php */
+						do_action( 'crowdsignal_shortcode_before', (int) $poll );
 
-							self::$scripts['poll'][ (int) $poll ] = $data;
-
-							add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
-
-							wp_enqueue_script( 'crowdsignal-shortcode' );
-							wp_localize_script(
-								'crowdsignal-shortcode',
-								'crowdsignal_shortcode_options',
-								array(
-									'script_url' => esc_url_raw(
-										Assets::get_file_url_for_environment(
-											'_inc/build/polldaddy-shortcode.min.js',
-											'_inc/polldaddy-shortcode.js'
-										)
-									),
-								)
-							);
-
-							/**
-							 * Hook into the Crowdsignal shortcode before rendering.
-							 *
-							 * @since 8.4.0
-							 *
-							 * @param int $poll Poll ID.
-							 */
-							do_action( 'crowdsignal_shortcode_before', (int) $poll );
-
-							return sprintf(
-								'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="%2$s" style="%3$s%4$s"></div><div id="PD_superContainer"></div><noscript>%5$s</noscript>',
-								absint( $poll ),
-								esc_attr( wp_json_encode( $data ) ),
-								$float,
-								$margins,
-								$poll_link
-							);
-						} else {
-							if ( $inline ) {
-								$attributes['cb'] = '';
-							}
-
-							wp_enqueue_script(
-								'crowdsignal-' . absint( $poll ),
-								esc_url( $poll_js . $attributes['cb'] ),
-								array(),
-								JETPACK__VERSION,
-								true
-							);
-
-							/** This action is already documented in modules/shortcodes/crowdsignal.php */
-							do_action( 'crowdsignal_shortcode_before', (int) $poll );
-
-							return sprintf(
-								'<a id="pd_a_%1$s"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$s" style="%2$s%3$s"></div><div id="PD_superContainer"></div><noscript>%4$s</noscript>',
-								absint( $poll ),
-								$float,
-								$margins,
-								$poll_link
-							);
-						}
+						return sprintf(
+							'<a id="pd_a_%1$s"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$s" style="%2$s%3$s"></div><div id="PD_superContainer"></div><noscript>%4$s</noscript>',
+							absint( $poll ),
+							$float,
+							$margins,
+							$poll_link
+						);
 					}
 				}
 			} elseif ( ! empty( $attributes['survey'] ) ) {
@@ -521,10 +512,8 @@ if (
 						} else {
 							$survey_url = 'https://polldaddy.com/s/' . $survey;
 						}
-					} else {
-						if ( isset( $attributes['domain'] ) && isset( $attributes['id'] ) ) {
-							$survey_url = 'https://' . $attributes['domain'] . '.survey.fm/' . $attributes['id'];
-						}
+					} elseif ( isset( $attributes['domain'] ) && isset( $attributes['id'] ) ) {
+						$survey_url = 'https://' . $attributes['domain'] . '.survey.fm/' . $attributes['id'];
 					}
 
 					$survey_link = sprintf(

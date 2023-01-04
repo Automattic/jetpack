@@ -74,7 +74,7 @@ class Jetpack_Media {
 
 			$new_filename = "{$filename}.{$file_ext}";
 			$new_path     = "{$current_file_dirname}/$new_filename";
-			$number_suffix++;
+			++$number_suffix;
 		} while ( file_exists( $new_path ) );
 
 		return $new_filename;

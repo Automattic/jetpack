@@ -188,7 +188,7 @@ function videopress_cleanup_media_library() {
 				// Force delete the attachment, because we don't want it appearing in the trash.
 				wp_delete_attachment( $post->ID, true );
 
-				$cleaned++;
+				++$cleaned;
 			}
 		}
 	}

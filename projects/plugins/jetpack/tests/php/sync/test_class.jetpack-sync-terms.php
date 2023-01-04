@@ -77,7 +77,6 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEquals( $terms, $server_terms );
-
 	}
 
 	public function test_added_terms_to_post_is_synced() {
