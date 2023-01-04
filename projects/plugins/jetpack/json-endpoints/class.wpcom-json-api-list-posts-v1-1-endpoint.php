@@ -197,13 +197,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				);
 			}
 			$args['type'] = $allowed_types;
-		} else {
-			if ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
-				return array(
-					'found' => 0,
-					'posts' => array(),
-				);
-			}
+		} elseif ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+			return array(
+				'found' => 0,
+				'posts' => array(),
+			);
 		}
 
 		$query = array(

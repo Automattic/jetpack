@@ -1292,15 +1292,11 @@ class csstidy { // phpcs:ignore
 				} elseif ( ! $in_str ) {
 					$in_str = $value[ $i ];
 				}
-			} else {
-				if ( $in_str ) {
-					$current_string .= $value[ $i ];
-				} else {
-					if ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
-						$in_str         = true;
-						$current_string = $value[ $i ];
-					}
-				}
+			} elseif ( $in_str ) {
+				$current_string .= $value[ $i ];
+			} elseif ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
+				$in_str         = true;
+				$current_string = $value[ $i ];
 			}
 		}
 

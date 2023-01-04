@@ -2935,14 +2935,11 @@ p {
 				$active_modules,
 				false
 			);
+		} elseif ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) { // Check for a user connection.
+			self::activate_default_modules( false, false, array(), false, null, null, null );
+			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		} else {
-			// Check for a user connection.
-			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
-				self::activate_default_modules( false, false, array(), false, null, null, null );
-				Jetpack_Options::update_option( 'active_modules_initialized', true );
-			} else {
-				self::activate_default_modules( false, false, array(), false, null, null, false );
-			}
+			self::activate_default_modules( false, false, array(), false, null, null, false );
 		}
 	}
 
