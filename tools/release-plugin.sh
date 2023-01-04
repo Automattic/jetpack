@@ -40,11 +40,11 @@ while getopts "v:abh" opt; do
 		;;
 		a)
 			ALPHABETA='-a'
-			ARGS+=(ALPHABETA)
+			ARGS+=("$ALPHABETA")
 		;;
 		b)
 			ALPHABETA='-b'
-			ARGS+=(ALPHABETA)
+			ARGS+=("$ALPHABETA")
 		;;
 		h)
 			usage
