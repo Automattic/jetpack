@@ -1,11 +1,11 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.14.8",
+	"version": "0.14.9-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
-		"@wordpress/url": "3.23.0",
+		"@wordpress/url": "3.25.0",
 		"@automattic/jetpack-config": "workspace:*"
 	},
 	"devDependencies": {
