@@ -443,7 +443,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "e818e44c10caa5f77e945afbbe11d5a1cc44701a"
+                "reference": "bac1bf8e0acf71eaabe4e99f5016b38965c2041d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -452,6 +452,7 @@
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1696,7 +1697,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "e1361b207ed7ddaddcd764020b0d4e455fd49014"
+                "reference": "a15743c92315940bb988e928858ecff8a53b4a89"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1719,7 +1720,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.19.x-dev"
                 }
             },
             "autoload": {
