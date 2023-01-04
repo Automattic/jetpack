@@ -47,7 +47,6 @@ class Test_Search_Product extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
-
 	}
 
 	/**

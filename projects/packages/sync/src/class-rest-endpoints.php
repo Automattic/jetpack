@@ -327,7 +327,6 @@ class REST_Endpoints {
 				'permission_callback' => __CLASS__ . '::verify_default_permissions',
 			)
 		);
-
 	}
 
 	/**

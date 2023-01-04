@@ -53,7 +53,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $retrieved_user->data->allowed_mime_types );
 
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
-
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -209,7 +208,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
-
 	}
 
 	// Roles syncing
@@ -468,7 +466,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-
 	}
 
 	public function test_syncs_user_logout_event() {

@@ -1034,7 +1034,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// There was an error because some options were updated but others were invalid or failed to update.
 			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
 		}
-
 	}
 
 	/**

@@ -204,7 +204,6 @@ class REST_Controller {
 			default:
 				return $this->get_forbidden_error();
 		}
-
 	}
 
 	/**

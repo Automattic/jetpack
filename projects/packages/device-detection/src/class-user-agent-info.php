@@ -1360,7 +1360,6 @@ class User_Agent_Info {
 		} else {
 			return false;
 		}
-
 	}
 
 	/**
@@ -1423,7 +1422,6 @@ class User_Agent_Info {
 				return false;
 			}
 		}
-
 	}
 
 	/**

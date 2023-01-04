@@ -789,7 +789,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$post_type = $post->post_type;
 
 			$posts[] = compact( 'title', 'permalink', 'post_id', 'post_type' );
-			$counter++;
+			++$counter;
 
 			if ( $counter == $count ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				break; // only need to load and show x number of likes.

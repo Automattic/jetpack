@@ -172,11 +172,11 @@ class Jetpack_Media_Meta_Extractor {
 
 					$attr = shortcode_parse_atts( $matches[3][ $key ] );
 
-					$shortcode_total_count++;
+					++$shortcode_total_count;
 					if ( ! isset( $shortcode_type_counts[ $shortcode_name ] ) ) {
 						$shortcode_type_counts[ $shortcode_name ] = 0;
 					}
-					$shortcode_type_counts[ $shortcode_name ]++;
+					++$shortcode_type_counts[ $shortcode_name ];
 
 					// Store (uniquely) presence of all shortcode regardless of whether it's a keeper (for those, get ID below)
 					// @todo Store number of occurrences?
@@ -427,7 +427,7 @@ class Jetpack_Media_Meta_Extractor {
 				$srcs       = wp_list_pluck( $from_gallery, 'src' );
 				$image_list = array_merge( $image_list, $srcs );
 			}
-			$image_booleans['gallery']++; // @todo This count isn't correct, will only every count 1
+			++$image_booleans['gallery']; // @todo This count isn't correct, will only every count 1
 		}
 
 		// @todo Can we check width/height of these efficiently?  Could maybe use query args at least, before we strip them out

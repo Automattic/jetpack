@@ -230,7 +230,6 @@ class Test_REST_Endpoints extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertFalse( get_option( 'jpsq_sync_checkout' ) );
-
 	}
 
 	/**
@@ -306,7 +305,6 @@ class Test_REST_Endpoints extends TestCase {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
-
 	}
 
 }

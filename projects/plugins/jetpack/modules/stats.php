@@ -143,7 +143,6 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Main::template_redirect' );
 	Stats::template_redirect();
-
 }
 
 /**
@@ -168,7 +167,6 @@ function stats_build_view_data() {
 function stats_footer() {
 	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
 	Stats_Tracking_Pixel::add_to_footer();
-
 }
 
 /**
@@ -415,7 +413,6 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
 	} else {
 		stats_reports_page();
 	}
-
 }
 
 /**

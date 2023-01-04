@@ -26,7 +26,6 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-
 	}
 
 	/**
