@@ -68,6 +68,11 @@ const VideoLibraryWrapper = ( {
 	};
 
 	const [ searchQuery, setSearchQuery ] = useState( search );
+	const searchParamsSearchQuery = searchParams.getParam( 'q', '' );
+	if ( searchParamsSearchQuery && searchParamsSearchQuery !== searchQuery ) {
+		setSearchQuery( searchParamsSearchQuery );
+	}
+
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );
