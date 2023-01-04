@@ -81,12 +81,12 @@ fi
 
 # Check out and push pre-release branch
 BRANCHES="$( git branch )"
-if [[ "$BRANCHES" =~ "prerelease-2" ]]; then
+if [[ "$BRANCHES" =~ "prerelease-test" ]]; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
-	git branch -D prerelease-2
+	git branch -D prerelease-test
 fi
 
-git checkout -b prerelease-2
+git checkout -b prerelease-test
 if ! git push -u origin HEAD; then
 	red "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
@@ -96,11 +96,23 @@ tools/changelogger-release.sh "${ARGS[@]}" "${SLUG}"
 
 # When it completes, wait for user to edit anything then want, then push key to continue.
 read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
-echo "Nice prompt"
+echo ""
+
+git add --all
+git commit -am "Changelog edits for $SLUG"
+
+# If we're running a beta, amend the changelog
+if [[ "$SLUG" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
+	echo "Releasing a beta, amending the readme.txt"
+	jetpack changelog squash plugins/jetpack readme
+	git commit -am "Amend readme.txt"
+fi
+
+git push -u origin prerelease-test
 echo "End of file"
 
 
 
-# If we're running a beta, amend the changelog.
+.
 # Push the changes, then tell the user to wait for the builds to complete and things to update.
 # After this, run tools/create-release-branch.sh to create a release branch.
