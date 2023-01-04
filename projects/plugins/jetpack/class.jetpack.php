@@ -817,6 +817,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'blaze',
 				'jitm',
 				'sync',
 				'waf',
@@ -904,7 +905,6 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
-
 	}
 
 	/**
@@ -1011,7 +1011,6 @@ class Jetpack {
 				'path' => $query_args['amp;c'],
 			)
 		);
-
 	}
 
 	/**
@@ -1653,7 +1652,6 @@ class Jetpack {
 		}
 
 		return $notice;
-
 	}
 	/**
 	 * Get Jetpack offline mode notice text and notice class.
@@ -2862,7 +2860,6 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
-
 	}
 
 	/**
@@ -2938,14 +2935,11 @@ p {
 				$active_modules,
 				false
 			);
+		} elseif ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) { // Check for a user connection.
+			self::activate_default_modules( false, false, array(), false, null, null, null );
+			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		} else {
-			// Check for a user connection.
-			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
-				self::activate_default_modules( false, false, array(), false, null, null, null );
-				Jetpack_Options::update_option( 'active_modules_initialized', true );
-			} else {
-				self::activate_default_modules( false, false, array(), false, null, null, false );
-			}
+			self::activate_default_modules( false, false, array(), false, null, null, false );
 		}
 	}
 
@@ -4362,7 +4356,6 @@ endif;
 
 		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
 		return $a8c_mc_stats_instance->build_stats_url( $args );
-
 	}
 
 	/**
@@ -4623,7 +4616,7 @@ endif;
 		}
 
 		// Increment number of times connected.
-		$jetpack_unique_registrations ++;
+		++$jetpack_unique_registrations;
 		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 

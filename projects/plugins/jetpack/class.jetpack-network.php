@@ -193,7 +193,6 @@ class Jetpack_Network {
 			}
 			restore_current_blog();
 		}
-
 	}
 
 	/**
@@ -576,7 +575,6 @@ class Jetpack_Network {
 		$network_sites_table->prepare_items();
 		$network_sites_table->display();
 		echo '</form></div>';
-
 	}
 
 	/**

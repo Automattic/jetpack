@@ -1048,11 +1048,11 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// The newline at the end of each line is 1 byte, but we don't need to count empty lines.
-				$total_bytes_processed++;
+				++$total_bytes_processed;
 			}
 
 			// We do need to count empty lines in the editor, since they'll be displayed.
-			$characters_processed++;
+			++$characters_processed;
 		}
 
 		return false;
@@ -1449,7 +1449,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "<$tag>" === $token || 0 === strpos( $token, "<$tag " ) ) {
 					// A tag has just been opened.
-					$opened++;
+					++$opened;
 					// Set an empty value now, so we're keeping track of empty tags.
 					if ( ! isset( $values[ $tag ][ $opened ] ) ) {
 						$values[ $tag ][ $opened ] = '';
@@ -1459,7 +1459,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "</$tag>" === $token ) {
 					// The tag has been closed.
-					$closed++;
+					++$closed;
 					continue;
 				}
 

@@ -51,7 +51,7 @@ class WP_Super_Cache_Rest_Test_Cache extends WP_REST_Controller {
 
 
 			$response[ 'attempts' ][ $attempt_name ] = $attempt;
-			$c++;
+			++$c;
 		}
 
 		if (

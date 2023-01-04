@@ -7,3 +7,8 @@ export async function enableAutomaticRules() {
 	const rulesGenerated = execWpCommand( 'jetpack-waf generate_rules' );
 	return optionUpdated && rulesGenerated;
 }
+
+export async function generateRules() {
+	logger.sync( 'Generating firewall rules' );
+	return execWpCommand( 'jetpack-waf generate_rules' );
+}

@@ -6,7 +6,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
+import { uploadFromLibrary } from '../hooks/use-uploader';
+import getMediaToken from '../lib/get-media-token';
+import fileUploader from '../lib/resumable-file-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -242,7 +244,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 	// @todo: this should be stored in the state
-	const jwt = await getJWT();
+	const tokenData = await getMediaToken( 'upload-jwt' );
 
 	const onSuccess = async data => {
 		dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
@@ -254,8 +256,8 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 	};
 
-	videoPressUpload( {
-		data: jwt,
+	fileUploader( {
+		tokenData,
 		file,
 		onError: noop,
 		onProgress,

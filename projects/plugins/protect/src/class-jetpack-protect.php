@@ -167,7 +167,6 @@ class Jetpack_Protect {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
@@ -199,14 +198,14 @@ class Jetpack_Protect {
 			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
-			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSeen'     => self::get_waf_seen_status(),
-				'isEnabled'  => Waf_Runner::is_enabled(),
-				'isToggling' => false,
-				'isUpdating' => false,
-				'config'     => Waf_Runner::get_config(),
+				'isSupported' => Waf_Runner::is_supported_environment(),
+				'isSeen'      => self::get_waf_seen_status(),
+				'isEnabled'   => Waf_Runner::is_enabled(),
+				'isToggling'  => false,
+				'isUpdating'  => false,
+				'config'      => Waf_Runner::get_config(),
 			),
 		);
 
@@ -233,14 +232,6 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Helper to check that we have a Jetpack connection.
-	 */
-	private static function is_connected() {
-		$manager = new Connection_Manager();
-		return $manager->is_connected() && $manager->has_connected_user();
-	}
-
-	/**
 	 * Runs on admin_init, and does actions required on plugin activation, based on
 	 * the activation option.
 	 *
@@ -248,7 +239,7 @@ class Jetpack_Protect {
 	 * and we need the sync module's actions and filters to be registered.
 	 */
 	public static function do_plugin_activation_activities() {
-		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && self::is_connected() ) {
+		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && ( new Connection_Manager() )->is_connected() ) {
 			self::activate_module();
 		}
 	}

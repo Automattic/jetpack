@@ -3,6 +3,7 @@ import {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
+	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_UNAVAILABLE,
@@ -11,7 +12,6 @@ import {
 	SET_INSTALLED_THEMES,
 	SET_WP_VERSION,
 	SET_JETPACK_SCAN,
-	SET_PRODUCT_DATA,
 	SET_THREAT_IS_UPDATING,
 	SET_MODAL,
 	SET_NOTICE,
@@ -45,8 +45,10 @@ const status = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_STATUS:
 			return action.status;
+		case SET_STATUS_PROGRESS:
+			return { ...state, currentProgress: action.currentProgress };
 		case START_SCAN_OPTIMISTICALLY:
-			return { ...state, status: 'optimistically_scanning' };
+			return { ...state, currentProgress: 0, status: 'optimistically_scanning' };
 	}
 	return state;
 };
@@ -107,14 +109,6 @@ const jetpackScan = ( state = {}, action ) => {
 	return state;
 };
 
-const productData = ( state = {}, action ) => {
-	switch ( action.type ) {
-		case SET_PRODUCT_DATA:
-			return action.productData;
-	}
-	return state;
-};
-
 const threatsUpdating = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_THREAT_IS_UPDATING:
@@ -158,6 +152,7 @@ const hasRequiredPlan = ( state = false, action ) => {
 };
 
 const defaultWaf = {
+	isSupported: null,
 	isSeen: false,
 	isEnabled: false,
 	isUpdating: false,
@@ -191,7 +186,6 @@ const reducers = combineReducers( {
 	installedThemes,
 	wpVersion,
 	jetpackScan,
-	productData,
 	threatsUpdating,
 	modal,
 	notice,

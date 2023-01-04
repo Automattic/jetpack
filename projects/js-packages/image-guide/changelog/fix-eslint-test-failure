@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Adding prepare script back to package.json, was needed for an ESlint test

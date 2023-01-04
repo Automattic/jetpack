@@ -4,8 +4,66 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b04e1bb56a46b33246b7d8fa5973cab9",
+    "content-hash": "92efc2ebd18c5e82b5a0160a2e03169a",
     "packages": [
+        {
+            "name": "automattic/jetpack-admin-ui",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/admin-ui",
+                "reference": "9405b138a2b173706dd3f977c71ca2ea55e3710b"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-admin-ui",
+                "textdomain": "jetpack-admin-ui",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.2.x-dev"
+                },
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-admin-menu.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Generic Jetpack wp-admin UI elements",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-autoloader",
             "version": "dev-trunk",
@@ -200,7 +258,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
+                "reference": "902e0f17e8f54dd4b36f83e808a1385e4d001c72"
             },
             "require": {
                 "php": ">=5.6",
@@ -219,7 +277,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
@@ -1031,6 +1089,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-changelogger": 20
     },

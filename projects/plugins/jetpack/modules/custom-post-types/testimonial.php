@@ -757,7 +757,7 @@ class Jetpack_Testimonial {
 						?>
 					</div><!-- close .testimonial-entry -->
 					<?php
-					$testimonial_index_number++;
+					++$testimonial_index_number;
 				} // end of while loop
 
 				wp_reset_postdata();

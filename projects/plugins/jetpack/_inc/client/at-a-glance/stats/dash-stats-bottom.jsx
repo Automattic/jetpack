@@ -10,7 +10,7 @@ import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { userCanConnectAccount } from 'state/initial-state';
+import { isWoASite, userCanConnectAccount } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -96,14 +96,18 @@ class DashStatsBottom extends Component {
 				<div className="jp-at-a-glance__stats-cta">
 					<div className="jp-at-a-glance__stats-cta-description" />
 					<div className="jp-at-a-glance__stats-ctas">
-						{ createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
-							button: (
-								<Button
-									onClick={ this.trackViewDetailedStats }
-									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
-								/>
-							),
-						} ) }
+						{
+							// Only show link for non-atomic Jetpack sites.
+							! this.props.isWoASite &&
+								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
+									button: (
+										<Button
+											onClick={ this.trackViewDetailedStats }
+											href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+										/>
+									),
+								} )
+						}
 						{ ! this.props.isLinked && this.props.userCanConnectAccount && (
 							<ConnectButton
 								connectUser={ true }
@@ -159,6 +163,7 @@ DashStatsBottom.defaultProps = {
 
 export default connect( state => {
 	return {
+		isWoASite: isWoASite( state ),
 		userCanConnectAccount: userCanConnectAccount( state ),
 	};
 } )( DashStatsBottom );
