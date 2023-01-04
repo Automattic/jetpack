@@ -45,7 +45,8 @@ const UpgradePrompt = () => {
 						? __( 'Only manual rules will be applied', 'jetpack-protect' )
 						: __(
 								'Your site is not receiving the latest updated to automatic rules.',
-								'jetpack-protect'
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
 						  ) }
 				</Text>
 				<div
@@ -68,7 +69,8 @@ const UpgradePrompt = () => {
 									  )
 									: __(
 											'The free version of the firewall does not receive updates to automatic firewall rules.',
-											'jetpack-protect'
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</Text>
 						</Popover>
@@ -78,7 +80,11 @@ const UpgradePrompt = () => {
 			<Button onClick={ getScan }>
 				{ ! automaticRulesAvailable
 					? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
-					: __( 'Upgrade to update automatic rules', 'jetpack-protect' ) }
+					: __(
+							'Upgrade to update automatic rules',
+							'jetpack-protect',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</Button>
 		</>
 	);
