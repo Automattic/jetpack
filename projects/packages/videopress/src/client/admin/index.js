@@ -25,7 +25,12 @@ initStore();
  */
 function ScrollToTop() {
 	const location = useLocation();
-	useEffect( () => window.scrollTo( 0, 0 ), [ location ] );
+	useEffect( () => {
+		// Timeout to mitigate flickering.
+		setTimeout( () => {
+			window.scrollTo( 0, 0 );
+		}, 0 );
+	}, [ location ] );
 
 	return null;
 }
