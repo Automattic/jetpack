@@ -15,6 +15,10 @@ const UpgradePrompt = () => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const firewallUrl = adminUrl + '#/firewall';
 
+	const {
+		config: { automaticRulesAvailable },
+	} = useWafData();
+
 	const { run } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
@@ -36,7 +40,14 @@ const UpgradePrompt = () => {
 	return (
 		<>
 			<div className={ styles[ 'manual-rules-notice' ] }>
-				<Text weight={ 600 }>{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }</Text>
+				<Text weight={ 600 }>
+					{ ! automaticRulesAvailable
+						? __( 'Only manual rules will be applied', 'jetpack-protect' )
+						: __(
+								'Your site is not receiving the latest updated to automatic rules.',
+								'jetpack-protect'
+						  ) }
+				</Text>
 				<div
 					className={ styles[ 'icon-popover' ] }
 					onMouseLeave={ handleOut }
@@ -50,17 +61,24 @@ const UpgradePrompt = () => {
 					{ showPopover && (
 						<Popover noArrow={ false } offset={ 5 }>
 							<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-								{ __(
-									'The free version of the firewall only allows for use of manual rules.',
-									'jetpack-protect'
-								) }
+								{ ! automaticRulesAvailable
+									? __(
+											'The free version of the firewall only allows for use of manual rules.',
+											'jetpack-protect'
+									  )
+									: __(
+											'The free version of the firewall does not receive updates to automatic firewall rules.',
+											'jetpack-protect'
+									  ) }
 							</Text>
 						</Popover>
 					) }
 				</div>
 			</div>
 			<Button onClick={ getScan }>
-				{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+				{ ! automaticRulesAvailable
+					? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+					: __( 'Upgrade to update automatic rules', 'jetpack-protect' ) }
 			</Button>
 		</>
 	);
