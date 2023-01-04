@@ -93,12 +93,14 @@ fi
 
 # Run tools/changelogger-release.sh [ -a, -b ] --add-pr-num <plugin> 
 tools/changelogger-release.sh "${ARGS[@]}" "${SLUG}"
+
+# When it completes, wait for user to edit anything then want, then push key to continue.
 read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
 echo "Nice prompt"
 echo "End of file"
 
 
-# When it completes, wait for user to edit anything then want, then push key to continue.
+
 # If we're running a beta, amend the changelog.
 # Push the changes, then tell the user to wait for the builds to complete and things to update.
 # After this, run tools/create-release-branch.sh to create a release branch.
