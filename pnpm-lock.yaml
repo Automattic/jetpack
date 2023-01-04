@@ -128,7 +128,7 @@ importers:
       '@storybook/react': 6.5.14
       '@testing-library/dom': 8.19.1
       '@testing-library/react': 12.1.5
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.52
       '@types/react-dom': 17.0.18
@@ -176,7 +176,7 @@ importers:
       '@storybook/react': 6.5.14_5czxzszll35xbtzxal55xen4a4
       '@testing-library/dom': 8.19.1
       '@testing-library/react': 12.1.5_s2motuibfpxxa3ftoqehetkmru
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/qrcode.react': 1.0.2
       '@types/react': 17.0.52
       '@types/react-dom': 17.0.18
@@ -1234,7 +1234,7 @@ importers:
       '@storybook/react': 6.5.14
       '@testing-library/dom': 8.19.1
       '@testing-library/react': 12.1.5
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/react': 17.0.52
       '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
@@ -1312,7 +1312,7 @@ importers:
       '@storybook/react': 6.5.14_5czxzszll35xbtzxal55xen4a4
       '@testing-library/dom': 8.19.1
       '@testing-library/react': 12.1.5_s2motuibfpxxa3ftoqehetkmru
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/react': 17.0.52
       '@types/react-dom': 17.0.18
       '@types/react-test-renderer': 17.0.2
@@ -1572,7 +1572,7 @@ importers:
       '@testing-library/react': 12.1.5
       '@testing-library/react-hooks': 8.0.1
       '@testing-library/user-event': 14.4.3
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/react': 17.0.52
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.5.0
@@ -1732,7 +1732,7 @@ importers:
       '@testing-library/react': 12.1.5_s2motuibfpxxa3ftoqehetkmru
       '@testing-library/react-hooks': 8.0.1_t7oceqfn6n5cdjacpgcj22xdky
       '@testing-library/user-event': 14.4.3_ua4wuun3fnehcjqtqj2e2ldgpe
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
       '@types/react': 17.0.52
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.5.0_@babel+core@7.20.5
@@ -7058,15 +7058,8 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
-  /@types/jest/29.2.3:
-    resolution: {integrity: sha512-6XwoEbmatfyoCjWRX7z0fKMmgYKe9+/HrviJ5k0X/tjJWHGAezZOfYaxqQKuzG/TvQyr+ktjm4jgbk0s4/oF2w==}
-    dependencies:
-      expect: 29.3.1
-      pretty-format: 29.3.1
-    dev: true
-
-  /@types/jest/29.2.4:
-    resolution: {integrity: sha512-PipFB04k2qTRPePduVLTRiPzQfvMeLwUN3Z21hsAKaB/W9IIzgB2pizCL466ftJlcyZqnHoC9ZHpxLGl3fS86A==}
+  /@types/jest/29.2.5:
+    resolution: {integrity: sha512-H2cSxkKgVmqNHXP7TC2L/WUorrZu8ZigyRywfVzv6EyBlxj39n4C00hjXYQWsbwqgElaj/CiAeSRmk5GoaKTgw==}
     dependencies:
       expect: 29.3.1
       pretty-format: 29.3.1
@@ -7230,13 +7223,13 @@ packages:
   /@types/testing-library__jest-dom/5.14.1:
     resolution: {integrity: sha512-Gk9vaXfbzc5zCXI9eYE9BI5BNHEp4D3FWjgqBE/ePGYElLAP+KvxBcsdkwfIVvezs605oiyd/VrpiHe3Oeg+Aw==}
     dependencies:
-      '@types/jest': 29.2.3
+      '@types/jest': 29.2.5
     dev: true
 
   /@types/testing-library__jest-dom/5.14.5:
     resolution: {integrity: sha512-SBwbxYoyPIvxHbeHxTZX2Pe/74F/tX2/D3mMvzabdeJ25bBojfW0TyB8BHrbq/9zaaKICJZjLP+8r6AeZMFCuQ==}
     dependencies:
-      '@types/jest': 29.2.4
+      '@types/jest': 29.2.5
     dev: true
 
   /@types/tinycolor2/1.4.3:
