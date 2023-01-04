@@ -30,7 +30,7 @@ function usage {
 
 # Get the options passed and parse them.
 # Process args.
-ARGS=()
+ARGS=('-p')
 VERSION=
 ALPHABETA=
 while getopts "v:abh" opt; do
@@ -40,9 +40,11 @@ while getopts "v:abh" opt; do
 		;;
 		a)
 			ALPHABETA='-a'
+			ARGS+=(ALPHABETA)
 		;;
 		b)
 			ALPHABETA='-b'
+			ARGS+=(ALPHABETA)
 		;;
 		h)
 			usage
@@ -90,7 +92,7 @@ if ! git push -u origin HEAD; then
 fi
 
 # Run tools/changelogger-release.sh [ -a, -b ] --add-pr-num <plugin> 
-tools/changelogger-release.sh "${ALPHABETA}" -p "${SLUG}"
+tools/changelogger-release.sh "${ARGS[@]}" "${SLUG}"
 echo "End of file"
 
 
