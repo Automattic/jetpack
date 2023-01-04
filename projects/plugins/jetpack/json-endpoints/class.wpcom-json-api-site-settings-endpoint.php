@@ -927,11 +927,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( add_option( $key, $coerce_value ) ) {
 							$updated[ $key ] = $coerce_value;
 						}
-					} else {
-						// If the option already exists use update_option.
-						if ( update_option( $key, $coerce_value ) ) {
-							$updated[ $key ] = $coerce_value;
-						}
+					} elseif ( update_option( $key, $coerce_value ) ) { // If the option already exists use update_option.
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 

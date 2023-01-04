@@ -1307,20 +1307,17 @@ class User_Agent_Info {
 			$pos_torch = stripos( $agent, 'BlackBerry 9800' );
 			if ( false !== $pos_torch ) {
 				return 'blackberry-torch'; // Match the torch first edition. the 2nd edition should use the OS7 and doesn't need any special rule.
-			} else {
-				// Detecting the BB OS version for devices running OS 6.0 or higher.
-				if ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) {
-					$version     = $matches[1];
-					$version_num = explode( '.', $version );
-					if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
-						return 'blackberry-6'; // not a BB device that match our rule.
-					} else {
-						return 'blackberry-' . $version_num[0];
-					}
-				} else {
-					// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
+			} elseif ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) { // Detecting the BB OS version for devices running OS 6.0 or higher.
+				$version     = $matches[1];
+				$version_num = explode( '.', $version );
+				if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
 					return 'blackberry-6'; // not a BB device that match our rule.
+				} else {
+					return 'blackberry-' . $version_num[0];
 				}
+			} else {
+				// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
+				return 'blackberry-6'; // not a BB device that match our rule.
 			}
 		}
 

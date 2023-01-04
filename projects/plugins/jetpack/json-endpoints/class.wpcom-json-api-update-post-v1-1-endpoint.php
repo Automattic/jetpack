@@ -484,14 +484,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					if ( $is_hierarchical ) {
 						// Hierarchical terms must be added by ID.
 						$tax_input[ $taxonomy ][] = (int) $term_info['term_id'];
+					} elseif ( is_int( $term ) ) { // Non-hierarchical terms must be added by name.
+						$term                     = get_term( $term, $taxonomy );
+						$tax_input[ $taxonomy ][] = $term->name;
 					} else {
-						// Non-hierarchical terms must be added by name.
-						if ( is_int( $term ) ) {
-							$term                     = get_term( $term, $taxonomy );
-							$tax_input[ $taxonomy ][] = $term->name;
-						} else {
-							$tax_input[ $taxonomy ][] = $term;
-						}
+						$tax_input[ $taxonomy ][] = $term;
 					}
 				}
 			}

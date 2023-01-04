@@ -541,11 +541,8 @@ class iCalendarReader {
 					$set_recurring_events[] = $uid;
 
 				}
-			} else {
-				// Process normal events.
-				if ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) {
-					$upcoming[] = $event;
-				}
+			} elseif ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) { // Process normal events.
+				$upcoming[] = $event;
 			}
 		}
 		return $upcoming;
