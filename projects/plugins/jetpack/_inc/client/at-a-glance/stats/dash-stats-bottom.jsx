@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { isWoASite, userCanConnectAccount } from 'state/initial-state';
+
 class DashStatsBottom extends Component {
 	statsBottom() {
 		let generalStats;
@@ -97,7 +98,7 @@ class DashStatsBottom extends Component {
 					<div className="jp-at-a-glance__stats-ctas">
 						{
 							// Only show link for non-atomic Jetpack sites.
-							! isWoASite &&
+							! this.props.isWoASite &&
 								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
 									button: (
 										<Button

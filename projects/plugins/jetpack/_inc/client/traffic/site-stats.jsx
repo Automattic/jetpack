@@ -245,8 +245,8 @@ class SiteStatsComponent extends React.Component {
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
-						{ ! isWoASite && (
-							// Disable Odyssey Stats on WoA sites, which should use Calypso Stats instead.
+						{ ! this.props.isWoASite && (
+							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
 							<FormFieldset>
 								<CompactFormToggle
 									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
