@@ -133,7 +133,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		self::$instance_count ++;
+		++self::$instance_count;
 
 		self::render_widget_title( $args, $instance );
 

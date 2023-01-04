@@ -910,7 +910,7 @@ class csstidy_optimise { // phpcs:ignore
 		$i = 1;
 		while ( isset( $str_value[ $i ] ) ) {
 			$return['font-family'] .= ',' . trim( $str_value[ $i ] );
-			$i++;
+			++$i;
 		}
 
 		// Fix for 100 and more font-size.

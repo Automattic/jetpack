@@ -188,7 +188,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
-
 	}
 
 	/**
@@ -501,7 +500,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return $response;
-
 	}
 
 	/**
@@ -1090,7 +1088,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return array(
 			'updated' => $updated,
 		);
-
 	}
 
 	/**

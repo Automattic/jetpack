@@ -44,7 +44,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
-
 	}
 
 	public function test_add_post_syncs_event() {
@@ -351,7 +350,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( (bool) $should_not_be_there );
-
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
@@ -389,7 +387,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$attachment        = get_post( $attach_id );
 
 		$this->assertEquals( $attachment, $remote_attachment );
-
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
@@ -510,7 +507,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
 		// Make sure it is not empty
 		$this->assertNotEmpty( $post_on_server->post_password );
-
 	}
 
 	public function test_sync_post_includes_permalink_and_shortlink() {

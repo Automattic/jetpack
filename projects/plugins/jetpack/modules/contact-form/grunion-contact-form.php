@@ -1881,7 +1881,7 @@ class Grunion_Contact_Form_Plugin {
 		/**
 		 * Print rows to the output.
 		 */
-		for ( $i = 0; $i < $row_count; $i ++ ) {
+		for ( $i = 0; $i < $row_count; $i++ ) {
 
 			$current_row = array();
 
@@ -2881,7 +2881,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
-					$i++;
+					++$i;
 				}
 			}
 		}
@@ -2974,7 +2974,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
-					$i++;
+					++$i;
 				}
 			}
 		}
@@ -3395,7 +3395,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$value = $field->value;
 
 			$all_values[ $label ] = $value;
-			$i++; // Increment prefix counter for the next field
+			++$i; // Increment prefix counter for the next field
 		}
 
 		// For the "non-standard" fields, grab label and value
@@ -3410,7 +3410,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$extra_values[ $label ] = $value;
-			$i++; // Increment prefix counter for the next extra field
+			++$i; // Increment prefix counter for the next extra field
 		}
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
@@ -4078,7 +4078,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$i         = 0;
 				$max_tries = 99;
 				while ( isset( $form->fields[ $id ] ) ) {
-					$i++;
+					++$i;
 					$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
 
 					if ( $i > $max_tries ) {
@@ -4307,7 +4307,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				. esc_html( $label )
 				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
 			. "</label>\n";
-
 	}
 
 	/**

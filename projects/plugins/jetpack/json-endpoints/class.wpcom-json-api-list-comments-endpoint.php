@@ -89,7 +89,6 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 
 			unset( $children_elements[ $id ] );
 		}
-
 	}
 }
 

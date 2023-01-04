@@ -142,7 +142,6 @@ class Wpcom_Products {
 
 		self::update_cache( $products );
 		return $products;
-
 	}
 
 	/**

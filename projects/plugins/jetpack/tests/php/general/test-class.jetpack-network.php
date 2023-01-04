@@ -71,7 +71,6 @@ if ( is_multisite() ) :
 
 			$this->assertIsString( $url );
 			$this->assertStringEndsWith( $expected_url, $url );
-
 		}
 
 		/**

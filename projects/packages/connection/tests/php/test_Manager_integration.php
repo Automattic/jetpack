@@ -204,7 +204,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		$this->assertTrue( $this->manager->has_connected_user() );
 		$this->assertTrue( $this->manager->has_connected_admin() );
-
 	}
 
 	/**
@@ -242,7 +241,6 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 
 		wp_set_current_user( $other_user_id );
 		$this->assertFalse( $this->manager->is_connection_owner() );
-
 	}
 
 	/**

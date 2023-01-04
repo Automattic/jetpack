@@ -380,7 +380,7 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 						if ( $the_post && ! is_wp_error( $the_post ) ) {
 							$posts[] = $the_post;
 						} else {
-							$excluded_count++;
+							++$excluded_count;
 						}
 					}
 
