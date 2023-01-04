@@ -153,7 +153,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$passed = 0;
 			foreach ( $capabilities as $cap ) {
 				if ( current_user_can( $cap ) ) {
-					$passed ++;
+					++$passed;
 				} else {
 					$failed[] = $cap;
 				}

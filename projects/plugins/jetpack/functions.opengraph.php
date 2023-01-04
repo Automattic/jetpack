@@ -287,7 +287,7 @@ function jetpack_og_tags() {
 					$og_output .= apply_filters( 'jetpack_open_graph_output', $og_tag );
 					$og_output .= "\n";
 				}
-				$secure_image_num++;
+				++$secure_image_num;
 			}
 		}
 	}

@@ -369,7 +369,7 @@ class iCalendarReader {
 								$maybe   = strtotime( $event['DTSTART'] );
 								while ( $maybe < $current ) {
 									$maybe = strtotime( '+ ' . ( $interval * $catchup ) . ' months', strtotime( $event['DTSTART'] ) );
-									$catchup++;
+									++$catchup;
 								}
 								$recurring_event_date_start = date( 'Ymd', strtotime( $event_date_desc . date( 'F Y', strtotime( '+ ' . ( $interval * ( $catchup - 1 ) ) . ' months', strtotime( $event['DTSTART'] ) ) ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 							} else {
@@ -473,7 +473,7 @@ class iCalendarReader {
 										}
 									}
 									$upcoming[] = $event;
-									$count_counter++;
+									++$count_counter;
 								}
 
 								// Move forward one day.
@@ -521,7 +521,7 @@ class iCalendarReader {
 									}
 								}
 								$upcoming[] = $event;
-								$count_counter++;
+								++$count_counter;
 							}
 						}
 
@@ -612,11 +612,11 @@ class iCalendarReader {
 				case 'END':
 					switch ( $line ) {
 						case 'BEGIN:VTODO':
-							$this->todo_count++;
+							++$this->todo_count;
 							$type = 'VTODO';
 							break;
 						case 'BEGIN:VEVENT':
-							$this->event_count++;
+							++$this->event_count;
 							$type = 'VEVENT';
 							break;
 						case 'BEGIN:VCALENDAR':

@@ -427,7 +427,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 									"{$site->domain}{$site->path}"
 								)
 							);
-							$count_fixes++;
+							++$count_fixes;
 							if ( ! $is_dry_run ) {
 								/*
 								 * We could be deleting a lot of options rows at the same time.
@@ -493,7 +493,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$option
 			)
 		);
-
 	}
 
 	/**
@@ -1073,7 +1072,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							sleep( 15 );
 						}
 					}
-					$i++;
+					++$i;
 				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.

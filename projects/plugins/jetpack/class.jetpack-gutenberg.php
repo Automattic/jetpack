@@ -529,7 +529,6 @@ class Jetpack_Gutenberg {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
 		}
-
 	}
 
 	/**
@@ -1084,6 +1083,11 @@ class Jetpack_Gutenberg {
 				array(
 					'br' => array(),
 					'p'  => array(),
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
 				)
 			),
 			esc_attr( $classes ),

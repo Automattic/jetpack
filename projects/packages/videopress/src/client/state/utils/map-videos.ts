@@ -66,10 +66,10 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		rating,
 		privacySetting,
 		needsPlaybackToken,
+		width,
+		height,
 		poster: {
 			src: poster,
-			width,
-			height,
 		},
 		thumbnail,
 		finished,

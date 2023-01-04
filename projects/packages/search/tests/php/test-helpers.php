@@ -300,7 +300,6 @@ class Test_Helpers extends TestCase {
 		$widget_id = Helper::build_widget_id( $number );
 
 		$this->assertSame( $expected, Helper::is_active_widget( $widget_id ) );
-
 	}
 
 	/**

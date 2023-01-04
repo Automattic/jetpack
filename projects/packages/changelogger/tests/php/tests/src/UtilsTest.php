@@ -349,7 +349,7 @@ class UtilsTest extends TestCase {
 	}
 
 	/**
-	 * Test getRepoData
+	 * Test getRepoData with squash and merge commits.
 	 */
 	public function testGetRepoData() {
 		$this->useTempDir();
@@ -389,9 +389,17 @@ class UtilsTest extends TestCase {
 				),
 			),
 		);
-		Utils::runCommand( array( 'git', 'init', '.' ), ...$args );
+		Utils::runCommand( array( 'git', 'init', '-b', 'main', '.' ), ...$args );
 		Utils::runCommand( array( 'git', 'add', 'in-git.txt' ), ...$args );
 		Utils::runCommand( array( 'git', 'commit', '-m', 'Commit (#123)' ), ...$args );
+
+		// Let's create another branch, add a commit and merge to trunk.
+		Utils::runCommand( array( 'git', 'checkout', '-b', 'temp' ), ...$args );
+		file_put_contents( 'in-git2.txt', '' );
+		Utils::runCommand( array( 'git', 'add', 'in-git2.txt' ), ...$args );
+		Utils::runCommand( array( 'git', 'commit', '-m', 'Dummy commit message.' ), ...$args );
+		Utils::runCommand( array( 'git', 'checkout', 'main' ), ...$args );
+		Utils::runCommand( array( 'git', 'merge', 'temp', '--no-ff', '-m', 'Merge pull request #124 from temp.' ), ...$args );
 
 		$this->assertSame(
 			array(
@@ -399,6 +407,15 @@ class UtilsTest extends TestCase {
 				'pr-num'    => '123',
 			),
 			Utils::getRepoData( 'in-git.txt', $output, $helper )
+		);
+
+		// Test the second commit.
+		$this->assertSame(
+			array(
+				'timestamp' => '2021-02-02T22:22:22+00:00',
+				'pr-num'    => '124',
+			),
+			Utils::getRepoData( 'in-git2.txt', $output, $helper )
 		);
 
 		// Test our non-git file again.

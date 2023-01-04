@@ -2224,7 +2224,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$media_ids[ $i ] = $media_id;
 				}
 
-				$i++;
+				++$i;
 			}
 			$this->api->trap_wp_die( null );
 			unset( $_FILES['.api.media.item.'] );
@@ -2254,7 +2254,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					$media_ids[ $i ] = $media_id;
 				}
 
-				$i++;
+				++$i;
 			}
 		}
 
@@ -2322,7 +2322,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'media_ids' => $media_ids,
 			'errors'    => $errors,
 		);
-
 	}
 
 	/**

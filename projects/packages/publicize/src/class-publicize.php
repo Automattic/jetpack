@@ -951,7 +951,6 @@ class Publicize extends Publicize_Base {
 		$options = array( 'tumblr_base_hostname' => isset( $_POST['selected_id'] ) ? sanitize_text_field( wp_unslash( $_POST['selected_id'] ) ) : null );
 
 		$this->set_remote_publicize_options( $connection_name, $options );
-
 	}
 
 	/**

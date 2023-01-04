@@ -1778,7 +1778,6 @@ class Manager {
 	 * Should be changed to protected.
 	 */
 	public function handle_authorization() {
-
 	}
 
 	/**

@@ -170,7 +170,6 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 1, did_action( 'jetpack_remote_connect_end' ), 'Action was not fired' );
-
 	}
 
 	/**

@@ -93,7 +93,6 @@ class Webhooks {
 				break;
 			// Class Jetpack::admin_page_load() still handles other cases.
 		}
-
 	}
 
 	/**
