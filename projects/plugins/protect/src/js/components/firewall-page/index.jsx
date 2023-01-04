@@ -333,7 +333,8 @@ const FirewallPage = () => {
 								? __( 'Setup automatic rules with one click', 'jetpack-protect' )
 								: __(
 										'Your site is not receiving the latest updates to automatic rules',
-										'jetpack-protect'
+										'jetpack-protect',
+										/* dummy arg to avoid bad minification */ 0
 								  )
 						}
 						cta={
@@ -341,7 +342,8 @@ const FirewallPage = () => {
 								? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
 								: __(
 										'Upgrade to keep your site secure with up-to-date firewall rules',
-										'jetpack-protect'
+										'jetpack-protect',
+										/* dummy arg to avoid bad minification */ 0
 								  )
 						}
 						onClick={ getScan }
