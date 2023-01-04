@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed where automatic firewall rules are stored.
