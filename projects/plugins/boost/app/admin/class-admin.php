@@ -61,6 +61,9 @@ class Admin {
 
 		// Set up Super Cache info system if WP Super Cache available.
 		Super_Cache_Info::init();
+
+		// Admin Notices
+		Regenerate_Admin_Notice::init();
 	}
 
 	public function handle_admin_menu() {

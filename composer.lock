@@ -61,7 +61,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "c8726443864676c10b023bf28d894b2003cfebff"
+                "reference": "7b278c14eb3d0b5929db3eac2cfe29503c249ee8"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -73,8 +73,6 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "phpcsstandards/phpcsextra": "1.0.0-alpha3",
-                "phpcsstandards/phpcsutils": "1.0.0-alpha3",
                 "wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },

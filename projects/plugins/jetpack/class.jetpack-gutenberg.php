@@ -1084,11 +1084,6 @@ class Jetpack_Gutenberg {
 				array(
 					'br' => array(),
 					'p'  => array(),
-					'a'  => array(
-						'href'   => array(),
-						'target' => array(),
-						'rel'    => array(),
-					),
 				)
 			),
 			esc_attr( $classes ),

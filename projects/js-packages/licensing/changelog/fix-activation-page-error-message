@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix issue with activation screen failing to activate due to incorrect JP Rest API root and nonce value.

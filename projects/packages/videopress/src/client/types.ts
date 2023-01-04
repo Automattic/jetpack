@@ -1,4 +1,4 @@
-import { VideoGUID, VideoId } from './block-editor/blocks/video/types';
+import { VideoGUID } from './block-editor/blocks/video/types';
 
 /*
  * Video Privacy:
@@ -6,24 +6,7 @@ import { VideoGUID, VideoId } from './block-editor/blocks/video/types';
  * '1': private
  * '2': site default
  */
-export type PrivacySettingProp = 0 | 1 | 2;
-
-export type RatingProp = 'G' | 'PG-13' | 'R-17';
-
-export type VideoTracksResponseBodyProps = {
-	captions?: {
-		en: {
-			src: string;
-			label: string;
-		};
-	};
-	chapters?: {
-		en: {
-			src: string;
-			label: string;
-		};
-	};
-};
+type PrivacySettingProp = '0' | '1' | '2';
 
 type STDVideoFileProps = {
 	mp4: string;
@@ -81,7 +64,7 @@ export type WPV2mediaGetEndpointResponseProps = {
 		display_embed: 0 | 1;
 		needs_playback_token: boolean;
 		privacy_setting: PrivacySettingProp;
-		rating: RatingProp;
+		rating: string;
 	};
 	media_details: {
 		videopress?: {
@@ -104,7 +87,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	duration: number;
 	allow_download: boolean;
 	display_embed: boolean;
-	rating: RatingProp;
+	rating: string;
 
 	/*
 	 * Video Thumbnail
@@ -124,7 +107,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 		caption: string;
 		needs_playback_token: boolean;
 		privacy_setting: PrivacySettingProp;
-		rating: RatingProp;
+		rating: string;
 	};
 
 	bg_color: boolean;
@@ -171,7 +154,20 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	};
 
 	subtitles: Array< string >;
-	tracks: VideoTracksResponseBodyProps;
+	tracks: {
+		captions?: {
+			en: {
+				src: string;
+				label: string;
+			};
+		};
+		chapters?: {
+			en: {
+				src: string;
+				label: string;
+			};
+		};
+	};
 
 	adaptive_streaming: string;
 	format_meta: {
@@ -236,72 +232,4 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	};
 
 	thumbnail_generating: boolean;
-};
-
-type VideoMimeTypeProp = 'video/videopress' | 'video/mp4' | 'video/ogg' | 'video/webm' | string;
-
-/*
- * Admin Ajax
- * action: query-attachments
- * post item
- * query[post_mime_type][]: video
- */
-export type AdminAjaxQueryAttachmentsResponseItemProps = {
-	alt: string;
-	author: string;
-	authorLink: string;
-	authorName: string;
-	caption: string;
-	compat: {
-		item: string;
-		meta: string;
-	};
-	context: string;
-	date: number;
-	dateFormatted: string;
-	description: string;
-	editLink: string;
-	filename: string;
-	height: number;
-	icon: string;
-	id: VideoId;
-	image: {
-		src: string;
-		width: number;
-		height: number;
-	};
-	link: string;
-	menuOrder: number;
-	meta: {
-		artist: boolean;
-		album: boolean;
-		bitrate: boolean;
-		bitrate_mode: boolean;
-	};
-	mime: VideoMimeTypeProp;
-	modified: number;
-	name: string;
-	nonces: {
-		update: string;
-		delete: string;
-		edit: string;
-	};
-	status: string;
-	subtype: string;
-	thumb: {
-		src: string;
-		width: number;
-		height: number;
-	};
-	title: string;
-	type: 'video' | string;
-	uploadedTo: number;
-	url: string;
-	videopress_guid: Array< VideoGUID >;
-	width: number;
-};
-
-export type AdminAjaxQueryAttachmentsResponseProps = {
-	data: Array< AdminAjaxQueryAttachmentsResponseItemProps >;
-	succes: boolean;
 };

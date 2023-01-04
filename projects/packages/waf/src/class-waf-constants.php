@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Waf;
 
-use Automattic\Jetpack\Status\Host;
-
 /**
  * Defines our constants.
  */
@@ -24,11 +22,6 @@ class Waf_Constants {
 		}
 		if ( ! defined( 'JETPACK_WAF_WPCONFIG' ) ) {
 			define( 'JETPACK_WAF_WPCONFIG', trailingslashit( WP_CONTENT_DIR ) . '../wp-config.php' );
-		}
-		if ( ! defined( 'DISABLE_JETPACK_WAF' ) ) {
-			$is_wpcom  = defined( 'IS_WPCOM' ) && IS_WPCOM;
-			$is_atomic = ( new Host() )->is_atomic_platform();
-			define( 'DISABLE_JETPACK_WAF', $is_wpcom || $is_atomic );
 		}
 	}
 }

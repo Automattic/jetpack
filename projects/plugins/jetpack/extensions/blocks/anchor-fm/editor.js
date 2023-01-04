@@ -1,5 +1,4 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { dispatch } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
@@ -9,6 +8,7 @@ import { registerPlugin } from '@wordpress/plugins';
 import { castArray } from 'lodash';
 import { useEffect, useCallback } from 'react';
 import '@wordpress/notices';
+import analytics from '../../../_inc/client/lib/analytics';
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { basicTemplate, spotifyBadgeTemplate } from './templates';
 import './editor.scss';
@@ -44,14 +44,12 @@ async function setEpisodeTitle( { title } ) {
 }
 
 const ConvertToAudio = () => {
-	const { tracks } = useAnalytics();
-
 	useEffect( () => {
-		tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_impression' );
-	}, [ tracks ] );
+		analytics.tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_impression' );
+	}, [] );
 	const handleClick = useCallback(
-		() => tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_click' ),
-		[ tracks ]
+		() => analytics.tracks.recordEvent( 'jetpack_editor_block_anchor_fm_post_publish_click' ),
+		[]
 	);
 	return (
 		<PluginPostPublishPanel

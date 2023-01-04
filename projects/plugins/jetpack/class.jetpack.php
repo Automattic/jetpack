@@ -817,7 +817,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'blaze',
 				'jitm',
 				'sync',
 				'waf',

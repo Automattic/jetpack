@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added the adminUrl to the initial editor state

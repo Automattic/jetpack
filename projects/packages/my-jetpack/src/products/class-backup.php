@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\My_Jetpack\Product;
+use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
@@ -17,7 +17,7 @@ use WP_Error;
 /**
  * Class responsible for handling the Backup product
  */
-class Backup extends Product {
+class Backup extends Hybrid_Product {
 
 	/**
 	 * The product slug
@@ -198,7 +198,9 @@ class Backup extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_plugin_active() ) {
+		if ( static::is_jetpack_plugin_active() ) {
+			return Redirect::get_url( 'my-jetpack-manage-backup' );
+		} elseif ( static::is_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
