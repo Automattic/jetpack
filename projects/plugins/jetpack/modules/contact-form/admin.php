@@ -1159,6 +1159,7 @@ class Grunion_Admin {
 		add_action( 'admin_footer-edit.php', array( $this, 'print_export_modal' ) );
 
 		add_action( 'wp_ajax_grunion_export_to_gdrive', array( $this, 'export_to_gdrive' ) );
+		add_action( 'wp_ajax_grunion_gdrive_connection', array( $this, 'test_gdrive_connection' ) );
 	}
 
 	/**
@@ -1170,7 +1171,11 @@ class Grunion_Admin {
 			return;
 		}
 		add_thickbox();
-		wp_localize_script( 'grunion-admin', 'exportParameters', array( 'exportError' => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ) ) );
+		$localized_strings = array(
+			'exportError'       => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ),
+			'waitingConnection' => esc_js( __( 'Waiting connection...', 'jetpack' ) ),
+		);
+		wp_localize_script( 'grunion-admin', 'exportParameters', $localized_strings );
 	}
 
 	/**
@@ -1354,11 +1359,14 @@ class Grunion_Admin {
 				array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
 			);
 		} else {
+			$slug        = 'jetpack-form-responses-connect';
 			$button_html = sprintf(
-				'<a href="%1$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
-				esc_url( Redirect::get_url( 'jetpack-form-responses-connect' ) ),
+				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
+				esc_url( Redirect::get_url( $slug ) ),
 				esc_attr__( 'connect to Google Drive', 'jetpack' ),
-				esc_html__( 'Connect Google Drive', 'jetpack' )
+				esc_html__( 'Connect Google Drive', 'jetpack' ),
+				$slug,
+				$this->export_nonce_field_gdrive
 			);
 		}
 
@@ -1397,6 +1405,48 @@ class Grunion_Admin {
 			</div>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Ajax handler. Returns a payload with connection status and html to replace
+	 * the Connect button with the Export button. Export button is copy from $button_html seen on get_gdrive_export_section
+	 */
+	public function test_gdrive_connection() {
+		$post_data = wp_unslash( $_POST );
+		$user_id   = (int) get_current_user_id();
+
+		if (
+			! $user_id ||
+			empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) ) ||
+			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
+		) {
+			wp_send_json_error(
+				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				403
+			);
+
+			return;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
+
+		$replacement_html = $has_valid_connection
+			? get_submit_button(
+				esc_html__( 'Export', 'jetpack' ),
+				'primary export-button export-gdrive',
+				'jetpack-export-feedback-gdrive',
+				false,
+				array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
+			)
+			: '';
+
+		wp_send_json(
+			array(
+				'connection' => $has_valid_connection,
+				'html'       => $replacement_html,
+			)
+		);
 	}
 }
 
