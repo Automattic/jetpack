@@ -324,10 +324,10 @@ class Data {
 					'rating'             => $rating,
 					'privacySetting'     => $privacy_setting,
 					'needsPlaybackToken' => $needs_playback_token,
+					'width'              => $width,
+					'height'             => $height,
 					'poster'             => array(
-						'src'    => $poster,
-						'width'  => $width,
-						'height' => $height,
+						'src' => $poster,
 					),
 					'thumbnail'          => $thumbnail,
 					'finished'           => $finished,

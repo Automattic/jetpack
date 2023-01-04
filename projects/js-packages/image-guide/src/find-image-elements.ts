@@ -3,7 +3,8 @@ import { MeasurableImage } from './MeasurableImage';
 /**
  * Get elements that either are image tags or have a background image.
  *
- * @param  nodes -  A list of nodes to filter
+ * @param {Element[]} nodes -  A list of nodes to filter
+ * @returns {HTMLElement[] | HTMLImageElement[]} - A list of nodes that are either image tags or have a background image.
  */
 export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTMLImageElement[] {
 	return nodes.filter( ( el ): el is HTMLElement | HTMLImageElement => {
@@ -21,7 +22,8 @@ export function findMeasurableElements( nodes: Element[] ): HTMLElement[] | HTML
 /**
  * Get the current image source from a node.
  *
- * @param  node -  HTMLImageElement
+ * @param {HTMLImageElement} node -  HTMLImageElement
+ * @returns {string | null} - The URL of the image or null if it can't be determined.
  */
 export function imageTagSource( node: HTMLImageElement ) {
 	if ( imageLikeURL( node.currentSrc ) ) {
@@ -37,7 +39,8 @@ export function imageTagSource( node: HTMLImageElement ) {
 /**
  * Get the background image URL from a node.
  *
- * @param  node -  HTMLElement
+ * @param {HTMLImageElement} node - HTMLElement
+ * @returns {string | null} - The URL of the image or null if it can't be determined.
  */
 export function backgroundImageSource( node: HTMLElement ) {
 	const src = getComputedStyle( node ).backgroundImage;
@@ -51,7 +54,8 @@ export function backgroundImageSource( node: HTMLElement ) {
  * Create MeasurableImage objects from a list of nodes
  * and remove any nodes that can't be measured.
  *
- * @param  domNodes -  A list of nodes to measure
+ * @param {Element[]} domNodes - A list of nodes to measure
+ * @returns {MeasurableImage[]} - A list of MeasurableImage objects.
  */
 export function getMeasurableImages( domNodes: Element[] ): MeasurableImage[] {
 	const nodes = findMeasurableElements( domNodes );
@@ -90,7 +94,8 @@ export function getMeasurableImages( domNodes: Element[] ): MeasurableImage[] {
  * For the purposes of analyzing image sizes,
  * we also don't consider SVGs to be images.
  *
- * @param  value -  string to check
+ * @param {string} value - string to check
+ * @returns {boolean} - true if the value looks like a URL
  */
 function imageLikeURL( value: string ): boolean {
 	// Look for relative URLs that are not SVGs

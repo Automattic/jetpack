@@ -21,3 +21,25 @@ tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 	context,
 } );
 ```
+
+The hook function also accepts parameters to record a "page view" event when the component renders.
+You can also import a wrapped version of `recordEvent` that checks for a Jetpack connected user before actually recording the event.  
+
+```es6
+const Component = () => {
+	const { recordEvent } = useAnalytics( {
+			pageViewEventName: 'view_event_name',
+			pageViewNamespace: 'jetpack',
+			pageViewSuffix: '',
+		} );
+	const recordClick = useCallback( () => { recordEvent( 'event_name', {} ) }, [] );
+	
+	return (
+		<Button
+			onClick={ recordClick }
+		>
+			{ __( 'Action Button', 'jetpack' ) }
+		</Button>
+	)
+}
+```

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Use separate nonce names for export options, wp_nonce_field would use the name also as id of the element, preventing the normal DOM operations when more than one is present.
