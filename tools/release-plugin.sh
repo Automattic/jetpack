@@ -93,6 +93,8 @@ fi
 
 # Run tools/changelogger-release.sh [ -a, -b ] --add-pr-num <plugin> 
 tools/changelogger-release.sh "${ARGS[@]}" "${SLUG}"
+read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
+echo "Nice prompt"
 echo "End of file"
 
 
