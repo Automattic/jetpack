@@ -435,12 +435,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {
-						if ( ! media?.videopress_guid ) {
+						const mediaGuid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+						if ( ! mediaGuid ) {
 							return;
 						}
 
 						setAttributes( {
-							guid: media.videopress_guid,
+							guid: mediaGuid,
 							id: media.id,
 							src: media.videopress_url,
 							title: media.title,
