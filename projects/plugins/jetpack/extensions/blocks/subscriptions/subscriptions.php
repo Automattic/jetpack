@@ -50,31 +50,29 @@ function register_block() {
 		);
 	}
 
-	register_post_meta(
-		'post',
-		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-		array(
-			'show_in_rest'  => true,
-			'single'        => true,
-			'type'          => 'string',
-			'auth_callback' => function () {
-				return wp_get_current_user()->has_cap( 'edit_posts' );
-			},
-		)
-	);
-
-	// This ensures Jetpack will sync this post meta to WPCOM.
-	add_filter(
-		'jetpack_sync_post_meta_whitelist',
-		function ( $allowed_meta ) {
-			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
-		},
-		10
-	);
-
-	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
-
 	if ( \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
+		register_post_meta(
+			'post',
+			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+			array(
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'string',
+				'auth_callback' => function () {
+					return wp_get_current_user()->has_cap( 'edit_posts' );
+				},
+			)
+		);
+
+		// This ensures Jetpack will sync this post meta to WPCOM.
+		add_filter(
+			'jetpack_sync_post_meta_whitelist',
+			function ( $allowed_meta ) {
+				return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+			},
+			10
+		);
+
 		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
 
 		// Close comments on the front-end
@@ -83,6 +81,9 @@ function register_block() {
 
 		// Hide existing comments
 		add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
+
+		// Gate the excerpt for a post
+		add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
