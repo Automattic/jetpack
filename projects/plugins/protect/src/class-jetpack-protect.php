@@ -235,14 +235,6 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Helper to check that we have a Jetpack connection.
-	 */
-	private static function is_connected() {
-		$manager = new Connection_Manager();
-		return $manager->is_connected() && $manager->has_connected_user();
-	}
-
-	/**
 	 * Runs on admin_init, and does actions required on plugin activation, based on
 	 * the activation option.
 	 *
@@ -250,7 +242,7 @@ class Jetpack_Protect {
 	 * and we need the sync module's actions and filters to be registered.
 	 */
 	public static function do_plugin_activation_activities() {
-		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && self::is_connected() ) {
+		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && ( new Connection_Manager() )->is_connected() ) {
 			self::activate_module();
 		}
 	}

@@ -58,6 +58,7 @@ class REST_Controller {
 		$message = 'Rules updated succesfully';
 
 		try {
+			Waf_Runner::generate_automatic_rules();
 			Waf_Runner::generate_rules();
 		} catch ( \Exception $e ) {
 			$success = false;
