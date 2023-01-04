@@ -300,10 +300,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						return new WP_Error( 'unauthorized', 'User cannot publish posts', 403 );
 					}
 				}
-			} else {
-				if ( ! current_user_can( $post_type->cap->edit_posts ) ) {
-					return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
-				}
+			} elseif ( ! current_user_can( $post_type->cap->edit_posts ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
 			}
 		} else {
 			$input = $this->input( false );
@@ -600,28 +598,22 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
+			} elseif ( $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
 			} else {
-				if ( $likes ) {
-					update_post_meta( $post_id, 'switch_like_status', 1 );
+				delete_post_meta( $post_id, 'switch_like_status' );
+			}
+		} elseif ( isset( $likes ) ) {
+			if ( $sitewide_likes_enabled ) {
+				if ( false === $likes ) {
+					update_post_meta( $post_id, 'switch_like_status', 0 );
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
-			}
-		} else {
-			if ( isset( $likes ) ) {
-				if ( $sitewide_likes_enabled ) {
-					if ( false === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 0 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				} else {
-					if ( true === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 1 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				}
+			} elseif ( true === $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
+			} else {
+				delete_post_meta( $post_id, 'switch_like_status' );
 			}
 		}
 
@@ -631,12 +623,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			if ( false === $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
-		} else {
-			if ( isset( $sharing ) && true === $sharing ) {
-				delete_post_meta( $post_id, 'sharing_disabled' );
-			} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				update_post_meta( $post_id, 'sharing_disabled', 1 );
-			}
+		} elseif ( isset( $sharing ) && true === $sharing ) {
+			delete_post_meta( $post_id, 'sharing_disabled' );
+		} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			update_post_meta( $post_id, 'sharing_disabled', 1 );
 		}
 
 		if ( isset( $sticky ) ) {

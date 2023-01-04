@@ -894,13 +894,11 @@ class csstidy_optimise { // phpcs:ignore
 					$return['line-height'] = ''; // don't add 'normal' !
 				}
 				$have['size'] = true;
+			} elseif ( isset( $return['font-family'] ) ) {
+				$return['font-family'] .= ' ' . $str_value[0][ $j ];
+				$multiwords             = true;
 			} else {
-				if ( isset( $return['font-family'] ) ) {
-					$return['font-family'] .= ' ' . $str_value[0][ $j ];
-					$multiwords             = true;
-				} else {
-					$return['font-family'] = $str_value[0][ $j ];
-				}
+				$return['font-family'] = $str_value[0][ $j ];
 			}
 		}
 		// add quotes if we have several qords in font-family.

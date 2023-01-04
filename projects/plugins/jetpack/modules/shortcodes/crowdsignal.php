@@ -521,10 +521,8 @@ if (
 						} else {
 							$survey_url = 'https://polldaddy.com/s/' . $survey;
 						}
-					} else {
-						if ( isset( $attributes['domain'] ) && isset( $attributes['id'] ) ) {
-							$survey_url = 'https://' . $attributes['domain'] . '.survey.fm/' . $attributes['id'];
-						}
+					} elseif ( isset( $attributes['domain'] ) && isset( $attributes['id'] ) ) {
+						$survey_url = 'https://' . $attributes['domain'] . '.survey.fm/' . $attributes['id'];
 					}
 
 					$survey_link = sprintf(

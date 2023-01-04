@@ -136,10 +136,8 @@ class User_Agent_Info {
 	public function __construct( $ua = '' ) {
 		if ( $ua ) {
 			$this->useragent = $ua;
-		} else {
-			if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
-			}
+		} elseif ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
 		}
 	}
 
@@ -815,12 +813,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -856,12 +852,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'webos' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -1041,12 +1035,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'meego' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
