@@ -2,47 +2,48 @@
  * WordPress dependencies
  */
 import { MediaReplaceFlow } from '@wordpress/block-editor';
+import { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 /**
  * Internal dependencies
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
+import { VideoBlockAttributes } from '../../types';
 
-const ReplaceControl = ( { attributes, onUploadFileStart, onSelectVideoFromLibrary } ) => {
+type UrlFileProp = {
+	url: `blob:${ string }`;
+};
+
+type ReplaceControlProps = {
+	attributes: VideoBlockAttributes;
+	onUploadFileStart: ( media: File ) => void;
+	onSelectVideoFromLibrary: (
+		media: AdminAjaxQueryAttachmentsResponseItemProps | UrlFileProp
+	) => void;
+};
+
+const ReplaceControl = ( {
+	attributes,
+	onUploadFileStart,
+	onSelectVideoFromLibrary,
+}: ReplaceControlProps ) => {
 	/**
 	 * Uploading file handler.
 	 *
-	 * @param {File} media - media file to upload
-	 * @returns {void}
+	 * @param {FileList} media - media file to upload
 	 */
-	function onFileUploadHandler( media ) {
+	function onFileUploadHandler( media: FileList ): void {
 		/*
 		 * Allow uploading only (the first) one file
 		 * @todo: Allow uploading multiple files
 		 */
-		media = media?.[ 0 ] ? media[ 0 ] : media;
+		const file = media?.[ 0 ] ? media[ 0 ] : media;
 
-		const isFileUploading = media instanceof File;
+		const isFileUploading = file instanceof File;
 		if ( ! isFileUploading ) {
 			return;
 		}
 
-		onUploadFileStart( media );
-	}
-
-	/**
-	 * Selecting media handler.
-	 *
-	 * @param {object} media - media file to upload
-	 * @returns {void}
-	 */
-	function onSelectHandler( media ) {
-		// videopress_guid is an array of guids ¯\_(ツ)_/¯
-		media.videopress_guid = media?.videopress_guid?.[ 0 ] ?? media.videopress_guid;
-
-		if ( media?.guid ) {
-			media.videopress_url = `https://videopress.com/v/${ media.guid }`;
-		}
-		onSelectVideoFromLibrary( media );
+		onUploadFileStart( file );
 	}
 
 	return (
@@ -52,7 +53,7 @@ const ReplaceControl = ( { attributes, onUploadFileStart, onSelectVideoFromLibra
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onFilesUpload={ onFileUploadHandler }
-			onSelect={ onSelectHandler }
+			onSelect={ onSelectVideoFromLibrary }
 		/>
 	);
 };
