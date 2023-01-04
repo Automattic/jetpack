@@ -1,12 +1,8 @@
 <?php
 /**
-<<<<<<< HEAD
- * Class used to manage backwards-compatibility of the package
-=======
  * Class used to manage backwards-compatibility of the package.
  *
  * @since 0.8.0
->>>>>>> add/protect-waf-phase-2
  *
  * @package automattic/jetpack-waf
  */
