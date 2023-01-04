@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
@@ -169,10 +169,6 @@ const setJetpackScan = scan => {
 	return { type: SET_JETPACK_SCAN, scan };
 };
 
-const setProductData = productData => {
-	return { type: SET_PRODUCT_DATA, productData };
-};
-
 const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
@@ -249,7 +245,12 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					type: 'success',
 					message: sprintf(
 						// translators: placeholder is the number amount of fixed threats.
-						__( '%s threats were fixed successfully', 'jetpack-protect' ),
+						_n(
+							'%s threat was fixed successfully',
+							'%s threats were fixed successfully',
+							threatIds.length,
+							'jetpack-protect'
+						),
 						threatIds.length
 					),
 				} )
@@ -393,7 +394,6 @@ const actions = {
 	setInstalledThemes,
 	setwpVersion,
 	setJetpackScan,
-	setProductData,
 	ignoreThreat,
 	setModal,
 	setNotice,
