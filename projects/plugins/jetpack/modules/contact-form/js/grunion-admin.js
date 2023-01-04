@@ -213,7 +213,7 @@ jQuery( function ( $ ) {
 		$this.attr( 'disabled', 'disabled' );
 		$this.text(
 			( window.exportParameters && window.exportParameters.waitingConnection ) ||
-				'Waiting connection...'
+				'Waiting for connection...'
 		);
 		startPollingConnection( { name, value } );
 	} );

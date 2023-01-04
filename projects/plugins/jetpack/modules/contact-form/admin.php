@@ -1173,7 +1173,7 @@ class Grunion_Admin {
 		add_thickbox();
 		$localized_strings = array(
 			'exportError'       => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ),
-			'waitingConnection' => esc_js( __( 'Waiting connection...', 'jetpack' ) ),
+			'waitingConnection' => esc_js( __( 'Waiting for connection...', 'jetpack' ) ),
 		);
 		wp_localize_script( 'grunion-admin', 'exportParameters', $localized_strings );
 	}
