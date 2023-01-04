@@ -1767,11 +1767,13 @@ class Grunion_Contact_Form_Plugin {
 	 * Extracts feedback entries based on POST data.
 	 */
 	public function get_feedback_entries_from_post() {
-		if ( empty( $_POST['feedback_export_nonce'] ) ) {
+		if ( empty( $_POST['feedback_export_nonce_csv'] ) && empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
 			return;
+		} elseif ( ! empty( $_POST['feedback_export_nonce_csv'] ) ) {
+			check_admin_referer( 'feedback_export', 'feedback_export_nonce_csv' );
+		} elseif ( ! empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
+			check_admin_referer( 'feedback_export', 'feedback_export_nonce_gdrive' );
 		}
-
-		check_admin_referer( 'feedback_export', 'feedback_export_nonce' );
 
 		if ( ! current_user_can( 'export' ) ) {
 			return;
