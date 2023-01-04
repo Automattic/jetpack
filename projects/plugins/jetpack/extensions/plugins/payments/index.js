@@ -1,17 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { currencyDollar } from '@wordpress/icons';
+import analytics from '../../../_inc/client/lib/analytics';
 
 const PaymentsPostPublish = () => {
-	const { tracks } = useAnalytics();
 	const paymentInfoUrl = getRedirectUrl( 'wpcom-payments-donations' );
 	const trackClick = () => {
-		tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
+		analytics.tracks.recordEvent( 'jetpack_editor_payments_post_publish_click' );
 	};
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 

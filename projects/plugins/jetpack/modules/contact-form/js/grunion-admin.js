@@ -179,11 +179,10 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
-	// Handle export to Google Drive
-	$( document ).on( 'click', '#jetpack-export-feedback-gdrive', function ( event ) {
+	// export to Google Drive handler
+	$( document ).on( 'click', '#jetpack-export-feedback-to-gdrive', function ( event ) {
 		event.preventDefault();
-		var $btn = $( event.target );
-		var nonceName = $btn.data( 'nonce-name' );
+		var nonceName = $( event.target ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
 		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
@@ -193,11 +192,6 @@ jQuery( function ( $ ) {
 			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
 		} );
 
-		var errorMessage =
-			( window.exportParameters && window.exportParameters.exportError ) ||
-			'There was an error exporting your results';
-
-		$btn.attr( 'disabled', 'disabled' );
 		$.post(
 			ajaxurl,
 			{
@@ -209,24 +203,22 @@ jQuery( function ( $ ) {
 				[ nonceName ]: nonce,
 			},
 			function ( payload, status ) {
-				if ( status === 'success' && payload.data && payload.data.sheet_link ) {
+				if ( status !== 'success' ) {
+					window.alert( 'There was an error exporting your results' );
+					return;
+				}
+				if ( payload.data && payload.data.sheet_link ) {
 					window.open( payload.data.sheet_link, '_blank' );
 				}
 			}
-		)
-			.fail( function () {
-				window.alert( errorMessage );
-			} )
-			.always( function () {
-				$btn.removeAttr( 'disabled' );
-			} );
+		);
 	} );
 
-	// Handle export to CSV
-	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
+	// Handle export
+	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
 		e.preventDefault();
 
-		var nonceName = $( e.target ).data( 'nonce-name' );
+		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
@@ -260,12 +252,5 @@ jQuery( function ( $ ) {
 				window.URL.revokeObjectURL( a.href );
 			}
 		);
-	} );
-
-	// modal opener
-	$( document ).on( 'click', '#export-modal-opener', function ( event ) {
-		const button = $( this );
-		event.preventDefault();
-		window.tb_show( button.html(), button.attr( 'href' ) );
 	} );
 } );

@@ -267,12 +267,6 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
-			await renameClassFile( projDir, answers.name );
-			await searchReplaceInFolder(
-				projDir,
-				'Package_Name',
-				transformToReadableName( answers.name )
-			);
 			break;
 		case 'js-package':
 			break;
@@ -516,9 +510,6 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
-			composerJson.extra[ 'version-constants' ] = {
-				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
-			};
 			composerJson.type = 'jetpack-library';
 			break;
 		case 'plugin':
@@ -532,20 +523,6 @@ async function createComposerJson( composerJson, answers ) {
 				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
-}
-
-/**
- * Renames the class-example.php file to use the new project name.
- *
- * @param {string} projDir - the new project directory.
- * @param {string} name - the name of the new project.
- */
-async function renameClassFile( projDir, name ) {
-	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
-		if ( err ) {
-			console.log( err );
-		}
-	} );
 }
 
 /**

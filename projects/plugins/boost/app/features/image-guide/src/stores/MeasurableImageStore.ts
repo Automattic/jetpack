@@ -1,6 +1,5 @@
-import { MeasurableImage } from '@automattic/jetpack-image-guide';
 import { Writable, Readable, writable, derived } from 'svelte/store';
-import type { Dimensions, Weight } from '@automattic/jetpack-image-guide';
+import { Dimensions, MeasurableImage, Weight } from '../MeasurableImage';
 
 /**
  * Each measurable image has its own set of Svelte stores.

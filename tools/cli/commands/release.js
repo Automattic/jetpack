@@ -136,19 +136,29 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! You may want to update the readme.txt by running 'jetpack release ${ argv.project } readme' \n`;
+			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk (if not already on that branch), review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process (unless it's an Atomic release), update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
 			argv.scriptArgs = [ argv.project ];
-			argv.next = 'Finished updating readme!';
+			argv.next = `Finished! Next:
+				  - If this is a beta, ensure the stable tag in readme.txt is latest stable.
+				  - Create a PR and have your changes reviewed and merged.
+				  - Wait and make sure changes are propagated to mirror repos for each updated package.
+				  - After propagation, if you need to create a release branch, stand on "prerelease" and then run:
+				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'release-branch':
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
-			argv.next = 'Release branch pushed!';
+			argv.next = `Finished! Next:
+				  - Once the branch is pushed, GitHub Actions will build and create a branch on your plugin's mirror repo.
+				  - That mirror repo branch will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
+				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the mirror repo.
+				  - You will now likely want to start a new release cycle like so:
+				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
@@ -156,7 +166,8 @@ export async function scriptRouter( argv ) {
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
 			argv.workingDir = `projects/${ argv.project }`;
-			argv.next = `Finished! You will now likely want to update readme.txt again:
+			argv.next = `Finished! Next:
+				  - You will now likely want to update readme.txt again, then commit to the release branch:
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':

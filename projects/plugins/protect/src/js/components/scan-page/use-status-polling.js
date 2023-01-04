@@ -13,9 +13,8 @@ import { STORE_ID } from '../../state/store';
 const useStatusPolling = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
-	const { setStatus, setStatusProgress, setStatusIsFetching, setScanIsUnavailable } = useDispatch(
-		STORE_ID
-	);
+	const { setStatus, setStatusIsFetching, setScanIsUnavailable } = useDispatch( STORE_ID );
+
 	useEffect( () => {
 		let pollTimeout;
 		const pollDuration = 10000;
@@ -35,7 +34,6 @@ const useStatusPolling = () => {
 						}
 
 						if ( statusIsInProgress( newStatus?.status ) ) {
-							setStatusProgress( newStatus.current_progress );
 							pollTimeout = setTimeout( () => {
 								pollStatus()
 									.then( result => resolve( result ) )
@@ -77,14 +75,7 @@ const useStatusPolling = () => {
 		}, pollDuration );
 
 		return () => clearTimeout( pollTimeout );
-	}, [
-		status.status,
-		setScanIsUnavailable,
-		setStatus,
-		setStatusProgress,
-		setStatusIsFetching,
-		recordEvent,
-	] );
+	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching, recordEvent ] );
 };
 
 export default useStatusPolling;

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
 import {
 	MediaTokenScopeProps,
@@ -40,10 +37,6 @@ const getMediaToken = function (
 				adminAjaxAction = 'videopress-get-upload-token';
 				break;
 
-			case 'upload-jwt':
-				adminAjaxAction = 'videopress-get-upload-jwt';
-				break;
-
 			case 'playback':
 				adminAjaxAction = 'videopress-get-playback-jwt';
 				data.id = id;
@@ -59,7 +52,6 @@ const getMediaToken = function (
 			.then( ( response: MediaTokenScopeAdminAjaxResponseBodyProps ) => {
 				switch ( scope ) {
 					case 'upload':
-					case 'upload-jwt':
 						resolve( {
 							token: response.upload_token,
 							blogId: response.upload_blog_id,
@@ -72,8 +64,8 @@ const getMediaToken = function (
 						break;
 				}
 			} )
-			.catch( () => {
-				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
+			.catch( err => {
+				console.warn( 'Token is not achievable: "%s"', err?.message ?? err ); // eslint-disable-line no-console
 				resolve( { token: null } );
 			} );
 	} );

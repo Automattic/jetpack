@@ -18,7 +18,7 @@ export const JETPACK_SCAN = 'jetpack_scan';
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
-	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
+	const { isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
@@ -55,19 +55,17 @@ const AdminPage = ( { children } ) => {
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
-					{ wafSupported && (
-						<Tab
-							link="/firewall"
-							label={
-								<>
-									{ __( 'Firewall', 'jetpack-protect' ) }
-									{ wafSeen === false && (
-										<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
-									) }
-								</>
-							}
-						/>
-					) }
+					<Tab
+						link="/firewall"
+						label={
+							<>
+								{ __( 'Firewall', 'jetpack-protect' ) }
+								{ wafSeen === false && (
+									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
+								) }
+							</>
+						}
+					/>
 				</Tabs>
 			</Container>
 			{ children }

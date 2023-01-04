@@ -16,8 +16,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev",
-		"automattic/jetpack-videopress": "@dev"
+		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
 		"classmap": [

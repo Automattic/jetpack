@@ -1,5 +1,4 @@
 <script lang="ts">
-	import ImageGuideAnalytics from '../analytics';
 	import { guideState, guideLabel } from '../stores/GuideState';
 	import JetpackLogo from './JetpackLogo.svelte';
 
@@ -7,7 +6,6 @@
 
 	function toggleUI() {
 		guideState.cycle();
-		ImageGuideAnalytics.trackUIStateChange();
 	}
 </script>
 
