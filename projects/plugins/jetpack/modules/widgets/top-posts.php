@@ -12,6 +12,7 @@
 
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -24,9 +25,11 @@ add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 function jetpack_top_posts_widget_init() {
 	// Currently, this widget depends on the Stats Module.
 	if (
-		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-	&&
-		! Jetpack::is_module_active( 'stats' )
+		! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		&& (
+			! Jetpack::is_module_active( 'stats' )
+			|| ( new Status() )->is_offline_mode()
+		)
 	) {
 		return;
 	}
