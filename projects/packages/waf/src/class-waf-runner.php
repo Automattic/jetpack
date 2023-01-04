@@ -17,19 +17,25 @@ use Jetpack_Options;
  */
 class Waf_Runner {
 
-	const WAF_MODULE_NAME                     = 'waf';
-	const WAF_RULES_VERSION                   = '1.0.0';
-	const MODE_OPTION_NAME                    = 'jetpack_waf_mode';
-	const AUTOMATIC_RULES_ENABLED_OPTION_NAME = 'jetpack_waf_automatic_rules';
-	const IP_LISTS_ENABLED_OPTION_NAME        = 'jetpack_waf_ip_list';
-	const IP_ALLOW_LIST_OPTION_NAME           = 'jetpack_waf_ip_allow_list';
-	const IP_BLOCK_LIST_OPTION_NAME           = 'jetpack_waf_ip_block_list';
-	const RULES_FILE                          = '/rules/rules.php';
-	const ALLOW_IP_FILE                       = '/rules/allow-ip.php';
-	const BLOCK_IP_FILE                       = '/rules/block-ip.php';
-	const VERSION_OPTION_NAME                 = 'jetpack_waf_rules_version';
-	const RULE_LAST_UPDATED_OPTION_NAME       = 'jetpack_waf_last_updated_timestamp';
-	const SHARE_DATA_OPTION_NAME              = 'jetpack_waf_share_data';
+	const WAF_MODULE_NAME   = 'waf';
+	const WAF_RULES_VERSION = '1.0.0';
+
+	// WAF Options
+	const MODE_OPTION_NAME                         = 'jetpack_waf_mode';
+	const AUTOMATIC_RULES_ENABLED_OPTION_NAME      = 'jetpack_waf_automatic_rules';
+	const IP_LISTS_ENABLED_OPTION_NAME             = 'jetpack_waf_ip_list';
+	const IP_ALLOW_LIST_OPTION_NAME                = 'jetpack_waf_ip_allow_list';
+	const IP_BLOCK_LIST_OPTION_NAME                = 'jetpack_waf_ip_block_list';
+	const VERSION_OPTION_NAME                      = 'jetpack_waf_rules_version';
+	const RULE_LAST_UPDATED_OPTION_NAME            = 'jetpack_waf_last_updated_timestamp';
+	const AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME = 'jetpack_waf_automatic_rules_last_updated_timestamp';
+	const SHARE_DATA_OPTION_NAME                   = 'jetpack_waf_share_data';
+
+	// Rule Files
+	const RULES_ENTRYPOINT_FILE = '/rules/rules.php';
+	const AUTOMATIC_RULES_FILE  = '/rules/automatic-rules.php';
+	const IP_ALLOW_RULES_FILE   = '/rules/allow-ip.php';
+	const IP_BLOCK_RULES_FILE   = '/rules/block-ip.php';
 
 	/**
 	 * Run the WAF
@@ -58,9 +64,14 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function add_hooks() {
+		// Re-activate the WAF any time an option is added or updated.
+		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'activate' ), 10, 0 );
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
 		// TODO: This doesn't exactly fit here - may need to find another home
@@ -165,24 +176,6 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Determines if automatic rules are enabled.
-	 *
-	 * @return bool
-	 */
-	public static function automatic_rules_enabled() {
-		// for backwards compatibility, if the automatic rules option does not exist and the
-		// module is active, consider automatic rules enabled
-		$option_exists = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) === false;
-		if ( ! $option_exists && self::is_enabled() ) {
-			$is_enabled = true;
-		} else {
-			$is_enabled = (bool) get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-		}
-
-		return $is_enabled;
-	}
-
-	/**
 	 * Enables the WAF module on the site.
 	 */
 	public static function enable() {
@@ -209,6 +202,7 @@ class Waf_Runner {
 			self::IP_BLOCK_LIST_OPTION_NAME           => get_option( self::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME              => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                          => self::get_bootstrap_file_path(),
+			'automatic_rules_available'               => (bool) get_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME ),
 		);
 	}
 
@@ -276,7 +270,7 @@ class Waf_Runner {
 			$waf = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators() );
 
 			// execute waf rules.
-			$rules_file_path = self::get_waf_file_path( self::RULES_FILE );
+			$rules_file_path = self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
 			if ( file_exists( $rules_file_path ) ) {
 				// phpcs:ignore
 				include $rules_file_path;
@@ -335,12 +329,11 @@ class Waf_Runner {
 			add_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
 		}
 
-		add_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-		add_option( self::IP_LISTS_ENABLED_OPTION_NAME, false );
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
 		self::create_waf_directory();
+		self::generate_automatic_rules();
 		self::generate_ip_rules();
 		self::create_blocklog_table();
 		self::generate_rules();
@@ -406,7 +399,7 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( self::RULES_FILE ), "<?php\n" ) ) {
+		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE ), "<?php\n" ) ) {
 			throw new \Exception( 'Failed to empty rules.php file.' );
 		}
 	}
@@ -422,6 +415,7 @@ class Waf_Runner {
 			return;
 		}
 
+		self::generate_automatic_rules();
 		self::generate_ip_rules();
 		self::generate_rules();
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
@@ -440,6 +434,7 @@ class Waf_Runner {
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::WAF_RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::WAF_RULES_VERSION );
+			self::generate_automatic_rules();
 			self::generate_ip_rules();
 			self::generate_rules();
 		}
@@ -494,6 +489,17 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Wraps a require statement in a file_exists check.
+	 *
+	 * @param string $required_file The file to check if exists and require.
+	 * @param string $return_code   The PHP code to execute if the file require returns true. Defaults to 'return;'.
+	 * @return string The wrapped require statement.
+	 */
+	private static function wrap_require( $required_file, $return_code = 'return;' ) {
+		return "if ( file_exists( '$required_file' ) ) { if ( require( '$required_file' ) ) { $return_code } }";
+	}
+
+	/**
 	 * Generates the rules.php script
 	 *
 	 * @throws \Exception If file writing fails.
@@ -509,53 +515,84 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$rules_file_path = self::get_waf_file_path( self::RULES_FILE );
+		$rules                = "<?php\n";
+		$entrypoint_file_path = self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
 
-		$api_exception       = null;
-		$throw_api_exception = true;
-
-		// Ensure that the folder exists.
-		if ( ! $wp_filesystem->is_dir( dirname( $rules_file_path ) ) ) {
-			$wp_filesystem->mkdir( dirname( $rules_file_path ) );
+		// Ensure that the folder exists
+		if ( ! $wp_filesystem->is_dir( dirname( $entrypoint_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $entrypoint_file_path ) );
 		}
 
-		// Add automatic rules
-		if ( self::automatic_rules_enabled() ) {
-			try {
-				$rules = self::get_rules_from_api();
-			} catch ( \Exception $e ) {
-				if ( 401 === $e->getCode() ) {
-					// do not throw API exceptions for users who do not have access
-					$throw_api_exception = false;
+		// Ensure all potentially required rule files exist
+		$rule_files = array( self::RULES_ENTRYPOINT_FILE, self::AUTOMATIC_RULES_FILE, self::IP_ALLOW_RULES_FILE, self::IP_BLOCK_RULES_FILE );
+		foreach ( $rule_files as $rule_file ) {
+			$rule_file = self::get_waf_file_path( $rule_file );
+			if ( ! $wp_filesystem->is_file( $rule_file ) ) {
+				if ( ! $wp_filesystem->put_contents( $rule_file, "<?php\n" ) ) {
+					throw new \Exception( 'Failed writing rules file to: ' . $rule_file );
 				}
-
-				if ( $wp_filesystem->exists( $rules_file_path ) && $throw_api_exception ) {
-					throw $e;
-				}
-
-				$api_exception = $e;
 			}
 		}
 
 		// Add manual rules
-		$ip_allow_rules = self::get_waf_file_path( self::ALLOW_IP_FILE );
-		$ip_block_rules = self::get_waf_file_path( self::BLOCK_IP_FILE );
-
-		$ip_list_code = "if ( file_exists( '$ip_allow_rules' ) ) { if ( require( '$ip_allow_rules' ) ) { return; } }\n" .
-			"if ( file_exists( '$ip_block_rules' ) ) { if ( require( '$ip_block_rules' ) ) { return \$waf->block('block', -1, 'ip block list'); } }\n";
-
-		$rules_divided_by_line = explode( "\n", $rules );
-		array_splice( $rules_divided_by_line, 1, 0, $ip_list_code );
-
-		$rules = implode( "\n", $rules_divided_by_line );
-
-		if ( ! $wp_filesystem->put_contents( $rules_file_path, $rules ) ) {
-			throw new \Exception( 'Failed writing rules file to: ' . $rules_file_path );
+		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
+			$rules .= self::wrap_require( self::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
+			$rules .= self::wrap_require( self::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 
-		if ( null !== $api_exception && $throw_api_exception ) {
-			throw $api_exception;
+		// Add automatic rules
+		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
+			$rules .= self::wrap_require( self::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) ) . "\n";
 		}
+
+		// Update the rules file
+		if ( ! $wp_filesystem->put_contents( $entrypoint_file_path, $rules ) ) {
+			throw new \Exception( 'Failed writing rules file to: ' . $entrypoint_file_path );
+		}
+	}
+
+	/**
+	 * Generates the automatic-rules.php script
+	 *
+	 * @throws \Exception If rules cannot be generated and saved.
+	 * @return void
+	 */
+	public static function generate_automatic_rules() {
+		/**
+		 * WordPress filesystem abstraction.
+		 *
+		 * @var \WP_Filesystem_Base $wp_filesystem
+		 */
+		global $wp_filesystem;
+
+		self::initialize_filesystem();
+
+		$automatic_rules_file_path = self::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
+
+		// Ensure that the folder exists.
+		if ( ! $wp_filesystem->is_dir( dirname( $automatic_rules_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $automatic_rules_file_path ) );
+		}
+
+		try {
+			$rules = self::get_rules_from_api();
+		} catch ( \Exception $exception ) {
+			// Do not throw API exceptions for users who do not have access
+			if ( 401 !== $exception->getCode() ) {
+				throw $exception;
+			}
+		}
+
+		// If there are no rules available, don't overwrite the existing file.
+		if ( empty( $rules ) ) {
+			return;
+		}
+
+		if ( ! $wp_filesystem->put_contents( $automatic_rules_file_path, $rules ) ) {
+			throw new \Exception( 'Failed writing automatic rules file to: ' . $automatic_rules_file_path );
+		}
+
+		update_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME, time() );
 	}
 
 	/**
@@ -597,24 +634,19 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$rules_file_path    = self::get_waf_file_path( self::RULES_FILE );
-		$allow_ip_file_path = self::get_waf_file_path( self::ALLOW_IP_FILE );
-		$block_ip_file_path = self::get_waf_file_path( self::BLOCK_IP_FILE );
+		$allow_ip_file_path = self::get_waf_file_path( self::IP_ALLOW_RULES_FILE );
+		$block_ip_file_path = self::get_waf_file_path( self::IP_BLOCK_RULES_FILE );
 
-		// Ensure that the folder exists.
-		if ( ! $wp_filesystem->is_dir( dirname( $rules_file_path ) ) ) {
-			$wp_filesystem->mkdir( dirname( $rules_file_path ) );
+		// Ensure that the folders exists.
+		if ( ! $wp_filesystem->is_dir( dirname( $allow_ip_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $allow_ip_file_path ) );
+		}
+		if ( ! $wp_filesystem->is_dir( dirname( $block_ip_file_path ) ) ) {
+			$wp_filesystem->mkdir( dirname( $block_ip_file_path ) );
 		}
 
 		$allow_list = self::ip_option_to_array( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
 		$block_list = self::ip_option_to_array( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
-
-		$lists_enabled = (bool) get_option( self::IP_LISTS_ENABLED_OPTION_NAME );
-		if ( false === $lists_enabled ) {
-			// Making the lists empty effectively disabled the feature while still keeping the other WAF rules evaluation active.
-			$allow_list = array();
-			$block_list = array();
-		}
 
 		$allow_rules_content = '';
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
