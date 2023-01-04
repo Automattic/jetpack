@@ -509,7 +509,6 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
-		$rules           = "<?php\n";
 		$rules_file_path = self::get_waf_file_path( self::RULES_FILE );
 
 		$api_exception       = null;
