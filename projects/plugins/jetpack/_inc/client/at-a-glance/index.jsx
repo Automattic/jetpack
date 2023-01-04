@@ -30,7 +30,6 @@ import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import DashActivity from './activity';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
-import DashBlocks from './blocks';
 import DashBoost from './boost';
 import DashConnections from './connections';
 import DashCRM from './crm';
@@ -152,9 +151,6 @@ class AtAGlance extends Component {
 					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
 				);
 			}
-
-			// Add Blocks card.
-			performanceCards.push( <DashBlocks /> );
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
 				<PartnerCouponRedeem

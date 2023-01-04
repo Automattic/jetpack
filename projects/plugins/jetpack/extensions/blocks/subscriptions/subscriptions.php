@@ -286,7 +286,7 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100% - %spx;', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
+			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
 			: 'width: 100%;';
 	}
 

@@ -28,6 +28,7 @@
    - 'projects/packages/**'
    - 'projects/plugins/jetpack/**'
    # Exclude packages managed by other teams, which are covered by other blocks below.
+   - '!projects/js-packages/image-guide/**'
    - '!projects/packages/backup/**'
    - '!projects/packages/search/**'
    - '!projects/packages/stats/**'
@@ -73,6 +74,7 @@
   paths:
    - 'projects/plugins/boost/**'
    - 'projects/plugins/super-cache/**'
+   - 'projects/js-packages/image-guide/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

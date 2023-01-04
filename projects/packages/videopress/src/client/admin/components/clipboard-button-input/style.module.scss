@@ -7,6 +7,7 @@
 	padding: calc( var( --spacing-base ) * 0.5 );
 	padding-left: calc( var( --spacing-base ) * 1.5 );
 	background-color: var( --jp-white );
+	box-sizing: border-box;
 
 	&:focus-within {
 		box-shadow: 0 0 0 1px var( --jp-black ) inset;
