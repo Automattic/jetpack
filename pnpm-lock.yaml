@@ -475,8 +475,10 @@ importers:
   projects/js-packages/publicize-components:
     specifiers:
       '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/social-previews': 1.1.5
@@ -511,7 +513,9 @@ importers:
       refx: 3.1.1
       rememo: 4.0.1
     dependencies:
+      '@automattic/jetpack-analytics': link:../analytics
       '@automattic/jetpack-components': link:../components
+      '@automattic/jetpack-connection': link:../connection
       '@automattic/jetpack-shared-extension-utils': link:../shared-extension-utils
       '@automattic/social-previews': 1.1.5_jpwft5hzbbmso7udylr5tohhxm
       '@wordpress/annotations': 2.22.0_react@17.0.2
@@ -837,6 +841,55 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/blaze:
+    specifiers:
+      '@automattic/jetpack-analytics': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
+      '@babel/core': 7.20.5
+      '@babel/preset-env': 7.20.2
+      '@babel/register': 7.18.9
+      '@babel/runtime': 7.20.6
+      '@wordpress/block-editor': 10.5.0
+      '@wordpress/browserslist-config': 5.5.0
+      '@wordpress/components': 22.1.0
+      '@wordpress/data': 7.6.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
+      '@wordpress/plugins': 4.20.0
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.54.4
+      sass-loader: 12.4.0
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@wordpress/block-editor': 10.5.0_oh345hcsaunslvozv24xisnbli
+      '@wordpress/components': 22.1.0_oh345hcsaunslvozv24xisnbli
+      '@wordpress/data': 7.6.0_react@17.0.2
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
+      '@wordpress/plugins': 4.20.0_react@17.0.2
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.20.5
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.5
+      '@babel/register': 7.18.9_@babel+core@7.20.5
+      '@babel/runtime': 7.20.6
+      '@wordpress/browserslist-config': 5.5.0
+      sass: 1.54.4
+      sass-loader: 12.4.0_sass@1.54.4+webpack@5.72.1
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+
   projects/packages/connection:
     specifiers:
       '@automattic/jetpack-webpack-config': workspace:*
@@ -1016,55 +1069,6 @@ importers:
       sass-loader: 12.4.0_sass@1.56.1+webpack@5.72.1
       tslib: 2.3.1
       typescript: 4.8.2
-      webpack: 5.72.1_webpack-cli@4.9.1
-      webpack-cli: 4.9.1_webpack@5.72.1
-
-  projects/packages/promote-posts:
-    specifiers:
-      '@automattic/jetpack-analytics': workspace:*
-      '@automattic/jetpack-components': workspace:*
-      '@automattic/jetpack-shared-extension-utils': workspace:*
-      '@automattic/jetpack-webpack-config': workspace:*
-      '@babel/core': 7.20.5
-      '@babel/preset-env': 7.20.2
-      '@babel/register': 7.18.9
-      '@babel/runtime': 7.20.6
-      '@wordpress/block-editor': 10.5.0
-      '@wordpress/browserslist-config': 5.5.0
-      '@wordpress/components': 22.1.0
-      '@wordpress/data': 7.6.0
-      '@wordpress/element': 4.20.0
-      '@wordpress/i18n': 4.22.0
-      '@wordpress/icons': 9.13.0
-      '@wordpress/plugins': 4.20.0
-      react: 17.0.2
-      react-dom: 17.0.2
-      sass: 1.54.4
-      sass-loader: 12.4.0
-      webpack: 5.72.1
-      webpack-cli: 4.9.1
-    dependencies:
-      '@automattic/jetpack-analytics': link:../../js-packages/analytics
-      '@automattic/jetpack-components': link:../../js-packages/components
-      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
-      '@wordpress/block-editor': 10.5.0_oh345hcsaunslvozv24xisnbli
-      '@wordpress/components': 22.1.0_oh345hcsaunslvozv24xisnbli
-      '@wordpress/data': 7.6.0_react@17.0.2
-      '@wordpress/element': 4.20.0
-      '@wordpress/i18n': 4.22.0
-      '@wordpress/icons': 9.13.0
-      '@wordpress/plugins': 4.20.0_react@17.0.2
-      react: 17.0.2
-      react-dom: 17.0.2_react@17.0.2
-    devDependencies:
-      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
-      '@babel/core': 7.20.5
-      '@babel/preset-env': 7.20.2_@babel+core@7.20.5
-      '@babel/register': 7.18.9_@babel+core@7.20.5
-      '@babel/runtime': 7.20.6
-      '@wordpress/browserslist-config': 5.5.0
-      sass: 1.54.4
-      sass-loader: 12.4.0_sass@1.54.4+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
@@ -1862,6 +1866,7 @@ importers:
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
       '@automattic/jetpack-publicize-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@babel/core': 7.20.5
       '@babel/preset-env': 7.20.2
@@ -1898,6 +1903,7 @@ importers:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
       '@automattic/jetpack-publicize-components': link:../../js-packages/publicize-components
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/components': 22.1.0_oh345hcsaunslvozv24xisnbli
       '@wordpress/data': 7.6.0_react@17.0.2

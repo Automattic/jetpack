@@ -6,7 +6,24 @@ import { VideoGUID } from './block-editor/blocks/video/types';
  * '1': private
  * '2': site default
  */
-type PrivacySettingProp = '0' | '1' | '2';
+export type PrivacySettingProp = 0 | 1 | 2;
+
+export type RatingProp = 'G' | 'PG-13' | 'R-17';
+
+export type VideoTracksResponseBodyProps = {
+	captions?: {
+		en: {
+			src: string;
+			label: string;
+		};
+	};
+	chapters?: {
+		en: {
+			src: string;
+			label: string;
+		};
+	};
+};
 
 type STDVideoFileProps = {
 	mp4: string;
@@ -64,7 +81,7 @@ export type WPV2mediaGetEndpointResponseProps = {
 		display_embed: 0 | 1;
 		needs_playback_token: boolean;
 		privacy_setting: PrivacySettingProp;
-		rating: string;
+		rating: RatingProp;
 	};
 	media_details: {
 		videopress?: {
@@ -87,7 +104,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	duration: number;
 	allow_download: boolean;
 	display_embed: boolean;
-	rating: string;
+	rating: RatingProp;
 
 	/*
 	 * Video Thumbnail
@@ -107,7 +124,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 		caption: string;
 		needs_playback_token: boolean;
 		privacy_setting: PrivacySettingProp;
-		rating: string;
+		rating: RatingProp;
 	};
 
 	bg_color: boolean;
@@ -154,20 +171,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	};
 
 	subtitles: Array< string >;
-	tracks: {
-		captions?: {
-			en: {
-				src: string;
-				label: string;
-			};
-		};
-		chapters?: {
-			en: {
-				src: string;
-				label: string;
-			};
-		};
-	};
+	tracks: VideoTracksResponseBodyProps;
 
 	adaptive_streaming: string;
 	format_meta: {
