@@ -454,7 +454,7 @@ class Jetpack_Memberships {
 
 		$newsletter_access_level = self::get_newsletter_access_level();
 		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level, get_the_ID() );
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
 	/**
