@@ -112,7 +112,7 @@ class Waf_Stats {
 			'ip_allow_list_count'          => self::get_ip_allow_list_count(),
 			'ip_block_list_count'          => self::get_ip_block_list_count(),
 			'rules_version'                => self::get_rules_version(),
-			'automatic_rules_last_updated' => self::get_rules_last_updated(),
+			'automatic_rules_last_updated' => self::get_automatic_rules_last_updated(),
 		);
 	}
 }
