@@ -534,8 +534,6 @@ class Waf_Runner {
 			}
 		}
 
-		$rules = "<?php\n";
-
 		// Add manual rules
 		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
 			$rules .= self::wrap_require( self::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
