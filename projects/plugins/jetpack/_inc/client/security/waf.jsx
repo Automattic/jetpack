@@ -267,16 +267,28 @@ export const Waf = class extends Component {
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={
 					<>
-						{ __( 'Upgrade to enable automatic rules', 'jetpack' ) }
+						{ ! this.props.automaticRulesAvailable
+							? __( 'Upgrade to enable automatic rules', 'jetpack' )
+							: __(
+									'Upgrade to keep your site secure with up-to-date firewall rules',
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
+							  ) }
 						<InfoPopover
 							position="right"
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
 							className="waf__settings__upgrade-popover"
 						>
-							{ __(
-								'The free version of the firewall only allows for use of manual rules.',
-								'jetpack'
-							) }
+							{ ! this.props.automaticRulesAvailable
+								? __(
+										'The free version of the firewall only allows for use of manual rules.',
+										'jetpack'
+								  )
+								: __(
+										'The free version of the firewall does not receive updates to automatic firewall rules.',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</InfoPopover>
 					</>
 				}
