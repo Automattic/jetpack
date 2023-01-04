@@ -1400,7 +1400,15 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 	fclose( $fd );
+
+	$my_file_permissions = fileperms( $my_file );
+
 	rename( $tmp_config_filename, $my_file );
+
+	if ( false !== $my_file_permissions ) {
+		chmod( $my_file, $my_file_permissions );
+	}
+
 	wp_cache_debug( 'wp_cache_replace_line: moved ' . $tmp_config_filename . ' to ' . $my_file );
 
 	if ( function_exists( 'opcache_invalidate' ) ) {
