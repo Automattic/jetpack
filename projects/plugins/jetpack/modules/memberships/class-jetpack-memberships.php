@@ -454,8 +454,7 @@ class Jetpack_Memberships {
 
 		$newsletter_access_level = self::get_newsletter_access_level();
 		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		// TODO: Figure out why the `get_the_ID` is passed here when the function accepts a `$is_blog_subscriber` param
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level, get_the_ID() );
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
 	/**
