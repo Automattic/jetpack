@@ -441,6 +441,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
+						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -988,17 +989,33 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'page_on_front':
-					$all_page_ids = get_all_page_ids();
-
-					$valid_page_id = false;
-					foreach ( $all_page_ids as $page_id ) {
-						if ( $page_id === (string) $value ) {
-							$valid_page_id = true;
-							break;
-						}
+					if ( ! $this->is_valid_page_id( $value ) ) {
+						break;
 					}
 
-					if ( $valid_page_id && update_option( $key, $value ) ) {
+					$page_for_posts = get_option( 'page_for_posts' );
+					if ( $page_for_posts === $value ) {
+						// page for posts and page on front can't be the same
+						break;
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
+					break;
+				case 'page_for_posts':
+					if ( ! $this->is_valid_page_id( $value ) ) {
+						break;
+					}
+
+					$page_on_front = get_option( 'page_on_front' );
+					if ( $page_on_front === $value ) {
+						// page on front and page for posts can't be the same
+						break;
+					}
+
+					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
 					}
 
@@ -1091,5 +1108,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return (bool) $wpcom_subscription_emails_use_excerpt;
+	}
+
+	/**
+	 * Check if the given value is a valid page ID for the current site.
+	 *
+	 * @param mixed $value The value to check.
+	 * @return bool True if the value is a valid page ID for the current site, false otherwise.
+	 */
+	protected function is_valid_page_id( $value ) {
+		$all_page_ids = get_all_page_ids();
+
+		$valid_page_id = false;
+		foreach ( $all_page_ids as $page_id ) {
+			if ( $page_id === (string) $value ) {
+				$valid_page_id = true;
+				break;
+			}
+		}
+
+		return $valid_page_id;
 	}
 }
