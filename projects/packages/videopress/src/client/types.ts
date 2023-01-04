@@ -246,7 +246,7 @@ type VideoMimeTypeProp = 'video/videopress' | 'video/mp4' | 'video/ogg' | 'video
  * post item
  * query[post_mime_type][]: video
  */
-type AdminAjaxQueryAttachmentsResponseItemProps = {
+export type AdminAjaxQueryAttachmentsResponseItemProps = {
 	alt: string;
 	author: string;
 	authorLink: string;
