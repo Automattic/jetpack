@@ -1,4 +1,4 @@
-import { VideoGUID } from './block-editor/blocks/video/types';
+import { VideoGUID, VideoId } from './block-editor/blocks/video/types';
 
 /*
  * Video Privacy:
@@ -236,4 +236,72 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	};
 
 	thumbnail_generating: boolean;
+};
+
+type VideoMimeTypeProp = 'video/videopress' | 'video/mp4' | 'video/ogg' | 'video/webm' | string;
+
+/*
+ * Admin Ajax
+ * action: query-attachments
+ * post item
+ * query[post_mime_type][]: video
+ */
+export type AdminAjaxQueryAttachmentsResponseItemProps = {
+	alt: string;
+	author: string;
+	authorLink: string;
+	authorName: string;
+	caption: string;
+	compat: {
+		item: string;
+		meta: string;
+	};
+	context: string;
+	date: number;
+	dateFormatted: string;
+	description: string;
+	editLink: string;
+	filename: string;
+	height: number;
+	icon: string;
+	id: VideoId;
+	image: {
+		src: string;
+		width: number;
+		height: number;
+	};
+	link: string;
+	menuOrder: number;
+	meta: {
+		artist: boolean;
+		album: boolean;
+		bitrate: boolean;
+		bitrate_mode: boolean;
+	};
+	mime: VideoMimeTypeProp;
+	modified: number;
+	name: string;
+	nonces: {
+		update: string;
+		delete: string;
+		edit: string;
+	};
+	status: string;
+	subtype: string;
+	thumb: {
+		src: string;
+		width: number;
+		height: number;
+	};
+	title: string;
+	type: 'video' | string;
+	uploadedTo: number;
+	url: string;
+	videopress_guid: Array< VideoGUID >;
+	width: number;
+};
+
+export type AdminAjaxQueryAttachmentsResponseProps = {
+	data: Array< AdminAjaxQueryAttachmentsResponseItemProps >;
+	succes: boolean;
 };

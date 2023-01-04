@@ -5,13 +5,14 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
-import { useCallback, useState, createInterpolateElement } from '@wordpress/element';
+import { useCallback, useState, useEffect, createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
+import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit.js';
 import { description, title } from '../../index.js';
 import { VideoPressIcon } from '../icons';
@@ -19,19 +20,30 @@ import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
 import './style.scss';
 
-const ALLOWED_MEDIA_TYPES = [ 'video' ];
-
 const VideoPressUploader = ( {
 	attributes,
 	setAttributes,
 	noticeUI,
 	noticeOperations,
 	handleDoneUpload,
+	fileToUpload,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
+
+	/*
+	 * When the file to upload is set, start the upload process
+	 * just after the component is mounted.
+	 */
+	useEffect( () => {
+		if ( ! fileToUpload ) {
+			return;
+		}
+
+		startUpload( fileToUpload );
+	}, [ fileToUpload ] );
 
 	/*
 	 * Storing the file to get it name and size for progress.
@@ -79,10 +91,7 @@ const VideoPressUploader = ( {
 		setUploadCompleted( true );
 	};
 
-	/*
-	 * Helper instance to upload the video to the VideoPress infrastructure.
-	 * eslint-disable-next-line no-unused-vars
-	 */
+	// Get file upload handlers, data, and error.
 	const { uploadHandler, resumeHandler, error: uploadingError } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
@@ -334,7 +343,7 @@ const VideoPressUploader = ( {
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
 			accept="video/*"
-			allowedTypes={ ALLOWED_MEDIA_TYPES }
+			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			value={ attributes }
 			notices={ noticeUI }
 			onError={ function ( error ) {
