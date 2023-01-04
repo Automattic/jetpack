@@ -13,20 +13,22 @@ export default function MembershipsModal( props ) {
 
 	// Listen for messages from the iframe & close the modal if the user clicks off it.
 	useEffect( () => {
-		const clickCallback = (e) => {
+		const ref = modalRef.current;
+		const clickCallback = e => {
 			// Close the modal if the user clicks outside of the iframe.
-			if ( e.target === modalRef.current ) {
+			if ( e.target === ref ) {
 				closeModal();
 			}
 		};
 		if ( isOpen ) {
 			window.addEventListener( 'message', handleIframeResult );
-			modalRef?.current?.addEventListener( 'click', clickCallback );
+			ref?.addEventListener( 'click', clickCallback );
 		}
 		return () => {
 			window.removeEventListener( 'message', handleIframeResult );
-			modalRef?.current?.removeEventListener( 'click', clickCallback );
+			ref?.removeEventListener( 'click', clickCallback );
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isOpen ] );
 
 	function handleIframeResult( evt ) {
@@ -40,13 +42,15 @@ export default function MembershipsModal( props ) {
 		}
 	}
 
-	const iframeLoaded = ( evt ) => {
+	const iframeLoaded = () => {
 		modalRef?.current.classList.add( 'loaded' );
-	}
+	};
 
 	return (
 		<>
-			<button id={ uniqueId } onClick={ openModal }>{ text }</button>
+			<button id={ uniqueId } onClick={ openModal }>
+				{ text }
+			</button>
 			{ isOpen && (
 				<Modal
 					ref={ modalRef }
@@ -56,8 +60,15 @@ export default function MembershipsModal( props ) {
 					// isFullScreen={ true }
 					className="jetpack-memberships-modal"
 				>
-					<div class="lds-ring"><div></div><div></div><div></div><div></div></div>
-					{ url && <iframe scrolling="yes" title="subscribe-iframe" src={ url } onLoad={ iframeLoaded }/> }
+					<div class="lds-ring">
+						<div></div>
+						<div></div>
+						<div></div>
+						<div></div>
+					</div>
+					{ url && (
+						<iframe scrolling="yes" title="subscribe-iframe" src={ url } onLoad={ iframeLoaded } />
+					) }
 				</Modal>
 			) }
 		</>
