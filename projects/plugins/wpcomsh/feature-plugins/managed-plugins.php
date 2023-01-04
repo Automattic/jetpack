@@ -521,3 +521,24 @@ function wpcomsh_atomic_managed_theme_auto_update_debug_label() {
 	return __( 'Updates managed by WordPress.com', 'wpcomsh' );
 }
 add_filter( 'atomic_managed_theme_auto_update_debug_label', 'wpcomsh_atomic_managed_theme_auto_update_debug_label' );
+
+/**
+ * Filter to exclude the managed plugin from the list of plugins to update.
+ * It overrides the site transient update_plugins.
+ *
+ * @param mixed $current Transient object with the list of plugins to update.
+ * @return mixed
+ */
+function wpcomsh_remove_managed_plugins_from_update_plugins( $current ) {
+	if ( ! is_object( $current ) || ! is_array( $current->response ) ) {
+		return $current;
+	}
+	foreach ( array_keys( $current->response ) as $plugin_key ) {
+		if ( wpcomsh_is_managed_plugin( $plugin_key ) ) {
+			unset( $current->response[ $plugin_key ] );
+		}
+	}
+	return $current;
+}
+
+add_filter( 'site_transient_update_plugins', 'wpcomsh_remove_managed_plugins_from_update_plugins' );
