@@ -27,6 +27,8 @@ const VideoPressUploader = ( {
 	noticeOperations,
 	handleDoneUpload,
 	fileToUpload,
+	isReplacing,
+	onReplaceCancel,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
@@ -180,6 +182,11 @@ const VideoPressUploader = ( {
 		setUploadPaused( ! uploadPaused );
 	};
 
+	const cancelUploadingReplaceFile = function () {
+		resumeHandler.abort();
+		onReplaceCancel();
+	};
+
 	/**
 	 * Uploading file handler.
 	 *
@@ -320,6 +327,8 @@ const VideoPressUploader = ( {
 				paused={ uploadPaused }
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
+				onReplaceCancel={ cancelUploadingReplaceFile }
+				isReplacing={ isReplacing }
 				onDone={ handleDoneUpload }
 				supportPauseOrResume={ !! resumeHandler }
 			/>

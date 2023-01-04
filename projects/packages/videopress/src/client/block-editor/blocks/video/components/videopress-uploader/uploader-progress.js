@@ -141,6 +141,8 @@ const UploaderProgress = ( {
 	onPauseOrResume,
 	onDone,
 	supportPauseOrResume,
+	isReplacing,
+	onReplaceCancel,
 } ) => {
 	const [
 		handleVideoFrameSelected,
@@ -203,6 +205,13 @@ const UploaderProgress = ( {
 									</div>
 									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
 								</div>
+								{ isReplacing && (
+									<div className="videopress-uploader-progress__actions">
+										<Button variant="link" onClick={ onReplaceCancel } isDestructive>
+											{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+										</Button>
+									</div>
+								) }
 								{ supportPauseOrResume && (
 									<div className="videopress-uploader-progress__actions">
 										{ roundedProgress < 100 && (
