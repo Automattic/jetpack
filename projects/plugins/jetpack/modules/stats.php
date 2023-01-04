@@ -23,6 +23,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
@@ -284,10 +285,15 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! Stats_Options::get_option( 'enable_calypso_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_calypso_stats' ) || isset( $_GET['noheader'] ) ) {
+		// Show old Jetpack Stats interface for:
+		// - Atomic sites.
+		// - When the "enable_calypso_stats" option is disabled.
+		// - When being shown in the adminbar outside of wp-admin.
 		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
+		// Enable the new Odyssey Stats experience.
 		$stats_dashboard = new StatsDashboard();
 		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
 		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
