@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Preserves original permissions of a file after updating it.
