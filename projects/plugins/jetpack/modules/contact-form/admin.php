@@ -1336,8 +1336,8 @@ class Grunion_Admin {
 	}
 
 	/**
-	 * Return HTML markup for the export to gdrive button.
-	 * If the user doesn't hold a Google Drive connection, it will return get_gdrive_connection_hint().
+	 * Render/output HTML markup for the export to gdrive section.
+	 * If the user doesn't hold a Google Drive connection a button to connect will render (See grunion-admin.js).
 	 */
 	public function get_gdrive_export_section() {
 		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
@@ -1402,8 +1402,8 @@ class Grunion_Admin {
 	}
 
 	/**
-	 * Ajax handler. Returns a payload with connection status and html to replace
-	 * the Connect button with the Export button. Export button is copy from $button_html seen on get_gdrive_export_section
+	 * Ajax handler. Sends a payload with connection status and html to replace
+	 * the Connect button with the Export button using get_gdrive_export_button
 	 */
 	public function test_gdrive_connection() {
 		$post_data = wp_unslash( $_POST );
