@@ -1411,6 +1411,7 @@ class Grunion_Admin {
 
 		if (
 			! $user_id ||
+			! current_user_can( 'export' ) ||
 			empty( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ) ) ||
 			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
