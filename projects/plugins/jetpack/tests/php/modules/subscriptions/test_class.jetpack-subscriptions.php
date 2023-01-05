@@ -311,22 +311,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			} else {
 				wp_set_current_user( 0 );
 			}
-			$subscription_service = $this->getMockBuilder( WPCOM_Offline_Subscription_Service::class )
-				->setMethods( array( 'visitor_can_view_content' ) )
-				->getMock();
-			$subscription_service->expects( $this->once() )
-				->method( 'visitor_can_view_content' )
-				->willReturnCallback(
-					function () use ( $subscription_service, $post_access_level, $logged, $is_blog_subscriber ) {
-						$ref_method = new ReflectionMethod( $subscription_service, 'user_can_view_content' );
-						$ref_method->setAccessible( true );
-						return $ref_method->invoke( $subscription_service, array( $this->plan_id ), $post_access_level, $logged && $is_blog_subscriber, get_the_ID() );
-					}
-				);
-			$result = $subscription_service->visitor_can_view_content(
-				array( $this->plan_id ),
-				$post_access_level
-			);
+			$online_subscription_service = new WPCOM_Online_Subscription_Service();
+			$ref_method                  = new ReflectionMethod( $online_subscription_service, 'user_can_view_content' );
+			$ref_method->setAccessible( true );
+			$result = $ref_method->invoke( $online_subscription_service, array( $this->plan_id ), $post_access_level, $logged && $is_blog_subscriber, get_the_ID() );
 		}
 
 		$this->assertEquals(
