@@ -20,14 +20,14 @@ class Jetpack_Coauthor_Helper {
 	 *
 	 * @var int
 	 */
-	public $text_completion_cooldown_seconds = 10;
+	public static $text_completion_cooldown_seconds = 60;
 
 	/**
 	 * Cache images for a prompt for a month.
 	 *
 	 * @var int
 	 */
-	public $image_generation_cache_timeout = MONTH_IN_SECONDS;
+	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
 	 * Checks if a given request is allowed to get AI data from WordPress.com.
@@ -124,10 +124,11 @@ class Jetpack_Coauthor_Helper {
 				return $result;
 			}
 			// In case of Jetpack we are setting a transient on the WPCOM and not the remote site. I think the 'get_current_user_id' may default for the connection owner at this point but we'll deal with this later.
-			set_transient( self::transient_name_for_completion(), $result->choices[0], self::text_completion_cooldown_seconds );
-			return array( 'prompts' => $result->choices );
+			set_transient( self::transient_name_for_completion(), $result['prompts'][0], self::$text_completion_cooldown_seconds );
+			return $result;
 		}
 
+		// TODO: This will never run until we need to ship in JP.
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/coauthor/completions', $site_id ),
 			2,
@@ -144,7 +145,7 @@ class Jetpack_Coauthor_Helper {
 		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
-		set_transient( self::transient_name_for_completion(), $data->choices[0], self::text_completion_cooldown_seconds );
+		set_transient( self::transient_name_for_completion(), $data->choices[0], self::$text_completion_cooldown_seconds );
 
 		return $data;
 	}
