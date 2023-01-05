@@ -461,6 +461,8 @@ function jetpack_mastodon_get_instance_list() {
 	 *
 	 * @since $$next-version$$
 	 *
+	 * @module widgets, theme-tools
+	 *
 	 * @param array $mastodon_instance_list Array of Mastodon instances.
 	 */
 	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
