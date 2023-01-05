@@ -327,14 +327,13 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Replace video state
 	const [ isReplacingFile, setIsReplacingFile ] = useState( {
 		isReplacing: false,
-		id: null,
-		guid: null,
+		prevAttrs: {},
 	} );
 
 	// Cancel replace video handler
 	const cancelReplacingVideoFile = () => {
-		setAttributes( prev => ( { ...prev, guid: isReplacingFile?.guid, id: isReplacingFile.id } ) );
-		setIsReplacingFile( { isReplacingFile: false, guid: null, id: null } );
+		setAttributes( isReplacingFile.prevAttrs );
+		setIsReplacingFile( { isReplacingFile: false, prevAttrs: {} } );
 		setIsUploadingFile( false );
 	};
 
@@ -448,8 +447,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					onUploadFileStart={ media => {
 						setIsReplacingFile( {
 							isReplacing: true,
-							guid,
-							id,
+							prevAttrs: attributes,
 						} );
 
 						setAttributes( { id: null, guid: null } );
