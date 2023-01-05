@@ -49,7 +49,7 @@ const ReplaceControl = ( {
 	return (
 		<MediaReplaceFlow
 			mediaId={ attributes.id }
-			handleUpload={ true }
+			handleUpload={ false }
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onFilesUpload={ onFileUploadHandler }
