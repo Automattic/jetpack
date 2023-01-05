@@ -1,0 +1,42 @@
+input.vidi-input {
+  background: #f1f5f9;
+  max-height: 30px;
+  border: 0;
+  border-radius: 3px;
+  padding: 7px 10px;
+  box-sizing: border-box;
+  transition: background 200ms ease;
+  color: #4C5866;
+  font-family: 'Open Sans', Helvetica, Roboto, Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: normal;
+  display: block;
+  width: 100%;
+}
+
+input.vidi-input:focus {
+  background: #e6ecf2;
+}
+
+input.vidi-input::-webkit-input-placeholder {
+  color: #98a7b8;
+}
+
+input.vidi-input:-moz-placeholder {
+  color: #98a7b8;
+}
+
+input.vidi-input::-moz-placeholder {
+  color: #98a7b8;
+}
+
+input.vidi-input:-ms-input-placeholder {
+  color: #98a7b8;
+}
+
+input.vidi-input[readonly] {
+  background: #ffffff !important;
+  border: 1px solid #eaedf0 !important;
+  cursor: not-allowed;
+}
