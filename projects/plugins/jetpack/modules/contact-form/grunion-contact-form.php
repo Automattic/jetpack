@@ -4118,13 +4118,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_width       = $this->get_attribute( 'width' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		if ( ! empty( $this->get_attribute( 'borderradius' ) ) || $this->get_attribute( 'borderradius' ) === 0 ) {
+		if ( ! empty( $this->get_attribute( 'borderradius' ) ) || is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
 			$this->field_styles = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
 		}
-		if ( ! empty( $this->get_attribute( 'borderwidth' ) ) || $this->get_attribute( 'borderwidth' ) === 0 ) {
+		if ( ! empty( $this->get_attribute( 'borderwidth' ) ) || is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
 			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
-		if ( ! empty( $this->get_attribute( 'lineheight' ) ) || $this->get_attribute( 'lineheight' ) === 0 ) {
+		if ( ! empty( $this->get_attribute( 'lineheight' ) ) || is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
 			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
