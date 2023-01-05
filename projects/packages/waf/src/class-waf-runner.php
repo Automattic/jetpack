@@ -401,7 +401,7 @@ class Waf_Runner {
 		self::initialize_filesystem();
 
 		// If the rules file doesn't exist, there's nothing else to do.
-		if ( $wp_filesystem->exists( self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE ) ) ) {
+		if ( ! $wp_filesystem->exists( self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE ) ) ) {
 			return;
 		}
 
