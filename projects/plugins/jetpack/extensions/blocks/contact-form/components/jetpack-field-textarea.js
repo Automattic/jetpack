@@ -6,13 +6,22 @@ import JetpackFieldLabel from './jetpack-field-label';
 export default function JetpackFieldTextarea( props ) {
 	const { id, required, label, setAttributes, placeholder, width, attributes } = props;
 
-	const divStyle = {
+	const blockStyle = {
 		backgroundColor: attributes.blockBackgroundColor,
+		lineHeight: attributes.lineHeight,
+	};
+
+	const fieldStyle = {
+		backgroundColor: attributes.fieldBackgroundColor,
+		borderWidth: attributes.borderWidth,
+		lineHeight: attributes.lineHeight,
+		color: attributes.inputColor,
+		fontSize: attributes.fieldFontSize,
 	};
 
 	return (
 		<>
-			<div style={ divStyle } className="jetpack-field">
+			<div style={ blockStyle } className="jetpack-field">
 				<JetpackFieldLabel
 					required={ required }
 					label={ label }
@@ -25,14 +34,7 @@ export default function JetpackFieldTextarea( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ {
-							borderRadius: attributes.borderRadius,
-							borderWidth: attributes.borderWidth,
-							lineHeight: attributes.lineHeight,
-							borderColor: attributes.borderColor,
-							color: attributes.inputColor,
-							backgroundColor: attributes.fieldBackgroundColor,
-						} }
+						style={ fieldStyle }
 					/>
 				</Disabled>
 			</div>

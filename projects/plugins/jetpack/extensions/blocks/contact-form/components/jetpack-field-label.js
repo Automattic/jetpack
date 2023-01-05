@@ -10,9 +10,15 @@ const JetpackFieldLabel = ( {
 	required,
 	attributes,
 } ) => {
+	const labelStyle = {
+		lineHeight: attributes.lineHeight,
+		color: attributes.labelColor,
+		fontSize: attributes.labelFontSize,
+	};
+
 	return (
 		<div className="jetpack-field-label">
-			<div style={ { color: attributes.labelColor } }>
+			<div style={ labelStyle }>
 				<RichText
 					tagName="label"
 					value={ label }

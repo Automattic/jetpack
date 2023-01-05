@@ -60,17 +60,12 @@ function JetpackFieldMultiple( props ) {
 		lineHeight: attributes.lineHeight,
 	};
 
-	const labelStyle = {
-		backgroundColor: attributes.blockBackgroundColor,
-		lineHeight: attributes.lineHeight,
-		color: attributes.labelColor,
-	};
-
 	const fieldStyle = {
 		backgroundColor: attributes.fieldBackgroundColor,
 		borderWidth: attributes.borderWidth,
 		lineHeight: attributes.lineHeight,
 		color: attributes.inputColor,
+		fontSize: attributes.fieldFontSize,
 	};
 
 	return (
@@ -87,7 +82,6 @@ function JetpackFieldMultiple( props ) {
 							isSelected={ isSelected }
 							resetFocus={ () => setInFocus( null ) }
 							attributes={ attributes }
-							style={ labelStyle }
 						/>
 					}
 				>

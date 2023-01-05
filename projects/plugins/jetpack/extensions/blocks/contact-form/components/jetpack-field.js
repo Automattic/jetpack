@@ -8,13 +8,14 @@ import JetpackFieldLabel from './jetpack-field-label';
 export default function JetpackField( props ) {
 	const { id, type, required, label, setAttributes, placeholder, width, attributes } = props;
 
-	const divStyle = {
+	const blockStyle = {
 		backgroundColor: attributes.blockBackgroundColor,
+		lineHeight: attributes.lineHeight,
 	};
 
 	return (
 		<>
-			<div className="jetpack-field" style={ divStyle }>
+			<div className="jetpack-field" style={ blockStyle }>
 				<JetpackFieldLabel
 					required={ required }
 					label={ label }
