@@ -117,6 +117,7 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 		$this->assertSame( 'import.php', array_pop( $submenu['tools.php'] )[2] );
 
 		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
 		$this->assertSame( 'https://wordpress.com/advertising/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
 	}
 
