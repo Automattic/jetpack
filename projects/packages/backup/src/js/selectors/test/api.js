@@ -1,93 +1,89 @@
 import selectors from '../api';
 
 describe( 'apiSelectors', () => {
+	const fixtures = {
+		emptyObjectAPIState: {
+			API: {},
+		},
+		dummyValueAPIState: {
+			API: {
+				dummyItem: 'dummyValue',
+			},
+		},
+	};
+
 	describe( 'getAPIRoot()', () => {
-		it( 'should return null when API state is an empty object', () => {
-			const state = {
-				API: {},
-			};
-			const output = selectors.getAPIRoot( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return null when API state does not include WP_API_root', () => {
-			const state = {
-				API: {
-					dummyItem: 'dummyValue',
+		it.each( [
+			{
+				state: fixtures.emptyObjectAPIState,
+				expected: null,
+			},
+			{
+				state: fixtures.dummyValueAPIState,
+				expected: null,
+			},
+			{
+				state: {
+					API: {
+						WP_API_root: 'https://wordpress.com/wp-json/',
+					},
 				},
-			};
+				expected: 'https://wordpress.com/wp-json/',
+			},
+		] )( 'should return WP_API_root value if passed, null otherwise', ( { state, expected } ) => {
 			const output = selectors.getAPIRoot( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return WP_API_root value if API object includes it', () => {
-			const state = {
-				API: {
-					WP_API_root: 'https://wordpress.com/wp-json/',
-				},
-			};
-			const output = selectors.getAPIRoot( state );
-			expect( output ).toBe( 'https://wordpress.com/wp-json/' );
+			expect( output ).toBe( expected );
 		} );
 	} );
 
 	describe( 'getAPINonce()', () => {
-		it( 'should return null when API state is an empty object', () => {
-			const state = {
-				API: {},
-			};
-			const output = selectors.getAPINonce( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return null when API state does not include WP_API_nonce', () => {
-			const state = {
-				API: {
-					dummyItem: 'dummyValue',
+		it.each( [
+			{
+				state: fixtures.emptyObjectAPIState,
+				expected: null,
+			},
+			{
+				state: fixtures.dummyValueAPIState,
+				expected: null,
+			},
+			{
+				state: {
+					API: {
+						WP_API_nonce: 123456,
+					},
 				},
-			};
+				expected: 123456,
+			},
+		] )( 'should return WP_API_nonce value if passed, null otherwise', ( { state, expected } ) => {
 			const output = selectors.getAPINonce( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return WP_API_nonce value if API object includes it', () => {
-			const state = {
-				API: {
-					WP_API_nonce: 123456,
-				},
-			};
-			const output = selectors.getAPINonce( state );
-			expect( output ).toBe( 123456 );
+			expect( output ).toBe( expected );
 		} );
 	} );
 
 	describe( 'getRegistrationNonce()', () => {
-		it( 'should return null when API state is an empty object', () => {
-			const state = {
-				API: {},
-			};
-			const output = selectors.getRegistrationNonce( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return null when API state does not include registrationNonce', () => {
-			const state = {
-				API: {
-					dummyItem: 'dummyValue',
+		it.each( [
+			{
+				state: fixtures.emptyObjectAPIState,
+				expected: null,
+			},
+			{
+				state: fixtures.dummyValueAPIState,
+				expected: null,
+			},
+			{
+				state: {
+					API: {
+						registrationNonce: 123456,
+					},
 				},
-			};
-			const output = selectors.getRegistrationNonce( state );
-			expect( output ).toBeNull();
-		} );
-
-		it( 'should return registrationNonce value if API object includes it', () => {
-			const state = {
-				API: {
-					registrationNonce: 123456,
-				},
-			};
-			const output = selectors.getRegistrationNonce( state );
-			expect( output ).toBe( 123456 );
-		} );
+				expected: 123456,
+			},
+		] )(
+			'should return registrationNonce value if passed, null otherwise',
+			( { state, expected } ) => {
+				const output = selectors.getRegistrationNonce( state );
+				expect( output ).toBe( expected );
+			}
+		);
 	} );
 } );
