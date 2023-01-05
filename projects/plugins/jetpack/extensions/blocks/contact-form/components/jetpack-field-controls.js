@@ -97,6 +97,11 @@ const JetpackFieldControls = ( {
 							label: __( 'Field Background', 'jetpack' ),
 						},
 						{
+							value: attributes.blockBorderColor,
+							onChange: value => setAttributes( { borderColor: value } ),
+							label: __( 'Field Border', 'jetpack' ),
+						},
+						{
 							value: attributes.blockBackgroundColor,
 							onChange: value => setAttributes( { blockBackgroundColor: value } ),
 							label: __( 'Block Background', 'jetpack' ),
