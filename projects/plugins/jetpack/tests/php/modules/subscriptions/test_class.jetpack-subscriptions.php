@@ -311,11 +311,16 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 			} else {
 				wp_set_current_user( 0 );
 			}
-			$online_subscription_service = new WPCOM_Online_Subscription_Service();
-			$result                      = $online_subscription_service->visitor_can_view_content(
+			// phpcs:ignore PHPCompatibility.Classes.NewAnonymousClasses.Found
+			$online_subscription_service = ( new class($logged, $is_blog_subscriber) extends WPCOM_Online_Subscription_Service{
+				public function __construct( $logged, $is_blog_subscriber ) {
+					$this->is_blog_subscriber = $logged && $is_blog_subscriber;
+				}
+			} );
+			// phpcs:ignore PHPCompatibility.Classes.NewAnonymousClasses.Found
+			$result = $online_subscription_service->visitor_can_view_content(
 				array( $this->plan_id ),
-				$post_access_level,
-				$logged && $is_blog_subscriber
+				$post_access_level
 			);
 		}
 

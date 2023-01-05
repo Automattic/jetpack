@@ -15,6 +15,13 @@ namespace Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service;
 class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service {
 
 	/**
+	 * Used for testing?
+	 *
+	 * @var bool
+	 */
+	protected $is_blog_subscriber = null;
+
+	/**
 	 * Is available()
 	 *
 	 * @return bool
@@ -29,11 +36,11 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 *
 	 * @param array  $valid_plan_ids .
 	 * @param string $access_level .
-	 * @param bool   $is_blog_subscriber .
 	 *
 	 * @return bool
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber = null ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+		$is_blog_subscriber = $this->is_blog_subscriber();
 		if ( null === $is_blog_subscriber ) {
 			include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
 			$email             = wp_get_current_user()->user_email;
