@@ -154,21 +154,6 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'github.com'        => 'github',
 			'instagram.com'     => 'instagram',
 			'linkedin.com'      => 'linkedin',
-			'mastodon.social'   => 'mastodon',
-			'pawoo.net'         => 'mastodon',
-			'mstdn.jp'          => 'mastodon',
-			'mastodon.cloud'    => 'mastodon',
-			'mstdn.social'      => 'mastodon',
-			'mastodon.online'   => 'mastodon',
-			'counter.social'    => 'mastodon',
-			'mas.to'            => 'mastodon',
-			'mastodon.world'    => 'mastodon',
-			'gc2.jp'            => 'mastodon',
-			'mastodon.lol'      => 'mastodon',
-			'fosstodon.org'     => 'mastodon',
-			'hachyderm.io'      => 'mastodon',
-			'infosec.exchange'  => 'mastodon',
-			'mastodon.art'      => 'mastodon',
 			'mailto:'           => 'mail',
 			'meetup.com'        => 'meetup',
 			'medium.com'        => 'medium',
@@ -201,6 +186,14 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'xanga.com'         => 'xanga',
 			'youtube.com'       => 'youtube',
 		);
+
+		/*
+		 * Add Mastodon instances to this array.
+		 */
+		$mastodon_instance_list = jetpack_mastodon_get_instance_list();
+		foreach ( $mastodon_instance_list as $instance ) {
+			$social_links_icons[ $instance ] = 'mastodon';
+		}
 
 		return $social_links_icons;
 	}
