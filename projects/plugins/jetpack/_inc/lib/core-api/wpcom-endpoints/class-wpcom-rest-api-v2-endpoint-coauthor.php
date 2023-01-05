@@ -32,12 +32,6 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->is_wpcom = true;
-
-			// On WordPress.com, we can get the data in a more straightforward way.
-			// We'll have a helper class there to do just that.
-			if ( ! class_exists( 'WPCOM_Coauthor' ) ) {
-				\require_lib( 'coauthor' );
-			}
 		}
 
 		if ( ! class_exists( 'Jetpack_Coauthor_Helper' ) ) {

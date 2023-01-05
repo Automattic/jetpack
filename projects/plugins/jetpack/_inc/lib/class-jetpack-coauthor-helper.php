@@ -86,24 +86,20 @@ class Jetpack_Coauthor_Helper {
 			);
 		}
 
+		$content = strip_tags( $content );
 		$site_id = self::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( ! class_exists( 'WPCOM_Coauthor' ) ) {
-				\require_lib( 'coauthor' );
+			if ( ! class_exists( 'OpenAI' ) ) {
+				\require_lib( 'openai' );
 			}
 
-			return WPCOM_Coauthor::get_gpt_completion( $content );
+			return ( new OpenAI( 'openai' ) )->request_gpt_completion( $content );
 		}
 
-		/*
-		 * I've taken the example of a request by site
-		 * but this may need to be updated
-		 * if we want this to be a user thing.
-		 */
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/coauthor/completions', $site_id ),
 			2,
@@ -144,18 +140,13 @@ class Jetpack_Coauthor_Helper {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( ! class_exists( 'WPCOM_Coauthor' ) ) {
-				\require_lib( 'coauthor' );
+			if ( ! class_exists( 'OpenAI' ) ) {
+				\require_lib( 'openai' );
 			}
 
-			return WPCOM_Coauthor::get_dalle_generation( $prompt );
+			return ( new OpenAI( 'openai' ) )->request_dalle_generation( $prompt );
 		}
 
-		/*
-		 * I've taken the example of a request by site
-		 * but this may need to be updated
-		 * if we want this to be a user thing.
-		 */
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/coauthor/images', $site_id ),
 			2,
