@@ -503,6 +503,8 @@ class Jetpack_Media {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Clean revision history when the media item is deleted.
  *

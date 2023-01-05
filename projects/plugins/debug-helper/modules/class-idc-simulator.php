@@ -514,6 +514,8 @@ class IDC_Simulator {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 add_action( 'plugins_loaded', 'register_idc_simulator', 1000 );
 
 /**

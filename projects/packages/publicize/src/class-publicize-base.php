@@ -1595,6 +1595,8 @@ abstract class Publicize_Base {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Get Calypso URL for Publicize connections.
  *

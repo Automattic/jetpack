@@ -6,6 +6,8 @@
  * First Introduced: 1.2
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
 /**
  * Register the widget for use in Appearance -> Widgets
