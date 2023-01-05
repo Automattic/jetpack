@@ -371,7 +371,7 @@ class The_Neverending_Home_Page {
 		 * @param object    self::wp_query()     WP_Query object for current request
 		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
-		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() ); // phpcs:ignore WordPress.WP.ClassNameCase.Incorrect -- False positive.
 		if ( is_bool( $override ) ) {
 			return $override;
 		}

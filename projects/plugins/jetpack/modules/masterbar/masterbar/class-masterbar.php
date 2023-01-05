@@ -1289,8 +1289,7 @@ class Masterbar {
 				)
 			);
 			$meta        = array(
-				'class' => 'mb-icon',
-				'class' => 'inline-action',
+				'class' => 'mb-icon inline-action',
 			);
 			$href        = false;
 

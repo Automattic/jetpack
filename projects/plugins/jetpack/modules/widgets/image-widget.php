@@ -188,7 +188,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$height                 = $size[1];
 				$instance['img_height'] = absint( $height );
 
-				unlink( $tmp_file );
+				wp_delete_file( $tmp_file );
 			} else {
 				$instance['img_width']  = $new_img_width;
 				$instance['img_height'] = $new_img_height;
