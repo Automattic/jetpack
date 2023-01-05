@@ -12,12 +12,13 @@
 	padding: 1em;
 	margin: 0 -1em -1em;
 	min-height: 27px;
+	gap: 16px;
 
 	&__file-info {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		flex-wrap: 2;
+		flex-grow: 2;
 		gap: 10px;
 	}
 
