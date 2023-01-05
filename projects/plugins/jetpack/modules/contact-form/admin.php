@@ -1351,13 +1351,7 @@ class Grunion_Admin {
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
 
 		if ( $has_valid_connection ) {
-			$button_html = get_submit_button(
-				esc_html__( 'Export', 'jetpack' ),
-				'primary export-button export-gdrive',
-				'jetpack-export-feedback-gdrive',
-				false,
-				array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
-			);
+			$button_html = $this->get_gdrive_export_button_markup();
 		} else {
 			$slug        = 'jetpack-form-responses-connect';
 			$button_html = sprintf(
@@ -1432,13 +1426,7 @@ class Grunion_Admin {
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
 
 		$replacement_html = $has_valid_connection
-			? get_submit_button(
-				esc_html__( 'Export', 'jetpack' ),
-				'primary export-button export-gdrive',
-				'jetpack-export-feedback-gdrive',
-				false,
-				array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
-			)
+			? $this->get_gdrive_export_button_markup()
 			: '';
 
 		wp_send_json(
@@ -1446,6 +1434,21 @@ class Grunion_Admin {
 				'connection' => $has_valid_connection,
 				'html'       => $replacement_html,
 			)
+		);
+	}
+
+	/**
+	 * Markup helper so we DRY, returns the button markup for the export to GDrive feature.
+	 *
+	 * @return string The HTML button markup
+	 */
+	public function get_gdrive_export_button_markup() {
+		return get_submit_button(
+			esc_html__( 'Export', 'jetpack' ),
+			'primary export-button export-gdrive',
+			'jetpack-export-feedback-gdrive',
+			false,
+			array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
 		);
 	}
 }
