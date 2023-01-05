@@ -29,22 +29,19 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 *
 	 * @param array  $valid_plan_ids .
 	 * @param string $access_level .
-	 * @param bool   $is_blog_subscriber .
 	 *
 	 * @return bool
 	 */
-	public function visitor_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber = null ) {
-		if ( null === $is_blog_subscriber ) {
-			include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
-			$email             = wp_get_current_user()->user_email;
-			$subscriber_object = \Blog_Subscriber::get( $email );
-			if ( $subscriber_object ) {
-				$blog_id             = $this->get_site_id();
-				$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
-				$is_blog_subscriber  = 'active' === $subscription_status;
-			} else {
-				$is_blog_subscriber = false;
-			}
+	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
+		include_once WP_CONTENT_DIR . '/mu-plugins/email-subscriptions/subscriptions.php';
+		$email             = wp_get_current_user()->user_email;
+		$subscriber_object = \Blog_Subscriber::get( $email );
+
+		$is_blog_subscriber = false;
+		if ( $subscriber_object ) {
+			$blog_id             = $this->get_site_id();
+			$subscription_status = \Blog_Subscription::get_subscription_status_for_blog( $subscriber_object, $blog_id );
+			$is_blog_subscriber  = 'active' === $subscription_status;
 		}
 
 		return $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, get_the_ID() );
