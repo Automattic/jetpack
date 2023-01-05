@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fixed bugs
+Fixed the WAF package's PHP tests and Composer requirements
