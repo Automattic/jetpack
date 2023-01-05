@@ -397,7 +397,7 @@ class Grunion_Contact_Form_Plugin {
 		wp_enqueue_script(
 			'contact-form-styles',
 			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);
