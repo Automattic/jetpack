@@ -212,15 +212,17 @@ const UploaderProgress = ( {
 										</Button>
 									</div>
 								) }
-								{ supportPauseOrResume && (
-									<div className="videopress-uploader-progress__actions">
-										{ roundedProgress < 100 && (
-											<Button variant="link" onClick={ onPauseOrResume }>
-												{ paused ? resumeText : pauseText }
-											</Button>
-										) }
-									</div>
-								) }
+								<div className="videopress-uploader-progress__actions">
+									{ roundedProgress < 100 && (
+										<Button
+											variant="link"
+											onClick={ onPauseOrResume }
+											disabled={ ! supportPauseOrResume }
+										>
+											{ paused ? resumeText : pauseText }
+										</Button>
+									) }
+								</div>
 							</>
 						) : (
 							<>
