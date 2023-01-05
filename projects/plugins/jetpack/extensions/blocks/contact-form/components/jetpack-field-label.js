@@ -25,7 +25,7 @@ const JetpackFieldLabel = ( {
 						}
 						setAttributes( { label: value } );
 					} }
-					placeholder={ placeholder ?? __( 'Add label…', 'jetpack' ) }
+					placeholder={ placeholder || __( 'Add label…', 'jetpack' ) }
 					withoutInteractiveFormatting
 					allowedFormats={ [ 'core/bold', 'core/italic' ] }
 				/>
