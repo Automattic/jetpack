@@ -389,14 +389,12 @@ class Waf_Runtime {
 	public function flag_target_for_removal( $id_or_tag, $id_or_tag_value, $name, $prop = null ) {
 		if ( null === $prop ) {
 			$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] = true;
-		} else {
-			if (
-				! isset( $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] )
-				// if the entire target is already being removed then it would be redundant to remove a single property.
-				|| true !== $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ]
-			) {
-				$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ][] = $prop;
-			}
+		} elseif (
+			! isset( $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] )
+			// if the entire target is already being removed then it would be redundant to remove a single property.
+			|| true !== $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ]
+		) {
+			$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ][] = $prop;
 		}
 	}
 
@@ -759,10 +757,8 @@ class Waf_Runtime {
 				if ( 1 === preg_match( $p, $input ) ) {
 					return true;
 				}
-			} else {
-				if ( 0 === strcasecmp( $p, $input ) ) {
-					return true;
-				}
+			} elseif ( 0 === strcasecmp( $p, $input ) ) {
+				return true;
 			}
 		}
 

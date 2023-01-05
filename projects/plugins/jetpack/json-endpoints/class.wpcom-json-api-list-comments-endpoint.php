@@ -89,7 +89,6 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 
 			unset( $children_elements[ $id ] );
 		}
-
 	}
 }
 
@@ -278,10 +277,8 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			if ( $args['page'] < 1 ) {
 				$args['page'] = 1;
 			}
-		} else {
-			if ( $args['offset'] < 0 ) {
-				$args['offset'] = 0;
-			}
+		} elseif ( $args['offset'] < 0 ) {
+			$args['offset'] = 0;
 		}
 
 		if ( ! $args['hierarchical'] ) {

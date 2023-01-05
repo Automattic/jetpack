@@ -146,7 +146,6 @@ class Dashboard {
 			$this->get_config_data_js(),
 			'before'
 		);
-
 	}
 
 	/**

@@ -520,7 +520,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			<?php
 
 		}
-
 	}
 
 	/**

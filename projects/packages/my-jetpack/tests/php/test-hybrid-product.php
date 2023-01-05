@@ -53,7 +53,6 @@ class Test_Hybrid_Product extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
-
 	}
 
 	/**
@@ -82,7 +81,6 @@ class Test_Hybrid_Product extends TestCase {
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
-
 	}
 
 	/**

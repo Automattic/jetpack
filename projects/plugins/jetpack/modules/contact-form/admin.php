@@ -1087,7 +1087,7 @@ function grunion_delete_spam_feedbacks() {
 	foreach ( $spam_feedbacks as $feedback ) {
 		wp_delete_post( $feedback->ID, true );
 
-		$deleted_feedbacks++;
+		++$deleted_feedbacks;
 	}
 
 	wp_send_json(
@@ -1267,7 +1267,7 @@ class Grunion_Admin {
 
 		$sheet_data = array( $fields );
 
-		for ( $i = 0; $i < $row_count; $i ++ ) {
+		for ( $i = 0; $i < $row_count; $i++ ) {
 
 			$current_row = array();
 
