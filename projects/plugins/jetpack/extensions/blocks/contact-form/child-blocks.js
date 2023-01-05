@@ -55,6 +55,14 @@ const FieldDefaults = {
 			type: 'number',
 			default: 1,
 		},
+		labelFontSize: {
+			type: 'string',
+			default: undefined,
+		},
+		fieldFontSize: {
+			type: 'string',
+			default: undefined,
+		},
 		lineHeight: {
 			type: 'number',
 			default: 1.5,
@@ -195,6 +203,7 @@ const editField = type => props => {
 
 	return (
 		<JetpackField
+			clientId={ props.clientId }
 			type={ type }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
@@ -214,6 +223,7 @@ const editMultiField = type => props => {
 
 	return (
 		<JetpackFieldMultiple
+			clientId={ props.clientId }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			options={ props.attributes.options }

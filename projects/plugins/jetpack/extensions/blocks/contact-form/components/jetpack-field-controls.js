@@ -1,6 +1,8 @@
 import {
+	FontSizePicker,
 	InspectorAdvancedControls,
 	InspectorControls,
+	LineHeightControl,
 	BlockControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
@@ -19,12 +21,12 @@ import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
+	attributes,
+	id,
+	placeholder,
+	required,
 	setAttributes,
 	width,
-	id,
-	required,
-	placeholder,
-	attributes,
 } ) => {
 	return (
 		<>
@@ -101,29 +103,55 @@ const JetpackFieldControls = ( {
 						},
 					] }
 				></PanelColorSettings>
-				<PanelBody title={ __( 'Typography', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Line Height', 'jetpack' ) }
+				<PanelBody
+					title={ __( 'Typography', 'jetpack' ) }
+					initialOpen={
+						attributes.labelFontSize || attributes.fieldFontSize || attributes.lineHeight
+					}
+				>
+					<FontSizePicker
+						withSlider
+						withReset={ true }
+						size="__unstable-large"
+						__nextHasNoMarginBottom
+						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+						value={ attributes.labelFontSize }
+					/>
+					<FontSizePicker
+						withSlider
+						withReset={ true }
+						size="__unstable-large"
+						__nextHasNoMarginBottom
+						onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
+						value={ attributes.fieldFontSize }
+					/>
+					<LineHeightControl
+						__unstableInputWidth="100%"
+						__nextHasNoMarginBottom={ true }
 						value={ attributes.lineHeight }
-						onChange={ value => setAttributes( { lineHeight: parseFloat( value, 10 ) || 1.5 } ) }
-						type="number"
-						style={ { marginLeft: '15px', width: '25%' } }
+						onChange={ lineHeight =>
+							setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || 1.5 } )
+						}
+						size="__unstable-large"
 					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Border', 'jetpack' ) }>
+				<PanelBody
+					title={ __( 'Border', 'jetpack' ) }
+					initialOpen={ attributes.borderWidth || attributes.borderRadius }
+				>
+					<TextControl
+						label={ __( 'Width', 'jetpack' ) }
+						value={ attributes.borderWidth }
+						onChange={ borderWidth =>
+							setAttributes( { borderWidth: parseInt( borderWidth, 10 ) } )
+						}
+					/>
 					<TextControl
 						label={ __( 'Radius', 'jetpack' ) }
 						value={ attributes.borderRadius }
-						onChange={ value => setAttributes( { borderRadius: parseInt( value, 10 ) || 0 } ) }
-						type="number"
-						style={ { marginLeft: '15px', width: '25%' } }
-					/>
-					<TextControl
-						label={ __( 'Line', 'jetpack' ) }
-						value={ attributes.borderWidth }
-						onChange={ value => setAttributes( { borderWidth: parseInt( value, 10 ) || 1 } ) }
-						type="number"
-						style={ { marginLeft: '15px', width: '25%' } }
+						onChange={ borderRadius =>
+							setAttributes( { borderRadius: parseInt( borderRadius, 10 ) } )
+						}
 					/>
 				</PanelBody>
 			</InspectorControls>
