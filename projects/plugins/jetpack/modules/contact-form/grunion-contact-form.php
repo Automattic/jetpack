@@ -4584,8 +4584,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field .= "\t</select>\n";
 
 		wp_enqueue_style(
-			'jquery-ui-css',
-			plugins_url( 'css/jquery-ui.css', __FILE__ ),
+			'jquery-ui-selectmenu',
+			plugins_url( 'css/jquery-ui-selectmenu.css', __FILE__ ),
 			array(),
 			'1.13.2'
 		);
