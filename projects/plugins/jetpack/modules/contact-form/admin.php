@@ -1428,7 +1428,9 @@ class Grunion_Admin {
 			return;
 		}
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		if ( ! class_exists( 'Jetpack_Google_Drive_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
+		}
 		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
 
 		$replacement_html = $has_valid_connection
