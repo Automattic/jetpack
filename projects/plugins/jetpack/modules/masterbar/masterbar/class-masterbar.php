@@ -620,7 +620,6 @@ class Masterbar {
 				),
 			)
 		);
-
 	}
 
 	/**

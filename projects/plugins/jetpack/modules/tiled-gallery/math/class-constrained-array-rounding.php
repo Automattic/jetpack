@@ -76,7 +76,7 @@ class Jetpack_Constrained_Array_Rounding {
 		$length = count( $bound_array_int );
 
 		for ( $i = $start; $i <= $end; $i++ ) {
-			$bound_array_int[ $i % $length ]['floor']++;
+			++$bound_array_int[ $i % $length ]['floor'];
 		}
 
 		usort( $bound_array_int, array( 'self', 'cmp_asc_index' ) );

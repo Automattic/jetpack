@@ -89,7 +89,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( isset( $empty['posts'] ) );
 		$this->assertFalse( isset( $empty['comments'] ) );
-
 	}
 
 	// this only applies to the test replicastore - in production we overlay data
@@ -537,7 +536,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		Settings::reset_data();
 		$this->full_sync->reset_data();
-
 	}
 
 	// phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_only_current_blog_users_in_multisite
@@ -695,7 +693,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
 		$this->assertEmpty( $events );
-
 	}
 
 	public function test_full_sync_sends_all_options() {

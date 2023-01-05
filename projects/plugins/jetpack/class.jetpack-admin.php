@@ -147,7 +147,6 @@ class Jetpack_Admin {
 			$hook = add_theme_page( __( 'CSS', 'jetpack' ), __( 'Additional CSS', 'jetpack' ), 'edit_theme_options', 'editcss-theme-enhancements-redirect', array( __CLASS__, 'theme_enhancements_redirect' ) );
 			add_action( "load-{$hook}", array( __CLASS__, 'theme_enhancements_redirect' ) );
 		}
-
 	}
 
 	/**
@@ -413,7 +412,6 @@ class Jetpack_Admin {
 		}
 
 		return Jetpack_Plan::supports( $module['module'] );
-
 	}
 
 	/**

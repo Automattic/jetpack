@@ -483,13 +483,11 @@ function jetpack_shortcode_youtube_dimensions( $query_args ) {
 	} elseif ( $input_w > 0 ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 );
+	} elseif ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
+		$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
 	} else {
-		if ( isset( $query_args['fmt'] ) && (int) $query_args['fmt'] ) {
-			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		} else {
-			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-			$h = $input_h;
-		}
+		$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+		$h = $input_h;
 	}
 
 	/**

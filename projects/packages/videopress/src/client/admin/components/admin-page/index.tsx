@@ -95,8 +95,12 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
+		const numPlaceholders = Math.max(
+			1, // at least one placeholder
+			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
+		);
 		// Use generated ID to work with React Key
-		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
+		videos = new Array( numPlaceholders ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {

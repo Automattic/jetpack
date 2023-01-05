@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Speed_Score_Request to use Boost_API client, which will allow mocking requests to wp.com easier.

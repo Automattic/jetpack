@@ -403,7 +403,6 @@ abstract class Product {
 		$result = apply_filters( "my_jetpack_{$product_slug}_activation", $result );
 
 		return $result;
-
 	}
 
 	/**
