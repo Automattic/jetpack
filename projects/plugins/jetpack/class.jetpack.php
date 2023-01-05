@@ -127,18 +127,6 @@ class Jetpack {
 	 * @var array Plugins to deactivate by module.
 	 */
 	public $plugins_to_deactivate = array(
-		'stats'               => array(
-			array( 'stats/stats.php', 'WordPress.com Stats' ),
-		),
-		'shortlinks'          => array(
-			array( 'stats/stats.php', 'WordPress.com Stats' ),
-		),
-		'sharedaddy'          => array(
-			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
-		),
-		'twitter-widget'      => array(
-			array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		),
 		'contact-form'        => array(
 			array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 			array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
@@ -146,8 +134,27 @@ class Jetpack {
 		'custom-css'          => array(
 			array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
 		),
+		'gravatar-hovercards' => array(
+			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		),
+		'latex'               => array(
+			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
+		),
 		'random-redirect'     => array(
 			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		),
+		'sharedaddy'          => array(
+			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		),
+		'shortlinks'          => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'stats'               => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'twitter-widget'      => array(
+			array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		),
 		'videopress'          => array(
 			array( 'video/video.php', 'VideoPress' ),
@@ -155,15 +162,6 @@ class Jetpack {
 		'widget-visibility'   => array(
 			array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
 			array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		),
-		'sharedaddy'          => array(
-			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		),
-		'gravatar-hovercards' => array(
-			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		),
-		'latex'               => array(
-			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 		),
 	);
 
