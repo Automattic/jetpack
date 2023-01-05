@@ -1,4 +1,4 @@
-window.addEventListener("load", () => {
+window.addEventListener( 'load', () => {
 	const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 	const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
 
@@ -16,12 +16,13 @@ window.addEventListener("load", () => {
 	setTimeout( () => {
 		generateStyleVariables( FRONTEND_SELECTOR );
 		generateStyleVariables( EDITOR_SELECTOR );
-	}, 300 )
-});
+	}, 300 );
+} );
 
 function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
-	const STYLE_PROBE_STYLE = 'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
+	const STYLE_PROBE_STYLE =
+		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
 	const HTML = `
 		<div class="contact-form" style="">
 			<div class="wp-block-button is-style-outline">
@@ -36,7 +37,10 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
 	const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
 
-	if ( ! doc.querySelectorAll( selector ).length || doc.querySelectorAll( `.${ STYLE_PROBE_CLASS }` ).length ) {
+	if (
+		! doc.querySelectorAll( selector ).length ||
+		doc.querySelectorAll( `.${ STYLE_PROBE_CLASS }` ).length
+	) {
 		return;
 	}
 

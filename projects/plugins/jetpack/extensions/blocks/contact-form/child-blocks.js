@@ -166,6 +166,58 @@ const editMultiField = type => props => {
 	);
 };
 
+const EditTextarea = props => {
+	useFormWrapper( props );
+
+	return (
+		<JetpackFieldTextarea
+			label={ props.attributes.label }
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+		/>
+	);
+};
+
+const EditCheckbox = props => {
+	useFormWrapper( props );
+
+	return (
+		<JetpackFieldCheckbox
+			label={ props.attributes.label } // label intentionally left blank
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+		/>
+	);
+};
+
+const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
+	useFormWrapper( { attributes, clientId, name } );
+
+	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
+	return (
+		<JetpackFieldConsent
+			id={ id }
+			isSelected={ isSelected }
+			width={ width }
+			consentType={ consentType }
+			implicitConsentMessage={ implicitConsentMessage }
+			explicitConsentMessage={ explicitConsentMessage }
+			setAttributes={ setAttributes }
+		/>
+	);
+};
+
 export const childBlocks = [
 	{
 		name: 'field-text',
@@ -333,23 +385,7 @@ export const childBlocks = [
 					d="M20 5H4V6.5H20V5ZM5.5 11.5H18.5V18.5H5.5V11.5ZM20 20V10H4V20H20Z"
 				/>
 			),
-			edit: props => {
-				useFormWrapper( props );
-
-				return (
-					<JetpackFieldTextarea
-						label={ props.attributes.label }
-						required={ props.attributes.required }
-						requiredText={ props.attributes.requiredText }
-						setAttributes={ props.setAttributes }
-						isSelected={ props.isSelected }
-						defaultValue={ props.attributes.defaultValue }
-						placeholder={ props.attributes.placeholder }
-						id={ props.attributes.id }
-						width={ props.attributes.width }
-					/>
-				);
-			},
+			edit: EditTextarea,
 			attributes: {
 				...FieldDefaults.attributes,
 			},
@@ -369,22 +405,7 @@ export const childBlocks = [
 					d="M6.125 6H17.875C17.944 6 18 6.05596 18 6.125V17.875C18 17.944 17.944 18 17.875 18H6.125C6.05596 18 6 17.944 6 17.875V6.125C6 6.05596 6.05596 6 6.125 6ZM4.5 6.125C4.5 5.22754 5.22754 4.5 6.125 4.5H17.875C18.7725 4.5 19.5 5.22754 19.5 6.125V17.875C19.5 18.7725 18.7725 19.5 17.875 19.5H6.125C5.22754 19.5 4.5 18.7725 4.5 17.875V6.125ZM10.5171 16.4421L16.5897 8.71335L15.4103 7.78662L10.4828 14.0579L8.57616 11.7698L7.42383 12.7301L10.5171 16.4421Z"
 				/>
 			),
-			edit: props => {
-				useFormWrapper( props );
-
-				return (
-					<JetpackFieldCheckbox
-						label={ props.attributes.label } // label intentionally left blank
-						required={ props.attributes.required }
-						requiredText={ props.attributes.requiredText }
-						setAttributes={ props.setAttributes }
-						isSelected={ props.isSelected }
-						defaultValue={ props.attributes.defaultValue }
-						id={ props.attributes.id }
-						width={ props.attributes.width }
-					/>
-				);
-			},
+			edit: EditCheckbox,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -438,28 +459,7 @@ export const childBlocks = [
 					default: __( 'Can we send you an email from time to time?', 'jetpack' ),
 				},
 			},
-			edit: ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-				useFormWrapper( { attributes, clientId, name } );
-
-				const {
-					id,
-					width,
-					consentType,
-					implicitConsentMessage,
-					explicitConsentMessage,
-				} = attributes;
-				return (
-					<JetpackFieldConsent
-						id={ id }
-						isSelected={ isSelected }
-						width={ width }
-						consentType={ consentType }
-						implicitConsentMessage={ implicitConsentMessage }
-						explicitConsentMessage={ explicitConsentMessage }
-						setAttributes={ setAttributes }
-					/>
-				);
-			},
+			edit: EditConsent,
 		},
 	},
 	{

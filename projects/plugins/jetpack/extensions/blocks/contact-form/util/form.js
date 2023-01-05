@@ -29,5 +29,6 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 				] )
 			);
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 };
