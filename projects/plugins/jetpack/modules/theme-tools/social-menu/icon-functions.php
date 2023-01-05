@@ -105,7 +105,7 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
 				if (
 					// First Regex.
 					(
-						false !== stripos( $attr, '#' )
+						'#' === substr( $attr, 0, 1 ) && '#' === substr( $attr, -1 )
 						&& preg_match( $attr, $item_output )
 					)
 					// Then, regular host name.
