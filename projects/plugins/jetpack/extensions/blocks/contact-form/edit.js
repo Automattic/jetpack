@@ -10,7 +10,6 @@ import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import {
 	BaseControl,
 	Button,
-	ExternalLink,
 	Modal,
 	PanelBody,
 	SelectControl,
@@ -206,15 +205,22 @@ export function JetpackContactFormEdit( {
 						{ __( 'Explore Form Patterns', 'jetpack' ) }
 					</Button>
 					<div className="form-placeholder__footer-links">
-						<ExternalLink
+						<Button
+							variant="link"
 							className="form-placeholder__external-link"
 							href={ CUSTOMIZING_FORMS_URL }
+							target="_blank"
 						>
-							{ __( 'Learn more about customizing forms.', 'jetpack' ) }
-						</ExternalLink>
-						<ExternalLink className="form-placeholder__external-link" href={ RESPONSES_PATH }>
-							{ __( 'View and export your form responses here.', 'jetpack' ) }
-						</ExternalLink>
+							{ __( 'Learn more about customizing forms', 'jetpack' ) }
+						</Button>
+						<Button
+							variant="link"
+							className="form-placeholder__external-link"
+							href={ RESPONSES_PATH }
+							target="_blank"
+						>
+							{ __( 'View and export your form responses here', 'jetpack' ) }
+						</Button>
 					</div>
 				</div>
 				{ isPatternsModalOpen && (
@@ -246,7 +252,7 @@ export function JetpackContactFormEdit( {
 				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
-				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) } initialOpen={ false }>
 					{ renderSubmissionSettings() }
 				</PanelBody>
 				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
@@ -269,11 +275,11 @@ export function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
-							<PanelBody title={ __( 'CRM Integration', 'jetpack' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM Connection', 'jetpack' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 						) }
-						<PanelBody title={ __( 'Newsletter Integration', 'jetpack' ) } initialOpen={ false }>
+						<PanelBody title={ __( 'Newsletter Connection', 'jetpack' ) } initialOpen={ false }>
 							<NewsletterIntegrationSettings />
 						</PanelBody>
 					</Fragment>

@@ -73,7 +73,6 @@ class WPCOM_Stats {
 		$this->resource = 'summary';
 
 		return $this->fetch_stats( $args );
-
 	}
 
 	/**

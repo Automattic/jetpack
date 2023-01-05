@@ -452,7 +452,6 @@ class IDC_Simulator {
 	 */
 	public function display_sync_disabled_notice() {
 		echo '<div class="notice notice-warning"><p>Sync has been disabled by the Jetpack Debug Helper plugin\'s IDC Simulator module.</p></div>';
-
 	}
 
 	/**

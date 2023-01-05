@@ -31,6 +31,13 @@ class WPCOM_JSON_API {
 	public $endpoints = array();
 
 	/**
+	 * Endpoint being processed.
+	 *
+	 * @var WPCOM_JSON_API_Endpoint
+	 */
+	public $endpoint = null;
+
+	/**
 	 * Token details.
 	 *
 	 * @var array
@@ -419,17 +426,15 @@ class WPCOM_JSON_API {
 			} else {
 				$help_content_type = 'html';
 			}
+		} elseif ( in_array( $this->method, $allowed_methods, true ) ) {
+			// Only serve requested method.
+			$methods                     = array( $this->method );
+			$find_all_matching_endpoints = false;
 		} else {
-			if ( in_array( $this->method, $allowed_methods, true ) ) {
-				// Only serve requested method.
-				$methods                     = array( $this->method );
-				$find_all_matching_endpoints = false;
-			} else {
-				// We don't allow this requested method - find matching endpoints and send 405.
-				$methods                     = $allowed_methods;
-				$find_all_matching_endpoints = true;
-				$four_oh_five                = true;
-			}
+			// We don't allow this requested method - find matching endpoints and send 405.
+			$methods                     = $allowed_methods;
+			$find_all_matching_endpoints = true;
+			$four_oh_five                = true;
 		}
 
 		// Find which endpoint to serve.
@@ -1129,10 +1134,8 @@ class WPCOM_JSON_API {
 			if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
 				return;
 			}
-		} else {
-			if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
-				return;
-			}
+		} elseif ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			return;
 		}
 
 		$this->trapped_error = array(

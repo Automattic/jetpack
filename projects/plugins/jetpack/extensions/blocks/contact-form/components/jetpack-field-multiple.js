@@ -1,6 +1,6 @@
-import { BaseControl, Button } from '@wordpress/components';
+import { Button } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
-import { Fragment, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -12,6 +12,7 @@ function JetpackFieldMultiple( props ) {
 		type,
 		instanceId,
 		required,
+		requiredText,
 		label,
 		setAttributes,
 		isSelected,
@@ -70,59 +71,55 @@ function JetpackFieldMultiple( props ) {
 
 	return (
 		<div style={ blockStyle }>
-			<Fragment>
-				<BaseControl
-					id={ `jetpack-field-multiple-${ instanceId }` }
-					className="jetpack-field jetpack-field-multiple"
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-							resetFocus={ () => setInFocus( null ) }
-							attributes={ attributes }
-						/>
-					}
-				>
-					<ol
-						className="jetpack-field-multiple__list"
-						id={ `jetpack-field-multiple-${ instanceId }` }
-					>
-						{ options.map( ( option, index ) => (
-							<JetpackOption
-								type={ type }
-								key={ index }
-								option={ option }
-								index={ index }
-								onChangeOption={ onChangeOption }
-								onAddOption={ addNewOption }
-								isInFocus={ index === inFocus && isSelected }
-								isSelected={ isSelected }
-								style={ fieldStyle }
-							/>
-						) ) }
-					</ol>
-					{ isSelected && (
-						<Button
-							className="jetpack-field-multiple__add-option"
-							icon="insert"
-							label={ __( 'Insert option', 'jetpack' ) }
-							onClick={ addNewOption }
-						>
-							{ __( 'Add option', 'jetpack' ) }
-						</Button>
-					) }
-				</BaseControl>
-
-				<JetpackFieldControls
-					id={ id }
+			<div
+				id={ `jetpack-field-multiple-${ instanceId }` }
+				className="jetpack-field jetpack-field-multiple"
+			>
+				<JetpackFieldLabel
 					required={ required }
+					requiredText={ requiredText }
+					label={ label }
 					setAttributes={ setAttributes }
-					width={ width }
+					isSelected={ isSelected }
+					resetFocus={ () => setInFocus( null ) }
 					attributes={ attributes }
 				/>
-			</Fragment>
+				<ol
+					className="jetpack-field-multiple__list"
+					id={ `jetpack-field-multiple-${ instanceId }` }
+				>
+					{ options.map( ( option, index ) => (
+						<JetpackOption
+							type={ type }
+							key={ index }
+							option={ option }
+							index={ index }
+							onChangeOption={ onChangeOption }
+							onAddOption={ addNewOption }
+							isInFocus={ index === inFocus && isSelected }
+							isSelected={ isSelected }
+							style={ fieldStyle }
+						/>
+					) ) }
+				</ol>
+				{ isSelected && (
+					<Button
+						className="jetpack-field-multiple__add-option"
+						icon="insert"
+						label={ __( 'Insert option', 'jetpack' ) }
+						onClick={ addNewOption }
+					>
+						{ __( 'Add option', 'jetpack' ) }
+					</Button>
+				) }
+			</div>
+
+			<JetpackFieldControls
+				id={ id }
+				required={ required }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
 		</div>
 	);
 }

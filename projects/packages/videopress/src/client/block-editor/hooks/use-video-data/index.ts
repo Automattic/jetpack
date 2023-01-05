@@ -8,7 +8,7 @@ import getMediaToken from '../../../lib/get-media-token';
  * Types
  */
 import { WPCOMRestAPIVideosGetEndpointResponseProps } from '../../../types';
-import { UseVideoDataProps, UseVideoDataArgumentsProps } from './types';
+import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
 /**
  * React hook to fetch the video data from the media library.
@@ -20,7 +20,7 @@ export default function useVideoData( {
 	id,
 	guid,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
-	const [ videoData, setVideoData ] = useState( {} );
+	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
@@ -46,10 +46,11 @@ export default function useVideoData( {
 				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
+					allow_download: response.allow_download,
+					post_id: response.post_id,
 					guid: response.guid,
 					title: response.title,
 					description: response.description,
-					allow_download: response.allow_download,
 					display_embed: response.display_embed,
 					privacy_setting: response.privacy_setting,
 					rating: response.rating,

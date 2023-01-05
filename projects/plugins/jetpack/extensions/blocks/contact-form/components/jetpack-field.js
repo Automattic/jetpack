@@ -6,7 +6,17 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackField( props ) {
-	const { id, type, required, label, setAttributes, placeholder, width, attributes } = props;
+	const {
+		id,
+		type,
+		required,
+		requiredText,
+		label,
+		setAttributes,
+		placeholder,
+		width,
+		attributes,
+	} = props;
 
 	const blockStyle = {
 		backgroundColor: attributes.blockBackgroundColor,
@@ -18,6 +28,7 @@ export default function JetpackField( props ) {
 			<div className="jetpack-field" style={ blockStyle }>
 				<JetpackFieldLabel
 					required={ required }
+					requiredText={ requiredText }
 					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }

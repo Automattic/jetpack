@@ -72,6 +72,7 @@ require __DIR__ . '/class.csstidy-optimise.php';
  * @author Florian Schmitz (floele at gmail dot com) 2005-2006
  * @version 1.3.1
  */
+#[AllowDynamicProperties]
 class csstidy { // phpcs:ignore
 
 	/**
@@ -464,7 +465,7 @@ class csstidy { // phpcs:ignore
 			if ( ctype_space( $string[ $i ] ) ) {
 				break;
 			}
-			$i++;
+			++$i;
 		}
 
 		if ( hexdec( $add ) > 47 && hexdec( $add ) < 58 || hexdec( $add ) > 64 && hexdec( $add ) < 91 || hexdec( $add ) > 96 && hexdec( $add ) < 123 ) {
@@ -477,7 +478,7 @@ class csstidy { // phpcs:ignore
 
 		if ( @ctype_xdigit( $string[ $i + 1 ] ) && ctype_space( $string[ $i ] )
 						&& ! $replaced || ! ctype_space( $string[ $i ] ) ) {
-			$i--;
+			--$i;
 		}
 
 		if ( '\\' !== $add || ! $this->get_cfg( 'remove_bslash' ) || strpos( $this->tokens_list, $string[ $i + 1 ] ) !== false ) {
@@ -973,7 +974,7 @@ class csstidy { // phpcs:ignore
 				case 'ic':
 					if ( '*' === $string[ $i ] && '/' === $string[ $i + 1 ] ) {
 						$this->status = array_pop( $this->from );
-						$i++;
+						++$i;
 						$this->_add_token( COMMENT, $cur_comment );
 						$cur_comment = '';
 					} else {
@@ -1088,7 +1089,7 @@ class csstidy { // phpcs:ignore
 		}
 		while ( isset( $this->css[ $media ] ) ) {
 			if ( is_numeric( $media ) ) {
-				$media++;
+				++$media;
 			} else {
 				$media .= ' ';
 			}
@@ -1291,15 +1292,11 @@ class csstidy { // phpcs:ignore
 				} elseif ( ! $in_str ) {
 					$in_str = $value[ $i ];
 				}
-			} else {
-				if ( $in_str ) {
-					$current_string .= $value[ $i ];
-				} else {
-					if ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
-						$in_str         = true;
-						$current_string = $value[ $i ];
-					}
-				}
+			} elseif ( $in_str ) {
+				$current_string .= $value[ $i ];
+			} elseif ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
+				$in_str         = true;
+				$current_string = $value[ $i ];
 			}
 		}
 

@@ -63,6 +63,7 @@ WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 if [[ -z "$BUILD_DIR" ]]; then
 	TMPDIR="${TMPDIR:-/tmp}"
 	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/update-tag.XXXXXXXX")
+	trap 'rm -rf "$BUILD_DIR"' EXIT
 elif [[ ! -e "$BUILD_DIR" ]]; then
 	mkdir -p "$BUILD_DIR"
 else

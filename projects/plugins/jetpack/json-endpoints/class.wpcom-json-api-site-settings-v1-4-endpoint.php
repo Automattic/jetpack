@@ -115,9 +115,14 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_publish_posts_with_markdown'       => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'    => '(bool) Whether markdown is enabled for comments',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
-			'featured_image_email_enabled'            => '(bool) Whether the Featured image is displayed in the New Post email template or not',
+			'wpcom_featured_image_in_email'           => '(bool) Whether the Featured image is displayed in the New Post email template or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
 			'jetpack_blogging_prompts_enabled'        => '(bool) Whether writing prompts are shown in the editor when starting a new post.',
+			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',
+			'show_on_front'                           => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
+			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
+			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
+			'subscription_options'                    => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 		),
 
 		'response_format' => array(

@@ -4,6 +4,7 @@ export { default as PinterestBlock } from './blocks/pinterest.js';
 export { default as MailchimpBlock } from './blocks/mailchimp.js';
 export { default as SimplePaymentBlock } from './blocks/simple-payments.js';
 export { default as WordAdsBlock } from './blocks/word-ads.js';
+export { default as FormBlock } from './blocks/form.js';
 
 export { default as DashboardPage } from './dashboard.js';
 export { default as InPlacePlansPage } from './in-place-plans.js';

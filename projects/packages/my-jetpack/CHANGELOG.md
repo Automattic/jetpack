@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.2] - 2023-01-02
+### Added
+- My Jetpack: Move VideoPress from Hybrid [#28097]
+
+### Changed
+- My Jetpack: Move Search out of hybrid and deprecate Hybrid_Product class [#28113]
+
+## [2.7.1] - 2022-12-27
+### Changed
+- Fix layout visual issues [#28055]
+- My Jetpack: Move Backup out of hybrid product [#28022]
+- My Jetpack: Move Social out of hybrid product [#28074]
+
+## [2.7.0] - 2022-12-19
+### Added
+- Implement detached licenses redux store. [#27609]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+### Fixed
+- Add translation context to Security product name. [#27920]
+
+## [2.6.1] - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
 ## [2.6.0] - 2022-12-05
 ### Changed
 - Improve design of the error notice. [#27340]
@@ -690,6 +717,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.1...2.7.2
+[2.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.0...2.7.1
+[2.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.6.1...2.7.0
+[2.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.2...2.6.0
 [2.5.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.1...2.5.2
 [2.5.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.0...2.5.1

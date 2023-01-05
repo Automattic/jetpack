@@ -706,7 +706,6 @@ class Jetpack {
 
 		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
 		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2 );
-		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
@@ -818,6 +817,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'blaze',
 				'jitm',
 				'sync',
 				'waf',
@@ -905,7 +905,6 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
-
 	}
 
 	/**
@@ -1012,7 +1011,6 @@ class Jetpack {
 				'path' => $query_args['amp;c'],
 			)
 		);
-
 	}
 
 	/**
@@ -1654,7 +1652,6 @@ class Jetpack {
 		}
 
 		return $notice;
-
 	}
 	/**
 	 * Get Jetpack offline mode notice text and notice class.
@@ -2863,7 +2860,6 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
-
 	}
 
 	/**
@@ -2939,14 +2935,11 @@ p {
 				$active_modules,
 				false
 			);
+		} elseif ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) { // Check for a user connection.
+			self::activate_default_modules( false, false, array(), false, null, null, null );
+			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		} else {
-			// Check for a user connection.
-			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
-				self::activate_default_modules( false, false, array(), false, null, null, null );
-				Jetpack_Options::update_option( 'active_modules_initialized', true );
-			} else {
-				self::activate_default_modules( false, false, array(), false, null, null, false );
-			}
+			self::activate_default_modules( false, false, array(), false, null, null, false );
 		}
 	}
 
@@ -4363,7 +4356,6 @@ endif;
 
 		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
 		return $a8c_mc_stats_instance->build_stats_url( $args );
-
 	}
 
 	/**
@@ -4624,7 +4616,7 @@ endif;
 		}
 
 		// Increment number of times connected.
-		$jetpack_unique_registrations ++;
+		++$jetpack_unique_registrations;
 		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 
@@ -5746,65 +5738,15 @@ endif;
 	/**
 	 * Maybe inlines a stylesheet.
 	 *
-	 * If you'd like to inline a stylesheet instead of printing a link to it,
-	 * wp_style_add_data( 'handle', 'jetpack-inline', true );
-	 *
-	 * Attached to `style_loader_tag` filter.
+	 * @deprecated since 11.7.
 	 *
 	 * @param string $tag The tag that would link to the external asset.
 	 * @param string $handle The registered handle of the script in question.
 	 *
 	 * @return string
 	 */
-	public static function maybe_inline_style( $tag, $handle ) {
-		global $wp_styles;
-		$item = $wp_styles->registered[ $handle ];
-
-		if ( ! isset( $item->extra['jetpack-inline'] ) || ! $item->extra['jetpack-inline'] ) {
-			return $tag;
-		}
-
-		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
-			$href = $matches[1];
-			// Strip off query string.
-			$pos = strpos( $href, '?' );
-			if ( $pos ) {
-				$href = substr( $href, 0, $pos );
-			}
-			// Strip off fragment.
-			$pos = strpos( $href, '#' );
-			if ( $pos ) {
-				$href = substr( $href, 0, $pos );
-			}
-		} else {
-			return $tag;
-		}
-
-		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
-		if ( substr( $href, 0, strlen( $plugins_dir ) ) !== $plugins_dir ) {
-			return $tag;
-		}
-
-		// If this stylesheet has a RTL version, and the RTL version replaces normal...
-		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] && is_rtl() ) {
-			// And this isn't the pass that actually deals with the RTL version...
-			if ( false === strpos( $tag, " id='$handle-rtl-css' " ) ) {
-				// Short out, as the RTL version will deal with it in a moment.
-				return $tag;
-			}
-		}
-
-		$file = JETPACK__PLUGIN_DIR . substr( $href, strlen( $plugins_dir ) );
-		$css  = self::absolutize_css_urls( file_get_contents( $file ), $href ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-		if ( $css ) {
-			$tag = "<!-- Inline {$item->handle} -->\r\n";
-			if ( empty( $item->extra['after'] ) ) {
-				wp_add_inline_style( $handle, $css );
-			} else {
-				array_unshift( $item->extra['after'], $css );
-				wp_style_add_data( $handle, 'after', $item->extra['after'] );
-			}
-		}
+	public static function maybe_inline_style( $tag, $handle ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '11.7', 'wp_maybe_inline_styles' );
 
 		return $tag;
 	}
@@ -6775,7 +6717,7 @@ endif;
 		);
 
 		$products['security'] = array(
-			'title'             => __( 'Security', 'jetpack' ),
+			'title'             => _x( 'Security', 'Jetpack product name', 'jetpack' ),
 			'slug'              => 'jetpack_security_t1_yearly',
 			'description'       => __( 'Comprehensive site security, including Backup, Scan, and Anti-spam.', 'jetpack' ),
 			'show_promotion'    => true,

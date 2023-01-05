@@ -133,7 +133,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		self::$instance_count ++;
+		++self::$instance_count;
 
 		self::render_widget_title( $args, $instance );
 
@@ -159,10 +159,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( ! empty( $instance['title_following'] ) ) {
 					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . esc_attr( $instance['title_following'] ) . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
-			} else {
-				if ( ! empty( $instance['title'] ) ) {
-					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
+			} elseif ( ! empty( $instance['title'] ) ) {
+				echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
 
@@ -857,10 +855,11 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance['show_subscribers_total'] = true;
 	}
 
-	if ( 'false' === $instance['include_social_followers'] ) {
-		$instance['include_social_followers'] = false;
-	} else {
+	// the default behavior is to include the social followers
+	if ( empty( $instance['include_social_followers'] ) || 'true' === $instance['include_social_followers'] ) {
 		$instance['include_social_followers'] = true;
+	} else {
+		$instance['include_social_followers'] = false;
 	}
 
 	$show_only_email_and_button = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;

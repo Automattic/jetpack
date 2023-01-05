@@ -5,6 +5,13 @@ require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 
 	/**
+	 * Jetpack_Display_Posts_Widget object.
+	 *
+	 * @var Jetpack_Display_Posts_Widget
+	 */
+	private $inst;
+
+	/**
 	 * WP_Test_Jetpack_Display_Posts_Widget constructor.
 	 */
 	public function __construct() {
@@ -27,7 +34,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'general_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( array( 'TEST CASE' ), $result->get_error_data() );
-
 	}
 
 	/**
@@ -49,7 +55,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'http_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'An error occurred fetching the remote data.' ), $result->get_error_messages() );
 		$this->assertEquals( 'TESTING, ATTENTION', $result->get_error_data() );
-
 	}
 
 	/**
@@ -73,7 +78,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'No body in response.', $result->get_error_data() );
-
 	}
 
 	/**
@@ -95,7 +99,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'no_body' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'Invalid remote response.' ), $result->get_error_messages() );
 		$this->assertEquals( 'Invalid JSON from remote.', $result->get_error_data() );
-
 	}
 
 	/**
@@ -119,7 +122,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( array( 'remote_error' ), $result->get_error_codes() );
 		$this->assertEquals( array( 'It looks like the WordPress site URL is incorrectly configured. Please check it in your widget settings.' ), $result->get_error_messages() );
 		$this->assertEquals( 'test error', $result->get_error_data() );
-
 	}
 
 	/**
@@ -142,7 +144,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$expected_value->mydata = 'your data';
 
 		$this->assertEquals( $expected_value, $result );
-
 	}
 
 	/**
@@ -656,7 +657,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$result = $this->inst->parse_site_info_response( $service_response_test_valid_data );
 
 		$this->assertEquals( $service_response_test_valid_data, $result );
-
 	}
 
 	/**
@@ -1325,7 +1325,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
@@ -1346,7 +1345,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
@@ -1388,7 +1386,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( $expected_result, $result );
-
 	}
 
 	/**
@@ -1471,7 +1468,6 @@ class WP_Test_Jetpack_Display_Posts_Widget extends WP_UnitTestCase {
 		$this->assertEquals( 'first test', $result1 );
 		$this->assertEquals( 'second test', $result2 );
 		$this->assertEquals( 'first test', $result1_again );
-
 	}
 
 }

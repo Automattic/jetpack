@@ -1204,7 +1204,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -1224,7 +1223,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -2897,7 +2895,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack_blogging_prompts_enabled'     => array(
 				'description'       => esc_html__( 'Displays a writing prompt when starting a new post.', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => jetpack_has_write_intent() || jetpack_has_posts_page(),
+				'default'           => false,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'writing-prompts',
 			),

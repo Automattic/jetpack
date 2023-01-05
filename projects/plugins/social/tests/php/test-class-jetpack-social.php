@@ -55,7 +55,6 @@ class Jetpack_Social_Test extends BaseTestCase {
 
 		$this->activate_plugin( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH );
 		$this->assertTrue( Jetpack_Social::is_publicize_active() );
-
 	}
 
 	/**

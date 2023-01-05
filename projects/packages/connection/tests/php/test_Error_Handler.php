@@ -16,6 +16,13 @@ class Error_Handler_Test extends BaseTestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
+	 * Error_Handler instance.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler;
+
+	/**
 	 * Initialize tests
 	 *
 	 * @before
@@ -50,7 +57,6 @@ class Error_Handler_Test extends BaseTestCase {
 			'An error was triggered',
 			compact( 'signature_details', 'error_type' )
 		);
-
 	}
 
 	/**
@@ -171,7 +177,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertTrue( $this->error_handler->should_report_error( $error ) );
 		$this->assertFalse( $this->error_handler->should_report_error( $error2 ), 'second attempt to report the same error code should be stopped by the gate' );
 		$this->assertTrue( $this->error_handler->should_report_error( $error3 ) );
-
 	}
 
 	/**
@@ -201,7 +206,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertArrayNotHasKey( '3', $stored_errors['unknown_user'], 'first inserted error must have been excluded' );
 		$this->assertArrayHasKey( '8', $stored_errors['unknown_user'], 'sixth inserted error must be present' );
-
 	}
 
 	/**
@@ -298,7 +302,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$this->assertIsString( $encrypted );
 		$this->assertEquals( 500, strlen( $encrypted ) );
-
 	}
 
 	/**
@@ -332,7 +335,6 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'invalid_token', $errors );
 
 		$this->assertCount( 1, $errors['no_user_tokens'] );
-
 	}
 
 	/**

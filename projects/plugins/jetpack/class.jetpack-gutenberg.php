@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
@@ -528,7 +529,6 @@ class Jetpack_Gutenberg {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
 		}
-
 	}
 
 	/**
@@ -723,6 +723,9 @@ class Jetpack_Gutenberg {
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);
+
+		// Adds Connection package initial state.
+		wp_add_inline_script( 'jetpack-blocks-editor', Connection_Initial_State::render(), 'before' );
 	}
 
 	/**
@@ -1080,6 +1083,11 @@ class Jetpack_Gutenberg {
 				array(
 					'br' => array(),
 					'p'  => array(),
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
 				)
 			),
 			esc_attr( $classes ),

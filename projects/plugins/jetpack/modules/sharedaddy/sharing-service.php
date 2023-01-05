@@ -901,7 +901,6 @@ function sharing_add_header() {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
 		wp_enqueue_style( 'social-logos' );
 	}
-
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
@@ -1182,7 +1181,7 @@ function sharing_display( $text = '', $echo = false ) {
 						$sharing_content .= '<li class="share-end"></li>';
 					}
 
-					$count ++;
+					++$count;
 				}
 
 				// End of wrapper.
