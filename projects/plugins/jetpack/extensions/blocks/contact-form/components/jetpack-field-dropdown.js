@@ -3,7 +3,7 @@ import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isEmpty, isNil, noop, split, trim } from 'lodash';
 import { setFocus } from '../util/focus';
-import { validateFormWrapper } from '../util/form';
+import { useFormWrapper } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
@@ -17,7 +17,7 @@ export const JetpackDropdownEdit = ( {
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef();
 
-	validateFormWrapper( { attributes, clientId, name } );
+	useFormWrapper( { attributes, clientId, name } );
 
 	const changeFocus = ( index, cursorToEnd ) =>
 		setFocus( optionsWrapper.current, '[role=textbox]', index, cursorToEnd );

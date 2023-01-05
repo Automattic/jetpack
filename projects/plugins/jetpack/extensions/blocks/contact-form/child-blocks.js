@@ -10,7 +10,7 @@ import JetpackFieldConsent from './components/jetpack-field-consent';
 import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
-import { validateFormWrapper } from './util/form';
+import { useFormWrapper } from './util/form';
 
 const FieldDefaults = {
 	category: 'contact-form',
@@ -130,7 +130,7 @@ const getFieldLabel = ( { attributes, name: blockName } ) => {
 };
 
 const editField = type => props => {
-	validateFormWrapper( props );
+	useFormWrapper( props );
 
 	return (
 		<JetpackField
@@ -149,7 +149,7 @@ const editField = type => props => {
 };
 
 const editMultiField = type => props => {
-	validateFormWrapper( props );
+	useFormWrapper( props );
 
 	return (
 		<JetpackFieldMultiple
@@ -334,7 +334,7 @@ export const childBlocks = [
 				/>
 			),
 			edit: props => {
-				validateFormWrapper( props );
+				useFormWrapper( props );
 
 				return (
 					<JetpackFieldTextarea
@@ -370,7 +370,7 @@ export const childBlocks = [
 				/>
 			),
 			edit: props => {
-				validateFormWrapper( props );
+				useFormWrapper( props );
 
 				return (
 					<JetpackFieldCheckbox
@@ -439,7 +439,7 @@ export const childBlocks = [
 				},
 			},
 			edit: ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-				validateFormWrapper( { attributes, clientId, name } );
+				useFormWrapper( { attributes, clientId, name } );
 
 				const {
 					id,
