@@ -49,19 +49,15 @@ const FieldDefaults = {
 		},
 		borderRadius: {
 			type: 'number',
-			default: 10,
 		},
 		borderWidth: {
 			type: 'number',
-			default: 1,
 		},
 		labelFontSize: {
 			type: 'string',
-			default: undefined,
 		},
 		fieldFontSize: {
 			type: 'string',
-			default: undefined,
 		},
 		lineHeight: {
 			type: 'number',

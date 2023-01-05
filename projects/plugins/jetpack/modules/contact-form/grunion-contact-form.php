@@ -3944,6 +3944,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'bordercolor'            => null,
 				'inputcolor'             => null,
 				'labelcolor'             => null,
+				'labelfontsize'          => null,
+				'fieldfontsize'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -4116,14 +4118,34 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_width       = $this->get_attribute( 'width' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		$this->field_styles  = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
-		$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
-		$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
-		$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
-		$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-		$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+		if ( ! empty( $this->get_attribute( 'borderradius' ) ) || $this->get_attribute( 'borderradius' ) === 0 ) {
+			$this->field_styles = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		}
+		if ( ! empty( $this->get_attribute( 'borderwidth' ) ) || $this->get_attribute( 'borderwidth' ) === 0 ) {
+			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+		}
+		if ( ! empty( $this->get_attribute( 'lineheight' ) ) || $this->get_attribute( 'lineheight' ) === 0 ) {
+			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
+			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
+			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
+			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
+			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+		}
 
-		$this->label_styles = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
+			$this->label_styles = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
+			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+		}
 
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;
