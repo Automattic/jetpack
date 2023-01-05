@@ -43,7 +43,7 @@ class Blaze {
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
 			if ( self::should_initialize() ) {
 				add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
-				add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_block_editor_assets' ) );
 			}
 
 			/**
@@ -133,8 +133,19 @@ class Blaze {
 
 	/**
 	 * Enqueue block editor assets.
+	 *
+	 * @param string $hook The current admin page.
 	 */
-	public function enqueue_block_editor_assets() {
+	public function enqueue_block_editor_assets( $hook ) {
+		/*
+		 * We do not want (nor need) Blaze in the site editor or the widget editor, only in the post editor.
+		 * Enqueueing the script in those editors would cause a fatal error.
+		 * See #20357 for more info.
+		 */
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
 		Assets::register_script(
 			'jetpack-promote-editor',
 			'../build/editor.js',
