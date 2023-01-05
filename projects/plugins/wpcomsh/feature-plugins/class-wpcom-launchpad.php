@@ -1,24 +1,29 @@
 <?php
 /**
- * Plugin Name: Launchpad
- * Description: Provides the Launchpad screen during onboarding.
- * Author: Automattic, Team Cylon
- * Version: 1.0
+ *
+ * THIS FILE EXISTS IN WPCOM AND WPCOMSH. If you make changes,
+ * you must manually update this file in both WPCOM and WPCOMSH.
+ *
+ * Description: This file provides backend support for the Launchpad
+ * screen during onboarding. It replicates code from the Launchpad
+ * plugin that exists on WordPress.com.
+ * Author: Team Cylon
+ * Version: 1.1
  * Author URI: http://automattic.com/
  *
- * @package Launchpad
+ * @package WPCOM_Launchpad
  **/
 
 /**
- * Launchpad Class.
+ * WPCOM_Launchpad Class.
  * Provides backend logic for Launchpad onboarding screen.
  */
-class Launchpad {
+class WPCOM_Launchpad {
 
 	/**
 	 * The unique instance of the plugin.
 	 *
-	 * @var Launchpad
+	 * @var WPCOM_Launchpad
 	 */
 	private static $instance;
 
@@ -290,4 +295,4 @@ class Launchpad {
 	}
 }
 
-add_action( 'plugins_loaded', array( Launchpad::get_instance(), 'init' ) );
+add_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
