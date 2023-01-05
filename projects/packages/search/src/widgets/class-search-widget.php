@@ -1115,7 +1115,6 @@ class Search_Widget extends \WP_Widget {
 				);
 			}
 		);
-
 	}
 
 }

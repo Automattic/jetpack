@@ -162,7 +162,6 @@ class Jetpack_Protect {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
@@ -194,7 +193,6 @@ class Jetpack_Protect {
 			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
-			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
 				'isSupported' => Waf_Runner::is_supported_environment(),
