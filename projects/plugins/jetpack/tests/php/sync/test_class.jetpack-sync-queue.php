@@ -354,7 +354,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 			$pop_buffer_time   += $start_close_buffer_time - $start_pop_buffer_time;
 			$close_buffer_time += $end_time - $start_close_buffer_time;
-			$num_iterations++;
+			++$num_iterations;
 		}
 
 		error_log( 'Pop buffer time: ' . ( $pop_buffer_time / $num_iterations ) . " ($pop_buffer_time seconds)" );

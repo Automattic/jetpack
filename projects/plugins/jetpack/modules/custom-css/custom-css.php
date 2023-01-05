@@ -44,7 +44,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
-
 	}
 
 	/**
@@ -788,7 +787,6 @@ class Jetpack_Custom_CSS_Enhancements {
 				)
 			);
 		}
-
 	}
 
 	/**

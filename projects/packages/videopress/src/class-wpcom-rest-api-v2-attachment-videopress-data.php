@@ -120,7 +120,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 				if ( in_array( strval( \VIDEOPRESS_PRIVACY::IS_PRIVATE ), $videopress_privacy_setting_list, true ) ) {
 					$videopress_privacy_setting_list[] = \VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 				}
-			} else {
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 				/**
 				 * If the search is looking for public videos and the site default is public,
 				 * the site default setting should be included on the search.

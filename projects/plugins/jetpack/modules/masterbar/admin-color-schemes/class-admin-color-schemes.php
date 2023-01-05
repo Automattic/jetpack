@@ -174,7 +174,6 @@ class Admin_Color_Schemes {
 				'current' => '#4f3500',
 			)
 		);
-
 	}
 
 	/**

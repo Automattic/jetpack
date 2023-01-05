@@ -1204,7 +1204,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -1224,7 +1223,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
