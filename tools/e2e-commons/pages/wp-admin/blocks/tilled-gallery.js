@@ -5,7 +5,6 @@ export default class TiledGallery extends PageActions {
 		super( page, 'Tiled Gallery block' );
 		this.blockTitle = TiledGallery.title();
 		this.blockSelector = '#block-' + blockId;
-		this.linkTo = false;
 	}
 
 	static name() {
@@ -16,14 +15,14 @@ export default class TiledGallery extends PageActions {
 		return 'Tiled Gallery';
 	}
 
-	async addImages() {
+	async addImages( numImages = 4 ) {
 		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
 		await this.click( 'text=Openverse' );
-		const modal = this.page.getByRole( 'dialog' );
 
+		const modal = this.page.getByRole( 'dialog' );
 		await this.waitForElementToBeHidden( 'jetpack-external-media-browser__media__placeholder' );
 
-		for ( let i = 0; i < 4; i++ ) {
+		for ( let i = 0; i < numImages; i++ ) {
 			await modal.getByRole( 'checkbox' ).nth( i ).click();
 		}
 
@@ -42,7 +41,6 @@ export default class TiledGallery extends PageActions {
 	async linkToAttachment() {
 		await this.click( "button[data-label='Block']" );
 		await this.selectOption( 'select.components-select-control__input', 'Attachment Page' );
-		this.linkTo = 'attachment';
 	}
 
 	/**
@@ -52,9 +50,6 @@ export default class TiledGallery extends PageActions {
 	 */
 	static async isRendered( page ) {
 		await page.waitForSelector( '.tiled-gallery__gallery' );
-		if ( this.linkTo === 'attachment' ) {
-			await page.waitForSelector( 'figure.tiled-gallery__item a[href*="/?attachment_id"]' );
-		}
 	}
 
 	#getSelector( selector ) {
