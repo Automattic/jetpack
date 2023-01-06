@@ -161,7 +161,7 @@ class Jetpack_Comic {
 
 						if ( current_user_can( $post_type_object->cap->publish_posts ) ) {
 							set_post_type( $post_id, $destination_post_type );
-							$modified_count++;
+							++$modified_count;
 						}
 					}
 				}
@@ -575,7 +575,7 @@ class Jetpack_Comic {
 				array_push( $image_id_arr, $image_id );
 			}
 
-			$i++;
+			++$i;
 		}
 
 		if ( count( $image_id_arr ) === 0 ) {

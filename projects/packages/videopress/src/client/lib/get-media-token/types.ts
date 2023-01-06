@@ -3,13 +3,14 @@
  */
 import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
 
-export const MEDIA_TOKEN_SCOPES = [ 'upload', 'playback' ] as const;
+export const MEDIA_TOKEN_SCOPES = [ 'upload', 'playback', 'upload-jwt' ] as const;
 type MediaTokenScopesProps = typeof MEDIA_TOKEN_SCOPES;
 export type MediaTokenScopeProps = MediaTokenScopesProps[ number ];
 
 export const TOKEN_ADMIN_AJAX_TYPES = [
 	'videopress-get-upload-token',
 	'videopress-get-playback-jwt',
+	'videopress-get-upload-jwt',
 ] as const;
 
 type AdminAjaxTokensProps = typeof TOKEN_ADMIN_AJAX_TYPES;

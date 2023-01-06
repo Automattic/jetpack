@@ -190,7 +190,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 */
 	public function get_permission_check( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->permission_check( isset( $post_array['id'] ) ? $post_array['id'] : 0 );
-
 	}
 
 	/**

@@ -40,7 +40,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 		$i = 1;
 		foreach ( $tests as $in => $out ) {
 			$this->assertSame( $out, $this->t->$tfn( $in ), "Failed #$i with input: $in" );
-			$i++;
+			++$i;
 		}
 	}
 

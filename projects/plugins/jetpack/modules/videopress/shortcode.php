@@ -129,7 +129,7 @@ class VideoPress_Shortcode {
 		 * If the width isn't an even number, reduce it by one (making it even).
 		 */
 		if ( 1 === ( $attr['width'] % 2 ) ) {
-			$attr['width'] --;
+			--$attr['width'];
 		}
 
 		/**

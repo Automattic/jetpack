@@ -159,10 +159,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</a></p>
 
 			<?php
-		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
-			}
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
 		}
 
 		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

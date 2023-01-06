@@ -163,7 +163,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 	<?php
 
 	// Increment and return the rendered profile.
-	$instance++;
+	++$instance;
 
 	return ob_get_clean();
 }

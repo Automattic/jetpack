@@ -361,7 +361,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "4de8be67a9e7b8f048d9d69a5d14196aa4ed77cd"
+                "reference": "71841eee0e4daa46ef9c75742b3e2aa10e497a6f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -409,6 +409,9 @@
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
+                "test-js": [
+                    "pnpm run test"
+                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -443,7 +446,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "e818e44c10caa5f77e945afbbe11d5a1cc44701a"
+                "reference": "bac1bf8e0acf71eaabe4e99f5016b38965c2041d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -452,6 +455,7 @@
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },

@@ -207,7 +207,6 @@ class Jetpack_RelatedPosts {
 
 			$this->action_frontend_init_page();
 		}
-
 	}
 
 	/**
@@ -1746,7 +1745,6 @@ EOT;
 	 * @param int $link_position - the link position.
 	 */
 	protected function log_click( $post_id, $to_post_id, $link_position ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 	}
 
 	/**
