@@ -64,27 +64,21 @@ const FieldDefaults = {
 		},
 		lineHeight: {
 			type: 'number',
-			default: 1.5,
 		},
 		inputColor: {
 			type: 'string',
-			default: '#000000',
 		},
 		labelColor: {
 			type: 'string',
-			default: '#000000',
 		},
 		fieldBackgroundColor: {
 			type: 'string',
-			default: '#ffffff',
 		},
 		blockBackgroundColor: {
 			type: 'string',
-			default: '#ffffff',
 		},
 		borderColor: {
 			type: 'string',
-			default: '#000000',
 		},
 	},
 	transforms: {
