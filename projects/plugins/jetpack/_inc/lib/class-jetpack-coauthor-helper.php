@@ -79,14 +79,14 @@ class Jetpack_Coauthor_Helper {
 	 * @param  string $prompt - Supplied prompt.
 	 */
 	public static function transient_name_for_image_generation( $prompt ) {
-		return 'openai-image-' . md5( $prompt );
+		return 'jetpack_openai_image_' . md5( $prompt );
 	}
 
 	/**
 	 * Get the name of the transient for text completion. Unique per user, but not per text. Serves more as a cooldown.
 	 */
 	public static function transient_name_for_completion() {
-		return 'openai-completion-' . get_current_user_id(); // Cache for each user, so that other users dont get weird cached version from somebody else.
+		return 'jetpack_openai_completion_' . get_current_user_id(); // Cache for each user, so that other users dont get weird cached version from somebody else.
 	}
 
 	/**
