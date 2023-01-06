@@ -1,3 +1,15 @@
 /**
  * Editor styles for Coauthor Image
  */
+
+.wp-block-coauthor-image-image {
+	cursor: pointer;
+	width: 128px;
+	height:128px;
+	margin: 12px;
+}
+.wp-block-coauthor-image-image:hover {
+	width: 146px;
+	height:146px;
+	margin: 0px;
+}
