@@ -5,11 +5,11 @@ Please add testing instructions to projects/plugins/jetpack/to-test.md in a new 
 
 Fixes #
 
-## Changes proposed in this Pull Request:
+## Proposed changes:
 <!--- Explain what functional changes your PR includes -->
 *
 
-## Other information:
+### Other information:
 
 - [ ] Have you written new tests for your changes, if applicable?
 - [ ] Have you checked the E2E test CI results, and verified that your changes do not break them?
