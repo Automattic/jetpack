@@ -18,7 +18,10 @@ export const settings = {
 	description: (
 		<Fragment>
 			<p>
-				{ __( 'Automatically generate an illustration for your post, powered by AI.', 'jetpack' ) }
+				{ __(
+					'Automatically generate an illustration for your post, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.',
+					'jetpack'
+				) }
 			</p>
 		</Fragment>
 	),
@@ -26,19 +29,19 @@ export const settings = {
 		src: 'welcome-write-blog',
 		foreground: getIconColor(),
 	},
-	category: 'common',
-	keywords: [],
+	category: 'media',
+	keywords: [ 'AI', 'DALLe', 'Diffusion' ],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: false /* if set to true, the 'align' option below can be used*/,
 		// Pick which alignment options to display.
 		/*align: [ 'left', 'right', 'full' ],*/
 		// Support for wide alignment, that requires additional support in themes.
-		alignWide: true,
+		alignWide: false,
 		// When true, a new field in the block sidebar allows to define an id for the block and a button to copy the direct link.
 		anchor: false,
 		// When true, a new field in the block sidebar allows to define a custom className for the block’s wrapper.
-		customClassName: true,
+		customClassName: false,
 		// When false, Gutenberg won't add a class like .wp-block-your-block-name to the root element of your saved markup
 		className: true,
 		// Setting this to false suppress the ability to edit a block’s markup individually. We often set this to false in Jetpack blocks.
@@ -48,7 +51,7 @@ export const settings = {
 		// When false, user will only be able to insert the block once per post.
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
-		reusable: true,
+		reusable: false,
 	},
 	edit,
 	/* @TODO Write the block editor output */
