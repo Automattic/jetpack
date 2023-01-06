@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { isNil } from 'lodash';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackFieldTextarea( props ) {
 	const {
@@ -24,18 +25,7 @@ export default function JetpackFieldTextarea( props ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const blockStyle = {
-		backgroundColor: attributes.blockBackgroundColor,
-		lineHeight: attributes.lineHeight,
-	};
-
-	const fieldStyle = {
-		backgroundColor: attributes.fieldBackgroundColor,
-		borderWidth: attributes.borderWidth,
-		lineHeight: attributes.lineHeight,
-		color: attributes.inputColor,
-		fontSize: attributes.fieldFontSize,
-	};
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<>

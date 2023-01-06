@@ -2,6 +2,7 @@ import { RichText } from '@wordpress/block-editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isNil } from 'lodash';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const JetpackFieldLabel = ( {
 	setAttributes,
@@ -20,11 +21,7 @@ const JetpackFieldLabel = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const labelStyle = {
-		lineHeight: attributes.lineHeight,
-		color: attributes.labelColor,
-		fontSize: attributes.labelFontSize,
-	};
+	const { labelStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<div className="jetpack-field-label">

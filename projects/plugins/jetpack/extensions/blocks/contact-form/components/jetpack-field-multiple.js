@@ -5,6 +5,7 @@ import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldMultiple( props ) {
 	const {
@@ -56,18 +57,7 @@ function JetpackFieldMultiple( props ) {
 		setAttributes( { options: newOptions } );
 	};
 
-	const blockStyle = {
-		backgroundColor: attributes.blockBackgroundColor,
-		lineHeight: attributes.lineHeight,
-	};
-
-	const fieldStyle = {
-		backgroundColor: attributes.fieldBackgroundColor,
-		borderWidth: attributes.borderWidth,
-		lineHeight: attributes.lineHeight,
-		color: attributes.inputColor,
-		fontSize: attributes.fieldFontSize,
-	};
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<div style={ blockStyle }>

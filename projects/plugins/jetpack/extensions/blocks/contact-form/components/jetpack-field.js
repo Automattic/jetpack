@@ -4,6 +4,7 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackField( props ) {
 	const {
@@ -18,10 +19,7 @@ export default function JetpackField( props ) {
 		attributes,
 	} = props;
 
-	const blockStyle = {
-		backgroundColor: attributes.blockBackgroundColor,
-		lineHeight: attributes.lineHeight,
-	};
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<>
@@ -40,14 +38,7 @@ export default function JetpackField( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ {
-							borderRadius: attributes.borderRadius,
-							borderWidth: attributes.borderWidth,
-							lineHeight: attributes.lineHeight,
-							borderColor: attributes.borderColor,
-							color: attributes.inputColor,
-							backgroundColor: attributes.fieldBackgroundColor,
-						} }
+						style={ fieldStyle }
 					/>
 				</Disabled>
 			</div>
