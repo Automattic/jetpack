@@ -27,6 +27,7 @@ const JetpackFieldControls = ( {
 	required,
 	setAttributes,
 	width,
+	disableStyleControls,
 } ) => {
 	return (
 		<>
@@ -74,88 +75,92 @@ const JetpackFieldControls = ( {
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
 
-				<PanelColorSettings
-					title={ __( 'Color', 'jetpack' ) }
-					initialOpen={ false }
-					colorSettings={ [
-						{
-							value: attributes.labelColor,
-							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label text', 'jetpack' ),
-						},
-						{
-							value: attributes.inputColor,
-							onChange: value => setAttributes( { inputColor: value } ),
-							label: __( 'Field text', 'jetpack' ),
-						},
-						{
-							value: attributes.fieldBackgroundColor,
-							onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-							label: __( 'Field Background', 'jetpack' ),
-						},
-						{
-							value: attributes.borderColor,
-							onChange: value => setAttributes( { borderColor: value } ),
-							label: __( 'Field Border', 'jetpack' ),
-						},
-						{
-							value: attributes.blockBackgroundColor,
-							onChange: value => setAttributes( { blockBackgroundColor: value } ),
-							label: __( 'Block Background', 'jetpack' ),
-						},
-					] }
-				></PanelColorSettings>
-				<PanelBody
-					title={ __( 'Typography', 'jetpack' ) }
-					initialOpen={
-						attributes.labelFontSize || attributes.fieldFontSize || attributes.lineHeight
-					}
-				>
-					<FontSizePicker
-						withSlider
-						withReset={ true }
-						size="__unstable-large"
-						__nextHasNoMarginBottom
-						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-						value={ attributes.labelFontSize }
-					/>
-					<FontSizePicker
-						withSlider
-						withReset={ true }
-						size="__unstable-large"
-						__nextHasNoMarginBottom
-						onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
-						value={ attributes.fieldFontSize }
-					/>
-					<LineHeightControl
-						__unstableInputWidth="100%"
-						__nextHasNoMarginBottom={ true }
-						value={ attributes.lineHeight }
-						onChange={ lineHeight =>
-							setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || 1.5 } )
-						}
-						size="__unstable-large"
-					/>
-				</PanelBody>
-				<PanelBody
-					title={ __( 'Border', 'jetpack' ) }
-					initialOpen={ attributes.borderWidth || attributes.borderRadius }
-				>
-					<TextControl
-						label={ __( 'Width', 'jetpack' ) }
-						value={ attributes.borderWidth }
-						onChange={ borderWidth =>
-							setAttributes( { borderWidth: parseInt( borderWidth, 10 ) } )
-						}
-					/>
-					<TextControl
-						label={ __( 'Radius', 'jetpack' ) }
-						value={ attributes.borderRadius }
-						onChange={ borderRadius =>
-							setAttributes( { borderRadius: parseInt( borderRadius, 10 ) } )
-						}
-					/>
-				</PanelBody>
+				{ ! disableStyleControls && (
+					<>
+						<PanelColorSettings
+							title={ __( 'Color', 'jetpack' ) }
+							initialOpen={ false }
+							colorSettings={ [
+								{
+									value: attributes.labelColor,
+									onChange: value => setAttributes( { labelColor: value } ),
+									label: __( 'Label text', 'jetpack' ),
+								},
+								{
+									value: attributes.inputColor,
+									onChange: value => setAttributes( { inputColor: value } ),
+									label: __( 'Field text', 'jetpack' ),
+								},
+								{
+									value: attributes.fieldBackgroundColor,
+									onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+									label: __( 'Field Background', 'jetpack' ),
+								},
+								{
+									value: attributes.borderColor,
+									onChange: value => setAttributes( { borderColor: value } ),
+									label: __( 'Field Border', 'jetpack' ),
+								},
+								{
+									value: attributes.blockBackgroundColor,
+									onChange: value => setAttributes( { blockBackgroundColor: value } ),
+									label: __( 'Block Background', 'jetpack' ),
+								},
+							] }
+						></PanelColorSettings>
+						<PanelBody
+							title={ __( 'Typography', 'jetpack' ) }
+							initialOpen={
+								attributes.labelFontSize || attributes.fieldFontSize || attributes.lineHeight
+							}
+						>
+							<FontSizePicker
+								withSlider
+								withReset={ true }
+								size="__unstable-large"
+								__nextHasNoMarginBottom
+								onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+								value={ attributes.labelFontSize }
+							/>
+							<FontSizePicker
+								withSlider
+								withReset={ true }
+								size="__unstable-large"
+								__nextHasNoMarginBottom
+								onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
+								value={ attributes.fieldFontSize }
+							/>
+							<LineHeightControl
+								__unstableInputWidth="100%"
+								__nextHasNoMarginBottom={ true }
+								value={ attributes.lineHeight }
+								onChange={ lineHeight =>
+									setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || 1.5 } )
+								}
+								size="__unstable-large"
+							/>
+						</PanelBody>
+						<PanelBody
+							title={ __( 'Border', 'jetpack' ) }
+							initialOpen={ attributes.borderWidth || attributes.borderRadius }
+						>
+							<TextControl
+								label={ __( 'Width', 'jetpack' ) }
+								value={ attributes.borderWidth }
+								onChange={ borderWidth =>
+									setAttributes( { borderWidth: parseInt( borderWidth, 10 ) } )
+								}
+							/>
+							<TextControl
+								label={ __( 'Radius', 'jetpack' ) }
+								value={ attributes.borderRadius }
+								onChange={ borderRadius =>
+									setAttributes( { borderRadius: parseInt( borderRadius, 10 ) } )
+								}
+							/>
+						</PanelBody>
+					</>
+				) }
 			</InspectorControls>
 
 			<InspectorAdvancedControls>

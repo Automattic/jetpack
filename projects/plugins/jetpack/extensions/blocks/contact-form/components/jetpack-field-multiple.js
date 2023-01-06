@@ -60,7 +60,7 @@ function JetpackFieldMultiple( props ) {
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div style={ blockStyle }>
+		<div style={ type !== 'select' ? blockStyle : {} }>
 			<div
 				id={ `jetpack-field-multiple-${ instanceId }` }
 				className="jetpack-field jetpack-field-multiple"
@@ -88,7 +88,7 @@ function JetpackFieldMultiple( props ) {
 							onAddOption={ addNewOption }
 							isInFocus={ index === inFocus && isSelected }
 							isSelected={ isSelected }
-							style={ fieldStyle }
+							style={ type !== 'select' ? fieldStyle : {} }
 						/>
 					) ) }
 				</ol>
@@ -109,7 +109,9 @@ function JetpackFieldMultiple( props ) {
 				required={ required }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
+				type={ type }
 				width={ width }
+				disableStyleControls={ type === 'select' }
 			/>
 		</div>
 	);
