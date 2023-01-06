@@ -32,6 +32,9 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->is_wpcom = true;
+		} elseif ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			// If this is not an atomic site, we want to bail and not even load the endpoint for now.
+			return;
 		}
 
 		if ( ! class_exists( 'Jetpack_Coauthor_Helper' ) ) {

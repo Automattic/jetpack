@@ -46,6 +46,8 @@
 	],
 	"beta": [
 		"amazon",
+		"coauthor-image",
+		"coauthor-paragraph",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
@@ -56,8 +58,6 @@
 	"experimental": [
 		"anchor-fm",
 		"blogging-prompts",
-		"coauthor-image",
-		"coauthor-paragraph",
 		"premium-content",
 		"conversation",
 		"dialogue"
