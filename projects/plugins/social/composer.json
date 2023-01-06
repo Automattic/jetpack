@@ -12,7 +12,7 @@
 		"automattic/jetpack-identity-crisis": "^0.8.33",
 		"automattic/jetpack-publicize": "^0.19.0",
 		"automattic/jetpack-connection": "^1.48.1",
-		"automattic/jetpack-my-jetpack": "^2.7.2",
+		"automattic/jetpack-my-jetpack": "^2.7.2.1",
 		"automattic/jetpack-sync": "^1.46.0",
 		"automattic/jetpack-status": "^1.15.3",
 		"automattic/jetpack-plans": "^0.2.8"
