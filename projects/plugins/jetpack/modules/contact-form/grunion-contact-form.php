@@ -2464,6 +2464,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
+			'className'              => null,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -4311,6 +4312,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_label( $type, $id, $label, $required, $required_field_text ) {
+		$form_style = $this->get_form_style();
+
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			return '';
+		}
 
 		$type_class = $type ? ' ' . $type : '';
 		return "<label
@@ -4669,6 +4675,75 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the outlined label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_outline_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<div class="notched-label">
+				<div class="notched-label__leading"></div>
+				<div class="notched-label__notch">
+					<label
+						for="' . esc_attr( $id ) . '"
+						class="notched-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+					>'
+						. esc_html( $label )
+						. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+					'</label>
+				</div>
+				<div class="notched-label__trailing"></div>
+			</div>';
+	}
+
+	/**
+	 * Return the HTML for the animated label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_animated_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<label
+				for="' . esc_attr( $id ) . '"
+				class="animated-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+			>'
+				. esc_html( $label )
+				. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			'</label>';
+	}
+
+	/**
+	 * Return the HTML for the below label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_below_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<label
+				for="' . esc_attr( $id ) . '"
+				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+			>'
+				. esc_html( $label )
+				. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+				'</label>';
+	}
+
+	/**
 	 * Return the HTML for the email field.
 	 *
 	 * @param string $type - the type.
@@ -4748,6 +4823,23 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
 		}
+
+		$form_style = $this->get_form_style();
+
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			switch ( $form_style ) {
+				case 'outlined':
+					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
+					break;
+				case 'animated':
+					$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
+					break;
+				case 'below':
+					$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
+					break;
+			}
+		}
+
 		$field .= "\t</div>\n";
 		return $field;
 	}
@@ -4781,6 +4873,17 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Gets the form style based on its CSS class.
+	 *
+	 * @return string The form style type.
+	 */
+	private function get_form_style() {
+		$class_name = $this->form->get_attribute( 'className' );
+		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
+		return $matches[1];
 	}
 }
 

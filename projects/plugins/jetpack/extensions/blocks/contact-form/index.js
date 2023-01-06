@@ -55,6 +55,12 @@ export const settings = {
 			</div>
 		);
 	},
+	styles: [
+		{ name: 'default', label: 'Default', isDefault: true },
+		{ name: 'animated', label: 'Animated' },
+		{ name: 'below', label: 'Below' },
+		{ name: 'outlined', label: 'Outlined' }
+	],
 	variations,
 	category: 'contact-form',
 	transforms,

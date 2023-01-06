@@ -4,8 +4,9 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
+const FORM_BLOCK_NAME = 'jetpack/contact-form';
+
 export const useFormWrapper = ( { attributes, clientId, name } ) => {
-	const FORM_BLOCK_NAME = 'jetpack/contact-form';
 	const BUTTON_BLOCK_NAME = 'jetpack/button';
 	const SUBMIT_BUTTON_ATTR = {
 		text: __( 'Submit', 'jetpack' ),
@@ -32,3 +33,19 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 };
+
+export const getBlockStyle = ( className ) => {
+	const styleClass = className && className.match( /is-style-([^\s]+)/i );
+	return styleClass ? styleClass[ 1 ] : '';
+};
+
+export const getFormStyle = ( clientId ) => {
+	const formBlockAttributes = useSelect( select => {
+		const [ formBlockClientId ] = select( blockEditorStore )
+			.getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
+
+		return select( blockEditorStore ).getBlockAttributes( formBlockClientId );
+	} );
+
+	return getBlockStyle( formBlockAttributes?.className )
+}

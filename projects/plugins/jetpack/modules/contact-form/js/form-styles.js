@@ -61,6 +61,7 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const {
 		color: textColor,
 		padding: inputPadding,
+		paddingLeft: inputPaddingLeft,
 		backgroundColor: inputBackground,
 		border,
 		borderColor,
@@ -83,6 +84,7 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	outputContainer.style.setProperty( '--jetpack--contact-form--border-radius', borderRadius );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-background', inputBackground );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-padding', inputPadding );
+	outputContainer.style.setProperty( '--jetpack--contact-form--input-padding-left', inputPaddingLeft );
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-size', fontSize );
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-family', fontFamily );
 	outputContainer.style.setProperty( '--jetpack--contact-form--line-height', lineHeight );
