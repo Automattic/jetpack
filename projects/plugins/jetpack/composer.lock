@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c94c1c25003ab67e9a70dba479861406",
+    "content-hash": "d415339ef7d3b104b8cde174320c429b",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1106,16 +1106,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v2.7.2",
+            "version": "v2.7.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "7f91d2f1fbdc1ade3876ff7fcc76e014e06936e1"
+                "reference": "3609e7955af75905c72c6f24698394fdf9a051f0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/7f91d2f1fbdc1ade3876ff7fcc76e014e06936e1",
-                "reference": "7f91d2f1fbdc1ade3876ff7fcc76e014e06936e1",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/3609e7955af75905c72c6f24698394fdf9a051f0",
+                "reference": "3609e7955af75905c72c6f24698394fdf9a051f0",
                 "shasum": ""
             },
             "require": {
@@ -1161,9 +1161,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.7.2"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.7.2.1"
             },
-            "time": "2023-01-02T13:47:18+00:00"
+            "time": "2023-01-06T19:29:47+00:00"
         },
         {
             "name": "automattic/jetpack-options",
@@ -1606,28 +1606,28 @@
         },
         {
             "name": "automattic/jetpack-search",
-            "version": "v0.31.2",
+            "version": "v0.31.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-search.git",
-                "reference": "1031698e033c4ef602c5442c5be71d4d161f617b"
+                "reference": "67901af8ffc6d2468fc4882ab7b2a418a79f70e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/1031698e033c4ef602c5442c5be71d4d161f617b",
-                "reference": "1031698e033c4ef602c5442c5be71d4d161f617b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-search/zipball/67901af8ffc6d2468fc4882ab7b2a418a79f70e4",
+                "reference": "67901af8ffc6d2468fc4882ab7b2a418a79f70e4",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17.28",
-                "automattic/jetpack-config": "^1.12.0",
-                "automattic/jetpack-connection": "^1.48.0",
+                "automattic/jetpack-config": "^1.13.0",
+                "automattic/jetpack-connection": "^1.48.1",
                 "automattic/jetpack-constants": "^1.6.20",
-                "automattic/jetpack-my-jetpack": "^2.7.0",
+                "automattic/jetpack-my-jetpack": "^2.7.2",
                 "automattic/jetpack-status": "^1.15.3"
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.2.3",
+                "automattic/jetpack-changelogger": "^3.3.0",
                 "automattic/wordbless": "0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1657,9 +1657,9 @@
             ],
             "description": "Tools to assist with enabling cloud search for Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-search/tree/v0.31.2"
+                "source": "https://github.com/Automattic/jetpack-search/tree/v0.31.2.1"
             },
-            "time": "2022-12-19T13:29:00+00:00"
+            "time": "2023-01-06T19:35:47+00:00"
         },
         {
             "name": "automattic/jetpack-stats",
