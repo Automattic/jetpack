@@ -135,7 +135,7 @@ const JetpackFieldControls = ( {
 								__nextHasNoMarginBottom={ true }
 								value={ attributes.lineHeight }
 								onChange={ lineHeight =>
-									setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || 1.5 } )
+									setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || undefined } )
 								}
 								size="__unstable-large"
 							/>
@@ -148,14 +148,14 @@ const JetpackFieldControls = ( {
 								label={ __( 'Width', 'jetpack' ) }
 								value={ attributes.borderWidth }
 								onChange={ borderWidth =>
-									setAttributes( { borderWidth: parseInt( borderWidth, 10 ) } )
+									setAttributes( { borderWidth: parseInt( borderWidth, 10 ) || undefined } )
 								}
 							/>
 							<TextControl
 								label={ __( 'Radius', 'jetpack' ) }
 								value={ attributes.borderRadius }
 								onChange={ borderRadius =>
-									setAttributes( { borderRadius: parseInt( borderRadius, 10 ) } )
+									setAttributes( { borderRadius: parseInt( borderRadius, 10 ) || undefined } )
 								}
 							/>
 						</PanelBody>
