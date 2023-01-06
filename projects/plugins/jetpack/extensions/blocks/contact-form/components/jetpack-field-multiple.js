@@ -107,6 +107,7 @@ function JetpackFieldMultiple( props ) {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
+				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
 			/>
