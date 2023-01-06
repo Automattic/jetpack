@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -54,8 +55,10 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save: attrs => {
+		const blockProps = useBlockProps.save();
+		return <div { ...blockProps }>{ attrs.attributes.content }</div>;
+	},
 	attributes,
 	transforms: {
 		to: [
