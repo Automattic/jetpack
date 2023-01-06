@@ -52,6 +52,10 @@ class WPCOM_Features {
 	private const PERSONAL_BUNDLE_2Y                          = 'personal-bundle-2y'; // 1029
 	private const BLOGGER_BUNDLE_2Y                           = 'blogger-bundle-2y'; // 1030
 	private const ECOMMERCE_BUNDLE_2Y                         = 'ecommerce-bundle-2y'; // 1031
+	private const VALUE_BUNDLE_3Y                             = 'value_bundle-3y'; // 1043
+	private const BUSINESS_BUNDLE_3Y                          = 'business-bundle-3y'; // 1048
+	private const PERSONAL_BUNDLE_3Y                          = 'personal-bundle-3y'; // 1049
+	private const ECOMMERCE_BUNDLE_3Y                         = 'ecommerce-bundle-3y'; // 1051
 	private const PRO_PLAN_2Y                                 = 'pro-plan-2y'; // 1035
 	private const PRO_PLAN                                    = 'pro-plan'; // 1032
 	private const STARTER_PLAN                                = 'starter-plan'; // 1033
@@ -116,12 +120,12 @@ class WPCOM_Features {
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
-	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y );
+	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
 	private const WPCOM_STARTER_PLANS       = array( self::STARTER_PLAN );
-	private const WPCOM_PREMIUM_PLANS       = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y );
+	private const WPCOM_PREMIUM_PLANS       = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
 	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
-	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y );
-	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y );
+	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y );
+	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
 	private const GOOGLE_WORKSPACE_PRODUCTS = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
 	private const GSUITE_PRODUCTS           = array( self::GAPPS, self::GAPPS_UNLIMITED );
 	private const WPCOM_TITAN_MAIL_PRODUCTS = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
@@ -554,15 +558,18 @@ class WPCOM_Features {
 			self::BUNDLE_PRO,
 			self::VALUE_BUNDLE,
 			self::VALUE_BUNDLE_2Y,
+			self::VALUE_BUNDLE_3Y,
 			// Pro.
 			self::PRO_PLAN,
 			self::PRO_PLAN_2Y,
 			// Business (Excluding Monthly).
 			self::BUSINESS_BUNDLE,
 			self::BUSINESS_BUNDLE_2Y,
+			self::BUSINESS_BUNDLE_3Y,
 			// Ecommerce (Excluding Monthly).
 			self::ECOMMERCE_BUNDLE,
 			self::ECOMMERCE_BUNDLE_2Y,
+			self::ECOMMERCE_BUNDLE_3Y,
 		),
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                => array(
