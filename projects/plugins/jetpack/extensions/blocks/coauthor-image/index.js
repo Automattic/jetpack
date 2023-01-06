@@ -1,3 +1,4 @@
+import { useBlockProps } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
@@ -10,13 +11,15 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'coauthor-image';
-export const title = __( 'Coauthor Image', 'jetpack' );
+export const title = __( 'Coauthor Image (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
 	description: (
 		<Fragment>
-			<p>{ __( 'Automatically generate an illustration for your post.', 'jetpack' ) }</p>
+			<p>
+				{ __( 'Automatically generate an illustration for your post, powered by AI.', 'jetpack' ) }
+			</p>
 		</Fragment>
 	),
 	icon: {
@@ -49,7 +52,10 @@ export const settings = {
 	},
 	edit,
 	/* @TODO Write the block editor output */
-	save: () => null,
+	save: args => {
+		const blockProps = useBlockProps.save();
+		return <div { ...blockProps }>{ args.attributes.content }</div>;
+	},
 	attributes,
 	example: {
 		attributes: {
