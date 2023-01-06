@@ -42,6 +42,7 @@ new Jetpack_JSON_API_Themes_Active_Endpoint(
 		),
 		'request_format'          => array(
 			'theme'                => '(string) The ID of the theme that should be activated',
+			'style_variation_slug' => '(string) The slug of the style variation to apply to the theme',
 			'dont_change_homepage' => '(bool) Whether the homepage of the site should be replaced with the theme homepage',
 		),
 		'response_format'         => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
