@@ -2,6 +2,7 @@ import { renderHook } from '@testing-library/react-hooks';
 import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
+	getAllowedMediaTypes,
 	VIDEO_LENGTH_ERROR,
 } from '../index';
 
@@ -73,11 +74,8 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'Returns allowed media types', () => {
-		const allAllowedMediaTypes = result.current.getAllowedMediaTypes();
-
-		rerender( [ { service_name: 'tumblr' } ] );
-		const allAllowedMediaTypesTumblr = result.current.getAllowedMediaTypes();
-		rerender( DUMMY_CONNECTIONS );
+		const allAllowedMediaTypes = getAllowedMediaTypes( DUMMY_CONNECTIONS );
+		const allAllowedMediaTypesTumblr = getAllowedMediaTypes( [ { service_name: 'tumblr' } ] );
 
 		expect( allAllowedMediaTypes ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL );
 		expect( allAllowedMediaTypesTumblr ).toStrictEqual(

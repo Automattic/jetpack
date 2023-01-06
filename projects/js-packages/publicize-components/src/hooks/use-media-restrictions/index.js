@@ -5,6 +5,9 @@ export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
 export const VIDEO_LENGTH_ERROR = 'VIDEO_LENGTH_ERROR';
 
+// Global max size: 100 GB;
+const GLOBAL_MAX_SIZE = 100000;
+
 /**
  * Checks whether a media is a video.
  *
@@ -15,7 +18,7 @@ export function isVideo( mime ) {
 	return mime.split( '/' )[ 0 ] === 'video';
 }
 
-const getMin = ( a, b ) => Math.min( a ?? Infinity, b ?? Infinity );
+const getMin = ( a, b ) => Math.min( a ?? GLOBAL_MAX_SIZE, b ?? GLOBAL_MAX_SIZE );
 const getMax = ( a, b ) => Math.max( a ?? 0, b ?? 0 );
 
 const reduceVideoLimits = ( prev, current ) => ( {
@@ -30,8 +33,8 @@ const getVideoLimits = enabledConnections =>
 		.map( connection => RESTRICTIONS[ connection.service_name ].video )
 		.reduce( reduceVideoLimits, {
 			minSize: 0,
-			maxSize: Infinity,
-			maxLength: Infinity,
+			maxSize: GLOBAL_MAX_SIZE,
+			maxLength: GLOBAL_MAX_SIZE,
 			minLength: 0,
 		} );
 
@@ -41,7 +44,7 @@ const getVideoLimits = enabledConnections =>
  * @param {Array} enabledConnections - Currently enabled connections.
  * @returns {Array} Array of allowed types
  */
-const getAllowedMediaTypes = enabledConnections => {
+export const getAllowedMediaTypes = enabledConnections => {
 	const typeArrays = enabledConnections.map(
 		connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
 	);
