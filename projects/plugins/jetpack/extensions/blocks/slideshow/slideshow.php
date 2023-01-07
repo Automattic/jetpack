@@ -57,7 +57,7 @@ function render_amp( $attr ) {
 	}
 
 	static $wp_block_jetpack_slideshow_id = 0;
-	$wp_block_jetpack_slideshow_id++;
+	++$wp_block_jetpack_slideshow_id;
 
 	$ids      = $attr['ids'];
 	$autoplay = empty( $attr['autoplay'] ) ? false : true;

@@ -427,7 +427,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 									"{$site->domain}{$site->path}"
 								)
 							);
-							$count_fixes++;
+							++$count_fixes;
 							if ( ! $is_dry_run ) {
 								/*
 								 * We could be deleting a lot of options rows at the same time.
@@ -493,7 +493,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$option
 			)
 		);
-
 	}
 
 	/**
@@ -1073,7 +1072,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 							sleep( 15 );
 						}
 					}
-					$i++;
+					++$i;
 				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.
@@ -1874,14 +1873,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 							WP_CLI::success( __( 'All Jetpack Social connections to %s were successfully disconnected.', 'jetpack' ), $service );
 						}
 					}
+				} elseif ( false !== $publicize->disconnect( false, $identifier ) ) {
+					/* translators: %d is a numeric ID. Example: 1234. */
+					WP_CLI::success( sprintf( __( 'Jetpack Social connection %d has been disconnected.', 'jetpack' ), $identifier ) );
 				} else {
-					if ( false !== $publicize->disconnect( false, $identifier ) ) {
-						/* translators: %d is a numeric ID. Example: 1234. */
-						WP_CLI::success( sprintf( __( 'Jetpack Social connection %d has been disconnected.', 'jetpack' ), $identifier ) );
-					} else {
-						/* translators: %d is a numeric ID. Example: 1234. */
-						WP_CLI::error( sprintf( __( 'Jetpack Social connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
-					}
+					/* translators: %d is a numeric ID. Example: 1234. */
+					WP_CLI::error( sprintf( __( 'Jetpack Social connection %d could not be disconnected.', 'jetpack' ), $identifier ) );
 				}
 				break; // disconnect.
 		}

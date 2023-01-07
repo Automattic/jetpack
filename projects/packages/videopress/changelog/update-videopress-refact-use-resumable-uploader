@@ -1,0 +1,11 @@
+Significance: patch
+Type: added
+
+VideoPress: re-implemnt useResumableUploader(). 
+VideoPress: Iterate over resumable file uploader
+  * Re implement useResumableUploader() hook with TS
+  * Update VideoPress uploader to use this hook
+  * Update getMediaToken() to support jwt-upload one
+  * Fixes VideoPress: Editor hits the jwt endpoint unneeded #28131
+  * Move upload to resumableFileUploader()
+  * More TypeScript Changes

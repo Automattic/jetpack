@@ -677,7 +677,6 @@ class Themes extends Module {
 			}
 		}
 		return $moved_to_inactive;
-
 	}
 
 	/**
@@ -715,7 +714,6 @@ class Themes extends Module {
 			 */
 			do_action( 'jetpack_widget_reordered', $sidebar, $sidebar_name );
 		}
-
 	}
 
 	/**

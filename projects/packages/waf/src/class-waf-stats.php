@@ -93,8 +93,8 @@ class Waf_Stats {
 	 *
 	 * @return string The date the current stored rules was last updated
 	 */
-	public static function get_rules_last_updated() {
-		$rules_last_updated = get_option( Waf_Runner::RULE_LAST_UPDATED_OPTION_NAME );
+	public static function get_automatic_rules_last_updated() {
+		$rules_last_updated = get_option( Waf_Runner::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 		return gmdate( 'F j, Y', $rules_last_updated );
 	}
 
@@ -105,14 +105,14 @@ class Waf_Stats {
 	 */
 	public static function get_waf_stats() {
 		return array(
-			'blocked_requests'    => array(
+			'blocked_requests'             => array(
 				'one_day_stats'    => 15,
 				'thirty_day_stats' => 500,
 			),
-			'ip_allow_list_count' => self::get_ip_allow_list_count(),
-			'ip_block_list_count' => self::get_ip_block_list_count(),
-			'rules_version'       => self::get_rules_version(),
-			'rules_last_updated'  => self::get_rules_last_updated(),
+			'ip_allow_list_count'          => self::get_ip_allow_list_count(),
+			'ip_block_list_count'          => self::get_ip_block_list_count(),
+			'rules_version'                => self::get_rules_version(),
+			'automatic_rules_last_updated' => self::get_automatic_rules_last_updated(),
 		);
 	}
 }

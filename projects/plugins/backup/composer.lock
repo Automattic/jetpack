@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "4de8be67a9e7b8f048d9d69a5d14196aa4ed77cd"
+                "reference": "71841eee0e4daa46ef9c75742b3e2aa10e497a6f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -285,6 +285,9 @@
                 ],
                 "test-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                ],
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
