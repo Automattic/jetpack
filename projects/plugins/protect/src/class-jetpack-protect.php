@@ -167,7 +167,6 @@ class Jetpack_Protect {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
@@ -638,6 +637,9 @@ class Jetpack_Protect {
 	 * @return WP_Rest_Response
 	 */
 	public static function api_get_waf() {
+		// Ensure plugin activation has been performed so WAF module is available.
+		self::do_plugin_activation_activities();
+
 		return new WP_REST_Response(
 			array(
 				'is_seen'    => self::get_waf_seen_status(),

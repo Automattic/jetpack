@@ -331,7 +331,6 @@ class Test_Scan_Status extends BaseTestCase {
 
 		// Make sure this was cached
 		$this->assertEquals( $this->get_sample_response(), Scan_Status::get_from_options() );
-
 	}
 
 	/**
@@ -349,7 +348,6 @@ class Test_Scan_Status extends BaseTestCase {
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertSame( 3, $status );
-
 	}
 
 	/**
@@ -416,7 +414,6 @@ class Test_Scan_Status extends BaseTestCase {
 		remove_filter( 'jetpack_sync_get_themes_callable', array( $this, 'return_sample_themes' ) );
 
 		$this->assertEquals( $expected, $all_threats );
-
 	}
 
 	/**

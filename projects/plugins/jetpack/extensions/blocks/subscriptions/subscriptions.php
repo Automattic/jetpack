@@ -323,7 +323,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
-	Jetpack_Subscriptions_Widget::$instance_count++;
+	++Jetpack_Subscriptions_Widget::$instance_count;
 
 	$classes                  = get_element_class_names_from_attributes( $attributes );
 	$styles                   = get_element_styles_from_attributes( $attributes );

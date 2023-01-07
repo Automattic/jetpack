@@ -529,7 +529,6 @@ class Jetpack_Gutenberg {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
 		}
-
 	}
 
 	/**

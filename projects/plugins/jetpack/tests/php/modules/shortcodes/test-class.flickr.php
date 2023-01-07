@@ -148,7 +148,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842' );
 
 		$this->assertEquals( $output, $shortcode_output );
-
 	}
 
 	/**
@@ -171,7 +170,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertEquals( $output, $shortcode_output );
 
 		delete_transient( 'flickr_video_49931239842' );
-
 	}
 
 	/**

@@ -399,6 +399,12 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 
+		// If the rules file doesn't exist, there's nothing else to do.
+		if ( ! $wp_filesystem->exists( self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE ) ) ) {
+			return;
+		}
+
+		// Empty the rules entrypoint file.
 		if ( ! $wp_filesystem->put_contents( self::get_waf_file_path( self::RULES_ENTRYPOINT_FILE ), "<?php\n" ) ) {
 			throw new \Exception( 'Failed to empty rules.php file.' );
 		}

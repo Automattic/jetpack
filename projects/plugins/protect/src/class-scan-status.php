@@ -202,8 +202,8 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
-						$status->num_threats++;
-						$status->num_plugins_threats++;
+						++$status->num_threats;
+						++$status->num_plugins_threats;
 						continue;
 					}
 
@@ -242,8 +242,8 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
-						$status->num_threats++;
-						$status->num_themes_threats++;
+						++$status->num_threats;
+						++$status->num_themes_threats;
 						continue;
 					}
 				}
@@ -263,20 +263,20 @@ class Scan_Status extends Status {
 							'severity'       => $threat->severity,
 						)
 					);
-					$status->num_threats++;
+					++$status->num_threats;
 
 					continue;
 				}
 
 				if ( ! empty( $threat->filename ) ) {
 					$status->files[] = new Threat_Model( $threat );
-					$status->num_threats++;
+					++$status->num_threats;
 					continue;
 				}
 
 				if ( ! empty( $threat->table ) ) {
 					$status->database[] = new Threat_Model( $threat );
-					$status->num_threats++;
+					++$status->num_threats;
 					continue;
 				}
 			}

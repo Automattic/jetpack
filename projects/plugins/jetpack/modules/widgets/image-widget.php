@@ -116,21 +116,19 @@ class Jetpack_Image_Widget extends WP_Widget {
 				</figure>'; // wp_kses_post caption on update.
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
-		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . wp_kses(
-					sprintf(
-						/* translators: %s link to the widget settings page. */
-						__( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ),
-						admin_url( 'widgets.php' )
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . wp_kses(
+				sprintf(
+					/* translators: %s link to the widget settings page. */
+					__( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ),
+					admin_url( 'widgets.php' )
+				),
+				array(
+					'a' => array(
+						'href' => array(),
 					),
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				) . '</p>';
-			}
+				)
+			) . '</p>';
 		}
 
 		echo "\n" . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

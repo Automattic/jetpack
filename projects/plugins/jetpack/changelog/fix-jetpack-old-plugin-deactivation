@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Modules: Allow for deactivating multiple plugins when activating a module.

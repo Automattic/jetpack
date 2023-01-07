@@ -100,26 +100,24 @@ function load_assets( $attr, $content ) {
 				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $block_id ) )
 			);
 		}
-	} else { // Inline style.
-		if ( $is_amp_request ) {
-			$content = sprintf(
-				'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
-				esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-				esc_attr( $block_id ),
-				esc_js( $url ),
-				wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
-			);
-		} else {
-			$content = sprintf(
-				'<div class="%1$s" id="%2$s"></div>',
-				esc_attr( $classes ),
-				esc_attr( $block_id )
-			);
-			$script  = <<<JS_END
+	} elseif ( $is_amp_request ) { // Inline style.
+		$content = sprintf(
+			'<div class="%1$s" id="%2$s"><a href="%3$s" role="button" target="_blank">%4$s</a></div>',
+			esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+			esc_attr( $block_id ),
+			esc_js( $url ),
+			wp_kses_post( get_attribute( $attr, 'submitButtonText' ) )
+		);
+	} else {
+		$content = sprintf(
+			'<div class="%1$s" id="%2$s"></div>',
+			esc_attr( $classes ),
+			esc_attr( $block_id )
+		);
+		$script  = <<<JS_END
 jetpackInitCalendly( '%s', '%s' );
 JS_END;
-			wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
-		}
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 	}
 
 	return $content;

@@ -49,7 +49,11 @@ class Waf_Compatibility {
 
 	/**
 	 * If the option is not available, use the WAF module status
-	 * to determine whether or not to run automatic rules
+	 * to determine whether or not to run automatic rules.
+	 *
+	 * @since 0.8.0
+	 *
+	 * @return bool The default value for automatic rules.
 	 */
 	public static function get_default_automatic_rules_option() {
 		return Waf_Runner::is_enabled();
