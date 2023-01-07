@@ -619,7 +619,6 @@ class Queue {
 				$this->get_lock_option_name()
 			)
 		);
-
 	}
 
 	/**
@@ -679,7 +678,6 @@ class Queue {
 		}
 
 		return $this->unserialize_values( $items );
-
 	}
 
 	/**
@@ -730,7 +728,6 @@ class Queue {
 		);
 
 		return $items;
-
 	}
 
 	/**

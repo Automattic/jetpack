@@ -495,10 +495,10 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @return void
 		 */
 		public static function register_setting() {
-			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
+			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __CLASS__, 'render_form' ), 'reading' );
 
 			// Register sanitization callback for the Customizer.
-			register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
+			register_setting( 'featured-content', 'featured-content', array( __CLASS__, 'validate_settings' ) );
 		}
 
 		/**

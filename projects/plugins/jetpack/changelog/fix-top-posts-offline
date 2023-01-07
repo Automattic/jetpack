@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Widgets: avoid errors with the Top Posts Widget when activating Offline mode on your site.

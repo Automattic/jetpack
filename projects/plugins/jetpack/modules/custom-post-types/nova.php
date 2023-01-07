@@ -824,7 +824,6 @@ class Nova_Restaurant {
 		);
 		wp_safe_redirect( $redirect );
 		exit;
-
 	}
 
 	/**
@@ -1058,7 +1057,7 @@ class Nova_Restaurant {
 			$parent_count = 0;
 			$current_term = $term;
 			while ( $current_term->parent ) {
-				$parent_count++;
+				++$parent_count;
 				$current_term = get_term( $current_term->parent, self::MENU_TAX );
 			}
 		}
@@ -1440,7 +1439,6 @@ class Nova_Restaurant {
 		}
 
 		return get_term( $term_id, self::MENU_TAX );
-
 	}
 
 	/**

@@ -106,7 +106,6 @@ class Initializer {
 		}
 
 		return version_compare( JETPACK__VERSION, '11.3-a.7', '>=' );
-
 	}
 
 	/**

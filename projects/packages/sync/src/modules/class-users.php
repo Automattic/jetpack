@@ -433,7 +433,6 @@ class Users extends Module {
 		 */
 		do_action( 'jetpack_sync_register_user', $user_id, $this->get_flags( $user_id ) );
 		$this->clear_flags( $user_id );
-
 	}
 
 	/**

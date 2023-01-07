@@ -60,7 +60,7 @@ class VideoPress_Player {
 			self::$shown[ $guid ] = 0;
 		}
 
-		self::$shown[ $guid ]++;
+		++self::$shown[ $guid ];
 
 		$this->video_container_id = 'v-' . $guid . '-' . self::$shown[ $guid ];
 		$this->video_id           = $this->video_container_id . '-video';

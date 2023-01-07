@@ -44,7 +44,7 @@ const UpgradePrompt = () => {
 					{ ! automaticRulesAvailable
 						? __( 'Only manual rules will be applied', 'jetpack-protect' )
 						: __(
-								'Your site is not receiving the latest updated to automatic rules.',
+								'Your site is not receiving the latest updates to automatic rules.',
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ) }
