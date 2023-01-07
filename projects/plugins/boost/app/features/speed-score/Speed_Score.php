@@ -266,19 +266,17 @@ class Speed_Score {
 
 			$response['scores']['isStale'] = $history->is_stale();
 
-		} else {
+		} elseif ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
 			// If either request ended up in error, we can just return the one with error so front-end can take action. The relevent url is available on the serialized object.
-			if ( ( $score_request && $score_request->is_error() ) || ( $score_request_no_boost && $score_request_no_boost->is_error() ) ) {
-				if ( $score_request->is_error() ) {
-					// Serialized version of score request contains the status property and error description if any.
-					$response = $score_request->jsonSerialize();
-				} else {
-					$response = $score_request_no_boost->jsonSerialize();
-				}
+			if ( $score_request->is_error() ) {
+				// Serialized version of score request contains the status property and error description if any.
+				$response = $score_request->jsonSerialize();
 			} else {
-				// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
-				$response['status'] = 'pending';
+				$response = $score_request_no_boost->jsonSerialize();
 			}
+		} else {
+			// If no request ended up in error/success as previous conditions dictate, it means that either of them are in pending state.
+			$response['status'] = 'pending';
 		}
 
 		return rest_ensure_response( $response );

@@ -198,7 +198,6 @@ EXPECTED;
 
 		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
-
 	}
 
 	/*
