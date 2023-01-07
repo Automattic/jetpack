@@ -802,6 +802,10 @@ importers:
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
       '@babel/runtime': 7.20.7
+      '@testing-library/dom': 8.19.1
+      '@testing-library/react': 12.1.5
+      '@testing-library/react-hooks': 8.0.1
+      '@testing-library/user-event': 14.4.3
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/data': 7.6.0
@@ -809,6 +813,8 @@ importers:
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
       concurrently: 6.0.2
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
       react: 17.0.2
       react-dom: 17.0.2
       sass: 1.43.3
@@ -834,8 +840,14 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.7
       '@babel/register': 7.18.9_@babel+core@7.20.7
       '@babel/runtime': 7.20.7
+      '@testing-library/dom': 8.19.1
+      '@testing-library/react': 12.1.5_s2motuibfpxxa3ftoqehetkmru
+      '@testing-library/react-hooks': 8.0.1_sfoxds7t5ydpegc3knd667wn6m
+      '@testing-library/user-event': 14.4.3_ua4wuun3fnehcjqtqj2e2ldgpe
       '@wordpress/browserslist-config': 5.5.0
       concurrently: 6.0.2
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
       sass: 1.43.3
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
@@ -7557,7 +7569,7 @@ packages:
   /@types/jsdom/20.0.1:
     resolution: {integrity: sha512-d0r18sZPmMQr1eG35u12FZfhIXNrnsPU/g5wvRKCUf/tOGilKKwYMYGqh33BNR6ba+2gkHw1EUiHoN3mn7E5IQ==}
     dependencies:
-      '@types/node': 18.11.13
+      '@types/node': 18.11.17
       '@types/tough-cookie': 4.0.2
       parse5: 7.1.2
     dev: true
@@ -7589,7 +7601,7 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 18.11.13
+      '@types/node': 18.11.17
       form-data: 3.0.1
     dev: true
 
@@ -7733,7 +7745,7 @@ packages:
   /@types/webpack/5.28.0_webpack-cli@4.9.1:
     resolution: {integrity: sha512-8cP0CzcxUiFuA9xGJkfeVpqmWTk9nx6CWwamRGCj95ph1SmlRRk9KlCZ6avhCbZd4L68LvYT6l1kpdEnQXrF8w==}
     dependencies:
-      '@types/node': 18.11.13
+      '@types/node': 18.11.17
       tapable: 2.2.1
       webpack: 5.72.1_webpack-cli@4.9.1
     transitivePeerDependencies:
@@ -15237,7 +15249,7 @@ packages:
       '@jest/fake-timers': 29.3.1
       '@jest/types': 29.3.1
       '@types/jsdom': 20.0.1
-      '@types/node': 18.11.13
+      '@types/node': 18.11.17
       jest-mock: 29.3.1
       jest-util: 29.3.1
       jsdom: 20.0.3
