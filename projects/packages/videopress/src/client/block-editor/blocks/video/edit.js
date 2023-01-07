@@ -324,6 +324,19 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
 
+	// Replace video state
+	const [ isReplacingFile, setIsReplacingFile ] = useState( {
+		isReplacing: false,
+		prevAttrs: {},
+	} );
+
+	// Cancel replace video handler
+	const cancelReplacingVideoFile = () => {
+		setAttributes( isReplacingFile.prevAttrs );
+		setIsReplacingFile( { isReplacingFile: false, prevAttrs: {} } );
+		setIsUploadingFile( false );
+	};
+
 	// Render Example block view
 	if ( isExample ) {
 		return (
@@ -353,6 +366,8 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					attributes={ attributes }
 					handleDoneUpload={ handleDoneUpload }
 					fileToUpload={ fileToUpload }
+					isReplacing={ isReplacingFile?.isReplacing }
+					onReplaceCancel={ cancelReplacingVideoFile }
 				/>
 			</div>
 		);
@@ -430,6 +445,11 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					onUploadFileStart={ media => {
+						setIsReplacingFile( {
+							isReplacing: true,
+							prevAttrs: attributes,
+						} );
+
 						setAttributes( { id: null, guid: null } );
 						setIsUploadingFile( true );
 						setFileToUpload( media );

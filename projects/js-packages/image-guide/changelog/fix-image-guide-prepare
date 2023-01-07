@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Fixed an issue that would break the release process

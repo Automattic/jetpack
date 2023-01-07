@@ -27,6 +27,8 @@ const VideoPressUploader = ( {
 	noticeOperations,
 	handleDoneUpload,
 	fileToUpload,
+	isReplacing,
+	onReplaceCancel,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
 	const [ uploadCompleted, setUploadCompleted ] = useState( false );
@@ -180,6 +182,11 @@ const VideoPressUploader = ( {
 		setUploadPaused( ! uploadPaused );
 	};
 
+	const cancelUploadingReplaceFile = function () {
+		resumeHandler.abort();
+		onReplaceCancel();
+	};
+
 	/**
 	 * Uploading file handler.
 	 *
@@ -193,9 +200,16 @@ const VideoPressUploader = ( {
 		 */
 		media = media?.[ 0 ] ? media[ 0 ] : media;
 
-		const isFileUploading = media instanceof File;
+		/*
+		 * For some reason, the `instance of File` check doesn't work.
+		 * It returns false even when the media is a File.
+		 * https://github.com/Automattic/jetpack/issues/28191
+		 */
+		// const isUploadingFile = media instanceof File;
+		const isUploadingFile = media?.name && media?.size && media?.type;
+
 		// - Handle upload by selecting a File
-		if ( isFileUploading ) {
+		if ( isUploadingFile ) {
 			startUpload( media );
 			return;
 		}
@@ -313,6 +327,8 @@ const VideoPressUploader = ( {
 				paused={ uploadPaused }
 				completed={ uploadCompleted }
 				onPauseOrResume={ pauseOrResumeUpload }
+				onReplaceCancel={ cancelUploadingReplaceFile }
+				isReplacing={ isReplacing }
 				onDone={ handleDoneUpload }
 				supportPauseOrResume={ !! resumeHandler }
 			/>
