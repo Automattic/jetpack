@@ -1261,6 +1261,7 @@ importers:
       '@wordpress/core-data': 5.5.0
       '@wordpress/data': 7.6.0
       '@wordpress/date': 4.22.0
+      '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -1302,6 +1303,7 @@ importers:
       '@wordpress/core-data': 5.5.0_react@17.0.2
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/date': 4.22.0
+      '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0_qi72e2chmmemxbokngy4ve2xaa
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -8143,7 +8145,7 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.20.7
-      '@wordpress/dom-ready': 3.22.0
+      '@wordpress/dom-ready': 3.23.0
       '@wordpress/i18n': 4.23.0
 
   /@wordpress/a11y/3.23.0:
