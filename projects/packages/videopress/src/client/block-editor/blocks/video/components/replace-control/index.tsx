@@ -11,6 +11,7 @@ import { VideoBlockAttributes } from '../../types';
 
 type ReplaceControlProps = {
 	attributes: VideoBlockAttributes;
+	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	onUploadFileStart: ( media: File ) => void;
 	onSelectVideoFromLibrary: ( media: AdminAjaxQueryAttachmentsResponseItemProps ) => void;
 };
