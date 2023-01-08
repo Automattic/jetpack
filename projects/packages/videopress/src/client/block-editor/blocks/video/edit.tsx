@@ -470,7 +470,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						setAttributes( {
 							guid: mediaGuid,
 							id: media.id,
-							src: media.videopress_url,
+							src: media.url,
 							title: media.title,
 							description: media.description,
 						} );
