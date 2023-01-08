@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { pickGUIDFromUrl } from '../../../../../lib/url';
+import { pickGUIDFromUrl, getVideoPressUrl, isVideoPressGuid } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
 import { description, title } from '../../index';
@@ -104,21 +104,29 @@ const VideoPressUploader = ( {
 	/**
 	 * Handler to add a video via an URL.
 	 *
-	 * @param {string} videoUrl - URL of the video to attach
+	 * @param {string} videoSource - URL of the video to attach
 	 * @param {string} id - Attachment ID if available
 	 */
-	function onSelectURL( videoUrl, id = undefined ) {
-		const videoGuid = pickGUIDFromUrl( videoUrl );
-		if ( ! videoGuid ) {
-			setUploadErrorDataState( {
-				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
-			} );
+	function onSelectURL( videoSource, id ) {
+		// If the video source is a VideoPress URL, we can use it directly.
+		const videoGuidFromUrl = pickGUIDFromUrl( videoSource );
+		if ( videoGuidFromUrl ) {
+			setAttributes( { guid: videoGuidFromUrl, src: videoSource, id } );
+			handleDoneUpload();
 			return;
 		}
 
-		// Update guid based on the URL.
-		setAttributes( { guid: videoGuid, src: videoUrl, id } );
-		handleDoneUpload();
+		// If the video source is a VideoPress GUID, let's build the URL.
+		const videoGuid = isVideoPressGuid( videoSource );
+		if ( videoGuid ) {
+			setAttributes( { guid: videoGuid, src: getVideoPressUrl( videoGuid, attributes ), id } );
+			handleDoneUpload();
+			return;
+		}
+
+		setUploadErrorDataState( {
+			data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
+		} );
 	}
 
 	const startUpload = file => {
