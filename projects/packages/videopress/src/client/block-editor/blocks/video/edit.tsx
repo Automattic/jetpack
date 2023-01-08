@@ -257,7 +257,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef();
+	const rePreviewAttemptTimer = useRef< NodeJS.Timeout >();
 
 	/**
 	 * Clean the generating process timer.
@@ -269,7 +269,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			return;
 		}
 
-		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
+		clearInterval( rePreviewAttemptTimer.current );
 	}
 
 	useEffect( () => {
