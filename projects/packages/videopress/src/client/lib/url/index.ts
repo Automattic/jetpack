@@ -1,5 +1,5 @@
 import { addQueryArgs } from '@wordpress/url';
-import { VideoBlockAttributes } from '../../block-editor/blocks/video/types';
+import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
 
 export const getVideoPressUrl = (
 	guid: string,
@@ -79,3 +79,18 @@ export const pickGUIDFromUrl = ( url: string ) => {
 
 	return urlParts.groups.guid;
 };
+
+/**
+ * Check if a string is a valid VideoPress GUID.
+ *
+ * @param {string} value - The string to check.
+ * @returns {boolean | VideoGUID} Video GUID if the string is valid, false otherwise.
+ */
+export function isVideoPressGuid( value: string ): boolean | VideoGUID {
+	const guid = value.match( /^[a-zA-Z\d]{8}$/ );
+	if ( ! guid ) {
+		return false;
+	}
+
+	return guid[ 0 ];
+}
