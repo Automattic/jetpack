@@ -33,6 +33,10 @@ import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
 import './editor.scss';
+/**
+ * Types
+ */
+import type { VideoBlockAttributes } from './types';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -201,7 +205,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Pick video properties from preview.
 	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
 		? preview
-		: { html: null, scripts: [] };
+		: { html: null, scripts: [], width: null, height: null };
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -325,7 +329,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	const [ fileToUpload, setFileToUpload ] = useState( null );
 
 	// Replace video state
-	const [ isReplacingFile, setIsReplacingFile ] = useState( {
+	const [ isReplacingFile, setIsReplacingFile ] = useState< {
+		isReplacing: boolean;
+		prevAttrs: VideoBlockAttributes;
+	} >( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
@@ -333,7 +340,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Cancel replace video handler
 	const cancelReplacingVideoFile = () => {
 		setAttributes( isReplacingFile.prevAttrs );
-		setIsReplacingFile( { isReplacingFile: false, prevAttrs: {} } );
+		setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 		setIsUploadingFile( false );
 	};
 

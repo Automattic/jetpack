@@ -23,7 +23,7 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	guid?: VideoGUID;
 	src?: string;
 
-	align: BlockSupportAlignProp;
+	align?: BlockSupportAlignProp;
 	title?: string;
 	description?: string;
 
