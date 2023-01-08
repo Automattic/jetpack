@@ -15,7 +15,20 @@ export const getVideoPressUrl = (
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		useAverageColor,
-	}: VideoBlockAttributes
+	}: Pick<
+		VideoBlockAttributes,
+		| 'autoplay'
+		| 'controls'
+		| 'loop'
+		| 'muted'
+		| 'playsinline'
+		| 'poster'
+		| 'preload'
+		| 'seekbarColor'
+		| 'seekbarPlayedColor'
+		| 'seekbarLoadingColor'
+		| 'useAverageColor'
+	>
 ) => {
 	if ( ! guid ) {
 		return null;

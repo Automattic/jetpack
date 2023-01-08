@@ -7,6 +7,15 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import { getVideoPressUrl } from '../../../lib/url';
+/**
+ * Types
+ */
+import type { VideoBlockAttributes } from './types';
+import type React from 'react';
+
+type videoBlockSaveProps = {
+	attributes: VideoBlockAttributes;
+};
 
 /**
  * VideoPress block save function
@@ -15,7 +24,7 @@ import { getVideoPressUrl } from '../../../lib/url';
  * @param {object} props.attributes  - Block attributes.
  * @returns {object}                 - React component.
  */
-export default function save( { attributes } ) {
+export default function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
 	const {
 		align,
 		autoplay,
@@ -55,7 +64,7 @@ export default function save( { attributes } ) {
 	} );
 
 	// Adjust block width based on custom maxWidth.
-	const style = {};
+	const style: { maxWidth?: string; margin?: string } = {};
 	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		style.maxWidth = maxWidth;
 		style.margin = 'auto';

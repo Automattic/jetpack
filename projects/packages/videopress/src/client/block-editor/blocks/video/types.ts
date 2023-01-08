@@ -16,11 +16,14 @@ export type VideoBlockColorAttributesProps = {
 	seekbarColor?: string;
 };
 
+type BlockSupportAlignProp = 'left' | 'center' | 'right' | 'wide' | 'full' | undefined;
+
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: VideoId;
 	guid?: VideoGUID;
 	src?: string;
 
+	align: BlockSupportAlignProp;
 	title?: string;
 	description?: string;
 
