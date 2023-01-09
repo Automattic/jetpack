@@ -1320,7 +1320,7 @@ class Grunion_Admin {
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
-					<?php esc_html_e( 'Download your response form data via CSV file.', 'jetpack' ); ?>
+					<?php esc_html_e( 'Download your form response data via CSV file.', 'jetpack' ); ?>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
