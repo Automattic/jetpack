@@ -41,7 +41,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	public function get_page_hook() {
 		// Add the main admin Jetpack menu.
 		return add_submenu_page(
-			null,
+			'',
 			esc_html__( 'About Jetpack', 'jetpack' ),
 			'',
 			'jetpack_admin_page',

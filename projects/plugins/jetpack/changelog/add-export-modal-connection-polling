@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Add a polling function on "Connect Google Drive" button. After clicking (opens new tab to connect from Calypso), the polling function will check the connection status every 5 seconds. When successful, the button will change into Export"

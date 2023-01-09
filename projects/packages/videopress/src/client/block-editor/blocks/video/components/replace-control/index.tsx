@@ -8,52 +8,46 @@ import { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { VideoBlockAttributes } from '../../types';
-
-type UrlFileProp = {
-	url: `blob:${ string }`;
-};
+import './style.scss';
 
 type ReplaceControlProps = {
 	attributes: VideoBlockAttributes;
+	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	onUploadFileStart: ( media: File ) => void;
-	onSelectVideoFromLibrary: (
-		media: AdminAjaxQueryAttachmentsResponseItemProps | UrlFileProp
-	) => void;
+	onSelectVideoFromLibrary: ( media: AdminAjaxQueryAttachmentsResponseItemProps ) => void;
+	onSelectURL: ( url: string ) => void;
 };
 
 const ReplaceControl = ( {
 	attributes,
 	onUploadFileStart,
 	onSelectVideoFromLibrary,
+	onSelectURL,
 }: ReplaceControlProps ) => {
 	/**
-	 * Uploading file handler.
+	 * Handler to define the prop to run
+	 * when the user selects a video from the media library,
+	 * or when the user uploads a video.
 	 *
-	 * @param {FileList} media - media file to upload
+	 * @param { AdminAjaxQueryAttachmentsResponseItemProps | FileList } media - The media selected by the user.
 	 */
-	function onFileUploadHandler( media: FileList ): void {
-		/*
-		 * Allow uploading only (the first) one file
-		 * @todo: Allow uploading multiple files
-		 */
-		const file = media?.[ 0 ] ? media[ 0 ] : media;
-
-		const isFileUploading = file instanceof File;
-		if ( ! isFileUploading ) {
+	function selectMediaHandler( media: AdminAjaxQueryAttachmentsResponseItemProps | FileList ) {
+		if ( media?.[ 0 ]?.name && media?.[ 0 ]?.size && media?.[ 0 ]?.type ) {
+			onUploadFileStart( media[ 0 ] );
 			return;
 		}
-
-		onUploadFileStart( file );
+		onSelectVideoFromLibrary( media as AdminAjaxQueryAttachmentsResponseItemProps );
 	}
 
 	return (
 		<MediaReplaceFlow
 			mediaId={ attributes.id }
-			handleUpload={ true }
+			handleUpload={ false }
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-			onFilesUpload={ onFileUploadHandler }
-			onSelect={ onSelectVideoFromLibrary }
+			onSelect={ selectMediaHandler }
+			mediaURL={ attributes.src }
+			onSelectURL={ onSelectURL }
 		/>
 	);
 };
