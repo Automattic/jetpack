@@ -61,6 +61,10 @@ class Waf_Stats {
 	public static function get_ip_allow_list_count() {
 		$ip_allow_list = get_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME );
 
+		if ( ! $ip_allow_list ) {
+			return 0;
+		}
+
 		$results = Waf_Runner::ip_option_to_array( $ip_allow_list );
 
 		return count( $results );
@@ -73,6 +77,10 @@ class Waf_Stats {
 	 */
 	public static function get_ip_block_list_count() {
 		$ip_block_list = get_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME );
+
+		if ( ! $ip_block_list ) {
+			return 0;
+		}
 
 		$results = Waf_Runner::ip_option_to_array( $ip_block_list );
 
