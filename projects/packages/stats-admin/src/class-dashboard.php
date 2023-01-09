@@ -91,6 +91,7 @@ class Dashboard {
 					class="jp-stats-dashboard-loading-spinner"
 					width="32"
 					height="32"
+					style="position: absolute; left: 50%; top: 50%;"
 					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
@@ -154,20 +155,6 @@ class Dashboard {
 			'jp-stats-dashboard',
 			$this->get_config_data_js(),
 			'before'
-		);
-
-		add_action(
-			'admin_head',
-			function () {
-				echo '<style>
-				.jp-stats-dashboard-loading-spinner {
-					position: absolute;
-					left: 50%;
-					top: 50%;
-				}
-				</style>';
-			},
-			100
 		);
 	}
 
