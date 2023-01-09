@@ -1348,7 +1348,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "f6bbc588a23a08905489c3c3295347ba20cbc548"
+                "reference": "086d92553c659877fb31988a7119b48843d518a7"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
