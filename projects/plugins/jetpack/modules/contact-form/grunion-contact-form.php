@@ -4762,6 +4762,15 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$class .= ' contact-form-dropdown';
 		}
 
+		$form_style = $this->get_form_style();
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			if ( empty( $placeholder ) ) {
+				$placeholder .= ' ';
+			} else {
+				$class .= ' has-placeholder';
+			}
+		}
+
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $type ) . ' ' . esc_attr( $class ) ) . "' ";
 		$wrap_classes      = empty( $class ) ? '' : implode( '-wrap ', array_filter( explode( ' ', $class ) ) ) . '-wrap'; // this adds
@@ -4788,6 +4797,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		if ( current_user_can( 'manage_options' ) ) {
 			$value = '';
 		}
+
 		switch ( $type ) {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
@@ -4823,8 +4833,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
 		}
-
-		$form_style = $this->get_form_style();
 
 		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
 			switch ( $form_style ) {

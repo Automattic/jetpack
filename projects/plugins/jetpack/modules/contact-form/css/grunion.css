@@ -354,7 +354,7 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
-	width: 12px;
+	width: calc(var(--jetpack--contact-form--input-padding-left) - 4px);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border: var(--jetpack--contact-form--border);
 	border-right: none;
@@ -386,11 +386,17 @@
 	border-left: none;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__notch {
+.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap input:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap input.has-placeholder ~ .notched-label .notched-label__notch
+{
 	border-top-color: transparent;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__label {
+.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap input:not(:placeholder-shown) ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap input.has-placeholder ~ .notched-label .notched-label__label
+{
 	top: 0;
 	transform: translateY(-50%);
 	font-size: 0.8em;
@@ -402,14 +408,14 @@
 }
 
 .contact-form .is-style-animated .grunion-field-wrap input {
-	padding-top: 1.1em;
+	padding-top: 1.2em;
 	outline: none;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
-	left: var(--jetpack--contact-form--input-padding-left);
+	left: calc(var(--jetpack--contact-form--input-padding-left) + var(--jetpack--contact-form--border-size) );
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -420,7 +426,8 @@
 }
 
 .contact-form .is-style-animated .grunion-field-wrap input:focus ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap input:not(:placeholder-shown) ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap input:not(:placeholder-shown) ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap input.has-placeholder ~ .animated-label__label
 {
 	font-size: 0.8em;
 	transform: translateY(0);
