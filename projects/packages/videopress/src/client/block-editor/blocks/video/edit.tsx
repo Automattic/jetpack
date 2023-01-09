@@ -482,7 +482,7 @@ export default function VideoPressEdit( {
 						} );
 					} }
 					onSelectURL={ videoSource => {
-						const videoUrlData = buildVideoPressURL( videoSource, attributes );
+						const videoUrlData = buildVideoPressURL( videoSource );
 						if ( ! videoUrlData ) {
 							debug( 'Invalid URL. No video GUID  provided' );
 							return;

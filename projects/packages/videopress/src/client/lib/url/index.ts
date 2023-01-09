@@ -107,10 +107,14 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
  */
 export function buildVideoPressURL(
 	value: string | VideoGUID,
-	attributes: VideoPressUrlOptions
+	attributes?: VideoPressUrlOptions
 ): false | { url: string; guid: VideoGUID } {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
+		if ( ! attributes ) {
+			return { url: `https://videopress.com/v/${ value }`, guid: value };
+		}
+
 		return { url: getVideoPressUrl( value, attributes ), guid: value };
 	}
 
