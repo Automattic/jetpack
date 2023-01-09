@@ -37,6 +37,7 @@ import './editor.scss';
  * Types
  */
 import type { VideoBlockAttributes } from './types';
+import type React from 'react';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -79,9 +80,14 @@ export const PlaceholderWrapper = withNotices( function ( {
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected     - Whether the block is selected.
  * @param {string} props.clientId        - Block client ID.
- * @returns {object}                     - React component.
+ * @returns {React.ReactNode}            - React component.
  */
-export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
+export default function VideoPressEdit( {
+	attributes,
+	setAttributes,
+	isSelected,
+	clientId,
+} ): React.ReactNode {
 	const {
 		autoplay,
 		loop,
