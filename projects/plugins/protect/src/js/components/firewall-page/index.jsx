@@ -62,7 +62,7 @@ const FirewallPage = () => {
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
-	const { ipAllowListCount, ipBlockListCount, rulesVersion, rulesLastUpdated } = stats;
+	const { ipAllowListCount, ipBlockListCount, rulesVersion, automaticRulesLastUpdated } = stats;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -347,7 +347,7 @@ const FirewallPage = () => {
 									{ sprintf(
 										// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
 										__( 'Last updated on %s.', 'jetpack-protect' ),
-										rulesLastUpdated
+										automaticRulesLastUpdated
 									) }
 								</Text>
 							</div>
