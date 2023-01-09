@@ -389,11 +389,11 @@ class REST_Controller {
 		return Jetpack_Protect::set_waf_seen_status();
 	}
 
-		/**
-		 * Get WAF Upgrade "Seen" Status for the API endpoint
-		 *
-		 * @return bool Whether the current user has dismissed the upgrade popover or enabled the automatic rules feature.
-		 */
+	/**
+	 * Get WAF Upgrade "Seen" Status for the API endpoint
+	 *
+	 * @return bool Whether the current user has dismissed the upgrade popover or enabled the automatic rules feature.
+	 */
 	public static function api_get_waf_upgrade_seen_status() {
 		return Jetpack_Protect::get_waf_upgrade_seen_status();
 	}
