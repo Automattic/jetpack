@@ -8,18 +8,21 @@ import { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { VideoBlockAttributes } from '../../types';
+import './style.scss';
 
 type ReplaceControlProps = {
 	attributes: VideoBlockAttributes;
 	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	onUploadFileStart: ( media: File ) => void;
 	onSelectVideoFromLibrary: ( media: AdminAjaxQueryAttachmentsResponseItemProps ) => void;
+	onSelectURL: ( url: string ) => void;
 };
 
 const ReplaceControl = ( {
 	attributes,
 	onUploadFileStart,
 	onSelectVideoFromLibrary,
+	onSelectURL,
 }: ReplaceControlProps ) => {
 	/**
 	 * Handler to define the prop to run
@@ -43,6 +46,8 @@ const ReplaceControl = ( {
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onSelect={ selectMediaHandler }
+			mediaURL={ attributes.src }
+			onSelectURL={ onSelectURL }
 		/>
 	);
 };

@@ -19,7 +19,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import getMediaToken from '../../../lib/get-media-token';
-import { getVideoPressUrl } from '../../../lib/url';
+import { getVideoPressUrl, pickGUIDFromUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -480,6 +480,16 @@ export default function VideoPressEdit( {
 							title: media.title,
 							description: media.description,
 						} );
+					} }
+					onSelectURL={ url => {
+						const videoGuid = pickGUIDFromUrl( url );
+						if ( ! videoGuid ) {
+							debug( 'Invalid URL. No video GUID  provided' );
+							return;
+						}
+
+						// Update guid based on the URL.
+						setAttributes( { guid: videoGuid, src: url } );
 					} }
 				/>
 			</BlockControls>
