@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Use a newly created redirect for "Connect Google Drive" export modal's link. This new redirect will take the user directly to the site's marketing/connections page (bypassing the site selection screen)

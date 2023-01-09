@@ -1,5 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
  * Jetpack_Subscriptions_Widget main view class.
@@ -134,7 +135,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		self::$instance_count ++;
+		++self::$instance_count;
 
 		self::render_widget_title( $args, $instance );
 
@@ -160,10 +161,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( ! empty( $instance['title_following'] ) ) {
 					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . esc_attr( $instance['title_following'] ) . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
-			} else {
-				if ( ! empty( $instance['title'] ) ) {
-					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
+			} elseif ( ! empty( $instance['title'] ) ) {
+				echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
 
@@ -325,21 +324,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Generates the source parameter to pass to the iframe
-	 *
-	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
-	 */
-	protected static function get_post_access_level() {
-		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
-		global $post;
-		$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-		if ( empty( $meta ) ) {
-			$meta = 'everybody';
-		}
-		return $meta;
-	}
-
-	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -363,7 +347,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
-		$post_access_level            = self::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -377,8 +360,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
-				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
-				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -411,7 +392,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							placeholder="%3$s"
 							value=""
 							id="%4$s"
-							required
 						/>',
 						( ! empty( $email_field_classes )
 							? 'class="' . esc_attr( $email_field_classes ) . '"'
@@ -483,9 +463,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>"
-				data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>"
-				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>" >
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>

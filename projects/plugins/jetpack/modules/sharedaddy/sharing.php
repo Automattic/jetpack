@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {

@@ -46,7 +46,7 @@ final class WafOperatorsTest extends PHPUnit\Framework\TestCase {
 				$this->o->$ofn( $input, $param ),
 				sprintf( 'Failed %s assertion #%d with input: %s ', $ofn, $n, $input )
 			);
-			$n++;
+			++$n;
 		}
 	}
 

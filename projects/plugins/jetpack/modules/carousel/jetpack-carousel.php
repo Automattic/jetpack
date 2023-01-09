@@ -1288,7 +1288,6 @@ class Jetpack_Carousel {
 
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
-
 	}
 
 	/**

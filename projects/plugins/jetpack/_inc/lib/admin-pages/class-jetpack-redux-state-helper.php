@@ -402,6 +402,8 @@ class Jetpack_Redux_State_Helper {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Gather data about the current user.
  *

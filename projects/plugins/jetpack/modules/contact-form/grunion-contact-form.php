@@ -7,6 +7,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Sync\Settings;
@@ -1781,11 +1783,13 @@ class Grunion_Contact_Form_Plugin {
 	 * Extracts feedback entries based on POST data.
 	 */
 	public function get_feedback_entries_from_post() {
-		if ( empty( $_POST['feedback_export_nonce'] ) ) {
+		if ( empty( $_POST['feedback_export_nonce_csv'] ) && empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
 			return;
+		} elseif ( ! empty( $_POST['feedback_export_nonce_csv'] ) ) {
+			check_admin_referer( 'feedback_export', 'feedback_export_nonce_csv' );
+		} elseif ( ! empty( $_POST['feedback_export_nonce_gdrive'] ) ) {
+			check_admin_referer( 'feedback_export', 'feedback_export_nonce_gdrive' );
 		}
-
-		check_admin_referer( 'feedback_export', 'feedback_export_nonce' );
 
 		if ( ! current_user_can( 'export' ) ) {
 			return;
@@ -1893,7 +1897,7 @@ class Grunion_Contact_Form_Plugin {
 		/**
 		 * Print rows to the output.
 		 */
-		for ( $i = 0; $i < $row_count; $i ++ ) {
+		for ( $i = 0; $i < $row_count; $i++ ) {
 
 			$current_row = array();
 
@@ -2886,15 +2890,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
 
-					$label = $field->get_attribute( 'label' );
+					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
 					$compiled_form[ $field_index ] = sprintf(
-						'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
+						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
-					$i++;
+					++$i;
 				}
 			}
 		}
@@ -2987,7 +2991,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
 
-					$i++;
+					++$i;
 				}
 			}
 		}
@@ -3330,10 +3334,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			if ( isset( $_POST['contact-form-id'] ) && 'block-template-part-' . $block_template_part !== $_POST['contact-form-id'] ) { // phpcs:Ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
 				return false;
 			}
-		} else {
-			if ( isset( $_POST['contact-form-id'] ) && $post->ID !== (int) $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
-				return false;
-			}
+		} elseif ( isset( $_POST['contact-form-id'] ) && $post->ID !== (int) $_POST['contact-form-id'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- check done by caller process_form_submission()
+			return false;
 		}
 
 		$field_ids = $this->get_field_ids();
@@ -3408,7 +3410,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$value = $field->value;
 
 			$all_values[ $label ] = $value;
-			$i++; // Increment prefix counter for the next field
+			++$i; // Increment prefix counter for the next field
 		}
 
 		// For the "non-standard" fields, grab label and value
@@ -3423,7 +3425,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			$extra_values[ $label ] = $value;
-			$i++; // Increment prefix counter for the next extra field
+			++$i; // Increment prefix counter for the next extra field
 		}
 
 		if ( ! empty( $_REQUEST['is_block'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not changing the site.
@@ -4092,7 +4094,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$i         = 0;
 				$max_tries = 99;
 				while ( isset( $form->fields[ $id ] ) ) {
-					$i++;
+					++$i;
 					$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
 
 					if ( $i > $max_tries ) {
@@ -4326,7 +4328,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				. esc_html( $label )
 				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
 			. "</label>\n";
-
 	}
 
 	/**
