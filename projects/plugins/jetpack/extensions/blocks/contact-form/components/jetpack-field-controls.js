@@ -29,6 +29,14 @@ const JetpackFieldControls = ( {
 	width,
 	disableStyleControls,
 } ) => {
+	const setNumberAttribute = ( key, parse = parseInt ) => value => {
+		const parsedValue = parse( value, 10 );
+
+		setAttributes( {
+			[ key ]: ! isNaN( parsedValue ) ? parsedValue : undefined,
+		} );
+	};
+
 	return (
 		<>
 			<BlockControls>
@@ -134,9 +142,7 @@ const JetpackFieldControls = ( {
 								__unstableInputWidth="100%"
 								__nextHasNoMarginBottom={ true }
 								value={ attributes.lineHeight }
-								onChange={ lineHeight =>
-									setAttributes( { lineHeight: parseFloat( lineHeight, 10 ) || undefined } )
-								}
+								onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 								size="__unstable-large"
 							/>
 						</PanelBody>
@@ -147,16 +153,12 @@ const JetpackFieldControls = ( {
 							<TextControl
 								label={ __( 'Width', 'jetpack' ) }
 								value={ attributes.borderWidth }
-								onChange={ borderWidth =>
-									setAttributes( { borderWidth: parseInt( borderWidth, 10 ) || undefined } )
-								}
+								onChange={ setNumberAttribute( 'borderWidth' ) }
 							/>
 							<TextControl
 								label={ __( 'Radius', 'jetpack' ) }
 								value={ attributes.borderRadius }
-								onChange={ borderRadius =>
-									setAttributes( { borderRadius: parseInt( borderRadius, 10 ) || undefined } )
-								}
+								onChange={ setNumberAttribute( 'borderRadius' ) }
 							/>
 						</PanelBody>
 					</>
