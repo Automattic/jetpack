@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix firewall activation hooks on first option updates.
