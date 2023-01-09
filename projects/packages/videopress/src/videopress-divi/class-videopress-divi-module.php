@@ -69,9 +69,13 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	/**
 	 * Render.
 	 *
+	 * @param array       $attrs       The attributes.
+	 * @param string|null $content     The content.
+	 * @param string|null $render_slug The render slug.
+	 *
 	 * @return string
 	 */
-	public function render( /* $attrs, $content = null, $render_slug = null */ ) {
+	public function render( $attrs, $content = null, $render_slug = null ) {
 		$iframe_title = sprintf(
 			/* translators: %s: Video title. */
 			esc_html__( 'Video player for %s', 'jetpack-videopress-pkg' ),
