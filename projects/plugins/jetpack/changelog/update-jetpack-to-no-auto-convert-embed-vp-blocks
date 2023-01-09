@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Jetpack: do not convert core/embed to videopress/video on-the-fly

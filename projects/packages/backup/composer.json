@@ -34,6 +34,9 @@
 		"test-coverage": [
 			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
+		"test-js": [
+			"pnpm run test"
+		],
 		"test-php": [
 			"@composer phpunit"
 		],

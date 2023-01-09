@@ -319,10 +319,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 						return new WP_Error( 'unauthorized', 'User cannot publish posts', 403 );
 					}
 				}
-			} else {
-				if ( ! current_user_can( $post_type->cap->edit_posts ) ) {
-					return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
-				}
+			} elseif ( ! current_user_can( $post_type->cap->edit_posts ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
 			}
 		} else {
 			$input = $this->input( false );
@@ -486,14 +484,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					if ( $is_hierarchical ) {
 						// Hierarchical terms must be added by ID.
 						$tax_input[ $taxonomy ][] = (int) $term_info['term_id'];
+					} elseif ( is_int( $term ) ) { // Non-hierarchical terms must be added by name.
+						$term                     = get_term( $term, $taxonomy );
+						$tax_input[ $taxonomy ][] = $term->name;
 					} else {
-						// Non-hierarchical terms must be added by name.
-						if ( is_int( $term ) ) {
-							$term                     = get_term( $term, $taxonomy );
-							$tax_input[ $taxonomy ][] = $term->name;
-						} else {
-							$tax_input[ $taxonomy ][] = $term;
-						}
+						$tax_input[ $taxonomy ][] = $term;
 					}
 				}
 			}
@@ -675,28 +670,22 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
+			} elseif ( $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
 			} else {
-				if ( $likes ) {
-					update_post_meta( $post_id, 'switch_like_status', 1 );
+				delete_post_meta( $post_id, 'switch_like_status' );
+			}
+		} elseif ( isset( $likes ) ) {
+			if ( $sitewide_likes_enabled ) {
+				if ( false === $likes ) {
+					update_post_meta( $post_id, 'switch_like_status', 0 );
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
-			}
-		} else {
-			if ( isset( $likes ) ) {
-				if ( $sitewide_likes_enabled ) {
-					if ( false === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 0 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				} else {
-					if ( true === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 1 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				}
+			} elseif ( true === $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
+			} else {
+				delete_post_meta( $post_id, 'switch_like_status' );
 			}
 		}
 
@@ -706,12 +695,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			if ( false === $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
-		} else {
-			if ( isset( $sharing ) && true === $sharing ) {
-				delete_post_meta( $post_id, 'sharing_disabled' );
-			} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				update_post_meta( $post_id, 'sharing_disabled', 1 );
-			}
+		} elseif ( isset( $sharing ) && true === $sharing ) {
+			delete_post_meta( $post_id, 'sharing_disabled' );
+		} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			update_post_meta( $post_id, 'sharing_disabled', 1 );
 		}
 
 		if ( isset( $sticky ) ) {

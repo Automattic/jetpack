@@ -15,6 +15,8 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { filter, includes } from 'lodash';
 import React from 'react';
+import { connect } from 'react-redux';
+import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -243,19 +245,22 @@ class SiteStatsComponent extends React.Component {
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
-						{ /* We hide the new Stats option till we lauch it to the general public. */ }
-						<FormFieldset style={ { display: 'none' } }>
-							<CompactFormToggle
-								checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
-								onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Preview new Jetpack Stats experience (Experimental)', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-						</FormFieldset>
+						{ ! this.props.isWoASite && (
+							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
+							<FormFieldset>
+								<CompactFormToggle
+									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
+									disabled={ ! isStatsActive || unavailableInOfflineMode }
+									toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
+									onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ /* This toggle enables Odyssey Stats. */ }
+										{ __( 'Enable a new Jetpack Stats experience (Experimental)', 'jetpack' ) }
+									</span>
+								</CompactFormToggle>
+							</FormFieldset>
+						) }
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
@@ -303,4 +308,6 @@ class SiteStatsComponent extends React.Component {
 	}
 }
 
-export const SiteStats = withModuleSettingsFormHelpers( SiteStatsComponent );
+export const SiteStats = connect( state => ( {
+	isWoASite: isWoASite( state ),
+} ) )( withModuleSettingsFormHelpers( SiteStatsComponent ) );

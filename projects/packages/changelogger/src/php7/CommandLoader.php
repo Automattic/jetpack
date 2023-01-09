@@ -22,7 +22,7 @@ class CommandLoader extends CommandLoaderBase implements CommandLoaderInterface 
 	 * @param string $name Command name.
 	 * @return bool
 	 */
-	public function has( $name ) : bool {
+	public function has( $name ): bool {
 		return $this->doHas( $name );
 	}
 
@@ -33,7 +33,7 @@ class CommandLoader extends CommandLoaderBase implements CommandLoaderInterface 
 	 * @return Command
 	 * @throws CommandNotFoundException If the command is not found.
 	 */
-	public function get( $name ) : Command {
+	public function get( $name ): Command {
 		return $this->doGet( $name );
 	}
 
@@ -42,7 +42,7 @@ class CommandLoader extends CommandLoaderBase implements CommandLoaderInterface 
 	 *
 	 * @return string[] All registered command names
 	 */
-	public function getNames() : array {
+	public function getNames(): array {
 		return $this->doGetNames();
 	}
 }

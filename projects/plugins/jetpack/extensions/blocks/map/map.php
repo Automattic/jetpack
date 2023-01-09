@@ -78,7 +78,7 @@ function load_assets( $attr, $content ) {
 		if ( ! isset( $map_block_counter[ $id ] ) ) {
 			$map_block_counter[ $id ] = 0;
 		}
-		$map_block_counter[ $id ]++;
+		++$map_block_counter[ $id ];
 
 		$iframe_url = add_query_arg(
 			array(

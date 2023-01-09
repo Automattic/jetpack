@@ -454,7 +454,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
 		$this->assertEquals( 'deleted_comment_meta', $deleted_comment_meta_event->action );
-
 	}
 
 	/**
@@ -475,7 +474,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
 		$this->assertFalse( $deleted_comment_meta_event );
-
 	}
 
 	/**

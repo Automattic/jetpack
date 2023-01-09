@@ -31,7 +31,6 @@ class REST_Controller {
 	 */
 	public function __construct( $is_wpcom = false ) {
 		$this->is_wpcom = $is_wpcom;
-
 	}
 
 	/**
