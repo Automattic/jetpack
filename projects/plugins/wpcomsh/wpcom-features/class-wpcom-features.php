@@ -654,8 +654,7 @@ class WPCOM_Features {
 		self::REPUBLICIZE                   => array(
 			self::WP_P2_PLUS_MONTHLY,
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
-			self::JETPACK_PREMIUM_AND_HIGHER,
-			self::JETPACK_SOCIAL_PLANS,
+			self::JETPACK_ALL_SITES,
 		),
 		self::SCAN                          => array(
 			self::JETPACK_PREMIUM_AND_HIGHER,
