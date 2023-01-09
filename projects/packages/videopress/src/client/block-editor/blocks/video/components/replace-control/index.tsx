@@ -43,6 +43,10 @@ const ReplaceControl = ( {
 		onSelectVideoFromLibrary( media as AdminAjaxQueryAttachmentsResponseItemProps );
 	}
 
+	const shareVideoUrlBase = attributes.isPrivate
+		? 'https://files.videopress.com/v'
+		: 'https://videopress.com/v';
+
 	return (
 		<MediaReplaceFlow
 			mediaId={ attributes.id }
@@ -50,7 +54,7 @@ const ReplaceControl = ( {
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onSelect={ selectMediaHandler }
-			mediaURL={ attributes.src }
+			mediaURL={ `${ shareVideoUrlBase }/${ attributes.guid }` }
 			onSelectURL={ onSelectURL }
 		/>
 	);
