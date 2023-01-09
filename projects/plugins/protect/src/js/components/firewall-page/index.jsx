@@ -57,6 +57,7 @@ const FirewallPage = () => {
 		isEnabled,
 		isSeen,
 		upgradeIsSeen,
+		displayUpgradeBadge,
 		isSupported,
 		isUpdating,
 		toggleAutomaticRules,
@@ -240,6 +241,18 @@ const FirewallPage = () => {
 	}, [ showManualRules, setShowManualRules ] );
 
 	/**
+	 * Handle Close Popover Click
+	 *
+	 * Sets user meta for post upgrade messaging
+	 *
+	 * @returns void
+	 */
+	const handleClosePopoverClick = useCallback( () => {
+		setWafUpgradeIsSeen( true );
+		API.wafUpgradeSeen();
+	}, [ setWafUpgradeIsSeen ] );
+
+	/**
 	 * Sync formState with application state WAF config
 	 */
 	useEffect( () => {
@@ -303,14 +316,6 @@ const FirewallPage = () => {
 			hideCloseButton={ true }
 		/>
 	);
-
-	const handleClosePopoverClick = useCallback( () => {
-		setWafUpgradeIsSeen( true );
-		API.wafUpgradeSeen();
-	}, [ setWafUpgradeIsSeen ] );
-
-	const { waf } = window.jetpackProtectInitialState;
-	const { displayUpgradeBadge } = waf;
 
 	/**
 	 * Main Settings
