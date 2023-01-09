@@ -259,10 +259,10 @@ export function useSyncMedia(
 			return;
 		}
 
-		debug( '[%o] Saving post action detected', attributes?.guid );
+		debug( '%o Saving post action detected', attributes?.guid );
 
 		if ( ! attributes?.id ) {
-			debug( '[%o] No media ID found. Impossible to sync. Bail early', attributes?.guid );
+			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
 			return;
 		}
 
@@ -357,7 +357,7 @@ export function useSyncMedia(
 				}
 			} )
 			.catch( ( updateMediaError: Error ) => {
-				debug( '[%o] Error while syncing data: %o', attributes?.guid, updateMediaError );
+				debug( '%o Error while syncing data: %o', attributes?.guid, updateMediaError );
 				setError( updateMediaError );
 			} );
 	}, [

@@ -127,7 +127,6 @@ abstract class Hybrid_Product extends Product {
 		}
 
 		return true;
-
 	}
 
 }

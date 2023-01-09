@@ -520,7 +520,7 @@ class Helper {
 
 			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
 			if ( isset( $filters_properties[ $key ] ) ) {
-				$filters_properties[ $key ] ++;
+				++$filters_properties[ $key ];
 			} else {
 				$filters_properties[ $key ] = 1;
 			}

@@ -95,7 +95,7 @@ EOF
 			$postfix = '</>';
 		}
 		$this->output->writeln( $prefix . $msg . $postfix );
-		$this->counts[ $type ]++;
+		++$this->counts[ $type ];
 	}
 
 	/**

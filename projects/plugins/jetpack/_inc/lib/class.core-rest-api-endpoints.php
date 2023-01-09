@@ -1204,7 +1204,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -1224,7 +1223,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -4121,6 +4119,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
 	 */
 	public static function activate_crm_extensions_permission_check() {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		if ( current_user_can( 'admin_zerobs_manage_options' ) ) {
 			return true;
 		}

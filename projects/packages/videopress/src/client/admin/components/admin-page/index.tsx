@@ -121,8 +121,12 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
+		const numPlaceholders = Math.max(
+			1, // at least one placeholder
+			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
+		);
 		// Use generated ID to work with React Key
-		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
+		videos = new Array( numPlaceholders ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {
@@ -174,10 +178,6 @@ const Admin = () => {
 		dropElement: document,
 		onSelectFiles: handleFilesUpload,
 	} );
-
-	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
-	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
-	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
@@ -246,23 +246,29 @@ const Admin = () => {
 									/>
 								) }
 
-								<FormFileUpload
-									onChange={ evt =>
-										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
-									}
-									accept={ fileInputExtensions }
-									multiple={ hasVideoPressPurchase }
-									render={ ( { openFileDialog } ) => (
-										<Button
-											fullWidth={ isSm }
-											onClick={ openFileDialog }
-											isLoading={ loading }
-											disabled={ ! canUpload }
-										>
-											{ addVideoLabel }
-										</Button>
-									) }
-								/>
+								{ hasVideos ? (
+									<FormFileUpload
+										onChange={ evt =>
+											handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+										}
+										accept={ fileInputExtensions }
+										multiple={ hasVideoPressPurchase }
+										render={ ( { openFileDialog } ) => (
+											<Button
+												fullWidth={ isSm }
+												onClick={ openFileDialog }
+												isLoading={ loading }
+												disabled={ ! canUpload }
+											>
+												{ __( 'Add new video', 'jetpack-videopress-pkg' ) }
+											</Button>
+										) }
+									/>
+								) : (
+									<Text variant="title-medium">
+										{ __( "Let's add your first video below!", 'jetpack-videopress-pkg' ) }
+									</Text>
+								) }
 
 								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
@@ -280,13 +286,8 @@ const Admin = () => {
 								</Col>
 							) : (
 								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
-									<Text variant="headline-small">
-										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
-									</Text>
 									<VideoUploadArea
-										className={ classnames( styles[ 'upload-area' ], {
-											[ styles.small ]: isSm,
-										} ) }
+										className={ styles[ 'upload-area' ] }
 										onSelectFiles={ handleFilesUpload }
 									/>
 								</Col>

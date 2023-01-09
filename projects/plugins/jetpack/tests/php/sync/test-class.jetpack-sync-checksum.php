@@ -235,7 +235,6 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		} else {
 			$this->assertFalse( is_wp_error( $result ) );
 		}
-
 	}
 
 	/**
@@ -334,7 +333,6 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		} else {
 			$this->assertFalse( is_wp_error( $result ) );
 		}
-
 	}
 
 	/**
@@ -406,7 +404,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$min_range_expected = null;
 		$max_range_expected = null;
 
-		for ( $i = 1; $i <= $num_posts; $i ++ ) {
+		for ( $i = 1; $i <= $num_posts; $i++ ) {
 			if ( $disallow_index === $i ) {
 				// create a disallowed post_type post.
 				$post_id = self::factory()->post->create(
@@ -436,7 +434,6 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 			$this->assertSame( $min_range_expected, (int) $range['min_range'] );
 			$this->assertSame( $max_range_expected, (int) $range['max_range'] );
 		}
-
 	}
 
 	/**
@@ -540,7 +537,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$min_range_expected = null;
 		$max_range_expected = null;
 
-		for ( $i = 1; $i <= $num_posts; $i ++ ) {
+		for ( $i = 1; $i <= $num_posts; $i++ ) {
 			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
 				$min_range_expected = $post_id; // set initial post_id.
@@ -569,7 +566,6 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		if ( $range_to !== null && $expected_item_count > 0 ) {
 			$this->assertLessThanOrEqual( $range_to, (int) $range['max_range'] );
 		}
-
 	}
 
 	/**
@@ -584,7 +580,7 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$min_range_expected = null;
 		$max_range_expected = null;
 
-		for ( $i = 1; $i <= 10; $i ++ ) {
+		for ( $i = 1; $i <= 10; $i++ ) {
 			// create an allowed post_type post.
 			$post_id = self::factory()->post->create( array( 'post_author' => $user_id ) );
 			if ( $min_range_expected === null ) {
@@ -600,7 +596,6 @@ class WP_Test_Jetpack_Sync_Checksum extends WP_UnitTestCase {
 		$checksum_half_2 = $tc->calculate_checksum( $max_range_expected - 4, $max_range_expected );
 
 		$this->assertSame( (int) $checksum_full, (int) ( $checksum_half_1 + $checksum_half_2 ) );
-
 	}
 
 	/**

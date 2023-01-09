@@ -93,7 +93,6 @@ class Optimizations implements Has_Setup {
 		if ( empty( $feature->get_endpoints() ) ) {
 			return false;
 		}
-
 	}
 
 	/**
