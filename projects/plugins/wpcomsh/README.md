@@ -316,9 +316,3 @@ Allow the showing of notices on the frontend. Currently we are showing:
 
 - A full page notice on sites that are expired indicating to the user that they can reach out to the site owner to let them know the site has expired.
 - A top header notice on sites that are close to expire.
-
-### Launchpad
-
-The Launchpad feature plugin provides backend functionality to support the Launchpad onboarding screen. The frontend of the Launchpad screen, provided by Calypso, provides a checklist list of new site actions for customers to take to launch their websites in good order. Checklist items depend on site_intent. The backend plugin handles updating taks statuses and options based on user actions.
-
-Note that the Launchpad plugin file is duplicated from WordPress.com. Any updates need to be made manually in both places.
