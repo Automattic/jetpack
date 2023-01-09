@@ -6,8 +6,8 @@ module.exports = [
 	{
 		entry: {
 			// Video block
-			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.js',
-			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.js',
+			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.ts',
+			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
 			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
 

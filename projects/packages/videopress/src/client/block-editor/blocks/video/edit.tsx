@@ -33,6 +33,11 @@ import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
 import './editor.scss';
+/**
+ * Types
+ */
+import type { VideoBlockAttributes } from './types';
+import type React from 'react';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -75,9 +80,14 @@ export const PlaceholderWrapper = withNotices( function ( {
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected     - Whether the block is selected.
  * @param {string} props.clientId        - Block client ID.
- * @returns {object}                     - React component.
+ * @returns {React.ReactNode}            - React component.
  */
-export default function VideoPressEdit( { attributes, setAttributes, isSelected, clientId } ) {
+export default function VideoPressEdit( {
+	attributes,
+	setAttributes,
+	isSelected,
+	clientId,
+} ): React.ReactNode {
 	const {
 		autoplay,
 		loop,
@@ -201,7 +211,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Pick video properties from preview.
 	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
 		? preview
-		: { html: null, scripts: [] };
+		: { html: null, scripts: [], width: null, height: null };
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -253,7 +263,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef();
+	const rePreviewAttemptTimer = useRef< NodeJS.Timeout >();
 
 	/**
 	 * Clean the generating process timer.
@@ -265,7 +275,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 			return;
 		}
 
-		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
+		clearInterval( rePreviewAttemptTimer.current );
 	}
 
 	useEffect( () => {
@@ -325,7 +335,10 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	const [ fileToUpload, setFileToUpload ] = useState( null );
 
 	// Replace video state
-	const [ isReplacingFile, setIsReplacingFile ] = useState( {
+	const [ isReplacingFile, setIsReplacingFile ] = useState< {
+		isReplacing: boolean;
+		prevAttrs: VideoBlockAttributes;
+	} >( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
@@ -333,7 +346,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 	// Cancel replace video handler
 	const cancelReplacingVideoFile = () => {
 		setAttributes( isReplacingFile.prevAttrs );
-		setIsReplacingFile( { isReplacingFile: false, prevAttrs: {} } );
+		setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 		setIsUploadingFile( false );
 	};
 
@@ -463,7 +476,7 @@ export default function VideoPressEdit( { attributes, setAttributes, isSelected,
 						setAttributes( {
 							guid: mediaGuid,
 							id: media.id,
-							src: media.videopress_url,
+							src: media.url,
 							title: media.title,
 							description: media.description,
 						} );

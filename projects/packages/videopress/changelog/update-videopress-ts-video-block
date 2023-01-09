@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: re-write VideoPress block with TypeScript
