@@ -32,12 +32,13 @@ import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
-import './editor.scss';
 /**
  * Types
  */
 import type { VideoBlockAttributes } from './types';
 import type React from 'react';
+
+import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -463,7 +464,25 @@ export default function VideoPressEdit( {
 							prevAttrs: attributes,
 						} );
 
-						setAttributes( { id: null, guid: null } );
+						/*
+						 * Reset video attributes that are not options
+						 * (passed through the video URL)
+						 */
+						setAttributes( {
+							id: null,
+							guid: null,
+							rating: '',
+							title: '',
+							description: '',
+							caption: '',
+							maxWidth: null,
+							videoRatio: null,
+							src: '',
+							cacheHtml: null,
+							tracks: [],
+							isExample: false,
+						} );
+
 						setIsUploadingFile( true );
 						setFileToUpload( media );
 					} }
