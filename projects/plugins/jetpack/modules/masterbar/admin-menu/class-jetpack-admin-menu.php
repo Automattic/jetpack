@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Connection\Manager;
+
 require_once __DIR__ . '/class-admin-menu.php';
 
 /**
@@ -231,8 +233,9 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
-		// TODO: currently only open to sites that have en locale.
-		if ( false !== strpos( get_locale(), 'en_' ) ) {
+		// TODO: remove locale restriction when blaze is open to everyone.
+		$user_locale = ( new Manager() )->get_connected_user_data()['user_locale'];
+		if ( 'en' == $user_locale ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
