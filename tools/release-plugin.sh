@@ -108,11 +108,14 @@ if [[ "$SLUG" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
 	git commit -am "Amend readme.txt"
 fi
 
-git push -u origin prerelease-test
+#git push -u origin prerelease-test
+
+yellow "Waiting for build to complete and push to mirror repos"
+BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
+gh run watch "$BUILDID"
 echo "End of file"
 
 
 
-.
 # Push the changes, then tell the user to wait for the builds to complete and things to update.
 # After this, run tools/create-release-branch.sh to create a release branch.
