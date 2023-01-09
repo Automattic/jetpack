@@ -914,7 +914,8 @@ class Manager {
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
-		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+		$roles = new Roles();
+		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
 				__( 'New owner is not admin', 'jetpack-connection' ),
