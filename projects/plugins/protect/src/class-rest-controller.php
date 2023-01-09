@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Stats;
 use Jetpack_Protect;
 use WP_REST_Response;
 
@@ -343,6 +344,7 @@ class REST_Controller {
 				'is_seen'    => Jetpack_Protect::get_waf_seen_status(),
 				'is_enabled' => Waf_Runner::is_enabled(),
 				'config'     => Waf_Runner::get_config(),
+				'stats'      => Waf_Stats::get_waf_stats(),
 			)
 		);
 	}
