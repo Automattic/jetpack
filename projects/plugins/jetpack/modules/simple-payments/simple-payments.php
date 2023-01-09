@@ -93,11 +93,11 @@ class Jetpack_Simple_Payments {
 		 *
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script( // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+		wp_register_script(
 			'paypal-checkout-js',
 			'https://www.paypalobjects.com/api/checkout.js',
 			array(),
-			null,
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
 			true
 		);
 		wp_register_script(

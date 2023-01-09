@@ -13,6 +13,8 @@
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );

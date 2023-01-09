@@ -1816,6 +1816,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Actions performed only when Gravatar Hovercards is activated through the endpoint call.
  *
