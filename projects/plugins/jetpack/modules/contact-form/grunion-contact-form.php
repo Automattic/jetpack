@@ -2873,10 +2873,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					$field       = $form->fields[ $field_id ];
 					$field_index = array_search( $field_id, $field_ids['all'], true );
 
-					$label = $field->get_attribute( 'label' );
+					$label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
 					$compiled_form[ $field_index ] = sprintf(
-						'<div class="field-name">%1$s:</div> <div class="field-value">%2$s</div>',
+						'<div class="field-name">%1$s</div> <div class="field-value">%2$s</div>',
 						wp_kses( $label, array() ),
 						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
 					);
