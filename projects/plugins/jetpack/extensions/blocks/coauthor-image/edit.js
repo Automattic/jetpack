@@ -12,6 +12,7 @@ import {
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 function getImagesFromOpenAI(
 	prompt,
@@ -41,12 +42,14 @@ function getImagesFromOpenAI(
 			} );
 			setResultImages( images );
 		} )
-		.catch( res => {
-			// We have not yet submitted a token.
-			if ( res.code === 'token_missing' ) {
-				setErrorMessage( 'Please visit settings and input valid OpenAI token' );
-				setLoadingImages( false );
-			}
+		.catch( () => {
+			setErrorMessage(
+				__(
+					'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+					'jetpack'
+				)
+			);
+			setLoadingImages( false );
 		} );
 }
 
@@ -78,9 +81,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	return (
 		<div { ...useBlockProps() }>
 			{ ! loadingImages && errorMessage && (
-				<Placeholder label={ 'Coauthor Image' } notices={ [ <div>{ errorMessage }</div> ] }>
+				<Placeholder
+					label={ __( 'Coauthor Image', 'jetpack' ) }
+					notices={ [ <div>{ errorMessage }</div> ] }
+				>
 					<TextareaControl
-						label="What would you like to see?"
+						label={ __( 'What would you like to see?', 'jetpack' ) }
 						value={ prompt }
 						onChange={ setPrompt }
 					/>
@@ -96,20 +102,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								{ 'Retry' }
 							</Button>
 						</FlexItem>
-						{ errorMessage === 'Please visit settings and input valid OpenAI token' && (
-							<FlexItem>
-								<Button href="options-general.php?page=coauthor" target="_blank">
-									{ 'Visit Coauthor Settings' }
-								</Button>
-							</FlexItem>
-						) }
 					</Flex>
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! attributes.requestedPrompt && (
-				<Placeholder label={ 'Coauthor Image' }>
+				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
 					<div>
-						<TextareaControl label="What would you like to see?" onChange={ setPrompt } />
+						<TextareaControl
+							label={ __( 'What would you like to see?', 'jetpack' ) }
+							onChange={ setPrompt }
+						/>
 						<Button isPrimary onClick={ submit }>
 							{ 'Submit' }
 						</Button>
@@ -117,13 +119,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
-				<Placeholder label={ 'Coauthor Image' }>
+				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
 					<div>
 						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
 							{ attributes.requestedPrompt }
 						</div>
 						<div style={ { fontSize: '20px', lineHeight: '38px' } }>
-							{ 'Please choose your image' }
+							{ __( 'Please choose your image', 'jetpack' ) }
 						</div>
 						<Flex direction="row" justify={ 'space-between' }>
 							{ resultImages.map( image => (
@@ -176,14 +178,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && attributes.content && ! loadingImages && (
-				<Placeholder label={ 'Coauthor Image' }>
+				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
 					<div>
 						<div className="content">{ attributes.content }</div>
 					</div>
 				</Placeholder>
 			) }
 			{ ! errorMessage && loadingImages && (
-				<Placeholder label={ 'Coauthor Image' }>
+				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
 					<div style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {
