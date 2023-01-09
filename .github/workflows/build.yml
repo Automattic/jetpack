@@ -136,7 +136,7 @@ jobs:
     name: Create artifact for Jetpack Beta plugin
     runs-on: ubuntu-latest
     needs: build
-    if: ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'Automattic/jetpack' ) && needs.build.outputs.any_plugins == 'true'
+    if: ( github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'anomiex/jetpack' ) && needs.build.outputs.any_plugins == 'true'
     timeout-minutes: 10  # 2021-06-24: Successful runs should take just a few seconds now. But sometimes the upload is slow.
     steps:
       - uses: actions/checkout@v3
@@ -219,76 +219,3 @@ jobs:
           path: zips
           # Only need to retain for a day since the beta builder slurps it up to distribute.
           retention-days: 1
-
-      - name: Inform Beta Download webhook
-        if: steps.prepare.outputs.plugin-data != '{}'
-        env:
-          SECRET: ${{ secrets.JPBETA_SECRET }}
-          PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
-          PR: ${{ github.event.number }}
-        run: |
-          curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
-            --form-string "repo=$GITHUB_REPOSITORY" \
-            --form-string "branch=${GITHUB_REF#refs/heads/}" \
-            --form-string "plugins=$PLUGIN_DATA" \
-            --form-string "secret=$SECRET"
-
-  teamcity_trigger:
-    name: "Trigger TeamCity build"
-    runs-on: ubuntu-latest
-    needs: build
-    if: ${{ fromJSON(needs.build.outputs.changed_projects)['plugins/jetpack'] == true }}
-
-    steps:
-      - name: Trigger TeamCity build
-        env:
-          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
-          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
-          PR: ${{ github.event_name == 'push' && github.ref_name || github.event.number }}
-          SHA: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
-        run: |
-          response=$(curl --fail -L \
-            --url "$URL" \
-            --form-string "pr-number=$PR" \
-            --form-string "sha=$SHA" \
-            --form-string "secret=$SECRET")
-
-          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
-          echo
-          echo "If you would like to restart the tests, please re-run this job."
-
-  update_mirrors:
-    name: Push to mirror repos
-    runs-on: ubuntu-latest
-    needs: build
-
-    if: github.event_name == 'push' && github.repository == 'Automattic/jetpack'
-
-    # Not setting a job-level timeout because it would be kind of pointless with the blocking step. Set a step timeout for all other steps instead.
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: monorepo
-        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jetpack-build
-        timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
-      - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
-        timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
-
-      - name: Wait for prior instances of the workflow to finish
-        uses: ./monorepo/.github/actions/turnstile
-
-      - name: Push changed projects
-        uses: ./monorepo/projects/github-actions/push-to-mirrors
-        with:
-          source-directory: ${{ github.workspace }}/monorepo
-          token: ${{ secrets.API_TOKEN_GITHUB }}
-          username: matticbot
-          working-directory: ${{ github.workspace }}/build
-        timeout-minutes: 5  # 2021-01-18: Successful runs seem to take about half a minute.
