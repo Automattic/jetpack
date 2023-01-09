@@ -64,18 +64,32 @@ const useDashboardVideos = () => {
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
-		if ( 1 <= pageFromSearchParam && pageFromSearchParam <= totalOfPages ) {
-			if ( page !== pageFromSearchParam ) {
-				setVideosQuery( {
-					page: pageFromSearchParam,
-				} );
-
-				return;
-			}
-		} else {
-			searchParams.reset();
+		// when there are no search results, ensure that the current page number is 1
+		if ( total === 0 && pageFromSearchParam !== 1 ) {
+			// go back to page 1
+			searchParams.deleteParam( 'page' );
+			searchParams.update();
+			return;
 		}
 
+		// when there are search results, ensure that the current page is between 1 and totalOfPages, inclusive
+		if ( total > 0 && ( pageFromSearchParam < 1 || pageFromSearchParam > totalOfPages ) ) {
+			// go back to page 1
+			searchParams.deleteParam( 'page' );
+			searchParams.update();
+			return;
+		}
+
+		// react to a page param change
+		if ( page !== pageFromSearchParam ) {
+			setVideosQuery( {
+				page: pageFromSearchParam,
+			} );
+
+			return;
+		}
+
+		// react to a search param change
 		if ( search !== searchFromSearchParam ) {
 			setVideosQuery( {
 				search: searchFromSearchParam,
