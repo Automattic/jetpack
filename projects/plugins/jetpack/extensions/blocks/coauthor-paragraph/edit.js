@@ -5,6 +5,7 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 function formatPromptToOpenAI( editor ) {
 	const index = editor.getBlockInsertionPoint().index - 1;
@@ -21,7 +22,6 @@ function formatPromptToOpenAI( editor ) {
 
 function getSuggestionFromOpenAI(
 	setAttributes,
-	setPromptedForToken,
 	formattedPrompt,
 	setLoadingCompletion,
 	setNeedMore
@@ -53,18 +53,13 @@ function getSuggestionFromOpenAI(
 			}
 			setTimeout( () => setAttributes( { content: content } ), 50 * tokens.length );
 		} )
-		.catch( res => {
-			// We have not yet submitted a token.
-			if ( res.code === 'token_missing' ) {
-				setPromptedForToken( true );
-				setLoadingCompletion( false );
-				setAttributes( { requestedPrompt: false } ); // You get another chance.
-			}
+		.catch( () => {
+			setLoadingCompletion( false );
+			setAttributes( { requestedPrompt: false } ); // You get another chance.
 		} );
 }
 
 export default function Edit( { attributes, setAttributes } ) {
-	const [ promptedForToken, setPromptedForToken ] = useState( false );
 	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
 	const [ needMore, setNeedMore ] = useState( false );
 
@@ -76,13 +71,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	useEffect( () => {
 		//Theoretically useEffect would ensure we only fire this once, but I don't want to fire it when we get data to edit either.
 		if ( ! attributes.content && ! attributes.requestedPrompt ) {
-			getSuggestionFromOpenAI(
-				setAttributes,
-				setPromptedForToken,
-				formattedPrompt,
-				setLoadingCompletion,
-				setNeedMore
-			);
+			getSuggestionFromOpenAI( setAttributes, formattedPrompt, setLoadingCompletion, setNeedMore );
 		}
 	}, [ attributes, formattedPrompt, setAttributes ] );
 
@@ -90,17 +79,17 @@ export default function Edit( { attributes, setAttributes } ) {
 		<div { ...useBlockProps() }>
 			{ needMore && (
 				<Placeholder
-					label={ 'Coauthor Paragraph' }
-					instructions={
-						'Please write a little bit more. Coauthor needs more text to make the gears spin.'
-					}
+					label={ __( 'Coauthor Paragraph', 'jetpack' ) }
+					instructions={ __(
+						'Please write a little bit more. Coauthor needs at least 120 characters to make the gears spin.',
+						'jetpack'
+					) }
 				>
 					<Button
 						isPrimary
 						onClick={ () => {
 							getSuggestionFromOpenAI(
 								setAttributes,
-								setPromptedForToken,
 								formattedPrompt,
 								setLoadingCompletion,
 								setNeedMore
@@ -108,16 +97,6 @@ export default function Edit( { attributes, setAttributes } ) {
 						} }
 					>
 						{ 'Retry' }
-					</Button>
-				</Placeholder>
-			) }
-			{ promptedForToken && (
-				<Placeholder
-					label={ 'Coauthor Paragraph' }
-					instructions={ 'Please visit settings and input valid OpenAI token' }
-				>
-					<Button isPrimary href="options-general.php?page=coauthor" target="_blank">
-						{ 'Visit Coauthor Settings' }
 					</Button>
 				</Placeholder>
 			) }
