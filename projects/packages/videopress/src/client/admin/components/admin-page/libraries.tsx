@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -50,7 +50,7 @@ const VideoLibraryWrapper = ( {
 	title?: string;
 	disabled?: boolean;
 } ) => {
-	const { search, isFetching } = useVideos();
+	const { isFetching } = useVideos();
 	const searchParams = useSearchParams();
 
 	const onSearchHandler = searchQuery => {
@@ -66,13 +66,8 @@ const VideoLibraryWrapper = ( {
 		searchParams.update();
 	};
 
-	const [ searchQuery, setSearchQuery ] = useState( search );
 	const searchParamsSearchQuery = searchParams.getParam( 'q', '' );
-	useEffect( () => {
-		if ( ! searchQuery && searchParamsSearchQuery && searchParamsSearchQuery !== searchQuery ) {
-			setSearchQuery( searchParamsSearchQuery );
-		}
-	}, [ searchParamsSearchQuery, searchQuery ] );
+	const [ searchQuery, setSearchQuery ] = useState( searchParamsSearchQuery );
 
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
