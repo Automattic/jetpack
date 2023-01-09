@@ -52,7 +52,7 @@ class Helper_Script_Manager {
 
 		$wp_filesystem = self::get_wp_filesystem();
 		if ( ! $wp_filesystem ) {
-			return new \WP_Error( 'install_faied', 'Failed to install Helper Script' );
+			return new \WP_Error( 'install_failed', 'Failed to install Helper Script' );
 		}
 
 		// Create a jetpack-temp directory for the Helper Script.
