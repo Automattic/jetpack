@@ -97,7 +97,7 @@ const useDashboardVideos = () => {
 
 			return;
 		}
-	}, [ totalOfPages, pageFromSearchParam, searchFromSearchParam ] );
+	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam ] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
