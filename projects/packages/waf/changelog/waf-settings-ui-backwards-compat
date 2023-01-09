@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Ensure automatic rules is considered active for sites without the option but module enabled.

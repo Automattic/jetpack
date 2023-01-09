@@ -51,6 +51,7 @@ class Waf_Initializer {
 	 */
 	public static function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		add_option( Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 		Waf_Runner::activate();
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
