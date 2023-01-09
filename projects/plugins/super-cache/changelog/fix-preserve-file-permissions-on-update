@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Preserves original permissions of a file after updating it.
+Fixed an issue that caused wp-config.php file permissions to change.
