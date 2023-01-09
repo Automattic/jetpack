@@ -6,7 +6,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { grid, formatListBullets } from '@wordpress/icons';
 import classnames from 'classnames';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -68,9 +68,11 @@ const VideoLibraryWrapper = ( {
 
 	const [ searchQuery, setSearchQuery ] = useState( search );
 	const searchParamsSearchQuery = searchParams.getParam( 'q', '' );
-	if ( searchParamsSearchQuery && searchParamsSearchQuery !== searchQuery ) {
-		setSearchQuery( searchParamsSearchQuery );
-	}
+	useEffect( () => {
+		if ( ! searchQuery && searchParamsSearchQuery && searchParamsSearchQuery !== searchQuery ) {
+			setSearchQuery( searchParamsSearchQuery );
+		}
+	}, [ searchParamsSearchQuery, searchQuery ] );
 
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
