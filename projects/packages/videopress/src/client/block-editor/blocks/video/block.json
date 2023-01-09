@@ -73,10 +73,7 @@
 			"type": "string"
 		},
 		"src": {
-			"type": "string",
-			"source": "attribute",
-			"selector": "video",
-			"attribute": "src"
+			"type": "string"
 		},
 		"cacheHtml": {
 			"type": "string",
