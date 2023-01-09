@@ -84,9 +84,9 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-stats-dashboard">
+		<div id="wpcom" class="jp-stats-dashboard" style="height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
-			<div class="hide-if-no-js">
+			<div class="hide-if-no-js" style="height: 100%">
 				<img
 					class="jp-stats-dashboard-loading-spinner"
 					width="32"
@@ -164,7 +164,6 @@ class Dashboard {
 					position: absolute;
 					left: 50%;
 					top: 50%;
-					transform: translate( -50%, -50% );
 				}
 				</style>';
 			},
