@@ -50,7 +50,7 @@ const VideoLibraryWrapper = ( {
 	title?: string;
 	disabled?: boolean;
 } ) => {
-	const { setSearch, search, isFetching } = useVideos();
+	const { search, isFetching } = useVideos();
 	const searchParams = useSearchParams();
 
 	const onSearchHandler = searchQuery => {
@@ -64,7 +64,6 @@ const VideoLibraryWrapper = ( {
 		}
 
 		searchParams.update();
-		setSearch( searchQuery );
 	};
 
 	const [ searchQuery, setSearchQuery ] = useState( search );
