@@ -2010,7 +2010,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "19d34515a0201eec283a62dde17c63baddc6e47f"
+                "reference": "219ee9c83263cb0dbdbc0ff6c2b6eeb3682bf30b"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -2027,7 +2027,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
