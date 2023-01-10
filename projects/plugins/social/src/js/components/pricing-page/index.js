@@ -37,7 +37,7 @@ const PricingPage = () => {
 			isIncluded
 			label={
 				<>
-					<del>{ __( 'Up to 1000', 'jetpack-social' ) }</del>&nbsp;
+					<del>{ __( 'Up to 1,000', 'jetpack-social' ) }</del>&nbsp;
 					<strong>{ isLarge ? UNLIMITED : UNLIMITED_SHARES }</strong>
 				</>
 			}

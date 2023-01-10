@@ -1,5 +1,5 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
@@ -42,7 +42,6 @@ const ToS = createInterpolateElement(
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
-const NOT_INCLUDED_ALT_TEXT = __( 'not included', 'jetpack' );
 
 const PricingTableContext = createContext( undefined );
 
@@ -63,10 +62,15 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
 
 	const includedLabel = isIncluded ? INCLUDED_TEXT : NOT_INCLUDED_TEXT;
+	const smallIncludedLabel = isIncluded
+		? featureNameLabel
+		: sprintf(
+				/* translators: Name of the current feature */
+				__( '%s not included', 'jetpack' ),
+				featureNameLabel
+		  );
 
-	const defaultLabel = isLg
-		? includedLabel
-		: featureNameLabel + ( isIncluded ? '' : ` ${ NOT_INCLUDED_ALT_TEXT }` );
+	const defaultLabel = isLg ? includedLabel : smallIncludedLabel;
 
 	return (
 		<div className={ classnames( styles.item, styles.value ) }>
@@ -176,7 +180,10 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 				<div className={ styles.tos }>
 					{ showIntroOfferDisclaimer && (
 						<Text variant="body-small">
-							Reduced pricing is a limited offer for the first year and renews at regular price.
+							{ __(
+								'Reduced pricing is a limited offer for the first year and renews at regular price.',
+								'jetpack'
+							) }
 						</Text>
 					) }
 					<Text variant="body-small">{ ToS }</Text>
