@@ -99,7 +99,7 @@ class Jetpack_AI_Helper {
 		$content = wp_strip_all_tags( $content );
 		$cache   = get_transient( self::transient_name_for_completion() );
 		if ( $cache ) {
-			return array( 'prompts' => array( $cache ) );
+			return $cache;
 		}
 
 		if ( ( new Status() )->is_offline_mode() ) {
@@ -124,11 +124,10 @@ class Jetpack_AI_Helper {
 				return $result;
 			}
 			// In case of Jetpack we are setting a transient on the WPCOM and not the remote site. I think the 'get_current_user_id' may default for the connection owner at this point but we'll deal with this later.
-			set_transient( self::transient_name_for_completion(), $result['prompts'][0], self::$text_completion_cooldown_seconds );
+			set_transient( self::transient_name_for_completion(), $result, self::$text_completion_cooldown_seconds );
 			return $result;
 		}
 
-		// TODO: This will never run until we need to ship in JP.
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
@@ -145,7 +144,7 @@ class Jetpack_AI_Helper {
 		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
-		set_transient( self::transient_name_for_completion(), $data->choices[0], self::$text_completion_cooldown_seconds );
+		set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
 
 		return $data;
 	}
