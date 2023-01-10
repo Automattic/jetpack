@@ -128,13 +128,21 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_user(
 			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
-			array( 'headers' => array( 'content-type' => 'application/json' ) ),
-			$content,
+			array(
+				'method'  => 'post',
+				'headers' => array( 'content-type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'content' => $content,
+				)
+			),
 			'wpcom'
 		);
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -186,13 +194,21 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/jetpack-ai/images', $site_id ),
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/jetpack-ai/images/generations', $site_id ),
 			2,
-			array( 'headers' => array( 'content-type' => 'application/json' ) ),
-			$prompt,
+			array(
+				'method'  => 'post',
+				'headers' => array( 'content-type' => 'application/json' ),
+			),
+			wp_json_encode(
+				array(
+					'prompt' => $prompt,
+				)
+			),
 			'wpcom'
 		);
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
