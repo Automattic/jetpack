@@ -406,32 +406,4 @@ class REST_Controller {
 	public static function api_set_waf_upgrade_seen_status() {
 		return Jetpack_Protect::set_waf_upgrade_seen_status();
 	}
-
-	/**
-	 * Get WAF Upgrade Badge Timestamp for the API endpoint
-	 *
-	 * @return integer The timestamp for the when the upgrade seen status was first set to true.
-	 */
-	public static function api_get_waf_upgrade_badge_timestamp() {
-		return Jetpack_Protect::get_waf_upgrade_badge_timestamp();
-	}
-
-	/**
-	 * Set WAF Upgrade Badge Timestamp for the API endpoint
-	 *
-	 * @return bool True if upgrade badge timestamp to set to the current time, false on failure.
-	 */
-	public static function api_set_waf_upgrade_badge_timestamp() {
-		return Jetpack_Protect::set_waf_upgrade_badge_timestamp();
-	}
-
-	/**
-	 * Get WAF Upgrade Badge Display Status for the API endpoint
-	 *
-	 * @return bool True if upgrade badge timestamp is set and less than 7 days ago, otherwise false.
-	 */
-	public static function api_get_waf_upgrade_badge_display_status() {
-		return Jetpack_Protect::get_waf_upgrade_badge_display_status();
-	}
-
 }

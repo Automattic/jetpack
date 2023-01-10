@@ -336,11 +336,11 @@ const FirewallPage = () => {
 					{ hasRequiredPlan && upgradeIsSeen === false && (
 						<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
 							<div className={ styles.popover }>
-								<div className={ styles[ 'popover-header' ] }>
-									<Text className={ styles[ 'popover-title' ] } variant={ 'title-small' }>
+								<div className={ styles.popover__header }>
+									<Text className={ styles.popover__title } variant={ 'title-small' }>
 										{ __( 'Thanks for upgrading!', 'jetpack-protect' ) }
 									</Text>
-									<Button variant={ 'icon' }>
+									<Button className={ styles.popover__button } variant={ 'icon' }>
 										<Icon
 											onClick={ handleClosePopoverClick }
 											icon={ closeSmall }
@@ -350,7 +350,7 @@ const FirewallPage = () => {
 									</Button>
 								</div>
 								<Text
-									className={ styles[ 'popover-description' ] }
+									className={ styles.popover__description }
 									variant={ 'body' }
 									mt={ 2 }
 									mb={ 3 }
@@ -360,7 +360,7 @@ const FirewallPage = () => {
 										'jetpack-protect'
 									) }
 								</Text>
-								<div className={ styles[ 'popover-footer' ] }>
+								<div className={ styles.popover__footer }>
 									<Button onClick={ handleClosePopoverClick }>
 										{ __( 'Got it', 'jetpack-protect' ) }
 									</Button>

@@ -78,20 +78,20 @@
     width: 304px;
     padding: calc( var( --spacing-base ) * 3 ); // 24px
 
-    > .popover-header {
+    &__header {
         display: flex;
         justify-content: space-between;
+    }
 
-        > button {
-            margin: calc( var(--spacing-base) * -1 ) calc( var(--spacing-base) * -3 ); // -8px -24px
+    &__button {
+        margin: calc( var( --spacing-base ) * -1 ) calc( var( --spacing-base ) * -3 ); // -8px | -24px
 
-            &:focus {
-                box-shadow: none;
-            }
+        &:focus, &:focus:not(:disabled) {
+            box-shadow: none;
         }
     }
 
-    > .popover-footer {
+    &__footer {
         display: flex;
         justify-content: flex-end;
     }
