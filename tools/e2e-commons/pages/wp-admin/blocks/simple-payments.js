@@ -35,9 +35,7 @@ export default class SimplePaymentBlock extends PageActions {
 	}
 
 	async waitForResponse() {
-		const testUrl = /^https?:\/\/.*%2Fwp%2Fv2%2Fjp_pay_product/;
-
-		await this.page.waitForResponse( resp => testUrl.test( resp.url() ) );
+		await this.page.waitForResponse( r => r.url().match( /jp_pay_product/ ) && r.status() === 200 );
 	}
 
 	getSelector( selector ) {
