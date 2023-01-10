@@ -21,7 +21,7 @@ export type PricingTableProps = {
 	/**
 	 * Whether to show the intro offer disclaimer text with the ToS.
 	 */
-	showIntroOfferDisclaimer: boolean;
+	showIntroOfferDisclaimer?: boolean;
 };
 
 export type PricingTableColumnProps = {

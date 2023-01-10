@@ -61,7 +61,7 @@ const PricingPage = () => {
 				{ name: __( 'Organic social posts', 'jetpack-social' ) },
 				{ name: __( 'Video sharing', 'jetpack-social' ) },
 				{ name: __( 'Multi-image sharing', 'jetpack-social' ) },
-				{ name: __( 'Post recycling', 'jetpack-social' ) },
+				{ name: __( 'Recycle content', 'jetpack-social' ) },
 				{ name: __( 'Image generator', 'jetpack-social' ) },
 			] }
 		>
