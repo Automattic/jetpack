@@ -398,20 +398,24 @@ const FirewallPage = () => {
 					<div className={ styles[ 'toggle-section__details' ] }>
 						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
 							<div className={ styles[ 'automatic-rules-details-text' ] }>
-								<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
-									{ sprintf(
-										// translators: placeholder is the latest rules version i.e. "v2.0".
-										__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
-										rulesVersion
-									) }
-								</Text>
-								<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
-									{ sprintf(
-										// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
-										__( 'Last updated on %s.', 'jetpack-protect' ),
-										automaticRulesLastUpdated
-									) }
-								</Text>
+								{ rulesVersion && (
+									<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
+										{ sprintf(
+											// translators: placeholder is the latest rules version i.e. "v2.0".
+											__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
+											rulesVersion
+										) }
+									</Text>
+								) }
+								{ automaticRulesLastUpdated && (
+									<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
+										{ sprintf(
+											// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
+											__( 'Last updated on %s.', 'jetpack-protect' ),
+											automaticRulesLastUpdated
+										) }
+									</Text>
+								) }
 							</div>
 						) }
 						{ automaticRulesInstallationError && (
