@@ -128,6 +128,11 @@ export const settings = {
 	supports: {
 		align: [ 'center', 'wide', 'full' ],
 		html: false,
+		color: {
+			__experimentalDuotone: 'img',
+			text: false,
+			background: false,
+		},
 	},
 	icon: {
 		src: icon,
