@@ -129,7 +129,8 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 
 		if ( ! empty( $this->pages_by_id ) ) {
 			// In case there were some orphans
-			foreach ( $this->pages_by_id as $page_id => $page ) {
+			// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+			foreach ( $this->pages_by_id as $_page_id => $page ) {
 				$dropdown_pages[] = $this->to_dropdown_page( $page );
 			}
 		}
