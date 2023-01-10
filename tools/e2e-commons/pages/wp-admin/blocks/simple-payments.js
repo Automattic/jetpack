@@ -35,7 +35,9 @@ export default class SimplePaymentBlock extends PageActions {
 	}
 
 	async waitForResponse() {
-		await this.page.waitForResponse( r => r.url().match( /jp_pay_product/ ) && r.status() === 200 );
+		await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.status() === 200
+		);
 	}
 
 	getSelector( selector ) {

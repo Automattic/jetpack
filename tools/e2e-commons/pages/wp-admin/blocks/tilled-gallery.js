@@ -33,7 +33,9 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async waitForResponse() {
-		await this.page.waitForResponse( r => r.url().match( /wp\/v2\/media/ ) && r.status() === 200 );
+		await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /wp\/v2\/media/ ) && r.status() === 200
+		);
 	}
 
 	async linkToAttachment() {
