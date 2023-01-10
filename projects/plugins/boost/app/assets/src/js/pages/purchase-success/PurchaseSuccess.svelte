@@ -45,7 +45,7 @@
 						{#if Jetpack_Boost.site.isAtomic}
 							<TemplatedString
 								template={__(
-									`Dedicated email support plus priority Live Chat if <link>your plan</link> <strong>includes Premium Support</strong>`,
+									`Dedicated email support plus priority Live Chat if <link>your plan</link> includes <strong>Premium Support</strong>`,
 									'jetpack-boost'
 								)}
 								vars={externalLinkTemplateVar( wpcomPricingUrl )}
