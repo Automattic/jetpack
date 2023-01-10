@@ -41,11 +41,25 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	);
 
 	/**
+	 * List of pages by indexed by their page ID.
+	 *
+	 * @var array
+	 */
+	private $pages_by_id = array();
+
+	/**
+	 * List of pages by indexed by their parent page ID.
+	 *
+	 * @var array
+	 */
+	private $pages_by_parent = array();
+
+	/**
 	 * API callback.
 	 *
 	 * @param string $path - the path.
 	 * @param string $blog_id - the blog id.
-	 * @return stdClass[] $pages - array of objects containing only the ID and title fields. An empty array if no pages are found.
+	 * @return stdClass[] $pages - An array of page objects. Each page object includes ID and title properties and may include children property. This makes each page object a tree like data structures.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -53,26 +67,133 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 			return $blog_id;
 		}
 
-		$pages = self::get_pages();
-		return $pages;
+		$pages = get_pages();
+
+		if ( empty( $pages ) ) {
+			return array();
+		}
+
+		$this->pages_by_id     = self::to_pages_by_id( $pages );
+		$this->pages_by_parent = self::to_pages_by_parent( $pages );
+		$dropdown_pages        = $this->create_dropdown_pages();
+		return $dropdown_pages;
 	}
 
 	/**
-	 * Get all pages for the current site. The results are cached.
+	 * Convert a list of pages to a list of pages by page ID.
 	 *
-	 * @return stdClass[] $pages - array of objects containing only the ID and title fields.
+	 * @param array $pages - array of pages.
+	 * @return array $pages_by_page_id - indexed array of pages by page ID where index is page ID.
 	 */
-	protected static function get_pages() {
-		global $wpdb;
+	private static function to_pages_by_id( $pages ) {
+		$pages_by_page_id = array();
+		foreach ( $pages as $page ) {
+			if ( isset( $page->ID ) ) {
+				$pages_by_page_id[ $page->ID ] = $page;
+			}
+		}
+		return $pages_by_page_id;
+	}
 
-		$last_changed = wp_cache_get_last_changed( 'posts' );
-		$cache_key    = "get_pages:$last_changed";
-		$pages        = wp_cache_get( $cache_key, 'dropdown_pages' );
-		if ( false === $pages ) {
-			$pages = $wpdb->get_results( "SELECT {$wpdb->posts}.ID, {$wpdb->posts}.post_title as title FROM {$wpdb->posts} WHERE {$wpdb->posts}.post_type = 'page' AND {$wpdb->posts}.post_status = 'publish' ORDER BY {$wpdb->posts}.post_title ASC" );
-			wp_cache_set( $cache_key, $pages, 'dropdown_pages' );
+	/**
+	 * Convert a list of pages to a list of pages by parent.
+	 *
+	 * @param array $pages - array of pages.
+	 * @return array $pages_by_parent - indexed array of pages by parent where index is page ID.
+	 */
+	private static function to_pages_by_parent( $pages ) {
+		$pages_by_parent = array();
+		foreach ( $pages as $page ) {
+			if ( isset( $page->post_parent ) ) {
+				$pages_by_parent[ $page->post_parent ][] = $page;
+			} else {
+				$pages_by_parent['root'][] = $page;
+			}
+		}
+		return $pages_by_parent;
+	}
+
+	/**
+	 * Convert a list of pages to a list of dropdown pages.
+	 *
+	 * @return array $dropdown_pages - array of dropdown pages.
+	 */
+	private function create_dropdown_pages() {
+		$dropdown_pages = array();
+
+		if ( ! empty( $this->pages_by_parent['root'] ) ) {
+			foreach ( $this->pages_by_parent['root'] as $root_page ) {
+				$dropdown_pages[] = $this->to_dropdown_page( $root_page );
+			}
 		}
 
-		return $pages;
+		if ( ! empty( $this->pages_by_id ) ) {
+			// In case there were some orphans
+			foreach ( $this->pages_by_id as $page_id => $page ) {
+				$dropdown_pages[] = $this->to_dropdown_page( $page );
+			}
+		}
+
+		return $dropdown_pages;
+	}
+
+	/**
+	 * Convert a page to a dropdown page.
+	 *
+	 * @param object $page - the page.
+	 * @return object $dropdown_page - the dropdown page.
+	 */
+	private function to_dropdown_page( $page ) {
+		if ( ! isset( $page->ID ) ) {
+			return false;
+		}
+
+		$title = $this->get_page_title( $page );
+
+		if ( ! isset( $this->pages_by_parent[ $page->ID ] ) ) {
+			unset( $this->pages_by_id[ $page->ID ] );
+			return array(
+				'ID'    => $page->ID,
+				'title' => $title,
+			);
+		}
+
+		$children = array();
+		foreach ( $this->pages_by_parent[ $page->ID ] as $child_page ) {
+			$children[] = $this->to_dropdown_page( $child_page );
+		}
+
+		unset( $this->pages_by_id[ $page->ID ] );
+		unset( $this->pages_by_parent[ $page->ID ] );
+		return array(
+			'ID'       => $page->ID,
+			'title'    => $title,
+			'children' => $children,
+		);
+	}
+
+	/**
+	 * Get the page title.
+	 *
+	 * @param object $page - the page.
+	 * @return string $page_title - the page title.
+	 */
+	private function get_page_title( $page ) {
+		$title = $page->post_title;
+		if ( '' === $title ) {
+			/* translators: %d: ID of a post. */
+			$title = sprintf( __( '#%d (no title)', 'jetpack' ), $page->ID );
+		}
+
+		/**
+		 * Filters the page title when creating an HTML drop-down list of pages.
+		 *
+		 * @since 3.1.0
+		 *
+		 * @param string  $title Page title.
+		 * @param WP_Post $page  Page data object.
+		 */
+		$title = apply_filters( 'list_pages', $title, $page );
+		return $title;
 	}
 }
