@@ -5,6 +5,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu;
 use Automattic\Jetpack\Status;
 
@@ -109,6 +110,15 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	 */
 	public function test_add_tools_menu() {
 		global $submenu;
+
+		// TODO: $connection is used to get locale data for the initial restriction.
+		// Remove after all locale restrictions have been lifted.
+		$connection = $this->createMock( Connection_Manager::class );
+		$user_data  = array(
+			'user_locale' => 'en',
+		);
+		$connection->method( 'get_connected_user_data' )->willReturn( $user_data );
+		static::$admin_menu->connection = $connection;
 
 		static::$admin_menu->add_tools_menu();
 
