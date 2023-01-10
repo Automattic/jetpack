@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Class Jetpack_Instagram_Gallery_Helper
@@ -22,7 +22,7 @@ class Jetpack_Instagram_Gallery_Helper {
 	 * @return bool
 	 */
 	public static function is_instagram_access_token_valid( $access_token_id ) {
-		$site_id = Connection_Utils::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}
@@ -53,7 +53,7 @@ class Jetpack_Instagram_Gallery_Helper {
 	 * @return mixed
 	 */
 	public static function get_instagram_gallery( $access_token_id, $count ) {
-		$site_id = Connection_Utils::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}

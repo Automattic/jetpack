@@ -6,7 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status\Visitor;
 
 /**
@@ -20,7 +20,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @return array       Array with single 'valid' (bool) entry.
 	 */
 	public static function has_valid_connection( $user_id ) {
-		$site_id = Connection_Utils::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}
@@ -69,7 +69,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @return array
 	 */
 	public static function create_sheet( $user_id, $title, $rows = array() ) {
-		$site_id = Connection_Utils::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}

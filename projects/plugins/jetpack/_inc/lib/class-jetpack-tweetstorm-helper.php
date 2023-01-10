@@ -7,7 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
 use Twitter\Text\Regex as Twitter_Regex;
 use Twitter\Text\Validator as Twitter_Validator;
@@ -263,7 +263,7 @@ class Jetpack_Tweetstorm_Helper {
 			);
 		}
 
-		$site_id = Connection_Utils::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
