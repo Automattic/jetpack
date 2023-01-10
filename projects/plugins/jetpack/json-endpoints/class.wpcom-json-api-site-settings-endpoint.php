@@ -51,6 +51,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
+			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
 			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
@@ -366,6 +367,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
+						'jetpack_relatedposts_show_context' => (bool) $jetpack_relatedposts_options['show_context'],
 						'jetpack_relatedposts_show_date'   => (bool) $jetpack_relatedposts_options['show_date'],
 						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
 						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
@@ -647,6 +649,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 				case 'jetpack_relatedposts_enabled':
+				case 'jetpack_relatedposts_show_context':
 				case 'jetpack_relatedposts_show_date':
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
