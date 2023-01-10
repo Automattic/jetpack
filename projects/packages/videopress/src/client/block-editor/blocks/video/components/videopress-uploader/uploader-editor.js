@@ -2,9 +2,8 @@
  * WordPress dependencies
  */
 import { MediaUpload } from '@wordpress/block-editor';
-import { Button, TextControl, BaseControl } from '@wordpress/components';
-import { createInterpolateElement, useRef, useState } from '@wordpress/element';
-import { escapeHTML } from '@wordpress/escape-html';
+import { Button, BaseControl } from '@wordpress/components';
+import { createInterpolateElement, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -12,10 +11,6 @@ import playIcon from '../../../../../components/icons/play-icon';
 import VideoFrameSelector from '../../../../../components/video-frame-selector';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
-
-const removeFileNameExtension = name => {
-	return name.replace( /\.[^/.]+$/, '' );
-};
 
 const PosterImage = ( { videoPosterImageUrl } ) => {
 	return (
@@ -112,24 +107,11 @@ const UploadingEditor = props => {
 		onSelectPoster,
 		onRemovePoster,
 		videoPosterImageData,
-		onChangeTitle,
 		onVideoFrameSelected,
 	} = props;
-	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
-	const [ title, setTitle ] = useState( filename );
-	const handleTitleChange = newTitle => {
-		onChangeTitle( newTitle );
-		setTitle( newTitle );
-	};
 
 	return (
 		<div className="uploading-editor">
-			<TextControl
-				label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
-				className="uploading-editor__title"
-				onChange={ handleTitleChange }
-				value={ title }
-			/>
 			<BaseControl label={ __( 'Video poster (optional)', 'jetpack-videopress-pkg' ) }>
 				<Poster
 					file={ file }

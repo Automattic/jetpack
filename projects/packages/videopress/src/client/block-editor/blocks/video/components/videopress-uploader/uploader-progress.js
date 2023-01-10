@@ -2,8 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner } from '@wordpress/components';
+import { Button, Spinner, TextControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
 /**
@@ -12,6 +13,7 @@ import filesize from 'filesize';
 import useMetaUpdate from '../../../../../hooks/use-meta-update.js';
 import usePosterImage from '../../../../../hooks/use-poster-image.js';
 import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
+import { removeFileNameExtension } from '../../../../../lib/url';
 import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
 
@@ -162,8 +164,18 @@ const UploaderProgress = ( {
 	// Support File from library or File instance
 	const fileSizeLabel = file?.filesizeHumanReadable ?? filesize( file?.size );
 
+	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
+
 	return (
 		<PlaceholderWrapper disableInstructions>
+			<TextControl
+				label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
+				className="uploading-editor__title"
+				onChange={ newTitle => setAttributes( { title: newTitle } ) }
+				value={ attributes.title }
+				placeholder={ filename }
+			/>
+
 			<UploadingEditor
 				file={ file }
 				onSelectPoster={ handleSelectPoster }
@@ -172,6 +184,7 @@ const UploaderProgress = ( {
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
 			/>
+
 			<div className="videopress-uploader-progress">
 				{ completed ? (
 					<>
