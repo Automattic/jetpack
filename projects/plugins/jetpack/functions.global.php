@@ -439,20 +439,16 @@ function jetpack_is_frontend() {
  */
 function jetpack_mastodon_get_instance_list() {
 	$mastodon_instance_list = array(
+		// Regex pattern to match any .tld for the mastodon host name.
+		'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
+		// Regex pattern to match any .tld for the mstdn host name.
+		'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
 		'counter.social',
 		'fosstodon.org',
 		'gc2.jp',
 		'hachyderm.io',
 		'infosec.exchange',
 		'mas.to',
-		'mastodon.art',
-		'mastodon.cloud',
-		'mastodon.lol',
-		'mastodon.online',
-		'mastodon.social',
-		'mastodon.world',
-		'mstdn.jp',
-		'mstdn.social',
 		'pawoo.net',
 	);
 
