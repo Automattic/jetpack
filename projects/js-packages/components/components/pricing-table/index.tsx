@@ -40,6 +40,10 @@ const ToS = createInterpolateElement(
 	}
 );
 
+const INCLUDED_TEXT = __( 'Included', 'jetpack' );
+const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
+const NOT_INCLUDED_ALT_TEXT = __( 'not included', 'jetpack' );
+
 const PricingTableContext = createContext( undefined );
 
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
@@ -50,20 +54,19 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	tooltipTitle,
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const items = useContext( PricingTableContext );
-	const rowLabel = items[ index ].name;
-	const defaultTooltipInfo = items[ index ].tooltipInfo;
-	const defaultTooltipTitle = items[ index ].tooltipTitle;
-	const includedLabel = __( 'Included', 'jetpack' );
-	const notIncludedLabel = __( 'Not included', 'jetpack' );
+	const item = useContext( PricingTableContext )[ index ];
+
+	const featureNameLabel = item.name;
+
+	const defaultTooltipInfo = item.tooltipInfo;
+	const defaultTooltipTitle = item.tooltipTitle;
 	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
 
-	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
-	defaultLabel = isLg ? defaultLabel : rowLabel;
+	const includedLabel = isIncluded ? INCLUDED_TEXT : NOT_INCLUDED_TEXT;
 
-	if ( ! isLg && ! isIncluded && label === null ) {
-		return null;
-	}
+	const defaultLabel = isLg
+		? includedLabel
+		: featureNameLabel + ( isIncluded ? '' : ` ${ NOT_INCLUDED_ALT_TEXT }` );
 
 	return (
 		<div className={ classnames( styles.item, styles.value ) }>
@@ -120,7 +123,12 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
 	);
 };
 
-const PricingTable: React.FC< PricingTableProps > = ( { title, items, children } ) => {
+const PricingTable: React.FC< PricingTableProps > = ( {
+	title,
+	items,
+	children,
+	showIntroOfferDisclaimer,
+} ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	return (
@@ -165,9 +173,14 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 				</div>
 			</div>
 			<div className={ styles[ 'tos-container' ] }>
-				<Text className={ styles.tos } variant="body-small">
-					{ ToS }
-				</Text>
+				<div className={ styles.tos }>
+					{ showIntroOfferDisclaimer && (
+						<Text variant="body-small">
+							Reduced pricing is a limited offer for the first year and renews at regular price.
+						</Text>
+					) }
+					<Text variant="body-small">{ ToS }</Text>
+				</div>
 			</div>
 		</PricingTableContext.Provider>
 	);

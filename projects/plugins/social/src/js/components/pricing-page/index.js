@@ -7,7 +7,6 @@ import {
 	ProductPrice,
 	getRedirectUrl,
 	useBreakpointMatch,
-	Text,
 } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -28,26 +27,82 @@ const PricingPage = () => {
 		updateOptions( newOption );
 	}, [ updateOptions ] );
 
+	const UNLIMITED_SHARES_TABLE_ITEM = (
+		<PricingTableItem
+			isIncluded
+			label={
+				<>
+					<del>{ __( 'Up to 1000', 'jetpack-social' ) }</del>&nbsp;
+					<strong>
+						{ isLarge
+							? __( 'Unlimited', 'jetpack-social' )
+							: __( 'Unlimited shares in 30 days', 'jetpack-social' ) }
+					</strong>
+				</>
+			}
+			tooltipTitle={ __( 'Unlimited shares', 'jetpack-social' ) }
+			tooltipInfo={ __(
+				'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!',
+				'jetpack-social'
+			) }
+		/>
+	);
+
 	return (
 		<PricingTable
+			showIntroOfferDisclaimer
 			title={ __( 'Write once, post everywhere', 'jetpack-social' ) }
 			items={ [
-				{ name: __( 'Number of shares', 'jetpack-social' ) },
+				{ name: __( 'Number of shares in 30 days', 'jetpack-social' ) },
 				{ name: __( 'Priority support', 'jetpack-social' ) },
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
 				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
+				{ name: __( 'Organic social posts', 'jetpack-social' ) },
+				{ name: __( 'Video sharing', 'jetpack-social' ) },
+				{ name: __( 'Multi-image sharing', 'jetpack-social' ) },
+				{ name: __( 'Post recycling', 'jetpack-social' ) },
+				{ name: __( 'Image generator', 'jetpack-social' ) },
 			] }
 		>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ 10 }
+						price={ 30 }
 						offPrice={ 1 }
-						promoLabel={ __( '90% off*', 'jetpack-social' ) }
 						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
-						hidePriceFraction={ true }
+						hidePriceFraction
+					/>
+					<Button
+						href={ getRedirectUrl( 'jetpack-social-advanced-plan-plugin-admin-page', {
+							site: siteSuffix,
+							query: 'redirect_to=' + window.location.href,
+						} ) }
+						fullWidth
+					>
+						{ __( 'Get Advanced plan', 'jetpack-social' ) }
+					</Button>
+				</PricingTableHeader>
+				{ UNLIMITED_SHARES_TABLE_ITEM }
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+			</PricingTableColumn>
+			<PricingTableColumn primary>
+				<PricingTableHeader>
+					<ProductPrice
+						price={ 10 }
+						offPrice={ 1 }
+						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						currency="USD"
+						hidePriceFraction
 					/>
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
@@ -56,30 +111,19 @@ const PricingPage = () => {
 						} ) }
 						fullWidth
 					>
-						{ __( 'Get Social', 'jetpack-social' ) }
+						{ __( 'Get Basic plan', 'jetpack-social' ) }
 					</Button>
-					<Text variant="body-extra-small" className={ styles.notice }>
-						(*) { __( 'Limited offer for the first month', 'jetpack-social' ) }
-					</Text>
 				</PricingTableHeader>
-				<PricingTableItem
-					isIncluded={ true }
-					label={
-						<>
-							<del>{ __( 'Up to 1000', 'jetpack-social' ) }</del>&nbsp;
-							<strong>{ __( 'Unlimited', 'jetpack-social' ) }</strong>
-						</>
-					}
-					tooltipTitle={ __( 'Unlimited shares', 'jetpack-social' ) }
-					tooltipInfo={ __(
-						'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!',
-						'jetpack-social'
-					) }
-				/>
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
+				{ UNLIMITED_SHARES_TABLE_ITEM }
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -94,13 +138,24 @@ const PricingPage = () => {
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem
-					isIncluded={ true }
-					label={ <strong>{ __( 'Up to 30', 'jetpack-social' ) }</strong> }
+					isIncluded
+					label={
+						<strong>
+							{ isLarge
+								? __( 'Up to 30', 'jetpack-social' )
+								: __( 'Up to 30 shares in 30 days', 'jetpack-social' ) }
+						</strong>
+					}
 				/>
-				<PricingTableItem isIncluded={ false } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem isIncluded />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
+				<PricingTableItem />
 			</PricingTableColumn>
 		</PricingTable>
 	);

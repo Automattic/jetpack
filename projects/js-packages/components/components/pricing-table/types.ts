@@ -17,6 +17,11 @@ export type PricingTableProps = {
 	 * The columns to add to the table.
 	 */
 	children: React.ReactNode;
+
+	/**
+	 * Whether to show the intro offer disclaimer text with the ToS.
+	 */
+	showIntroOfferDisclaimer: boolean;
 };
 
 export type PricingTableColumnProps = {
