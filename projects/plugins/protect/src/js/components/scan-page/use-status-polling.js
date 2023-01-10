@@ -62,7 +62,7 @@ const useStatusPolling = () => {
 		};
 
 		if (
-			! statusIsInProgress( status?.status ) ||
+			! statusIsInProgress( status?.status ) &&
 			! scanIsInitializing( status?.status, status?.lastChecked )
 		) {
 			return;
