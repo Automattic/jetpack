@@ -1,26 +1,22 @@
 import { RichText } from '@wordpress/block-editor';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { isNil } from 'lodash';
+import { FORM_STYLE } from '../util/form';
 
-const JetpackFieldLabel = ( {
-	setAttributes,
+const FieldLabel = ( {
+	className,
 	label,
 	labelFieldName,
 	placeholder,
 	resetFocus,
 	required,
 	requiredText,
+	setAttributes,
 } ) => {
-	useEffect( () => {
-		if ( isNil( requiredText ) ) {
-			setAttributes( { requiredText: __( '(required)', 'jetpack' ) } );
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-
 	return (
-		<div className="jetpack-field-label">
+		<div className={ classnames( className, 'jetpack-field-label' ) }>
 			<RichText
 				tagName="label"
 				value={ label }
@@ -51,6 +47,31 @@ const JetpackFieldLabel = ( {
 			) }
 		</div>
 	);
+};
+
+const JetpackFieldLabel = props => {
+	const { setAttributes, requiredText, style } = props;
+
+	useEffect( () => {
+		if ( isNil( requiredText ) ) {
+			setAttributes( { requiredText: __( '(required)', 'jetpack' ) } );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
+	if ( style === FORM_STYLE.OUTLINED ) {
+		return (
+			<div className="notched-label">
+				<div className="notched-label__leading" />
+				<div className="notched-label__notch">
+					<FieldLabel className="notched-label__label" { ...props } />
+				</div>
+				<div className="notched-label__trailing" />
+			</div>
+		);
+	}
+
+	return <FieldLabel { ...props } />;
 };
 
 export default JetpackFieldLabel;

@@ -82,11 +82,18 @@
 .contact-form label.checkbox,
 .contact-form label.checkbox-multiple,
 .contact-form label.radio {
-	margin-bottom: 0.25em;
+	margin-bottom: 0;
 	float: none;
 	font-weight: normal;
 	display: inline-flex;
 	align-items: center;
+}
+
+.contact-form .grunion-checkbox-multiple-options,
+.contact-form .grunion-radio-options {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25em
 }
 
 .contact-form label span {
@@ -246,10 +253,6 @@
 	width: 100%;
 }
 
-.contact-form-dropdown-wrap {
-	z-index: unset;
-}
-
 .contact-form .contact-form-dropdown__button.ui-button {
 	width: 100%;
 	box-sizing: border-box;
@@ -302,6 +305,9 @@
 	transform: rotate(225deg);
 	margin-top: 8px;
 }
+.contact-form .contact-form-dropdown__menu {
+	z-index: 1;
+}
 
 .contact-form .contact-form-dropdown__menu ul.ui-menu {
 	border: var(--jetpack--contact-form--border);
@@ -333,11 +339,19 @@
 }
 
 
-.contact-form .is-style-outlined .grunion-field-wrap,
-.contact-form .is-style-animated .grunion-field-wrap {
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap) {
 	position: relative;
-	display: inline-flex;
+	display: flex;
 	flex-direction: row-reverse;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
+{
+	padding: var(--jetpack--contact-form--input-padding);
+	padding-top: calc(var(--jetpack--contact-form--input-padding) + 4px);
+	flex-grow: 1;
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
@@ -369,6 +383,10 @@
 	transition: border 150ms linear;
 }
 
+.contact-form .is-style-outlined .grunion-field-wrap.no-label .notched-label__notch {
+	padding: 0;
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__label {
 	position: relative;
 	top: 50%;
@@ -386,24 +404,27 @@
 	border-left: none;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap input:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap input.has-placeholder ~ .notched-label .notched-label__notch
+.contact-form .is-style-outlined .grunion-field-wrap *:focus ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap *:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap *.has-placeholder ~ .notched-label .notched-label__notch
 {
 	border-top-color: transparent;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap input:focus ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap input:not(:placeholder-shown) ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap input.has-placeholder ~ .notched-label .notched-label__label
+.contact-form .is-style-outlined .grunion-field-wrap *:focus ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap *:not(:placeholder-shown) ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap *.has-placeholder ~ .notched-label .notched-label__label
 {
 	top: 0;
 	transform: translateY(-50%);
 	font-size: 0.8em;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap input {
-	border: none;
+.contact-form .is-style-outlined .grunion-field-wrap input,
+.contact-form .is-style-outlined .grunion-field-wrap textarea,
+.contact-form .is-style-outlined .grunion-field-wrap .contact-form-dropdown__button
+{
+	border-color: transparent;
 	outline: none;
 }
 
@@ -432,4 +453,8 @@
 	font-size: 0.8em;
 	transform: translateY(0);
 	top: 4px;
+}
+
+.contact-form .is-style-below .grunion-field-wrap .below-label__label {
+	margin-left: var(--jetpack--contact-form--border-size);
 }

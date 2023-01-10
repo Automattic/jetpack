@@ -1,12 +1,30 @@
 import { TextareaControl, Disabled } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isNil } from 'lodash';
+import classnames from 'classnames';
+import { isEmpty, isNil } from 'lodash';
+import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackFieldTextarea( props ) {
-	const { id, required, requiredText, label, setAttributes, placeholder, width } = props;
+	const {
+		clientId,
+		id,
+		isSelected,
+		required,
+		requiredText,
+		label,
+		setAttributes,
+		placeholder,
+		width,
+	} = props;
+	const formStyle = useFormStyle( clientId );
+
+	const classes = classnames( 'jetpack-field', {
+		'is-selected': isSelected,
+		'has-placeholder': ! isEmpty( placeholder ),
+	} );
 
 	useEffect( () => {
 		if ( isNil( label ) ) {
@@ -17,12 +35,14 @@ export default function JetpackFieldTextarea( props ) {
 
 	return (
 		<>
-			<div className="jetpack-field">
+			<div className={ classes }>
 				<JetpackFieldLabel
+					clientId={ clientId }
 					required={ required }
 					requiredText={ requiredText }
 					label={ label }
 					setAttributes={ setAttributes }
+					style={ formStyle }
 				/>
 				<Disabled>
 					<TextareaControl

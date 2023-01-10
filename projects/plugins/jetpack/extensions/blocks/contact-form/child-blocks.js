@@ -136,6 +136,7 @@ const editField = type => props => {
 		<JetpackField
 			type={ type }
 			label={ getFieldLabel( props ) }
+			clientId={ props.clientId }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
@@ -154,6 +155,7 @@ const editMultiField = type => props => {
 	return (
 		<JetpackFieldMultiple
 			label={ getFieldLabel( props ) }
+			clientId={ props.clientId }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			options={ props.attributes.options }
@@ -171,6 +173,7 @@ const EditTextarea = props => {
 
 	return (
 		<JetpackFieldTextarea
+			clientId={ props.clientId }
 			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }

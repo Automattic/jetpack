@@ -56,13 +56,14 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
-	const backgroundColor = window.getComputedStyle( bodyNode ).backgroundColor;
+	const backgroundColor = getBackgroundColor( bodyNode );
+	const inputBackground = getBackgroundColor( inputNode );
 	const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
+
 	const {
 		color: textColor,
 		padding: inputPadding,
 		paddingLeft: inputPaddingLeft,
-		backgroundColor: inputBackground,
 		border,
 		borderColor,
 		borderWidth,
@@ -84,8 +85,24 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	outputContainer.style.setProperty( '--jetpack--contact-form--border-radius', borderRadius );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-background', inputBackground );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-padding', inputPadding );
-	outputContainer.style.setProperty( '--jetpack--contact-form--input-padding-left', inputPaddingLeft );
+	outputContainer.style.setProperty(
+		'--jetpack--contact-form--input-padding-left',
+		inputPaddingLeft
+	);
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-size', fontSize );
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-family', fontFamily );
 	outputContainer.style.setProperty( '--jetpack--contact-form--line-height', lineHeight );
+}
+
+function getBackgroundColor( backgroundColorNode ) {
+	let backgroundColor = window.getComputedStyle( backgroundColorNode ).backgroundColor;
+	while (
+		backgroundColor === 'rgba(0, 0, 0, 0)' &&
+		backgroundColorNode.parentNode &&
+		backgroundColorNode.parentNode.nodeType === window.Node.ELEMENT_NODE
+	) {
+		backgroundColorNode = backgroundColorNode.parentNode;
+		backgroundColor = window.getComputedStyle( backgroundColorNode ).backgroundColor;
+	}
+	return backgroundColor;
 }

@@ -4467,7 +4467,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field .= '<div class="grunion-radio-options">';
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
@@ -4481,9 +4482,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
 				$field .= esc_html( $option ) . "</label>\n";
-				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
+		$field .= '</div>';
 		return $field;
 	}
 
@@ -4544,16 +4545,17 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field .= '<div class="grunion-checkbox-multiple-options">';
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
 				$field .= esc_html( $option ) . "</label>\n";
-				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
+		$field .= '</div>';
 
 		return $field;
 	}
@@ -4780,6 +4782,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$wrap_classes .= ' ui-front';
 		}
 
+		if ( empty( $label ) ) {
+			$wrap_classes .= 'no-label';
+		}
+
 		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
 
 		/**
@@ -4835,7 +4841,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				break;
 		}
 
-		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'consent' ), true ) ) {
 			switch ( $form_style ) {
 				case 'outlined':
 					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );

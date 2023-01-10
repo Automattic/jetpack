@@ -2,20 +2,41 @@ import { TextControl, Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEmpty } from 'lodash';
+import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
 export default function JetpackField( props ) {
-	const { id, type, required, requiredText, label, setAttributes, placeholder, width } = props;
+	const {
+		clientId,
+		id,
+		isSelected,
+		type,
+		required,
+		requiredText,
+		label,
+		setAttributes,
+		placeholder,
+		width,
+	} = props;
+	const formStyle = useFormStyle( clientId );
+
+	const classes = classnames( 'jetpack-field', {
+		'is-selected': isSelected,
+		'has-placeholder': ! isEmpty( placeholder ),
+	} );
 
 	return (
 		<>
-			<div className="jetpack-field">
+			<div className={ classes }>
 				<JetpackFieldLabel
+					label={ label }
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
 					setAttributes={ setAttributes }
+					style={ formStyle }
 				/>
 				<Disabled>
 					<TextControl

@@ -6,6 +6,13 @@ import { __ } from '@wordpress/i18n';
 
 const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
+export const FORM_STYLE = {
+	ANIMATED: 'animated',
+	BELOW: 'below',
+	DEFAULT: 'default',
+	OUTLINED: 'outlined',
+};
+
 export const useFormWrapper = ( { attributes, clientId, name } ) => {
 	const BUTTON_BLOCK_NAME = 'jetpack/button';
 	const SUBMIT_BUTTON_ATTR = {
@@ -34,18 +41,20 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 	}, [] );
 };
 
-export const getBlockStyle = ( className ) => {
+export const getBlockStyle = className => {
 	const styleClass = className && className.match( /is-style-([^\s]+)/i );
 	return styleClass ? styleClass[ 1 ] : '';
 };
 
-export const getFormStyle = ( clientId ) => {
+export const useFormStyle = clientId => {
 	const formBlockAttributes = useSelect( select => {
-		const [ formBlockClientId ] = select( blockEditorStore )
-			.getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
+		const [ formBlockClientId ] = select( blockEditorStore ).getBlockParentsByBlockName(
+			clientId,
+			FORM_BLOCK_NAME
+		);
 
 		return select( blockEditorStore ).getBlockAttributes( formBlockClientId );
 	} );
 
-	return getBlockStyle( formBlockAttributes?.className )
-}
+	return getBlockStyle( formBlockAttributes?.className ) || FORM_STYLE.DEFAULT;
+};

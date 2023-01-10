@@ -1,9 +1,10 @@
 import { RichText } from '@wordpress/block-editor';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { isEmpty, isNil, noop, split, trim } from 'lodash';
 import { setFocus } from '../util/focus';
-import { useFormWrapper } from '../util/form';
+import { useFormStyle, useFormWrapper } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 
@@ -16,6 +17,12 @@ export const JetpackDropdownEdit = ( {
 } ) => {
 	const { id, label, options, required, requiredText, toggleLabel, width } = attributes;
 	const optionsWrapper = useRef();
+	const formStyle = useFormStyle( clientId );
+
+	const classes = classnames( 'jetpack-field jetpack-field-dropdown', {
+		'is-selected': isSelected,
+		'has-placeholder': ! isEmpty( toggleLabel ),
+	} );
 
 	useFormWrapper( { attributes, clientId, name } );
 
@@ -97,44 +104,43 @@ export const JetpackDropdownEdit = ( {
 	}, [] );
 
 	return (
-		<>
+		<div className={ classes }>
 			<JetpackFieldLabel
 				required={ required }
 				requiredText={ requiredText }
 				label={ label }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
+				style={ formStyle }
 			/>
-			<div className="jetpack-field-dropdown">
-				<div className="jetpack-field-dropdown__toggle">
-					<RichText
-						value={ toggleLabel }
-						onChange={ value => {
-							setAttributes( { toggleLabel: value } );
-						} }
-						allowedFormats={ [ 'core/bold', 'core/italic' ] }
-						withoutInteractiveFormatting
-					/>
-					<span className="jetpack-field-dropdown__icon" />
-				</div>
-
-				{ isSelected && (
-					<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
-						{ options.map( ( option, index ) => (
-							<RichText
-								key={ index }
-								value={ option }
-								onChange={ handleChangeOption( index ) }
-								onSplit={ handleSplitOption( index ) }
-								onRemove={ handleDeleteOption( index ) }
-								onReplace={ noop }
-								placeholder={ __( 'Add option…', 'jetpack' ) }
-								__unstableDisableFormats
-							/>
-						) ) }
-					</div>
-				) }
+			<div className="jetpack-field-dropdown__toggle">
+				<RichText
+					value={ toggleLabel }
+					onChange={ value => {
+						setAttributes( { toggleLabel: value } );
+					} }
+					allowedFormats={ [ 'core/bold', 'core/italic' ] }
+					withoutInteractiveFormatting
+				/>
+				<span className="jetpack-field-dropdown__icon" />
 			</div>
+
+			{ isSelected && (
+				<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
+					{ options.map( ( option, index ) => (
+						<RichText
+							key={ index }
+							value={ option }
+							onChange={ handleChangeOption( index ) }
+							onSplit={ handleSplitOption( index ) }
+							onRemove={ handleDeleteOption( index ) }
+							onReplace={ noop }
+							placeholder={ __( 'Add option…', 'jetpack' ) }
+							__unstableDisableFormats
+						/>
+					) ) }
+				</div>
+			) }
 
 			<JetpackFieldControls
 				id={ id }
@@ -144,6 +150,6 @@ export const JetpackDropdownEdit = ( {
 				placeholder={ toggleLabel }
 				placeholderField="toggleLabel"
 			/>
-		</>
+		</div>
 	);
 };
