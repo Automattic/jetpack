@@ -1675,7 +1675,6 @@ class Jetpack_Tweetstorm_Helper {
 			),
 			'image'       => array(
 				'name'     => 'twitter:image',
-				'property' => 'og:image:secure',
 				'property' => 'og:image',
 			),
 			'title'       => array(

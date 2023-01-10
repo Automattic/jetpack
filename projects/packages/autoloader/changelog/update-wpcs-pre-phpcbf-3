@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Globally ignore WordPress.WP.AlternativeFunctions sniff, no code here runs inside of WordPress so we'll never want those functions.
+
+

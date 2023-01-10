@@ -5,9 +5,6 @@
  * @package automattic/jetpack-autoloader
  */
 
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
-// phpcs:disable WordPress.WP.AlternativeFunctions.json_encode_json_encode
 // phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
 
 /**

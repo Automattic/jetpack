@@ -401,6 +401,8 @@ class Site_Logo {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Allow themes and plugins to access Site_Logo methods and properties.
  *
