@@ -44,7 +44,7 @@ const ReplaceControl = ( {
 	}
 
 	const shareVideoUrlBase = attributes.isPrivate
-		? 'https://files.videopress.com/v'
+		? 'https://video.wordpress.com/v'
 		: 'https://videopress.com/v';
 
 	return (
