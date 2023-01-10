@@ -4,14 +4,15 @@ import {
 	Container,
 	Text,
 	ContextualUpgradeTrigger,
+	useBreakpointMatch,
 	Notice as JetpackNotice,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
+import { ExternalLink, Popover } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { arrowLeft } from '@wordpress/icons';
+import { Icon, arrowLeft, closeSmall } from '@wordpress/icons';
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import API from '../../api';
@@ -42,8 +43,9 @@ const errorMessage = createInterpolateElement(
 );
 
 const FirewallPage = () => {
+	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
+	const { setWafIsSeen, setWafUpgradeIsSeen, setNotice } = useDispatch( STORE_ID );
 	const {
 		config: {
 			jetpackWafAutomaticRules,
@@ -54,6 +56,8 @@ const FirewallPage = () => {
 		},
 		isEnabled,
 		isSeen,
+		upgradeIsSeen,
+		displayUpgradeBadge,
 		isSupported,
 		isUpdating,
 		stats,
@@ -186,6 +190,12 @@ const FirewallPage = () => {
 						  ),
 				} );
 			} )
+			.then( () => {
+				if ( ! upgradeIsSeen ) {
+					setWafUpgradeIsSeen( true );
+					API.wafUpgradeSeen();
+				}
+			} )
 			.catch( () => {
 				setAutomaticRulesInstallationError( true );
 				setNotice( {
@@ -194,7 +204,7 @@ const FirewallPage = () => {
 				} );
 			} )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleAutomaticRules, setNotice ] );
+	}, [ formState, toggleAutomaticRules, setNotice, upgradeIsSeen, setWafUpgradeIsSeen ] );
 
 	/**
 	 * Handle Manual Rules Change
@@ -240,6 +250,18 @@ const FirewallPage = () => {
 	const handleShowManualRulesClick = useCallback( () => {
 		setShowManualRules( ! showManualRules );
 	}, [ showManualRules, setShowManualRules ] );
+
+	/**
+	 * Handle Close Popover Click
+	 *
+	 * Sets user meta for post upgrade messaging
+	 *
+	 * @returns void
+	 */
+	const handleClosePopoverClick = useCallback( () => {
+		setWafUpgradeIsSeen( true );
+		API.wafUpgradeSeen();
+	}, [ setWafUpgradeIsSeen ] );
 
 	/**
 	 * Sync formState with application state WAF config
@@ -322,11 +344,51 @@ const FirewallPage = () => {
 						onChange={ handleAutomaticRulesChange }
 						disabled={ ! isEnabled || formIsSubmitting || ! canToggleAutomaticRules }
 					/>
+					{ hasRequiredPlan && upgradeIsSeen === false && (
+						<Popover noArrow={ false } offset={ 8 } position={ 'top right' }>
+							<div className={ styles.popover }>
+								<div className={ styles.popover__header }>
+									<Text className={ styles.popover__title } variant={ 'title-small' }>
+										{ __( 'Thanks for upgrading!', 'jetpack-protect' ) }
+									</Text>
+									<Button className={ styles.popover__button } variant={ 'icon' }>
+										<Icon
+											onClick={ handleClosePopoverClick }
+											icon={ closeSmall }
+											size={ 24 }
+											aria-label={ __( 'Close Window', 'jetpack-protect' ) }
+										/>
+									</Button>
+								</div>
+								<Text
+									className={ styles.popover__description }
+									variant={ 'body' }
+									mt={ 2 }
+									mb={ 3 }
+								>
+									{ __(
+										'Turn on Jetpack Firewall to automatically protect your site with the latest security rules.',
+										'jetpack-protect'
+									) }
+								</Text>
+								<div className={ styles.popover__footer }>
+									<Button onClick={ handleClosePopoverClick }>
+										{ __( 'Got it', 'jetpack-protect' ) }
+									</Button>
+								</div>
+							</div>
+						</Popover>
+					) }
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
-					<Text variant="title-medium" mb={ 2 }>
-						{ __( 'Enable automatic rules', 'jetpack-protect' ) }
-					</Text>
+					<div className={ styles[ 'toggle-section__title' ] }>
+						<Text variant="title-medium" mb={ 2 }>
+							{ __( 'Enable automatic rules', 'jetpack-protect' ) }
+						</Text>
+						{ ! isSmall && hasRequiredPlan && displayUpgradeBadge && (
+							<span className={ styles.badge }>{ __( 'NOW AVAILABLE', 'jetpack-protect' ) }</span>
+						) }
+					</div>
 					<Text>
 						{ __(
 							'Protect your site against untrusted traffic sources with automatic security rules.',
