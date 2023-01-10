@@ -25,7 +25,7 @@ function getImagesFromOpenAI(
 	setAttributes( { requestedPrompt: prompt } ); // This will prevent double submitting.
 
 	apiFetch( {
-		path: '/wpcom/v2/coauthor/images/generations',
+		path: '/wpcom/v2/jetpack-ai/images/generations',
 		method: 'POST',
 		data: {
 			prompt,
@@ -82,7 +82,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		<div { ...useBlockProps() }>
 			{ ! loadingImages && errorMessage && (
 				<Placeholder
-					label={ __( 'Coauthor Image', 'jetpack' ) }
+					label={ __( 'Jetpack AI Image', 'jetpack' ) }
 					notices={ [ <div>{ errorMessage }</div> ] }
 				>
 					<TextareaControl
@@ -106,7 +106,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! attributes.requestedPrompt && (
-				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
 					<div>
 						<TextareaControl
 							label={ __( 'What would you like to see?', 'jetpack' ) }
@@ -119,7 +119,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
-				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
 					<div>
 						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
 							{ attributes.requestedPrompt }
@@ -131,7 +131,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							{ resultImages.map( image => (
 								<FlexBlock key={ image }>
 									<img
-										className="wp-block-coauthor-image-image"
+										className="wp-block-ai-image-image"
 										src={ image }
 										alt=""
 										onClick={ async () => {
@@ -142,7 +142,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 											// First convert image to a proper blob file
 											const resp = await fetch( image );
 											const blob = await resp.blob();
-											const file = new File( [ blob ], 'coauthor_image.png', {
+											const file = new File( [ blob ], 'jetpack_ai_image.png', {
 												type: 'image/png',
 											} );
 											// Actually upload the image
@@ -178,14 +178,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && attributes.content && ! loadingImages && (
-				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
 					<div>
 						<div className="content">{ attributes.content }</div>
 					</div>
 				</Placeholder>
 			) }
 			{ ! errorMessage && loadingImages && (
-				<Placeholder label={ __( 'Coauthor Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
 					<div style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {

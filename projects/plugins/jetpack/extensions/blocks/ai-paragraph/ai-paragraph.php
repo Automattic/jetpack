@@ -1,19 +1,19 @@
 <?php
 /**
- * Coauthor Paragraph Block.
+ * Jetpack AI Paragraph Block.
  *
  * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\CoauthorParagraph;
+namespace Automattic\Jetpack\Extensions\AIParagraph;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'coauthor-paragraph';
+const FEATURE_NAME = 'ai-paragraph';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -33,10 +33,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Coauthor Paragraph block registration/dependency declaration.
+ * Jetpack AI Paragraph block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Coauthor Paragraph block attributes.
- * @param string $content String containing the Coauthor Paragraph block content.
+ * @param array  $attr    Array containing the Jetpack AI Paragraph block attributes.
+ * @param string $content String containing the Jetpack AI Paragraph block content.
  *
  * @return string
  */

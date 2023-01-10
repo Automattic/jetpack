@@ -37,7 +37,7 @@ function getSuggestionFromOpenAI(
 	setLoadingCompletion( true );
 	setAttributes( { requestedPrompt: true } ); // This will prevent double submitting.
 	apiFetch( {
-		path: '/wpcom/v2/coauthor/completions',
+		path: '/wpcom/v2/jetpack-ai/completions',
 		method: 'POST',
 		data: data,
 	} )
@@ -79,9 +79,9 @@ export default function Edit( { attributes, setAttributes } ) {
 		<div { ...useBlockProps() }>
 			{ needMore && (
 				<Placeholder
-					label={ __( 'Coauthor Paragraph', 'jetpack' ) }
+					label={ __( 'Jetpack AI Paragraph', 'jetpack' ) }
 					instructions={ __(
-						'Please write a little bit more. Coauthor needs at least 120 characters to make the gears spin.',
+						'Please write a little bit more. Jetpack AI needs at least 120 characters to make the gears spin.',
 						'jetpack'
 					) }
 				>

@@ -1,19 +1,19 @@
 <?php
 /**
- * Coauthor Image Block.
+ * Jetpack AI Image Block.
  *
  * @since $$next-version$$
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\CoauthorImage;
+namespace Automattic\Jetpack\Extensions\AIImage;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'coauthor-image';
+const FEATURE_NAME = 'ai-image';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -32,10 +32,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Coauthor image block registration/dependency declaration.
+ * Jetpack AI image block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Coauthor image block attributes.
- * @param string $content String containing the Coauthor image block content.
+ * @param array  $attr    Array containing the Jetpack AI image block attributes.
+ * @param string $content String containing the Jetpack AI image block content.
  *
  * @return string
  */

@@ -1,6 +1,6 @@
 <?php
 /**
- * API helper for the CoAuthor blocks.
+ * API helper for the AI blocks.
  *
  * @package automattic/jetpack
  * @since $$next-version$$
@@ -10,11 +10,11 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 
 /**
- * Class Jetpack_Coauthor_Helper
+ * Class Jetpack_AI_Helper
  *
  * @since $$next-version$$
  */
-class Jetpack_Coauthor_Helper {
+class Jetpack_AI_Helper {
 	/**
 	 * Allow new completion every X seconds. Will return cached result otherwise.
 	 *
@@ -46,7 +46,7 @@ class Jetpack_Coauthor_Helper {
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
-				__( 'Sorry, you are not allowed to access CoAuthor help on this site.', 'jetpack' ),
+				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
 				array( 'status' => rest_authorization_required_code() )
 			);
 		}
@@ -105,7 +105,7 @@ class Jetpack_Coauthor_Helper {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'dev_mode',
-				__( 'CoAuthor is not available in offline mode.', 'jetpack' )
+				__( 'Jetpack AI is not available in offline mode.', 'jetpack' )
 			);
 		}
 
@@ -130,7 +130,7 @@ class Jetpack_Coauthor_Helper {
 
 		// TODO: This will never run until we need to ship in JP.
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/coauthor/completions', $site_id ),
+			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
 			array( 'headers' => array( 'content-type' => 'application/json' ) ),
 			$content,
@@ -165,7 +165,7 @@ class Jetpack_Coauthor_Helper {
 		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'dev_mode',
-				__( 'CoAuthor is not available in offline mode.', 'jetpack' )
+				__( 'Jetpack AI is not available in offline mode.', 'jetpack' )
 			);
 		}
 
@@ -188,7 +188,7 @@ class Jetpack_Coauthor_Helper {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/coauthor/images', $site_id ),
+			sprintf( '/sites/%d/jetpack-ai/images', $site_id ),
 			2,
 			array( 'headers' => array( 'content-type' => 'application/json' ) ),
 			$prompt,

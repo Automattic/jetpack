@@ -45,9 +45,9 @@
 		"payment-buttons"
 	],
 	"beta": [
+		"ai-image",
+		"ai-paragraph",
 		"amazon",
-		"coauthor-image",
-		"coauthor-paragraph",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",

@@ -1,15 +1,15 @@
 <?php
 /**
- * REST API endpoint for the CoAuthor blocks.
+ * REST API endpoint for the Jetpack AI blocks.
  *
  * @package automattic/jetpack
  * @since $$next-version$$
  */
 
 /**
- * Class WPCOM_REST_API_V2_Endpoint_Coauthor
+ * Class WPCOM_REST_API_V2_Endpoint_AI
  */
-class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
+class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	/**
 	 * Namespace prefix.
 	 *
@@ -22,10 +22,10 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	 *
 	 * @var string
 	 */
-	public $rest_base = 'coauthor';
+	public $rest_base = 'jetpack-ai';
 
 	/**
-	 * WPCOM_REST_API_V2_Endpoint_Coauthor constructor.
+	 * WPCOM_REST_API_V2_Endpoint_AI constructor.
 	 */
 	public function __construct() {
 		$this->is_wpcom = false;
@@ -37,8 +37,8 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 			return;
 		}
 
-		if ( ! class_exists( 'Jetpack_Coauthor_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-coauthor-helper.php';
+		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -55,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_gpt_completion' ),
-					'permission_callback' => array( 'Jetpack_Coauthor_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'content' => array( 'required' => true ),
@@ -70,7 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_dalle_generation' ),
-					'permission_callback' => array( 'Jetpack_Coauthor_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'prompt' => array( 'required' => true ),
@@ -86,7 +86,7 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_Coauthor_Helper::get_gpt_completion( $request['content'] );
+		return Jetpack_AI_Helper::get_gpt_completion( $request['content'] );
 	}
 
 	/**
@@ -95,8 +95,8 @@ class WPCOM_REST_API_V2_Endpoint_Coauthor extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_dalle_generation( $request ) {
-		return Jetpack_Coauthor_Helper::get_dalle_generation( $request['prompt'] );
+		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'] );
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Coauthor' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_AI' );
