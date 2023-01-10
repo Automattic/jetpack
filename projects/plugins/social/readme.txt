@@ -99,5 +99,5 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - Redirect to admin page on plugin activation, and add link to admin page from plugins page.
 
 #### Changed
-- Updated package dependencies. [#27340, #27688, #27689, #27696, #27697, #27874, #27887, #27916, #27962]
+- Updated package dependencies.
 
