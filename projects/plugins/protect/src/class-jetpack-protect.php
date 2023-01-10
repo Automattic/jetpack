@@ -202,7 +202,18 @@ class Jetpack_Protect {
 				'isToggling'          => false,
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
-				'stats'               => Waf_Stats::get_waf_stats(),
+				'stats'               => Waf_Runner::is_enabled()
+					? (
+						array(
+							'blocked_requests'             => Plan::has_required_plan() ? Waf_Stats::get_blocked_requests() : false,
+							'ip_allow_list_count'          => Waf_Stats::get_ip_allow_list_count(),
+							'ip_block_list_count'          => Waf_Stats::get_ip_block_list_count(),
+							'rules_version'                => Waf_Stats::get_rules_version(),
+							'automatic_rules_last_updated' => Waf_Stats::get_automatic_rules_last_updated(),
+						)
+					) : (
+						false
+					),
 			),
 		);
 
