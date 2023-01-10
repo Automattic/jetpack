@@ -127,7 +127,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 	title,
 	items,
 	children,
-	showIntroOfferDisclaimer,
+	showIntroOfferDisclaimer = false,
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
