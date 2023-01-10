@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-migration",
-	"description": "A jetpack plugin that helps users to migrate their sites to WordPress.com",
+	"description": "A Jetpack plugin that helps users to migrate their sites to WordPress.com",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -61,7 +61,6 @@
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-migration",
 		"release-branch-prefix": "migration",
-		"beta-plugin-slug": "jetpack-migration",
 		"wp-plugin-slug": "jetpack-migration"
 	},
 	"config": {

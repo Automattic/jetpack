@@ -12,7 +12,7 @@ Jetpack Migration plugin
 
 == Description ==
 
-A jetpack plugin that helps users to migrate their sites to WordPress.com
+A Jetpack plugin that helps users to migrate their sites to WordPress.com
 
 == Installation ==
 

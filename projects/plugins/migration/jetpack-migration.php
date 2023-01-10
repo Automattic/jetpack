@@ -3,7 +3,7 @@
  *
  * Plugin Name: Jetpack Migration
  * Plugin URI: https://wordpress.org/plugins/jetpack-migration
- * Description: A jetpack plugin that helps users to migrate their sites to WordPress.com.
+ * Description: A Jetpack plugin that helps users to migrate their sites to WordPress.com.
  * Version: 0.1.0-alpha
  * Author: Automattic
  * Author URI: https://jetpack.com/
