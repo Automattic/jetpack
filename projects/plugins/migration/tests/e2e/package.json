@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-starter-e2e-tests",
+	"name": "jetpack-migration-e2e-tests",
 	"private": true,
 	"type": "module",
 	"description": "A Jetpack plugin that helps users to migrate their sites to WordPress.com.",
