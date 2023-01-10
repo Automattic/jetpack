@@ -36,7 +36,7 @@ const PricingPage = () => {
 					<strong>
 						{ isLarge
 							? __( 'Unlimited', 'jetpack-social' )
-							: __( 'Unlimited shares in 30 days', 'jetpack-social' ) }
+							: __( 'Unlimited shares', 'jetpack-social' ) }
 					</strong>
 				</>
 			}
