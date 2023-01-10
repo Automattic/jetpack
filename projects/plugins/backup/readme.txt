@@ -163,7 +163,7 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 ### 1.4.3 - 2023-01-10
 #### Changed
 - Updated Backup logo.
-- Updated package dependencies. [#27688, #27874]
+- Updated package dependencies.
 
 --------
 

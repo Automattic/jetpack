@@ -91,7 +91,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.6.0-beta - 2023-01-10
+### 1.6.0 - 2023-01-10
 #### Added
 - Add a review request prompt for Jetpack Social plugin.
 - Add simple JS React test.
@@ -99,5 +99,5 @@ The easiest way is to use the Custom Message option in the publishing options bo
 - Redirect to admin page on plugin activation, and add link to admin page from plugins page.
 
 #### Changed
-- Updated package dependencies. [#27340, #27688, #27689, #27696, #27697, #27874, #27887, #27916, #27962]
+- Updated package dependencies.
 
