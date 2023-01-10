@@ -98,6 +98,10 @@ class Blaze {
 			$should_initialize = false;
 		}
 
+		if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
+			$should_initialize = false;
+		}
+
 		/**
 		 * Filter to disable all Blaze functionality.
 		 *
