@@ -35,7 +35,7 @@ class Waf_Stats {
 	 *
 	 * @var int
 	 */
-	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
+	const OPTION_EXPIRES_AFTER = 350; // 5 minutes.
 
 	/**
 	 * Updated the cached stats and its timestamp
