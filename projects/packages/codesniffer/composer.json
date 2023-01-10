@@ -13,9 +13,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
-		"phpcsstandards/phpcsutils": "1.0.0-alpha3",
-		"phpcsstandards/phpcsextra": "1.0.0-alpha3",
+		"wp-coding-standards/wpcs": "2023-01-04 as 2.3.1",
 		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"autoload": {

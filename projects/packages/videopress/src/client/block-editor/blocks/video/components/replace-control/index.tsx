@@ -2,29 +2,31 @@
  * WordPress dependencies
  */
 import { MediaReplaceFlow } from '@wordpress/block-editor';
-import { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 /**
  * Internal dependencies
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { VideoBlockAttributes } from '../../types';
+/**
+ * Types
+ */
+import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
+import type { VideoBlockAttributes } from '../../types';
 
-type UrlFileProp = {
-	url: `blob:${ string }`;
-};
+import './style.scss';
 
 type ReplaceControlProps = {
 	attributes: VideoBlockAttributes;
+	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	onUploadFileStart: ( media: File ) => void;
-	onSelectVideoFromLibrary: (
-		media: AdminAjaxQueryAttachmentsResponseItemProps | UrlFileProp
-	) => void;
+	onSelectVideoFromLibrary: ( media: AdminAjaxQueryAttachmentsResponseItemProps ) => void;
+	onSelectURL: ( url: string ) => void;
 };
 
 const ReplaceControl = ( {
 	attributes,
 	onUploadFileStart,
 	onSelectVideoFromLibrary,
+	onSelectURL,
 }: ReplaceControlProps ) => {
 	/**
 	 * Handler to define the prop to run
@@ -35,7 +37,7 @@ const ReplaceControl = ( {
 	 */
 	function selectMediaHandler( media: AdminAjaxQueryAttachmentsResponseItemProps | FileList ) {
 		if ( media?.[ 0 ]?.name && media?.[ 0 ]?.size && media?.[ 0 ]?.type ) {
-			onUploadFileStart( media[ 0 ] as File );
+			onUploadFileStart( media[ 0 ] );
 			return;
 		}
 		onSelectVideoFromLibrary( media as AdminAjaxQueryAttachmentsResponseItemProps );
@@ -48,6 +50,8 @@ const ReplaceControl = ( {
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onSelect={ selectMediaHandler }
+			mediaURL={ attributes.src }
+			onSelectURL={ onSelectURL }
 		/>
 	);
 };
