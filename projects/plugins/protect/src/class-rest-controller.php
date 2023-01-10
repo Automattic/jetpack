@@ -181,6 +181,30 @@ class REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-upgrade-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::READABLE,
+				'callback'            => __CLASS__ . '::api_get_waf_upgrade_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'waf-upgrade-seen',
+			array(
+				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'callback'            => __CLASS__ . '::api_set_waf_upgrade_seen_status',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -365,4 +389,21 @@ class REST_Controller {
 		return Jetpack_Protect::set_waf_seen_status();
 	}
 
+	/**
+	 * Get WAF Upgrade "Seen" Status for the API endpoint
+	 *
+	 * @return bool Whether the current user has dismissed the upgrade popover or enabled the automatic rules feature.
+	 */
+	public static function api_get_waf_upgrade_seen_status() {
+		return Jetpack_Protect::get_waf_upgrade_seen_status();
+	}
+
+	/**
+	 * Set WAF Upgrade "Seen" Status for the API endpoint
+	 *
+	 * @return bool True if upgrade seen status updated to true, false on failure.
+	 */
+	public static function api_set_waf_upgrade_seen_status() {
+		return Jetpack_Protect::set_waf_upgrade_seen_status();
+	}
 }
