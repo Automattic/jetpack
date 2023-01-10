@@ -1839,12 +1839,12 @@ importers:
 
   projects/plugins/migration/tests/e2e:
     specifiers:
-      '@playwright/test': 1.26.0
+      '@playwright/test': 1.29.1
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: workspace:*
     devDependencies:
-      '@playwright/test': 1.26.0
+      '@playwright/test': 1.29.1
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
@@ -6044,15 +6044,6 @@ packages:
     dependencies:
       '@opencensus/core': 0.0.8
       uuid: 3.4.0
-    dev: true
-
-  /@playwright/test/1.26.0:
-    resolution: {integrity: sha512-D24pu1k/gQw3Lhbpc38G5bXlBjGDrH5A52MsrH12wz6ohGDeQ+aZg/JFSEsT/B3G8zlJe/EU4EkJK74hpqsjEg==}
-    engines: {node: '>=14'}
-    hasBin: true
-    dependencies:
-      '@types/node': 18.11.18
-      playwright-core: 1.26.0
     dev: true
 
   /@playwright/test/1.29.1:
@@ -18544,12 +18535,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       find-up: 5.0.0
-    dev: true
-
-  /playwright-core/1.26.0:
-    resolution: {integrity: sha512-p8huU8eU4gD3VkJd3DA1nA7R3XA6rFvFL+1RYS96cSljCF2yJE9CWEHTPF4LqX8KN9MoWCrAfVKP5381X3CZqg==}
-    engines: {node: '>=14'}
-    hasBin: true
     dev: true
 
   /playwright-core/1.29.1:
