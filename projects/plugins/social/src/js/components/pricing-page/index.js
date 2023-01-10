@@ -14,6 +14,11 @@ import { useCallback } from 'react';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
+const UNLIMITED = __( 'Unlimited', 'jetpack-social' );
+const UNLIMITED_SHARES = __( 'Unlimited shares', 'jetpack-social' );
+const UP_TO_30 = __( 'Up to 30', 'jetpack-social' );
+const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
+
 const PricingPage = () => {
 	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
@@ -33,14 +38,10 @@ const PricingPage = () => {
 			label={
 				<>
 					<del>{ __( 'Up to 1000', 'jetpack-social' ) }</del>&nbsp;
-					<strong>
-						{ isLarge
-							? __( 'Unlimited', 'jetpack-social' )
-							: __( 'Unlimited shares', 'jetpack-social' ) }
-					</strong>
+					<strong>{ isLarge ? UNLIMITED : UNLIMITED_SHARES }</strong>
 				</>
 			}
-			tooltipTitle={ __( 'Unlimited shares', 'jetpack-social' ) }
+			tooltipTitle={ UNLIMITED_SHARES }
 			tooltipInfo={ __(
 				'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!',
 				'jetpack-social'
@@ -139,13 +140,7 @@ const PricingPage = () => {
 				</PricingTableHeader>
 				<PricingTableItem
 					isIncluded
-					label={
-						<strong>
-							{ isLarge
-								? __( 'Up to 30', 'jetpack-social' )
-								: __( 'Up to 30 shares in 30 days', 'jetpack-social' ) }
-						</strong>
-					}
+					label={ <strong>{ isLarge ? UP_TO_30 : UP_TO_30_SHARES }</strong> }
 				/>
 				<PricingTableItem />
 				<PricingTableItem isIncluded />
