@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Route filter query parameter so filtered results can be shared.
