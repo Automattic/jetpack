@@ -347,7 +347,9 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding);
 	padding-top: calc(var(--jetpack--contact-form--input-padding) + 4px);
@@ -429,8 +431,30 @@
 }
 
 .contact-form .is-style-animated .grunion-field-wrap input {
-	padding-top: 1.2em;
 	outline: none;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap textarea {
+	padding: var(--jetpack--contact-form--input-padding);
+	outline: none;
+}
+
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) input,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) textarea,
+.contact-form .is-style-animated .grunion-field-wrap:not(.no-label) .contact-form-dropdown__button
+{
+	padding-top: 1.2em;
+}
+
+.contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap,
+.contact-form .is-style-animated .grunion-field-radio-wrap {
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border: var(--jetpack--contact-form--border);
+}
+
+.contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
+.contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
+	padding-top: 1.5em;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
@@ -446,9 +470,9 @@
 	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.contact-form .is-style-animated .grunion-field-wrap input:focus ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap input:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap input.has-placeholder ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap *:focus ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap *:not(:placeholder-shown) ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap *.has-placeholder ~ .animated-label__label
 {
 	font-size: 0.8em;
 	transform: translateY(0);
