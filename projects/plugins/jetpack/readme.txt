@@ -242,16 +242,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-beta - 2023-01-02
+### 11.7 - 2023-01-10
 #### Major Enhancements
 - Blocks: add launchpad on save modal.
 - Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead.
 
 #### Enhancements
 - Assistant: update Akismet and Backup names.
-- Blaze: enable functionality within the Jetpack plugin.
 - Block editor: add a new panel that gives the ability to promote posts after publishing them.
+- Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page.
 - Contact form: move responses export to a modal triggered by a single "Export" button.
+- Contact form: update the description on the response data export modal under CSV section, on the Feedback page.
 - Dashboard: activate license key dropdown selector in the main Jetpack dashboard licenses activation page.
 - Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
 - Dashboard: update Backup, Anti-spam, and VideoPress logos.
@@ -268,32 +269,34 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Slideshow block: reduce bullet size and change the CSS justify-content to flex-start, plus replace pencil icon with edit text.
 - Slideshow block: update block description.
 - Stats: make the toggle for enabling Odyssey Stats visible for all users.
-- Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans.
 - Subscription block: add a checkbox to include/exclude social followers.
 - Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
 - VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites).
 - VideoPress: fix cover attribute on player and add muted attribute on video shortcode.
 - Writing prompts: add a writing setting to disable showing prompts when starting a new post.
 - Writing prompts: add context to blogging prompt placeholder.
-- Writing prompts: add filter for whether prompts are enabled or not
+- Writing prompts: add filter for whether prompts are enabled or not.
 
 #### Improved compatibility
 - Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
 - Site Editor: dashboard link points to wordpress.com.
-- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
+- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0.
 - VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it.
 - Writing prompts: hide placeholder prompts by default.
 
 #### Bug fixes
 - Admin Page: avoid querying for WAF settings when the feature is not active.
+- Contact form: fix redirect for "Connect Google Drive" export modal's link on the Feedback page, leading directly to the site's marketing/connections page.
+- Contact form: use separate nonce names for export options to ensure modal buttons work as expected.
 - Dashboard: add translation context to Security product name.
+- Dashboard: fix icon allignment on at a glance page.
 - Form block: add line breaks back to plain text email submissions.
 - Form block: adjust Form placeholder footer links style to prevent theme clashes.
 - Form block: fix contact form view responses URL.
-- Form block: fix email formatting for contact form submissions.
-- Form block: fix patterns modal scrollbar behavior and filter query.
-- General: Fix deprecation warnings when running with PHP 8.2.
-- Hovercards: fix minor Hovercards & AMP compatibility bug
+- Form block: fix email formatting for contact form submissions, and removing extra colon for form fields without label.
+- Form block: fix patterns modal scrollbar behavior and update form patterns modal filter query.
+- General: fix deprecation warnings when running with PHP 8.2.
+- Hovercards: fix minor Hovercards & AMP compatibility bug.
 - Internationalization: fix context for translated product name.
 - Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites.
 - Premium Content block: fix bug in JWT library encode() method.
@@ -302,9 +305,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Subscription block: ensure custom button spacing is correct when the button is on its own line.
 - Subscription block: fix PHP Warning.
 - VideoPress block: fix video player issue in some VideoMaker theme patterns.
-- WAF: fix Jetpack Settings WAF module plan check, and initialization of the firewall.
+- WAF: fix Jetpack Settings WAF module plan check, and the initialization of the firewall.
 - WAF: fix WPA click tracking in Agencies card.
-- Writing Prompts: do not display within mobile app.
+- Writing prompts: do not display within mobile app.
 
 --------
 
