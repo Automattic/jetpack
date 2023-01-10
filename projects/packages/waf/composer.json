@@ -4,6 +4,7 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-status": "@dev",
 		"wikimedia/aho-corasick": "^1.0"
 	},
 	"require-dev": {

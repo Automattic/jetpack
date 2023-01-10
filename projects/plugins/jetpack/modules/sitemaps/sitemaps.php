@@ -43,6 +43,8 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	require_once __DIR__ . '/sitemap-logger.php';
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Governs the generation, storage, and serving of sitemaps.
  *
