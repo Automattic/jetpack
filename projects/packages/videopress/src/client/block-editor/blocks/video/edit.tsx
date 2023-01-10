@@ -475,10 +475,10 @@ export default function VideoPressEdit( {
 							title: '',
 							description: '',
 							caption: '',
-							maxWidth: null,
+							maxWidth: '100%',
 							videoRatio: null,
 							src: '',
-							cacheHtml: null,
+							cacheHtml: '',
 							tracks: [],
 							isExample: false,
 						} );
