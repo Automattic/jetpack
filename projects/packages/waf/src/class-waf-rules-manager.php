@@ -49,9 +49,16 @@ class Waf_Rules_Manager {
 		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
 		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
 		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-
+		// Register the cron job.
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
-		// TODO: This doesn't exactly fit here - may need to find another home
+	}
+
+	/**
+	 * Schedule the cron job to update the WAF rules.
+	 *
+	 * @return void
+	 */
+	public static function schedule_rules_cron() {
 		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
 			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
 		}

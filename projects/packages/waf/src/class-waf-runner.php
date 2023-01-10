@@ -35,6 +35,7 @@ class Waf_Runner {
 		if ( function_exists( 'add_action' ) ) {
 			self::add_hooks();
 			Waf_Rules_Manager::add_hooks();
+			Waf_Rules_Manager::schedule_rules_cron();
 		}
 		if ( ! self::did_run() ) {
 			self::run();
