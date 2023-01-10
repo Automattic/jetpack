@@ -76,7 +76,6 @@ class Jetpack_Migration {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public function enqueue_admin_scripts() {
-
 		Assets::register_script(
 			'jetpack-migration',
 			'build/index.js',
@@ -90,7 +89,6 @@ class Jetpack_Migration {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-migration', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-migration', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
