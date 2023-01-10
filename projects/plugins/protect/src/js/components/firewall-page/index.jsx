@@ -397,9 +397,12 @@ const FirewallPage = () => {
 					</Text>
 					<div className={ styles[ 'toggle-section__details' ] }>
 						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
-							<div className={ styles[ 'automatic-rules-details-text' ] }>
+							<div className={ styles[ 'automatic-rules-stats' ] }>
 								{ rulesVersion && (
-									<Text className={ styles[ 'rules-version-text' ] } variant={ 'body-small' }>
+									<Text
+										className={ styles[ 'automatic-rules-stats__version' ] }
+										variant={ 'body-small' }
+									>
 										{ sprintf(
 											// translators: placeholder is the latest rules version i.e. "v2.0".
 											__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
@@ -408,7 +411,10 @@ const FirewallPage = () => {
 									</Text>
 								) }
 								{ automaticRulesLastUpdated && (
-									<Text className={ styles[ 'last-updated-text' ] } variant={ 'body-small' }>
+									<Text
+										className={ styles[ 'automatic-rules-stats__last-updated' ] }
+										variant={ 'body-small' }
+									>
 										{ sprintf(
 											// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
 											__( 'Last updated on %s.', 'jetpack-protect' ),
@@ -421,7 +427,7 @@ const FirewallPage = () => {
 						{ automaticRulesInstallationError && (
 							<>
 								<Text
-									className={ styles[ 'failed-install-text' ] }
+									className={ styles[ 'automatic-rules-stats__failed-install' ] }
 									variant={ 'body-small' }
 									mt={ 2 }
 								>
@@ -488,25 +494,35 @@ const FirewallPage = () => {
 					</Text>
 					{ jetpackWafIpList && (
 						<div className={ styles[ 'toggle-section__details' ] }>
-							{ ipAllowListCount === 0 && ipBlockListCount === 0 && (
-								<Text className={ styles[ 'no-rules-text' ] } variant={ 'body-small' } mt={ 2 }>
-									{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
-								</Text>
-							) }
-							{ ipBlockListCount > 0 && (
-								<Text className={ styles[ 'block-list-text' ] } variant={ 'body-small' } mt={ 2 }>
-									{ sprintf(
-										// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
-										_n(
-											'%s IP is being blocked.',
-											'%s IPs are being blocked.',
-											ipBlockListCount,
-											'jetpack-protect'
-										),
-										ipBlockListCount === 1 ? 'One' : ipBlockListCount
-									) }
-								</Text>
-							) }
+							<div className={ styles[ 'manual-rules-stats' ] }>
+								{ ipAllowListCount === 0 && ipBlockListCount === 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__no-rules' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
+									</Text>
+								) }
+								{ ipBlockListCount > 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__block-list-count' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ sprintf(
+											// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
+											_n(
+												'%s IP is being blocked.',
+												'%s IPs are being blocked.',
+												ipBlockListCount,
+												'jetpack-protect'
+											),
+											ipBlockListCount === 1 ? 'One' : ipBlockListCount
+										) }
+									</Text>
+								) }
+							</div>
 							<Button variant={ 'link' } disabled={ ! isEnabled }>
 								<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
 									{ __( 'Edit manual rules', 'jetpack-protect' ) }
@@ -523,7 +539,7 @@ const FirewallPage = () => {
 	 * Manual Rules Settings
 	 */
 	const manualRulesSettings = (
-		<div className={ styles[ 'manual-rule-wrapper' ] }>
+		<div>
 			<Button
 				className={ styles[ 'go-back-button' ] }
 				variant={ 'icon' }
@@ -541,7 +557,7 @@ const FirewallPage = () => {
 					'jetpack-protect'
 				) }
 			</Text>
-			<div className={ styles[ 'manual-rule-section' ] }>
+			<div className={ styles[ 'manual-rules-section' ] }>
 				<Textarea
 					id="jetpack_waf_ip_block_list"
 					label={ __( 'Blocked IP addresses', 'jetpack-protect' ) }
@@ -552,7 +568,7 @@ const FirewallPage = () => {
 					disabled={ formIsSubmitting }
 				/>
 			</div>
-			<div className={ styles[ 'manual-rule-section' ] }>
+			<div className={ styles[ 'manual-rules-section' ] }>
 				<Textarea
 					id="jetpack_waf_ip_allow_list"
 					label={ __( 'Always allowed IP addresses', 'jetpack-protect' ) }
