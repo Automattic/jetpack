@@ -23,7 +23,7 @@ import {
 	VIDEO_FILTER_RATING,
 	VIDEO_FILTER_UPLOADER,
 } from '../../../state/constants';
-import useQueryStringPages from '../../hooks/use-query-string-pages';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useUsers from '../../hooks/use-users';
 import useVideos from '../../hooks/use-videos';
 import Checkbox from '../checkbox';
@@ -182,11 +182,12 @@ export const FilterSection = ( props: {
 
 export const ConnectFilterSection = props => {
 	const { setFilter, filter } = useVideos();
-	const { setPageOnURL } = useQueryStringPages();
+	const searchParams = useSearchParams();
 
 	const onFilterHandler = ( ...filterArgs ) => {
 		// clear the pagination, setting it back to page 1
-		setPageOnURL( 1 );
+		searchParams.deleteParam( 'page' );
+		searchParams.update();
 		setFilter( ...filterArgs );
 	};
 
