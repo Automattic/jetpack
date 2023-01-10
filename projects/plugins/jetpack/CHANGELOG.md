@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.7 - 2023-01-10
+## [11.7] - 2023-01-10
 ### Enhancements
 
 - Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
@@ -7531,6 +7531,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.7]: https://wp.me/p1moTy-Q9t
 [11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
