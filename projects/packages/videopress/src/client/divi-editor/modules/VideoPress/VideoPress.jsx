@@ -14,10 +14,12 @@ class VideoPress extends Component {
 		if ( ! guid ) {
 			return null;
 		}
+
 		const matches = guid.match( REGEX );
-		if ( ! matches[ 2 ] ) {
+		if ( ! matches || ! matches[ 2 ] ) {
 			return null;
 		}
+
 		guid = matches[ 2 ];
 		// console.log(match);
 		// console.log(REGEX.exec(guid));

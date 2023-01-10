@@ -14,7 +14,6 @@ class Input extends Component {
 	 * @param {object} event - The event.
 	 */
 	_onChange = event => {
-		console.log( event.target.value );
 		this.props._onChange( this.props.name, event.target.value );
 	};
 
