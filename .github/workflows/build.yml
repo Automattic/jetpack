@@ -202,13 +202,15 @@ jobs:
 
       - name: Prepare plugin zips
         id: prepare
+        env:
+          SHA: ${{ github.event.pull_request.head.ref || github.sha }}
         run: |
           mkdir work
           mkdir zips
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          VERSUFFIX="${GITHUB_RUN_ID}-g${GITHUB_SHA:0:8}"
+          VERSUFFIX="${GITHUB_RUN_ID}-g${SHA:0:8}"
 
           # Plugin data is passed as a JSON object.
           PLUGIN_DATA="{}"
