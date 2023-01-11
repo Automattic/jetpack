@@ -21,7 +21,7 @@
 - Calendar library: various bug fixes. [#28274]
 - General: switch to shared method for getting a WordPress.com blog ID. [#28208]
 - Add groundwork for AI-powered blocks for WordPress.com customers. [#28043]
-- Jetpack: do not register video chapters block. [#28206]
+- VideoPress: do not register video chapters block. [#28206]
 - Publicize: prepare for validation of videos. [#27840]
 - Remove Jetpack Blocks section on At a Glance page. [#28153]
 - Site Settings API: expose `page_for_posts` option. [#28096]
