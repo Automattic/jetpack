@@ -208,7 +208,7 @@ jobs:
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          VERSUFFIX="${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)"
+          VERSUFFIX="${GITHUB_RUN_ID}-g${GITHUB_SHA:0:8}"
 
           # Plugin data is passed as a JSON object.
           PLUGIN_DATA="{}"
