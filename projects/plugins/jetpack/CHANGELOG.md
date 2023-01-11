@@ -2,9 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.1 - 2023-01-11
+### Enhancements
+- Adding new URL scheme for iCloud Keynote [#28067]
+- Adds a few relevant keywords to the 'Newsletter Sign-up' block [#28204]
+- Prepare for video validation [#27840]
+- Remove Jetpack Blocks section on At a Glance page [#28153]
+- Several UI and UX improvements for the Dropdown block [#28010]
+- Widgets: add Mastodon to Social Icons Widget and Social Menu [#28175]
+
+### Improved compatibility
+- Disabled Odyssey Stats for Atomic sites [#28180]
+
+### Bug fixes
+- Calendar Library: various fixes [#28274]
+- Modules: Allow for deactivating multiple plugins when activating a module. [#28181]
+- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on your site. [#28169]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscription_options to the site settings endpoint [#28036]
+- Blaze: remove extension from extension list. [#28174]
+- General: switch to shared method for getting a WordPress.com blog ID. [#28208]
+- Introduce AI-powered blocks for WordPress.com customers. [#28043]
+- Jetpack: Do not try to regiter video chapters block [#28206]
+- Site Settings API: Exposing `page_for_posts' option [#28096]
+- Social Menu Theme Tool: allow specifying a regex instead of a sisimmple host name for services that have logos. [#28172]
+- Updated composer.lock [#28185]
+- Updated package dependencies. [#28127]
+- Updated package dependencies. [#28128]
+- Updated package dependencies. [#28129]
+- Updated package dependencies. [#28218]
+- Updated package dependencies. [#28278]
+- Update playwright version [#28094]
+
 ## [11.7] - 2023-01-10
 ### Enhancements
-
 - Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
 - Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page. [#28177]
 - Stats: make the toggle for enabling Odyssey Stats visible for all users. [#28105]
@@ -7531,8 +7563,8 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
-[11.7]: https://wp.me/p1moTy-Q9t
 [11.6]: https://wp.me/p1moTy-PLI
+[11.7]: https://wp.me/p1moTy-Q9t
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
