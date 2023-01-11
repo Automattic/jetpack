@@ -17,6 +17,18 @@ require_once __DIR__ . '/class-admin-menu.php';
 class Jetpack_Admin_Menu extends Admin_Menu {
 
 	/**
+	 * Jetpack_Admin_Menu constructor.
+	 * Currently used to initialize the connection manager for getting the user locale
+	 * for showing the Advertising menu for add_tools_menu.
+	 * TODO: removed after Blaze has been released to all locales.
+	 */
+	protected function __construct() {
+		parent::__construct();
+
+		$this->connection = new Connection_Manager();
+	}
+
+	/**
 	 * Determines whether the current locale is right-to-left (RTL).
 	 *
 	 * Performs the check against the current locale set on the WordPress.com's account settings.
@@ -75,23 +87,6 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		} else {
 			return 'edit.php?post_type=' . $post_type;
 		}
-	}
-
-	/**
-	 * Get Jetpack connection manager instance.
-	 * Used to get the user locale for showing the Advertising menu for add_tools_menu.
-	 * TODO: removed after Blaze has been released to all locales.
-	 *
-	 * @return Connection_Manager
-	 */
-	protected function connection() {
-		static $connection;
-
-		if ( null === $connection ) {
-			$connection = new Connection_Manager();
-		}
-
-		return $connection;
 	}
 
 	/**
