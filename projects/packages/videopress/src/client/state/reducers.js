@@ -292,7 +292,6 @@ const videos = ( state, action ) => {
 
 			if ( processedAllRemovedVideos ) {
 				uploadedVideoCount = uploadedVideoCount - removedVideoCount;
-				removedVideoCount = 0;
 			}
 
 			return {
@@ -318,6 +317,7 @@ const videos = ( state, action ) => {
 		case FLUSH_DELETED_VIDEOS: {
 			return {
 				...state,
+				removedVideoCount: 0,
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
@@ -330,18 +330,18 @@ const videos = ( state, action ) => {
 		 * after deleting video
 		 */
 		case UPDATE_PAGINATION_AFTER_DELETE: {
-			const { items = [], query = {}, pagination = {} } = state;
+			const { items = [], query = {}, pagination = {}, removedVideoCount = 0 } = state;
 
-			// If is the last video, reduce the page per 1
+			// If the last videos of the page are deleted, reduce the page by 1
 			// Being optimistic here
-			const isLastVideo = items?.length === 1;
+			const areLastVideos = items?.length === removedVideoCount;
 			const currentPage = query?.page ?? 1;
 			const currentTotalPage = pagination?.totalPages ?? 1;
 			const currentTotal = pagination?.total;
 
-			const page = isLastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
+			const page = areLastVideos && currentPage > 1 ? currentPage - 1 : currentPage;
 			const totalPages =
-				isLastVideo && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
+				areLastVideos && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
 
 			return {
 				...state,
