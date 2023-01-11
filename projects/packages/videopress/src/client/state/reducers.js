@@ -41,6 +41,7 @@ import {
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
 	DISMISS_FIRST_VIDEO_POPOVER,
+	FLUSH_DELETED_VIDEOS,
 } from './constants';
 
 /**
@@ -245,8 +246,10 @@ const videos = ( state, action ) => {
 
 			return {
 				...state,
+				removedVideos: [ id, ...( state.removedVideos ?? [] ) ],
+				removedVideoCount: ( state.removedVideoCount ?? 0 ) + 1,
 				// Do not remove the video from the list, just update the meta data.
-				// Keep here in caswe we want to do it in the future.
+				// Keep here in case we want to do it in the future.
 				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
 				_meta: {
 					...state._meta,
@@ -269,27 +272,54 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
-			const uploadedVideoCount = state.uploadedVideoCount - 1;
+			const removedVideos = [ ...( state.removedVideos ?? [] ) ];
+			const removedVideoIndex = removedVideos.indexOf( id );
 
-			if ( ! _metaVideo ) {
+			if ( ! _metaVideo || removedVideoIndex < 0 ) {
 				return state;
+			}
+
+			removedVideos.splice( removedVideoIndex, 1 );
+
+			const processedAllRemovedVideos = removedVideos.length === 0;
+			let uploadedVideoCount = state.uploadedVideoCount ?? 0;
+			let removedVideoCount = state.removedVideoCount ?? 0;
+
+			if ( ! hasBeenDeleted ) {
+				removedVideoCount -= 1;
+			}
+
+			if ( processedAllRemovedVideos ) {
+				uploadedVideoCount = uploadedVideoCount - removedVideoCount;
+				removedVideoCount = 0;
 			}
 
 			return {
 				...state,
+				removedVideos,
 				uploadedVideoCount,
+				removedVideoCount,
+				processedAllRemovedVideos,
 				_meta: {
 					...state._meta,
-					relyOnInitialState: false,
 					items: {
 						..._metaItems,
 						[ id ]: {
 							..._metaVideo,
-							isDeleting: false,
 							hasBeenDeleted,
 							deletedVideo,
 						},
 					},
+				},
+			};
+		}
+
+		case FLUSH_DELETED_VIDEOS: {
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
 				},
 			};
 		}
