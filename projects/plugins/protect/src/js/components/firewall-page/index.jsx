@@ -13,6 +13,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { Icon, arrowLeft, closeSmall } from '@wordpress/icons';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import API from '../../api';
@@ -418,7 +419,7 @@ const FirewallPage = () => {
 										{ sprintf(
 											// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
 											__( 'Last updated on %s.', 'jetpack-protect' ),
-											automaticRulesLastUpdated
+											moment.unix( automaticRulesLastUpdated ).format( 'MMMM D, YYYY' )
 										) }
 									</Text>
 								) }
