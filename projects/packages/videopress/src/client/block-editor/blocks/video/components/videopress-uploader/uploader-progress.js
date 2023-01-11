@@ -21,7 +21,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
-	const [ title, setTitle ] = useState( null );
+	const [ title ] = useState( null );
 
 	const guid = attributes?.guid;
 	const videoPressUploadPoster = usePosterUpload( guid );
@@ -126,7 +126,6 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		setTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
@@ -150,7 +149,6 @@ const UploaderProgress = ( {
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		handleChangeTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
@@ -181,7 +179,6 @@ const UploaderProgress = ( {
 				file={ file }
 				onSelectPoster={ handleSelectPoster }
 				onRemovePoster={ handleRemovePoster }
-				onChangeTitle={ handleChangeTitle }
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
 			/>
