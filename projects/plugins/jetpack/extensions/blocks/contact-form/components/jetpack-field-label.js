@@ -52,6 +52,12 @@ const FieldLabel = ( {
 const JetpackFieldLabel = props => {
 	const { setAttributes, requiredText, style } = props;
 
+	const classes = classnames( {
+		'notched-label__label': style === FORM_STYLE.OUTLINED,
+		'animated-label__label': style === FORM_STYLE.ANIMATED,
+		'below-label__label': style === FORM_STYLE.BELOW,
+	} );
+
 	useEffect( () => {
 		if ( isNil( requiredText ) ) {
 			setAttributes( { requiredText: __( '(required)', 'jetpack' ) } );
@@ -64,18 +70,14 @@ const JetpackFieldLabel = props => {
 			<div className="notched-label">
 				<div className="notched-label__leading" />
 				<div className="notched-label__notch">
-					<FieldLabel className="notched-label__label" { ...props } />
+					<FieldLabel className={ classes } { ...props } />
 				</div>
 				<div className="notched-label__trailing" />
 			</div>
 		);
 	}
 
-	if ( style === FORM_STYLE.ANIMATED ) {
-		return <FieldLabel className="animated-label__label" { ...props } />;
-	}
-
-	return <FieldLabel { ...props } />;
+	return <FieldLabel className={ classes } { ...props } />;
 };
 
 export default JetpackFieldLabel;

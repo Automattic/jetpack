@@ -113,35 +113,36 @@ export const JetpackDropdownEdit = ( {
 				isSelected={ isSelected }
 				style={ formStyle }
 			/>
-			<div className="jetpack-field-dropdown__toggle">
-				<RichText
-					value={ toggleLabel }
-					onChange={ value => {
-						setAttributes( { toggleLabel: value } );
-					} }
-					allowedFormats={ [ 'core/bold', 'core/italic' ] }
-					withoutInteractiveFormatting
-				/>
-				<span className="jetpack-field-dropdown__icon" />
-			</div>
-
-			{ isSelected && (
-				<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
-					{ options.map( ( option, index ) => (
-						<RichText
-							key={ index }
-							value={ option }
-							onChange={ handleChangeOption( index ) }
-							onSplit={ handleSplitOption( index ) }
-							onRemove={ handleDeleteOption( index ) }
-							onReplace={ noop }
-							placeholder={ __( 'Add option…', 'jetpack' ) }
-							__unstableDisableFormats
-						/>
-					) ) }
+			<div>
+				<div className="jetpack-field-dropdown__toggle">
+					<RichText
+						value={ toggleLabel }
+						onChange={ value => {
+							setAttributes( { toggleLabel: value } );
+						} }
+						allowedFormats={ [ 'core/bold', 'core/italic' ] }
+						withoutInteractiveFormatting
+					/>
+					<span className="jetpack-field-dropdown__icon" />
 				</div>
-			) }
 
+				{ isSelected && (
+					<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
+						{ options.map( ( option, index ) => (
+							<RichText
+								key={ index }
+								value={ option }
+								onChange={ handleChangeOption( index ) }
+								onSplit={ handleSplitOption( index ) }
+								onRemove={ handleDeleteOption( index ) }
+								onReplace={ noop }
+								placeholder={ __( 'Add option…', 'jetpack' ) }
+								__unstableDisableFormats
+							/>
+						) ) }
+					</div>
+				) }
+			</div>
 			<JetpackFieldControls
 				id={ id }
 				required={ required }

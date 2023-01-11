@@ -681,6 +681,7 @@
 
 			.animated-label__label {
 				position: absolute;
+				z-index: 1;
 				top: 50%;
 				left: calc(var(--jetpack--contact-form--input-padding-left) + var(--jetpack--contact-form--border-size) );
 				width: 100%;
@@ -703,6 +704,13 @@
 					top: 4px;
 				}
 			}
+		}
+	}
+
+	&.is-style-below {
+		.jetpack-field:not(.jetpack-field-checkbox) {
+			display: flex;
+			flex-direction: column-reverse;
 		}
 	}
 }
