@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
 
 /**
@@ -55,24 +56,6 @@ class Jetpack_AI_Helper {
 	}
 
 	/**
-	 * Get the WPCOM or self-hosted site ID.
-	 *
-	 * @return mixed
-	 */
-	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
-		}
-		return (int) $site_id;
-	}
-
-	/**
 	 * Get the name of the transient for image generation. Unique per prompt and allows for reuse of results for the same prompt across entire WPCOM.
 	 * I expext "puppy" to always be from cache.
 	 *
@@ -109,7 +92,7 @@ class Jetpack_AI_Helper {
 			);
 		}
 
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
@@ -176,7 +159,7 @@ class Jetpack_AI_Helper {
 			);
 		}
 
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
