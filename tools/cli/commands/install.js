@@ -105,6 +105,10 @@ export async function handler( argv ) {
 				execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
 					cwd: projectDir( project ),
 					stdio,
+				} ).catch( err => {
+					err.fix =
+						'To resolve issues, try running the command: `cd projects/plugins/jetpack && composer install`';
+					return Promise.reject( err );
 				} ),
 		} );
 	}
