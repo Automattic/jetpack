@@ -64,9 +64,15 @@ class Blaze {
 	 */
 	public static function should_initialize() {
 		$should_initialize = true;
-		$user_data         = ( new Jetpack_Connection() )->get_connected_user_data();
+		$user_data         = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			? array( 'user_locale' => get_user_locale() )
+			: ( new Jetpack_Connection() )->get_connected_user_data();
 
-		// These features currently only work on WordPress.com, so they should be connected for things to work.
+		/*
+		 * These features currently only work on WordPress.com,
+		 * so the user should either be connected to WordPress.com for things to work,
+		 * or be on a WordPress.com site where we have direct access to user data such as user locale.
+		 */
 		if ( ! $user_data ) {
 			$should_initialize = false;
 		}
