@@ -142,6 +142,8 @@ test.describe.parallel( 'Free blocks', () => {
 	} );
 
 	test( 'Subscribe block', async ( { page } ) => {
+		await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
+
 		await test.step( 'Can visit the block editor and add a Subscribe block', async () => {
 			const blockId = await blockEditor.insertBlock(
 				SubscribeBlock.name(),
