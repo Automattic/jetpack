@@ -2,13 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.7-beta - 2023-01-02
+## [11.7] - 2023-01-10
 ### Enhancements
-- Blaze: enable functionality within the Jetpack plugin. [#28077]
+
+- Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
+- Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page. [#28177]
 - Stats: make the toggle for enabling Odyssey Stats visible for all users. [#28105]
 - VideoPress: fix cover attribute on player and add muted attribute on video shortcode. [#28083]
 
+### Bug fixes
+- Form block: fix extra colon for form fields without label. [#28230]
+- Dashboard: fix icon allignment on at a glance page. [#28222]
+- Contact form: fix redirect for "Connect Google Drive" export modal's link on the Feedback page, leading directly to the site's marketing/connections page. [#28147]
+- Contact form: use separate nonce names for export options to ensure modal buttons work as expected.[#28152]
+
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Calendar Library: cosmetic changes and functional cleanup
+- Tonesque: cosmetic changes and functional cleanup
 - Updating testing instructions for 11.7 [#28098]
 
 ## 11.7-a.11 - 2022-12-29
@@ -7521,6 +7531,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.7]: https://wp.me/p1moTy-Q9t
 [11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
