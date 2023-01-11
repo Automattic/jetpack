@@ -348,14 +348,14 @@ class Data {
 				'items'                        => $videos,
 				'isFetching'                   => false,
 				'isFetchingUploadedVideoCount' => false,
-				'processedAllRemovedVideos'    => true,
 				'pagination'                   => array(
 					'totalPages' => $videopress_data['totalPages'],
 					'total'      => $videopress_data['total'],
 				),
 				'query'                        => $videopress_data['query'],
 				'_meta'                        => array(
-					'relyOnInitialState' => true,
+					'processedAllVideosBeingRemoved' => true,
+					'relyOnInitialState'             => true,
 				),
 			),
 			'localVideos'  => array(

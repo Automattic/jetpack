@@ -233,9 +233,9 @@ const deleteVideo = id => async ( { dispatch, select } ) => {
 		dispatch( deleteAction );
 	}
 
-	const processedAllRemovedVideos = select.getProcessedAllRemovedVideos();
+	const processedAllVideosBeingRemoved = select.getProcessedAllVideosBeingRemoved();
 
-	if ( processedAllRemovedVideos ) {
+	if ( processedAllVideosBeingRemoved ) {
 		dispatch( { type: UPDATE_PAGINATION_AFTER_DELETE } );
 		dispatch( { type: FLUSH_DELETED_VIDEOS } );
 	}
