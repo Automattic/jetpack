@@ -60,7 +60,7 @@ function JetpackFieldMultiple( props ) {
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div style={ type !== 'select' ? blockStyle : {} }>
+		<div style={ blockStyle }>
 			<div
 				id={ `jetpack-field-multiple-${ instanceId }` }
 				className="jetpack-field jetpack-field-multiple"
@@ -111,7 +111,6 @@ function JetpackFieldMultiple( props ) {
 				setAttributes={ setAttributes }
 				type={ type }
 				width={ width }
-				disableStyleControls={ type === 'select' }
 			/>
 		</div>
 	);

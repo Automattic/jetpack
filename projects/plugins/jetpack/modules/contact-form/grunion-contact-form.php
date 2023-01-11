@@ -4252,30 +4252,44 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_width         = $this->get_attribute( 'width' );
 		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
-		if ( ! empty( $this->get_attribute( 'borderradius' ) ) || is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
-			$this->field_styles = 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;'
+				: 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
 		}
-		if ( ! empty( $this->get_attribute( 'borderwidth' ) ) || is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
-			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+		if ( is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;'
+				: 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
-		if ( ! empty( $this->get_attribute( 'lineheight' ) ) || is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';'
+				: 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
-			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';'
+				: 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';'
+				: 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
-			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';'
+				: 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';'
+				: 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
 		}
 
 		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
-			$this->label_styles = 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
 			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
@@ -4654,6 +4668,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
+		$field .= '<div style="' . $this->field_styles . '">';
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
@@ -4670,7 +4685,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 								. "</option>\n";
 			}
 		}
-		$field .= "\t</select>\n";
+		$field .= "\t</select></div>\n";
 
 		wp_enqueue_style(
 			'jquery-ui-selectmenu',

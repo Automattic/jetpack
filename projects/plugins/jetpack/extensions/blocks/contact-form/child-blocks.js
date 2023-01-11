@@ -208,6 +208,7 @@ const EditTextarea = props => {
 			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
+			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }

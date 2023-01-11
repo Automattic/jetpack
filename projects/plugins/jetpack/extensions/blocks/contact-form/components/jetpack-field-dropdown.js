@@ -6,6 +6,7 @@ import { setFocus } from '../util/focus';
 import { useFormWrapper } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export const JetpackDropdownEdit = ( {
 	attributes,
@@ -96,12 +97,15 @@ export const JetpackDropdownEdit = ( {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
+	const { blockStyle } = useJetpackFieldStyles( attributes );
+
 	return (
-		<>
+		<div style={ blockStyle }>
 			<JetpackFieldLabel
 				required={ required }
 				requiredText={ requiredText }
 				label={ label }
+				attributes={ attributes }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
 			/>
@@ -139,11 +143,12 @@ export const JetpackDropdownEdit = ( {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
+				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
 				placeholder={ toggleLabel }
 				placeholderField="toggleLabel"
 			/>
-		</>
+		</div>
 	);
 };
