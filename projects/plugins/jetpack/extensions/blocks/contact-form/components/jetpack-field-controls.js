@@ -115,10 +115,8 @@ const JetpackFieldControls = ( {
 					] }
 				></PanelColorSettings>
 				<PanelBody
-					title={ __( 'Typography', 'jetpack' ) }
-					initialOpen={
-						attributes.labelFontSize || attributes.fieldFontSize || attributes.lineHeight
-					}
+					title={ __( 'Label Styles', 'jetpack' ) }
+					initialOpen={ attributes.labelFontSize }
 				>
 					<FontSizePicker
 						withSlider
@@ -128,6 +126,16 @@ const JetpackFieldControls = ( {
 						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
 						value={ attributes.labelFontSize }
 					/>
+				</PanelBody>
+				<PanelBody
+					title={ __( 'Input Styles', 'jetpack' ) }
+					initialOpen={
+						attributes.borderWidth ||
+						attributes.borderRadius ||
+						attributes.fieldFontSize ||
+						attributes.lineHeight
+					}
+				>
 					<FontSizePicker
 						withSlider
 						withReset={ true }
@@ -143,18 +151,13 @@ const JetpackFieldControls = ( {
 						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 						size="__unstable-large"
 					/>
-				</PanelBody>
-				<PanelBody
-					title={ __( 'Border', 'jetpack' ) }
-					initialOpen={ attributes.borderWidth || attributes.borderRadius }
-				>
 					<TextControl
-						label={ __( 'Width', 'jetpack' ) }
+						label={ __( 'Border Width', 'jetpack' ) }
 						value={ attributes.borderWidth }
 						onChange={ setNumberAttribute( 'borderWidth' ) }
 					/>
 					<TextControl
-						label={ __( 'Radius', 'jetpack' ) }
+						label={ __( 'Border Radius', 'jetpack' ) }
 						value={ attributes.borderRadius }
 						onChange={ setNumberAttribute( 'borderRadius' ) }
 					/>
