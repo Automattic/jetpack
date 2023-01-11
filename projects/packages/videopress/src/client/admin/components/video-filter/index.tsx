@@ -191,6 +191,29 @@ export const ConnectFilterSection = props => {
 	) => {
 		// clear the pagination, setting it back to page 1
 		searchParams.deleteParam( 'page' );
+
+		const searchParamFilterValues = searchParams
+			.getParam( filterName, '' )
+			.split( ' ' )
+			.filter( v => v !== '' );
+		const filterValuePosition = searchParamFilterValues.indexOf( `${ filterValue }` );
+
+		if ( checked ) {
+			// make sure it's present
+			if ( filterValuePosition === -1 ) {
+				searchParamFilterValues.push( `${ filterValue }` );
+			}
+		} else if ( filterValuePosition !== -1 ) {
+			// make sure it's removed
+			searchParamFilterValues.splice( filterValuePosition, 1 );
+		}
+
+		if ( searchParamFilterValues.length > 0 ) {
+			searchParams.setParam( filterName, searchParamFilterValues.join( ' ' ) );
+		} else {
+			searchParams.deleteParam( filterName );
+		}
+
 		searchParams.update();
 		setFilter( filterName, filterValue, checked );
 	};
