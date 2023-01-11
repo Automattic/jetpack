@@ -28,5 +28,9 @@
 	{
 		"regex": "extensions/blocks/",
 		"testFile": [ "extensions/blocks/checklist.md" ]
+	},
+	{
+		"regex": "^(extensions/blocks/(subscriptions|premium-content)/|extensions/shared/memberships.js)",
+		"testFile": [ "extensions/blocks/subscriptions.md" ]
 	}
 ]
