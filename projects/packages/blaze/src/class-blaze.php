@@ -63,19 +63,17 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function should_initialize() {
-		$should_initialize  = true;
-		$jetpack_connection = new Jetpack_Connection();
+		$should_initialize = true;
+		$user_data         = ( new Jetpack_Connection() )->get_connected_user_data();
 
-		// These features currently only work on WordPress.com, so they should be connected for best experience.
-		if ( ! $jetpack_connection->is_user_connected() ) {
-			$should_initialize = false;
+		// These features currently only work on WordPress.com, so they should be connected for things to work.
+		if ( ! $user_data ) {
+			return false;
 		}
 
 		// We currently do not show the UI for non-English WordPress.com users.
-		$user_data = $jetpack_connection->get_connected_user_data();
 		if (
-			! empty( $user_data )
-			&& ! empty( $user_data['user_locale'] )
+			! empty( $user_data['user_locale'] )
 			&& ! in_array( $user_data['user_locale'], array( 'en', 'en-gb' ), true )
 		) {
 			$should_initialize = false;
