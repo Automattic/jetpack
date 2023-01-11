@@ -1,7 +1,7 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { Fragment } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
@@ -31,7 +31,10 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'text',
-	keywords: [ 'AI', 'GPT' ],
+	keywords: [
+		_x( 'AI', 'block search term', 'jetpack' ),
+		_x( 'GPT', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: true /* if set to true, the 'align' option below can be used*/,

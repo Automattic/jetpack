@@ -99,7 +99,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 									submit();
 								} }
 							>
-								{ 'Retry' }
+								{ __( 'Retry', 'jetpack' ) }
 							</Button>
 						</FlexItem>
 					</Flex>
@@ -113,7 +113,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							onChange={ setPrompt }
 						/>
 						<Button isPrimary onClick={ submit }>
-							{ 'Submit' }
+							{ __( 'Submit', 'jetpack' ) }
 						</Button>
 					</div>
 				</Placeholder>

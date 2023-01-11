@@ -96,7 +96,7 @@ export default function Edit( { attributes, setAttributes } ) {
 							);
 						} }
 					>
-						{ 'Retry' }
+						{ __( 'Retry', 'jetpack' ) }
 					</Button>
 				</Placeholder>
 			) }
