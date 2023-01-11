@@ -2,6 +2,7 @@
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
+	import External from './assets/External.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
@@ -146,7 +147,7 @@
 
 		<div class="info">
 			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
-				>Learn how to improve site speed by optimizing images</a
+				>Learn how to improve site speed by optimizing images <External /></a
 			>
 		</div>
 	</div>
