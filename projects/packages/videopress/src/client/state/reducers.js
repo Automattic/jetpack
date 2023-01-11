@@ -230,7 +230,7 @@ const videos = ( state, action ) => {
 		 */
 		case REMOVE_VIDEO: {
 			const { id } = action;
-			const { items = [] } = state;
+			const { items = [], query = {} } = state;
 			const videoIndex = items.findIndex( item => item.id === id );
 
 			if ( videoIndex < 0 ) {
@@ -243,8 +243,18 @@ const videos = ( state, action ) => {
 
 			const _metaVideo = _metaItems[ id ] ?? {};
 
+			// If is the last video, reduce the page per 1
+			// Being optimistic here
+			const lastVideo = items?.length === 1;
+			const currentPage = query?.page ?? 1;
+			const page = lastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
+
 			return {
 				...state,
+				query: {
+					...query,
+					page,
+				},
 				// Do not remove the video from the list, just update the meta data.
 				// Keep here in caswe we want to do it in the future.
 				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
