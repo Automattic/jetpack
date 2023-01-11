@@ -175,7 +175,19 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 							foreach ( $social_icons as $social_icon ) {
 								foreach ( $social_icon['url'] as $url_fragment ) {
-									if ( false !== stripos( $icon['url'], $url_fragment ) ) {
+									/*
+									 * url_fragment can be a URL host, or a regex, starting with #.
+									 * Let's check for both scenarios.
+									 */
+									if (
+										// First Regex.
+										(
+											'#' === substr( $url_fragment, 0, 1 ) && '#' === substr( $url_fragment, -1 )
+											&& preg_match( $url_fragment, $icon['url'] )
+										)
+										// Then, regular host name.
+										|| false !== strpos( $icon['url'], $url_fragment )
+									) {
 										printf(
 											'<span class="screen-reader-text">%1$s</span>%2$s',
 											esc_attr( $social_icon['label'] ),
@@ -445,16 +457,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			),
 			array(
 				'url'   => array(
-					'amazon.cn',
-					'amazon.in',
-					'amazon.fr',
-					'amazon.de',
-					'amazon.it',
-					'amazon.nl',
-					'amazon.es',
-					'amazon.co',
-					'amazon.ca',
-					'amazon.com',
+					'#https?:\/\/(www\.)?amazon\.(com|cn|in|fr|de|it|nl|es|co|ca)\/#',
 				),
 				'icon'  => 'amazon',
 				'label' => 'Amazon',
@@ -503,7 +506,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Digg',
 			),
 			array(
-				'url'   => array( 'discord.gg', 'discordapp.com' ),
+				'url'   => array( '#discord\.gg|discordapp\.com#' ),
 				'icon'  => 'discord',
 				'label' => 'Discord',
 			),
@@ -553,7 +556,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'Goodreads',
 			),
 			array(
-				'url'   => array( 'google.com', 'google.co.uk', 'google.ca', 'google.cn', 'google.it' ),
+				'url'   => array( '#google\.(com|co\.uk|ca|cn|it)#' ),
 				'icon'  => 'google',
 				'label' => 'Google',
 			),
@@ -576,6 +579,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'url'   => array( 'mailto:' ),
 				'icon'  => 'mail',
 				'label' => __( 'Email', 'jetpack' ),
+			),
+			array(
+				'url'   => jetpack_mastodon_get_instance_list(),
+				'icon'  => 'mastodon',
+				'label' => 'Mastodon',
 			),
 			array(
 				'url'   => array( 'meetup.com' ),
@@ -658,7 +666,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'StumbleUpon',
 			),
 			array(
-				'url'   => array( 'telegram.me', 't.me' ),
+				'url'   => array( '#https?:\/\/(www\.)?(telegram|t)\.me#' ),
 				'icon'  => 'telegram',
 				'label' => 'Telegram',
 			),
@@ -703,7 +711,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => 'WooCommerce',
 			),
 			array(
-				'url'   => array( 'wordpress.com', 'wordpress.org' ),
+				'url'   => array( '#wordpress\.(com|org)#' ),
 				'icon'  => 'wordpress',
 				'label' => 'WordPress',
 			),
