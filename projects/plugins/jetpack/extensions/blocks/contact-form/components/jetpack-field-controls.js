@@ -24,6 +24,7 @@ const JetpackFieldControls = ( {
 	attributes,
 	id,
 	placeholder,
+	placeholderField = 'placeholder',
 	required,
 	setAttributes,
 	width,
@@ -73,7 +74,7 @@ const JetpackFieldControls = ( {
 					<TextControl
 						label={ __( 'Placeholder text', 'jetpack' ) }
 						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 						help={ __(
 							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
 							'jetpack'

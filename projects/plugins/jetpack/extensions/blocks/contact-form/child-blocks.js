@@ -1,16 +1,16 @@
-import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
+import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
+import { useFormWrapper } from './util/form';
 
 const FieldDefaults = {
 	category: 'contact-form',
@@ -32,7 +32,7 @@ const FieldDefaults = {
 		},
 		options: {
 			type: 'array',
-			default: [],
+			default: [ '' ],
 		},
 		defaultValue: {
 			type: 'string',
@@ -155,44 +155,12 @@ const FieldDefaults = {
 	example: {},
 };
 
-const validateFormWrapper = ( { attributes, clientId, name } ) => {
-	const FORM_BLOCK_NAME = 'jetpack/contact-form';
-	const BUTTON_BLOCK_NAME = 'jetpack/button';
-	const SUBMIT_BUTTON_ATTR = {
-		text: __( 'Submit', 'jetpack' ),
-		element: 'button',
-		lock: { remove: true },
-	};
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const { replaceBlock } = useDispatch( blockEditorStore );
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const parents = useSelect( select => {
-		return select( blockEditorStore ).getBlockParentsByBlockName( clientId, FORM_BLOCK_NAME );
-	} );
-
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	useEffect( () => {
-		if ( ! parents?.length ) {
-			replaceBlock(
-				clientId,
-				createBlock( FORM_BLOCK_NAME, {}, [
-					createBlock( name, attributes ),
-					createBlock( BUTTON_BLOCK_NAME, SUBMIT_BUTTON_ATTR ),
-				] )
-			);
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [] );
-};
-
 const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
 };
 
 const editField = type => props => {
-	validateFormWrapper( props );
+	useFormWrapper( props );
 
 	return (
 		<JetpackField
@@ -213,7 +181,7 @@ const editField = type => props => {
 };
 
 const editMultiField = type => props => {
-	validateFormWrapper( props );
+	useFormWrapper( props );
 
 	return (
 		<JetpackFieldMultiple
@@ -228,6 +196,58 @@ const editMultiField = type => props => {
 			id={ props.attributes.id }
 			width={ props.attributes.width }
 			attributes={ props.attributes }
+		/>
+	);
+};
+
+const EditTextarea = props => {
+	useFormWrapper( props );
+
+	return (
+		<JetpackFieldTextarea
+			label={ props.attributes.label }
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+		/>
+	);
+};
+
+const EditCheckbox = props => {
+	useFormWrapper( props );
+
+	return (
+		<JetpackFieldCheckbox
+			label={ props.attributes.label } // label intentionally left blank
+			required={ props.attributes.required }
+			requiredText={ props.attributes.requiredText }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			id={ props.attributes.id }
+			width={ props.attributes.width }
+		/>
+	);
+};
+
+const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } ) => {
+	useFormWrapper( { attributes, clientId, name } );
+
+	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
+	return (
+		<JetpackFieldConsent
+			id={ id }
+			isSelected={ isSelected }
+			width={ width }
+			consentType={ consentType }
+			implicitConsentMessage={ implicitConsentMessage }
+			explicitConsentMessage={ explicitConsentMessage }
+			setAttributes={ setAttributes }
 		/>
 	);
 };
@@ -399,24 +419,7 @@ export const childBlocks = [
 					d="M20 5H4V6.5H20V5ZM5.5 11.5H18.5V18.5H5.5V11.5ZM20 20V10H4V20H20Z"
 				/>
 			),
-			edit: props => {
-				validateFormWrapper( props );
-
-				return (
-					<JetpackFieldTextarea
-						label={ props.attributes.label }
-						required={ props.attributes.required }
-						requiredText={ props.attributes.requiredText }
-						setAttributes={ props.setAttributes }
-						isSelected={ props.isSelected }
-						defaultValue={ props.attributes.defaultValue }
-						placeholder={ props.attributes.placeholder }
-						id={ props.attributes.id }
-						width={ props.attributes.width }
-						attributes={ props.attributes }
-					/>
-				);
-			},
+			edit: EditTextarea,
 			attributes: {
 				...FieldDefaults.attributes,
 			},
@@ -436,22 +439,7 @@ export const childBlocks = [
 					d="M6.125 6H17.875C17.944 6 18 6.05596 18 6.125V17.875C18 17.944 17.944 18 17.875 18H6.125C6.05596 18 6 17.944 6 17.875V6.125C6 6.05596 6.05596 6 6.125 6ZM4.5 6.125C4.5 5.22754 5.22754 4.5 6.125 4.5H17.875C18.7725 4.5 19.5 5.22754 19.5 6.125V17.875C19.5 18.7725 18.7725 19.5 17.875 19.5H6.125C5.22754 19.5 4.5 18.7725 4.5 17.875V6.125ZM10.5171 16.4421L16.5897 8.71335L15.4103 7.78662L10.4828 14.0579L8.57616 11.7698L7.42383 12.7301L10.5171 16.4421Z"
 				/>
 			),
-			edit: props => {
-				validateFormWrapper( props );
-
-				return (
-					<JetpackFieldCheckbox
-						label={ props.attributes.label } // label intentionally left blank
-						required={ props.attributes.required }
-						requiredText={ props.attributes.requiredText }
-						setAttributes={ props.setAttributes }
-						isSelected={ props.isSelected }
-						defaultValue={ props.attributes.defaultValue }
-						id={ props.attributes.id }
-						width={ props.attributes.width }
-					/>
-				);
-			},
+			edit: EditCheckbox,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -505,28 +493,7 @@ export const childBlocks = [
 					default: __( 'Can we send you an email from time to time?', 'jetpack' ),
 				},
 			},
-			edit: ( { attributes, clientId, isSelected, name, setAttributes } ) => {
-				validateFormWrapper( { attributes, clientId, name } );
-
-				const {
-					id,
-					width,
-					consentType,
-					implicitConsentMessage,
-					explicitConsentMessage,
-				} = attributes;
-				return (
-					<JetpackFieldConsent
-						id={ id }
-						isSelected={ isSelected }
-						width={ width }
-						consentType={ consentType }
-						implicitConsentMessage={ implicitConsentMessage }
-						explicitConsentMessage={ explicitConsentMessage }
-						setAttributes={ setAttributes }
-					/>
-				);
-			},
+			edit: EditConsent,
 		},
 	},
 	{
@@ -603,12 +570,12 @@ export const childBlocks = [
 					d="M5 4.5H19C19.2761 4.5 19.5 4.72386 19.5 5V19C19.5 19.2761 19.2761 19.5 19 19.5H5C4.72386 19.5 4.5 19.2761 4.5 19V5C4.5 4.72386 4.72386 4.5 5 4.5ZM19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3ZM8.93582 10.1396L8.06396 11.3602L11.9999 14.1716L15.9358 11.3602L15.064 10.1396L11.9999 12.3283L8.93582 10.1396Z"
 				/>
 			),
-			edit: editMultiField( 'select' ),
+			edit: JetpackDropdownEdit,
 			attributes: {
 				...FieldDefaults.attributes,
-				label: {
+				toggleLabel: {
 					type: 'string',
-					default: 'Select one option',
+					default: null,
 				},
 			},
 		},

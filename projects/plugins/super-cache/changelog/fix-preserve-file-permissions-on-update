@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue that caused wp-config.php file permissions to change.

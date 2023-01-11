@@ -12,9 +12,10 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
+import { buildVideoPressURL } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { PlaceholderWrapper } from '../../edit.js';
-import { description, title } from '../../index.js';
+import { PlaceholderWrapper } from '../../edit';
+import { description, title } from '../../index';
 import { VideoPressIcon } from '../icons';
 import UploadError from './uploader-error.js';
 import UploadProgress from './uploader-progress.js';
@@ -100,51 +101,23 @@ const VideoPressUploader = ( {
 		onSuccess: handleUploadSuccess,
 	} );
 
-	/*
-	 * Returns true if the object represents a valid host for a VideoPress video.
-	 * Private vidoes are hosted under video.wordpress.com
-	 */
-	const isValidVideoPressUrl = urlObject => {
-		const validHosts = [ 'videopress.com', 'video.wordpress.com' ];
-		return urlObject.protocol === 'https:' && validHosts.includes( urlObject.host );
-	};
-
-	/**
-	 * Helper function to pick up the guid
-	 * from the VideoPress URL.
-	 *
-	 * @param {string} url - VideoPress URL.
-	 * @returns {void}       The guid picked up from the URL. Otherwise, False.
-	 */
-	const getGuidFromVideoUrl = url => {
-		try {
-			const urlObject = new URL( url );
-			if ( isValidVideoPressUrl( urlObject ) ) {
-				const videoGuid = urlObject.pathname.match( /^\/v\/([a-zA-Z0-9]+)$/ );
-				return videoGuid.length === 2 ? videoGuid[ 1 ] : false;
-			}
-		} catch ( e ) {
-			return false;
-		}
-	};
-
 	/**
 	 * Handler to add a video via an URL.
 	 *
-	 * @param {string} videoUrl - URL of the video to attach
+	 * @param {string} videoSource - URL of the video to attach
 	 * @param {string} id - Attachment ID if available
 	 */
-	function onSelectURL( videoUrl, id = undefined ) {
-		const videoGuid = getGuidFromVideoUrl( videoUrl );
-		if ( ! videoGuid ) {
+	function onSelectURL( videoSource, id ) {
+		// If the video source is a VideoPress URL, we can use it directly.
+		const videoUrlData = buildVideoPressURL( videoSource );
+		if ( ! videoUrlData ) {
 			setUploadErrorDataState( {
 				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
 			} );
 			return;
 		}
 
-		// Update guid based on the URL.
-		setAttributes( { guid: videoGuid, src: videoUrl, id } );
+		setAttributes( { guid: videoUrlData.guid, src: videoUrlData.url, id } );
 		handleDoneUpload();
 	}
 

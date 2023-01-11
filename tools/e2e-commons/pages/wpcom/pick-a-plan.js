@@ -1,4 +1,5 @@
 import WpPage from '../wp-page.js';
+import logger from '../../logger.cjs';
 
 export default class PickAPlanPage extends WpPage {
 	constructor( page ) {
@@ -10,22 +11,12 @@ export default class PickAPlanPage extends WpPage {
 
 	async select( product = 'free' ) {
 		switch ( product ) {
-			case 'complete':
-				return await this.selectComplete();
 			case 'free':
+				const freePlanButton = '.jetpack-product-store__jetpack-free a';
+				await this.click( freePlanButton );
+				break;
 			default:
-				return await this.selectFreePlan();
+				logger.error( `Selecting plan '${ product }' is not implemented! Add it yourself?` );
 		}
-	}
-
-	async selectFreePlan() {
-		const freePlanButton = '.jetpack-product-store__jetpack-free a';
-		return await this.click( freePlanButton );
-	}
-
-	async selectComplete() {
-		const buttonSelector =
-			'div[data-e2e-product-slug="jetpack_complete"] [class*="summary"] button';
-		return await this.click( buttonSelector );
 	}
 }
