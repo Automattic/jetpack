@@ -271,6 +271,28 @@ class Jetpack_Backup {
 				),
 			)
 		);
+
+		// Get site size
+		register_rest_route(
+			'jetpack/v4',
+			'/site/rewind/size',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_rewind_size',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
+
+		// Get site policies
+		register_rest_route(
+			'jetpack/v4',
+			'/site/rewind/policies',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_site_rewind_policies',
+				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -478,6 +500,57 @@ class Jetpack_Backup {
 		}
 
 		return \Jetpack_Options::update_option( 'dismissed_backup_review_' . $request['option_name'], true );
+	}
+
+	/**
+	 * Get site storage size
+	 *
+	 * @return string|WP_Error A JSON object with the site storage size if the request was successful, or a WP_Error otherwise.
+	 */
+	public static function get_site_rewind_size() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/size?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
+	}
+
+	/**
+	 * Get site policies from WPCOM. It includes the storage limit and activity log limit, if apply.
+	 *
+	 * @return string|WP_Error A JSON object with the site storage policies if the request was successful,
+	 *                         or a WP_Error otherwise.
+	 */
+	public static function get_site_rewind_policies() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
+			'/sites/' . $blog_id . '/rewind/policies?force=wpcom',
+			'v2',
+			array(),
+			null,
+			'wpcom'
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return null;
+		}
+
+		return rest_ensure_response(
+			json_decode( $response['body'], true )
+		);
 	}
 
 	/**
