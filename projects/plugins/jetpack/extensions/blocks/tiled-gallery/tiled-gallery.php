@@ -12,7 +12,6 @@ namespace Automattic\Jetpack\Extensions;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Plan;
@@ -185,21 +184,6 @@ class Tiled_Gallery {
 				|| 'is-style-circle' === $attr['className']
 			);
 	}
-
-	/**
-	 * Adds an equal aspect ratio to squareish (square and circular) tiled gallery images on WoA sites.
-	 *
-	 * Without this, these images in newly added tiled galleries on private WoA sites
-	 * (and public if broken on the private sites) have un-equal spect ratios.
-	 */
-	public static function add_woa_squareish_styles() {
-		$is_atomic_site = ( new Host() )->is_woa_site();
-		$status         = new Status();
-		if ( $is_atomic_site || $status->is_local_site() ) {
-			wp_enqueue_style( 'jetpack-squareish-tiled-gallery-styles', plugins_url( 'modules/tiled-gallery/tiled-gallery/squareish.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		}
-	}
 }
 
 Tiled_Gallery::register();
-Tiled_Gallery::add_woa_squareish_styles();
