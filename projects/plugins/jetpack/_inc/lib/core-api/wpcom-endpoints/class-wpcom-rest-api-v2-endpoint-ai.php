@@ -31,7 +31,8 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$this->is_wpcom = false;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->is_wpcom = true;
+			$this->is_wpcom                     = true;
+			$this->wpcom_is_wpcom_only_endpoint = true;
 		} elseif ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// If this is not an atomic site, we want to bail and not even load the endpoint for now.
 			return;
