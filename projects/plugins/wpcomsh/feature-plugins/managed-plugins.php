@@ -530,12 +530,11 @@ add_filter( 'atomic_managed_theme_auto_update_debug_label', 'wpcomsh_atomic_mana
  * @return mixed
  */
 function wpcomsh_remove_managed_plugins_from_update_plugins( $current ) {
-	if ( ! is_object( $current ) || ! is_array( $current->response ) ) {
-		return $current;
-	}
-	foreach ( array_keys( $current->response ) as $plugin_key ) {
-		if ( wpcomsh_is_managed_plugin( $plugin_key ) ) {
-			unset( $current->response[ $plugin_key ] );
+	if ( is_object( $current ) && is_array( $current->response ) ) {
+		foreach ( array_keys( $current->response ) as $plugin_key ) {
+			if ( wpcomsh_is_managed_plugin( $plugin_key ) ) {
+				unset( $current->response[ $plugin_key ] );
+			}
 		}
 	}
 	return $current;
