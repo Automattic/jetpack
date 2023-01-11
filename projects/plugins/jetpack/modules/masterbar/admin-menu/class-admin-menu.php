@@ -329,14 +329,19 @@ class Admin_Menu extends Base_Admin_Menu {
 			'profile.php' => 'https://wordpress.com/me',
 		);
 
+		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
+
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'users.php' ) ) {
-			$submenus_to_update['users.php']    = 'https://wordpress.com/people/team/' . $this->domain;
-			$submenus_to_update['user-new.php'] = 'https://wordpress.com/people/new/' . $this->domain;
+			// Hide All Users submenu.
+			$this->hide_submenu_page( $slug, $slug );
+			// Hide Add New submenu.
+			$this->hide_submenu_page( 'users.php', 'user-new.php' );
 		}
 
-		$slug = current_user_can( 'list_users' ) ? 'users.php' : 'profile.php';
-		$this->update_submenus( $slug, $submenus_to_update );
+		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/people/subscribers/' . $this->domain, null, 1 );
+		add_submenu_page( 'users.php', esc_attr__( 'Team Members', 'jetpack' ), __( 'Team', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team-members/' . $this->domain, null, 2 );
 		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
+		$this->update_submenus( $slug, $submenus_to_update );
 	}
 
 	/**

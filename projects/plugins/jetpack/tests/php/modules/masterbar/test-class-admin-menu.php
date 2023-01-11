@@ -333,12 +333,21 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 
 		// On WP.com users can only invite other users, not create them (missing create_users cap).
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$this->assertSame( 'https://wordpress.com/people/new/' . static::$domain, $submenu['users.php'][2][2] );
 			$account_key = 6;
 		}
 
-		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
-		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][3][2] );
+		// Make sure All Users is hidden
+		$this->assertSame( 'users.php', $submenu['users.php'][0][2] );
+		$this->assertSame( 'hide-if-js', $submenu['users.php'][0][4] );
+
+		$this->assertSame( 'https://wordpress.com/people/subscribers/' . static::$domain, $submenu['users.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/people/team-members/' . static::$domain, $submenu['users.php'][2][2] );
+
+		// Make sure Add New is hidden
+		$this->assertSame( 'user-new.php', $submenu['users.php'][3][2] );
+		$this->assertSame( 'hide-if-js', $submenu['users.php'][3][4] );
+
+		$this->assertSame( 'https://wordpress.com/me', $submenu['users.php'][5][2] );
 		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][ $account_key ][2] );
 	}
 
