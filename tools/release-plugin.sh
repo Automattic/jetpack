@@ -14,16 +14,13 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Instructions
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <plugin>
+		usage: $0 [options] <plugin> <version>
 
-		Conduct a full release of a specified plugin. The <plugin> may be
-		either the name of a directory in projects/plugins/, or a path to a plugin directory or file.
+		Conduct a full release of a specified plugin through release branch creation. The <plugin> must be the slug of the plugin, such as plugins/jetpack
 
 		Options:
-			--stable <stable> If we're releasing a stable.
-			--beta <beta> If we're releasing a beta
-			--alpha <alpha> If we're releasing an alpha version
-
+			-a Release an alpha version
+			-b Release a beta version
 	EOH
 	exit 1
 }
