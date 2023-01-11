@@ -594,6 +594,11 @@
 				border-bottom-left-radius: unset;
 			}
 
+			&.jetpack-field-textarea .notched-label__label {
+				top: var(--jetpack--contact-form--input-padding-top);
+				transform: unset;
+			}
+
 			&.is-selected, &.has-placeholder {
 				.notched-label__notch {
 					border-top-color: transparent;
