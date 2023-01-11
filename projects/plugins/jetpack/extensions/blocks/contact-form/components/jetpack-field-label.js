@@ -71,6 +71,10 @@ const JetpackFieldLabel = props => {
 		);
 	}
 
+	if ( style === FORM_STYLE.ANIMATED ) {
+		return <FieldLabel className="animated-label__label" { ...props } />;
+	}
+
 	return <FieldLabel { ...props } />;
 };
 

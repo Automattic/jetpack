@@ -259,8 +259,9 @@
 		word-break: normal;
 		color: unset;
 		opacity: 0.45;
-		font-size: 15px;
-		margin-left: 8px;
+		font-size: 85%;
+		margin-left: 0.25em;
+		font-weight: normal;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -273,42 +274,21 @@
 	padding: 0;
 }
 
-input.components-text-control__input {
-	line-height: 16px;
+.jetpack-field__input, .jetpack-field__textarea {
+	width: 100%;
+	font: inherit;
+	box-sizing: border-box;
+	padding: 16px;
+	box-shadow: unset;
 }
 
-/*
-	Gutenberg adds some default styling to the TextControl component
-	(https://github.com/WordPress/gutenberg/blob/trunk/packages/base-styles/_mixins.scss#L130)
-	For the TextareaControl, since the base styles are added to the StyledComponent,
-	(https://github.com/WordPress/gutenberg/blob/trunk/packages/components/src/textarea-control/styles/textarea-control-styles.ts#L13)
-	The output CSS has a lower specificity and it's being overridden on themes like
-	Twenty Twenty-One and Twenty Twenty-Two.
-	Adding this to normalize the styles between the TextControl and TextareaControl
- */
-:where(.jetpack-field) textarea.components-textarea-control__input {
-	border: 1px solid #757575;
+.jetpack-field__textarea {
+	min-height: 150px;
 }
 
 .jetpack-field {
-	// done to increase elevate specificity in order to overwrite calypso styles
-	.components-text-control__input.components-text-control__input {
-		width: 100%;
-	}
-	input.components-text-control__input,
-	textarea.components-textarea-control__input {
-		color: #787c82;
-		padding: 12px 8px;
-		box-shadow: unset;
-		width: 100%;
-	}
-
 	.components-base-control__field {
 		margin-bottom: 0;
-	}
-
-	textarea.components-textarea-control__input {
-		min-height: 150px;
 	}
 
 	&.jetpack-field-checkbox .jetpack-field-checkbox__checkbox,
@@ -548,6 +528,12 @@ input.components-text-control__input {
 }
 
 .jetpack-contact-form {
+	.jetpack-field {
+		.jetpack-field__input, .jetpack-field__textarea {
+			color: #787c82; //Simulates a placeholder color
+		}
+	}
+
 	&.is-style-outlined, &.is-style-animated {
 		.jetpack-field {
 			position: relative;
@@ -568,17 +554,20 @@ input.components-text-control__input {
 				display: flex;
 				box-sizing: border-box;
 				text-align: left;
+				z-index: 1;
 			}
 
 			.notched-label__leading {
 				width: calc(var(--jetpack--contact-form--input-padding-left) - 4px);
-				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
 				border-right: none;
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border-top-right-radius: unset;
+				border-bottom-right-radius: unset;
 			}
 
 			.notched-label__notch {
-				border-radius: var(--jetpack--contact-form--border-radius);
+				border-radius: unset;
 				border: var(--jetpack--contact-form--border);
 				border-left: none;
 				border-right: none;
@@ -598,9 +587,11 @@ input.components-text-control__input {
 
 			.notched-label__trailing {
 				flex-grow: 1;
-				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
 				border-left: none;
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border-top-left-radius: unset;
+				border-bottom-left-radius: unset;
 			}
 
 			&.is-selected, &.has-placeholder {
@@ -648,10 +639,63 @@ input.components-text-control__input {
 				}
 			}
 
-			input, textarea {
+			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
 				border-color: transparent;
 				outline: none;
+			}
+		}
+	}
+
+	&.is-style-animated {
+		.jetpack-field {
+			.jetpack-field__input {
+				outline: none;
+			}
+
+			.jetpack-field__textarea {
+				padding: var(--jetpack--contact-form--input-padding);
+				outline: none;
+			}
+
+			.jetpack-field__input,
+			.jetpack-field__textarea,
+			.contact-form-dropdown__button,
+			.jetpack-field-dropdown__toggle
+			{
+				padding-top: 1.2em;
+			}
+
+			&.jetpack-field-multiple {
+				padding: var(--jetpack--contact-form--input-padding);
+				padding-top: 1.5em;
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border: var(--jetpack--contact-form--border);
+			}
+
+			.animated-label__label {
+				position: absolute;
+				top: 50%;
+				left: calc(var(--jetpack--contact-form--input-padding-left) + var(--jetpack--contact-form--border-size) );
+				width: 100%;
+				max-width: 100%;
+				box-sizing: border-box;
+				margin: 0;
+				transform: translateY(-50%);
+				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+			}
+
+			&.jetpack-field-textarea .animated-label__label {
+				transform: unset;
+				top: var(--jetpack--contact-form--input-padding-top);
+			}
+
+			&.is-selected, &.has-placeholder {
+				.animated-label__label {
+					font-size: 0.8em;
+					transform: translateY(0);
+					top: 4px;
+				}
 			}
 		}
 	}

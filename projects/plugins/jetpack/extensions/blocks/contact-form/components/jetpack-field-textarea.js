@@ -1,6 +1,5 @@
-import { TextareaControl, Disabled } from '@wordpress/components';
+import { Disabled } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEmpty, isNil } from 'lodash';
 import { useFormStyle } from '../util/form';
@@ -21,7 +20,7 @@ export default function JetpackFieldTextarea( props ) {
 	} = props;
 	const formStyle = useFormStyle( clientId );
 
-	const classes = classnames( 'jetpack-field', {
+	const classes = classnames( 'jetpack-field jetpack-field-textarea', {
 		'is-selected': isSelected,
 		'has-placeholder': ! isEmpty( placeholder ),
 	} );
@@ -45,12 +44,7 @@ export default function JetpackFieldTextarea( props ) {
 					style={ formStyle }
 				/>
 				<Disabled>
-					<TextareaControl
-						placeholder={ placeholder }
-						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
-						title={ __( 'Set the placeholder text', 'jetpack' ) }
-					/>
+					<textarea className="jetpack-field__textarea" value={ placeholder } />
 				</Disabled>
 			</div>
 

@@ -7,16 +7,16 @@ window.addEventListener( 'load', () => {
 		generateStyleVariables( EDITOR_SELECTOR );
 	} );
 
-	observer.observe( document.querySelector( 'body' ), {
-		childList: true,
-		subtree: true,
-	} );
-
 	//Make sure to execute at least once if not triggered by the observer
 	setTimeout( () => {
 		generateStyleVariables( FRONTEND_SELECTOR );
 		generateStyleVariables( EDITOR_SELECTOR );
-	}, 300 );
+
+		observer.observe( document.querySelector( 'body' ), {
+			childList: true,
+			subtree: true,
+		} );
+	}, 1000 );
 } );
 
 function generateStyleVariables( selector, outputSelector = 'body' ) {
@@ -29,7 +29,7 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 				<div class="wp-block-button__link">Test</div>
 			</div>
 			<div class="jetpack-field">
-				<input class="components-text-control__input" type="text">
+				<input class="jetpack-field__input" type="text">
 			</div>
 		</div>
 	`;
@@ -63,6 +63,7 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const {
 		color: textColor,
 		padding: inputPadding,
+		paddingTop: inputPaddingTop,
 		paddingLeft: inputPaddingLeft,
 		border,
 		borderColor,
@@ -85,6 +86,10 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	outputContainer.style.setProperty( '--jetpack--contact-form--border-radius', borderRadius );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-background', inputBackground );
 	outputContainer.style.setProperty( '--jetpack--contact-form--input-padding', inputPadding );
+	outputContainer.style.setProperty(
+		'--jetpack--contact-form--input-padding-top',
+		inputPaddingTop
+	);
 	outputContainer.style.setProperty(
 		'--jetpack--contact-form--input-padding-left',
 		inputPaddingLeft

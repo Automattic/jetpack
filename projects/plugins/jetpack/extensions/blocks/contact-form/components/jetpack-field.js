@@ -1,7 +1,6 @@
-import { TextControl, Disabled } from '@wordpress/components';
+import { Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
@@ -13,7 +12,6 @@ export default function JetpackField( props ) {
 		clientId,
 		id,
 		isSelected,
-		type,
 		required,
 		requiredText,
 		label,
@@ -39,13 +37,7 @@ export default function JetpackField( props ) {
 					style={ formStyle }
 				/>
 				<Disabled>
-					<TextControl
-						type={ type }
-						placeholder={ placeholder }
-						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
-						title={ __( 'Set the placeholder text', 'jetpack' ) }
-					/>
+					<input type="text" className="jetpack-field__input" value={ placeholder } />
 				</Disabled>
 			</div>
 
