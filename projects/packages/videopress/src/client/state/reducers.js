@@ -41,6 +41,7 @@ import {
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
 	DISMISS_FIRST_VIDEO_POPOVER,
+	UPDATE_PAGINATION_AFTER_DELETE,
 } from './constants';
 
 /**
@@ -230,7 +231,7 @@ const videos = ( state, action ) => {
 		 */
 		case REMOVE_VIDEO: {
 			const { id } = action;
-			const { items = [], query = {} } = state;
+			const { items = [] } = state;
 			const videoIndex = items.findIndex( item => item.id === id );
 
 			if ( videoIndex < 0 ) {
@@ -243,18 +244,8 @@ const videos = ( state, action ) => {
 
 			const _metaVideo = _metaItems[ id ] ?? {};
 
-			// If is the last video, reduce the page per 1
-			// Being optimistic here
-			const lastVideo = items?.length === 1;
-			const currentPage = query?.page ?? 1;
-			const page = lastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
-
 			return {
 				...state,
-				query: {
-					...query,
-					page,
-				},
 				// Do not remove the video from the list, just update the meta data.
 				// Keep here in caswe we want to do it in the future.
 				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
@@ -300,6 +291,38 @@ const videos = ( state, action ) => {
 							deletedVideo,
 						},
 					},
+				},
+			};
+		}
+
+		/*
+		 * Check if query and pagination should change
+		 * after deleting video
+		 */
+		case UPDATE_PAGINATION_AFTER_DELETE: {
+			const { items = [], query = {}, pagination = {} } = state;
+
+			// If is the last video, reduce the page per 1
+			// Being optimistic here
+			const isLastVideo = items?.length === 1;
+			const currentPage = query?.page ?? 1;
+			const currentTotalPage = pagination?.totalPages ?? 1;
+			const currentTotal = pagination?.total;
+
+			const page = isLastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
+			const totalPages =
+				isLastVideo && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
+
+			return {
+				...state,
+				query: {
+					...query,
+					page,
+				},
+				pagination: {
+					...pagination,
+					total: currentTotal - 1,
+					totalPages,
 				},
 			};
 		}
