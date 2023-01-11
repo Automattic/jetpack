@@ -7,6 +7,8 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/proceed_p.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
+. "$BASE/tools/includes/version-compare.sh"
+. "$BASE/tools/includes/normalize-version.sh"
 
 
 # Instructions
@@ -28,7 +30,6 @@ function usage {
 
 # Get the options passed and parse them.
 ARGS=('-p')
-VERSION=
 ALPHABETA=
 while getopts "v:abh" opt; do
 	case ${opt} in
@@ -52,19 +53,50 @@ while getopts "v:abh" opt; do
 done
 shift "$(($OPTIND -1))"
 
-# If there are two arguments left, parse them to get the project slug and the version number.
-[[ $# -gt 2 ]] && die "Too many arguments specified! A project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
-# If there is only one argument, it should be the project slug, then we must prompt for the version.
-# Normalize the version. 
+# If there are more than two arguments, bail.
+[[ $# -gt 2 ]] && die "Too many arguments specified! Only provide a project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 
-# Determine the project
-[[ -z "$1" ]] && die "A project slug must be specified."
+# Get the project slug.
+PROJECT=
+for ARG in "$@"
+	do
+		SLUG="${ARG#projects/}" # DWIM
+		SLUG="${SLUG%/}" # Sanitize
+		if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
+			yellow "Project found: $ARG"
+			PROJECT="$SLUG"
+			shift
+			break
+		fi
+	done
+[[ -z "$PROJECT" ]] && die "A valid project slug must be specified."
 
-SLUG="${1#projects/}" # DWIM
-SLUG="${SLUG%/}" # Sanitize
-if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
-	die "Project $SLUG does not exist."
+# Determine the project version
+
+[[ -z $1 ]] && die "Please specify a version number"
+# Figure out the version(s) to use for the plugin(s).
+function check_ver {
+	normalize_version_number "$1"
+	if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+		red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
+		return 1
+	fi
+	local CUR_VERSION
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PROJECT")
+	# shellcheck disable=SC2310
+	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
+		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
+		return $?
+	fi
+	return 0
+}
+
+if ! check_ver "$1"; then
+	die "Please specify a valid version number."
 fi
+VERSION="$1"
+
+proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
@@ -90,17 +122,17 @@ if ! git push -u origin HEAD; then
 fi
 
 # Run the changelogger release script
-tools/changelogger-release.sh "${ARGS[@]}" "${SLUG}"
+tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 
 # When it completes, wait for user to edit anything they want, then push key to continue.
 read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
 echo ""
 
 git add --all
-git commit -am "Changelog edits for $SLUG"
+git commit -am "Changelog edits for $PROJECT"
 
 # If we're running a beta, amend the changelog
-if [[ "$SLUG" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
+if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
 	echo "Releasing a beta, amending the readme.txt"
 	jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
@@ -118,4 +150,4 @@ fi
 
 # After this, run tools/create-release-branch.sh to create a release branch.
 yellow "Build is complete. Creating a release branch."
-tools/create-release-branch.sh "${SLUG}"
+tools/create-release-branch.sh "$PROJECT" "$VERSION"
