@@ -41,7 +41,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	);
 
 	/**
-	 * List of pages by indexed by their page ID.
+	 * List of pages indexed by their page ID.
 	 *
 	 * @var array<int,WP_Post>
 	 */
