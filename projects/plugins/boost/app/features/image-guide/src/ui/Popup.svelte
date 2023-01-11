@@ -74,7 +74,6 @@
 					but pay attention whether the image appears blurry.
 				</div>
 			{/if}
-			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
 		</div>
 		{#if $imageURL}
 			<img
@@ -138,11 +137,18 @@
 				{/if}
 			</div>
 		</div>
+
 		{#if imageOrigin !== origin}
 			<div class="info">
 				Unable to estimate file size savings because the image is hosted on a different domain.
 			</div>
 		{/if}
+
+		<div class="info">
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+				>Learn how to improve site speed by optimizing images</a
+			>
+		</div>
 	</div>
 </div>
 
