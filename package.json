@@ -3,7 +3,7 @@
   "version": "2.5.0",
   "main": "react/index.js",
   "peerDependencies": {
-    "react": "15 - 17"
+    "react": "15 - 18"
   },
   "repository": {
     "type": "git",
