@@ -1,0 +1,69 @@
+name: WPCloud Unit Testing
+
+on: pull_request
+
+concurrency: run-wpcloud-phpunit
+
+jobs:
+  deploy:
+    name: Run phpunit on WPCloud site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Github to be able to SSH to the Atomic site
+        run: |
+          echo "Intializing"
+          echo "::group::setup"
+
+          mkdir -vp ~/.ssh/
+          chmod -v 700 ~/.ssh
+
+          touch ~/.ssh/id_site
+          chmod 600 ~/.ssh/id_site
+          echo "$WPCLOUD_SSH_KEY" > ~/.ssh/id_site
+          echo "wrote ~/.ssh/id_site"
+
+          touch ~/.ssh/askpass
+          chmod -v 700 ~/.ssh/askpass
+          cat >>~/.ssh/askpass <<END
+          #!/bin/bash
+          echo "\$WPCLOUD_SSH_KEY_PASSPHRASE"
+          END
+          echo "wrote ~/.ssh/askpass"
+
+          cat >>~/.ssh/config <<END
+          Host *
+            StrictHostKeyChecking no
+          END
+          echo "wrote ~/.ssh/config"
+
+          touch ~/.ssh/stdin
+          chmod -v 600 ~/.ssh/stdin
+          cat >>~/.ssh/stdin <<END
+          $WPCLOUD_STDIN
+          END
+          echo "wrote ~/.ssh/stdin"
+
+          export SSH_ASKPASS="$HOME/.ssh/askpass"
+          echo "exported SSH_ASKPASS"
+          export SSH_ASKPASS_REQUIRE="force"
+          echo "exported SSH_ASKPASS_REQUIRE"
+          export DISPLAY=":"
+          echo "exported DISPLAY"
+
+          echo "::endgroup::"
+
+          echo "::group::execution"
+          cat ~/.ssh/stdin | setsid ssh -i ~/.ssh/id_site -l "$WPCLOUD_SSH_USER" ssh.atomicsites.net "$WPCLOUD_SSH_COMMAND" || CODE=$?
+          echo "::endgroup::"
+
+          echo "::group::teardown"
+          rm -rvf ~/.ssh/
+          echo "::endgroup::"
+          echo "Exiting with exit code $CODE"
+          exit $CODE
+        env:
+          WPCLOUD_SSH_KEY: ${{ secrets.WPCLOUD_SSH_KEY }}
+          WPCLOUD_SSH_KEY_PASSPHRASE: ${{ secrets.WPCLOUD_SSH_KEY_PASSPHRASE }}
+          WPCLOUD_SSH_USER: ${{ secrets.WPCLOUD_SSH_USER }}
+          WPCLOUD_SSH_COMMAND: ${{ secrets.WPCLOUD_SSH_COMMAND }}
+          WPCLOUD_STDIN: ${{ toJSON(github) }}

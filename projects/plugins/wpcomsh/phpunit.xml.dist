@@ -11,5 +11,14 @@
 		<testsuite name="wpcomsh">
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
+		<testsuite name="wpcloud">
+			<directory prefix="test-" suffix=".php">tests/</directory>
+			<exclude>tests/feature-manager/test-feature-hooks.php</exclude>
+			<exclude>tests/test-blog-token-resilience.php</exclude>
+			<exclude>tests/test-frontend-notices.php</exclude>
+			<exclude>tests/test-functions.php</exclude>
+			<exclude>tests/test-plan-notices.php</exclude>
+			<exclude>tests/test-wpcom-features.php</exclude>
+		</testsuite>
 	</testsuites>
 </phpunit>
