@@ -31,14 +31,25 @@ export default function MembershipsModal( props ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isOpen ] );
 
+	/**
+	 * Handle different messages from iframe.
+	 *
+	 * @param {*} evt
+	 */
 	function handleIframeResult( evt ) {
 		if ( evt.origin !== 'https://subscribe.wordpress.com' || ! evt.data ) {
 			return;
 		}
 
+		// Handle the close action.
 		const data = JSON.parse( evt.data );
 		if ( data && data.action === 'close' ) {
 			closeModal();
+		}
+
+		// Handle the resize action.
+		if ( data && data.action === 'resize' && data.height ) {
+			modalRef.current.querySelector( 'iframe' ).setAttribute( 'height', data.height );
 		}
 	}
 
@@ -66,9 +77,7 @@ export default function MembershipsModal( props ) {
 						<div></div>
 						<div></div>
 					</div>
-					{ url && (
-						<iframe scrolling="yes" title="subscribe-iframe" src={ url } onLoad={ iframeLoaded } />
-					) }
+					{ url && <iframe title="subscribe-iframe" src={ url } onLoad={ iframeLoaded } /> }
 				</Modal>
 			) }
 		</>
