@@ -44,7 +44,7 @@ export default function JetpackFieldTextarea( props ) {
 					style={ formStyle }
 				/>
 				<Disabled>
-					<textarea className="jetpack-field__textarea" value={ placeholder } />
+					<textarea className="jetpack-field__textarea" value={ placeholder } readOnly />
 				</Disabled>
 			</div>
 

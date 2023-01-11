@@ -37,7 +37,7 @@ export default function JetpackField( props ) {
 					style={ formStyle }
 				/>
 				<Disabled>
-					<input type="text" className="jetpack-field__input" value={ placeholder } />
+					<input type="text" className="jetpack-field__input" value={ placeholder } readOnly />
 				</Disabled>
 			</div>
 

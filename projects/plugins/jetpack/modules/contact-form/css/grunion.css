@@ -27,6 +27,7 @@
 	width: 100%;
 	padding: 16px;
 	font: inherit;
+	border-width: 1px;
 }
 
 :where(.contact-form textarea) {
