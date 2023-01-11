@@ -1,5 +1,11 @@
 _The versioning refers to the React component build._
 
+#### v2.5.1 (2023-01-13)
+* React 18 support
+
+#### v2.5.0 (2022-02-01)
+* Added copy post url button.
+
 #### v2.4.0 (2021-09-01)
 * Updated icons: `medium`, `facebook`
 * React 17 support
