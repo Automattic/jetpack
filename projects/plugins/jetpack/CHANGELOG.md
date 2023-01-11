@@ -24,7 +24,7 @@
 - Jetpack: do not register video chapters block. [#28206]
 - Publicize: prepare for validation of videos. [#27840]
 - Remove Jetpack Blocks section on At a Glance page. [#28153]
-- Site Settings API: expose `page_for_posts' option. [#28096]
+- Site Settings API: expose `page_for_posts` option. [#28096]
 - Social Menu Theme Tool: allow specifying a regex instead of a simple host name for services that have logos. [#28172]
 - Updated package dependencies.
 - Update Playwright version. [#28094]
