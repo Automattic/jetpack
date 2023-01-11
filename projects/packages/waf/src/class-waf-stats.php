@@ -17,18 +17,18 @@ use WP_Error;
 class Waf_Stats {
 
 	/**
-	 * Name of the option where stats are stored
+	 * Name of the option where blocked requests are stored
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'jetpack_waf_stats';
+	const OPTION_NAME = 'jetpack_waf_blocked_requests';
 
 	/**
-	 * Name of the option where the timestamp of the stats is stored
+	 * Name of the option where the timestamp of the blocked requests is stored
 	 *
 	 * @var string
 	 */
-	const OPTION_TIMESTAMP_NAME = 'jetpack_waf_stats_timestamp';
+	const OPTION_TIMESTAMP_NAME = 'jetpack_waf_blocked_requests_timestamp';
 
 	/**
 	 * Time in seconds that the cache should last
@@ -38,19 +38,19 @@ class Waf_Stats {
 	const OPTION_EXPIRES_AFTER = 300; // 5 minutes.
 
 	/**
-	 * Updated the cached stats and its timestamp
+	 * Updated the cached blocked requests and its timestamp
 	 *
-	 * @param array $stats The new stats to be cached.
+	 * @param array $blocked_requests The new blocked requests to be cached.
 	 * @return void
 	 */
-	public static function update_option( $stats ) {
-		update_option( self::OPTION_NAME, $stats );
+	public static function update_option( $blocked_requests ) {
+		update_option( self::OPTION_NAME, $blocked_requests );
 		$end_date = time() + self::OPTION_EXPIRES_AFTER;
 		update_option( self::OPTION_TIMESTAMP_NAME, $end_date );
 	}
 
 	/**
-	 * Checks if the current cached stats are expired and should be renewed
+	 * Checks if the current cached blocked requests are expired and should be renewed
 	 *
 	 * @return boolean
 	 */
