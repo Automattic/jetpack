@@ -2,7 +2,7 @@
 /**
  * Jetpack AI Paragraph Block.
  *
- * @since $$next-version$$
+ * @since 11.8
  *
  * @package automattic/jetpack
  */
