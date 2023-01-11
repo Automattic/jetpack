@@ -24,13 +24,18 @@ function getSuggestionFromOpenAI(
 	setAttributes,
 	formattedPrompt,
 	setLoadingCompletion,
-	setNeedMore
+	setErrorMessage
 ) {
 	if ( formattedPrompt.length < 120 ) {
-		setNeedMore( true );
+		setErrorMessage(
+			__(
+				'Please write a little bit more. Jetpack AI needs at least 120 characters to make the gears spin.',
+				'jetpack'
+			)
+		);
 		return;
 	}
-	setNeedMore( false );
+	setErrorMessage( '' );
 	// We only take the last 240 chars into account, otherwise the prompt gets too long and because we have a 110 tokens limit, there is no place for response.
 	formattedPrompt = formattedPrompt.slice( -240 );
 	const data = { content: formattedPrompt };
@@ -54,14 +59,19 @@ function getSuggestionFromOpenAI(
 			setTimeout( () => setAttributes( { content: content } ), 50 * tokens.length );
 		} )
 		.catch( () => {
+			setErrorMessage(
+				__(
+					'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+					'jetpack'
+				)
+			);
 			setLoadingCompletion( false );
-			setAttributes( { requestedPrompt: false } ); // You get another chance.
 		} );
 }
 
 export default function Edit( { attributes, setAttributes } ) {
 	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
-	const [ needMore, setNeedMore ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState( '' );
 
 	const formattedPrompt = useSelect( select => {
 		return formatPromptToOpenAI( select( 'core/block-editor' ) );
@@ -71,19 +81,21 @@ export default function Edit( { attributes, setAttributes } ) {
 	useEffect( () => {
 		//Theoretically useEffect would ensure we only fire this once, but I don't want to fire it when we get data to edit either.
 		if ( ! attributes.content && ! attributes.requestedPrompt ) {
-			getSuggestionFromOpenAI( setAttributes, formattedPrompt, setLoadingCompletion, setNeedMore );
+			getSuggestionFromOpenAI(
+				setAttributes,
+				formattedPrompt,
+				setLoadingCompletion,
+				setErrorMessage
+			);
 		}
 	}, [ attributes, formattedPrompt, setAttributes ] );
 
 	return (
 		<div { ...useBlockProps() }>
-			{ needMore && (
+			{ errorMessage && (
 				<Placeholder
 					label={ __( 'Jetpack AI Paragraph', 'jetpack' ) }
-					instructions={ __(
-						'Please write a little bit more. Jetpack AI needs at least 120 characters to make the gears spin.',
-						'jetpack'
-					) }
+					instructions={ errorMessage }
 				>
 					<Button
 						isPrimary
@@ -92,7 +104,7 @@ export default function Edit( { attributes, setAttributes } ) {
 								setAttributes,
 								formattedPrompt,
 								setLoadingCompletion,
-								setNeedMore
+								setErrorMessage
 							);
 						} }
 					>
