@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1] - 2023-01-11
+### Changed
+- Updated package dependencies. [#28127]
+
 ## [0.8.0] - 2023-01-02
 ### Added
 - Add additional methods to useAnalytics hook, allow for view event by passing initial props [#28072]
@@ -153,6 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.8.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.8.0...0.8.1
 [0.8.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.10...0.7.0
 [0.6.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.6.9...0.6.10

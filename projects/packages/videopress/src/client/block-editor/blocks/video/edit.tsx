@@ -265,7 +265,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< NodeJS.Timeout >();
+	const rePreviewAttemptTimer = useRef< NodeJS.Timeout | void >();
 
 	/**
 	 * Clean the generating process timer.
@@ -277,7 +277,11 @@ export default function VideoPressEdit( {
 			return;
 		}
 
-		clearInterval( rePreviewAttemptTimer.current );
+		/*
+		 * Clean the timer, and updates the reference
+		 * to force a new attempt in case the preview is not available.
+		 */
+		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
 	}
 
 	useEffect( () => {
