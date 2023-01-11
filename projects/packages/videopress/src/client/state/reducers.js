@@ -42,6 +42,7 @@ import {
 	SET_VIDEOPRESS_SETTINGS,
 	DISMISS_FIRST_VIDEO_POPOVER,
 	FLUSH_DELETED_VIDEOS,
+	UPDATE_PAGINATION_AFTER_DELETE,
 } from './constants';
 
 /**
@@ -320,6 +321,38 @@ const videos = ( state, action ) => {
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,
+				},
+			};
+		}
+
+		/*
+		 * Check if query and pagination should change
+		 * after deleting video
+		 */
+		case UPDATE_PAGINATION_AFTER_DELETE: {
+			const { items = [], query = {}, pagination = {} } = state;
+
+			// If is the last video, reduce the page per 1
+			// Being optimistic here
+			const isLastVideo = items?.length === 1;
+			const currentPage = query?.page ?? 1;
+			const currentTotalPage = pagination?.totalPages ?? 1;
+			const currentTotal = pagination?.total;
+
+			const page = isLastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
+			const totalPages =
+				isLastVideo && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
+
+			return {
+				...state,
+				query: {
+					...query,
+					page,
+				},
+				pagination: {
+					...pagination,
+					total: currentTotal - 1,
+					totalPages,
 				},
 			};
 		}

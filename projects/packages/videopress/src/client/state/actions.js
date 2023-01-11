@@ -50,6 +50,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	SET_VIDEOPRESS_SETTINGS,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+	UPDATE_PAGINATION_AFTER_DELETE,
 	FLUSH_DELETED_VIDEOS,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
@@ -235,6 +236,7 @@ const deleteVideo = id => async ( { dispatch, select } ) => {
 	const processedAllRemovedVideos = select.getProcessedAllRemovedVideos();
 
 	if ( processedAllRemovedVideos ) {
+		dispatch( { type: UPDATE_PAGINATION_AFTER_DELETE } );
 		dispatch( { type: FLUSH_DELETED_VIDEOS } );
 	}
 };
