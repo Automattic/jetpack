@@ -68,7 +68,7 @@ class Blaze {
 
 		// These features currently only work on WordPress.com, so they should be connected for things to work.
 		if ( ! $user_data ) {
-			return false;
+			$should_initialize = false;
 		}
 
 		// We currently do not show the UI for non-English WordPress.com users.
