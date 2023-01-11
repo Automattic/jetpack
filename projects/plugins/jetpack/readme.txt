@@ -242,72 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7 - 2023-01-10
-#### Major Enhancements
-- Blocks: add launchpad on save modal.
-- Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead.
-
+### 11.8-a.1 - 2023-01-11
 #### Enhancements
-- Assistant: update Akismet and Backup names.
-- Block editor: add a new panel that gives the ability to promote posts after publishing them.
-- Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page.
-- Contact form: move responses export to a modal triggered by a single "Export" button.
-- Contact form: update the description on the response data export modal under CSV section, on the Feedback page.
-- Dashboard: activate license key dropdown selector in the main Jetpack dashboard licenses activation page.
-- Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
-- Dashboard: update Backup, Anti-spam, and VideoPress logos.
-- Dashboard: use minimized CSS for the stats widget.
-- Form block: styling adjustments including placeholder icon and link color adjustments, placeholder background color, placeholder styles and form fields styles updated to comply with WYSIWYG.
-- Form block: allow the required field text to be changed.
-- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
-- Form block: simplify Form block sidebar to make the UI easier to use.
-- Form block: update Form blocks descriptions and child blocks icons.
-- Form block: update the default labels logic to allow fields without any label.
-- Global Styles: add new fonts for better i18n.
-- Google fonts: add new fonts to Global Style options.
-- Slideshow block: implement pagination styles when a gallery has more than five images.
-- Slideshow block: reduce bullet size and change the CSS justify-content to flex-start, plus replace pencil icon with edit text.
-- Slideshow block: update block description.
-- Stats: make the toggle for enabling Odyssey Stats visible for all users.
-- Subscription block: add a checkbox to include/exclude social followers.
-- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
-- VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites).
-- VideoPress: fix cover attribute on player and add muted attribute on video shortcode.
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
-- Writing prompts: add context to blogging prompt placeholder.
-- Writing prompts: add filter for whether prompts are enabled or not.
+- Contact form: UI improvements for the dropdown field.
+- Form block: add relevant keywords to the 'Newsletter Sign-up' block variation.
+- Widgets: add Mastodon to Social Icons Widget and Social Menu.
 
 #### Improved compatibility
-- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
-- Site Editor: dashboard link points to wordpress.com.
-- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0.
-- VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it.
-- Writing prompts: hide placeholder prompts by default.
+- oEmbeds: add new URL scheme for iCloud Keynote embeds.
 
 #### Bug fixes
-- Admin Page: avoid querying for WAF settings when the feature is not active.
-- Contact form: fix redirect for "Connect Google Drive" export modal's link on the Feedback page, leading directly to the site's marketing/connections page.
-- Contact form: use separate nonce names for export options to ensure modal buttons work as expected.
-- Dashboard: add translation context to Security product name.
-- Dashboard: fix icon allignment on at a glance page.
-- Form block: add line breaks back to plain text email submissions.
-- Form block: adjust Form placeholder footer links style to prevent theme clashes.
-- Form block: fix contact form view responses URL.
-- Form block: fix email formatting for contact form submissions, and removing extra colon for form fields without label.
-- Form block: fix patterns modal scrollbar behavior and update form patterns modal filter query.
-- General: fix deprecation warnings when running with PHP 8.2.
-- Hovercards: fix minor Hovercards & AMP compatibility bug.
-- Internationalization: fix context for translated product name.
-- Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites.
-- Premium Content block: fix bug in JWT library encode() method.
-- Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production.
-- Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version.
-- Subscription block: ensure custom button spacing is correct when the button is on its own line.
-- Subscription block: fix PHP Warning.
-- VideoPress block: fix video player issue in some VideoMaker theme patterns.
-- WAF: fix Jetpack Settings WAF module plan check, and the initialization of the firewall.
-- WAF: fix WPA click tracking in Agencies card.
-- Writing prompts: do not display within mobile app.
+- Modules: allow for deactivating multiple plugins when activating a module.
+- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on a site.
 
 --------
 
