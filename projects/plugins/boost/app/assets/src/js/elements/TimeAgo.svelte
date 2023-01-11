@@ -19,6 +19,8 @@
 	} );
 </script>
 
-<span title={time.toLocaleString()} class="time-ago">
-	{$label}
-</span>
+{#if ! isNaN( time.getTime() )}
+	<span title={time.toLocaleString()} class="time-ago">
+		{$label}
+	</span>
+{/if}

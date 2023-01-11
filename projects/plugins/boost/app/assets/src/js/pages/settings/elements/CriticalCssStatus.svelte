@@ -22,16 +22,18 @@
 			<div class="generating">{generateText}</div>
 		{:else}
 			<div class="successes">
-				{sprintf(
-					/* translators: %d is a number of CSS Files which were successfully generated */
-					_n(
-						'%d file generated',
-						'%d files generated',
-						$criticalCssStatus.success_count,
-						'jetpack-boost'
-					),
-					$criticalCssStatus.success_count
-				)}
+				{#if typeof $criticalCssStatus.success_count === 'number' && ! isNaN( $criticalCssStatus.success_count )}
+					{sprintf(
+						/* translators: %d is a number of CSS Files which were successfully generated */
+						_n(
+							'%d file generated',
+							'%d files generated',
+							$criticalCssStatus.success_count,
+							'jetpack-boost'
+						),
+						$criticalCssStatus.success_count
+					)}
+				{/if}
 				{#if $criticalCssStatus.updated}
 					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
 				{/if}
