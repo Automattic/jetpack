@@ -43,14 +43,14 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * List of pages by indexed by their page ID.
 	 *
-	 * @var array
+	 * @var array<int,WP_Post>
 	 */
 	private $pages_by_id = array();
 
 	/**
 	 * List of pages by indexed by their parent page ID.
 	 *
-	 * @var array
+	 * @var array<int,WP_Post>
 	 */
 	private $pages_by_parent = array();
 
@@ -58,7 +58,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	 * API callback.
 	 *
 	 * @param string $path - the path.
-	 * @param string $blog_id - the blog id.
+	 * @param int    $blog_id - the blog id.
 	 * @return stdClass[] $pages - An array of page objects. Each page object includes ID and title properties and may include children property. This makes each page object a tree like data structures.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
@@ -82,8 +82,8 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * Convert a list of pages to a list of pages by page ID.
 	 *
-	 * @param array $pages - array of pages.
-	 * @return array $pages_by_page_id - indexed array of pages by page ID where index is page ID.
+	 * @param array<WP_Post> $pages - array of pages.
+	 * @return array<int,WP_Post> $pages_by_page_id - indexed array of pages by page ID where index is page ID.
 	 */
 	private static function to_pages_by_id( $pages ) {
 		$pages_by_page_id = array();
@@ -98,8 +98,8 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * Convert a list of pages to a list of pages by parent.
 	 *
-	 * @param array $pages - array of pages.
-	 * @return array $pages_by_parent - indexed array of pages by parent where index is page ID.
+	 * @param array<WP_Post> $pages - array of pages.
+	 * @return array<int,WP_Post> $pages_by_parent - indexed array of pages by parent where index is page ID.
 	 */
 	private static function to_pages_by_parent( $pages ) {
 		$pages_by_parent = array();
@@ -116,7 +116,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * Convert a list of pages to a list of dropdown pages.
 	 *
-	 * @return array $dropdown_pages - array of dropdown pages.
+	 * @return array<stdClass> $dropdown_pages - array of dropdown pages.
 	 */
 	private function create_dropdown_pages() {
 		$dropdown_pages = array();
@@ -141,8 +141,8 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * Convert a page to a dropdown page.
 	 *
-	 * @param object $page - the page.
-	 * @return object $dropdown_page - the dropdown page.
+	 * @param WP_Post $page - the page.
+	 * @return stdClass|false $dropdown_page - the dropdown page.
 	 */
 	private function to_dropdown_page( $page ) {
 		if ( ! isset( $page->ID ) ) {
@@ -153,7 +153,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 
 		if ( ! isset( $this->pages_by_parent[ $page->ID ] ) ) {
 			unset( $this->pages_by_id[ $page->ID ] );
-			return array(
+			return (object) array(
 				'ID'    => $page->ID,
 				'title' => $title,
 			);
@@ -166,7 +166,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 
 		unset( $this->pages_by_id[ $page->ID ] );
 		unset( $this->pages_by_parent[ $page->ID ] );
-		return array(
+		return (object) array(
 			'ID'       => $page->ID,
 			'title'    => $title,
 			'children' => $children,
@@ -176,7 +176,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	/**
 	 * Get the page title.
 	 *
-	 * @param object $page - the page.
+	 * @param WP_Post $page - the page.
 	 * @return string $page_title - the page title.
 	 */
 	private function get_page_title( $page ) {
