@@ -71,8 +71,8 @@
 			{:else}
 				{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
 				<div class="explanation">
-					The image file is {stretchedBy}x smaller than expected on this screen. This might be okay,
-					but pay attention whether the image appears blurry.
+					The image file is {stretchedBy}x smaller than expected on this screen. This might be fine,
+					but you may want to check if the image appears blurry.
 				</div>
 			{/if}
 		</div>
