@@ -203,7 +203,7 @@ jobs:
       - name: Prepare plugin zips
         id: prepare
         env:
-          SHA: ${{ github.event.pull_request.head.ref || github.sha }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir work
           mkdir zips
@@ -278,9 +278,10 @@ jobs:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
           PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$SHA" \
             --form-string "repo=$GITHUB_REPOSITORY" \
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \
