@@ -102,6 +102,7 @@ const UpgradePrompt = () => {
 const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats } ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
+	// TODO: Fix mobile display when value is too large
 	const oneDayArgs = {
 		className: hasRequiredPlan ? styles.active : styles.disabled,
 		icon: (
@@ -125,6 +126,7 @@ const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats 
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
+	// TODO: Fix mobile display when value is too large
 	const thirtyDayArgs = {
 		className: hasRequiredPlan ? styles.active : styles.disabled,
 		icon: (
