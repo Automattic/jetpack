@@ -1,13 +1,14 @@
 /**
  * WordPress dependencies
  */
-
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
 	useBlockProps,
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -32,12 +33,13 @@ import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
-import './editor.scss';
 /**
  * Types
  */
 import type { VideoBlockAttributes } from './types';
 import type React from 'react';
+
+import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -334,6 +336,8 @@ export default function VideoPressEdit( {
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
 
+	const { replaceBlock } = useDispatch( blockEditorStore );
+
 	// Replace video state
 	const [ isReplacingFile, setIsReplacingFile ] = useState< {
 		isReplacing: boolean;
@@ -370,6 +374,10 @@ export default function VideoPressEdit( {
 	if ( isUploadingFile ) {
 		const handleDoneUpload = () => {
 			setIsUploadingFile( false );
+			if ( isReplacingFile.isReplacing ) {
+				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+				replaceBlock( clientId, createBlock( 'videopress/video', { ...attributes } ) );
+			}
 		};
 
 		return (
@@ -458,13 +466,17 @@ export default function VideoPressEdit( {
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					onUploadFileStart={ media => {
+						// Store current attributes in case we wanto to cancel the replacing.
 						setIsReplacingFile( {
 							isReplacing: true,
 							prevAttrs: attributes,
 						} );
-
-						setAttributes( { id: null, guid: null } );
 						setIsUploadingFile( true );
+
+						// Clean relevant attributes to show the uploader placeholder.
+						setAttributes( { id: null, guid: null, cacheHtml: '', videoRatio: null } );
+
+						// Pass, through local state, the new file to upload.
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {

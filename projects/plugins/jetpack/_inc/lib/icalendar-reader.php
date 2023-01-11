@@ -568,7 +568,7 @@ class iCalendarReader {
 		// rewrite webcal: URI schem to HTTP.
 		$url = preg_replace( '/^webcal/', 'http', $url );
 		// try to fetch.
-		$r = wp_remote_get(
+		$r = wp_safe_remote_get(
 			$url,
 			array(
 				'timeout'   => 3,
@@ -969,8 +969,7 @@ class iCalendarReader {
 
 		if ( ! $all_day && $this->timezone ) {
 			try {
-				$start_time      = new DateTime( $event['DTSTART'] );
-				$timezone_offset = $this->timezone->getOffset( $start_time );
+				$timezone_offset = $this->timezone->getOffset( new DateTime( $event['DTSTART'] ) );
 				$start          += $timezone_offset;
 
 				if ( $end ) {
@@ -1063,8 +1062,7 @@ function icalendar_get_events( $url = '', $count = 5 ) {
 	 * Find your calendar's address
 	 * https://support.google.com/calendar/bin/answer.py?hl=en&answer=37103
 	 */
-	$ical = new iCalendarReader();
-	return $ical->get_events( $url, $count );
+	return ( new iCalendarReader() )->get_events( $url, $count );
 }
 
 /**
@@ -1076,6 +1074,5 @@ function icalendar_get_events( $url = '', $count = 5 ) {
  * @return mixed bool|string false on failure, rendered HTML string on success.
  */
 function icalendar_render_events( $url = '', $args = array() ) {
-	$ical = new iCalendarReader();
-	return $ical->render( $url, $args );
+	return ( new iCalendarReader() )->render( $url, $args );
 }
