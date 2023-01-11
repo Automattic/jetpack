@@ -26,6 +26,7 @@ use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Stats;
 
 /**
  * Class Jetpack_Protect
@@ -201,6 +202,7 @@ class Jetpack_Protect {
 				'isToggling'          => false,
 				'isUpdating'          => false,
 				'config'              => Waf_Runner::get_config(),
+				'stats'               => self::get_waf_stats(),
 			),
 		);
 
@@ -377,4 +379,23 @@ class Jetpack_Protect {
 
 		return false;
 	}
+
+	/**
+	 * Get WAF stats
+	 *
+	 * @return bool|array False if WAF is not enabled, otherwise an array of stats.
+	 */
+	public static function get_waf_stats() {
+		if ( ! Waf_Runner::is_enabled() ) {
+			return false;
+		}
+
+		return array(
+			'ipAllowListCount'          => Waf_Stats::get_ip_allow_list_count(),
+			'ipBlockListCount'          => Waf_Stats::get_ip_block_list_count(),
+			'rulesVersion'              => Waf_Stats::get_rules_version(),
+			'automaticRulesLastUpdated' => Waf_Stats::get_automatic_rules_last_updated(),
+		);
+	}
+
 }
