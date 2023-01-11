@@ -38,7 +38,7 @@ wp_localize_script(
 		'commentLabel'          => esc_attr( _x( 'Comment', 'noun', 'jetpack' ) ),
 		'newLabel'              => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
 		'optionsLabel'          => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-		'optionsLabel'          => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+		'optionLabel'           => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'firstOptionLabel'      => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form. You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
 		'moveInstructions'      => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),

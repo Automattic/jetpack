@@ -309,7 +309,7 @@ class ManagerIntegrationTest extends \WorDBless\BaseTestCase {
 				'no_possible_tokens', // expected error code.
 				false, // expected token.
 			),
-			'no tokens'                        => array(
+			'no tokens, has user_id'           => array(
 				false, // blog token.
 				false, // user tokens.
 				false, // master_user.

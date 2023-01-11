@@ -25,7 +25,7 @@ class Test_Plan extends Stats_Test_Case {
 	 * Test has root dom.
 	 */
 	public function test_render() {
-		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard">/i' );
+		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
 		( new Dashboard() )->render();
 	}
 
