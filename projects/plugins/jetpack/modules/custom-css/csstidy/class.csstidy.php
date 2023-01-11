@@ -523,21 +523,21 @@ class csstidy { // phpcs:ignore
 		$filename .= ( $formatted ) ? '.xhtml' : '.css';
 
 		if ( ! is_dir( 'temp' ) ) {
-			$madedir = mkdir( 'temp' );
+			$madedir = mkdir( 'temp' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 			if ( ! $madedir ) {
 				print 'Could not make directory "temp" in ' . __DIR__;
 				exit;
 			}
 		}
-		$handle = fopen( 'temp/' . $filename, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$handle = fopen( 'temp/' . $filename, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		if ( $handle ) {
 			if ( ! $formatted ) {
-				fwrite( $handle, $this->print->plain() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+				fwrite( $handle, $this->print->plain() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			} else {
-				fwrite( $handle, $this->print->formatted_page( $doctype, $externalcss, $title, $lang, $pre_code ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+				fwrite( $handle, $this->print->formatted_page( $doctype, $externalcss, $title, $lang, $pre_code ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			}
 		}
-		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 	}
 
 	/**

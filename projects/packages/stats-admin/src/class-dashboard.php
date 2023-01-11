@@ -84,8 +84,18 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-stats-dashboard">
+		<div id="wpcom" class="jp-stats-dashboard" style="height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
+			<div class="hide-if-no-js" style="height: 100%">
+				<img
+					class="jp-stats-dashboard-loading-spinner"
+					width="32"
+					height="32"
+					style="position: absolute; left: 50%; top: 50%;"
+					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
+					src="//en.wordpress.com/i/loading/loading-64.gif"
+				/>
+			</div>
 		</div>
 		<script>
 			jQuery(document).ready(function($) {

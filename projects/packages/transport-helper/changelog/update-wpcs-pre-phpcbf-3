@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `WP_Filesystem` more consistently in `Helper_Script_Manager`.

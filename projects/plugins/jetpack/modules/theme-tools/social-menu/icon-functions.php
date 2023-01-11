@@ -195,6 +195,14 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'youtube.com'       => 'youtube',
 		);
 
+		/*
+		 * Add Mastodon instances to this array.
+		 */
+		$mastodon_instance_list = jetpack_mastodon_get_instance_list();
+		foreach ( $mastodon_instance_list as $instance ) {
+			$social_links_icons[ $instance ] = 'mastodon';
+		}
+
 		return $social_links_icons;
 	}
 endif;
