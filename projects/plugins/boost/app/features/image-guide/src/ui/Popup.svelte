@@ -155,7 +155,7 @@
 
 <style lang="scss">
 	a {
-		color: #069e08 !important;
+		color: #3c434a !important;
 		font-weight: 600 !important;
 
 		&.documentation {
