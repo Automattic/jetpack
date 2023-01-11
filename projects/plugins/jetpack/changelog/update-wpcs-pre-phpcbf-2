@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: PHPCS: Fix DisallowLonelyIf sniff coming in new WPCS snapshot. No user-visible change to the project itself.
+
+

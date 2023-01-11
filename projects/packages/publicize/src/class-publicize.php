@@ -301,30 +301,28 @@ class Publicize extends Publicize_Base {
 		if ( $service ) {
 			/* translators: %s is the name of the Jetpack Social service (e.g. Facebook, Twitter) */
 			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack-publicize-pkg' ), self::get_service_label( $service ) );
-		} else {
-			if ( $publicize_error ) {
-				$code = strtolower( $publicize_error );
-				switch ( $code ) {
-					case '400':
-						$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack-publicize-pkg' );
-						break;
-					case 'secret_mismatch':
-						$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
-						break;
-					case 'empty_blog_id':
-						$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Jetpack Social again.', 'jetpack-publicize-pkg' );
-						break;
-					case 'empty_state':
-						/* translators: %s is the URL of the Jetpack admin page */
-						$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
-						break;
-					default:
-						$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
-						break;
-				}
-			} else {
-				$error = __( 'There was a problem connecting with Jetpack Social. Please try again in a moment.', 'jetpack-publicize-pkg' );
+		} elseif ( $publicize_error ) {
+			$code = strtolower( $publicize_error );
+			switch ( $code ) {
+				case '400':
+					$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack-publicize-pkg' );
+					break;
+				case 'secret_mismatch':
+					$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack-publicize-pkg' );
+					break;
+				case 'empty_blog_id':
+					$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Jetpack Social again.', 'jetpack-publicize-pkg' );
+					break;
+				case 'empty_state':
+					/* translators: %s is the URL of the Jetpack admin page */
+					$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack-publicize-pkg' ), \Jetpack::admin_url() );
+					break;
+				default:
+					$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack-publicize-pkg' );
+					break;
 			}
+		} else {
+			$error = __( 'There was a problem connecting with Jetpack Social. Please try again in a moment.', 'jetpack-publicize-pkg' );
 		}
 		// Using the same formatting/style as Jetpack::admin_notices() error.
 		?>

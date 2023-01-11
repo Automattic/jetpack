@@ -12,6 +12,8 @@ use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 require_once __DIR__ . '/test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {

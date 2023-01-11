@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: clean video attributes that are not options when replacing the video file

@@ -5,6 +5,8 @@ use Automattic\Jetpack\Connection\Client;
 defined( 'VIDEOPRESS_MIN_WIDTH' ) || define( 'VIDEOPRESS_MIN_WIDTH', 60 );
 defined( 'VIDEOPRESS_DEFAULT_WIDTH' ) || define( 'VIDEOPRESS_DEFAULT_WIDTH', 640 );
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * VideoPress Privacy constants.
  */

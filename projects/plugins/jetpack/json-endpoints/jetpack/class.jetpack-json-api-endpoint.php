@@ -167,11 +167,9 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 					403
 				);
 			}
-		} else {
-			if ( ! current_user_can( $capability ) ) {
-				// Translators: the capability that the user is not authorized for.
-				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );
-			}
+		} elseif ( ! current_user_can( $capability ) ) {
+			// Translators: the capability that the user is not authorized for.
+			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );
 		}
 
 		return true;

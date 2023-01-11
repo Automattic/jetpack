@@ -138,4 +138,12 @@ export default class BlockEditorPage extends WpPage {
 				.map( b => b.name )
 		);
 	}
+
+	async openSettingsSidebar() {
+		const settingsLocator = 'button[aria-label="Settings"][aria-pressed="false"]';
+
+		if ( await this.isElementVisible( settingsLocator ) ) {
+			await this.click( settingsLocator );
+		}
+	}
 }

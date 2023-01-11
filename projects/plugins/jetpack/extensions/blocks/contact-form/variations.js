@@ -56,6 +56,7 @@ const variations = compact( [
 			'A simple way to collect information from folks visiting your site.',
 			'jetpack'
 		),
+		keywords: [ __( 'subscribe', 'jetpack' ), __( 'email', 'jetpack' ), __( 'signup', 'jetpack' ) ],
 		icon: renderMaterialIcon(
 			<Path
 				fill={ getIconColor() }

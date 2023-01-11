@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.12.1-alpha",
+	"version": "0.13.0-alpha",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -37,7 +37,7 @@
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "15.8.1",
-		"react-page-visibility": "6.4.0",
+		"react-page-visibility": "7.0.0",
 		"refx": "3.1.1",
 		"rememo": "4.0.1"
 	},

@@ -246,10 +246,8 @@ function wp_cache_serve_cache_file() {
 					header( 'X-WP-Super-Cache: Served supercache 304 file from PHP' );
 				}
 				header( 'Content-Length: ' . $size );
-			} else {
-				if ( isset( $wpsc_served_header ) && $wpsc_served_header ) {
-					header( 'X-WP-Super-Cache: Served supercache file from PHP' );
-				}
+			} elseif ( isset( $wpsc_served_header ) && $wpsc_served_header ) {
+				header( 'X-WP-Super-Cache: Served supercache file from PHP' );
 			}
 
 			// don't try to match modified dates if using dynamic code.
@@ -434,12 +432,10 @@ function wpsc_get_auth_cookies() {
 
 	if ( empty( $auth_cookies ) ) {
 		wp_cache_debug( 'wpsc_get_auth_cookies: no auth cookies detected', 5 );
+	} elseif ( $duplicate_cookies ) {
+		wp_cache_debug( 'wpsc_get_auth_cookies: duplicate cookies detected( ' . implode( ', ', $duplicate_cookies ) . ' )', 5 );
 	} else {
-		if ( $duplicate_cookies ) {
-			wp_cache_debug( 'wpsc_get_auth_cookies: duplicate cookies detected( ' . implode( ', ', $duplicate_cookies ) . ' )', 5 );
-		} else {
-			wp_cache_debug( 'wpsc_get_auth_cookies: cookies detected: ' . implode( ', ', $auth_cookies ), 5 );
-		}
+		wp_cache_debug( 'wpsc_get_auth_cookies: cookies detected: ' . implode( ', ', $auth_cookies ), 5 );
 	}
 
 	return $auth_cookies;
@@ -1400,7 +1396,15 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 		}
 	}
 	fclose( $fd );
+
+	$my_file_permissions = fileperms( $my_file );
+
 	rename( $tmp_config_filename, $my_file );
+
+	if ( false !== $my_file_permissions ) {
+		chmod( $my_file, $my_file_permissions );
+	}
+
 	wp_cache_debug( 'wp_cache_replace_line: moved ' . $tmp_config_filename . ' to ' . $my_file );
 
 	if ( function_exists( 'opcache_invalidate' ) ) {
@@ -2380,11 +2384,9 @@ function wp_cache_get_ob( &$buffer ) {
 				wp_cache_debug( 'Writing gzipped buffer to wp-cache cache file.', 5 );
 				fputs( $fr, '<?php die(); ?>' . $gzdata );
 			}
-		} else { // no compression
-			if ( $fr ) {
-				wp_cache_debug( 'Writing non-gzipped buffer to wp-cache cache file.' );
-				fputs( $fr, '<?php die(); ?>' . $buffer );
-			}
+		} elseif ( $fr ) { // no compression
+			wp_cache_debug( 'Writing non-gzipped buffer to wp-cache cache file.' );
+			fputs( $fr, '<?php die(); ?>' . $buffer );
 		}
 		if ( $fr2 ) {
 			wp_cache_debug( 'Writing non-gzipped buffer to supercache file.' );

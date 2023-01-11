@@ -1,4 +1,3 @@
-import withMock from 'storybook-addon-mock';
 import ProductOffer from '..';
 import { IconsCard } from '../icons-card';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
@@ -6,7 +5,6 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react';
 export default {
 	title: 'JS Packages/Components/Product Offer',
 	component: ProductOffer,
-	decorators: [ withMock ],
 	parameters: {
 		actions: { argTypesRegex: '^on.*' },
 		layout: 'centered',

@@ -14,6 +14,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
+
 /**
  * Wrapper function to safely register a gutenberg block type
  *

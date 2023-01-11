@@ -135,13 +135,11 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_
 				);
 			}
 			$args['type'] = $allowed_types;
-		} else {
-			if ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
-				return array(
-					'found' => 0,
-					'posts' => array(),
-				);
-			}
+		} elseif ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+			return array(
+				'found' => 0,
+				'posts' => array(),
+			);
 		}
 
 		// determine statuses.

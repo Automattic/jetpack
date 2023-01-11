@@ -136,10 +136,8 @@ class User_Agent_Info {
 	public function __construct( $ua = '' ) {
 		if ( $ua ) {
 			$this->useragent = $ua;
-		} else {
-			if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-				$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
-			}
+		} elseif ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+			$this->useragent = strtolower( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about validating.
 		}
 	}
 
@@ -815,12 +813,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'windows phone os 7' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -856,12 +852,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'webos' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -1041,12 +1035,10 @@ class User_Agent_Info {
 
 		if ( false === strpos( $ua, 'meego' ) ) {
 			return false;
+		} elseif ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
+			return false;
 		} else {
-			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() ) {
-				return false;
-			} else {
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -1315,20 +1307,17 @@ class User_Agent_Info {
 			$pos_torch = stripos( $agent, 'BlackBerry 9800' );
 			if ( false !== $pos_torch ) {
 				return 'blackberry-torch'; // Match the torch first edition. the 2nd edition should use the OS7 and doesn't need any special rule.
-			} else {
-				// Detecting the BB OS version for devices running OS 6.0 or higher.
-				if ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) {
-					$version     = $matches[1];
-					$version_num = explode( '.', $version );
-					if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
-						return 'blackberry-6'; // not a BB device that match our rule.
-					} else {
-						return 'blackberry-' . $version_num[0];
-					}
-				} else {
-					// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
+			} elseif ( preg_match( '#Version\/([\d\.]+)#i', $agent, $matches ) ) { // Detecting the BB OS version for devices running OS 6.0 or higher.
+				$version     = $matches[1];
+				$version_num = explode( '.', $version );
+				if ( false === is_array( $version_num ) || count( $version_num ) <= 1 ) {
 					return 'blackberry-6'; // not a BB device that match our rule.
+				} else {
+					return 'blackberry-' . $version_num[0];
 				}
+			} else {
+				// if doesn't match returns the minimun version with a webkit browser. we should never fall here.
+				return 'blackberry-6'; // not a BB device that match our rule.
 			}
 		}
 
