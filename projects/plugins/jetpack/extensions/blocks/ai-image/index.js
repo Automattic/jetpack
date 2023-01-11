@@ -11,7 +11,7 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'ai-image';
-export const title = __( 'Jetpack AI Image (Experimental)', 'jetpack' );
+export const title = __( 'AI Image (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,

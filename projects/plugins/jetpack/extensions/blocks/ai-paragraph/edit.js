@@ -93,10 +93,7 @@ export default function Edit( { attributes, setAttributes } ) {
 	return (
 		<div { ...useBlockProps() }>
 			{ errorMessage && (
-				<Placeholder
-					label={ __( 'Jetpack AI Paragraph', 'jetpack' ) }
-					instructions={ errorMessage }
-				>
+				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					<Button
 						variant="primary"
 						onClick={ () => {

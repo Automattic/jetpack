@@ -82,7 +82,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		<div { ...useBlockProps() }>
 			{ ! loadingImages && errorMessage && (
 				<Placeholder
-					label={ __( 'Jetpack AI Image', 'jetpack' ) }
+					label={ __( 'AI Image', 'jetpack' ) }
 					notices={ [ <div>{ errorMessage }</div> ] }
 				>
 					<TextareaControl
@@ -106,7 +106,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! attributes.requestedPrompt && (
-				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
 					<div>
 						<TextareaControl
 							label={ __( 'What would you like to see?', 'jetpack' ) }
@@ -119,7 +119,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
-				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
 					<div>
 						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
 							{ attributes.requestedPrompt }
@@ -178,14 +178,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 			{ ! errorMessage && attributes.content && ! loadingImages && (
-				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
 					<div>
 						<div className="content">{ attributes.content }</div>
 					</div>
 				</Placeholder>
 			) }
 			{ ! errorMessage && loadingImages && (
-				<Placeholder label={ __( 'Jetpack AI Image', 'jetpack' ) }>
+				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
 					<div style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {

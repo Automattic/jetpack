@@ -12,7 +12,7 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'ai-paragraph';
-export const title = __( 'Jetpack AI Paragraph (Experimental)', 'jetpack' );
+export const title = __( 'AI Paragraph (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
