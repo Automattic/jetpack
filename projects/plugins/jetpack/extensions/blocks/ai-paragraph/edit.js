@@ -98,7 +98,7 @@ export default function Edit( { attributes, setAttributes } ) {
 					instructions={ errorMessage }
 				>
 					<Button
-						isPrimary
+						variant="primary"
 						onClick={ () => {
 							getSuggestionFromOpenAI(
 								setAttributes,

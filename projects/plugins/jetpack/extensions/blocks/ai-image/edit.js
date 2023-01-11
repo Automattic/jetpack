@@ -93,7 +93,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					<Flex direction="row">
 						<FlexItem>
 							<Button
-								isPrimary
+								variant="primary"
 								onClick={ () => {
 									setErrorMessage( '' );
 									submit();
@@ -112,7 +112,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							label={ __( 'What would you like to see?', 'jetpack' ) }
 							onChange={ setPrompt }
 						/>
-						<Button isPrimary onClick={ submit }>
+						<Button variant="primary" onClick={ submit }>
 							{ __( 'Submit', 'jetpack' ) }
 						</Button>
 					</div>
