@@ -58,7 +58,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	 * API callback.
 	 *
 	 * @param string $path - the path.
-	 * @param int    $blog_id - the blog id.
+	 * @param int    $blog_id - the blog ID.
 	 * @return stdClass[] $pages - An array of page objects. Each page object includes ID and title properties and may include children property. This makes each page object a tree like data structures.
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
