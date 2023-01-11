@@ -104,7 +104,7 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 	private static function to_pages_by_parent( $pages ) {
 		$pages_by_parent = array();
 		foreach ( $pages as $page ) {
-			if ( isset( $page->post_parent ) ) {
+			if ( ! empty( $page->post_parent ) ) {
 				$pages_by_parent[ $page->post_parent ][] = $page;
 			} else {
 				$pages_by_parent['root'][] = $page;
