@@ -222,4 +222,10 @@
 		margin-top: 8px;
 		margin-bottom: 8px;
 	}
+
+	.backup-segments__storage-section {
+		@include for-tablet-down {
+			order: -1;
+		}
+	}
 }
