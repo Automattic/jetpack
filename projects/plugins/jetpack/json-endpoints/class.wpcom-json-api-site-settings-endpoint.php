@@ -358,8 +358,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = array(
 						// also exists as "options".
 						'admin_url'                        => get_admin_url(),
-						'default_ping_status'              => (bool) ( 'closed' !== get_option( 'default_ping_status' ) ),
-						'default_comment_status'           => (bool) ( 'closed' !== get_option( 'default_comment_status' ) ),
+						'default_ping_status'              => 'closed' !== get_option( 'default_ping_status' ),
+						'default_comment_status'           => 'closed' !== get_option( 'default_comment_status' ),
 
 						// new stuff starts here.
 						'instant_search_enabled'           => (bool) get_option( 'instant_search_enabled' ),
@@ -367,10 +367,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
-						'jetpack_relatedposts_show_context' => (bool) ( isset( $jetpack_relatedposts_options['show_context'] ) && $jetpack_relatedposts_options['show_context'] ),
-						'jetpack_relatedposts_show_date'   => (bool) ( isset( $jetpack_relatedposts_options['show_date'] ) && $jetpack_relatedposts_options['show_date'] ),
-						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
-						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
+						'jetpack_relatedposts_show_context' => ! empty( $jetpack_relatedposts_options['show_context'] ),
+						'jetpack_relatedposts_show_date'   => ! empty( $jetpack_relatedposts_options['show_date'] ),
+						'jetpack_relatedposts_show_headline' => ! empty( $jetpack_relatedposts_options['show_headline'] ),
+						'jetpack_relatedposts_show_thumbnails' => ! empty( $jetpack_relatedposts_options['show_thumbnails'] ),
 						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
