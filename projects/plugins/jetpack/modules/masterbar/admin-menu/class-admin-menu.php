@@ -338,8 +338,8 @@ class Admin_Menu extends Base_Admin_Menu {
 			$this->hide_submenu_page( 'users.php', 'user-new.php' );
 		}
 
-		add_submenu_page( 'users.php', esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/people/subscribers/' . $this->domain, null, 1 );
-		add_submenu_page( 'users.php', esc_attr__( 'Team Members', 'jetpack' ), __( 'Team', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team-members/' . $this->domain, null, 2 );
+		add_submenu_page( $slug, esc_attr__( 'Subscribers', 'jetpack' ), __( 'Subscribers', 'jetpack' ), 'list_users', 'https://wordpress.com/people/subscribers/' . $this->domain, null, 1 );
+		add_submenu_page( $slug, esc_attr__( 'Team Members', 'jetpack' ), __( 'Team', 'jetpack' ), 'list_users', 'https://wordpress.com/people/team-members/' . $this->domain, null, 2 );
 		add_submenu_page( $slug, esc_attr__( 'Account Settings', 'jetpack' ), __( 'Account Settings', 'jetpack' ), 'read', 'https://wordpress.com/me/account' );
 		$this->update_submenus( $slug, $submenus_to_update );
 	}
