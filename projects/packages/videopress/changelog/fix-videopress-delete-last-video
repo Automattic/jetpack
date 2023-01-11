@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Fix exception when deleting last video of page
