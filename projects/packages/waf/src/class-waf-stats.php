@@ -56,17 +56,11 @@ class Waf_Stats {
 	}
 
 	/**
-	 * Get Automatic Rules last updated date
+	 * Get Automatic Rules last updated timestamp
 	 *
-	 * @return bool|string False if value is not found. The date the current stored rules was last updated if cache is found.
+	 * @return bool|string False if value is not found. The timestamp the current stored rules was last updated if cache is found.
 	 */
 	public static function get_automatic_rules_last_updated() {
-		$rules_last_updated = get_option( Waf_Runner::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
-
-		if ( ! $rules_last_updated ) {
-			return false;
-		}
-
-		return gmdate( 'F j, Y', $rules_last_updated );
+		return get_option( Waf_Runner::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 	}
 }
