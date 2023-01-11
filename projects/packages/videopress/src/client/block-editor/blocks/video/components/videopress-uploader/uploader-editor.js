@@ -7,6 +7,9 @@ import { createInterpolateElement, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
+/**
+ * Internal dependencies
+ */
 import playIcon from '../../../../../components/icons/play-icon';
 import VideoFrameSelector from '../../../../../components/video-frame-selector';
 

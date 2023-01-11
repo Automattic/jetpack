@@ -164,6 +164,7 @@ const UploaderProgress = ( {
 	// Support File from library or File instance
 	const fileSizeLabel = file?.filesizeHumanReadable ?? filesize( file?.size );
 
+	const { title } = attributes;
 	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
 
 	return (
@@ -172,7 +173,7 @@ const UploaderProgress = ( {
 				label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
 				className="uploading-editor__title"
 				onChange={ newTitle => setAttributes( { title: newTitle } ) }
-				value={ attributes.title }
+				value={ title }
 				placeholder={ filename }
 			/>
 
