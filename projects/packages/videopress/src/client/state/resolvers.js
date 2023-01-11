@@ -107,27 +107,21 @@ const getVideos = {
 		const filter = select.getVideosFilter();
 
 		// Filter -> Rating
-		const videoPressRatingFilter = Object.keys( filter?.rating || {} )
-			.filter( key => filter.rating[ key ] )
-			.join( ',' );
+		const videoPressRatingFilter = ( filter?.rating || [] ).join( ',' );
 
 		if ( videoPressRatingFilter?.length ) {
 			wpv2MediaQuery.videopress_rating = videoPressRatingFilter;
 		}
 
 		// Filter -> Privacy
-		const videoPressPrivacyFilter = Object.keys( filter?.privacy || {} )
-			.filter( key => filter.privacy[ key ] )
-			.join( ',' );
+		const videoPressPrivacyFilter = ( filter?.privacy || [] ).join( ',' );
 
 		if ( videoPressPrivacyFilter?.length ) {
 			wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
 		}
 
 		// Filter -> Uploader
-		const videoPressUploaderFilter = Object.keys( filter?.uploader || {} )
-			.filter( key => filter.uploader[ key ] )
-			.join( ',' );
+		const videoPressUploaderFilter = ( filter?.uploader || [] ).join( ',' );
 
 		if ( videoPressUploaderFilter?.length ) {
 			wpv2MediaQuery.author = videoPressUploaderFilter;

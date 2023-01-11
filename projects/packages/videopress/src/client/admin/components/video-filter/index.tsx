@@ -89,7 +89,11 @@ export const FilterSection = ( props: {
 		filterName: 'uploader' | 'privacy' | 'rating',
 		value: number | string
 	) => {
-		return props?.filter?.[ filterName ]?.[ value ] === true;
+		if ( props?.filter?.[ filterName ] ) {
+			return props?.filter?.[ filterName ]?.indexOf( `${ value }` ) !== -1;
+		}
+
+		return false;
 	};
 
 	return (
@@ -215,7 +219,7 @@ export const ConnectFilterSection = props => {
 		}
 
 		searchParams.update();
-		setFilter( filterName, filterValue, checked );
+		setFilter( filterName, `${ filterValue }`, checked );
 	};
 
 	const { items: users } = useUsers();

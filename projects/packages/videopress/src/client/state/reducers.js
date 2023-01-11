@@ -106,14 +106,22 @@ const videos = ( state, action ) => {
 
 		case SET_VIDEOS_FILTER: {
 			const { filter, value, isActive } = action;
+
+			const filterValues = [ ...( state.filter?.[ filter ] || [] ) ];
+			const filterValuePosition = filterValues.indexOf( value );
+			if ( isActive ) {
+				if ( filterValuePosition === -1 ) {
+					filterValues.push( value );
+				}
+			} else if ( filterValuePosition !== -1 ) {
+				filterValues.splice( filterValuePosition, 1 );
+			}
+
 			return {
 				...state,
 				filter: {
 					...state.filter,
-					[ filter ]: {
-						...( state.filter?.[ filter ] || {} ),
-						[ value ]: isActive,
-					},
+					[ filter ]: filterValues,
 				},
 				_meta: {
 					...state._meta,
