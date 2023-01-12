@@ -1,35 +1,49 @@
-# Directories
-# https://stackoverflow.com/questions/5524731/git-ignoring-gitattributes-pattern
-/.wordpress-org/**/* export-ignore
-/.github/**/* export-ignore
-/.wordpress-org export-ignore
-/.github export-ignore
-/tests export-ignore
-.wordpress-org/**/* export-ignore
-.github/**/* export-ignore
-.wordpress-org export-ignore
-.github export-ignore
-/node_modules/**/* export-ignore
-/node_modules/* export-ignore
-node_modules export-ignore
-/tests/**/* export-ignore
-/tests/* export-ignore
-tests export-ignore
-
-
-# Files
-/.gitattributes export-ignore
-/.gitignore export-ignore
-.gitattributes export-ignore
-.gitignore export-ignore
-.wp-env.json export-ignore
-README.md export-ignore
-composer.json export-ignore
-composer.lock export-ignore
-package.json export-ignore
-package-lock.json export-ignore
-gulpfile.esm.js export-ignore
-.env export-ignore
-.env.testing export-ignore
-codeception.yml export-ignore
+# Files not needed to be distributed in the package.
+.gitattributes       export-ignore
+.github/             export-ignore
+package.json         export-ignore
+gulpfile.esm.js      export-ignore
+.env                 export-ignore
+.env.testing         export-ignore
+codeception.yml      export-ignore
 codeception.dist.yml export-ignore
+.wp-env.json         export-ignore
+/.wordpress-org/**/* export-ignore
+/.wordpress-org      export-ignore
+.wordpress-org/**/*  export-ignore
+.wordpress-org       export-ignore
+/node_modules/**/*   export-ignore
+/node_modules/*      export-ignore
+node_modules         export-ignore
+
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+# /src/js/example.min.js  production-include
+build/**                                        production-include
+jetpack_vendor/**                               production-include
+vendor/autoload.php                             production-include
+vendor/autoload_packages.php                    production-include
+vendor/automattic/**                            production-include
+vendor/composer/**                              production-include
+vendor/jetpack-autoloader/**                    production-include
+
+# Files to exclude from the mirror repo, but included in the monorepo.
+# Remember to end all directories with `/**` to properly tag every file.
+.babelrc                                        production-exclude
+/.eslintrc.js                                   production-exclude
+.gitattributes                                  production-exclude
+.gitignore                                      production-exclude
+.phpcs.dir.xml                                  production-exclude
+babel.config.js                                 production-exclude
+build/**/*.js.map                               production-exclude
+changelog/**                                    production-exclude
+composer.lock                                   production-exclude
+package.json                                    production-exclude
+phpunit.xml.dist                                production-exclude
+README.md                                       production-exclude
+src/js/**                                       production-exclude
+tests/**                                        production-exclude
+/vendor/automattic/jetpack-autoloader/**        production-exclude
+/vendor/automattic/jetpack-changelogger/**      production-exclude
+/vendor/automattic/jetpack-composer-plugin/**   production-exclude
+webpack.config.js                               production-exclude
