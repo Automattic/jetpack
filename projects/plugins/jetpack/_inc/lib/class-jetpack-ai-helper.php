@@ -86,7 +86,7 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/completions', $site_id ),
 			2,
 			array(
@@ -152,7 +152,7 @@ class Jetpack_AI_Helper {
 			return $result;
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jetpack-ai/images/generations', $site_id ),
 			2,
 			array(
