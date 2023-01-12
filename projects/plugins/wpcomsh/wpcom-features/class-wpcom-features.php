@@ -60,6 +60,7 @@ class WPCOM_Features {
 	private const PRO_PLAN                                    = 'pro-plan'; // 1032
 	private const STARTER_PLAN                                = 'starter-plan'; // 1033
 	private const WP_P2_PLUS_MONTHLY                          = 'wp_p2_plus_monthly'; // 1040
+	private const ECOMMERCE_TRIAL_BUNDLE_MONTHLY              = 'ecommerce-trial-bundle-monthly'; // 1052
 	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
 	private const JETPACK_FREE                                = 'jetpack_free'; // 2002
@@ -119,24 +120,34 @@ class WPCOM_Features {
 	private const JETPACK_SOCIAL_ADVANCED_MONTHLY             = 'jetpack_social_advanced_monthly'; // 2603
 
 	// WPCOM "Level 2": Groups of level 1s.
-	private const WPCOM_BLOGGER_PLANS       = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
-	private const WPCOM_PERSONAL_PLANS      = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
-	private const WPCOM_STARTER_PLANS       = array( self::STARTER_PLAN );
-	private const WPCOM_PREMIUM_PLANS       = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
-	private const WPCOM_PRO_PLANS           = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
-	private const WPCOM_BUSINESS_PLANS      = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y );
-	private const WPCOM_ECOMMERCE_PLANS     = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
-	private const GOOGLE_WORKSPACE_PRODUCTS = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
-	private const GSUITE_PRODUCTS           = array( self::GAPPS, self::GAPPS_UNLIMITED );
-	private const WPCOM_TITAN_MAIL_PRODUCTS = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
+	private const WPCOM_BLOGGER_PLANS         = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
+	private const WPCOM_PERSONAL_PLANS        = array( self::PERSONAL_BUNDLE, self::PERSONAL_BUNDLE_MONTHLY, self::PERSONAL_BUNDLE_2Y, self::PERSONAL_BUNDLE_3Y );
+	private const WPCOM_STARTER_PLANS         = array( self::STARTER_PLAN );
+	private const WPCOM_PREMIUM_PLANS         = array( self::BUNDLE_PRO, self::VALUE_BUNDLE, self::VALUE_BUNDLE_MONTHLY, self::VALUE_BUNDLE_2Y, self::VALUE_BUNDLE_3Y );
+	private const WPCOM_PRO_PLANS             = array( self::PRO_PLAN, self::PRO_PLAN_MONTHLY, self::PRO_PLAN_2Y );
+	private const WPCOM_BUSINESS_PLANS        = array( self::BUSINESS_BUNDLE, self::BUSINESS_BUNDLE_MONTHLY, self::BUSINESS_BUNDLE_2Y, self::BUSINESS_BUNDLE_3Y );
+	private const WPCOM_ECOMMERCE_PLANS       = array( self::ECOMMERCE_BUNDLE, self::ECOMMERCE_BUNDLE_MONTHLY, self::ECOMMERCE_BUNDLE_2Y, self::ECOMMERCE_BUNDLE_3Y );
+	private const WPCOM_ECOMMERCE_TRIAL_PLANS = array( self::ECOMMERCE_TRIAL_BUNDLE_MONTHLY );
+	private const GOOGLE_WORKSPACE_PRODUCTS   = array( self::WP_GOOGLE_WORKSPACE_BUSINESS_STARTER_YEARLY );
+	private const GSUITE_PRODUCTS             = array( self::GAPPS, self::GAPPS_UNLIMITED );
+	private const WPCOM_TITAN_MAIL_PRODUCTS   = array( self::WP_TITAN_MAIL_MONTHLY, self::WP_TITAN_MAIL_YEARLY );
 
-	// WPCOM "Level 3": Groups of level 2s.
-	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_STARTER_AND_HIGHER_PLANS  = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
-	private const WPCOM_EMAIL_PRODUCTS            = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
+	// WPCOM "Level 3" A: Groups of level 2s.
+	private const WPCOM_BLOGGER_AND_HIGHER_PLANS  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS );
+	private const WPCOM_PERSONAL_AND_HIGHER_PLANS = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS );
+	private const WPCOM_STARTER_AND_HIGHER_PLANS  = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS );
+	private const WPCOM_PREMIUM_AND_HIGHER_PLANS  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS );
+	private const WPCOM_BUSINESS_AND_HIGHER_PLANS = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS, self::WPCOM_ECOMMERCE_TRIAL_PLANS );
+
+	// WPCOM "Level 3" B: Variations of the above groups where the feature is not allowed in free trial plans.
+	private const WPCOM_BLOGGER_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_BLOGGER_PLANS, self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_PERSONAL_AND_HIGHER_PLANS_NO_TRIAL = array( self::WPCOM_PERSONAL_PLANS, self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_STARTER_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_STARTER_PLANS, self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL  = array( self::WPCOM_PREMIUM_PLANS, self::WPCOM_PRO_PLANS, self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+	private const WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL = array( self::WPCOM_BUSINESS_PLANS, self::WPCOM_ECOMMERCE_PLANS );
+
+	// WPCOM "Level 3" C: Misc product groupings unrelated to free plan trials.
+	private const WPCOM_EMAIL_PRODUCTS = array( self::GOOGLE_WORKSPACE_PRODUCTS, self::GSUITE_PRODUCTS, self::WPCOM_TITAN_MAIL_PRODUCTS );
 
 	// Jetpack "Level 2": Groups of level 1s.
 	private const JETPACK_BUSINESS_PLANS = array( self::JETPACK_BUSINESS, self::JETPACK_BUSINESS_MONTHLY );
@@ -472,15 +483,16 @@ class WPCOM_Features {
 		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
 		self::ECOMMERCE_MANAGED_PLUGINS     => array(
 			self::WPCOM_ECOMMERCE_PLANS,
+			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 		// EDIT_PLUGINS - Provides the edit_plugins capability on atomic sites, does nothing on simple sites.
 		self::EDIT_PLUGINS                  => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 		// EDIT_THEMES - Provides the edit_themes capability on atomic sites, does nothing on simple sites.
 		self::EDIT_THEMES                   => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 		// EMAIL_PROFESSIONAL - Access to Titan email hosting, often referred to as WordPress.com "Professional Email".
@@ -526,7 +538,7 @@ class WPCOM_Features {
 			self::JETPACK_SECURITY_T2_PLANS,
 		),
 		self::INSTALL_PLUGINS               => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS     => array(
@@ -535,7 +547,7 @@ class WPCOM_Features {
 			self::WPCOM_STARTER_PLANS,
 		),
 		self::INSTALL_THEMES                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 		self::INSTANT_SEARCH                => array(
@@ -709,12 +721,12 @@ class WPCOM_Features {
 		),
 		// Hosting Configuration.
 		self::SFTP                          => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 
 		self::SSH                           => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 		),
 		self::SIMPLE_PAYMENTS               => array(
 			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
@@ -803,7 +815,7 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::UPLOAD_PLUGINS                => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 		self::UPLOAD_SPACE_3GB              => array(
@@ -832,7 +844,7 @@ class WPCOM_Features {
 			),
 		),
 		self::UPLOAD_THEMES                 => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 		),
 
