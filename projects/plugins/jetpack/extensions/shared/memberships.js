@@ -16,7 +16,7 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
-function setUpThickbox( button ) {
+function setUpModal( button ) {
 	button.addEventListener( 'click', event => {
 		event.preventDefault();
 		const url = button.getAttribute( 'href' );
@@ -32,17 +32,17 @@ function setUpThickbox( button ) {
 }
 
 export const initializeMembershipButtons = selector => {
-	const membershipButtons = Array.prototype.slice.call( document.querySelectorAll( selector ) );
+	const membershipButtons = [ ...document.querySelectorAll( selector ) ];
 	membershipButtons.forEach( button => {
 		if ( button.getAttribute( 'data-jetpack-memberships-button-initialized' ) === 'true' ) {
 			return;
 		}
 
 		try {
-			setUpThickbox( button );
+			setUpModal( button );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem setting up Thickbox', err );
+			console.error( 'Problem setting up Modal', err );
 		}
 
 		button.setAttribute( 'data-jetpack-memberships-button-initialized', 'true' );

@@ -297,7 +297,7 @@ class Jetpack_Memberships {
 	 * @return string|void
 	 */
 	public function render_button( $attributes, $content = null, $block = null ) {
-		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
+		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'wp-polyfill' ) );
 
 		if ( $this->should_render_button_preview( $block ) ) {
 			return $this->render_button_preview( $attributes, $content );
@@ -315,8 +315,6 @@ class Jetpack_Memberships {
 		if ( $product->post_type !== self::$post_type_plan || 'publish' !== $product->post_status ) {
 			return;
 		}
-
-		add_thickbox();
 
 		if ( ! empty( $content ) ) {
 			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
