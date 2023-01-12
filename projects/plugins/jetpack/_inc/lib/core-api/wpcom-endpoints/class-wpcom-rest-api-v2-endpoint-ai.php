@@ -28,15 +28,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * WPCOM_REST_API_V2_Endpoint_AI constructor.
 	 */
 	public function __construct() {
-		$this->is_wpcom = false;
+		$this->is_wpcom                     = false;
+		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( get_current_site()->id !== 1 ) {
 				// If the current WPCOM siteis not a simple site
 				return;
 			}
-			$this->is_wpcom                     = true;
-			$this->wpcom_is_wpcom_only_endpoint = true;
+			$this->is_wpcom = true;
 		} elseif ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
 			// If this is not an atomic site, we want to bail and not even load the endpoint for now.
 			return;
