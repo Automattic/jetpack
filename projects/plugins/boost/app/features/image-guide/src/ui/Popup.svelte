@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
@@ -38,7 +39,7 @@
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
 
-	const DOCUMENTATION_URL = `https://jetpack.com/support/jetpack-boost/image-performance-guide/`;
+	const DOCUMENTATION_URL = getRedirectUrl( 'jetpack-support-boost-image-performance-guide' );
 </script>
 
 <div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
