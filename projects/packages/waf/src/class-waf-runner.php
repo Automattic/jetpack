@@ -404,8 +404,8 @@ class Waf_Runner {
 		}
 
 		// Note: Beyond this check we know that we do/did have a plan because we have/had automatic rules
-			// $has_plan - This is expected if we have a plan - return true, if the file is empty or gone regenerating will handled by cron
-			// ! $has_plan - No plan means we retained the existing rules and they wont be regenerated, here we need to check if they are empty
+		// $has_plan - This is expected if we have a plan - return true, if the file is empty or gone regenerating will handled by cron
+		// ! $has_plan - No plan means we retained the existing rules and they wont be regenerated, here we need to check if they are empty
 
 		global $wp_filesystem;
 
@@ -417,12 +417,13 @@ class Waf_Runner {
 		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
 
 			// If automatic rules file was removed or is empty, delete the automatic rules last updated option.
-				// Note: Once removed, on subsequent checks will rightly return false early
+			// Note: Once removed, on subsequent checks will rightly return false early
 			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
-			// If automatic rules setting is enabled, disable it.
-				// Note: Leaving it enabled will mean we are simply requiring an empty automatic rules file
 			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+
+			// If automatic rules setting is enabled, disable it.
+			// Note: Leaving it enabled will mean we are simply requiring an empty automatic rules file
 			if ( $automatic_rules_enabled ) {
 				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 			}
