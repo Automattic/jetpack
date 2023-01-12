@@ -1,5 +1,7 @@
 /* global tb_show, tb_remove */
 
+import './memberships-modal';
+
 /**
  * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
  *
