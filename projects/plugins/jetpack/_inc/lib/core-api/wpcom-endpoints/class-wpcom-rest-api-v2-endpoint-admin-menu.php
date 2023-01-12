@@ -377,8 +377,8 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				return wp_specialchars_decode( esc_url_raw( $url ) );
 			}
 
-			if ( 1 !== preg_match( '/^' . preg_quote( get_site_url(), '/' ) . '/i', $url ) ) {
-				// Disallow other external URLs.
+			// Disallow other external URLs.
+			if ( 0 !== strpos( $url, get_site_url() ) ) {
 				return '';
 			}
 			// The URL matches that of the site, treat it as an internal URL.
