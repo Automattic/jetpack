@@ -332,21 +332,25 @@ function tb_show( caption, url, imageGroup ) {
 				.addEventListener( 'click', tb_remove, false );
 
 			if ( url.indexOf( 'TB_inline' ) !== -1 ) {
-				document.getElementById( 'TB_ajaxContent' ).append( $( '#' + params.inlineId ).children() );
+				document
+					.getElementById( 'TB_ajaxContent' )
+					.append( document.getElementById( params.inlineId ).children() );
 				document.getElementById( 'TB_window' ).unload( function () {
-					$( '#' + params.inlineId ).append(
-						document.getElementById( 'TB_ajaxContent' ).children()
-					); // move elements back when you're finished
+					document
+						.getElementById( params.inlineId )
+						.append( document.getElementById( 'TB_ajaxContent' ).children() ); // move elements back when you're finished
 				} );
 				tb_position();
 				document.getElementById( 'TB_load' ).remove();
 				document.getElementById( 'TB_window' ).css( { display: 'block' } );
 			} else if ( url.indexOf( 'TB_iframe' ) !== -1 ) {
 				tb_position();
-				if ( $.browser.safari ) {
+				const isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
+
+				if ( isSafari ) {
 					//safari needs help because it will not fire iframe onload
 					document.getElementById( 'TB_load' ).remove();
-					document.getElementById( 'TB_window' ).css( { display: 'block' } );
+					document.getElementById( 'TB_window' ).style.display = 'block';
 				}
 			} else {
 				document
