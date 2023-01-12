@@ -43,21 +43,39 @@ import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
+/**
+ * Looks into URL search params to build a filter-like object with the parameters related to filtering.
+ *
+ * @param {object} searchParams - The searchParams hook instance.
+ * @returns {object} the filter-like oject containing a privacy, uploader and rating filter list.
+ */
 const getFiltersFromSearchParams = searchParams => {
-	const filterNames = [ 'privacy', 'uploader', 'rating' ];
-
-	return Object.fromEntries(
-		filterNames.map( filterName => [
-			filterName,
-			searchParams
-				.getParam( filterName, '' )
-				.split( ' ' )
-				.filter( v => v !== '' )
-				.sort(),
-		] )
-	);
+	return {
+		privacy: searchParams
+			.getParam( 'privacy', '' )
+			.split( ' ' )
+			.filter( v => [ '0', '1' ].includes( v ) )
+			.sort(),
+		uploader: searchParams
+			.getParam( 'uploader', '' )
+			.split( ' ' )
+			.filter( v => ! isNaN( parseInt( v ) ) )
+			.sort(),
+		rating: searchParams
+			.getParam( 'rating', '' )
+			.split( ' ' )
+			.filter( v => [ 'G', 'PG-13', 'R-17' ].includes( v ) )
+			.sort(),
+	};
 };
 
+/**
+ * Checks if two given filter objects are different from each other.
+ *
+ * @param {object} originalFilters - The current state of the filter.
+ * @param {object} searchParamsFilters - The filter state present on the URL search parameters.
+ * @returns {boolean} If the filters are different from each other.
+ */
 const filtersChanged = ( originalFilters, searchParamsFilters ): boolean => {
 	return (
 		( originalFilters?.privacy || [] ).join( ' ' ) !==
