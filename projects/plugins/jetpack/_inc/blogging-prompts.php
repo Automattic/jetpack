@@ -39,9 +39,11 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 		return;
 	}
 
-	if ( jetpack_is_valid_blogging_prompt( $prompt_id ) ) {
+	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
+
+	if ( $prompt ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
-		wp_add_post_tags( $post_id, 'dailyprompt' );
+		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
 	}
 }
 
@@ -115,16 +117,16 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
  * Retieve a blogging prompt by prompt id.
  *
  * @param int $prompt_id ID of the prompt to return.
- * @return stdClass|null Prompt object or null if not found.
+ * @return stdClass|false|null Prompt object or null if not found.
  */
 function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	$locale        = get_locale();
 	$transient_key = 'jetpack_blogging_prompt_' . $prompt_id . '_' . $locale;
-	$daily_prompt  = get_transient( $transient_key );
+	$prompt        = get_transient( $transient_key );
 
 	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
-	if ( false !== $daily_prompt ) {
-		return $daily_prompt;
+	if ( false !== $prompt ) {
+		return $prompt;
 	}
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
@@ -160,6 +162,8 @@ function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	if ( ! $prompt ) {
 		return null;
 	}
+
+	// Set a long cache timeout: in practice prompts should rarely, if ever, be edited or changed.
 	set_transient( $transient_key, $prompt, MONTH_IN_SECONDS );
 
 	return $prompt;
@@ -235,29 +239,4 @@ function jetpack_is_new_post_screen() {
  */
 function jetpack_is_potential_blogging_site() {
 	return jetpack_has_write_intent() || jetpack_has_posts_page() || jetpack_has_or_will_publish_posts();
-}
-
-/**
- * Checks if the given prompt id is included in today's blogging prompts.
- *
- * Would be best to use the API to check if the prompt id is valid for any day,
- * but for now we're only using one prompt per day.
- *
- * @param int $prompt_id id of blogging prompt.
- * @return bool
- */
-function jetpack_is_valid_blogging_prompt( $prompt_id ) {
-	$daily_prompts = jetpack_get_daily_blogging_prompts();
-
-	if ( ! $daily_prompts ) {
-		return false;
-	}
-
-	foreach ( $daily_prompts as $prompt ) {
-		if ( $prompt->id === $prompt_id ) {
-			return true;
-		}
-	}
-
-	return false;
 }
