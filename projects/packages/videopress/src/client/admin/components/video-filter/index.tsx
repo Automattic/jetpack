@@ -185,7 +185,7 @@ export const FilterSection = ( props: {
 };
 
 export const ConnectFilterSection = props => {
-	const { setFilter, filter } = useVideos();
+	const { filter } = useVideos();
 	const searchParams = useSearchParams();
 
 	const onFilterHandler = (
@@ -219,7 +219,6 @@ export const ConnectFilterSection = props => {
 		}
 
 		searchParams.update();
-		setFilter( filterName, `${ filterValue }`, checked );
 	};
 
 	const { items: users } = useUsers();

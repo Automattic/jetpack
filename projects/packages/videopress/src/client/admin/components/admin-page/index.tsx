@@ -43,8 +43,36 @@ import VideoUploadArea from '../video-upload-area';
 import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
+const getFiltersFromSearchParams = searchParams => {
+	const filterNames = [ 'privacy', 'uploader', 'rating' ];
+
+	return Object.fromEntries(
+		filterNames.map( filterName => [
+			filterName,
+			searchParams
+				.getParam( filterName, '' )
+				.split( ' ' )
+				.filter( v => v !== '' )
+				.sort(),
+		] )
+	);
+};
+
+const filtersChanged = ( originalFilters, searchParamsFilters ): boolean => {
+	return (
+		( originalFilters?.privacy || [] ).join( ' ' ) !==
+			( searchParamsFilters?.privacy || [] ).join( ' ' ) ||
+		( originalFilters?.rating || [] ).join( ' ' ) !==
+			( searchParamsFilters?.rating || [] ).join( ' ' ) ||
+		( originalFilters?.uploader || [] ).join( ' ' ) !==
+			( searchParamsFilters?.uploader || [] ).join( ' ' )
+	);
+};
+
 const useDashboardVideos = () => {
-	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
+	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery, replaceVideosFilter } = useDispatch(
+		STORE_ID
+	);
 	const {
 		items,
 		uploading,
@@ -54,6 +82,7 @@ const useDashboardVideos = () => {
 		page,
 		itemsPerPage,
 		total,
+		filter,
 	} = useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
@@ -62,6 +91,7 @@ const useDashboardVideos = () => {
 	const searchParams = useSearchParams();
 	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
+	const filtersFromSearchParams = getFiltersFromSearchParams( searchParams );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 	useEffect( () => {
 		// when there are no search results, ensure that the current page number is 1
@@ -97,7 +127,22 @@ const useDashboardVideos = () => {
 
 			return;
 		}
-	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam ] );
+
+		// react to a filter change
+		if ( filtersChanged( filter, filtersFromSearchParams ) ) {
+			replaceVideosFilter( filtersFromSearchParams );
+
+			return;
+		}
+	}, [
+		totalOfPages,
+		page,
+		pageFromSearchParam,
+		search,
+		searchFromSearchParam,
+		filter,
+		filtersFromSearchParams,
+	] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
