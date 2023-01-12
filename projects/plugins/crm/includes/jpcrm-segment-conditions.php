@@ -212,7 +212,7 @@ function jpcrm_segments_sort_conditions_and_categories($a, $b){
 		$position_b = $b['position'];
 	}
 
-    return $position_a <=> $position_b;
+    return $position_a < $position_b ? -1 : ($position_a == $position_b ? 0 : 1);
 
 }
 
