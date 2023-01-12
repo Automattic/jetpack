@@ -32,14 +32,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			if ( get_current_site()->id !== 1 ) {
-				// If the current WPCOM siteis not a simple site
-				return;
-			}
 			$this->is_wpcom = true;
-		} elseif ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			// If this is not an atomic site, we want to bail and not even load the endpoint for now.
-			return;
 		}
 
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
@@ -65,7 +58,21 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 			);
 		}
 
-		return true;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Only allow WPCOM simple sites and Atomic
+			if ( get_current_site()->id !== 1 ) {
+				return true;
+			}
+		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			// If not WPCOM, we allow only of this is a WoA site
+			return true;
+		}
+
+		return new WP_Error(
+			'rest_forbidden',
+			__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 	/**
 	 * Register routes.
