@@ -91,6 +91,7 @@ class Display_Critical_CSS {
 		$critical_css = $this->css;
 
 		if ( false === $critical_css ) {
+			// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- This is not a PHP 4 constructor, that only applies to non-namespaced classes.
 			return false;
 		}
 

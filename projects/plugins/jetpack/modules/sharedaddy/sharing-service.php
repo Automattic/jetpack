@@ -10,6 +10,8 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -581,8 +583,8 @@ class Sharing_Service {
 
 		$ret = wp_cache_get( $cache_key, 'sharing' );
 		if ( $ret === false ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
-			$ret = (int) $wpdb->get_var( $sql ); // db call ok
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Prepared above.
+			$ret = (int) $wpdb->get_var( $sql );
 			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 		return $ret;
@@ -621,7 +623,7 @@ class Sharing_Service {
 		$cache_key = "sharing_service_get_posts_total_{$blog_id}";
 		$my_data   = wp_cache_get( $cache_key, 'sharing' );
 		if ( $my_data === false ) {
-			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // db call ok
+			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			wp_cache_set( $cache_key, $my_data, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 

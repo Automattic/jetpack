@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Only display the Blaze UI if the connected user's language is English.
