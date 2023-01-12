@@ -1258,7 +1258,7 @@ class Woo_Sync_Background_Sync_Job {
 								'name' => sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ),
 								'rate' => (float)$tax_rate,
 							),
-						),
+						)
 					);
 
 	        		// mark as table changed
@@ -2041,7 +2041,7 @@ class Woo_Sync_Background_Sync_Job {
 			true,
 			$order_tags,
 			$origin,
-			$extra_meta,
+			$extra_meta
 		);
 
 	}

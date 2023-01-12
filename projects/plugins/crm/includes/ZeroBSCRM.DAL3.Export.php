@@ -303,7 +303,7 @@ function jpcrm_export_process_file_export() {
 					$availObjs = $zbs->DAL->segments->getSegmentAudience(
 						$extraParams['segment']['id'],
 						-1, // all, no paging
-						-1, // all, no paging
+						-1 // all, no paging
 					);
 
 				} else {
