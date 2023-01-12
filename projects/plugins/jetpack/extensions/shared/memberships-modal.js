@@ -12,11 +12,11 @@ const tb_pathToImage = 'images/loadingAnimation.gif';
 /*!!!!!!!!!!!!!!!!! edit below this line at your own risk !!!!!!!!!!!!!!!!!!!!!!!*/
 
 //on page load call tb_init
-$( document ).ready( function () {
+document.addEventListener('DOMContentLoaded', function() {
 	tb_init( 'a.thickbox, area.thickbox, input.thickbox' ); //pass where to apply thickbox
 	imgLoader = new Image(); // preload image
 	imgLoader.src = tb_pathToImage;
-} );
+}, false );
 
 //add thickbox to href & area elements that have a class of .thickbox
 function tb_init( domChunk ) {
