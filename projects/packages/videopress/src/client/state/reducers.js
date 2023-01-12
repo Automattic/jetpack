@@ -30,6 +30,7 @@ import {
 	SET_LOCAL_VIDEOS_PAGINATION,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
 	SET_VIDEOS_FILTER,
+	REPLACE_VIDEOS_FILTER,
 	UPDATE_VIDEO_POSTER,
 	SET_UPDATING_VIDEO_POSTER,
 	SET_USERS,
@@ -123,6 +124,17 @@ const videos = ( state, action ) => {
 					...state.filter,
 					[ filter ]: filterValues,
 				},
+				_meta: {
+					...state._meta,
+					relyOnInitialState: false,
+				},
+			};
+		}
+
+		case REPLACE_VIDEOS_FILTER: {
+			return {
+				...state,
+				filter: { ...action.value },
 				_meta: {
 					...state._meta,
 					relyOnInitialState: false,

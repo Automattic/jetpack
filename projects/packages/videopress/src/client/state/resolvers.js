@@ -18,6 +18,7 @@ import {
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
 	EXPIRE_PLAYBACK_TOKEN,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+	REPLACE_VIDEOS_FILTER,
 } from './constants';
 import { getDefaultQuery } from './reducers';
 import {
@@ -159,7 +160,12 @@ const getVideos = {
 		}
 	},
 	shouldInvalidate: ( { type } ) => {
-		return type === SET_VIDEOS_QUERY || type === DELETE_VIDEO || type === SET_VIDEOS_FILTER;
+		return (
+			type === SET_VIDEOS_QUERY ||
+			type === DELETE_VIDEO ||
+			type === SET_VIDEOS_FILTER ||
+			type === REPLACE_VIDEOS_FILTER
+		);
 	},
 };
 

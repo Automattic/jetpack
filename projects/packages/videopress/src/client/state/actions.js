@@ -18,6 +18,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_PAGINATION,
 	SET_VIDEOS_FILTER,
+	REPLACE_VIDEOS_FILTER,
 	SET_LOCAL_VIDEOS,
 	SET_IS_FETCHING_LOCAL_VIDEOS,
 	SET_LOCAL_VIDEOS_QUERY,
@@ -98,6 +99,10 @@ const setVideosPagination = pagination => {
 
 const setVideosFilter = ( filter, value, isActive ) => {
 	return { type: SET_VIDEOS_FILTER, filter, value, isActive };
+};
+
+const replaceVideosFilter = value => {
+	return { type: REPLACE_VIDEOS_FILTER, value };
 };
 
 const setVideos = videos => {
@@ -445,6 +450,7 @@ const actions = {
 	setVideosQuery,
 	setVideosPagination,
 	setVideosFilter,
+	replaceVideosFilter,
 	setVideos,
 	dismissFirstVideoPopover,
 
