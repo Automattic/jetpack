@@ -87,7 +87,20 @@ if ( isset( $new_customer['tags'] ) ) {
 if ( is_array( $tags ) && count( $tags ) > 0 ) {
 
 	// basic filtering
-	$customer_tags = filter_var_array( $tags, FILTER_SANITIZE_STRING );
+	$customer_tags = filter_var_array( $tags, FILTER_UNSAFE_RAW );
+	// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+	// @todo Replace this with something more correct.
+	foreach ( $customer_tags as $k => $v ) {
+		$customer_tags[$k] = strtr(
+			strip_tags( $v ),
+			array(
+				"\0" => '',
+				'"' => '&#34;',
+				"'" => '&#39;',
+				"<" => '',
+			)
+		);
+	}
 
 	// dumb check - not empties :)
 	$temptags = array(); foreach ( $customer_tags as $t ) {

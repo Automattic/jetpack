@@ -430,7 +430,7 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 								?>
 								<i class="angle down icon zbs-show-longdesc"></i><i class="angle up icon zbs-hide-longdesc"></i>
 								<div class="zbs-long-desc">
-									<?php echo wp_kses( html_entity_decode( $log['longdesc'] ), $zbs->acceptable_restricted_html ); ?>
+									<?php echo wp_kses( html_entity_decode( $log['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html ); ?>
 								</div>
 								<?php
 							}
@@ -1121,8 +1121,8 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	        //      d F Y H:i:s (date - not locale based)
 	        // https://www.php.net/manual/en/function.date.php
 	        // ... into
-	        //      %d %B %Y %H:%M:%S (strfttime - locale based date)
-	        // (https://www.php.net/manual/en/function.strftime.php)
+	        //      dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
+	        // (https://www.php.net/manual/en/class.intldateformatter.php)
 
 	        /*
 	        $start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
@@ -1131,10 +1131,10 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 
 	        /*
 
-	        zeroBSCRM_locale_setServerLocale('en_US');
-	        $start_d = strftime("%d %B %Y %H:%M:%S",$task['start']);
-	        $end_d =  strftime("%d %B %Y %H:%M:%S",$task['end']);
-	        zeroBSCRM_locale_resetServerLocale();
+	        $fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
+	        $fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
+	        $start_d = $fmt->format($task['start']);
+	        $end_d =  $fmt->format($task['end']);
 
 	        */
 

@@ -66,7 +66,20 @@ if ( isset( $new_company['tags'] ) ) {
 if ( is_array( $tags ) && count( $tags ) > 0 ) {
 
 	// basic filtering
-	$company_tags = filter_var_array( $tags, FILTER_SANITIZE_STRING );
+	$company_tags = filter_var_array( $tags, FILTER_UNSAFE_RAW );
+	// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+	// @todo Replace this with something more correct.
+	foreach ( $company_tags as $k => $v ) {
+		$company_tags[$k] = strtr(
+			strip_tags( $v ),
+			array(
+				"\0" => '',
+				'"' => '&#34;',
+				"'" => '&#39;',
+				"<" => '',
+			)
+		);
+	}
 
 	// dumb check - not empties :)
 	$temptags = array(); foreach ( $company_tags as $t ) {

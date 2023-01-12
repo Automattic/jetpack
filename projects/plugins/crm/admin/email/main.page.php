@@ -300,7 +300,7 @@ function jpcrm_render_emailbox() {
 					),
 					'editor_class'  => 'ui textarea zbs-email-thread',
 				);
-				wp_editor( htmlspecialchars_decode( $content ), 'zbs_send_email_thread', $editorSettings );
+				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_thread', $editorSettings );
 				?>
 			  
 			<?php
@@ -555,7 +555,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 					),
 					'editor_class'  => 'ui textarea',
 				);
-				wp_editor( htmlspecialchars_decode( $content ), 'zbs_send_email_content', $editorSettings );
+				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_content', $editorSettings );
 
 				?>
 			<br/>

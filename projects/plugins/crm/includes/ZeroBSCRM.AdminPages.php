@@ -490,7 +490,7 @@ function zerobscrm_show_love( $url = '', $text = 'Jetpack - The WordPress CRM' )
 	}
 	</style>
 
-	<?php $text = htmlentities( $text ); ?>
+	<?php $text = htmlentities( $text, ENT_COMPAT ); ?>
 
 	<p style="font-size:16px;text-align:center"><?php echo esc_html__( 'Jetpack CRM is the ultimate CRM tool for WordPress.', 'zero-bs-crm' ) . '<br/ >' . esc_html__( 'Help us get the word out and show some love... You know what to do...', 'zero-bs-crm' ); ?></p>
 	<ul class="share-buttons">
@@ -1186,7 +1186,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 								'quicktags'     => false,
 								'tinymce'       => false,
 							);
-							wp_editor( htmlspecialchars_decode( $content ), 'zbscontent', $editorsettings );
+							wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbscontent', $editorsettings );
 
 							echo '</div>';
 							?>

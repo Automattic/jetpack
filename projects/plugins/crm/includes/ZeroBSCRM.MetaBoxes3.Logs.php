@@ -469,7 +469,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                         foreach ($zbsLogs as $zbsLog){
 
                             $retLine = $zbsLog;
-                            if (isset($retLine) && isset($retLine['longdesc'])) $retLine['longdesc'] = wp_kses( html_entity_decode( $retLine['longdesc'] ), $zbs->acceptable_restricted_html );
+                            if (isset($retLine) && isset($retLine['longdesc'])) $retLine['longdesc'] = wp_kses( html_entity_decode( $retLine['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html );
 
                             $zbsLogsExpose[] = $retLine;
 

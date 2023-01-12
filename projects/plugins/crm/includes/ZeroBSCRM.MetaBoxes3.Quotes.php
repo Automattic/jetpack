@@ -408,7 +408,7 @@
                     if (isset($_POST['zbs_quote_content'])) {
 
                         #} Save content
-                        //$data=htmlspecialchars($_POST['zbs_quote_content']);
+                        //$data=htmlspecialchars($_POST['zbs_quote_content'], ENT_COMPAT);
                         $quote['content'] = zeroBSCRM_io_WPEditor_WPEditorToDB($_POST['zbs_quote_content']);                        
 
                         #} update templated vars

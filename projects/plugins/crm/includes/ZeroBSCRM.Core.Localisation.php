@@ -316,12 +316,12 @@ function zeroBSCRM_date_forceEN( $time = -1 ) {
 		// d F Y H:i:s (date - not locale based)
 		// https://www.php.net/manual/en/function.date.php
 		// ... into
-		// %d %B %Y %H:%M:%S (strfttime - locale based date)
-		// (https://www.php.net/manual/en/function.strftime.php)
+		// dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
+		// (https://www.php.net/manual/en/class.intldateformatter.php)
 
-		zeroBSCRM_locale_setServerLocale( 'en_US' );
-		$r = strftime( '%d %B %Y %H:%M:%S', $time );
-		zeroBSCRM_locale_resetServerLocale();
+		$fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
+		$fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
+		$r = $fmt->format( $time );
 
 		return $r;
 

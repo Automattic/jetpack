@@ -2662,7 +2662,7 @@ class zeroBS__Metabox_Contact_Activity extends zeroBS__Metabox {
                             // long desc
                             if (isset($log['longdesc']) && !empty($log['longdesc'])){ ?>
                             <div class="jpcrm-pinned-log-longdesc">
-                                <?php echo wp_kses( html_entity_decode( $log['longdesc'] ), $zbs->acceptable_restricted_html ); ?>
+                                <?php echo wp_kses( html_entity_decode( $log['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html ); ?>
                             </div>
                             <?php } ?>
 

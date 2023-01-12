@@ -117,7 +117,7 @@
         //return html_entity_decode(nl2br(stripslashes($string)));
 
         // See https://wordpress.stackexchange.com/questions/245201/how-to-save-html-and-text-in-the-database
-        return wpautop(html_entity_decode(stripslashes($string)));
+        return wpautop(html_entity_decode(stripslashes($string), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
 
     }
 
@@ -125,7 +125,7 @@
     // .. and returns first X characters, no tags
     function zeroBSCRM_io_WPEditor_DBToHTMLExcerpt($string='',$len=200){
 
-        $string = strip_tags(html_entity_decode(stripslashes($string)));
+        $string = strip_tags(html_entity_decode(stripslashes($string), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
         return substr($string , 0, $len);
         
     }

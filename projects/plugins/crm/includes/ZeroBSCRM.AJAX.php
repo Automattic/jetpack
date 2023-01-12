@@ -5663,37 +5663,37 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 
 		// order of metaboxes for 'normal' area of page
 		'mb_normal'    => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 		// order of metaboxes for 'side' area of page
 		// e.g. 'key','key2'
 		'mb_side'      => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 		// list of hidden metaboxes
 		// e.g. 'key','key2'
 		'mb_hidden'    => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 		// list of minimised metaboxes
 		// e.g. 'key','key2'
 		'mb_mini'      => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 
 		// for now, this is a catchall :)
 		'pageoptions'  => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 
 		// selected table columns (currently just co view)
 		'tablecolumns' => array(
-			'filter' => FILTER_SANITIZE_STRING,
+			'filter' => FILTER_UNSAFE_RAW,
 			'flags'  => FILTER_FORCE_ARRAY,
 		),
 
@@ -5712,6 +5712,23 @@ function zeroBSCRM_AJAX_saveScreenOptions() {
 		// sanitize - http://php.net/manual/en/function.filter-var-array.php
 		$screenOpts = filter_var_array( $screenOpts, $screenOptionsFilters );
 
+		// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+		// @todo Replace this with something more correct.
+		foreach ( $screenOpts as $k => $v ) {
+			if ( isset( $screenOptionsFilters[$k]['filter'] ) && $screenOptionsFilters[$k]['filter'] === FILTER_UNSAFE_RAW ) {
+				foreach ( $v as $k2 => $v2 ) {
+					$screenOpts[$k][$k2] = strtr(
+						strip_tags( $v2 ),
+						array(
+							"\0" => '',
+							'"' => '&#34;',
+							"'" => '&#39;',
+							"<" => '',
+						)
+					);
+				}
+			}
+		}
 	}
 	if ( isset( $_POST['pagekey'] ) ) {
 		$pageKey = sanitize_text_field( $_POST['pagekey'] );

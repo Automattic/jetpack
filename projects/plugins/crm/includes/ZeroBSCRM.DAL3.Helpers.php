@@ -2015,7 +2015,20 @@ function zeroBS_addUpdateCustomer(
 				$tags 		= $cFields['tags'];
 				#} Santize tags
 				if(is_array($tags)){
-					$customer_tags = filter_var_array($tags,FILTER_SANITIZE_STRING); 
+					$customer_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
+					// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+					// @todo Replace this with something more correct.
+					foreach ( $customer_tags as $k => $v ) {
+						$customer_tags[$k] = strtr(
+							strip_tags( $v ),
+							array(
+								"\0" => '',
+								'"' => '&#34;',
+								"'" => '&#39;',
+								"<" => '',
+							)
+						);
+					}
 					$we_have_tags = true;
 				}
 
@@ -3993,7 +4006,20 @@ function zeroBS___________DAL30Helpers(){return;}
 
 					#} Santize tags
 					if(is_array($tags) && count($tags) > 0){
-						$company_tags = filter_var_array($tags,FILTER_SANITIZE_STRING); 
+						$company_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
+						// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+						// @todo Replace this with something more correct.
+						foreach ( $company_tags as $k => $v ) {
+							$company_tags[$k] = strtr(
+								strip_tags( $v ),
+								array(
+									"\0" => '',
+									'"' => '&#34;',
+									"'" => '&#39;',
+									"<" => '',
+								)
+							);
+						}
 						$we_have_tags = true;
 					}
 
@@ -4334,7 +4360,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		if ($qID !== -1){
 
 	            $content = get_post_meta($qID, 'zbs_quote_content' , true ) ;
-	            $content = htmlspecialchars_decode($content);
+	            $content = htmlspecialchars_decode($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
 			
 				return array(
 					'content'=>$content,
@@ -6109,7 +6135,20 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 				            # TAG obj (if exists) - clean etc here too 
 				            if (isset($transactionTags) && is_array($transactionTags)){
 
-									$transactionTags = filter_var_array($transactionTags,FILTER_SANITIZE_STRING); 
+									$transactionTags = filter_var_array($transactionTags,FILTER_UNSAFE_RAW); 
+									// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
+									// @todo Replace this with something more correct.
+									foreach ( $transactionTags as $k => $v ) {
+										$transactionTags[$k] = strtr(
+											strip_tags( $v ),
+											array(
+												"\0" => '',
+												'"' => '&#34;',
+												"'" => '&#39;',
+												"<" => '',
+											)
+										);
+									}
 
 				                	$args['data']['tags'] = array();
 									foreach($transactionTags as $tTag){
