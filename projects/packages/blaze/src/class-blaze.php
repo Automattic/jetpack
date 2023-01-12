@@ -64,7 +64,8 @@ class Blaze {
 	 */
 	public static function should_initialize() {
 		$should_initialize = true;
-		$user_data         = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$user_data         = $is_wpcom
 			? array( 'user_locale' => get_user_locale() )
 			: ( new Jetpack_Connection() )->get_connected_user_data();
 
@@ -92,8 +93,22 @@ class Blaze {
 
 		// Only show the UI on WordPress.com Simple and WoA sites for now.
 		if (
-			! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			! $is_wpcom
 			&& ! ( new Host() )->is_woa_site()
+		) {
+			$should_initialize = false;
+		}
+
+		/*
+		 * Do not show the UI on private sites
+		 * nor on sites that have not been launched yet.
+		 */
+		if (
+			'-1' === get_option( 'blog_public' )
+			|| (
+				( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
+				|| (bool) get_option( 'wpcom_public_coming_soon' )
+			)
 		) {
 			$should_initialize = false;
 		}
