@@ -47,7 +47,7 @@ import styles from './styles.module.scss';
  * Looks into URL search params to build a filter-like object with the parameters related to filtering.
  *
  * @param {object} searchParams - The searchParams hook instance.
- * @returns {object} the filter-like oject containing a privacy, uploader and rating filter list.
+ * @returns {object} the filter-like object containing a privacy, uploader and rating filter list.
  */
 const getFiltersFromSearchParams = searchParams => {
 	return {
