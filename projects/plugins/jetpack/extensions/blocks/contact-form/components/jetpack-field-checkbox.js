@@ -15,6 +15,7 @@ function JetpackFieldCheckbox( props ) {
 		setAttributes,
 		width,
 		defaultValue,
+		attributes,
 	} = props;
 
 	return (
@@ -33,12 +34,14 @@ function JetpackFieldCheckbox( props ) {
 				requiredText={ requiredText }
 				label={ label }
 				setAttributes={ setAttributes }
+				attributes={ attributes }
 			/>
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
 				width={ width }
 				setAttributes={ setAttributes }
+				attributes={ attributes }
 			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Checkbox Settings', 'jetpack' ) }>

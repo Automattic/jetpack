@@ -232,6 +232,7 @@ const EditCheckbox = props => {
 			defaultValue={ props.attributes.defaultValue }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
