@@ -34,6 +34,11 @@ document.addEventListener(
 	false
 );
 
+function show( element ) {
+	element.style.display = 'block';
+	element.style.visibility = 'visible';
+}
+
 function goPrev() {
 	document.removeEventListener( 'click', goPrev );
 	document.getElementById( 'TB_window' ).remove();
@@ -110,7 +115,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 			'beforeend',
 			"<div id='TB_load'><img src='" + imgLoader.src + "' /></div>"
 		); //add loader to the page
-	document.getElementById( 'TB_load' ).style.display = 'block'; //show loader
+	show( document.getElementById( 'TB_load' ) ); //show loader
 
 	let baseURL;
 	if ( url.indexOf( '?' ) !== -1 ) {
@@ -249,7 +254,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 			a8c_tb_position();
 			document.getElementById( 'TB_load' ).remove();
 			document.getElementById( 'TB_ImageOff' ).addEventListener( 'click', a8c_tb_remove, false );
-			document.getElementById( 'TB_window' ).style.display = 'block'; //for safari using css instead of show
+			show( document.getElementById( 'TB_window' ) ); //for safari using css instead of show
 		};
 
 		imgPreloader.src = url;
@@ -358,7 +363,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 			};
 			a8c_tb_position();
 			document.getElementById( 'TB_load' ).remove();
-			document.getElementById( 'TB_window' ).style.display = 'block';
+			show( document.getElementById( 'TB_window' ) );
 		} else if ( url.indexOf( 'TB_iframe' ) !== -1 ) {
 			a8c_tb_position();
 			const isSafari = /^((?!chrome|android).)*safari/i.test( navigator.userAgent );
@@ -366,7 +371,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 			if ( isSafari ) {
 				//safari needs help because it will not fire iframe onload
 				document.getElementById( 'TB_load' ).remove();
-				document.getElementById( 'TB_window' ).style.display = 'block';
+				show( document.getElementById( 'TB_window' ) );
 			}
 		} else {
 			document
@@ -376,7 +381,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 					a8c_tb_position();
 					document.getElementById( 'TB_load' ).remove();
 					a8c_tb_init( '#TB_ajaxContent a.thickbox' );
-					document.getElementById( 'TB_window' ).css( { display: 'block' } );
+					show( document.getElementById( 'TB_window' ) );
 				} );
 		}
 	}
@@ -405,7 +410,7 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 //helper functions below
 export const a8c_tb_showIframe = function () {
 	document.getElementById( 'TB_load' )?.remove();
-	document.getElementById( 'TB_window' ).style.display = 'block';
+	show( document.getElementById( 'TB_window' ) );
 };
 
 export const a8c_tb_remove = function () {
