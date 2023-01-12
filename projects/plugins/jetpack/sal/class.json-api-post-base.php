@@ -869,7 +869,7 @@ abstract class SAL_Post {
 				}
 				break;
 			case 'display':
-				if ( ( new Status() )->is_private_site() && ! current_user_can( 'read' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( ( new Status() )->is_private_site() && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;
