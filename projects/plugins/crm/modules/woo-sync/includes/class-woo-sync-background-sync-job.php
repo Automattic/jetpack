@@ -2041,7 +2041,7 @@ class Woo_Sync_Background_Sync_Job {
 			true,
 			$order_tags,
 			$origin,
-			$extra_meta,
+			$extra_meta
 		);
 
 	}
