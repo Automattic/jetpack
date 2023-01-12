@@ -393,15 +393,19 @@ class Waf_Runner {
 	/**
 	 * Check if automatic rules file is available
 	 *
-	 * @return bool False if automatic rules file is not available or empty, true otherwise
+	 * @return bool False if automatic rules file is not available, true otherwise
 	 */
 	public static function automatic_rules_available() {
-		$automatic_rules_existed = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+		$automatic_rules_last_updated = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
-		// If automatic rules never existed, return false.
-		if ( ! $automatic_rules_existed ) {
+		// If we do not have a automatic rules last updated timestamp cached, return false.
+		if ( ! $automatic_rules_last_updated ) {
 			return false;
 		}
+
+		// Note: Beyond this check we know that we do/did have a plan because we have/had automatic rules
+			// $has_plan - This is expected if we have a plan - return true, if the file is empty or gone regenerating will handled by cron
+			// ! $has_plan - No plan means we retained the existing rules and they wont be regenerated, here we need to check if they are empty
 
 		global $wp_filesystem;
 
@@ -409,11 +413,16 @@ class Waf_Runner {
 
 		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
-		// If automatic rules files was removed or is empty, return false.
+		// If automatic rules files was removed or is now empty, return false.
 		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
-			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
 
-			// If automatic rules are enabled, disable them
+			// If automatic rules file was removed or is empty, delete the automatic rules last updated option.
+				// Note: Once removed, on subsequent checks will rightly return false early
+			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+			// If automatic rules setting is enabled, disable it.
+				// Note: Leaving it enabled will mean we are simply requiring an empty automatic rules file
+			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
 			if ( $automatic_rules_enabled ) {
 				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 			}
