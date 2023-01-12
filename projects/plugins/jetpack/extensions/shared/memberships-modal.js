@@ -77,15 +77,15 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 
 	let params;
 	//function called when the user clicks on a thickbox link
-
+	document.querySelectorAll( 'body', 'html' ).forEach( el => {
+		el.style.height = '100%';
+		el.style.width = '100%';
+	} );
+	document.querySelector( 'html' ).style.overflow = 'hidden';
 	// try {
 	if ( typeof document.body.style.maxHeight === 'undefined' ) {
 		//if IE 6
-		document.querySelectorAll( 'body', 'html' ).forEach( el => {
-			el.style.height = '100%';
-			el.style.width = '100%';
-		} );
-		document.querySelector( 'html' ).style.overflow = 'hidden';
+
 		if ( document.getElementById( 'TB_HideSelect' ) === null ) {
 			//iframe to hide select elements in ie6
 			document
@@ -422,7 +422,6 @@ export const a8c_tb_remove = function () {
 	document.getElementById( 'TB_window' )?.remove();
 	document.querySelectorAll( '#TB_window,#TB_overlay,#TB_HideSelect' ).forEach( el => {
 		el.dispatchEvent( new Event( 'unload' ) );
-		el.removeAllEventListeners();
 		el.remove();
 	} );
 	document.getElementById( 'TB_load' )?.remove();
@@ -432,8 +431,8 @@ export const a8c_tb_remove = function () {
 			el.style.height = 'auto';
 			el.style.width = 'auto';
 		} );
-		document.querySelector( 'html' ).style.overflow = '';
 	}
+	document.querySelector( 'html' ).style.overflow = '';
 	document.onkeydown = '';
 	document.onkeyup = '';
 	return false;
