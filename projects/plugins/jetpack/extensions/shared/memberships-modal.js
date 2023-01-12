@@ -9,25 +9,52 @@
 
 /*!!!!!!!!!!!!!!!!! edit below this line at your own risk !!!!!!!!!!!!!!!!!!!!!!!*/
 
-//on page load call a8c_tb_init
-// document.addEventListener('DOMContentLoaded', function() {
-// 	const a8c_tb_pathToImage = 'images/loadingAnimation.gif';
-//
-// 	a8c_tb_init( 'a.thickbox, area.thickbox, input.thickbox' ); //pass where to apply thickbox
-// 	let imgLoader = new Image(); // preload image
-// 	imgLoader.src = a8c_tb_pathToImage;
-// }, false );
-
 let TB_WIDTH = 0;
 let TB_HEIGHT = 0;
+let imgLoader = null;
+let TB_PrevCaption = '';
+let TB_PrevURL = '';
+let TB_PrevHTML = '';
+let TB_NextCaption = '';
+let TB_NextURL = '';
+let TB_NextHTML = '';
+let TB_imageCount = '';
+let TB_FoundURL = false;
+const a8c_tb_pathToImage = 'images/loadingAnimation.gif';
+let imageGroup = null;
+
+//on page load call a8c_tb_init
+document.addEventListener(
+	'DOMContentLoaded',
+	function () {
+		a8c_tb_init( 'a.thickbox, area.thickbox, input.thickbox' ); //pass where to apply thickbox
+		imgLoader = new Image(); // preload image
+		imgLoader.src = a8c_tb_pathToImage;
+	},
+	false
+);
+
+function goPrev() {
+	document.removeEventListener( 'click', goPrev );
+	document.getElementById( 'TB_window' ).remove();
+	document.querySelector( 'body' ).insertAdjacentHTML( 'beforeend', "<div id='TB_window'></div>" );
+	a8c_tb_show( TB_PrevCaption, TB_PrevURL, imageGroup );
+	return false;
+}
+
+function goNext() {
+	document.getElementById( 'TB_window' ).remove();
+	document.querySelector( 'body' ).insertAdjacentHTML( 'beforeend', "<div id='TB_window'></div>" );
+	a8c_tb_show( TB_NextCaption, TB_NextURL, imageGroup );
+	return false;
+}
 
 //add thickbox to href & area elements that have a class of .thickbox
 function a8c_tb_init( domChunk ) {
-	const elements = document.querySelectorAll( domChunk ).forEach( function ( el ) {
+	document.querySelectorAll( domChunk ).forEach( function ( el ) {
 		el.addEventListener(
 			'click',
 			function () {
-				console.info( 'HEREEEE2' );
 				const t = this.title || this.name || null;
 				const a = this.href || this.alt;
 				const g = this.rel || false;
@@ -40,7 +67,10 @@ function a8c_tb_init( domChunk ) {
 	} );
 }
 
-export const a8c_tb_show = function ( caption, url, imageGroup ) {
+export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
+	imageGroup = imageGroupIn;
+
+	let params;
 	//function called when the user clicks on a thickbox link
 
 	// try {
@@ -58,14 +88,11 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 				);
 			document.getElementById( 'TB_overlay' ).addEventListener( 'click', a8c_tb_remove, false );
 		}
-	} else {
-		//all others
-		if ( document.getElementById( 'TB_overlay' ) === null ) {
-			document
-				.querySelector( 'body' )
-				.insertAdjacentHTML( 'beforeend', "<div id='TB_overlay'></div><div id='TB_window'></div>" );
-			document.getElementById( 'TB_overlay' ).addEventListener( 'click', a8c_tb_remove, false );
-		}
+	} else if ( document.getElementById( 'TB_overlay' ) === null ) {
+		document
+			.querySelector( 'body' )
+			.insertAdjacentHTML( 'beforeend', "<div id='TB_overlay'></div><div id='TB_window'></div>" );
+		document.getElementById( 'TB_overlay' ).addEventListener( 'click', a8c_tb_remove, false );
 	}
 
 	if ( a8c_tb_detectMacXFF() ) {
@@ -105,14 +132,6 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 	) {
 		//code to show images
 
-		let TB_PrevCaption = '';
-		let TB_PrevURL = '';
-		let TB_PrevHTML = '';
-		let TB_NextCaption = '';
-		let TB_NextURL = '';
-		let TB_NextHTML = '';
-		let TB_imageCount = '';
-		let TB_FoundURL = false;
 		if ( imageGroup ) {
 			const TB_TempArray = document.querySelector( 'a[@rel=' + imageGroup + ']' );
 			for (
@@ -120,7 +139,6 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 				TB_Counter < TB_TempArray.length && TB_NextHTML === '';
 				TB_Counter++
 			) {
-				const urlTypeTemp = TB_TempArray[ TB_Counter ].href.toLowerCase().match( urlString );
 				if ( ! ( TB_TempArray[ TB_Counter ].href === url ) ) {
 					if ( TB_FoundURL ) {
 						TB_NextCaption = TB_TempArray[ TB_Counter ].title;
@@ -194,39 +212,21 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 				.addEventListener( 'click', a8c_tb_remove, false );
 
 			if ( ! ( TB_PrevHTML === '' ) ) {
-				function goPrev() {
-					if ( document.removeEventListener( 'click', goPrev ) ) {
-						document.removeEventListener( 'click', goPrev );
-					}
-					document.getElementById( 'TB_window' ).remove();
-					document
-						.querySelector( 'body' )
-						.insertAdjacentHTML( 'beforeend', "<div id='TB_window'></div>" );
-					a8c_tb_show( TB_PrevCaption, TB_PrevURL, imageGroup );
-					return false;
-				}
 				document.getElementById( 'TB_prev' ).addEventListener( 'click', goPrev, false );
 			}
 
 			if ( ! ( TB_NextHTML === '' ) ) {
-				function goNext() {
-					document.getElementById( 'TB_window' ).remove();
-					document
-						.querySelector( 'body' )
-						.insertAdjacentHTML( 'beforeend', "<div id='TB_window'></div>" );
-					a8c_tb_show( TB_NextCaption, TB_NextURL, imageGroup );
-					return false;
-				}
 				document.getElementById( 'TB_next' ).click( goNext );
 			}
 
 			document.onkeydown = function ( e ) {
+				let keycode = null;
 				if ( e === null ) {
 					// ie
-					const keycode = event.keyCode;
+					keycode = event.keyCode;
 				} else {
 					// mozilla
-					const keycode = e.which;
+					keycode = e.which;
 				}
 				if ( keycode === 27 ) {
 					// close
@@ -255,9 +255,8 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 		imgPreloader.src = url;
 	} else {
 		//code to show html
-
-		const queryString = url.replace( /^[^\?]+\??/, '' );
-		var params = a8c_tb_parseQuery( queryString );
+		const queryString = url.replace( /^[^?]+\??/, '' );
+		params = a8c_tb_parseQuery( queryString );
 		TB_WIDTH = params.width * 1 + 30 || 630; //defaults to 630 if no paramaters were added to URL
 		TB_HEIGHT = params.height * 1 + 40 || 440; //defaults to 440 if no paramaters were added to URL
 		const ajaxContentW = TB_WIDTH - 30;
@@ -306,44 +305,42 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 					);
 			}
 			document.getElementById( 'TB_iframeContent' ).onload = a8c_tb_showIframe;
-		} else {
+		} else if ( document.getElementById( 'TB_window' ).style.display !== 'block' ) {
 			// not an iframe, ajax
-			if ( document.getElementById( 'TB_window' ).style.display !== 'block' ) {
-				if ( params.modal !== 'true' ) {
-					//ajax no modal
-					document
-						.getElementById( 'TB_window' )
-						.insertAdjacentHTML(
-							'beforeend',
-							"<div id='TB_title'><div id='TB_ajaxWindowTitle'>" +
-								caption +
-								"</div><div id='TB_closeAjaxWindow'><a href='#' id='TB_closeWindowButton'>close</a> or Esc Key</div></div><div id='TB_ajaxContent' style='width:" +
-								ajaxContentW +
-								'px;height:' +
-								ajaxContentH +
-								"px'></div>"
-						);
-				} else {
-					//ajax modal
-					document.getElementById( 'TB_overlay' ).removeEventListener( 'click', a8c_tb_remove );
-					document
-						.getElementById( 'TB_window' )
-						.insertAdjacentHTML(
-							'beforeend',
-							"<div id='TB_ajaxContent' class='TB_modal' style='width:" +
-								ajaxContentW +
-								'px;height:' +
-								ajaxContentH +
-								"px;'></div>"
-						);
-				}
+			if ( params.modal !== 'true' ) {
+				//ajax no modal
+				document
+					.getElementById( 'TB_window' )
+					.insertAdjacentHTML(
+						'beforeend',
+						"<div id='TB_title'><div id='TB_ajaxWindowTitle'>" +
+							caption +
+							"</div><div id='TB_closeAjaxWindow'><a href='#' id='TB_closeWindowButton'>close</a> or Esc Key</div></div><div id='TB_ajaxContent' style='width:" +
+							ajaxContentW +
+							'px;height:' +
+							ajaxContentH +
+							"px'></div>"
+					);
 			} else {
-				//this means the window is already up, we are just loading new content via ajax
-				document.getElementById( 'TB_ajaxContent' )[ 0 ].style.width = ajaxContentW + 'px';
-				document.getElementById( 'TB_ajaxContent' )[ 0 ].style.height = ajaxContentH + 'px';
-				document.getElementById( 'TB_ajaxContent' )[ 0 ].scrollTop = 0;
-				document.getElementById( 'TB_ajaxWindowTitle' ).html( caption );
+				//ajax modal
+				document.getElementById( 'TB_overlay' ).removeEventListener( 'click', a8c_tb_remove );
+				document
+					.getElementById( 'TB_window' )
+					.insertAdjacentHTML(
+						'beforeend',
+						"<div id='TB_ajaxContent' class='TB_modal' style='width:" +
+							ajaxContentW +
+							'px;height:' +
+							ajaxContentH +
+							"px;'></div>"
+					);
 			}
+		} else {
+			//this means the window is already up, we are just loading new content via ajax
+			document.getElementById( 'TB_ajaxContent' )[ 0 ].style.width = ajaxContentW + 'px';
+			document.getElementById( 'TB_ajaxContent' )[ 0 ].style.height = ajaxContentH + 'px';
+			document.getElementById( 'TB_ajaxContent' )[ 0 ].scrollTop = 0;
+			document.getElementById( 'TB_ajaxWindowTitle' ).html( caption );
 		}
 
 		document
@@ -386,12 +383,13 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 
 	if ( ! params.modal ) {
 		document.onkeyup = function ( e ) {
+			let keycode = null;
 			if ( e === null ) {
 				// ie
-				const keycode = event.keyCode;
+				keycode = event.keyCode;
 			} else {
 				// mozilla
-				const keycode = e.which;
+				keycode = e.which;
 			}
 			if ( keycode === 27 ) {
 				// close
