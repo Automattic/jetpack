@@ -55,7 +55,7 @@ if ( isset( $_POST['editzbstax'] ) ) {
 					'name' => sanitize_text_field( $raw_submitted_rates['names'][ $i ] ),
 					'rate' => (float) $raw_submitted_rates['rates'][ $i ],
 				),
-			),
+			)
 		);
 
 		if ( $potential_rate_id === -1 && $added_rate_id > 0 ) {

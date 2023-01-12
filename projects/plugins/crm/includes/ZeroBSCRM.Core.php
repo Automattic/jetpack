@@ -1119,7 +1119,7 @@ final class ZeroBSCRM {
 	public function includes() {
 
 		// Admin messages (for any promos etc)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginAdminNotices.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginAdminNotices.php';
 
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
@@ -1129,39 +1129,39 @@ final class ZeroBSCRM {
 		// =================== / General Perf Testing =========================
 		// ====================================================================
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.GeneralFuncs.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.DateTime.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.Checks.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScriptsStyles.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.GeneralFuncs.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.DateTime.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.Checks.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScriptsStyles.php';
 
 		// } Settings
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Config.Init.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'wh.config.lib.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Config.Init.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'wh.config.lib.php';
 
 		// } WP REST API SUPPORT (better performant AJAX)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.REST.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.REST.php';
 
 		// } General store of Error Codes
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ErrorCodes.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ErrorCodes.php';
 
 		// Language modifiers (e.g. Company -> Organisation)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-language.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-language.php';
 
 		// Segment conditions
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-segment-condition.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-segment-conditions.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-segment-condition.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-segment-conditions.php';
 
 		// Generic CRM exceptions
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-crm-exception.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-crm-exception.php';
 
 		// WordPress user integrations
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-wordpress-user-integration.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-wordpress-user-integration.php';
 
 		// Endpoint Listener
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-endpoint-listener.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-endpoint-listener.php';
 
 		// OAuth Handler
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-oauth-handler.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-oauth-handler.php';
 
 		// } DATA
 
@@ -1171,149 +1171,149 @@ final class ZeroBSCRM {
 		// - DAL 3 Objects
 		// - DAL3.Helpers.php (our helper funcs)
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.php';
 
 		// 3.0 DAL objs:
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.ObjectLayer.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Contacts.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Companies.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Segments.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-segment-condition-exception.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-missing-settings-exception.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Quotes.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.QuoteTemplates.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Invoices.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Transactions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Forms.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Events.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.EventReminders.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Logs.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.LineItems.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Export.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.ObjectLayer.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Contacts.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Companies.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Segments.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-segment-condition-exception.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-missing-settings-exception.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Quotes.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.QuoteTemplates.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Invoices.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Transactions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Forms.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.EventReminders.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.Logs.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Obj.LineItems.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Export.php';
 
 		// helper funcs
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Helpers.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Helpers.php';
 
 		// drop-in-replacement for previous global fields (uses models from objs now.)
 		// NOTE: Rather than initially hard-typed, this now needs to WAIT until DAL3 initialised
 		// ... so field Globals available LATER in build queue in DAL3+
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Fields.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL3.Fields.php';
 
 		// } Metaboxes v3.0
 
 			// Root classes
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php' );
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Logs.php' );
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tags.php' );
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.ExternalSources.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Logs.php';
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Tags.php';
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.ExternalSources.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Contacts.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Companies.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.TagManager.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Contacts.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Companies.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.TagManager.php';
 
 		// } 3.0 + ALL are in our metaboxes
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Quotes.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.QuoteTemplates.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Invoices.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Ownership.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Events.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Transactions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Forms.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Quotes.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.QuoteTemplates.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Invoices.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Ownership.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Transactions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes3.Forms.php';
 
 		// NO CPTs! YAY!
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ExternalSources.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DataIOValidation.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Database.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ExternalSources.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DataIOValidation.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Database.php';
 
 		// } Split out DAL2:
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL2.Mail.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DAL2.Mail.php';
 
 		// } Admin Pages
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminStyling.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.php' );
-		require_once ZEROBSCRM_PATH . 'admin/tags/tag-manager.page.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.FormatHelpers.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminStyling.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AdminPages.php';
+		require_once ZEROBSCRM_PATH . 'admin/tags/tag-manager.page.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.FormatHelpers.php';
 
 		// } Dashboard Boxes - WH Q why do we also need to define VARS for these, require once only requires once, right?
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DashboardBoxes.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.DashboardBoxes.php';
 
 		// } The kitchen sink
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Migrations.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Compatibility.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Localisation.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Migrations.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Compatibility.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Localisation.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-localisation.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Extensions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Actions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Menus.WP.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Menus.Top.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.License.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'class-learn-menu.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Extensions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Actions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Menus.WP.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Menus.Top.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.License.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'class-learn-menu.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Permissions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScreenOptions.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Inventory.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ReWriteRules.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-mail-templating.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating-placeholders.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MailTracking.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InternalAutomator.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CRON.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Social.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Permissions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ScreenOptions.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Inventory.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.ReWriteRules.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-mail-templating.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-templating-placeholders.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MailTracking.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InternalAutomator.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CRON.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Social.php';
 
 		// } Secondary
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AJAX.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.WYSIWYGButtons.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CustomerFilters.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InternalAutomatorRecipes.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.FileUploads.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Forms.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InvoiceBuilder.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.QuoteBuilder.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.AJAX.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.WYSIWYGButtons.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CustomerFilters.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InternalAutomatorRecipes.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.FileUploads.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Forms.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.InvoiceBuilder.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.QuoteBuilder.php';
 
 		// Ajax for /admin/*
 		require_once ZEROBSCRM_PATH . 'admin/email/ajax.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SystemChecks.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.IntegrationFuncs.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SystemChecks.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.IntegrationFuncs.php';
 
 		// Temporarily removed until MC2 catches up + finishes Mail Delivery:
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Mail.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Mail.php';
 
 		// } OBJ List Class (ZeroBSCRM.List.php) & List render funcs (ZeroBSCRM.List.Views.php) & List Column data
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Views.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Columns.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Views.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Columns.php';
 
 		// } OBJ Edit & Delete Classes (ZeroBSCRM.Edit.php)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Delete.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.TagManager.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Delete.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.TagManager.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Page.Controller.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Page.Controller.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Edit.Segment.php';
 
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php' );
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.CompletedEvents.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.Events.php';
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.CompletedEvents.php';
 
 		// } Semantic UI Helper + columns list
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.SemanticUIHelpers.php';
 
 		// } Put Plugin update message (notifications into the transient /wp-admin/plugins.php) page.. that way the nag message is not needed at the top of pages (and will always show, not need to be dismissed)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.php';
 
 		// v3.0 update coming, warning
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.ImminentRelease.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.PluginUpdates.ImminentRelease.php';
 
 		// } FROM PLUGIN HUNT THEME - LOT OF USEFUL CODE IN HERE.
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.NotifyMe.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.NotifyMe.php';
 
 		// load dependency checker (since 4.5.0)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-dependency-checker.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-dependency-checker.php';
 
 		// load feature sniffer (since 4.5.0)
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-feature-sniffer.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-feature-sniffer.php';
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			// if we need CLI stuff
@@ -1695,17 +1695,17 @@ final class ZeroBSCRM {
 		// } CSV Importer LITE
 		// } only run all this is no PRO installed :)
 		if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) && zeroBSCRM_isExtensionInstalled( 'csvimporterlite' ) && ! defined( 'ZBSCRM_INC_CSVIMPORTERLITE' ) ) {
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CSVImporter.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.CSVImporter.php';
 		}
 
 		// } API
 		if ( zeroBSCRM_isExtensionInstalled( 'api' ) && ! defined( 'ZBSCRM_INC_API' ) ) {
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.API.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.API.php';
 		}
 
 		// } If zbs admin: Tour
 		if ( zeroBSCRM_isZBSAdminOrAdmin() && ! defined( 'ZBSCRM_INC_ONBOARD_ME' ) ) {
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.OnboardMe.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.OnboardMe.php';
 		}
 
 		// If usage tracking is active - include the tracking code.
@@ -1715,14 +1715,14 @@ final class ZeroBSCRM {
 		$usingOwnership = $this->settings->get( 'perusercustomers' );
 		if ( $usingOwnership && ! $this->isDAL3() ) {
 			if ( ! class_exists( 'zeroBS__Metabox' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php' );
+				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBox.php';
 			}
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.MetaBoxes.Ownership.php';
 		}
 
 		if ( $this->isDAL3() && zeroBSCRM_isExtensionInstalled( 'jetpackforms' ) ) {
 			// } Jetpack - can condition this include on detection of Jetpack - BUT the code in Jetpack.php only fires on actions so will be OK to just include
-			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Jetpack.php';
 		}
 	}
 
@@ -1778,7 +1778,7 @@ final class ZeroBSCRM {
 
 			// <DAL3 needed this old class, V3.0+ uses our list view class :)
 			if ( ! $this->isDAL3() && ! class_exists( 'zeroBSCRM_QuoteTemplate_List' ) && ! function_exists( 'zeroBSCRM_render_quotetemplateslist_page' ) ) {
-				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.QuoteTemplate.php' );
+				require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.List.QuoteTemplate.php';
 			}
 		}
 
@@ -3285,7 +3285,7 @@ final class ZeroBSCRM {
 		if ( ! isset( $this->package_installer ) || $this->package_installer == null ) {
 
 			// Package installer
-			require_once ZEROBSCRM_INCLUDE_PATH . 'class-package-installer.php' );
+			require_once ZEROBSCRM_INCLUDE_PATH . 'class-package-installer.php';
 
 			$this->package_installer = new \Automattic\JetpackCRM\Package_Installer();
 
@@ -3379,7 +3379,7 @@ final class ZeroBSCRM {
 	public function get_fonts() {
 
 		// load if not loaded
-		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-fonts.php' );
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-fonts.php';
 
 		// load if not loaded
 		if ( ! $this->fonts ) {
