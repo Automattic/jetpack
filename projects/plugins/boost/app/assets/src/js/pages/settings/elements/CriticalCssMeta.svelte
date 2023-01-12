@@ -3,7 +3,7 @@
 	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
-	import CriticalCssStatus from './CriticalCssStatus.svelte';
+	import CriticalCssSuccess from './CriticalCssSuccess.svelte';
 </script>
 
 {#if $criticalCssStatus.status === 'requesting'}
@@ -28,8 +28,8 @@
 			/>
 		</div>
 	</div>
+{:else if $criticalCssStatus.status === 'success'}
+	<CriticalCssSuccess on:retry={() => generateCriticalCss()} />
 {:else if $showError}
 	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
-{:else}
-	<CriticalCssStatus on:retry={() => generateCriticalCss()} />
 {/if}
