@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Ignore WordPress.WP.AlternativeFunctions sniff in tests. No need to use WordPress's filesystem functions there.
-
-

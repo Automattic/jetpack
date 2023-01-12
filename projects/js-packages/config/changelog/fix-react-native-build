@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-
-Config: Metro JS cannot resolve `./src/index.sj` without adding the path as the `main` property in package.json
-

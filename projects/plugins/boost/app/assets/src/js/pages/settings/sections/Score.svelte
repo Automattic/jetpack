@@ -54,13 +54,17 @@
 	 */
 	const scoreConfigString = derived(
 		[ modules, criticalCssStatus ],
-		( [ $modules, $criticalCssStatus ] ) =>
-			JSON.stringify( {
-				modules: $modules,
+		( [ $modules, $criticalCssStatus ] ) => {
+			const scoreModules = Object.assign( {}, $modules );
+			delete scoreModules[ 'image-guide' ];
+
+			return JSON.stringify( {
+				modules: scoreModules,
 				criticalCss: {
 					created: $criticalCssStatus.created,
 				},
-			} )
+			} );
+		}
 	);
 
 	/**
