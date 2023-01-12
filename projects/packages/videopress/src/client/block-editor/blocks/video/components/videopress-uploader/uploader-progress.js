@@ -21,7 +21,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
-	const [ title ] = useState( null );
+	const { title } = attributes;
 
 	const guid = attributes?.guid;
 	const videoPressUploadPoster = usePosterUpload( guid );
@@ -118,6 +118,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 
 		Promise.allSettled( updates ).then( () => {
 			setIsFinishingUpdate( false );
+			setAttributes( attributes );
 			onDone();
 		} );
 	};
@@ -138,7 +139,7 @@ const UploaderProgress = ( {
 	progress,
 	file,
 	paused,
-	completed,
+	uploadedVideoData,
 	onPauseOrResume,
 	onDone,
 	supportPauseOrResume,
@@ -152,7 +153,11 @@ const UploaderProgress = ( {
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
-	] = usePosterAndTitleUpdate( { setAttributes, attributes, onDone } );
+	] = usePosterAndTitleUpdate( {
+		setAttributes,
+		attributes: { ...uploadedVideoData, title: attributes.title },
+		onDone,
+	} );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -184,7 +189,7 @@ const UploaderProgress = ( {
 			/>
 
 			<div className="videopress-uploader-progress">
-				{ completed ? (
+				{ uploadedVideoData ? (
 					<>
 						<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						<Button

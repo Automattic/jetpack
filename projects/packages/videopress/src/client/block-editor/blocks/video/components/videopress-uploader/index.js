@@ -32,7 +32,7 @@ const VideoPressUploader = ( {
 	onReplaceCancel,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
-	const [ uploadCompleted, setUploadCompleted ] = useState( false );
+	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 
@@ -86,19 +86,11 @@ const VideoPressUploader = ( {
 		setUploadErrorDataState( error );
 	}, [] );
 
-	/*
-	 * Handle upload success
-	 */
-	const handleUploadSuccess = attr => {
-		setAttributes( attr );
-		setUploadCompleted( true );
-	};
-
 	// Get file upload handlers, data, and error.
 	const { uploadHandler, resumeHandler, error: uploadingError } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
-		onSuccess: handleUploadSuccess,
+		onSuccess: setUploadedVideoData,
 	} );
 
 	/**
@@ -138,7 +130,7 @@ const VideoPressUploader = ( {
 	const startUploadFromLibrary = attachmentId => {
 		uploadFromLibrary( attachmentId )
 			.then( result => {
-				handleUploadSuccess( result );
+				setUploadedVideoData( result );
 			} )
 			.catch( error => {
 				setUploadErrorDataState( error );
@@ -298,7 +290,7 @@ const VideoPressUploader = ( {
 				file={ uploadFile }
 				progress={ progress }
 				paused={ uploadPaused }
-				completed={ uploadCompleted }
+				uploadedVideoData={ uploadedVideoData }
 				onPauseOrResume={ pauseOrResumeUpload }
 				onReplaceCancel={ cancelUploadingReplaceFile }
 				isReplacing={ isReplacing }
