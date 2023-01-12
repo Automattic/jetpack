@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Blaze;
 
 require_once __DIR__ . '/class-admin-menu.php';
 
@@ -15,18 +15,6 @@ require_once __DIR__ . '/class-admin-menu.php';
  * Class Jetpack_Admin_Menu.
  */
 class Jetpack_Admin_Menu extends Admin_Menu {
-
-	/**
-	 * Jetpack_Admin_Menu constructor.
-	 * Currently used to initialize the connection manager for getting the user locale
-	 * for showing the Advertising menu for add_tools_menu.
-	 * TODO: removed after Blaze has been released to all locales.
-	 */
-	protected function __construct() {
-		parent::__construct();
-
-		$this->connection = new Connection_Manager();
-	}
 
 	/**
 	 * Determines whether the current locale is right-to-left (RTL).
@@ -245,12 +233,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
-		// TODO: remove locale restriction when blaze is open to everyone.
-		$user_data = $this->connection->get_connected_user_data();
-		if (
-			! empty( $user_data['user_locale'] )
-			&& in_array( $user_data['user_locale'], array( 'en', 'en-gb' ), true )
-		) {
+		if ( Blaze::should_initialize() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
