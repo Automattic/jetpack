@@ -403,9 +403,7 @@ class zbsDAL {
 
         if ( $global_var_name !== -1){
 
-            global ${$global_var_name};
-
-            return ${$global_var_name};
+            return isset( $GLOBALS[ $global_var_name ] ) ? $GLOBALS[ $global_var_name ] : null;
 
         }
 

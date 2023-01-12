@@ -168,11 +168,7 @@ if ( isset( $sbupdated ) ) {
 								<?php
 								// } output fields
 
-								// } Weird this doesn't work for mike:
-								// global $$fieldType['obj'];
-								$fieldTypeObjVarName = $fieldType['obj'];
-								global ${$fieldTypeObjVarName};// $$fieldTypeObjVarName; #} compat php7
-								$fieldTypesArray = ${$fieldTypeObjVarName};
+								$fieldTypesArray = isset( $GLOBALS[ $fieldType['obj'] ] ) ? $GLOBALS[ $fieldType['obj'] ] : null;
 
 								// } This holds running list of migrated fields so only shows once
 								$migratedFieldsOut = array();

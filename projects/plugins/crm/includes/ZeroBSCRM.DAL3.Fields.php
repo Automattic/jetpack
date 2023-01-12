@@ -495,7 +495,7 @@ function zeroBSCRM_customFields_applyFieldToGlobal( $customFields, $key, $keyFie
 	if ( ! empty( $globalVarName ) && is_array( $customFields ) && ! empty( $key ) && isset( $customFields[ $key ] ) && is_array( $customFields[ $key ] ) && count( $customFields[ $key ] ) > 0 ) {
 
 		// globalise, e.g. global $zbsCompanyFields;
-		global ${$globalVarName}, $zbs, $zbsFieldSorts;
+		global $zbs, $zbsFieldSorts;
 
 		$cfIndx = 1;
 		if ( is_array( $customFields[ $key ] ) ) {
@@ -506,7 +506,7 @@ function zeroBSCRM_customFields_applyFieldToGlobal( $customFields, $key, $keyFie
 				$fieldO = zeroBSCRM_customFields_processCustomField( $field );
 
 				// } Add it to arr
-				${$globalVarName}[ $fieldKey ] = $fieldO;
+				$GLOBALS[ $globalVarName ][ $fieldKey ] = $fieldO;
 
 				// } increment
 				++$cfIndx;
@@ -1318,10 +1318,9 @@ function zeroBSCRM_customFields_getSlugOrCreate( $fieldLabel = '', $objectTypeSt
 			// ... and modified a bit
 			$globalVarName = $customFieldsToProcess[ $objectTypeStr ];
 			// 2.96.7+ CHECK against existing fields + add -1 -2 etc. if already in there
-			global ${$globalVarName};
 
 			// if exists, just return it :)
-			if ( isset( ${$globalVarName}[ $possSlug ] ) ) {
+			if ( isset( $GLOBALS[ $globalVarName ][ $possSlug ] ) ) {
 				return $possSlug;
 			} else {
 

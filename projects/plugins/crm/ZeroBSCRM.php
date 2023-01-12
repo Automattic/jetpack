@@ -205,7 +205,7 @@ if ( ! function_exists( '_we' ) ) {
 	function _we( $str, $domain = 'zero-bs-crm' ) {
 		_e( $str, $domain );
 	}
-	function __w( $str, $domain = 'zero-bs-crm' ) {
+	function __w( $str, $domain = 'zero-bs-crm' ) { // phpcs:ignore PHPCompatibility.FunctionNameRestrictions.ReservedFunctionNames.FunctionDoubleUnderscore -- legacy
 		return __( $str, $domain );
 	}
 }

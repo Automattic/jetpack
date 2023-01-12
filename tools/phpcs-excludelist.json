@@ -245,7 +245,6 @@
 	"projects/plugins/crm/modules/portal/templates/dashboard.php",
 	"projects/plugins/crm/modules/portal/templates/details.php",
 	"projects/plugins/crm/modules/portal/templates/disabled.php",
-	"projects/plugins/crm/modules/portal/templates/footer.php",
 	"projects/plugins/crm/modules/portal/templates/invoices.php",
 	"projects/plugins/crm/modules/portal/templates/login.php",
 	"projects/plugins/crm/modules/portal/templates/quotes.php",

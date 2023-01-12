@@ -85,14 +85,11 @@ function zeroBSCRM_FireInternalAutomator($actionStr='',$obj=array()){
 		#} Checks if there's a global variable (work list) for this $actionStr
 		$actionHolderName = 'zeroBSCRM_IA_Action_'.str_replace('.','_',$actionStr);
 
-		#} Access it
-		global ${$actionHolderName}; #} Modified for php7 (thanks trlogga) $$actionHolderName; http://php.net/manual/en/migration70.incompatible.php
-
 		#} Exists?
-		if (isset(${$actionHolderName}) && is_array(${$actionHolderName})){
+		if (isset($GLOBALS[ $actionHolderName ]) && is_array($GLOBALS[ $actionHolderName ])){
 
 			#} If here, has an array 
-			foreach (${$actionHolderName} as $action){
+			foreach ($GLOBALS[ $actionHolderName ] as $action){
 
 				if (isset($action['act']) && !empty($action['act']) && isset($action['params'])){
 
@@ -135,15 +132,11 @@ function zeroBSCRM_AddInternalAutomatorRecipe($actionStr='',$functionName='',$pa
 		#} Checks if there's a global variable (work list) for this $actionStr
 		$actionHolderName = 'zeroBSCRM_IA_Action_'.str_replace('.','_',$actionStr);
 
-		#} Access it
-		global ${$actionHolderName}; #} Modified for php7 (thanks trlogga) $$actionHolderName; http://php.net/manual/en/migration70.incompatible.php
-
 		#} Init?
-		if (!isset(${$actionHolderName})) ${$actionHolderName} = array();
+		if (!isset($GLOBALS[ $actionHolderName ])) $GLOBALS[ $actionHolderName ] = array();
 
 		#} Append.
-		#${$actionHolderName}[] = array('act'=>$functionName,'params'=>$paramsObj);
-		array_push(${$actionHolderName},array('act'=>$functionName,'params'=>$paramsObj));
+		array_push($GLOBALS[ $actionHolderName ],array('act'=>$functionName,'params'=>$paramsObj));
 
 		return true;
 

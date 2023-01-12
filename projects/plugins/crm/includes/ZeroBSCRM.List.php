@@ -196,9 +196,8 @@ class zeroBSCRM_list{
 
             #} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
             $columnVar = 'zeroBSCRM_columns_'.$this->objType; //$zeroBSCRM_columns_transaction;
-            global $$columnVar;
-            $defaultColumns = ${$columnVar}['default'];
-            $allColumns = ${$columnVar}['all'];
+            $defaultColumns = $GLOBALS[ $columnVar ]['default'];
+            $allColumns = $GLOBALS[ $columnVar ]['all'];
 
 
         global $zbs;
@@ -214,15 +213,14 @@ class zeroBSCRM_list{
         #} Filter buttons
         // load defaults (List.columns.php)
         $filterVar = 'zeroBSCRM_filterbuttons_'.$this->objType; //$zeroBSCRM_filterbuttons_transaction;
-        global $$filterVar;
-        if ( !isset( $$filterVar ) ) {
-            $$filterVar = array( 'default'=>array(), 'all'=>array() );
+        if ( !isset( $GLOBALS[ $filterVar ] ) ) {
+            $GLOBALS[ $filterVar ] = array( 'default'=>array(), 'all'=>array() );
         }
-        $defaultFilterButtons = ${$filterVar}['default'];
+        $defaultFilterButtons = $GLOBALS[ $filterVar ]['default'];
         // retrieve from customViews (as retrieved above)
         $currentFilterButtons = false; if (isset($customViews) && isset($customViews[$this->objType.'_filters'])) $currentFilterButtons = $customViews[$this->objType.'_filters'];
         if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
-        $allFilterButtons = ${$filterVar}['all'];
+        $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
 
 
 

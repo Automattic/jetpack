@@ -3048,21 +3048,19 @@ function zeroBS___________DAL30Helpers(){return;}
 			// retrieve global var name
 			$globFieldVarName = $zbs->DAL->objFieldVarName($objType);
 	    
-	    	//req.
-	    	if (!empty($globFieldVarName)) global $$globFieldVarName;
 			// should be $zbsCustomerFields etc.
 			// from 3.0 this is kind of redundant, esp when dealing with events, which have none, so we skip if this case
 			if (
-				!$zbs->isDAL3() && (empty($globFieldVarName) || $globFieldVarName == false || !isset($$globFieldVarName))
+				!$zbs->isDAL3() && (empty($globFieldVarName) || $globFieldVarName == false || !isset($GLOBALS[ $globFieldVarName ]))
 				) return $retArray;
 
 			// nope. (for events in DAL3)
 			// ... potentially can turn this off for all non DAL3? may be redundant inside next {}
-			if ($objType !== ZBS_TYPE_EVENT && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($$globFieldVarName)){
+			if ($objType !== ZBS_TYPE_EVENT && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($GLOBALS[$globFieldVarName])){
 
 		        $i=0;
 
-		        foreach ($$globFieldVarName as $fK => $fV){
+		        foreach ($GLOBALS[$globFieldVarName] as $fK => $fV){
 
 		        	$i++;
 

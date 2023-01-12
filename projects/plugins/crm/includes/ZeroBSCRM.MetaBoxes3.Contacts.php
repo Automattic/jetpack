@@ -662,7 +662,7 @@
         /*
         * Saves the profile picture 
         */
-        public static function save_profile_picture( $contact_id, $crm_contact ) {
+        public function save_profile_picture( $contact_id, $crm_contact ) {
             global $zbs;
 
             $contact_dir_info    = jpcrm_storage_dir_info_for_contact( $contact_id );

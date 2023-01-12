@@ -2579,8 +2579,7 @@ function zeroBSCRM_AJAX_updateListViewFilterButtons() {
 
 	// get list of valid filters
 	$filter_str = 'zeroBSCRM_filterbuttons_' . $listtype;
-	global $$filter_str;
-	$all_filters = ${$filter_str}['all'];
+	$all_filters = $GLOBALS[ $filter_str ]['all'];
 
 	// build list of filters buttons
 	$new_filter_settings = array();
