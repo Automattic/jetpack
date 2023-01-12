@@ -396,9 +396,9 @@ class Waf_Runner {
 	 * @return bool False if automatic rules file is not available or empty, true otherwise
 	 */
 	public static function automatic_rules_available() {
-
 		$automatic_rules_existed = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
+		// If automatic rules never existed, return false.
 		if ( ! $automatic_rules_existed ) {
 			return false;
 		}
@@ -409,12 +409,11 @@ class Waf_Runner {
 
 		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
+		// If automatic rules files is empty, return false.
 		if ( "<?php\n" === $automatic_rules_file_contents ) {
 			return false;
 		}
 
 		return true;
-
 	}
-
 }
