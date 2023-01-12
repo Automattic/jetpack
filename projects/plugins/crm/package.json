@@ -1,5 +1,5 @@
 {
-	"name": "jetpack-crm",
+	"name": "@automattic/jetpack-crm",
 	"version": "5.5.2-alpha",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
@@ -11,7 +11,8 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Automattic/zero-bs-crm.git"
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/crm"
 	},
 	"devDependencies": {
 		"esm": "^3.2.25",
