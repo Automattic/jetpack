@@ -81,8 +81,11 @@ export const a8c_tb_show = function ( caption, url, imageGroupIn ) {
 	// try {
 	if ( typeof document.body.style.maxHeight === 'undefined' ) {
 		//if IE 6
-		$( 'body', 'html' ).css( { height: '100%', width: '100%' } );
-		$( 'html' ).css( 'overflow', 'hidden' );
+		document.querySelectorAll( 'body', 'html' ).forEach( el => {
+			el.style.height = '100%';
+			el.style.width = '100%';
+		} );
+		document.querySelector( 'html' ).style.overflow = 'hidden';
 		if ( document.getElementById( 'TB_HideSelect' ) === null ) {
 			//iframe to hide select elements in ie6
 			document
@@ -417,7 +420,7 @@ export const a8c_tb_remove = function () {
 	document.getElementById( 'TB_imageOff' )?.removeEventListener( 'click', a8c_tb_remove );
 	document.getElementById( 'TB_closeWindowButton' )?.removeEventListener( 'click', a8c_tb_remove );
 	document.getElementById( 'TB_window' )?.remove();
-	document.querySelector( '#TB_window,#TB_overlay,#TB_HideSelect' ).forEach( el => {
+	document.querySelectorAll( '#TB_window,#TB_overlay,#TB_HideSelect' ).forEach( el => {
 		el.dispatchEvent( new Event( 'unload' ) );
 		el.removeAllEventListeners();
 		el.remove();
@@ -425,7 +428,7 @@ export const a8c_tb_remove = function () {
 	document.getElementById( 'TB_load' )?.remove();
 	if ( typeof document.body.style.maxHeight === 'undefined' ) {
 		//if IE 6
-		document.querySelector( 'body', 'html' ).forEach( function ( el ) {
+		document.querySelectorAll( 'body', 'html' ).forEach( function ( el ) {
 			el.style.height = 'auto';
 			el.style.width = 'auto';
 		} );
