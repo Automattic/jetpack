@@ -1,6 +1,4 @@
-/* global tb_show, tb_remove */
-
-import './memberships-modal';
+import { a8c_tb_show, a8c_tb_remove } from './memberships-modal';
 
 /**
  * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.
@@ -13,7 +11,7 @@ function handleIframeResult( eventFromIframe ) {
 		const data = JSON.parse( eventFromIframe.data );
 		if ( data && data.action === 'close' ) {
 			window.removeEventListener( 'message', handleIframeResult );
-			tb_remove();
+			a8c_tb_remove();
 		}
 	}
 }
@@ -23,10 +21,9 @@ function setUpModal( button ) {
 		event.preventDefault();
 		const url = button.getAttribute( 'href' );
 		window.scrollTo( 0, 0 );
-		tb_show( null, url + '&display=alternate&TB_iframe=true', null );
+		a8c_tb_show( null, url + '&display=alternate&TB_iframe=true', null );
 		window.addEventListener( 'message', handleIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
+		document.getElementById( 'TB_window' ).classList.add( 'jetpack-memberships-modal' );
 
 		// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
 		window.scrollTo( 0, 0 );
