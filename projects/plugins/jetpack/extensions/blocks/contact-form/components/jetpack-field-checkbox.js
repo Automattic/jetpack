@@ -4,6 +4,7 @@ import { withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldCheckbox( props ) {
 	const {
@@ -18,10 +19,13 @@ function JetpackFieldCheckbox( props ) {
 		attributes,
 	} = props;
 
+	const { blockStyle } = useJetpackFieldStyles( attributes );
+
 	return (
 		<div
 			id={ `jetpack-field-checkbox-${ instanceId }` }
 			className="jetpack-field jetpack-field-checkbox"
+			style={ blockStyle }
 		>
 			<input
 				className="jetpack-field-checkbox__checkbox"
