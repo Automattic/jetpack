@@ -417,7 +417,7 @@ export const a8c_tb_remove = function () {
 	document.getElementById( 'TB_imageOff' )?.removeEventListener( 'click', a8c_tb_remove );
 	document.getElementById( 'TB_closeWindowButton' )?.removeEventListener( 'click', a8c_tb_remove );
 	document.getElementById( 'TB_window' )?.remove();
-	document.querySelector( '#TB_window,#TB_overlay,#TB_HideSelect' ).foreach( el => {
+	document.querySelector( '#TB_window,#TB_overlay,#TB_HideSelect' ).forEach( el => {
 		el.dispatchEvent( new Event( 'unload' ) );
 		el.removeAllEventListeners();
 		el.remove();
