@@ -414,15 +414,15 @@ export const a8c_tb_showIframe = function () {
 };
 
 export const a8c_tb_remove = function () {
-	document.getElementById( 'TB_imageOff' ).removeEventListener( 'click', a8c_tb_remove );
-	document.getElementById( 'TB_closeWindowButton' ).removeEventListener( 'click', a8c_tb_remove );
-	document.getElementById( 'TB_window' ).remove();
+	document.getElementById( 'TB_imageOff' )?.removeEventListener( 'click', a8c_tb_remove );
+	document.getElementById( 'TB_closeWindowButton' )?.removeEventListener( 'click', a8c_tb_remove );
+	document.getElementById( 'TB_window' )?.remove();
 	document.querySelector( '#TB_window,#TB_overlay,#TB_HideSelect' ).foreach( el => {
 		el.dispatchEvent( new Event( 'unload' ) );
 		el.removeAllEventListeners();
 		el.remove();
 	} );
-	document.getElementById( 'TB_load' ).remove();
+	document.getElementById( 'TB_load' )?.remove();
 	if ( typeof document.body.style.maxHeight === 'undefined' ) {
 		//if IE 6
 		document.querySelector( 'body', 'html' ).forEach( function ( el ) {
