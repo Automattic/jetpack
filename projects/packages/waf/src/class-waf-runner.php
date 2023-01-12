@@ -411,7 +411,13 @@ class Waf_Runner {
 
 		// If automatic rules files was removed or is empty, return false.
 		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
-			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+
+			// If automatic rules are enabled, disable them
+			if ( $automatic_rules_enabled ) {
+				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+			}
+
 			return false;
 		}
 
