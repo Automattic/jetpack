@@ -148,9 +148,12 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, isToggling } = useWafData();
+	const {
+		config: { jetpackWafAutomaticRules, jetpackWafIpList },
+		isToggling,
+	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus = isEnabled ? 'on' : 'off';
+	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
