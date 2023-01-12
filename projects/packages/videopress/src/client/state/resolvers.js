@@ -10,7 +10,7 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_FILTER,
 	WP_REST_API_MEDIA_ENDPOINT,
-	DELETE_VIDEO,
+	FLUSH_DELETED_VIDEOS,
 	REST_API_SITE_INFO_ENDPOINT,
 	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
@@ -159,10 +159,11 @@ const getVideos = {
 			console.error( error ); // eslint-disable-line no-console
 		}
 	},
+
 	shouldInvalidate: ( { type } ) => {
 		return (
 			type === SET_VIDEOS_QUERY ||
-			type === DELETE_VIDEO ||
+			type === FLUSH_DELETED_VIDEOS ||
 			type === SET_VIDEOS_FILTER ||
 			type === REPLACE_VIDEOS_FILTER
 		);
@@ -189,6 +190,7 @@ const getVideo = {
 
 		return video;
 	},
+
 	fulfill: id => async ( { dispatch, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
@@ -241,7 +243,7 @@ const getUploadedVideoCount = {
 	},
 
 	shouldInvalidate: action => {
-		return action.type === SET_VIDEO_PROCESSING || action.type === DELETE_VIDEO;
+		return action.type === SET_VIDEO_PROCESSING || action.type === FLUSH_DELETED_VIDEOS;
 	},
 };
 
@@ -323,6 +325,7 @@ const getLocalVideos = {
 			console.error( error ); // eslint-disable-line no-console
 		}
 	},
+
 	shouldInvalidate: action => {
 		return action.type === SET_LOCAL_VIDEOS_QUERY;
 	},
@@ -371,6 +374,7 @@ const getPlaybackToken = {
 		const playbackTokens = state?.playbackTokens?.items ?? [];
 		return playbackTokens?.some( token => token?.guid === guid );
 	},
+
 	fulfill: guid => async ( { dispatch } ) => {
 		dispatch.setIsFetchingPlaybackToken( true );
 
@@ -393,6 +397,7 @@ const getPlaybackToken = {
 			console.error( error ); // eslint-disable-line no-console
 		}
 	},
+
 	shouldInvalidate: ( action, guid ) => {
 		return action.type === EXPIRE_PLAYBACK_TOKEN && action.guid === guid;
 	},
@@ -402,6 +407,7 @@ const getVideoPressSettings = {
 	isFulfilled: state => {
 		return state?.siteSettings !== undefined;
 	},
+
 	fulfill: () => async ( { dispatch } ) => {
 		try {
 			const { videopress_videos_private_for_site: videoPressVideosPrivateForSite } = await apiFetch(

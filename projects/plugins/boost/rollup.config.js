@@ -219,7 +219,11 @@ export default [
 			format: 'iife',
 			name: 'app',
 			file: `${ GUIDE_PATH }/dist/guide.js`,
+			globals: {
+				'@wordpress/components': 'wp.components',
+			},
 		},
+		external: [ '@wordpress/components' ],
 		plugins: [
 			replace( {
 				preventAssignment: true,
