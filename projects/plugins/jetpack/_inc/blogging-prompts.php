@@ -52,24 +52,6 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  */
 
 /**
- * Get the 'jetpack_blogging_prompts_enabled' and default to true if the site appears to be a blog.
- *
- * @return boolean
- */
-function jetpack_are_blogging_prompts_enabled() {
-	$prompts_enabled = (bool) get_option( 'jetpack_blogging_prompts_enabled', false );
-
-	/**
-	 * Filters whether blogging prompts are enabled.
-	 *
-	 * @since 11.7
-	 *
-	 * @param bool $prompts_enabled Whether blogging prompts are enabled.
-	 */
-	return apply_filters( 'jetpack_are_blogging_prompts_enabled', $prompts_enabled );
-}
-
-/**
  * Retrieve daily blogging prompts from the wpcom API and cache them.
  *
  * @param int $time Unix timestamp representing the day for which to get blogging prompts.
@@ -127,6 +109,60 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
 
 	return $prompts;
+}
+
+/**
+ * Retieve a blogging prompt by prompt id.
+ *
+ * @param int $prompt_id ID of the prompt to return.
+ * @return stdClass|null Prompt object or null if not found.
+ */
+function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
+	$locale        = get_locale();
+	$transient_key = 'jetpack_blogging_prompt_' . $prompt_id . '_' . $locale;
+	$daily_prompt  = get_transient( $transient_key );
+
+	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
+	if ( false !== $daily_prompt ) {
+		return $daily_prompt;
+	}
+
+	$blog_id = \Jetpack_Options::get_option( 'id' );
+	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts/' . rawurldecode( $prompt_id ) . '?_locale=' . rawurldecode( $locale );
+	$args    = array(
+		'headers' => array(
+			'Content-Type'    => 'application/json',
+			'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
+		),
+		// `method` and `url` are needed for using `WPCOM_API_Direct::do_request`
+		// `wpcom_json_api_request_as_user` will generate and overwrite these.
+		'method'  => \WP_REST_Server::READABLE,
+		'url'     => JETPACK__WPCOM_JSON_API_BASE . '/wpcom/v2' . $path,
+	);
+
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		// This will load the library, but it may be too late to automatically load any endpoints using WPCOM_API_Direct::register_endpoints.
+		// In that case, call `wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' )`
+		// on the `init` hook to load the blogging-prompts endpoint before calling this function.
+		require_lib( 'wpcom-api-direct' );
+		$response = \WPCOM_API_Direct::do_request( $args );
+	} else {
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user( $path, 'v2', $args, null, 'wpcom' );
+	}
+	$response_status = wp_remote_retrieve_response_code( $response );
+
+	if ( is_wp_error( $response ) || $response_status !== \WP_Http::OK ) {
+		return null;
+	}
+
+	$prompt = json_decode( wp_remote_retrieve_body( $response ) );
+
+	if ( ! $prompt ) {
+		return null;
+	}
+	set_transient( $transient_key, $prompt, MONTH_IN_SECONDS );
+
+	return $prompt;
 }
 
 /**

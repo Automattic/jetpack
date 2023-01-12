@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Writing prompts: remove placeholder prompt and fetch embedded prompt by id for better compatibility
