@@ -84,7 +84,7 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-stats-dashboard" style="height: calc(100vh - 100px);">
+		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
 			<div class="hide-if-no-js" style="height: 100%">
 				<img
