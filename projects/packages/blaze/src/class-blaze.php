@@ -115,7 +115,7 @@ class Blaze {
 
 		// The feature relies on this module for now.
 		// See 1386-gh-dotcom-forge
-		if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
+		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
 			$should_initialize = false;
 		}
 
