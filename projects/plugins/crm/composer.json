@@ -41,7 +41,7 @@
 			"link-template": "https://github.com/Automattic/zero-bs-crm/compare/v${old}...v${new}"
 		},
 		"release-branch-prefix": "crm",
-		"wp-plugin-slug": "zero-bs-crm"
+		"wp-plugin-slug": "zero-bs-crm",
 		"wp-svn-autopublish": true
 	}
 }
