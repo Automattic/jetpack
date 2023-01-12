@@ -283,7 +283,7 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 								urlNoQuery[ 0 ] +
 								"' id='TB_iframeContent' name='TB_iframeContent" +
 								Math.round( Math.random() * 1000 ) +
-								"style='width:" +
+								"' style='width:" +
 								( ajaxContentW + 29 ) +
 								'px;height:' +
 								( ajaxContentH + 17 ) +
@@ -291,7 +291,9 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 						);
 				} else {
 					//iframe modal
-					document.getElementById( 'TB_overlay' ).removeEventListener();
+					document
+						.getElementById( 'TB_overlay' )
+						.removeEventListener( 'click', a8c_tb_remove, false );
 					document
 						.getElementById( 'TB_window' )
 						.insertAdjacentHTML(
@@ -300,7 +302,7 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 								urlNoQuery[ 0 ] +
 								"' id='TB_iframeContent' name='TB_iframeContent" +
 								Math.round( Math.random() * 1000 ) +
-								"style='width:" +
+								"' style='width:" +
 								( ajaxContentW + 29 ) +
 								'px;height:' +
 								( ajaxContentH + 17 ) +
@@ -408,7 +410,6 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 
 //helper functions below
 export const a8c_tb_showIframe = function () {
-	console.info( 'a8c_tb_showIframe' );
 	document.getElementById( 'TB_load' )?.remove();
 	document.getElementById( 'TB_window' ).style.display = 'block';
 };
