@@ -132,7 +132,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 
 		// This should not be a use case
 		return false;
-
 	}
 
 	/**
