@@ -172,7 +172,7 @@ class Waf_Runner {
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
-			'automatic_rules_available'                  => (bool) get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME ),
+			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
 		);
 	}
 
@@ -388,6 +388,33 @@ class Waf_Runner {
 		// Re-generate the standalone bootstrap file on every update
 		// TODO: We may consider only doing this when the WAF version changes
 		( new Waf_Standalone_Bootstrap() )->generate();
+	}
+
+	/**
+	 * Check if automatic rules file is available
+	 *
+	 * @return bool False if automatic rules file is not available or empty, true otherwise
+	 */
+	public static function automatic_rules_available() {
+
+		$automatic_rules_existed = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+		if ( ! $automatic_rules_existed ) {
+			return false;
+		}
+
+		global $wp_filesystem;
+
+		self::initialize_filesystem();
+
+		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
+
+		if ( "<?php\n" === $automatic_rules_file_contents ) {
+			return false;
+		}
+
+		return true;
+
 	}
 
 }
