@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus

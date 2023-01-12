@@ -6,7 +6,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { uploadVideo as videoPressUpload, getJWT, uploadFromLibrary } from '../hooks/use-uploader';
+import { uploadFromLibrary } from '../hooks/use-uploader';
+import getMediaToken from '../lib/get-media-token';
+import fileUploader from '../lib/resumable-file-uploader';
 import uid from '../utils/uid';
 import {
 	SET_IS_FETCHING_VIDEOS,
@@ -48,6 +50,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	SET_VIDEOPRESS_SETTINGS,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+	UPDATE_PAGINATION_AFTER_DELETE,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -218,9 +221,11 @@ const deleteVideo = id => async ( { dispatch } ) => {
 
 		// dispach action to invalidate the cache
 		if ( ! resp?.deleted ) {
-			return dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: false, video: {} } );
+			dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: false, video: {} } );
+		} else {
+			dispatch( { type: UPDATE_PAGINATION_AFTER_DELETE } );
+			dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: true, video: resp?.previous } );
 		}
-		dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: true, video: resp?.previous } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console
@@ -242,7 +247,7 @@ const uploadVideo = file => async ( { dispatch } ) => {
 	dispatch( { type: SET_VIDEO_UPLOADING, id: tempId, title: file?.name } );
 
 	// @todo: this should be stored in the state
-	const jwt = await getJWT();
+	const tokenData = await getMediaToken( 'upload-jwt' );
 
 	const onSuccess = async data => {
 		dispatch( { type: SET_VIDEO_PROCESSING, id: tempId, data } );
@@ -254,8 +259,8 @@ const uploadVideo = file => async ( { dispatch } ) => {
 		dispatch( { type: SET_VIDEO_UPLOAD_PROGRESS, id: tempId, bytesSent, bytesTotal } );
 	};
 
-	videoPressUpload( {
-		data: jwt,
+	fileUploader( {
+		tokenData,
 		file,
 		onError: noop,
 		onProgress,

@@ -162,7 +162,6 @@ class Jetpack_Protect {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-protect', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-protect', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**
@@ -194,7 +193,6 @@ class Jetpack_Protect {
 			'adminUrl'          => 'admin.php?page=jetpack-protect',
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
-			'productData'       => My_Jetpack_Products::get_product( 'protect' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
 				'isSupported' => Waf_Runner::is_supported_environment(),
@@ -308,7 +306,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'clear-scan-cache',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_clear_scan_cache',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -320,7 +318,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'ignore-threat',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_ignore_threat',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -332,7 +330,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'fix-threats',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_fix_threats',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -344,7 +342,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'fix-threats-status',
 			array(
-				'methods'             => \WP_REST_SERVER::READABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::api_fix_threats_status',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -368,7 +366,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'scan',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_scan',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -380,7 +378,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'toggle-waf',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_toggle_waf',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -392,7 +390,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'waf',
 			array(
-				'methods'             => \WP_REST_SERVER::READABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::api_get_waf',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -404,7 +402,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'waf-seen',
 			array(
-				'methods'             => \WP_REST_SERVER::READABLE,
+				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_waf_seen_status',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -416,7 +414,7 @@ class Jetpack_Protect {
 			'jetpack-protect/v1',
 			'waf-seen',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::set_waf_seen_status',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
@@ -472,7 +470,7 @@ class Jetpack_Protect {
 	 */
 	public static function api_ignore_threat( $request ) {
 		if ( ! $request['threat_id'] ) {
-			return new WP_REST_RESPONSE( 'Missing threat ID.', 400 );
+			return new WP_REST_Response( 'Missing threat ID.', 400 );
 		}
 
 		$threat_ignored = Threats::ignore_threat( $request['threat_id'] );
@@ -493,7 +491,7 @@ class Jetpack_Protect {
 	 */
 	public static function api_fix_threats( $request ) {
 		if ( empty( $request['threat_ids'] ) ) {
-			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+			return new WP_REST_Response( 'Missing threat IDs.', 400 );
 		}
 
 		$threats_fixed = Threats::fix_threats( $request['threat_ids'] );
@@ -514,7 +512,7 @@ class Jetpack_Protect {
 	 */
 	public static function api_fix_threats_status( $request ) {
 		if ( empty( $request['threat_ids'] ) ) {
-			return new WP_REST_RESPONSE( 'Missing threat IDs.', 400 );
+			return new WP_REST_Response( 'Missing threat IDs.', 400 );
 		}
 
 		$threats_fixed = Threats::fix_threats_status( $request['threat_ids'] );

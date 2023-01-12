@@ -198,7 +198,6 @@ EXPECTED;
 
 		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
-
 	}
 
 	/*
@@ -206,7 +205,7 @@ EXPECTED;
 	 */
 	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
 
@@ -239,7 +238,7 @@ EXPECTED;
 	 */
 	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
 		global $wp_styles;
-		$wp_styles = new WP_styles();
+		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 

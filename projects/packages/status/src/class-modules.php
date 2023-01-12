@@ -416,11 +416,17 @@ class Modules {
 
 				// Check and see if the old plugin is active.
 				if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
-					// Deactivate the old plugin.
-					if ( \Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
-						// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
-						// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-						$state->state( 'deactivated_plugins', $module );
+					// Deactivate the old plugins.
+					$deactivated = array();
+					foreach ( $jetpack->plugins_to_deactivate[ $module ] as $idx => $deactivate_me ) {
+						if ( \Jetpack_Client_Server::deactivate_plugin( $deactivate_me[0], $deactivate_me[1] ) ) {
+							// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
+							// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
+							$deactivated[] = "$module:$idx";
+						}
+					}
+					if ( $deactivated ) {
+						$state->state( 'deactivated_plugins', join( ',', $deactivated ) );
 						wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 						exit;
 					}

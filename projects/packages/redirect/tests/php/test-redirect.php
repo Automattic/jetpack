@@ -92,7 +92,6 @@ class RedirectTest extends TestCase {
 		$v     = rawurlencode( 'key=value&key2=value2' );
 		$v_url = rawurlencode( 'https://wordpress.com/support' );
 		$this->assertEquals( 'https://jetpack.com/redirect/?url=' . $v_url . '&site=example.org&query=' . $v, $url );
-
 	}
 
 }

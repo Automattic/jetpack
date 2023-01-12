@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status\Visitor;
 
 /**
@@ -19,7 +20,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @return array       Array with single 'valid' (bool) entry.
 	 */
 	public static function has_valid_connection( $user_id ) {
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}
@@ -68,7 +69,7 @@ class Jetpack_Google_Drive_Helper {
 	 * @return array
 	 */
 	public static function create_sheet( $user_id, $title, $rows = array() ) {
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}
@@ -121,23 +122,5 @@ class Jetpack_Google_Drive_Helper {
 			);
 		}
 		return json_decode( wp_remote_retrieve_body( $wpcom_request ), true );
-	}
-
-	/**
-	 * Get the WPCOM or self-hosted site ID.
-	 *
-	 * @return mixed
-	 */
-	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
-		}
-		return (int) $site_id;
 	}
 }
