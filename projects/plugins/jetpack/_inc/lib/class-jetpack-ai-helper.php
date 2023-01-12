@@ -3,7 +3,7 @@
  * API helper for the AI blocks.
  *
  * @package automattic/jetpack
- * @since $$next-version$$
+ * @since 11.8
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status;
 /**
  * Class Jetpack_AI_Helper
  *
- * @since $$next-version$$
+ * @since 11.8
  */
 class Jetpack_AI_Helper {
 	/**

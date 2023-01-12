@@ -50,6 +50,7 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	SET_VIDEOPRESS_SETTINGS,
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
+	UPDATE_PAGINATION_AFTER_DELETE,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
 
@@ -220,9 +221,11 @@ const deleteVideo = id => async ( { dispatch } ) => {
 
 		// dispach action to invalidate the cache
 		if ( ! resp?.deleted ) {
-			return dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: false, video: {} } );
+			dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: false, video: {} } );
+		} else {
+			dispatch( { type: UPDATE_PAGINATION_AFTER_DELETE } );
+			dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: true, video: resp?.previous } );
 		}
-		dispatch( { type: DELETE_VIDEO, id, hasBeenDeleted: true, video: resp?.previous } );
 	} catch ( error ) {
 		// @todo: implement error handling / UI
 		console.error( error ); // eslint-disable-line no-console

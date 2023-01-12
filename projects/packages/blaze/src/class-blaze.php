@@ -16,7 +16,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.3-alpha';
+	const PACKAGE_VERSION = '0.3.4-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -64,9 +64,25 @@ class Blaze {
 	 */
 	public static function should_initialize() {
 		$should_initialize = true;
+		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$user_data         = $is_wpcom
+			? array( 'user_locale' => get_user_locale() )
+			: ( new Jetpack_Connection() )->get_connected_user_data();
 
-		// These features currently only work on WordPress.com, so they should be connected for best experience.
-		if ( ! ( new Jetpack_Connection() )->is_user_connected() ) {
+		/*
+		 * These features currently only work on WordPress.com,
+		 * so the user should either be connected to WordPress.com for things to work,
+		 * or be on a WordPress.com site where we have direct access to user data such as user locale.
+		 */
+		if ( ! $user_data ) {
+			$should_initialize = false;
+		}
+
+		// We currently do not show the UI for non-English WordPress.com users.
+		if (
+			! empty( $user_data['user_locale'] )
+			&& ! in_array( $user_data['user_locale'], array( 'en', 'en-gb' ), true )
+		) {
 			$should_initialize = false;
 		}
 
@@ -77,8 +93,22 @@ class Blaze {
 
 		// Only show the UI on WordPress.com Simple and WoA sites for now.
 		if (
-			! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			! $is_wpcom
 			&& ! ( new Host() )->is_woa_site()
+		) {
+			$should_initialize = false;
+		}
+
+		/*
+		 * Do not show the UI on private sites
+		 * nor on sites that have not been launched yet.
+		 */
+		if (
+			'-1' === get_option( 'blog_public' )
+			|| (
+				( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
+				|| (bool) get_option( 'wpcom_public_coming_soon' )
+			)
 		) {
 			$should_initialize = false;
 		}

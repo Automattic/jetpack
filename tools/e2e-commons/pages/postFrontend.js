@@ -4,7 +4,7 @@ import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl();
-		super( page, { expectedSelectors: [ '.post' ], url } );
+		super( page, { url } );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Poll for scan status while scanner is provisioning
