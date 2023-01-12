@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Prevent access of WPCOM endpoint for other sites than WPCOM simple sites
