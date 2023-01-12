@@ -34,9 +34,14 @@
 	],
 	"minimum-stability": "dev",
 	"extra": {
-		"mirror-repo": "Automattic/zero-bs-crm",
+		"autotagger": true,
+		"autorelease": true,
+		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/zero-bs-crm/compare/v${old}...v${new}"
-		}
+		},
+		"release-branch-prefix": "crm",
+		"wp-plugin-slug": "zero-bs-crm"
+		"wp-svn-autopublish": true
 	}
 }
