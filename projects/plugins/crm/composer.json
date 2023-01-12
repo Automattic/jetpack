@@ -17,7 +17,8 @@
 	"config": {
 		"platform": {
 			"php": "7.3"
-		}
+		},
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha"
 	},
 	"require": {
 		"automattic/woocommerce": "^3.0"
