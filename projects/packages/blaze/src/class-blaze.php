@@ -113,6 +113,12 @@ class Blaze {
 			$should_initialize = false;
 		}
 
+		// The feature relies on this module for now.
+		// See 1386-gh-dotcom-forge
+		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
+			$should_initialize = false;
+		}
+
 		/**
 		 * Filter to disable all Blaze functionality.
 		 *
