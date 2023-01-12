@@ -199,10 +199,18 @@ export default function VideoPressEdit( {
 	const { filename } = videoData;
 
 	// Get video preview status.
+	const defaultPreview = { html: null, scripts: [], width: null, height: null };
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
+			if ( ! videoPressUrl ) {
+				return {
+					preview: defaultPreview,
+					isRequestingEmbedPreview: false,
+				};
+			}
+
 			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || false,
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || defaultPreview,
 				isRequestingEmbedPreview:
 					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
 			};
@@ -211,9 +219,7 @@ export default function VideoPressEdit( {
 	);
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
-		? preview
-		: { html: null, scripts: [], width: null, height: null };
+	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -285,40 +291,48 @@ export default function VideoPressEdit( {
 	}
 
 	useEffect( () => {
-		// Attempts limit achieved. Bail early.
 		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+			debug( 'Generating preview ➡ attempts number reached out 😪', generatingPreviewCounter );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// VideoPress URL is not defined. Bail early and cleans the time.
 		if ( ! videoPressUrl ) {
+			debug( 'Generating preview ➡ No URL Provided 👋🏻' );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early (clean the timer) if the preview is already being requested.
 		if ( isRequestingEmbedPreview ) {
+			debug( 'Generating preview ➡ Requesting… ⌛' );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early (clean the timer) when preview is defined.
-		if ( preview ) {
-			setGeneratingPreviewCounter( 0 ); // reset counter.
+		if ( preview.html ) {
+			debug( 'Generating preview ➡ Preview achieved 🎉 %o', preview );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early when it has been already started.
 		if ( rePreviewAttemptTimer?.current ) {
+			debug( 'Generating preview ➡ Process already requested ⌛' );
 			return;
 		}
 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
-			if ( preview ) {
+			if ( preview.html ) {
+				debug( 'Generating preview ➡ Preview already achieved 🎉 %o', preview );
 				setGeneratingPreviewCounter( 0 ); // reset counter.
 				return;
 			}
 
 			setGeneratingPreviewCounter( v => v + 1 );
+			debug(
+				'Generating preview ➡ Not achieved so far. Start attempt %o 🔥',
+				generatingPreviewCounter + 1 // +1 because the counter is updated after the effect.
+			);
 			invalidateCachedEmbedPreview();
 		}, 2000 );
 
@@ -400,7 +414,7 @@ export default function VideoPressEdit( {
 
 	// Generating video preview.
 	if (
-		( isRequestingEmbedPreview || ! preview ) &&
+		( isRequestingEmbedPreview || ! preview.html ) &&
 		generatingPreviewCounter > 0 &&
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
@@ -418,7 +432,7 @@ export default function VideoPressEdit( {
 	}
 
 	// 5 - Generating video preview failed.
-	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
+	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview.html ) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<PlaceholderWrapper

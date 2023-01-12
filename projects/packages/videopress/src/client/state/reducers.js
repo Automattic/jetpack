@@ -41,6 +41,7 @@ import {
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
 	DISMISS_FIRST_VIDEO_POPOVER,
+	FLUSH_DELETED_VIDEOS,
 	UPDATE_PAGINATION_AFTER_DELETE,
 } from './constants';
 
@@ -247,10 +248,14 @@ const videos = ( state, action ) => {
 			return {
 				...state,
 				// Do not remove the video from the list, just update the meta data.
-				// Keep here in caswe we want to do it in the future.
+				// Keep here in case we want to do it in the future.
 				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
 				_meta: {
 					...state._meta,
+					videosBeingRemoved: [
+						{ id, processed: false, deleted: false },
+						...( state._meta.videosBeingRemoved ?? [] ),
+					],
 					items: {
 						..._metaItems,
 						[ id ]: {
@@ -270,10 +275,24 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
-			const uploadedVideoCount = state.uploadedVideoCount - 1;
+			const videosBeingRemoved = [ ...( state._meta.videosBeingRemoved ?? [] ) ];
+			const removedVideoIndex = videosBeingRemoved.findIndex( item => item.id === id );
 
-			if ( ! _metaVideo ) {
+			if ( ! _metaVideo || removedVideoIndex < 0 ) {
 				return state;
+			}
+
+			videosBeingRemoved[ removedVideoIndex ].processed = true;
+			videosBeingRemoved[ removedVideoIndex ].deleted = hasBeenDeleted;
+
+			const processedAllVideosBeingRemoved =
+				videosBeingRemoved.filter( item => ! item.processed ).length === 0;
+
+			let uploadedVideoCount = state.uploadedVideoCount ?? 0;
+
+			if ( processedAllVideosBeingRemoved ) {
+				const videosBeingRemovedCount = videosBeingRemoved.filter( item => item.deleted ).length;
+				uploadedVideoCount = uploadedVideoCount - videosBeingRemovedCount;
 			}
 
 			return {
@@ -281,16 +300,27 @@ const videos = ( state, action ) => {
 				uploadedVideoCount,
 				_meta: {
 					...state._meta,
-					relyOnInitialState: false,
+					videosBeingRemoved,
+					processedAllVideosBeingRemoved,
 					items: {
 						..._metaItems,
 						[ id ]: {
 							..._metaVideo,
-							isDeleting: false,
 							hasBeenDeleted,
 							deletedVideo,
 						},
 					},
+				},
+			};
+		}
+
+		case FLUSH_DELETED_VIDEOS: {
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					videosBeingRemoved: [],
+					relyOnInitialState: false,
 				},
 			};
 		}
@@ -300,18 +330,20 @@ const videos = ( state, action ) => {
 		 * after deleting video
 		 */
 		case UPDATE_PAGINATION_AFTER_DELETE: {
-			const { items = [], query = {}, pagination = {} } = state;
+			const { items = [], query = {}, pagination = {}, _meta = {} } = state;
+			const { videosBeingRemoved = [] } = _meta;
+			const videosBeingRemovedCount = videosBeingRemoved.filter( item => item.deleted ).length;
 
-			// If is the last video, reduce the page per 1
+			// If the last videos of the page are deleted, reduce the page by 1
 			// Being optimistic here
-			const isLastVideo = items?.length === 1;
+			const areLastVideos = items?.length === videosBeingRemovedCount;
 			const currentPage = query?.page ?? 1;
 			const currentTotalPage = pagination?.totalPages ?? 1;
 			const currentTotal = pagination?.total;
 
-			const page = isLastVideo && currentPage > 1 ? currentPage - 1 : currentPage;
+			const page = areLastVideos && currentPage > 1 ? currentPage - 1 : currentPage;
 			const totalPages =
-				isLastVideo && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
+				areLastVideos && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
 
 			return {
 				...state,
