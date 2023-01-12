@@ -261,7 +261,6 @@ export const a8c_tb_show = function ( caption, url, imageGroup ) {
 
 			const queryString = url.replace( /^[^\?]+\??/, '' );
 			var params = a8c_tb_parseQuery( queryString );
-			debugger;
 			TB_WIDTH = params.width * 1 + 30 || 630; //defaults to 630 if no paramaters were added to URL
 			TB_HEIGHT = params.height * 1 + 40 || 440; //defaults to 440 if no paramaters were added to URL
 			const ajaxContentW = TB_WIDTH - 30;
