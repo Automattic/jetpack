@@ -22,7 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -58,11 +58,15 @@ const useDashboardVideos = () => {
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
 
+	// Use a tempPage to catch changes in page from store and not URL
+	const tempPage = useRef( page );
+
 	/** Get the page number from the search parameters and set it to the state when the state is outdated */
 	const searchParams = useSearchParams();
 	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
+
 	useEffect( () => {
 		// when there are no search results, ensure that the current page number is 1
 		if ( total === 0 && pageFromSearchParam !== 1 ) {
@@ -82,9 +86,18 @@ const useDashboardVideos = () => {
 
 		// react to a page param change
 		if ( page !== pageFromSearchParam ) {
-			setVideosQuery( {
-				page: pageFromSearchParam,
-			} );
+			// store changed and not url
+			// update url to match store update
+			if ( page !== tempPage.current ) {
+				tempPage.current = page;
+				searchParams.setParam( 'page', page );
+				searchParams.update();
+			} else {
+				tempPage.current = pageFromSearchParam;
+				setVideosQuery( {
+					page: pageFromSearchParam,
+				} );
+			}
 
 			return;
 		}
@@ -97,7 +110,7 @@ const useDashboardVideos = () => {
 
 			return;
 		}
-	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam ] );
+	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];

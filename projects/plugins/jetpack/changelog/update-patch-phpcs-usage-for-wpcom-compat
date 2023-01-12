@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Move a phpcs ignore so that wpcom doesn't throw linting error.
+
+
