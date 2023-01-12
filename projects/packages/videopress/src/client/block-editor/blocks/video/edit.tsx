@@ -291,7 +291,7 @@ export default function VideoPressEdit( {
 	}
 
 	useEffect( () => {
-		debug( 'Generating preview ➡ Attemp %o 🔥', generatingPreviewCounter );
+		debug( 'Generating preview ➡ Attemp %o 💉', generatingPreviewCounter );
 		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
 			debug( 'Generating preview ➡ attempts number reached out 😪', generatingPreviewCounter );
 			return cleanRegeneratingProcessTimer();
@@ -312,7 +312,6 @@ export default function VideoPressEdit( {
 		// Bail early (clean the timer) when preview is defined.
 		if ( preview.html ) {
 			debug( 'Generating preview ➡ Preview achieved 🎉 %o', preview );
-			setGeneratingPreviewCounter( 0 ); // reset counter.
 			return cleanRegeneratingProcessTimer();
 		}
 
@@ -332,7 +331,7 @@ export default function VideoPressEdit( {
 
 			setGeneratingPreviewCounter( v => v + 1 );
 			debug(
-				'Generating preview ➡ Not obtained. Start %o attempt 💉',
+				'Generating preview ➡ Not achieved so far. Start attempt %o 🔥',
 				generatingPreviewCounter + 1 // +1 because the counter is updated after the effect.
 			);
 			invalidateCachedEmbedPreview();
