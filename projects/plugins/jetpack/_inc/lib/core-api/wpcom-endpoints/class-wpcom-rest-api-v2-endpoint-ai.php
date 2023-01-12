@@ -50,6 +50,24 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	}
 
 	/**
+	 * Checks if a given request is allowed to get AI data from WordPress.com.
+	 *
+	 * @return true|WP_Error True if the request has access, WP_Error object otherwise.
+	 */
+	public function permissions_check() {
+
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			// Only post editors can access the endpoints
+			return new WP_Error(
+				'rest_forbidden',
+				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
+		}
+
+		return true;
+	}
+	/**
 	 * Register routes.
 	 */
 	public function register_routes() {
@@ -60,7 +78,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_gpt_completion' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permissions_check' ),
 				),
 				'args' => array(
 					'content' => array( 'required' => true ),
@@ -75,7 +93,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_dalle_generation' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( $this, 'permissions_check' ),
 				),
 				'args' => array(
 					'prompt' => array( 'required' => true ),

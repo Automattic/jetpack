@@ -31,31 +31,6 @@ class Jetpack_AI_Helper {
 	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
-	 * Checks if a given request is allowed to get AI data from WordPress.com.
-	 *
-	 * @param WP_REST_Request $request Full details about the request.
-	 *
-	 * @return true|WP_Error True if the request has access, WP_Error object otherwise.
-	 */
-	public static function get_status_permission_check( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		/*
-		 * This may need to be updated
-		 * to take into account the different ways we can make requests
-		 * (from a WordPress.com site, from a Jetpack site).
-		 */
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Get the name of the transient for image generation. Unique per prompt and allows for reuse of results for the same prompt across entire WPCOM.
 	 * I expext "puppy" to always be from cache.
 	 *
