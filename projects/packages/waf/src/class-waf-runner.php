@@ -409,8 +409,9 @@ class Waf_Runner {
 
 		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
-		// If automatic rules files is empty, return false.
-		if ( "<?php\n" === $automatic_rules_file_contents ) {
+		// If automatic rules files was removed or is empty, return false.
+		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 			return false;
 		}
 
