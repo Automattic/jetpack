@@ -16,6 +16,7 @@ mysql -e "DROP DATABASE IF EXISTS jpcrm_testing; CREATE DATABASE jpcrm_testing;"
 cp tests/acceptance.suite.dist.yml tests/acceptance.suite.yml
 sed -i 's/some_db_user/root/g' tests/acceptance.suite.yml
 sed -i 's/some_db_pass/root/g' tests/acceptance.suite.yml
+sed -i 's/host=localhost/host=127.0.0.1/g' tests/acceptance.suite.yml
 sed -i 's!/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml!'"$WORDPRESS_DIR"'!g' tests/acceptance.suite.yml
 
 # Setup WordPress runtime config.
@@ -23,6 +24,7 @@ cp "$WORDPRESS_DIR/wp-config-sample.php" "$WORDPRESS_DIR/wp-config.php"
 sed -i 's/database_name_here/jpcrm_testing/g' "$WORDPRESS_DIR/wp-config.php"
 sed -i 's/username_here/root/g' "$WORDPRESS_DIR/wp-config.php"
 sed -i 's/password_here/root/g' "$WORDPRESS_DIR/wp-config.php"
+sed -i 's/localhost/127.0.0.1/g' "$WORDPRESS_DIR/wp-config.php"
 sed -i '/Add any custom values between this line and the "stop editing" line./a define("DISABLE_WP_CRON", true);\ndefine("WP_AUTO_UPDATE_CORE", false);' "$WORDPRESS_DIR/wp-config.php"
 
 # Build and run tests
