@@ -1,11 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
+if ( ! class_exists( 'Waf_Brute_Force_Protection_Math_Authenticate' ) ) {
 
 	/**
 	 * The math captcha fallback if we can't talk to the Protect API
 	 */
-	class Jetpack_Protect_Math_Authenticate {
+	class Waf_Brute_Force_Protection_Blocked_Login_Page {
 
 		/**
 		 * If the class is loaded.

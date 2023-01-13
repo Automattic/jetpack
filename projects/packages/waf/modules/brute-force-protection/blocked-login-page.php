@@ -4,19 +4,19 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 
 /**
- * Class Jetpack_Protect_Blocked_Login_Page
+ * Class Waf_Brute_Force_Protection_Blocked_Login_Page
  *
  * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
  * Class will only be instanciated if Protect has detected a hard blocked IP address.
  */
-class Jetpack_Protect_Blocked_Login_Page {
+class Waf_Brute_Force_Protection_Blocked_Login_Page {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Jetpack_Protect_Blocked_Login_Page
+	 * @var Waf_Brute_Force_Protection_Blocked_Login_Page
 	 */
 	private static $instance = null;
 
@@ -51,8 +51,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	/**
 	 * URL to support page
 	 *
-	 * @deprecated 8.5.0 Use Jetpack_Protect_Blocked_Login_Page::get_help_url()
-	 * @see Jetpack_Protect_Blocked_Login_Page::get_help_url()
+	 * @deprecated 8.5.0 Use Waf_Brute_Force_Protection_Blocked_Login_Page::get_help_url()
+	 * @see Waf_Brute_Force_Protection_Blocked_Login_Page::get_help_url()
 	 *
 	 * @var string string $HELP_URL
 	 */
@@ -67,8 +67,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
-			self::$instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
+		if ( ! is_a( self::$instance, 'Waf_Brute_Force_Protection_Blocked_Login_Page' ) ) {
+			self::$instance = new Waf_Brute_Force_Protection_Blocked_Login_Page( $ip_address );
 		}
 
 		return self::$instance;
