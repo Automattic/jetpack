@@ -406,6 +406,11 @@
 	transform: unset;
 }
 
+.contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label label {
+	font-weight: 300;
+}
+
+
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__trailing {
 	flex-grow: 1;
 	border-radius: var(--jetpack--contact-form--border-radius);
@@ -493,7 +498,7 @@
 {
 	font-size: 0.8em;
 	transform: translateY(0);
-	top: 4px;
+	top: 2px;
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
