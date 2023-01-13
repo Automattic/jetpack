@@ -412,7 +412,7 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Check if automatic rules file is available
+	 * Check if an automatic rules file is available
 	 *
 	 * @return bool False if automatic rules file is not available, true otherwise
 	 */
