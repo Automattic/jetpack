@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-VideoPress: tweak title and description
+VideoPress: Render properly title and description inputs of the video block
