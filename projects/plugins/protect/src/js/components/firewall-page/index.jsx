@@ -514,12 +514,30 @@ const FirewallPage = () => {
 										{ sprintf(
 											// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
 											_n(
-												'%s IP is being blocked.',
-												'%s IPs are being blocked.',
+												'%s IP is being blocked. ',
+												'%s IPs are being blocked. ',
 												ipBlockListCount,
 												'jetpack-protect'
 											),
 											ipBlockListCount === 1 ? 'One' : ipBlockListCount
+										) }
+									</Text>
+								) }
+								{ ipAllowListCount > 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__allow-list-count' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ sprintf(
+											// translators: placeholder is a number of allowed IP addresses i.e. "5 IPs are being allowed".
+											_n(
+												'%s IP is being allowed.',
+												'%s IPs are being allowed.',
+												ipAllowListCount,
+												'jetpack-protect'
+											),
+											ipAllowListCount === 1 ? 'One' : ipAllowListCount
 										) }
 									</Text>
 								) }

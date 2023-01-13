@@ -65,12 +65,19 @@
 }
 
 .manual-rules-stats {
+    display: flex;
+    flex-wrap: wrap;
     
     &__no-rules {
         color: var( --jp-gray-50 );
     }
 
     &__block-list-count {
+        color: var( --jp-green-50 );
+        margin-right: calc( var( --spacing-base ) / 2 ); // 4px
+    }
+
+    &__allow-list-count {
         color: var( --jp-green-50 );
     }
 }
