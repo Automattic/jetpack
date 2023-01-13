@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
+	import External from './assets/External.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
@@ -37,7 +39,7 @@
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
 
-	const DOCUMENTATION_URL = `https://jetpack.com/support/jetpack-boost/image-performance-guide/`;
+	const DOCUMENTATION_URL = getRedirectUrl( 'jetpack-support-boost-image-performance-guide' );
 </script>
 
 <div class="details" in:fly={{ duration: 150, y: 4, easing: backOut }}>
@@ -70,11 +72,10 @@
 			{:else}
 				{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
 				<div class="explanation">
-					The image file is {stretchedBy}x smaller than expected on this screen. This might be okay,
-					but pay attention whether the image appears blurry.
+					The image file is {stretchedBy}x smaller than expected on this screen. This might be fine,
+					but you may want to check if the image appears blurry.
 				</div>
 			{/if}
-			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
 		</div>
 		{#if $imageURL}
 			<img
@@ -138,17 +139,24 @@
 				{/if}
 			</div>
 		</div>
+
 		{#if imageOrigin !== origin}
 			<div class="info">
 				Unable to estimate file size savings because the image is hosted on a different domain.
 			</div>
 		{/if}
+
+		<div class="info">
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+				>Learn how to improve site speed by optimizing images <External /></a
+			>
+		</div>
 	</div>
 </div>
 
 <style lang="scss">
 	a {
-		color: #069e08 !important;
+		color: #3c434a !important;
 		font-weight: 600 !important;
 
 		&.documentation {
