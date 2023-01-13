@@ -146,7 +146,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				setErrorMessage
 			);
 		}
-	}, [] );
+	}, [ setAttributes, attributes ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div { ...useBlockProps() }>
