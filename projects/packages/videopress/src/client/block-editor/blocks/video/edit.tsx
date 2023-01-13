@@ -291,7 +291,6 @@ export default function VideoPressEdit( {
 	}
 
 	useEffect( () => {
-		debug( 'Generating preview ➡ Attemp %o 💉', generatingPreviewCounter );
 		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
 			debug( 'Generating preview ➡ attempts number reached out 😪', generatingPreviewCounter );
 			return cleanRegeneratingProcessTimer();
