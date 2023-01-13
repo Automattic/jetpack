@@ -65,7 +65,7 @@ class Blaze {
 	 */
 	private static function site_supports_blaze( $blog_id ) {
 		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
-			return null;
+			return true;
 		}
 
 		// Make the API request.
