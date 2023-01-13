@@ -1,3 +1,4 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton } from '@wordpress/components';
 import { _x, __ } from '@wordpress/i18n';
 
@@ -26,9 +27,7 @@ export const getPaidPlanLink = hasNewsletterPlans => {
 };
 
 export const isNewsletterFeatureEnabled = () => {
-	return !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-		'paid-newsletters-in-subscriptions' // We probably want to introduce a new "extension" instead of reusing this one.
-	];
+	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
