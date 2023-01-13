@@ -1,4 +1,3 @@
-import { useBlockProps } from '@wordpress/block-editor';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -71,10 +70,7 @@ export const settings = {
 	},
 	edit,
 	/* @TODO Write the block editor output */
-	save: args => {
-		const blockProps = useBlockProps.save();
-		return <div { ...blockProps }>{ args.attributes.content }</div>;
-	},
+	save: () => '',
 	attributes,
 	example: {
 		attributes: {
