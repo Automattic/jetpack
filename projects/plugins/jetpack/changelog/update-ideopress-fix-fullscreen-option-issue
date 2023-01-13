@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack: fix the fullscreen option when using videopress shortcode

@@ -55,6 +55,10 @@ export const getDismissedFirstVideoPopover = state => {
 	return state?.videos?.dismissedFirstVideoPopover;
 };
 
+export const getProcessedAllVideosBeingRemoved = state => {
+	return state?.videos?._meta?.processedAllVideosBeingRemoved;
+};
+
 // Single Video stuff
 export const getVideo = ( state, id ) => {
 	const videos = getVideos( state );
@@ -128,6 +132,7 @@ const selectors = {
 	getFirstUploadedVideoId,
 	getFirstVideoProcessed,
 	getDismissedFirstVideoPopover,
+	getProcessedAllVideosBeingRemoved,
 
 	// Local videos
 	getLocalVideos,
