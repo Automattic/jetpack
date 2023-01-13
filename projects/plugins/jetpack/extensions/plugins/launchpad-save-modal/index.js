@@ -6,6 +6,7 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getModalContentFromFlow, isModalSupportedByFlow } from './util';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
@@ -29,6 +30,8 @@ export const settings = {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 
+		const modalContent = getModalContentFromFlow( siteIntentOption );
+
 		useEffect( () => {
 			if ( prevIsSaving === true && isSaving === false ) {
 				setIsModalOpen( true );
@@ -36,9 +39,9 @@ export const settings = {
 		}, [ isSaving, prevIsSaving ] );
 
 		const showModal =
+			isModalSupportedByFlow( siteIntentOption ) &&
 			isInsideSiteEditor &&
 			launchpadScreenOption === 'full' &&
-			siteIntentOption === 'link-in-bio' &&
 			! dontShowAgain &&
 			isModalOpen;
 
@@ -54,15 +57,8 @@ export const settings = {
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
-							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Your site is ready to launch!', 'jetpack' ) }
-							</h1>
-							<p className="launchpad__save-modal-message">
-								{ __(
-									'Launching your Link in Bio will allow you to share a link with others and promote your site.',
-									'jetpack'
-								) }
-							</p>
+							<h1 className="launchpad__save-modal-heading">{ modalContent.heading }</h1>
+							<p className="launchpad__save-modal-message">{ modalContent.body }</p>
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
