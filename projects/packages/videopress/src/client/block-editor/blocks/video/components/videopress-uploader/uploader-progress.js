@@ -3,6 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { Button, Spinner, TextControl } from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
@@ -80,6 +81,10 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		} );
 	};
 
+	const debouncedSsendUpdatePoster = useDebounce( posterData => {
+		sendUpdatePoster( posterData );
+	}, 1000 );
+
 	const sendUpdateTitleRequest = () => {
 		return updateMeta( { title } );
 	};
@@ -119,12 +124,12 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 		}
 
 		if ( videoPosterImageData ) {
-			return sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+			return debouncedSsendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
 		}
 
 		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
 		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
-			sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+			debouncedSsendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
 		}
 	}, [ videoPosterImageData, videoFrameMs, guid ] );
 
