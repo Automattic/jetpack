@@ -132,6 +132,10 @@ export const removeFileNameExtension = ( name: string ) => {
 
 /**
  * Helper function to create and return textarea element.
+ *
+ * > Moreover, using textContent can prevent XSS attacks.
+ * https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innerhtml
+ *
  * It will be used to decode HTML entities,
  * As long as element doesn’t get inserted in the DOM,
  * we’re good in terms of security,
@@ -139,7 +143,7 @@ export const removeFileNameExtension = ( name: string ) => {
  *
  * @returns {HTMLTextAreaElement} - Textarea element
  */
-const createTextareaelement = (): HTMLTextAreaElement => {
+const createTextareaElement = (): HTMLTextAreaElement => {
 	if ( document.implementation && document.implementation.createHTMLDocument ) {
 		return document.implementation.createHTMLDocument( '' ).createElement( 'textarea' );
 	}
@@ -160,7 +164,7 @@ export function decodeEntities( text: string ): string | null {
 	}
 
 	// Create temporary element to decode entities
-	const element = createTextareaelement();
+	const element = createTextareaElement();
 	element.innerHTML = text;
 	const decoded = element.textContent;
 	element.innerHTML = '';
