@@ -25,6 +25,14 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 		}
 
 		const style = getComputedStyle( current );
+
+		// Guide can't be correctly positioned inside inline elements
+		// because they don't have dimensions
+		if ( style.display === 'inline' ) {
+			current = current.parentElement;
+			continue;
+		}
+
 		if (
 			style.zIndex === 'auto' &&
 			( style.position === 'static' || style.position === 'relative' )
