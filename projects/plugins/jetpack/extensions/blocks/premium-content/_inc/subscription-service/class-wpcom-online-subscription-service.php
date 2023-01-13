@@ -58,7 +58,15 @@ class WPCOM_Online_Subscription_Service extends WPCOM_Token_Subscription_Service
 	 * @return bool
 	 */
 	protected function user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id ) {
-		/** This filter is already documented in projects/plugins/jetpack/extensions/blocks/premium-content/_inc/subscription-service/class-token-subscription-service.php */
+		/**
+		 * Filter the subscriptions attached to a specific user on a given site.
+		 *
+		 * @since 9.4.0
+		 *
+		 * @param array $subscriptions Array of subscriptions.
+		 * @param int   $user_id The user's ID.
+		 * @param int   $site_id ID of the current site.
+		 */
 		$subscriptions = apply_filters( 'earn_get_user_subscriptions_for_site_id', array(), wp_get_current_user()->ID, $this->get_site_id() );
 		// format the subscriptions so that they can be validated.
 		$subscriptions      = self::abbreviate_subscriptions( $subscriptions );
