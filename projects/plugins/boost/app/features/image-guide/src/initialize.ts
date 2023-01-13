@@ -17,7 +17,7 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 	let current: HTMLElement | null = node.parentElement;
 
 	// Keep track of target element
-	let result: HTMLElement;
+	let target: HTMLElement;
 	while ( current && current instanceof HTMLElement ) {
 		// Don't go past the body element
 		if ( current === document.body ) {
@@ -28,33 +28,23 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 
 		// Guide can't be correctly positioned inside inline elements
 		// because they don't have dimensions.
-		if ( style.display === 'inline' ) {
-			current = current.parentElement;
-			continue;
-		}
+		const canContainBlockElements = style.display !== 'inline';
+		const isStatic = style.position === 'static';
+		const isRelative = style.position === 'relative';
+		const hasZIndex = style.zIndex !== 'auto';
+		const isRelativeWithZIndex = isRelative && hasZIndex;
 
 		if (
-			result === undefined &&
-			( style.position === 'static' ||
-				( style.position === 'relative' && style.zIndex === 'auto' ) )
+			canContainBlockElements &&
+			( ( ! target && ( isStatic || isRelative ) ) || isRelativeWithZIndex )
 		) {
-			result = current;
-			// Move on to the next parent element
-			current = current.parentElement;
-			continue;
-		}
-
-		if ( style.position === 'relative' && style.zIndex !== 'auto' ) {
-			result = current;
-			// Move on to the next parent element
-			current = current.parentElement;
-			continue;
+			target = current;
 		}
 
 		current = current.parentElement;
 	}
 
-	return result || document.body;
+	return target;
 }
 
 /**
