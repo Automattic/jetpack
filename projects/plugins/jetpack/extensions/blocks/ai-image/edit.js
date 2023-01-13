@@ -21,22 +21,16 @@ function getRandomItem( arr ) {
 }
 
 const PLACEHOLDER = getRandomItem( [
-	'earth reviving after human extinction, a new beginning, nature taking over buildings, animal kingdom, harmony, peace, earth balanced --version 3 --s 1250 --uplight --ar 4:3 --no text, blur',
-	'Freeform ferrofluids, beautiful dark chaos, swirling black frequency --ar 3:4 --iw 9 --q 2 --s 1250',
-	'a home built in a huge Soap bubble, windows, doors, porches, awnings, middle of SPACE, cyberpunk lights, Hyper Detail, 8K, HD, Octane Rendering, Unreal Engine, V-Ray, full hd -- s5000 --uplight --q 3 --stop 80--w 0.5 --ar 1:3',
-	'photo of an extremely cute alien fish swimming an alien habitable underwater planet, coral reefs, dream-like atmosphere, water, plants, peaceful, serenity, calm ocean, tansparent water, reefs, fish, coral, inner peace, awareness, silence, nature, evolution --version 3 --s 42000 --uplight --ar 4:3 --no text, blur',
-	'Rubber Duck Aliens visiting the Earth for the first time, hyper-realistic, cinematic, detailed --ar 16:9',
-	'rubber duck duke ellington. Harlem jazz club. Singing. Mic. Ambience',
-	'viking north druid lich mermaid king wise old man god of death witch pagan face portrait, underwater, covered in runes, crown made of bones, necromancer, zdzisław beksiński, mikhail vrubel, hr giger, gustav klimt, symmetry, mystical occult symbol in real life, high detail, green light --ar 9:16',
-	'full body character + beautiful female neopunk wizard opening a portal to the sidereal multiverse :: Mandelbrot neuro web :: intricate galaxy inlay + ultra high detail, plasma neon internal glow, precise :: consciousness projection :: astral projection :: laser sharp, octane render + unreal render + photo real :: 8k, volumetric lighting high contrast --uplight --quality 2 --stop 80 --ar 9:16',
-	'hyerophant, god light, cinematic look, octane render, under water, --wallpaper',
-	'Reunion of man, team, squad, cyberpunk, abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k',
-	'Lovecraftian character Cthulhu, with the hunter hat, and the saw cleaver, with bloodborne weapons, full body, in the style bloodborne style, full body, dark fantasy, trending on ArtStation, --ar 4:5',
-	'Swirls :: fog :: phantom + ghost + dog + glowing eyes + bright silver ::3 smoke + shine + sphere:: black paper + elements + dark grey + dark blue + neon + baroque + rococo + white + ink + tarot card with ornate border frame + sébastien mitton, viktor antonov, sergey kolesov, detailed, intricate ink illustration + magic + glow --ar 63:88',
-	'tyriel archangel, king shamn , avatar , swords , angel wings . 4k , unreal engine --wallpaper',
-	'ultra quality. hyper realistic smiling rubber duck with 4 wings, intricate silver, intricate brown and orange, neon armor, ornate, cinematic lighting, floral, symetric, portrait, statue cyberpunk, abstract, full hd render + 3d octane render +4k UHD + immense detail + dramatic lighting + well lit + black, purple, blue, pink, cerulean, teal, metallic colours, + fine details + octane render + 8k, abstract',
-	'Tentacles + marble + ebony ::3 fog + smoke + shine + sphere:: black paper + elements + dark grey + dark purple + neon + baroque + rococo + white + ink + tarot card with ornate border frame + sébastien mitton, viktor antonov, sergey kolesov, detailed, intricate ink illustration + magic + glow --ar 63:88',
-	'fibonacci, stone, snail, wallpaper, colorful, blue gray green, 3d pattern, 8k',
+	'A digital Illustration of the a purely mechanical television, 4k, detailed, fantasy vivid colors',
+	'3D render of a floating futuristic castle in a clear sky, digital art',
+	'hedgehog smelling a flower | clear blue sky | intricate artwork by Beatrix Potter | cottagecore aesthetic | 8K | highly detailed | wide angle |',
+	'hyper realistic photo of a high end futuristic single-level house where walls are made of windows, light coming through the window, mid century modern style, cinematic lighting',
+	'botticelli’s simonetta vespucci young portrait photography hyperrealistic modern dressed, futuristic',
+	'pink ape Astronaut in space holding a claymate in a photorealistic style, digital art',
+	'studio photography set of high detail irregular marble stones with gold lines stacked in impossible balance, perfect composition, cinematic light photo studio, beige color scheme, indirect lighting, 8k, elegant and luxury style',
+	'Ultrawide, highway,  with golden ratio style, 4K , sides  are prairies, light is Golden hour, sky with red Clouds, ultrarealistic, CinémaScope, ultra wide format, ratio 16/9, 1/1000 sec, maximum resolution, Sharp details',
+	'a photo of cat flying out to space as an astronaut, digital art',
+	'a hyper realistic rilakkuma enjoying an icecream in the snow',
 ] );
 
 function getImagesFromOpenAI(
