@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -16,7 +16,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.4-alpha';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -56,6 +56,41 @@ class Blaze {
 	}
 
 	/**
+	 * Check the WordPress.com REST API
+	 * to ensure that the site supports the Blaze feature.
+	 *
+	 * @param int $blog_id The blog ID to check.
+	 *
+	 * @return bool
+	 */
+	private static function site_supports_blaze( $blog_id ) {
+		// Make the API request.
+		$url      = sprintf( '/sites/%d/blaze/status', $blog_id );
+		$response = Client::wpcom_json_api_request_as_blog(
+			$url,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+		l( $response );
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		// Decode the results.
+		$result = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// Bail if there were no results returned.
+		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
+			return false;
+		}
+
+		return (bool) $result['approved'];
+	}
+
+	/**
 	 * Determines if criteria is met to enable Blaze features.
 	 *
 	 * @todo - Get response from API if requirements are met on the wpcom-side.
@@ -65,23 +100,20 @@ class Blaze {
 	public static function should_initialize() {
 		$should_initialize = true;
 		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$user_data         = $is_wpcom
-			? array( 'user_locale' => get_user_locale() )
-			: ( new Jetpack_Connection() )->get_connected_user_data();
+		$connection        = new Jetpack_Connection();
+		$site_id           = Jetpack_Connection::get_site_id();
 
 		/*
 		 * These features currently only work on WordPress.com,
-		 * so the user should either be connected to WordPress.com for things to work,
-		 * or be on a WordPress.com site where we have direct access to user data such as user locale.
+		 * so the site must be connected to WordPress.com, and the user as well for things to work.
+		 * Or we must be on a WordPress.com site where we have direct access to things.
 		 */
-		if ( ! $user_data ) {
-			$should_initialize = false;
-		}
-
-		// We currently do not show the UI for non-English WordPress.com users.
 		if (
-			! empty( $user_data['user_locale'] )
-			&& ! in_array( $user_data['user_locale'], array( 'en', 'en-gb' ), true )
+			is_wp_error( $site_id )
+			|| (
+				! $is_wpcom &&
+				( ! $connection->is_connected() || ! $connection->is_user_connected() )
+			)
 		) {
 			$should_initialize = false;
 		}
@@ -91,11 +123,8 @@ class Blaze {
 			$should_initialize = false;
 		}
 
-		// Only show the UI on WordPress.com Simple and WoA sites for now.
-		if (
-			! $is_wpcom
-			&& ! ( new Host() )->is_woa_site()
-		) {
+		// Check if the site supports Blaze.
+		if ( ! self::site_supports_blaze( $site_id ) ) {
 			$should_initialize = false;
 		}
 
