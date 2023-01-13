@@ -10,6 +10,9 @@ import { sprintf, __ } from '@wordpress/i18n';
 function formatEditorCanvasContentForCompletion( editor ) {
 	const index = editor.getBlockInsertionPoint().index - 1;
 	const allBlocksBefore = editor.getBlocks().slice( 0, index );
+	if ( ! allBlocksBefore.length ) {
+		return '';
+	}
 	return allBlocksBefore
 		.filter( function ( block ) {
 			return block && block.attributes && block.attributes.content;
@@ -121,7 +124,9 @@ function createPrompt( title = '', content = '', categoryNames = '' ) {
  * @returns {string} - prompt ready to pipe to OpenAI.
  */
 function preparePromptBasedOnEditorState( select ) {
-	const editorContent = formatEditorCanvasContentForCompletion( select( 'core/block-editor' ) );
+	const editorContent = formatEditorCanvasContentForCompletion(
+		select( 'core/block-editor' )
+	).slice( -240 );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPost = select( 'core/editor' ).getCurrentPost();
