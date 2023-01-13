@@ -121,7 +121,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					</Flex>
 				</Placeholder>
 			) }
-			{ ! errorMessage && ! attributes.requestedPrompt && (
+			{ ! errorMessage && ! loadingImages && resultImages.length === 0 && (
 				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
 					<div>
 						<TextareaControl
