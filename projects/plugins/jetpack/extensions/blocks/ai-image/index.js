@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -29,7 +30,7 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href="https://en.forums.wordpress.com/?post_type=topic&p=3907816">
+			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
 				{ __( 'Share your feedback.', 'jetpack' ) }
 			</ExternalLink>
 		</Fragment>

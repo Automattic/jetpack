@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ExternalLink } from '@wordpress/components';
@@ -31,7 +32,7 @@ export const settings = {
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href="https://en.forums.wordpress.com/?post_type=topic&p=3907816">
+			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
 				{ __( 'Share your feedback.', 'jetpack' ) }
 			</ExternalLink>
 		</Fragment>
