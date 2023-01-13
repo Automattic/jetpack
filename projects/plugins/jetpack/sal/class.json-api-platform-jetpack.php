@@ -24,6 +24,8 @@ class WPORG_Platform extends SAL_Platform {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Given a token instance (with blog and user id related information), this function returns a new WPORG_Platform instance
  *

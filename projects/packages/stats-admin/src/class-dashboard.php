@@ -17,6 +17,8 @@ use Jetpack_Options;
  * @package jetpack-stats-admin
  */
 class Dashboard {
+	// This is a fixed list @see https://github.com/Automattic/wp-calypso/pull/71442/
+	const JS_DEPENDENCIES = array( 'lodash', 'react', 'react-dom', 'wp-api-fetch', 'wp-components', 'wp-compose', 'wp-element', 'wp-html-entities', 'wp-i18n', 'wp-is-shallow-equal', 'wp-polyfill', 'wp-primitives', 'wp-url', 'wp-warning' );
 	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s';
 	/**
 	 * We bump the asset version when the Jetpack back end is not compatible anymore.
@@ -82,8 +84,18 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-stats-dashboard">
+		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
+			<div class="hide-if-no-js" style="height: 100%">
+				<img
+					class="jp-stats-dashboard-loading-spinner"
+					width="32"
+					height="32"
+					style="position: absolute; left: 50%; top: 50%;"
+					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
+					src="//en.wordpress.com/i/loading/loading-64.gif"
+				/>
+			</div>
 		</div>
 		<script>
 			jQuery(document).ready(function($) {
@@ -133,7 +145,7 @@ class Dashboard {
 		} else {
 			// In production, we load the assets from our CDN.
 			$css_url = 'build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			wp_register_script( 'jp-stats-dashboard', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build.min.js' ), array( 'react', 'react-dom', 'wp-polyfill' ), $this->get_cdn_asset_cache_buster(), true );
+			wp_register_script( 'jp-stats-dashboard', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build.min.js' ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
 			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
 			wp_enqueue_script( 'jp-stats-dashboard' );
 			wp_enqueue_style( 'jp-stats-dashboard-style' );
@@ -144,7 +156,6 @@ class Dashboard {
 			$this->get_config_data_js(),
 			'before'
 		);
-
 	}
 
 	/**

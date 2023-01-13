@@ -45,8 +45,11 @@
 		"payment-buttons"
 	],
 	"beta": [
+		"ai-image",
+		"ai-paragraph",
 		"amazon",
 		"google-docs-embed",
+		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
 		"videopress/video",

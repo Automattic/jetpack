@@ -12,11 +12,13 @@
 	padding: 1em;
 	margin: 0 -1em -1em;
 	min-height: 27px;
+	gap: 16px;
 
 	&__file-info {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		flex-grow: 2;
 		gap: 10px;
 	}
 
@@ -61,6 +63,7 @@
 
 	&__title {
 		margin-bottom: 15px;
+		width: 100%;
 	}
 
 	&__upload-link {

@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { onMount } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 	import JetpackLogo from './JetpackLogo.svelte';
 	import Portal from './Portal.svelte';
+	import External from './assets/External.svelte';
 	import type { MeasurableImageStore } from '../stores/MeasurableImageStore';
 	import type { GuideSize } from '../types';
 
@@ -43,8 +45,6 @@
 	$: previewHeight = Math.floor( previewWidth / ( $fileSize.width / $fileSize.height ) );
 	$: ratio = maybeDecimals( $oversizedRatio );
 
-	const DOCUMENTATION_URL = `https://jetpack.com/support/jetpack-boost/image-performance-guide/`;
-
 	/**
 	 * The pop-up is a fixed position element.
 	 * This makes the pop-up behave as it would be positioned absolutely.
@@ -66,6 +66,8 @@
 		initialTop = position.top;
 	} );
 	$: repositionOnScroll( scrollY );
+
+	const DOCUMENTATION_URL = getRedirectUrl( 'jetpack-support-boost-image-performance-guide' );
 </script>
 
 <svelte:window bind:scrollY />
@@ -107,10 +109,9 @@
 					{@const  stretchedBy = maybeDecimals( 1 / $oversizedRatio ) }
 					<div class="explanation">
 						The image file is {stretchedBy}x smaller than expected on this screen. This might be
-						okay, but pay attention whether the image appears blurry.
+						fine, but you may want to check if the image appears blurry.
 					</div>
 				{/if}
-				<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer">Learn more</a>
 			</div>
 			{#if $imageURL}
 				<img
@@ -180,12 +181,18 @@
 				</div>
 			{/if}
 		</div>
+
+		<div class="info">
+			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+				>Learn how to improve site speed by optimizing images <External /></a
+			>
+		</div>
 	</div>
 </Portal>
 
 <style lang="scss">
 	a {
-		color: #069e08 !important;
+		color: #3c434a !important;
 		font-weight: 600 !important;
 
 		&.documentation {

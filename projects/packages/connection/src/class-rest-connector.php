@@ -365,7 +365,6 @@ class REST_Connector {
 		}
 
 		return array_values( $plugins );
-
 	}
 
 	/**
@@ -398,7 +397,6 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
-
 	}
 
 	/**
@@ -495,7 +493,6 @@ class REST_Connector {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -513,7 +510,6 @@ class REST_Connector {
 			self::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**

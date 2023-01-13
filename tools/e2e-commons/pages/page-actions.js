@@ -58,7 +58,7 @@ export default class PageActions {
 			await this.waitForDomContentLoaded();
 		}
 
-		if ( checkSelectors ) {
+		if ( checkSelectors && this.selectors ) {
 			for ( const selector of this.selectors ) {
 				await this.waitForElementToBeVisible( selector );
 			}

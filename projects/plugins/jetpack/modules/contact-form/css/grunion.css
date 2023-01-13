@@ -245,3 +245,89 @@
 .wp-block-jetpack-contact-form .wp-block-spacer {
 	width: 100%;
 }
+
+.contact-form-dropdown-wrap {
+	z-index: unset;
+}
+
+.contact-form .contact-form-dropdown__button.ui-button {
+	width: 100%;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	border: var(--jetpack--contact-form--border);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	background-color: var(--jetpack--contact-form--input-background);
+	color: var(--jetpack--contact-form--text-color);
+	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
+	line-height: var(--jetpack--contact-form--line-height);
+	padding: var(--jetpack--contact-form--input-padding);
+}
+
+.contact-form .contact-form-dropdown__button.ui-button .ui-selectmenu-icon.ui-icon {
+	background: none;
+}
+
+.contact-form .contact-form-dropdown__button .ui-selectmenu-icon,
+.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon {
+	width: 0.8em;
+	height: 0.8em;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	border: 2px solid transparent;
+	overflow: visible;
+	margin-right: 4px;
+}
+
+.contact-form .contact-form-dropdown__button .ui-selectmenu-icon::after {
+	content: "";
+	display: block;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border-bottom: 2px solid;
+	border-right: 2px solid;
+	transform: rotate(45deg);
+	margin-top: -5px;
+	transition: all 0.2s ease-in-out;
+}
+
+.contact-form .contact-form-dropdown__button.ui-selectmenu-button-open .ui-selectmenu-icon::after {
+	transform: rotate(225deg);
+	margin-top: 8px;
+}
+
+.contact-form .contact-form-dropdown__menu ul.ui-menu {
+	border: var(--jetpack--contact-form--border);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	background-color: var(--jetpack--contact-form--input-background);
+	color: var(--jetpack--contact-form--text-color);
+	font-size: var(--jetpack--contact-form--font-size);
+	font-family: var(--jetpack--contact-form--font-family);
+	max-height: 230px;
+	overflow: auto;
+	padding: 0;
+	line-height: normal;
+	box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu {
+	margin-top: 8px;
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper {
+	padding: var(--jetpack--contact-form--input-padding);
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu .ui-menu-item-wrapper.ui-state-active {
+	position: relative;
+	border: none;
+	color: var(--jetpack--contact-form--input-background);
+	background-color: var(--jetpack--contact-form--primary-color);
+}

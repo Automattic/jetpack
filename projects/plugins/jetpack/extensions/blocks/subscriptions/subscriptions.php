@@ -251,7 +251,7 @@ function get_element_styles_from_attributes( $attributes ) {
 
 		// Account for custom margins on inline forms.
 		$submit_button_styles .= true === get_attribute( $attributes, 'buttonOnNewLine' )
-			? sprintf( 'width: calc(100% - %spx;', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
+			? sprintf( 'width: calc(100%% - %dpx);', get_attribute( $attributes, 'spacing', DEFAULT_SPACING_VALUE ) )
 			: 'width: 100%;';
 	}
 
@@ -323,7 +323,7 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 	}
 
 	// The block is using the Jetpack_Subscriptions_Widget backend, hence the need to increase the instance count.
-	Jetpack_Subscriptions_Widget::$instance_count++;
+	++Jetpack_Subscriptions_Widget::$instance_count;
 
 	$classes                  = get_element_class_names_from_attributes( $attributes );
 	$styles                   = get_element_styles_from_attributes( $attributes );

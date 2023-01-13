@@ -260,6 +260,10 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 					'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 					'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
+					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 				),
 
 				'response_format' => array(
@@ -327,6 +331,18 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_onboarding_profile string'     => array( 'woocommerce_onboarding_profile', 'string', array( 'string' ) ),
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
+			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'subscription_options html'                 => array(
+				'subscription_options',
+				array(
+					'invitation'     => '<strong>Test</strong> string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+				array(
+					'invitation'     => 'Test string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
 		);
 	}
 }

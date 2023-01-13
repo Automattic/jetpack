@@ -40,7 +40,6 @@ class MasterUserConstantSniff implements Sniff {
 				'ShouldNotBeUsed'
 			);
 		}
-
 	}
 
 }

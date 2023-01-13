@@ -305,7 +305,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
-
 	}
 
 	/**
@@ -344,7 +343,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
-
 	}
 
 	/**
@@ -709,7 +707,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
-
 	}
 
 	/** Test unlinking a user will also remove related cached data.

@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Features\Image_Guide;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Lib\Analytics;
 
 class Image_Guide implements Feature {
 
@@ -14,7 +15,7 @@ class Image_Guide implements Feature {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$override = defined( 'JETPACK_BOOST_IMAGE_GUIDE' ) && JETPACK_BOOST_IMAGE_GUIDE && isset( $_GET['jb-debug-ig'] );
+		$override = isset( $_GET['jb-debug-ig'] );
 
 		// Show the UI only when the user is logged in, with sufficient permissions and isn't looking at the dashboard.
 		if ( true !== $override && ( is_admin() || ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) ) {
@@ -22,6 +23,10 @@ class Image_Guide implements Feature {
 		}
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
+		// Enqueue the tracks library.
+		$tracks = Analytics::get_tracking();
+		add_action( 'wp_enqueue_scripts', array( $tracks, 'enqueue_tracks_scripts' ) );
 
 		/**
 		 * The priority determines where the admin bar menu item is placed.

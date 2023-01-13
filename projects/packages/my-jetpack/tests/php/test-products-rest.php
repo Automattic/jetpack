@@ -96,7 +96,6 @@ class Test_Products_Rest extends TestCase {
 				'role'       => 'editor',
 			)
 		);
-
 	}
 
 	/**
@@ -125,7 +124,6 @@ class Test_Products_Rest extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
-
 	}
 
 	/**

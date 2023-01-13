@@ -2,8 +2,9 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { Button, Spinner, TextControl } from '@wordpress/components';
+import { useState, useEffect } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
 import filesize from 'filesize';
 /**
@@ -12,19 +13,20 @@ import filesize from 'filesize';
 import useMetaUpdate from '../../../../../hooks/use-meta-update.js';
 import usePosterImage from '../../../../../hooks/use-poster-image.js';
 import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
-import { PlaceholderWrapper } from '../../edit.js';
+import { removeFileNameExtension } from '../../../../../lib/url';
+import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
 
-const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
+const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
-	const [ title, setTitle ] = useState( null );
+	const { title } = videoData;
 
-	const guid = attributes?.guid;
+	const guid = videoData?.guid;
 	const videoPressUploadPoster = usePosterUpload( guid );
 	const videoPressGetPoster = usePosterImage( guid );
-	const updateMeta = useMetaUpdate( attributes?.id );
+	const updateMeta = useMetaUpdate( videoData?.id );
 
 	const getPosterImage = () => {
 		return new Promise( ( resolve, reject ) => {
@@ -104,27 +106,32 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 			updates.push( sendUpdateTitleRequest() );
 		}
 
-		if ( videoPosterImageData ) {
-			updates.push( sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } ) );
-		} else if (
-			// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
-			'undefined' !== typeof videoFrameMs &&
-			null !== videoFrameMs
-		) {
-			updates.push( sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } ) );
-		}
-
 		Promise.allSettled( updates ).then( () => {
 			setIsFinishingUpdate( false );
+			setAttributes( videoData );
 			onDone();
 		} );
 	};
+
+	useEffect( () => {
+		if ( ! guid ) {
+			return;
+		}
+
+		if ( videoPosterImageData ) {
+			return sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+		}
+
+		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
+		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+		}
+	}, [ videoPosterImageData, videoFrameMs, guid ] );
 
 	return [
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		setTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
@@ -137,20 +144,25 @@ const UploaderProgress = ( {
 	progress,
 	file,
 	paused,
-	completed,
+	uploadedVideoData,
 	onPauseOrResume,
 	onDone,
 	supportPauseOrResume,
+	isReplacing,
+	onReplaceCancel,
 } ) => {
 	const [
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		handleChangeTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
-	] = usePosterAndTitleUpdate( { setAttributes, attributes, onDone } );
+	] = usePosterAndTitleUpdate( {
+		setAttributes,
+		videoData: { ...uploadedVideoData, title: attributes.title },
+		onDone,
+	} );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -160,18 +172,29 @@ const UploaderProgress = ( {
 	// Support File from library or File instance
 	const fileSizeLabel = file?.filesizeHumanReadable ?? filesize( file?.size );
 
+	const { title } = attributes;
+	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
+
 	return (
 		<PlaceholderWrapper disableInstructions>
+			<TextControl
+				label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
+				className="uploading-editor__title"
+				onChange={ newTitle => setAttributes( { title: newTitle } ) }
+				value={ title }
+				placeholder={ filename }
+			/>
+
 			<UploadingEditor
 				file={ file }
 				onSelectPoster={ handleSelectPoster }
 				onRemovePoster={ handleRemovePoster }
-				onChangeTitle={ handleChangeTitle }
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
 			/>
+
 			<div className="videopress-uploader-progress">
-				{ completed ? (
+				{ uploadedVideoData ? (
 					<>
 						<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						<Button
@@ -203,15 +226,24 @@ const UploaderProgress = ( {
 									</div>
 									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
 								</div>
-								{ supportPauseOrResume && (
+								{ isReplacing && (
 									<div className="videopress-uploader-progress__actions">
-										{ roundedProgress < 100 && (
-											<Button variant="link" onClick={ onPauseOrResume }>
-												{ paused ? resumeText : pauseText }
-											</Button>
-										) }
+										<Button variant="link" onClick={ onReplaceCancel } isDestructive>
+											{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+										</Button>
 									</div>
 								) }
+								<div className="videopress-uploader-progress__actions">
+									{ roundedProgress < 100 && (
+										<Button
+											variant="link"
+											onClick={ onPauseOrResume }
+											disabled={ ! supportPauseOrResume }
+										>
+											{ paused ? resumeText : pauseText }
+										</Button>
+									) }
+								</div>
 							</>
 						) : (
 							<>

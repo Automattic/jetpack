@@ -457,7 +457,6 @@ class Jetpack_Backup {
 		return rest_ensure_response(
 			json_decode( $response['body'], true )
 		);
-
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Do not display the Blaze UI on private or unlaunched sites.

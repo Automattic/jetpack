@@ -1,7 +1,7 @@
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
-import type { MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
+import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
  * Returns the closest parent element that is able to contain the image guide component.
@@ -42,7 +42,6 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 		}
 
 		current = current.parentElement;
-
 	}
 
 	// Return the first ancestor element that isn't affected by z-index
