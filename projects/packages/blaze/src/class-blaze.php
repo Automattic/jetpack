@@ -93,8 +93,6 @@ class Blaze {
 	/**
 	 * Determines if criteria is met to enable Blaze features.
 	 *
-	 * @todo - Get response from API if requirements are met on the wpcom-side.
-	 *
 	 * @return bool
 	 */
 	public static function should_initialize() {
