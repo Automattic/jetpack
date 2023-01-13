@@ -274,20 +274,20 @@
 	padding: 0;
 }
 
-.jetpack-field__input, .jetpack-field__textarea {
-	width: 100%;
-	font: inherit;
-	box-sizing: border-box;
-	box-shadow: unset;
-	padding: 16px;
-	border-width: 1px;
-}
-
 .jetpack-field__textarea {
 	min-height: 150px;
 }
 
 .jetpack-field {
+	.jetpack-field__input, .jetpack-field__textarea {
+		width: 100%;
+		font: inherit;
+		box-sizing: border-box;
+		box-shadow: unset;
+		padding: 16px;
+		border-width: 1px;
+	}
+
 	.components-base-control__field {
 		margin-bottom: 0;
 	}
