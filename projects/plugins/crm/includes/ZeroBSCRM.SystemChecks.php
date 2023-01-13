@@ -548,14 +548,14 @@ function zeroBSCRM_checkPrettyPermalinks(){
 	/**
 	 * Check if Dompdf is installed correctly on the server.
 	 *
-	 * @param false $withInfo Determine if the returning results contains an explanatory string.
+	 * @param false $with_info Determine if the returning results contains an explanatory string.
 	 *
 	 * @return array|bool
 	 */
-	function zeroBSCRM_checkSystemFeat_dompdf( $withInfo = false ) {
+	function zeroBSCRM_checkSystemFeat_dompdf( $with_info = false ) {
 		$enabled = class_exists( Dompdf\Dompdf::class );
 
-		if ( ! $withInfo ) {
+		if ( ! $with_info ) {
 			return $enabled;
 		}
 

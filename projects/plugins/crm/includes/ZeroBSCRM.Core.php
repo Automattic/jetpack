@@ -3032,14 +3032,17 @@ final class ZeroBSCRM {
 	 * Returns the correct dompdf lib version depending on php compatibility
 	 *
 	 * @deprecated We no longer load Dompdf through this library system.
+	 *
+	 * @param string $lib_key The key/machine name.
+	 * @return string
 	 */
-	private function checkDompdfVersion( $libKey ) {
+	private function checkDompdfVersion( $lib_key ) {
 
-		if ( $libKey === 'dompdf' ) {
-			$libKey = 'dompdf-2';
+		if ( $lib_key === 'dompdf' ) {
+			$lib_key = 'dompdf-2';
 		}
 
-		return $libKey;
+		return $lib_key;
 	}
 
 	/*
