@@ -1686,7 +1686,7 @@ importers:
       sass: 1.38.1
       sass-loader: 12.4.0
       semver: 7.3.5
-      social-logos: 2.5.0
+      social-logos: 2.5.1
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1750,7 +1750,7 @@ importers:
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
       semver: 7.3.5
-      social-logos: 2.5.0_react@17.0.2
+      social-logos: 2.5.1_react@17.0.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -11122,6 +11122,7 @@ packages:
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    requiresBuild: true
     dependencies:
       file-uri-to-path: 1.0.0
     dev: true
@@ -14318,6 +14319,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -17861,6 +17863,7 @@ packages:
 
   /nan/2.17.0:
     resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -21245,12 +21248,12 @@ packages:
       - supports-color
     dev: true
 
-  /social-logos/2.5.0_react@17.0.2:
-    resolution: {integrity: sha512-yEj6OftSAAfP6G1NHV/TqacVZGKYp1Ger9JZLhjB9GFckZXGXBQGOI+39jkhGoEVZjCCRcSof3l2Arioa0bx9w==}
+  /social-logos/2.5.1_react@17.0.2:
+    resolution: {integrity: sha512-d3iCMJHqFOLHae+KqgW/sH2w1QKIL0hHLjnNpIIAURdi27olMVdG79x7Vu8gfkT2QPFOWRtUkO8rXeqF4ZaxMw==}
     peerDependencies:
-      react: 15 - 17
+      react: 15 - 18
     dependencies:
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
     dev: false
 
