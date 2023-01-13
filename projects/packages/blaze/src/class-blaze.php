@@ -64,6 +64,10 @@ class Blaze {
 	 * @return bool
 	 */
 	private static function site_supports_blaze( $blog_id ) {
+		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
+			return null;
+		}
+
 		// Make the API request.
 		$url      = sprintf( '/sites/%d/blaze/status', $blog_id );
 		$response = Client::wpcom_json_api_request_as_blog(
