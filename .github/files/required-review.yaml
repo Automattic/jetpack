@@ -16,11 +16,12 @@
   teams:
    # Unfortunately this list need to be maintaned manually...
    # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
-   - jetpack-approvers
-   - yamato-backup-and-security
+   - avengers
    - heart-of-gold
+   - jetpack-approvers
    - jetpack-reach
    - red
+   - yamato-backup-and-security
 
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
