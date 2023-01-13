@@ -9,6 +9,12 @@ fi
 
 : "${WORDPRESS_DIR:?WORDPRESS_DIR needs to be set and non-empty.}"
 
+# Point output dir to the CI artifacts dir.
+if [[ -n "$ARTIFACTS_DIR" ]]; then
+	rm -rf tests/_output
+	ln -s "$ARTIFACTS_DIR" tests/_output
+fi
+
 # Setup database. Even though tests/acceptance.suite.yml contains commands to create it, it chokes before it gets to run them without this.
 mysql -e "DROP DATABASE IF EXISTS jpcrm_testing; CREATE DATABASE jpcrm_testing;"
 
