@@ -26,11 +26,17 @@ function getSuggestionFromOpenAI(
 	setLoadingCompletion,
 	setErrorMessage
 ) {
-	if ( formattedPrompt.length < 10 ) {
+	const needsAtLeast = 36;
+	if ( formattedPrompt.length < needsAtLeast ) {
 		setErrorMessage(
-			__(
-				'Please write a little bit more. Jetpack AI needs at least 120 characters to make the gears spin.',
-				'jetpack'
+			sprintf(
+				/** translators: First placeholder is a number of more characters we need, second is the total number we need */
+				__(
+					'AI needs you to write %1$d more characters above this block. When inserted into an empty post with a title (or additionally categories selected), AI Paragraph will generate a new post for you. If you insert the AI Paragraph block following other text, it will attemp to auto-complete, but it needs at least %2$d characters of input.',
+					'jetpack'
+				),
+				needsAtLeast - formattedPrompt.length,
+				needsAtLeast
 			)
 		);
 		return;
@@ -140,7 +146,7 @@ export default function Edit( { attributes, setAttributes } ) {
 				setErrorMessage
 			);
 		}
-	}, [ attributes, formattedPrompt, setAttributes ] );
+	}, [] );
 
 	return (
 		<div { ...useBlockProps() }>
