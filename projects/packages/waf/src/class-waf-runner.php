@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Current_Plan;
 
 /**
  * Executes the WAF.
@@ -391,6 +392,26 @@ class Waf_Runner {
 	}
 
 	/**
+	 * Has Required Plan
+	 *
+	 * @param bool $force_refresh Refresh the local plan cache from wpcom.
+	 * @return bool True when the site has a plan or product that supports the paid Protect tier.
+	 */
+	public static function has_required_plan( $force_refresh = false ) {
+		static $has_scan = null;
+		if ( null === $has_scan || $force_refresh ) {
+			$products = array_column( Current_Plan::get_products(), 'product_slug' );
+
+			// Check for a plan or product that enables scan.
+			$plan_supports_scan = Current_Plan::supports( 'scan', true );
+			$has_scan_product   = count( array_intersect( array( 'jetpack_scan', 'jetpack_scan_monthly' ), $products ) ) > 0;
+			$has_scan           = $plan_supports_scan || $has_scan_product;
+		}
+
+		return $has_scan;
+	}
+
+	/**
 	 * Check if automatic rules file is available
 	 *
 	 * @return bool False if automatic rules file is not available, true otherwise
@@ -403,32 +424,27 @@ class Waf_Runner {
 			return false;
 		}
 
-		// Note: Beyond this check we know that we do/did have a plan because we have/had automatic rules
-		// $has_plan - This is expected if we have a plan - return true, if the file is empty or gone regenerating will handled by cron
-		// ! $has_plan - No plan means we retained the existing rules and they wont be regenerated, here we need to check if they are empty
+		// If we do not have the required plan, check the automatic rules file.
+		if ( ! self::has_required_plan() ) {
+			global $wp_filesystem;
+			self::initialize_filesystem();
+			$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
-		global $wp_filesystem;
+			// If automatic rules files was removed or is now empty, return false.
+			if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
 
-		self::initialize_filesystem();
+				// Delete the automatic rules last updated option.
+				delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
 
-		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
+				$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
 
-		// If automatic rules files was removed or is now empty, return false.
-		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
+				// If automatic rules setting is enabled, disable it.
+				if ( $automatic_rules_enabled ) {
+					update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+				}
 
-			// If automatic rules file was removed or is empty, delete the automatic rules last updated option.
-			// Note: Once removed, on subsequent checks will rightly return false early
-			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
-
-			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
-
-			// If automatic rules setting is enabled, disable it.
-			// Note: Leaving it enabled will mean we are simply requiring an empty automatic rules file
-			if ( $automatic_rules_enabled ) {
-				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+				return false;
 			}
-
-			return false;
 		}
 
 		return true;
