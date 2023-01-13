@@ -284,8 +284,10 @@
 		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
-		padding: 16px;
 		border-width: 1px;
+		border-radius: 0;
+		padding: 16px;
+		margin: 0;
 	}
 
 	.components-base-control__field {
@@ -628,6 +630,7 @@
 			}
 
 			&.jetpack-field-multiple {
+				background-color: var(--jetpack--contact-form--input-background);
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
 				padding: var(--jetpack--contact-form--input-padding);
@@ -673,6 +676,7 @@
 			}
 
 			&.jetpack-field-multiple {
+				background-color: var(--jetpack--contact-form--input-background);
 				padding: var(--jetpack--contact-form--input-padding);
 				padding-top: 1.5em;
 				border-radius: var(--jetpack--contact-form--border-radius);

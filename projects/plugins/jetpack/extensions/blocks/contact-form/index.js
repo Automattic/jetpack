@@ -58,8 +58,9 @@ export const settings = {
 	styles: [
 		{ name: 'default', label: 'Default', isDefault: true },
 		{ name: 'animated', label: 'Animated' },
-		{ name: 'below', label: 'Below' },
-		{ name: 'outlined', label: 'Outlined' }
+		{ name: 'outlined', label: 'Outlined' },
+		// Need to figure out some details. Putting on hold for now
+		// { name: 'below', label: 'Below' },
 	],
 	variations,
 	category: 'contact-form',

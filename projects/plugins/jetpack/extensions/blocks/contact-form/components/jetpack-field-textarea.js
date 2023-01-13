@@ -1,7 +1,6 @@
-import { Disabled } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
 import classnames from 'classnames';
-import { isEmpty, isNil } from 'lodash';
+import { isEmpty, isNil, noop } from 'lodash';
 import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -43,9 +42,7 @@ export default function JetpackFieldTextarea( props ) {
 					setAttributes={ setAttributes }
 					style={ formStyle }
 				/>
-				<Disabled>
-					<textarea className="jetpack-field__textarea" value={ placeholder } readOnly />
-				</Disabled>
+				<textarea className="jetpack-field__textarea" value={ placeholder } onChange={ noop } />
 			</div>
 
 			<JetpackFieldControls

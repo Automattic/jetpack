@@ -1,8 +1,7 @@
-import { Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import classnames from 'classnames';
-import { isEmpty } from 'lodash';
+import { isEmpty, noop } from 'lodash';
 import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -36,9 +35,12 @@ export default function JetpackField( props ) {
 					setAttributes={ setAttributes }
 					style={ formStyle }
 				/>
-				<Disabled>
-					<input type="text" className="jetpack-field__input" value={ placeholder } readOnly />
-				</Disabled>
+				<input
+					type="text"
+					className="jetpack-field__input"
+					value={ placeholder }
+					onChange={ noop }
+				/>
 			</div>
 
 			<JetpackFieldControls
