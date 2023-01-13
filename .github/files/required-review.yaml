@@ -6,9 +6,10 @@
   teams:
    - jetpack-approvers
 
-# Everyone who can approve anything can merge pnpm.lock.
+# Everyone who can approve anything can merge pnpm.lock and docs.
 - name: pnpm lockfile, composer files
   paths:
+   - 'docs/**'
    - 'pnpm-lock.yaml'
    - 'projects/plugins/*/composer.lock'
    - 'projects/plugins/*/composer.json'
