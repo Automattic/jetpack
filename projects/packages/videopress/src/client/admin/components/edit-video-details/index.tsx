@@ -11,8 +11,14 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
+import { SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
+import {
+	Icon,
+	chevronRightSmall,
+	arrowLeft,
+	globe as siteDefaultPrivacyIcon,
+} from '@wordpress/icons';
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
@@ -20,7 +26,14 @@ import { useHistory, Prompt } from 'react-router-dom';
  * Internal dependencies
  */
 import { Link } from 'react-router-dom';
+import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
+import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import {
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	VIDEO_PRIVACY_LEVEL_PUBLIC,
+	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+} from '../../../state/constants';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
@@ -134,13 +147,17 @@ const Infos = ( {
 const EditVideoDetails = () => {
 	const {
 		// Video Data
+		guid,
 		duration,
 		posterImage,
 		filename,
 		uploadDate,
 		url,
+		width,
+		height,
 		title,
 		description,
+		privacySetting,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -152,6 +169,7 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
+		setPrivacySetting,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -199,6 +217,10 @@ const EditVideoDetails = () => {
 	}
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
+
+	const shortcode = `[videopress ${ guid }${ width ? ` w=${ width }` : '' }${
+		height ? ` h=${ height }` : ''
+	}]`;
 
 	return (
 		<>
@@ -251,7 +273,45 @@ const EditVideoDetails = () => {
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
+								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
+							/>
+							<SelectControl
+								className={ styles.privacy }
+								value={ privacySetting }
+								label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+								onChange={ value => setPrivacySetting( value ) }
+								prefix={
+									// Casting for unknown since allowing only a string is a mistake
+									// at WP Components
+									( (
+										<div className={ styles[ 'privacy-icon' ] }>
+											<Icon
+												icon={
+													( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC && publicPrivacyIcon ) ||
+													( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
+														privatePrivacyIcon ) ||
+													( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
+														siteDefaultPrivacyIcon )
+												}
+											/>
+										</div>
+									 ) as unknown ) as string
+								}
+								options={ [
+									{
+										label: __( 'Site default', 'jetpack-videopress-pkg' ),
+										value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+									},
+									{
+										label: __( 'Public', 'jetpack-videopress-pkg' ),
+										value: VIDEO_PRIVACY_LEVEL_PUBLIC,
+									},
+									{
+										label: __( 'Private', 'jetpack-videopress-pkg' ),
+										value: VIDEO_PRIVACY_LEVEL_PRIVATE,
+									},
+								] }
 							/>
 						</Col>
 					</Container>

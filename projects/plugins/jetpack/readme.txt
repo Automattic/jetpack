@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.6
+Stable tag: 11.7
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,32 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.7 - 2022-12-19
+### 11.8-a.1 - 2023-01-11
 #### Enhancements
-- Assistant: update Akismet and Backup names.
-- Block editor: add a new panel that gives the ability to promote posts after publishing them.
-- Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
-- Dashboard: update Backup, Anti-spam, and VideoPress logos.
-- Form block: allow the required field text to be changed.
-- Form block: update the default labels logic to allow fields without any label.
-- Form block: update block placeholder styles and update form fields styles to comply with WYSIWYG. [#27855, #27967]
-- Google fonts: add new fonts to Global Style options.
-- Slideshow block: implement pagination styles when a gallery has more than five images.
-- Slideshow block: update block description.
-- Writing prompts: add context to blogging prompt placeholder.
+- Contact form: UI improvements for the dropdown field.
+- Form block: add relevant keywords to the 'Newsletter Sign-up' block variation.
+- Widgets: add Mastodon to Social Icons Widget and Social Menu.
 
 #### Improved compatibility
-- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
-- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
-- Writing prompts: hide placeholder prompts by default.
+- oEmbeds: add new URL scheme for iCloud Keynote embeds.
 
 #### Bug fixes
-- Dashboard: add translation context to Security product name.
-- Form block: fix email formatting for contact form submissions.
-- General: Fix deprecation warnings when running with PHP 8.2.
-- Hovercards: fix minor Hovercards & AMP compatibility bug
-- Subscription block: fix PHP Warning.
-- WAF: fix the initialization of the firewall.
+- Modules: allow for deactivating multiple plugins when activating a module.
+- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on a site.
 
 --------
 

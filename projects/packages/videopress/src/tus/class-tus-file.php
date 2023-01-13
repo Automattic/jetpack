@@ -452,8 +452,7 @@ class Tus_File {
 		}
 		$this->exists( $file_path, $mode );
 
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
-		// phpcs:disable WordPress.PHP.NoSilencedErrors.Discouraged
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen, WordPress.PHP.NoSilencedErrors.Discouraged
 		$ptr = @fopen( $file_path, $mode );
 
 		if ( false === $ptr ) {
@@ -522,7 +521,7 @@ class Tus_File {
 	 */
 	public function read( $handle, $chunk_size ) {
 		$chunk_size = $this->ensure_integer( $chunk_size );
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fread
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fread
 		$data = fread( $handle, $chunk_size );
 
 		if ( false === $data ) {
@@ -544,8 +543,7 @@ class Tus_File {
 	 * @return int
 	 */
 	public function write( $handle, $data, $length = null ) {
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fclose
-		// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		$bytes_written = \is_numeric( $length ) ? fwrite( $handle, $data, intval( $length ) ) : fwrite( $handle, $data );
 
 		if ( false === $bytes_written ) {
@@ -644,7 +642,7 @@ class Tus_File {
 
 		foreach ( $files as $file ) {
 			if ( $this->get_wp_filesystem()->exists( $file ) ) {
-				$r      = unlink( $file );
+				$r      = $this->get_wp_filesystem()->delete( $file );
 				$status = $status && $r;
 			}
 		}
@@ -660,6 +658,7 @@ class Tus_File {
 	 * @return bool
 	 */
 	public function close( $handle ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 		return fclose( $handle );
 	}
 

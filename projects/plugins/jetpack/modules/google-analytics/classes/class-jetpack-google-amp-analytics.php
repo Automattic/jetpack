@@ -110,7 +110,7 @@ class Jetpack_Google_AMP_Analytics {
 				$event['ga_params'][ 'pr' . $i . 'id' ] = sanitize_text_field( Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product ) );
 				$event['ga_params'][ 'pr' . $i . 'nm' ] = sanitize_text_field( $item->get_name() );
 				$event['ga_params'][ 'pr' . $i . 'qt' ] = absint( $item->get_quantity() );
-				$i++;
+				++$i;
 			}
 		}
 

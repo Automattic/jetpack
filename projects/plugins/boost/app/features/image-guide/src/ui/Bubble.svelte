@@ -28,7 +28,7 @@
 				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
 					{#if $oversizedRatio > 9}
 						{Math.floor( $oversizedRatio )}x
-					{:else if $oversizedRatio > 1}
+					{:else if $oversizedRatio > 0.99}
 						{#if severity === 'normal'}
 							<Checkmark />
 						{:else}

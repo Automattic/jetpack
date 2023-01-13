@@ -2,6 +2,98 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.1 - 2023-01-11
+### Enhancements
+- Contact form: UI improvements for the dropdown field. [#28010]
+- Form block: add relevant keywords to the 'Newsletter Sign-up' block variation. [#28204]
+- Widgets: add Mastodon to Social Icons Widget and Social Menu. [#28175]
+
+### Improved compatibility
+- oEmbeds: add new URL scheme for iCloud Keynote embeds. [#28067]
+
+### Bug fixes
+- Modules: allow for deactivating multiple plugins when activating a module. [#28181]
+- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on a site. [#28169]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add subscription_options to the site settings endpoint. [#28036]
+- Blaze: remove extension from extension list. [#28174]
+- Calendar library: various bug fixes. [#28274]
+- General: switch to shared method for getting a WordPress.com blog ID. [#28208]
+- Add groundwork for AI-powered blocks for WordPress.com customers. [#28043]
+- VideoPress: do not register video chapters block. [#28206]
+- Publicize: prepare for validation of videos. [#27840]
+- Remove Jetpack Blocks section on At a Glance page. [#28153]
+- Site Settings API: expose `page_for_posts` option. [#28096]
+- Social Menu Theme Tool: allow specifying a regex instead of a simple host name for services that have logos. [#28172]
+- Updated package dependencies.
+- Update Playwright version. [#28094]
+- WoA: disabled Odyssey Stats for Atomic sites. [#28180]
+
+## [11.7] - 2023-01-10
+### Enhancements
+- Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
+- Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page. [#28177]
+- Stats: make the toggle for enabling Odyssey Stats visible for all users. [#28105]
+- VideoPress: fix cover attribute on player and add muted attribute on video shortcode. [#28083]
+
+### Bug fixes
+- Form block: fix extra colon for form fields without label. [#28230]
+- Dashboard: fix icon allignment on at a glance page. [#28222]
+- Contact form: fix redirect for "Connect Google Drive" export modal's link on the Feedback page, leading directly to the site's marketing/connections page. [#28147]
+- Contact form: use separate nonce names for export options to ensure modal buttons work as expected.[#28152]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Calendar Library: cosmetic changes and functional cleanup
+- Tonesque: cosmetic changes and functional cleanup
+- Updating testing instructions for 11.7 [#28098]
+
+## 11.7-a.11 - 2022-12-29
+### Bug fixes
+- Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production. [#28102]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updating changelog entries for the Jetpack plugin [#28089]
+
+## 11.7-a.9 - 2022-12-27
+### Major Enhancements
+- Blocks: add launchpad on save modal. [#27976]
+- Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead. [#27961]
+
+### Enhancements
+- Contact form: move responses export to a modal triggered by a single "Export" button. [#27821]
+- Dashboard: use minimized CSS for the stats widget. [#27788]
+- Global Styles: add new fonts for better i18n. [#27854]
+- Form block: adjust Form placeholder icon and link colors for better consistency. [#28044]
+- Form block: update Form child blocks icons. [#28047]
+- Slideshow block: reduce bullet size and change the CSS justify-content to flex-start. [#28002]
+- Slideshow block: replace pencil icon with edit text. [#28004]
+- Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans. [#26417]
+- VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites). [#27942]
+
+### Improved compatibility
+- VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it. [#27842]
+
+### Bug fixes
+- Form block: adjust Form placeholder footer links style to prevent theme clashes. [#28008]
+- Internationalization: fix context for translated product name. [#28035]
+- Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites. [#27909]
+- Premium Content block: fix bug in JWT library encode() method. [#26417]
+- Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version. [#28061]
+- Subscription block: ensure custom button spacing is correct when the button is on its own line. [#28057]
+- Writing Prompts: do not display within mobile app. [#28023]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Blaze: changing Promote Post package reference to new name: Blaze. [#28073]
+- Blaze: move out of the plugin, and into a package. [#28062]
+- Blaze: update the look of the Blaze button on the post-publish button. [#27960]
+- Blocks: switch to using the new, shared and extracted version of Tracks. [#27940]
+- Gift subscription: update wpcom_gifting_subscription default value based on plan expiration. [#27987]
+- Reading Settings API: expose `show_on_front` and `page_on_front` options. [#28042]
+- Scripts: support git merge strategy for changelog. [#27881]
+- Updating changelog entries. [#28006]
+- WAF: move WoA checks for the WAF to the WAF package. [#27939]
+
 ## 11.7-a.7 - 2022-12-19
 ### Enhancements
 - Assistant: update Akismet and Backup names. [#27844]
@@ -7467,6 +7559,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[11.7]: https://wp.me/p1moTy-Q9t
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i

@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
 use Twitter\Text\Regex as Twitter_Regex;
 use Twitter\Text\Validator as Twitter_Validator;
@@ -262,7 +263,7 @@ class Jetpack_Tweetstorm_Helper {
 			);
 		}
 
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
@@ -1048,11 +1049,11 @@ class Jetpack_Tweetstorm_Helper {
 				}
 
 				// The newline at the end of each line is 1 byte, but we don't need to count empty lines.
-				$total_bytes_processed++;
+				++$total_bytes_processed;
 			}
 
 			// We do need to count empty lines in the editor, since they'll be displayed.
-			$characters_processed++;
+			++$characters_processed;
 		}
 
 		return false;
@@ -1449,7 +1450,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "<$tag>" === $token || 0 === strpos( $token, "<$tag " ) ) {
 					// A tag has just been opened.
-					$opened++;
+					++$opened;
 					// Set an empty value now, so we're keeping track of empty tags.
 					if ( ! isset( $values[ $tag ][ $opened ] ) ) {
 						$values[ $tag ][ $opened ] = '';
@@ -1459,7 +1460,7 @@ class Jetpack_Tweetstorm_Helper {
 
 				if ( "</$tag>" === $token ) {
 					// The tag has been closed.
-					$closed++;
+					++$closed;
 					continue;
 				}
 
@@ -1674,7 +1675,6 @@ class Jetpack_Tweetstorm_Helper {
 			),
 			'image'       => array(
 				'name'     => 'twitter:image',
-				'property' => 'og:image:secure',
 				'property' => 'og:image',
 			),
 			'title'       => array(
@@ -1732,23 +1732,5 @@ class Jetpack_Tweetstorm_Helper {
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
 			throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 		}
-	}
-
-	/**
-	 * Get the WPCOM or self-hosted site ID.
-	 *
-	 * @return mixed
-	 */
-	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
-		}
-		return (int) $site_id;
 	}
 }

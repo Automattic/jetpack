@@ -69,7 +69,6 @@ class Test_Extension_Model extends BaseTestCase {
 				}
 			}
 		}
-
 	}
 
 }

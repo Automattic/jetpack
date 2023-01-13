@@ -14,6 +14,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
+
 /**
  * Wrapper function to safely register a gutenberg block type
  *
@@ -529,7 +531,6 @@ class Jetpack_Gutenberg {
 				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
 		}
-
 	}
 
 	/**
@@ -1084,6 +1085,11 @@ class Jetpack_Gutenberg {
 				array(
 					'br' => array(),
 					'p'  => array(),
+					'a'  => array(
+						'href'   => array(),
+						'target' => array(),
+						'rel'    => array(),
+					),
 				)
 			),
 			esc_attr( $classes ),

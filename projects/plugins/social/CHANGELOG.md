@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.6.0 - 2023-01-10
+### Added
+- Add a review request prompt for Jetpack Social plugin. [#28072]
+- Add simple JS React test. [#27122]
+- Add the adminUrl to the initial editor state. [#27617]
+- Redirect to admin page on plugin activation, and add link to admin page from plugins page. [#24586]
+
+### Changed
+- Updated package dependencies. [#27340, #27688, #27689, #27696, #27697, #27874, #27887, #27916, #27962]
+
 ## 1.5.1 - 2022-12-06
 ### Changed
 - Updated package dependencies. [#26069]

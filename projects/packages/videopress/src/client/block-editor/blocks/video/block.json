@@ -73,10 +73,7 @@
 			"type": "string"
 		},
 		"src": {
-			"type": "string",
-			"source": "attribute",
-			"selector": "video",
-			"attribute": "src"
+			"type": "string"
 		},
 		"cacheHtml": {
 			"type": "string",
@@ -119,8 +116,8 @@
 		}
 	},
 	"textdomain": "jetpack-videopress",
-	"editorScript": "file:../../../../../build/block-editor/index.js",
-	"editorStyle": "file:../../../../../build/block-editor/index.css",
-	"style": "file:../../../../../build/block-editor/style-index.css",
-	"viewScript": "file:../../../../../build/block-editor/view.js"
+	"editorScript": "file:index.js",
+	"editorStyle": "file:index.css",
+	"style": "file:style-index.css",
+	"viewScript": "file:view.js"
 }

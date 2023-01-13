@@ -188,7 +188,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
-
 	}
 
 	/**
@@ -438,7 +437,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
+						'subscription_options'             => (array) get_option( 'subscription_options', array() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'show_on_front'                    => (string) get_option( 'show_on_front' ),
+						'page_on_front'                    => (string) get_option( 'page_on_front' ),
+						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -498,7 +501,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return $response;
-
 	}
 
 	/**
@@ -513,6 +515,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			foreach ( $purchases as $purchase ) {
 				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
+					/*
+					 * We set default value as false when expiration date not match the following:
+					 * - 54 days before the annual plan expiration.
+					 * - 5 days before the monthly plan expiration.
+					 * This is to match the gifting banner logic.
+					 */
+					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
+					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
+						return false;
+					}
+
+					// We set default to the inverse of auto-renew.
 					if ( isset( $purchase->auto_renew ) ) {
 						return ! $purchase->auto_renew;
 					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
@@ -778,6 +793,32 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'subscription_options':
+					$sanitized_value = (array) $value;
+					array_walk_recursive(
+						$sanitized_value,
+						function ( &$value ) {
+							$value = wp_kses(
+								$value,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+					);
+
+					$has_correct_length  = count( $sanitized_value ) === 2;
+					$required_keys_exist = array_key_exists( 'invitation', $sanitized_value )
+						&& array_key_exists( 'comment_follow', $sanitized_value );
+					$is_valid            = $has_correct_length && $required_keys_exist;
+
+					if ( $is_valid && update_option( $key, $sanitized_value ) ) {
+						$updated[ $key ] = $sanitized_value;
+					}
+					break;
+
 				case 'woocommerce_onboarding_profile':
 					// Allow boolean values but sanitize_text_field everything else.
 					$sanitized_value = (array) $value;
@@ -913,11 +954,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( add_option( $key, $coerce_value ) ) {
 							$updated[ $key ] = $coerce_value;
 						}
-					} else {
-						// If the option already exists use update_option.
-						if ( update_option( $key, $coerce_value ) ) {
-							$updated[ $key ] = $coerce_value;
-						}
+					} elseif ( update_option( $key, $coerce_value ) ) { // If the option already exists use update_option.
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 
@@ -964,6 +1002,45 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_are_blogging_prompts_enabled':
 					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
 					$updated[ $key ] = (bool) $value;
+					break;
+
+				case 'show_on_front':
+					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'page_on_front':
+					if ( ! $this->is_valid_page_id( $value ) ) {
+						break;
+					}
+
+					$page_for_posts = get_option( 'page_for_posts' );
+					if ( $page_for_posts === $value ) {
+						// page for posts and page on front can't be the same
+						break;
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
+					break;
+				case 'page_for_posts':
+					if ( ! $this->is_valid_page_id( $value ) ) {
+						break;
+					}
+
+					$page_on_front = get_option( 'page_on_front' );
+					if ( $page_on_front === $value ) {
+						// page on front and page for posts can't be the same
+						break;
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
 					break;
 
 				default:
@@ -1035,7 +1112,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return array(
 			'updated' => $updated,
 		);
-
 	}
 
 	/**
@@ -1053,5 +1129,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		return (bool) $wpcom_subscription_emails_use_excerpt;
+	}
+
+	/**
+	 * Check if the given value is a valid page ID for the current site.
+	 *
+	 * @param mixed $value The value to check.
+	 * @return bool True if the value is a valid page ID for the current site, false otherwise.
+	 */
+	protected function is_valid_page_id( $value ) {
+		$all_page_ids = get_all_page_ids();
+
+		$valid_page_id = false;
+		foreach ( $all_page_ids as $page_id ) {
+			if ( $page_id === (string) $value ) {
+				$valid_page_id = true;
+				break;
+			}
+		}
+
+		return $valid_page_id;
 	}
 }

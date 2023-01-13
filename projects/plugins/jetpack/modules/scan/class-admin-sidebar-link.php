@@ -80,7 +80,6 @@ class Admin_Sidebar_Link {
 		}
 
 		add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
-
 	}
 
 	/**
@@ -102,7 +101,7 @@ class Admin_Sidebar_Link {
 			if ( 'jetpack_admin_page' !== $link[1] ) {
 				break;
 			}
-			$offset++;
+			++$offset;
 		}
 
 		return $offset;

@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "2.7.0",
+	"version": "2.7.4-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -35,7 +35,7 @@
 		"@wordpress/icons": "9.13.0",
 		"classnames": "2.3.1",
 		"prop-types": "15.8.1",
-		"react-router-dom": "6.2.2"
+		"react-router-dom": "6.6.2"
 	},
 	"sideEffects": [
 		"*.css",
@@ -43,14 +43,14 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.5",
+		"@babel/core": "7.20.7",
 		"@babel/preset-env": "7.20.2",
-		"@storybook/addons": "6.5.14",
-		"@storybook/client-api": "6.5.14",
-		"@storybook/preview-web": "6.5.14",
-		"@storybook/react": "6.5.14",
-		"@storybook/testing-react": "1.2.3",
-		"@testing-library/dom": "8.19.0",
+		"@storybook/addons": "6.5.15",
+		"@storybook/client-api": "6.5.15",
+		"@storybook/preview-web": "6.5.15",
+		"@storybook/react": "6.5.15",
+		"@storybook/testing-react": "1.3.0",
+		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/react-hooks": "8.0.1",
 		"@testing-library/user-event": "14.4.3",

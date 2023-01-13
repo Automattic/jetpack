@@ -1,9 +1,10 @@
-import { MeasurableImage } from './MeasurableImage';
-import { getMeasurableImages } from './find-image-elements';
+import { getMeasurableImages } from '@automattic/jetpack-image-guide';
+import ImageGuideAnalytics from './analytics';
 import { attachGuides } from './initialize';
 import { guideState } from './stores/GuideState';
 import AdminBarToggle from './ui/AdminBarToggle.svelte';
 import type { MeasurableImageStore } from './stores/MeasurableImageStore';
+import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
  * A helper function to filter out images
@@ -78,6 +79,8 @@ function debounceDimensionUpdates() {
  * to look for new images.
  */
 function initialize() {
+	ImageGuideAnalytics.trackInitialState();
+
 	guideState.subscribe( async $state => {
 		if ( $state === 'paused' ) {
 			return;
@@ -91,6 +94,8 @@ function initialize() {
 		);
 		const filteredImages = discardSmallImages( measurableImages );
 		stores.push( ...attachGuides( filteredImages ) );
+
+		ImageGuideAnalytics.trackPage( stores );
 	} );
 }
 

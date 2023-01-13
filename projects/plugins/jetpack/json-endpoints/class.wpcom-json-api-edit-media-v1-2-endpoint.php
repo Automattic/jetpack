@@ -199,16 +199,11 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 * Try to remove the temporal file from the given file array.
 	 *
 	 * @param  {Array} $file_array - Array with data about the temporal file.
-	 * @return {Boolean} `true` if the file has been removed.
-	 *                   `false` either the file doesn't exist or it couldn't be removed.
 	 */
 	private function remove_tmp_file( $file_array ) {
-		if ( ! file_exists( $file_array['tmp_name'] ) ) {
-			return false;
+		if ( file_exists( $file_array['tmp_name'] ) ) {
+			wp_delete_file( $file_array['tmp_name'] );
 		}
-		// @todo - see if we can more permanently fix this NoSilencedError.
-		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		return @unlink( $file_array['tmp_name'] );
 	}
 
 	/**
@@ -236,9 +231,7 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			! $this->is_file_supported_for_sideloading( $tmp_filename ) &&
 			! file_is_displayable_image( $tmp_filename )
 		) {
-			// @todo - see if we can more permanently fix this NoSilencedError.
-			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-			@unlink( $tmp_filename );
+			wp_delete_file( $tmp_filename );
 			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 		remove_filter( 'jetpack_supported_media_sideload_types', $mime_type_static_filter );

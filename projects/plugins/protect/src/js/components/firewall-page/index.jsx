@@ -4,6 +4,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import API from '../../api';
 import { PLUGIN_SUPPORT_URL } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
@@ -20,7 +21,15 @@ import styles from './styles.module.scss';
 
 const FirewallPage = () => {
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
-	const { config, isSeen, isEnabled, toggleWaf, toggleManualRules, updateConfig } = useWafData();
+	const {
+		config,
+		isSupported,
+		isSeen,
+		isEnabled,
+		toggleWaf,
+		toggleManualRules,
+		updateConfig,
+	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const { jetpackWafIpList, jetpackWafIpBlockList, jetpackWafIpAllowList } = config || {};
 	const { setWafIsSeen, setNotice } = useDispatch( STORE_ID );
@@ -160,6 +169,13 @@ const FirewallPage = () => {
 		// update the meta value in the background
 		API.wafSeen();
 	}, [ isSeen, setWafIsSeen ] );
+
+	/**
+	 * Do not allow this page to be accessed on unsupported platforms.
+	 */
+	if ( ! isSupported ) {
+		return <Navigate replace to="/" />;
+	}
 
 	return (
 		<AdminPage>
