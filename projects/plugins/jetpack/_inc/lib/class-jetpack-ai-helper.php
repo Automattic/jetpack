@@ -68,6 +68,13 @@ class Jetpack_AI_Helper {
 			$default = true;
 		}
 
+		/**
+		 * Filter whether the AI features are enabled in the Jetpack plugin.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $default Are AI features enabled? Defaults to false.
+		 */
 		return apply_filters( 'jetpack_ai_enabled', $default );
 	}
 
