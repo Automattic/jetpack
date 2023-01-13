@@ -49,28 +49,33 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 */
 	public function permissions_check() {
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			// Only post editors can access the endpoints
-			return new WP_Error(
-				'rest_forbidden',
-				__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+		$blog_id = get_current_blog_id();
+
+		/*
+		 * User hitting the endpoint hosted on their Jetpack site, from their Jetpack site,
+		 * or hitting the endpoint hosted on WPCOM, from their WPCOM site.
+		 */
+		if ( current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
+			return true;
 		}
 
+		// Jetpack hitting the endpoint hosted on WPCOM, from a WoA site with a blog token.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			// Only allow WPCOM simple sites and Atomic
-			if ( get_current_site()->id !== 1 ) {
-				return true;
+			if ( is_blog_atomic( $blog_id ) ) {
+				if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+					require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+				}
+
+				$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+				if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+					return true;
+				}
 			}
-		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			// If not WPCOM, we allow only of this is a WoA site
-			return true;
 		}
 
 		return new WP_Error(
 			'rest_forbidden',
-			__( 'Sorry, you are not allowed to access Jetpack AI help on this site.', 'jetpack' ),
+			__( 'Sorry, you are not allowed to use jetpack-ai endpoints on this site.', 'jetpack' ),
 			array( 'status' => rest_authorization_required_code() )
 		);
 	}
