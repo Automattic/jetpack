@@ -1,5 +1,25 @@
 <?xml version="1.0"?>
 <ruleset>
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="zero-bs-crm" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="zero-bs-crm" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="zero-bs-crm" />
+		</properties>
+	</rule>
+
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
 	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations">
