@@ -414,7 +414,7 @@ class Waf_Runner {
 	/**
 	 * Check if an automatic rules file is available
 	 *
-	 * @return bool False if automatic rules file is not available, true otherwise
+	 * @return bool False if an automatic rules file is not available, true otherwise
 	 */
 	public static function automatic_rules_available() {
 		$automatic_rules_last_updated = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
