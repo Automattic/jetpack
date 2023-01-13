@@ -16,8 +16,8 @@ import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 	let current: HTMLElement | null = node.parentElement;
 
-	// Keep track of ancestor elements that do not have a "z-index" set
-	let elementsWithoutZIndex: HTMLElement[] = [];
+	// Keep track of target element
+	let result: HTMLElement;
 	while ( current && current instanceof HTMLElement ) {
 		// Don't go past the body element
 		if ( current === document.body ) {
@@ -27,24 +27,26 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 		const style = getComputedStyle( current );
 
 		// Guide can't be correctly positioned inside inline elements
-		// because they don't have dimensions
+		// because they don't have dimensions.
 		if ( style.display === 'inline' ) {
 			current = current.parentElement;
 			continue;
 		}
 
 		if (
-			style.zIndex === 'auto' &&
-			( style.position === 'static' || style.position === 'relative' )
+			result === undefined &&
+			( style.position === 'static' ||
+				( style.position === 'relative' && style.zIndex === 'auto' ) )
 		) {
-			elementsWithoutZIndex.push( current );
+			result = current;
 			// Move on to the next parent element
 			current = current.parentElement;
 			continue;
 		}
 
 		if ( style.position === 'relative' && style.zIndex !== 'auto' ) {
-			elementsWithoutZIndex = [ current ];
+			result = current;
+			// Move on to the next parent element
 			current = current.parentElement;
 			continue;
 		}
@@ -52,13 +54,7 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 		current = current.parentElement;
 	}
 
-	// Return the first ancestor element that isn't affected by z-index
-	if ( elementsWithoutZIndex.length > 0 ) {
-		return elementsWithoutZIndex[ 0 ];
-	}
-
-	// If no element was found, return the body element
-	return document.body;
+	return result || document.body;
 }
 
 /**
