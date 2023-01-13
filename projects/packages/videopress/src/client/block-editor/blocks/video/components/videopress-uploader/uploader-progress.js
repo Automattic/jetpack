@@ -2,7 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner, TextControl } from '@wordpress/components';
+import { Button, TextControl } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
@@ -199,63 +199,55 @@ const UploaderProgress = ( {
 			/>
 
 			<div className="videopress-uploader-progress">
-				{ uploadedVideoData ? (
+				{ roundedProgress < 100 ? (
 					<>
-						<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
-						<Button
-							variant="primary"
-							onClick={ handleDoneUpload }
-							disabled={ isFinishingUpdate }
-							isBusy={ isFinishingUpdate }
-						>
-							{ __( 'Done', 'jetpack-videopress-pkg' ) }
-						</Button>
+						<div className="videopress-uploader-progress__file-info">
+							<div className="videopress-uploader-progress__progress">
+								<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
+							</div>
+							<div className="videopress-upload__percent-complete">
+								{ sprintf(
+									/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+									__( 'Uploading (%1$s%%)', 'jetpack-videopress-pkg' ),
+									roundedProgress
+								) }
+							</div>
+							<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
+						</div>
+						{ isReplacing && (
+							<div className="videopress-uploader-progress__actions">
+								<Button onClick={ onReplaceCancel } variant="tertiary" isDestructive>
+									{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+						) }
+						<div className="videopress-uploader-progress__actions">
+							{ roundedProgress < 100 && (
+								<Button
+									variant="tertiary"
+									onClick={ onPauseOrResume }
+									disabled={ ! supportPauseOrResume }
+								>
+									{ paused ? resumeText : pauseText }
+								</Button>
+							) }
+						</div>
 					</>
 				) : (
 					<>
-						{ roundedProgress < 100 ? (
-							<>
-								<div className="videopress-uploader-progress__file-info">
-									<div className="videopress-uploader-progress__progress">
-										<div
-											className="videopress-uploader-progress__progress-loaded"
-											style={ cssWidth }
-										/>
-									</div>
-									<div className="videopress-upload__percent-complete">
-										{ sprintf(
-											/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
-											__( 'Uploading (%1$s%%)', 'jetpack-videopress-pkg' ),
-											roundedProgress
-										) }
-									</div>
-									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
-								</div>
-								{ isReplacing && (
-									<div className="videopress-uploader-progress__actions">
-										<Button variant="link" onClick={ onReplaceCancel } isDestructive>
-											{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
-										</Button>
-									</div>
-								) }
-								<div className="videopress-uploader-progress__actions">
-									{ roundedProgress < 100 && (
-										<Button
-											variant="link"
-											onClick={ onPauseOrResume }
-											disabled={ ! supportPauseOrResume }
-										>
-											{ paused ? resumeText : pauseText }
-										</Button>
-									) }
-								</div>
-							</>
+						{ uploadedVideoData ? (
+							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						) : (
-							<>
-								<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
-								<Spinner />
-							</>
+							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
 						) }
+						<Button
+							variant="primary"
+							onClick={ handleDoneUpload }
+							disabled={ ! uploadedVideoData || isFinishingUpdate }
+							isBusy={ ! uploadedVideoData || isFinishingUpdate }
+						>
+							{ __( 'Done', 'jetpack-videopress-pkg' ) }
+						</Button>
 					</>
 				) }
 			</div>
