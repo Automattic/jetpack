@@ -69,10 +69,12 @@
 </script>
 
 {#if $guideState === 'active' || $guideState === 'always_on'}
-	<div class="guide {size}"
-	class:show={show !== false}
-	class:keep-guide-open={show !== false}
-	on:mouseleave={closeDetails}>
+	<div
+		class="guide {size}"
+		class:show={show !== false}
+		class:keep-guide-open={show !== false}
+		on:mouseleave={closeDetails}
+	>
 		<div class="previews">
 			{#each stores as store, index}
 				<Bubble {index} {store} on:hover={hover} />
