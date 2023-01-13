@@ -158,11 +158,7 @@ const createTextareaElement = (): HTMLTextAreaElement => {
  * @param {string} text     - Text to decode
  * @returns {string | null} Decoded text
  */
-export function decodeEntities( text: string ): string | null {
-	if ( ! text?.length ) {
-		return null;
-	}
-
+export function decodeEntities( text: string ): string {
 	// Create temporary element to decode entities
 	const element = createTextareaElement();
 	element.innerHTML = text;
