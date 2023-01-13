@@ -328,19 +328,7 @@ final class ZeroBSCRM {
 	 * Libraries included (3.0.12+)
 	 * Note: All paths need to be prepended by ZEROBSCRM_PATH before use
 	 */
-	private $libs = array(
-		/*
-		'dompdf-1' => array(
-			'version'   => '1.0.2',
-			'path'      => 'includes/lib/dompdf-1/',
-			'include'   => 'includes/lib/dompdf-1/autoload.inc.php',
-		),*/
-		'dompdf-2' => array(
-			'version' => '2.0.1',
-			'path'    => 'includes/lib/dompdf-2/',
-			'include' => 'includes/lib/dompdf-2/autoload.inc.php',
-		),
-	);
+	private $libs = array();
 
 	/**
 	 * Usage Tracking
@@ -3001,8 +2989,6 @@ final class ZeroBSCRM {
 	 */
 	public function lib( $libKey = '' ) {
 
-		$libKey = $this->checkDompdfVersion( $libKey );
-
 		if ( isset( $this->libs[ $libKey ] ) && is_array( $this->libs[ $libKey ] ) ) {
 
 			// update path to use ZEROBSCRM_PATH
@@ -3022,8 +3008,6 @@ final class ZeroBSCRM {
 	 */
 	public function libPath( $libKey = '' ) {
 
-		$libKey = $this->checkDompdfVersion( $libKey );
-
 		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['path'] ) ) {
 			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['path'];
 		}
@@ -3037,8 +3021,6 @@ final class ZeroBSCRM {
 	 */
 	public function libInclude( $libKey = '' ) {
 
-		$libKey = $this->checkDompdfVersion( $libKey );
-
 		if ( isset( $this->libs[ $libKey ] ) && isset( $this->libs[ $libKey ]['include'] ) ) {
 			return ZEROBSCRM_PATH . $this->libs[ $libKey ]['include'];
 		}
@@ -3046,9 +3028,11 @@ final class ZeroBSCRM {
 		return false;
 	}
 
-	/*
-	* Returns the correct dompdf lib version depending on php compatibility
-	*/
+	/**
+	 * Returns the correct dompdf lib version depending on php compatibility
+	 *
+	 * @deprecated We no longer load Dompdf through this library system.
+	 */
 	private function checkDompdfVersion( $libKey ) {
 
 		if ( $libKey === 'dompdf' ) {
@@ -3097,8 +3081,6 @@ final class ZeroBSCRM {
 	 * Returns: str or false
 	 */
 	public function libLoad( $libKey = '' ) {
-
-		$libKey = $this->checkDompdfVersion( $libKey );
 
 		if (
 			isset( $this->libs[ $libKey ] ) &&
@@ -3315,9 +3297,6 @@ final class ZeroBSCRM {
 
 		// PDF Install check:
 		zeroBSCRM_extension_checkinstall_pdfinv();
-
-		// Require DOMPDF
-		$this->libLoad( 'dompdf' );
 
 		// if we don't set options initially, weird issues happen (e.g. `installed-fonts.json` is overwritten at times):
 		// https://github.com/dompdf/dompdf/issues/2990

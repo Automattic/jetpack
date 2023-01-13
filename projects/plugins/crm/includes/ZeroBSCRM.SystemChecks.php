@@ -545,28 +545,40 @@ function zeroBSCRM_checkPrettyPermalinks(){
 		return array( $enabled, $str );
 	}
 
+	/**
+	 * Check if Dompdf is installed correctly on the server.
+	 *
+	 * @param false $withInfo Determine if the returning results contains an explanatory string.
+	 *
+	 * @return array|bool
+	 */
+	function zeroBSCRM_checkSystemFeat_dompdf( $withInfo = false ) {
+		$enabled = class_exists( Dompdf\Dompdf::class );
 
-	function zeroBSCRM_checkSystemFeat_dompdf($withInfo=false){
-
-		global $zbs; 
-
-		// retrieve info
-		$libInfo = $zbs->lib('dompdf');
-
-		if (!$withInfo)
-			return is_array($libInfo);
-		else {
-
-			$enabled = file_exists($libInfo['include']);
-			$str = 'PDF Engine is properly installed on your server.';
-			if (isset($libInfo['version'])) $str .= ' (Version '.$libInfo['version'].')';
-			if (!$enabled) $str = 'PDF Engine is not installed on your server.';
-
-			return array($enabled,$str);
-
+		if ( ! $withInfo ) {
+			return $enabled;
 		}
 
+		if ( ! $enabled ) {
+			return array(
+				$enabled,
+				__( 'PDF Engine is not installed on your server.', 'zero-bs-crm' )
+			);
+		}
+
+		try {
+			$dompdf  = new \Dompdf\Dompdf();
+			$version = $dompdf->version;
+		} catch ( \Exception $e ) {
+			$version = 'unknown';
+		}
+
+		return array(
+			$enabled,
+			sprintf( __( 'PDF Engine is properly installed on your server (Version: %s).', 'zero-bs-crm' ), $version )
+		);
 	}
+
 	function zeroBSCRM_checkSystemFeat_pdffonts($withInfo=false){
 
 		// get fonts dir
