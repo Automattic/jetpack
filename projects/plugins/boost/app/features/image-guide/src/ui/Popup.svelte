@@ -180,12 +180,12 @@
 					Unable to estimate file size savings because the image is hosted on a different domain.
 				</div>
 			{/if}
-		</div>
 
-		<div class="info">
-			<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
-				>Learn how to improve site speed by optimizing images <External /></a
-			>
+			<div class="info">
+				<a class="documentation" href={DOCUMENTATION_URL} target="_blank noreferrer"
+					>Learn how to improve site speed by optimizing images <External /></a
+				>
+			</div>
 		</div>
 	</div>
 </Portal>
