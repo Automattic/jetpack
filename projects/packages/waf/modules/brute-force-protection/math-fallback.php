@@ -5,7 +5,7 @@ if ( ! class_exists( 'Waf_Brute_Force_Protection_Math_Authenticate' ) ) {
 	/**
 	 * The math captcha fallback if we can't talk to the Protect API
 	 */
-	class Waf_Brute_Force_Protection_Blocked_Login_Page {
+	class Waf_Brute_Force_Protection_Math_Authenticate {
 
 		/**
 		 * If the class is loaded.

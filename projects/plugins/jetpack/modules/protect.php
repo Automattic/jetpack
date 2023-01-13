@@ -466,7 +466,7 @@ class Jetpack_Protect_Module {
 		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 			include_once __DIR__ . '/protect/math-fallback.php';
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
-			// include_once JETPACK__PLUGIN_DIR . '/jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/math-fallback.php';			
+			// include_once JETPACK__PLUGIN_DIR . '/jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/math-fallback.php';
 			// Waf_Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
 
