@@ -94,13 +94,17 @@ function preparePromptBasedOnEditorState( select ) {
 		return '';
 	}
 
+	// We are filtering out the default "Uncategorized"
+	const categories = currentPost.categories.filter( catId => catId !== 1 );
+
 	// User did not set any categories, we are going to base the suggestions off a title.
-	if ( ! currentPost.categories ) {
+	if ( ! categories.length ) {
 		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
-		return sprintf( __( 'Write me a post titled "%s"', 'jetpack' ), currentPost.title );
+		return sprintf( __( 'Write content of a post titled "%s"', 'jetpack' ), currentPost.title );
 	}
 
-	const categoryObjects = currentPost.categories.map( categoryId =>
+	// We are grabbing more data from WP.
+	const categoryObjects = categories.map( categoryId =>
 		select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId )
 	);
 	// We want to wait until all category names are loaded. This will return empty string (aka loading state) until all objects are truthy.
@@ -112,7 +116,7 @@ function preparePromptBasedOnEditorState( select ) {
 
 	return sprintf(
 		/** translators: This will be a prompt to OpenAI to generate a post based on the comma-seperated category names and the post title */
-		__( 'Write me a post with categories "%1$s" titled "%2$s"', 'jetpack' ),
+		__( 'Write content of a post with categories "%1$s" titled "%2$s"', 'jetpack' ),
 		categoryNames,
 		currentPost.title
 	);
