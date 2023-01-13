@@ -36,7 +36,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		}
 
 		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
-			return false;
+			return;
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
