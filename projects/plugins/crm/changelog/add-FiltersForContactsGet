@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+adds some support for filters to the MySQL query for MC2 release.

@@ -640,6 +640,7 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
            /**
              * Runs a filtered search on customers based on a segment's condition
              * returns array or count ($onlyCount)
+             * adding mail ID for link in with mail campaigns
              */
             public function getSegmentAudience(
                 $segmentID = -1,
@@ -649,12 +650,13 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                 $sortOrder = 'DESC',
                 $onlyCount = false,
                 $withDND = false,
-                $limited_fields = false
+                $limited_fields = false,
+                $mailID=-1
             ){
 
 
                 // assumes sensible paging + sort vars... no checking of them
-
+                global $ZBSCRM_t;
                 if ($segmentID > 0){
 
                     #} Retrieve segment + conditions
@@ -695,6 +697,11 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                             $contactGetArgs['perPage'] = -1;
                         }
 
+                        if($mailID > 0){
+                            $contactGetArgs['joinQ']    = ' LEFT JOIN ' . $ZBSCRM_t['mailstats'] . " as mailstats ON contact.ID = mailstats.zbsmailstat_uid";
+                            $contactGetArgs['mailID']   = (int)santize_text_field($mailID);
+                        }
+
                         // count ver
                         if ($onlyCount){
                             $contactGetArgs = $contactGetArgs;
@@ -722,8 +729,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
                         $contacts = $this->DAL()->contacts->getContacts( $contactGetArgs );
 
-                        // if no limits, update compile record (effectively a compile)
-                        if ($contactGetArgs['page'] == -1 && $contactGetArgs['perPage'] == -1){
+                        // if no limits, update compile record (effectively a compile) and not a mailID filter
+                        if ($contactGetArgs['page'] == -1 && $contactGetArgs['perPage'] == -1 && $mailID == -1){
 
                             $this->updateSegmentCompiled($segmentID,count($contacts),time());
 

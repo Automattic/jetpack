@@ -1010,8 +1010,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             'withAliases'       => false,
             'withExternalSources' => false,
             'withExternalSourcesGrouped' => false,
-
-
+            'mailCamp'          => false,  //if this is true - then only get specific contact fields - not EVERY field. Need to check to see how personalisation works if doing this way
+            'mailID'            => -1,     // the mail campaign email ID to filter the contacts out by who have already received the mail ID
             'sortByField'   => 'ID',
             'sortOrder'     => 'ASC',
             'page'          => 0, // this is what page it is (gets * by for limit)
@@ -1027,15 +1027,33 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // ... for later use, (above)
             // PLEASE do not use the or switch without discussing case with WH
             'additionalWhereArr' => false, 
-            'whereCase'          => 'AND' // DEFAULT = AND
+            'whereCase'          => 'AND', // DEFAULT = AND
+            'joinQ'              => '', // adding the joinQ variable rather than it being set to '' below
+            'extraSelect'        => '', // adding the joinQ variable rather than it being set to '' below
+        );
 
+        foreach ($defaultArgs as $argK => $argV){
+            $$argK = $argV;
+            if (is_array($args) && isset($args[$argK])) {
+                if (is_array($args[$argK])){
+                    $newData = $$argK;
+                    if (!is_array($newData)){
+                        $newData = array();
+                    }
+                    foreach ($args[$argK] as $subK => $subV){
+                        $newData[$subK] = $subV;
+                    }
+                    $$argK = $newData;
+                } else {
+                    $$argK = $args[$argK];
+                }
+            }
+        }
 
-
-        ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
         #} =========== / LOAD ARGS =============
 
-        global $ZBSCRM_t,$wpdb,$zbs;  
-        $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array(); $joinQ = ''; $extraSelect = '';
+        global $ZBSCRM_t,$wpdb,$zbs;
+	    $wheres = array('direct'=>array()); $whereStr = ''; $additionalWhere = ''; $params = array(); $res = array();
 
         #} ============= PRE-QUERY ============
 
@@ -1273,7 +1291,13 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
+            //filter the extraSelect
+            $extraSelect = apply_filters('jpcrm_contact_extra_select', $extraSelect);
+
         #} ============ / PRE-QUERY ===========
+
+        #} Join Query filter
+        $joinQ = apply_filters('jpcrm_contact_join_query', $joinQ);
 
         #} Build query
         $query = "SELECT contact.*".$extraSelect." FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
@@ -1283,6 +1307,11 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} simplified override
         if ($simplified) $query = "SELECT contact.ID as id,CONCAT(contact.zbsc_fname,\" \",contact.zbsc_lname) as name,contact.zbsc_created as created, contact.zbsc_email as email FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
+
+        #} Mail Camp override
+        if($mailCamp){
+            $query = "SELECT contact.ID, contact.zbsc_email".$extraSelect." FROM ".$ZBSCRM_t['contacts'].' as contact'.$joinQ;
+        }
 
         #} onlyColumns override
         if ($onlyColumns && is_array($onlyColumnsFieldArr) && count($onlyColumnsFieldArr) > 0){
@@ -1679,7 +1708,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-        
+            if($mailID > 0){
+                $mailID = (int)sanitize_text_field($mailID);
+                $wheres['mailID']   = array('contact.ID NOT IN (SELECT zbsmailstat_uid FROM ' . $ZBSCRM_t['mailstats'] . ' WHERE zbsmailstat_mailid = '. $mailID .')');
+            }
 
         #} ============ / WHERE ===============
 
@@ -1756,6 +1788,9 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
         #} CHECK this + reset to default if faulty
         if (!in_array($whereCase,array('AND','OR'))) $whereCase = 'AND';
 
+        #} Filter the $wheres array (e.g. in Mail Campaigns we may want to filter where contact NOT IN already sent for a mailid)
+        $wheres = apply_filters('jpcrm_contact_wheres_filter', $wheres);
+
         #} Build out any WHERE clauses
         $wheresArr = $this->buildWheres($wheres,$whereStr,$params,$whereCase);
         $whereStr = $wheresArr['where']; $params = $params + $wheresArr['params'];
@@ -1774,6 +1809,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             // Prep & run query
             $queryObj = $this->prepare($query,$params);
 
+            zbs_write_log("QUERY IS");
+            zbs_write_log($queryObj);
 
             // Catch count + return if requested
             if ( $count ) return $wpdb->get_var( $queryObj );
