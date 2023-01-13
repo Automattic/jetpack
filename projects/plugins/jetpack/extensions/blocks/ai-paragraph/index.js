@@ -1,5 +1,7 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
+import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
@@ -20,20 +22,31 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Automatically generate new paragraphs using your existing content, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.',
+					'Automatically generate new paragraphs using your existing content, powered by AI magic.',
 					'jetpack'
 				) }
 			</p>
+			<p>
+				{ __(
+					'We are experimenting with this feature and can tweak or remove it at any point.',
+					'jetpack'
+				) }
+			</p>
+			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
+				{ __( 'Share your feedback.', 'jetpack' ) }
+			</ExternalLink>
 		</Fragment>
 	),
 	icon: {
-		src: 'welcome-write-blog',
+		src: 'superhero',
 		foreground: getIconColor(),
 	},
 	category: 'text',
 	keywords: [
 		_x( 'AI', 'block search term', 'jetpack' ),
 		_x( 'GPT', 'block search term', 'jetpack' ),
+		_x( 'AL', 'block search term', 'jetpack' ),
+		_x( 'Magic', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
