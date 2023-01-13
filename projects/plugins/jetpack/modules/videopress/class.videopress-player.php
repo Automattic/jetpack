@@ -700,9 +700,9 @@ class VideoPress_Player {
 				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
-				. "' frameborder='0' allowfullscreen'"
+				. "' frameborder='0' allowfullscreen"
 				. $cover
-				. "' allow='clipboard-write'></iframe>"
+				. " allow='clipboard-write'></iframe>"
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {

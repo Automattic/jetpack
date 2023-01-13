@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add 2 new methods to detect whether a site is private or not.
