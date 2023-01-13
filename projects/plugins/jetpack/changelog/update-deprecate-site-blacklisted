@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Add support for the 'connection_disabled' error code.
