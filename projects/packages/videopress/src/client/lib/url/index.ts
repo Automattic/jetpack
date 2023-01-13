@@ -129,3 +129,40 @@ export function buildVideoPressURL(
 export const removeFileNameExtension = ( name: string ) => {
 	return name.replace( /\.[^/.]+$/, '' );
 };
+
+/**
+ * Helper function to create and return textarea element.
+ * It will be used to decode HTML entities,
+ * As long as element doesn’t get inserted in the DOM,
+ * we’re good in terms of security,
+ * since textContent will return the content without evaluating it.
+ *
+ * @returns {HTMLTextAreaElement} - Textarea element
+ */
+const createTextareaelement = (): HTMLTextAreaElement => {
+	if ( document.implementation && document.implementation.createHTMLDocument ) {
+		return document.implementation.createHTMLDocument( '' ).createElement( 'textarea' );
+	}
+
+	return document.createElement( 'textarea' );
+};
+
+/**
+ * Decode the given text, replacing HTML entities
+ * with their corresponding characters.
+ *
+ * @param {string} text     - Text to decode
+ * @returns {string | null} Decoded text
+ */
+export function decodeEntities( text: string ): string | null {
+	if ( ! text?.length ) {
+		return null;
+	}
+
+	// Create temporary element to decode entities
+	const element = createTextareaelement();
+	element.innerHTML = text;
+	const decoded = element.textContent;
+	element.innerHTML = '';
+	return decoded;
+}
