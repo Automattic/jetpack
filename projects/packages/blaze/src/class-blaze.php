@@ -73,7 +73,7 @@ class Blaze {
 			null,
 			'wpcom'
 		);
-		l( $response );
+
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return false;
