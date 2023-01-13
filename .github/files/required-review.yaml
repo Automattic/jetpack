@@ -41,6 +41,19 @@
   teams:
    - jetpack-approvers
 
+
+# The Scan team reviews changes to the protect plugin, the WAF package, etc,
+# and can add dependencies to the monorepo's lock file.
+- name: CRM
+  paths:
+    - 'projects/plugins/crm/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - avengers
+    - jetpack-approvers
+
 # The Backup team reviews changes to the VaultPress and Backup plugin,
 # and can add dependencies to the monorepo's lock file.
 - name: VaultPress & Backup
