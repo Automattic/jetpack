@@ -39,6 +39,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'55', // 5.5 Deletes orphaned rows linked to invoices in the objlinks table
 	'55a', // 5.5a Recompiles segments after wp_loaded
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
+	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-stora
 	/*
 	'123','127',
 	'216','22',
@@ -962,6 +963,191 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		zeroBSCRM_migrations_markComplete( '551', array( 'updated' => 1 ) );
 
 	}
+
+function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) {
+	global $wpdb, $ZBSCRM_t;
+	// skip if this is not a custom file for a contact 
+	// (the only type that should exist, but we are being extra careful here)
+	if ( $meta_row->zbsm_objtype != ZBS_TYPE_CONTACT ) {
+		return;
+	}
+	$file_path = $meta_row->zbsm_val;
+	// skip if this file doesn't exist (user may have deleted using the filesystem)
+	if ( ! file_exists( $file_path ) ) {
+		error_log( sprintf( 'JPCRM migration error while searching for upload box file %s', $file_path ) );
+		return;
+	}
+	$new_dir = $contact_dir_info = jpcrm_storage_dir_info_for_contact( $meta_row->zbsm_objid );
+	// skip if there is no information for the files subfolder
+	if ( $new_dir === false || ! isset( $new_dir['files'] ) ) {
+		error_log( sprintf( 'JPCRM migration error missing subfolder files for contact ID %s', $meta_row->zbsm_objid ) );
+		return;
+	}
+	$new_dir_info         = $new_dir['files'];
+	$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
+	if ( $upload_folder_exists === false ) {
+		// we shouldn't have any errors here, but if we do we log it and skip this one
+		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) );
+		$new_file_array[] = $outdated_file_meta;
+		return;
+	}
+	$file_name       = basename( $file_path );
+	$new_file_path   = $new_dir_info['path'] . '/' . $file_name;
+	// moving the file
+	if ( ! rename( $file_path, $new_file_path ) ) {
+		// we shouldn't have any errors here, but if we do we log it and skip this one
+		error_log( sprintf( 'JPCRM migration error while moving upload box %s to %s', $file_path, $new_file_path ) );
+		return;
+	}
+
+	// updates the database
+	$update_result = $wpdb->update( 
+		$ZBSCRM_t['meta'], 
+		array(
+			'zbsm_val'         => $new_file_path,
+			'zbsm_lastupdated' => time()
+		),
+		array('ID' => $meta_row->ID ),
+		array( // field data types
+			'%s', 
+			'%d'
+		),
+		array( // where data types
+			'%d'
+		)
+	);
+
+	if ( $update_result === false ) {
+		error_log( sprintf( 'JPCRM migration error while updating upload box meta %s to %s', $meta_row->ID ) );
+	}
+}
+
+function zeroBSCRM_migration_560_move_file_array( $meta_row ) {
+	global $wpdb, $ZBSCRM_t;
+
+	// before we move the files from the array we must discover its type and
+	// update its dir_info information (contains information for several 
+	// subfolders, we will use the 'files' subfolder)
+	$new_dir = false;
+	switch ( $meta_row->zbsm_objtype ) {
+		case ZBS_TYPE_CONTACT:
+			$new_dir = jpcrm_storage_dir_info_for_contact( $meta_row->zbsm_objid );
+		break;
+
+		case ZBS_TYPE_COMPANY:
+			$new_dir = jpcrm_storage_dir_info_for_company( $meta_row->zbsm_objid );
+		break;
+
+		case ZBS_TYPE_QUOTE:
+			$new_dir = jpcrm_storage_dir_info_for_quotes( $meta_row->zbsm_objid );
+		break;
+
+		case ZBS_TYPE_INVOICE:
+			$new_dir = jpcrm_storage_dir_info_for_invoices( $meta_row->zbsm_objid );
+		break;
+	}
+
+	// skip if any other type (we are only moving these four types)
+	if ( $new_dir === false || ! isset( $new_dir['files'] ) ) {
+		return;
+	}
+
+	$new_dir_info = $new_dir['files'];
+	$outdated_file_array   = json_decode( $meta_row->zbsm_val, true );
+	// if we can't decode it neither the CRM can when it shows files, so 
+	// we can skip it
+	if ( $outdated_file_array === null ) {
+		return;
+	}
+
+	// this was the hard-coded value in JPCRM < 5.4.x
+	$previous_folder = 'zbscrm-store';
+	$new_file_array  = [];
+	foreach ( $outdated_file_array as $outdated_file_meta ) {
+		// skip if this has an unknown format
+		// skip if this isn't an outdate file
+		// skip if this file doesn`t exist (user may have deleted using the filesystem)
+		if ( 
+			! isset( $outdated_file_meta['file'] ) 
+			|| strpos( $outdated_file_meta['file'], "/$previous_folder/" ) === false
+			|| ! file_exists( $outdated_file_meta['file'] ) 
+		) {
+			$new_file_array[] = $outdated_file_meta;
+			continue;
+		}
+
+		$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
+		if ( $upload_folder_exists === false ) {
+			// we shouldn't have any errors here, but if we do we log it and skip this one
+			error_log( sprintf( 'JPCRM migration error while creating folder %s ', $new_dir_info['path'] ) );
+			$new_file_array[] = $outdated_file_meta;
+			return;
+		}
+
+		$file_name       = basename( $outdated_file_meta['file'] );
+		$new_file_path   = $new_dir_info['path'] . '/' . $file_name;
+		// moving the file
+		if ( ! rename( $outdated_file_meta['file'], $new_file_path ) ) {
+			// we shouldn't have any errors here, but if we do we log it and skip this one
+			error_log( sprintf( 'JPCRM migration error while moving %s to %s', $outdated_file_meta['file'], $new_file_path ) );
+			$new_file_array[] = $outdated_file_meta;
+			continue;
+		}
+
+		// Updating references to save in the database
+		$outdated_file_meta['file'] = $new_file_path;
+		$outdated_file_meta['url']  = $new_dir_info['url'] . '/' . $file_name;
+		$new_file_array[]           = $outdated_file_meta;
+	}
+	// updates the database
+	$update_result = $wpdb->update( 
+		$ZBSCRM_t['meta'], 
+		array(
+			'zbsm_val'         => json_encode( $new_file_array ),
+			'zbsm_lastupdated' => time()
+		),
+		array('ID' => $meta_row->ID ),
+		array( // field data types
+			'%s', 
+			'%d'
+		),
+		array( // where data types
+			'%d'
+		)
+	);
+
+	if ( $update_result === false ) {
+		error_log( sprintf( 'JPCRM migration error while updating file array meta %s to %s', $meta_row->ID ) );
+	}
+}
+
+/*
+* Migration 5.6.0
+* Moves the old folder structure (zbscrm-store) to the new one (jpcrm-storage)
+*/
+function zeroBSCRM_migration_560() {
+	global $wpdb, $ZBSCRM_t;
+
+	// this was the hard-coded value in JPCRM < 5.4.x
+	$previous_folder = 'zbscrm-store';
+	// we only store files in the meta table
+	$query           = $wpdb->prepare( "SELECT * FROM `" . $ZBSCRM_t['meta'] . "` WHERE `zbsm_val` LIKE '%%%s%%'", $previous_folder );
+	$outdated_rows   = $wpdb->get_results( $query );
+
+	foreach ( $outdated_rows as $outdated_row ) {
+		// The first type of row we have to migrate has they key 'files' and 
+		// has an array of files attached to an object of type `zbsm_objtype`
+		if ( $outdated_row->zbsm_key === 'files' ) {
+			zeroBSCRM_migration_560_move_file_array( $outdated_row );
+		} else {
+			zeroBSCRM_migration_560_move_custom_file_upload_box( $outdated_row );
+		}
+	}
+
+	// mark complete
+	zeroBSCRM_migrations_markComplete( '560', array( 'updated' => 1 ) );
+}
+
 
 
 /* ======================================================
