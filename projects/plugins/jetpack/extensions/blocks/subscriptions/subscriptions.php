@@ -73,6 +73,9 @@ function register_block() {
 			10
 		);
 
+		// Enable newsletter feature
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+
 		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
 
 		// Close comments on the front-end
