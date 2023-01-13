@@ -132,15 +132,16 @@ export const removeFileNameExtension = ( name: string ) => {
 
 /**
  * Helper function to create and return textarea element.
+ * Based on https://github.com/Automattic/wp-calypso/blob/1ea156fe734d57fdf13cd332e82ac688eacd3bee/client/lib/formatting/decode/browser.js#L9
  *
  * > Moreover, using textContent can prevent XSS attacks.
- * https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innerhtml
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Node/textContent#differences_from_innerhtml
  *
  * It will be used to decode HTML entities,
  * As long as element doesn’t get inserted in the DOM,
  * we’re good in terms of security,
  * since textContent will return the content without evaluating it.
- *
  * @returns {HTMLTextAreaElement} - Textarea element
  */
 const createTextareaElement = (): HTMLTextAreaElement => {
