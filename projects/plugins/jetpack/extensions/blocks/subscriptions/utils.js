@@ -1,5 +1,5 @@
 import { Button, ToolbarButton } from '@wordpress/components';
-import { _x } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -34,7 +34,7 @@ export const isNewsletterFeatureEnabled = () => {
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: _x( 'Add paid plan', '', 'jetpack' );
+		: __( 'Add paid plan', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (
