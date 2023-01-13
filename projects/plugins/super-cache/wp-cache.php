@@ -3117,16 +3117,10 @@ function wpsc_get_htaccess_info() {
 		$gziprules .= "<IfModule mod_headers.c>\n$headers_text\n</IfModule>\n";
 	}
 
-	// Guess an appropriate ExpiresByType value based on the cache control header
-	$expires_by_type = 'A3';
-	if ( preg_match( '/max-age=(\d+)/', $headers['Cache-Control'], $matches ) ) {
-		$expires_by_type = 'A' . $matches[1];
-	}
-
 	// Deafult mod_expires rules.
 	$expires_rules = array(
 		'ExpiresActive On',
-		'ExpiresByType text/html ' . $expires_by_type,
+		'ExpiresByType text/html A3',
 	);
 
 	// Allow overriding mod_expires rules with a filter.
