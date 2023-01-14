@@ -162,7 +162,11 @@ export function useSyncMedia(
 	options: UseSyncMediaOptionsProps
 ): UseSyncMediaProps {
 	const { id, guid } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( { id, guid } );
+	const { videoData, isRequestingVideoData } = useVideoData( {
+		id,
+		guid,
+		skipRatingChecking: true,
+	} );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
