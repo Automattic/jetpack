@@ -1,7 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
-import ConnectUserBar from 'components/connect-user-bar';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -164,14 +163,6 @@ export const Protect = withModuleSettingsFormHelpers(
 							</SettingsGroup>
 						</FoldableCard>
 					</SettingsGroup>
-
-					{ ! this.props.hasConnectedOwner && ! this.props.isOfflineMode && (
-						<ConnectUserBar
-							feature="protect"
-							featureLabel={ __( 'Protect', 'jetpack' ) }
-							text={ __( 'Connect to set up brute force attack protection.', 'jetpack' ) }
-						/>
-					) }
 				</SettingsCard>
 			);
 		}
