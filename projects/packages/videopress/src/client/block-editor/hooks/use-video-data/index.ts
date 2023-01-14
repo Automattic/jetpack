@@ -11,7 +11,10 @@ import { decodeEntities } from '../../../lib/url';
 /**
  * Types
  */
-import { WPCOMRestAPIVideosGetEndpointResponseProps } from '../../../types';
+import {
+	WPCOMRestAPIVideosGetEndpointRequestArguments,
+	WPCOMRestAPIVideosGetEndpointResponseProps,
+} from '../../../types';
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
 /**
@@ -23,6 +26,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 export default function useVideoData( {
 	id,
 	guid,
+	skipRatingChecking = false,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
@@ -34,12 +38,26 @@ export default function useVideoData( {
 		async function fetchVideoItem() {
 			try {
 				const tokenData = await getMediaToken( 'playback', { id, guid } );
-				const params = tokenData?.token
-					? `?${ new URLSearchParams( { metadata_token: tokenData.token } ).toString() }`
+				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
+
+				// Add the token to the request if it exists.
+				if ( tokenData?.token ) {
+					params.metadata_token = tokenData.token;
+				}
+
+				// Add the birthdate to skip the rating check if it's required.
+				if ( skipRatingChecking ) {
+					params.birth_day = '1';
+					params.birth_month = '1';
+					params.birth_year = '2000';
+				}
+
+				const requestArgs = Object.keys( params ).length
+					? `?${ new URLSearchParams( params ).toString() }`
 					: '';
 
 				const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ params }`,
+					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
 					credentials: 'omit',
 					global: true,
 				} );
