@@ -15,16 +15,12 @@ $break-small: 600px;
 	z-index: 999999;
 }
 
-@media screen and ( min-width: $break-large ) {
-	div.components-modal__frame {
-		max-height: unset;
-	}
+/** unset the height **/
+.jetpack-memberships-modal {
+	max-height: unset;
+	height: fit-content;
 }
-@media screen and ( min-width: $break-small ) {
-	div.components-modal__frame {
-		max-height: unset;
-	}
-}
+
 @media screen and ( max-width: $break-small ) {
 	.jetpack-memberships-modal {
 		width: 100%;
@@ -49,7 +45,7 @@ $break-small: 600px;
 	 }
 }
 .components-modal__screen-overlay.loaded{
-	overflow: scroll;
+	overflow: auto;
 	padding: 20px;
 
 	.lds-ring{

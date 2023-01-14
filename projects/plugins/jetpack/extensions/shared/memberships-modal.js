@@ -41,15 +41,19 @@ export default function MembershipsModal( props ) {
 			return;
 		}
 
-		// Handle the close action.
 		const data = JSON.parse( evt.data );
+
+		// Handle the close action.
 		if ( data && data.action === 'close' ) {
 			closeModal();
 		}
 
 		// Handle the resize action.
 		if ( data && data.action === 'resize' && data.height ) {
-			modalRef.current.querySelector( 'iframe' ).setAttribute( 'height', data.height );
+			// round the height up
+			const height = Math.ceil( data.height );
+			// console.log( 'height', data.height, height );
+			modalRef.current.querySelector( 'iframe' ).style[ 'min-height' ] = height + 'px';
 		}
 	}
 
