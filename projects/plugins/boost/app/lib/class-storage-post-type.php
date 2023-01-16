@@ -249,6 +249,7 @@ class Storage_Post_Type {
 
 		foreach ( $posts as $post ) {
 			wp_delete_post( $post->ID, true );
+			wp_cache_delete( $post->post_name, $this->post_type_slug() );
 		}
 	}
 }
