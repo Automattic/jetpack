@@ -1,0 +1,247 @@
+.contact-form .clear-form {
+	clear: both;
+}
+
+.contact-form input {
+	font: inherit;
+}
+
+.contact-form input::placeholder {
+	transition: opacity 0.3s ease-out;
+}
+.contact-form input:hover::placeholder {
+	opacity: 0.5;
+}
+.contact-form input:focus::placeholder {
+	opacity: 0.3;
+}
+
+/*
+	Using :where we will keep a lower CSS specificity,
+	allowing themes to easily override these styles
+ */
+:where(
+	.contact-form input[type='text'],
+	.contact-form input[type='email'],
+	.contact-form input[type='tel'],
+	.contact-form input[type='url']
+) {
+	box-sizing: border-box;
+	width: 100%;
+	padding: 12px 8px;
+	border-width: 1px;
+	line-height: normal;
+}
+
+.contact-form select {
+	padding: 14px 7px;
+	min-width: 150px;
+}
+
+.contact-form textarea {
+	box-sizing: border-box;
+	float: none;
+	height: 200px;
+	width: 100%;
+	padding: 7px;
+	font: inherit;
+}
+
+.contact-form input[type='radio'],
+.contact-form input[type='checkbox'] {
+	width: 1rem;
+	height: 1rem;
+	float: none;
+	margin: 0 0.75rem 0 0;
+}
+
+.contact-form input[type='checkbox'] {
+	top: 0;
+	margin-left: 0;
+}
+
+.contact-form label {
+	margin-bottom: 0.25em;
+	float: none;
+	font-weight: bold;
+	display: block;
+}
+
+.contact-form label.consent {
+	font-size: 13px;
+	font-weight: normal;
+	text-transform: uppercase;
+	display: flex;
+	align-items: center;
+}
+
+.contact-form label.consent-implicit input {
+	display: none;
+}
+
+.contact-form label.checkbox,
+.contact-form label.checkbox-multiple,
+.contact-form label.radio {
+	margin-bottom: 0.25em;
+	float: none;
+	font-weight: normal;
+	display: inline-flex;
+	align-items: center;
+}
+
+.contact-form label span {
+	font-size: 85%;
+	margin-left: 0.25em;
+	font-weight: normal;
+	opacity: 0.45;
+}
+
+.contact-form-submission {
+	margin-bottom: 4em;
+	padding: 1.5em 1em;
+	width: 100%;
+	border-top: 1px solid #000;
+	border-bottom: 1px solid #000;
+}
+
+.contact-form-submission p {
+	margin: 0 auto;
+	word-wrap: break-word;
+}
+
+.contact-form-submission h4 {
+	margin-top: 32px;
+	margin-bottom: 32px;
+	font-weight: 200;
+}
+
+.contact-form-submission .go-back-message {
+	margin-top: 20px;
+	margin-bottom: 32px;
+	text-align: left;
+}
+
+.contact-form-submission .go-back-message .link {
+	font-weight: 200;
+	color: #000;
+}
+
+.contact-form-submission .field-name {
+	font-weight: 200;
+}
+
+.contact-form-submission .field-value {
+	margin-bottom: 20px;
+	font-weight: 600;
+}
+
+.form-errors .form-error-message {
+	color: red;
+}
+
+.textwidget .contact-form input[type='text'],
+.textwidget .contact-form input[type='email'],
+.textwidget .contact-form input[type='tel'],
+.textwidget .contact-form input[type='url'],
+.textwidget .contact-form textarea,
+.wp-block-column .contact-form input[type='text'],
+.wp-block-column .contact-form input[type='email'],
+.wp-block-column .contact-form input[type='tel'],
+.wp-block-column .contact-form input[type='url'],
+.wp-block-column .contact-form textarea {
+	width: 100%;
+}
+
+#jetpack-check-feedback-spam {
+	margin: 1px 8px 0px 0px;
+}
+
+.jetpack-check-feedback-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
+}
+
+.wp-block-jetpack-contact-form {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+	flex-grow: 1;
+	gap: var(--wp--style--block-gap, 1.5rem);
+}
+
+.wp-block-jetpack-contact-form > * {
+	flex: 0 0 100%;
+}
+
+/* Added circa Nov 2022: container class assigned to topmost block div */
+.wp-block-jetpack-contact-form-container.alignfull .wp-block-jetpack-contact-form {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.wp-block-jetpack-button.alignright button {
+	float: right;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap {
+	box-sizing: border-box;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+	flex: 1 1 calc( 25% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 25%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+	flex: 1 1 calc( 50% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 50%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+	flex: 1 1 calc( 75% - calc(var(--wp--style--block-gap, 1.5rem) * 1) );
+	max-width: 75%;
+}
+
+.grunion-field-checkbox-wrap,
+.grunion-field-consent-wrap {
+	align-self: center;
+}
+
+@media only screen and ( min-width: 600px ) {
+	.contact-form input[type='text'],
+	.contact-form input[type='email'],
+	.contact-form input[type='tel'],
+	.contact-form input[type='url'] {
+		width: 50%;
+	}
+
+	/****
+	 * Older users keep the 50% width to avoid breaking
+	 * designs, but newer users using the contact
+	 * form block get 100% width.
+	 */
+	.wp-block-jetpack-contact-form input[type='text'],
+	.wp-block-jetpack-contact-form input[type='email'],
+	.wp-block-jetpack-contact-form input[type='tel'],
+	.wp-block-jetpack-contact-form input[type='url'] {
+		width: 100%;
+	}
+}
+
+/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+.jetpack-empty-spam-container {
+	display: inline-block;
+}
+.jetpack-empty-spam {
+	display: inline-block;
+}
+.jetpack-empty-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
+}
+
+/* Make sure the set height of the Spacer block nested inside the Contact Form block is respected */
+.wp-block-jetpack-contact-form .wp-block-spacer {
+	width: 100%;
+}
