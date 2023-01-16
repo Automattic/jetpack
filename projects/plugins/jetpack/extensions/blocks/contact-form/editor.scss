@@ -284,7 +284,7 @@
 		font: inherit;
 		box-sizing: border-box;
 		box-shadow: unset;
-		border-width: 1px;
+		border: 1px solid #8c8f94;
 		border-radius: 0;
 		padding: 16px;
 		margin: 0;
@@ -292,7 +292,7 @@
 	}
 
 	.jetpack-field__textarea {
-		border-width: var(--jetpack--contact-form--border-size);
+		border: var(--jetpack--contact-form--border);
 	}
 
 	.components-base-control__field {
