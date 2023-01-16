@@ -29,6 +29,7 @@ function getImagesFromOpenAI(
 	setErrorMessage
 ) {
 	setLoadingImages( true );
+	setErrorMessage( null );
 	setAttributes( { requestedPrompt: prompt } ); // This will prevent double submitting.
 
 	apiFetch( {
@@ -78,7 +79,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	}, [] );
 
 	const submit = () => {
-		setErrorMessage( '' );
+		setLoadingImages( false );
+		setResultImages( [] );
+		setErrorMessage( null );
 		getImagesFromOpenAI(
 			prompt.trim() === '' ? placeholder : prompt,
 			setAttributes,
@@ -93,6 +96,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			return;
 		}
 		setLoadingImages( true );
+		setErrorMessage( null );
+
 		// First convert image to a proper blob file
 		const resp = await fetch( image );
 		const blob = await resp.blob();
@@ -124,36 +129,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			},
 		} );
 	};
+
 	return (
 		<div { ...useBlockProps() }>
 			<Placeholder
 				label={ __( 'AI Image', 'jetpack' ) }
 				notices={ errorMessage && [ <div>{ errorMessage }</div> ] }
 			>
-				{ ! loadingImages && errorMessage && (
-					<>
-						<TextareaControl
-							label={ __( 'What would you like to see?', 'jetpack' ) }
-							placeholder={ placeholder }
-							value={ prompt }
-							onChange={ setPrompt }
-						/>
-						<Flex direction="row">
-							<FlexItem>
-								<Button
-									variant="primary"
-									onClick={ () => {
-										setErrorMessage( null );
-										submit();
-									} }
-								>
-									{ __( 'Retry', 'jetpack' ) }
-								</Button>
-							</FlexItem>
-						</Flex>
-					</>
-				) }
-				{ ! errorMessage && ! loadingImages && resultImages.length === 0 && (
+				{ resultImages.length === 0 && (
 					<Flex expanded={ true }>
 						<FlexBlock>
 							<TextareaControl
@@ -162,12 +145,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								onChange={ setPrompt }
 							/>
 							<Button variant="primary" onClick={ submit }>
-								{ __( 'Submit', 'jetpack' ) }
+								{ errorMessage ? __( 'Retry', 'jetpack' ) : __( 'Submit', 'jetpack' ) }
 							</Button>
 						</FlexBlock>
 					</Flex>
 				) }
-				{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
+				{ resultImages.length > 0 && (
 					<>
 						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
 							{ attributes.requestedPrompt }
@@ -189,10 +172,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						</Flex>
 					</>
 				) }
-				{ ! errorMessage && attributes.content && ! loadingImages && (
-					<div className="content">{ attributes.content }</div>
-				) }
-				{ ! errorMessage && loadingImages && (
+				{ attributes.content && <div className="content">{ attributes.content }</div> }
+				{ loadingImages && (
 					<div style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {
