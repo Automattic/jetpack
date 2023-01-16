@@ -1018,7 +1018,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'page_on_front':
 				case 'page_for_posts':
-					if ( $value === '' ) { // empty is not applicable because '0' may be a valid page id
+					if ( $value === '' ) { // empty function is not applicable here because '0' may be a valid page id
 						if ( delete_option( $key ) ) {
 							$updated[ $key ] = null;
 						}
