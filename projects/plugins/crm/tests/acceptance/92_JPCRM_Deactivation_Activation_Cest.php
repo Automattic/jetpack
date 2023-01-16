@@ -5,7 +5,7 @@
  */
 class JPCRM_Deactivation_Activation_Cest {
 
-	private $plugin_slug = 'zero-bs-crm';
+	private $plugin_slug = 'jetpack-crm';
 
 	public function _before( AcceptanceTester $I ) {
 		$I->loginAsAdmin();
