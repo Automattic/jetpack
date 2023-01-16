@@ -85,6 +85,7 @@
 	font-weight: normal;
 	display: inline-flex;
 	align-items: center;
+	line-height: 1.5;
 }
 
 .contact-form .grunion-checkbox-multiple-options,
@@ -468,7 +469,7 @@
 
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
-	padding-top: 1.5em;
+	padding-top: 1.7em;
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {

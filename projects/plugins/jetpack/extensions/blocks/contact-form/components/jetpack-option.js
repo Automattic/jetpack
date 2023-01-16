@@ -50,7 +50,7 @@ class JetpackOption extends Component {
 		return (
 			<li className="jetpack-option">
 				{ type && type !== 'select' && (
-					<input className="jetpack-option__type" type={ type } disabled />
+					<input className="jetpack-option__type" type={ type } readOnly />
 				) }
 				<input
 					type="text"
