@@ -11,7 +11,7 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
-import { SelectControl } from '@wordpress/components';
+import { SelectControl, RadioControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -33,6 +33,9 @@ import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+	VIDEO_RATING_G,
+	VIDEO_RATING_PG_13,
+	VIDEO_RATING_R_17,
 } from '../../../state/constants';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
@@ -157,6 +160,7 @@ const EditVideoDetails = () => {
 		height,
 		title,
 		description,
+		rating,
 		privacySetting,
 		// Playback Token
 		isFetchingPlaybackToken,
@@ -169,6 +173,7 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
+		setRating,
 		setPrivacySetting,
 		processing,
 		// Poster Image
@@ -276,43 +281,57 @@ const EditVideoDetails = () => {
 								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
 							/>
-							<SelectControl
-								className={ styles.privacy }
-								value={ privacySetting }
-								label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
-								onChange={ value => setPrivacySetting( value ) }
-								prefix={
-									// Casting for unknown since allowing only a string is a mistake
-									// at WP Components
-									( (
-										<div className={ styles[ 'privacy-icon' ] }>
-											<Icon
-												icon={
-													( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC && publicPrivacyIcon ) ||
-													( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
-														privatePrivacyIcon ) ||
-													( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
-														siteDefaultPrivacyIcon )
-												}
-											/>
-										</div>
-									 ) as unknown ) as string
-								}
-								options={ [
-									{
-										label: __( 'Site default', 'jetpack-videopress-pkg' ),
-										value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
-									},
-									{
-										label: __( 'Public', 'jetpack-videopress-pkg' ),
-										value: VIDEO_PRIVACY_LEVEL_PUBLIC,
-									},
-									{
-										label: __( 'Private', 'jetpack-videopress-pkg' ),
-										value: VIDEO_PRIVACY_LEVEL_PRIVATE,
-									},
-								] }
-							/>
+							<div className={ styles[ 'side-fields' ] }>
+								<SelectControl
+									className={ styles.field }
+									value={ privacySetting }
+									label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+									onChange={ value => setPrivacySetting( value ) }
+									prefix={
+										// Casting for unknown since allowing only a string is a mistake
+										// at WP Components
+										( (
+											<div className={ styles[ 'privacy-icon' ] }>
+												<Icon
+													icon={
+														( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC &&
+															publicPrivacyIcon ) ||
+														( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
+															privatePrivacyIcon ) ||
+														( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
+															siteDefaultPrivacyIcon )
+													}
+												/>
+											</div>
+										 ) as unknown ) as string
+									}
+									options={ [
+										{
+											label: __( 'Site default', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+										},
+										{
+											label: __( 'Public', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_PUBLIC,
+										},
+										{
+											label: __( 'Private', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_PRIVATE,
+										},
+									] }
+								/>
+								<RadioControl
+									className={ classnames( styles.field, styles.rating ) }
+									label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
+									selected={ rating }
+									options={ [
+										{ label: __( 'G', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_G },
+										{ label: __( 'PG-13', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_PG_13 },
+										{ label: __( 'R', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_R_17 },
+									] }
+									onChange={ setRating }
+								/>
+							</div>
 						</Col>
 					</Container>
 				</AdminSection>
