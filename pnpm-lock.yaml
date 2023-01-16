@@ -872,6 +872,7 @@ importers:
       '@wordpress/block-editor': 10.5.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/components': 22.1.0
+      '@wordpress/compose': 5.20.0
       '@wordpress/data': 7.6.0
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -889,6 +890,7 @@ importers:
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/block-editor': 10.5.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
+      '@wordpress/compose': 5.20.0_react@17.0.2
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -8959,7 +8961,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.24.0
+      '@wordpress/html-entities': 3.22.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/is-shallow-equal': 4.23.0
@@ -9580,7 +9582,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.24.0
+      '@wordpress/html-entities': 3.22.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/keyboard-shortcuts': 3.20.0_react@17.0.2
