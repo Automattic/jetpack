@@ -19,7 +19,7 @@
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
-	const lazyLoadlink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
@@ -102,7 +102,7 @@
 					`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( lazyLoadlink )}
+				vars={externalLinkTemplateVar( lazyLoadLink )}
 			/>
 		</p>
 	</Module>
