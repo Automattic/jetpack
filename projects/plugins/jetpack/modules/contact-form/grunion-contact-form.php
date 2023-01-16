@@ -4898,7 +4898,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	private function get_form_style() {
 		$class_name = $this->form->get_attribute( 'className' );
 		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
-		return $matches[1];
+		return count( $matches ) >= 2 ? $matches[1] : null;
 	}
 }
 
