@@ -66,7 +66,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ prompt, setPrompt ] = useState( '' );
 	const { replaceBlock } = useDispatch( blockEditorStore );
-	const [ errorMessage, setErrorMessage ] = useState( '' );
+	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ placeholder ] = useState( getRandomItem( dalleExamplePrompts ) );
 
 	const { mediaUpload } = useSelect( select => {
@@ -90,28 +90,34 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ ! loadingImages && errorMessage && (
-				<Placeholder
-					label={ __( 'AI Image', 'jetpack' ) }
-					notices={ [ <div>{ errorMessage }</div> ] }
-				>
-					<TextareaControl
-						label={ __( 'What would you like to see?', 'jetpack' ) }
-						value={ prompt }
-						placeholder={ placeholder }
-						onChange={ setPrompt }
-					/>
-					<Flex direction="row">
-						<FlexItem>
-							<Button variant="primary" onClick={ submit }>
-								{ __( 'Retry', 'jetpack' ) }
-							</Button>
-						</FlexItem>
-					</Flex>
-				</Placeholder>
-			) }
-			{ ! errorMessage && ! loadingImages && resultImages.length === 0 && (
-				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
+			<Placeholder
+				label={ __( 'AI Image', 'jetpack' ) }
+				notices={ errorMessage && [ <div>{ errorMessage }</div> ] }
+			>
+				{ ! loadingImages && errorMessage && (
+					<>
+						<TextareaControl
+							label={ __( 'What would you like to see?', 'jetpack' ) }
+							placeholder={ placeholder }
+							value={ prompt }
+							onChange={ setPrompt }
+						/>
+						<Flex direction="row">
+							<FlexItem>
+								<Button
+									variant="primary"
+									onClick={ () => {
+										setErrorMessage( null );
+										submit();
+									} }
+								>
+									{ __( 'Retry', 'jetpack' ) }
+								</Button>
+							</FlexItem>
+						</Flex>
+					</>
+				) }
+				{ ! errorMessage && ! loadingImages && resultImages.length === 0 && (
 					<Flex expanded={ true }>
 						<FlexBlock>
 							<TextareaControl
@@ -124,72 +130,68 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							</Button>
 						</FlexBlock>
 					</Flex>
-				</Placeholder>
-			) }
-			{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
-				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
-					<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
-						{ attributes.requestedPrompt }
-					</div>
-					<div style={ { fontSize: '20px', lineHeight: '38px' } }>
-						{ __( 'Please choose your image', 'jetpack' ) }
-					</div>
-					<Flex direction="row" justify={ 'space-between' }>
-						{ resultImages.map( image => (
-							<FlexItem key={ image }>
-								<img
-									className="wp-block-ai-image-image"
-									src={ image }
-									alt=""
-									onClick={ async () => {
-										if ( loadingImages ) {
-											return;
-										}
-										setLoadingImages( true );
-										// First convert image to a proper blob file
-										const resp = await fetch( image );
-										const blob = await resp.blob();
-										const file = new File( [ blob ], 'jetpack_ai_image.png', {
-											type: 'image/png',
-										} );
-										// Actually upload the image
-										mediaUpload( {
-											filesList: [ file ],
-											onFileChange: ( [ img ] ) => {
-												if ( ! img.id ) {
-													// Without this image gets uploaded twice
-													return;
-												}
-												replaceBlock(
-													clientId,
-													createBlock( 'core/image', {
-														url: img.url,
-														caption: attributes.requestedPrompt,
-														alt: attributes.requestedPrompt,
-													} )
-												);
-											},
-											allowedTypes: [ 'image' ],
-											onError: message => {
-												// eslint-disable-next-line no-console
-												console.error( message );
-												setLoadingImages( false );
-											},
-										} );
-									} }
-								/>
-							</FlexItem>
-						) ) }
-					</Flex>
-				</Placeholder>
-			) }
-			{ ! errorMessage && attributes.content && ! loadingImages && (
-				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
+				) }
+				{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
+					<>
+						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
+							{ attributes.requestedPrompt }
+						</div>
+						<div style={ { fontSize: '20px', lineHeight: '38px' } }>
+							{ __( 'Please choose your image', 'jetpack' ) }
+						</div>
+						<Flex direction="row" justify={ 'space-between' }>
+							{ resultImages.map( image => (
+								<FlexItem key={ image }>
+									<img
+										className="wp-block-ai-image-image"
+										src={ image }
+										alt=""
+										onClick={ async () => {
+											if ( loadingImages ) {
+												return;
+											}
+											setLoadingImages( true );
+											// First convert image to a proper blob file
+											const resp = await fetch( image );
+											const blob = await resp.blob();
+											const file = new File( [ blob ], 'jetpack_ai_image.png', {
+												type: 'image/png',
+											} );
+											// Actually upload the image
+											mediaUpload( {
+												filesList: [ file ],
+												onFileChange: ( [ img ] ) => {
+													if ( ! img.id ) {
+														// Without this image gets uploaded twice
+														return;
+													}
+													replaceBlock(
+														clientId,
+														createBlock( 'core/image', {
+															url: img.url,
+															caption: attributes.requestedPrompt,
+															alt: attributes.requestedPrompt,
+														} )
+													);
+												},
+												allowedTypes: [ 'image' ],
+												onError: message => {
+													// eslint-disable-next-line no-console
+													console.error( message );
+													setLoadingImages( false );
+												},
+											} );
+										} }
+									/>
+								</FlexItem>
+							) ) }
+						</Flex>
+					</>
+				) }
+				{ ! errorMessage && attributes.content && ! loadingImages && (
 					<div className="content">{ attributes.content }</div>
-				</Placeholder>
-			) }
-			{ ! errorMessage && loadingImages && (
-				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
+				) }
+				{ ! errorMessage && loadingImages && (
 					<div style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {
@@ -198,8 +200,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							} }
 						/>
 					</div>
-				</Placeholder>
-			) }
+				) }
+			</Placeholder>
 		</div>
 	);
 }
