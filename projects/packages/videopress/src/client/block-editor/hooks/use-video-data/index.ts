@@ -3,7 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+/**
+ * Internal dependencies
+ */
 import getMediaToken from '../../../lib/get-media-token';
+import { decodeEntities } from '../../../lib/url';
 /**
  * Types
  */
@@ -49,8 +53,8 @@ export default function useVideoData( {
 					allow_download: response.allow_download,
 					post_id: response.post_id,
 					guid: response.guid,
-					title: response.title,
-					description: response.description,
+					title: decodeEntities( response.title ),
+					description: decodeEntities( response.description ),
 					display_embed: response.display_embed,
 					privacy_setting: response.privacy_setting,
 					rating: response.rating,
