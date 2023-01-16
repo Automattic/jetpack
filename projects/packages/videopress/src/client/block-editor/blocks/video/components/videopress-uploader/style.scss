@@ -9,9 +9,6 @@
 	align-items: center;
 	justify-content: space-between;
 	border-top: 1px solid $gray-200;
-	padding: 1em;
-	margin: 0 -1em -1em;
-	min-height: 27px;
 	gap: 16px;
 
 	&__file-info {
@@ -63,6 +60,7 @@
 
 	&__title {
 		margin-bottom: 15px;
+		width: 100%;
 	}
 
 	&__upload-link {
