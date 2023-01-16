@@ -1660,7 +1660,7 @@ importers:
       focus-trap: 6.3.0
       fs-extra: 10.0.0
       glob: 7.1.6
-      gridicons: 3.4.0
+      gridicons: 3.4.1
       jest: 29.3.1
       jest-environment-jsdom: 29.3.1
       jquery: 3.6.0
@@ -1686,7 +1686,7 @@ importers:
       sass: 1.38.1
       sass-loader: 12.4.0
       semver: 7.3.5
-      social-logos: 2.5.0
+      social-logos: 2.5.1
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1735,7 +1735,7 @@ importers:
       events: 3.3.0
       filesize: 8.0.6
       focus-trap: 6.3.0
-      gridicons: 3.4.0_react@17.0.2
+      gridicons: 3.4.1_react@17.0.2
       jsdom: 20.0.3
       mapbox-gl: 1.13.0
       markdown-it: 12.3.2
@@ -1750,7 +1750,7 @@ importers:
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
       semver: 7.3.5
-      social-logos: 2.5.0_react@17.0.2
+      social-logos: 2.5.1_react@17.0.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1809,6 +1809,63 @@ importers:
     specifiers: {}
 
   projects/plugins/jetpack/tests/e2e:
+    specifiers:
+      '@playwright/test': 1.29.1
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: workspace:*
+    devDependencies:
+      '@playwright/test': 1.29.1
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
+  projects/plugins/migration:
+    specifiers:
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
+      '@babel/core': 7.20.7
+      '@babel/preset-env': 7.20.2
+      '@babel/register': 7.18.9
+      '@babel/runtime': 7.20.7
+      '@wordpress/browserslist-config': 5.5.0
+      '@wordpress/data': 7.6.0
+      '@wordpress/date': 4.22.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      concurrently: 6.0.2
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/data': 7.6.0_react@17.0.2
+      '@wordpress/date': 4.22.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.20.7
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.7
+      '@babel/register': 7.18.9_@babel+core@7.20.7
+      '@babel/runtime': 7.20.7
+      '@wordpress/browserslist-config': 5.5.0
+      concurrently: 6.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/plugins/migration/tests/e2e:
     specifiers:
       '@playwright/test': 1.29.1
       allure-playwright: 2.0.0-beta.19
@@ -2390,7 +2447,7 @@ packages:
       '@wordpress/base-styles': 4.13.0
       '@wordpress/data': 7.6.0_react@17.0.2
       classnames: 2.3.1
-      gridicons: 3.4.0_react@17.0.2
+      gridicons: 3.4.1_react@17.0.2
       lodash: 4.17.21
       prop-types: 15.7.2
       react: 17.0.2
@@ -5547,7 +5604,7 @@ packages:
     resolution: {integrity: sha512-8wmCFBTVGYqFNLWfcOWoVuMuKYPUBTnTMDkdvFtAYELwDOl9RGwOsvQWGPFxDJ8AWY9xM/8xCXdqmPK3+Q5Lug==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/core': 7.20.7
+      '@babel/core': 7.20.12
       '@jest/types': 29.3.1
       '@jridgewell/trace-mapping': 0.3.17
       babel-plugin-istanbul: 6.1.1
@@ -8085,12 +8142,12 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.4.10
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/8.4.10:
     resolution: {integrity: sha512-Sl/HOqN8NKPmhWo2VBEPm0nvHnu2LL3v9vKo8MEq0EtbJ4eVzGPl41VNPvn5E1i5poMk4/XD8UriLHpJvEP/Nw==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
 
   /@types/estree/0.0.39:
@@ -8102,7 +8159,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: true
 
   /@types/fs-extra/8.1.2:
     resolution: {integrity: sha512-SvSrYXfWSc7R4eqnOzbQF4TZmfpNSM9FrSWLU3EUnWBuyZqNBOrv1B1JA3byUDPUl9z4Ab3jeZG2eDdySlgNMg==}
@@ -11122,6 +11178,7 @@ packages:
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    requiresBuild: true
     dependencies:
       file-uri-to-path: 1.0.0
     dev: true
@@ -14318,6 +14375,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -15110,12 +15168,12 @@ packages:
     resolution: {integrity: sha512-HZRwumpOGUrHyxO5bqKZL0B0GlUpwtCAzZ42sgxUPniu33R1LSFH5yrIcBCHjkctCAh3mtWKcKd9J4vDDdeVHA==}
     dev: false
 
-  /gridicons/3.4.0_react@17.0.2:
-    resolution: {integrity: sha512-GikyCOcfhwHSN8tfsZvcWwWSaRLebVZCvDzfFg0X50E+dIAnG2phfFUTNa06dXA09kqRYCdnu8sPO8pSYO3UVA==}
+  /gridicons/3.4.1_react@17.0.2:
+    resolution: {integrity: sha512-gbOa8H82TRfzTkisszvRsXLt2niuBoZOfAagXzHNfjFEfOoBhKM2gT0Y05TQMUSQjMmto6q4T9wiJJybROvxpQ==}
     peerDependencies:
-      react: 15 - 17
+      react: 15 - 18
     dependencies:
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
     dev: false
 
@@ -17861,6 +17919,7 @@ packages:
 
   /nan/2.17.0:
     resolution: {integrity: sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -21245,12 +21304,12 @@ packages:
       - supports-color
     dev: true
 
-  /social-logos/2.5.0_react@17.0.2:
-    resolution: {integrity: sha512-yEj6OftSAAfP6G1NHV/TqacVZGKYp1Ger9JZLhjB9GFckZXGXBQGOI+39jkhGoEVZjCCRcSof3l2Arioa0bx9w==}
+  /social-logos/2.5.1_react@17.0.2:
+    resolution: {integrity: sha512-d3iCMJHqFOLHae+KqgW/sH2w1QKIL0hHLjnNpIIAURdi27olMVdG79x7Vu8gfkT2QPFOWRtUkO8rXeqF4ZaxMw==}
     peerDependencies:
-      react: 15 - 17
+      react: 15 - 18
     dependencies:
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
     dev: false
 
