@@ -56,24 +56,11 @@
 				/>
 			{/if}
 
-			<button
-				type="button"
-				class="components-button is-jb-primary"
-				on:click={connection.initialize}
-				disabled={$connection.isConnecting}
-			>
-				{#if $connection.isConnecting}
-					{__( 'Connecting to WordPress.com', 'jetpack-boost' )}
-				{:else}
-					{__( 'Get Started', 'jetpack-boost' )}
-				{/if}
-			</button>
-
 			<div class="jb-connection-overlay">
 				<p>
 					<TemplatedString
 						template={__(
-							`By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareLink>share details</shareLink> with WordPress.com.`,
+							`By clicking the Get Started button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareLink>share details</shareLink> with WordPress.com.`,
 							'jetpack-boost'
 						)}
 						vars={{
@@ -91,6 +78,19 @@
 					/>
 				</p>
 			</div>
+
+			<button
+				type="button"
+				class="components-button is-jb-primary"
+				on:click={connection.initialize}
+				disabled={$connection.isConnecting}
+			>
+				{#if $connection.isConnecting}
+					{__( 'Connecting to WordPress.com', 'jetpack-boost' )}
+				{:else}
+					{__( 'Get Started', 'jetpack-boost' )}
+				{/if}
+			</button>
 		</div>
 	</div>
 

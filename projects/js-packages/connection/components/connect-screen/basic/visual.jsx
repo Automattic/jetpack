@@ -1,25 +1,37 @@
 import { getRedirectUrl, ActionButton } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
 
-export const ToS = createInterpolateElement(
-	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-		'jetpack'
-	),
-	{
-		tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
-		shareDetailsLink: (
-			<ExternalLink href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) } />
+export const ToS = ( { buttonLabel } ) => {
+	return createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is a button label */
+			__(
+				'By clicking the <strong>%s</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+				'jetpack'
+			),
+			buttonLabel
 		),
-	}
-);
 
+		{
+			strong: <strong />,
+			tosLink: (
+				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
+			),
+			shareDetailsLink: (
+				<a
+					href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+					rel="noopener noreferrer"
+					target="_blank"
+				/>
+			),
+		}
+	);
+};
 /**
  * The Connection Screen Visual component..
  *
@@ -56,14 +68,15 @@ const ConnectScreenVisual = props => {
 
 				{ showConnectButton && (
 					<>
+						<div className="jp-connection__connect-screen__tos">
+							<ToS buttonLabel={ buttonLabel } />
+						</div>
 						<ActionButton
 							label={ buttonLabel }
 							onClick={ handleButtonClick }
 							displayError={ displayButtonError }
 							isLoading={ buttonIsLoading }
 						/>
-
-						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 					</>
 				) }
 

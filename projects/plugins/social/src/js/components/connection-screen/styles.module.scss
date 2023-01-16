@@ -28,6 +28,7 @@
 	display: block;
 	color: var( --jp-gray-50 );
 	max-width: 500px;
+	margin-bottom: calc(var( --spacing-base )*3);
 
 	a {
 		color: inherit;

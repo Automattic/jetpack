@@ -70,7 +70,9 @@ const ContextualizedConnection = props => {
 							redirectUri={ redirectUri }
 							connectLabel={ buttonLabel }
 						/>
-						<div className="jp-contextualized-connection__tos">{ ToS }</div>
+						<div className="jp-contextualized-connection__tos">
+							<ToS buttonLabel={ buttonLabel } />
+						</div>
 					</>
 				) }
 			</div>

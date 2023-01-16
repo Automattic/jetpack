@@ -1,7 +1,7 @@
 import { getRedirectUrl, PricingCard, ActionButton } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ConnectScreenLayout from '../layout';
@@ -32,12 +32,20 @@ const ConnectScreenRequiredPlanVisual = props => {
 	} = props;
 
 	const tos = createInterpolateElement(
-		__(
-			'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-			'jetpack'
+		sprintf(
+			/* translators: placeholder is a button label */
+			__(
+				'By clicking the <strong>%s</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+				'jetpack'
+			),
+			buttonLabel
 		),
+
 		{
-			tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
+			strong: <strong />,
+			tosLink: (
+				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
+			),
 			shareDetailsLink: (
 				<ExternalLink href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) } />
 			),
@@ -76,15 +84,17 @@ const ConnectScreenRequiredPlanVisual = props => {
 						priceBefore={ priceBefore }
 						currencyCode={ pricingCurrencyCode }
 						priceAfter={ priceAfter }
-						infoText={ showConnectButton ? tos : '' }
 					>
 						{ showConnectButton && (
-							<ActionButton
-								label={ buttonLabel }
-								onClick={ handleButtonClick }
-								displayError={ displayButtonError }
-								isLoading={ buttonIsLoading }
-							/>
+							<>
+								<div className="jp-connection__connect-screen-required-plan__toc-info">{ tos }</div>
+								<ActionButton
+									label={ buttonLabel }
+									onClick={ handleButtonClick }
+									displayError={ displayButtonError }
+									isLoading={ buttonIsLoading }
+								/>
+							</>
 						) }
 					</PricingCard>
 				</div>

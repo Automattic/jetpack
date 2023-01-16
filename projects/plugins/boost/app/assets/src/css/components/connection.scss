@@ -121,6 +121,7 @@
 	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
+	margin-bottom: 0.5rem;
 
 	@include breakpoint(md) {
 		width: 445px;

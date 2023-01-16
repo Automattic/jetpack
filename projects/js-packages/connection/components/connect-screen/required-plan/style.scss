@@ -17,6 +17,15 @@
 		display: none;
 	}
 
+	&__toc-info {
+		margin-bottom: 8px;
+		margin-top: 16px;
+		font-size: var( --font-label );
+		line-height: 20px;
+		letter-spacing: -0.02em;
+		color: var( --jp-gray-60 );
+	}
+
 	&__pricing-card {
 
 		@include break-xlarge {
