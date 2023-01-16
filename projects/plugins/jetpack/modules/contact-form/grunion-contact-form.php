@@ -3155,13 +3155,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$str = __( 'Message', 'jetpack' );
 				break;
 			case 'checkbox-multiple':
-				$str = __( 'Choose several', 'jetpack' );
+				$str = __( 'Choose several options', 'jetpack' );
 				break;
 			case 'radio':
-				$str = __( 'Choose one', 'jetpack' );
+				$str = __( 'Choose one option', 'jetpack' );
 				break;
 			case 'select':
-				$str = __( 'Select one', 'jetpack' );
+				$str = __( 'Select one option', 'jetpack' );
 				break;
 			case 'consent':
 				$str = __( 'Consent', 'jetpack' );
