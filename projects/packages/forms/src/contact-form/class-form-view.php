@@ -123,11 +123,11 @@ class Form_View {
 			.fb-new-fields { position: relative; border: 1px dashed #FFF; background: #FFF; padding: 4px 10px 10px; cursor: default; }
 			.fb-new-fields:hover { border: 1px dashed #BBDBEA; background: #F7FBFD; }
 			.fb-options { width: 170px !important; }
-			.fb-remove { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field.gif') no-repeat; position: absolute; cursor: pointer !important; right: -26px; top: 27px; width: 20px; height: 23px; }
-			.fb-remove:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-hover.gif') no-repeat; }
+			.fb-remove { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-field.gif') no-repeat; position: absolute; cursor: pointer !important; right: -26px; top: 27px; width: 20px; height: 23px; }
+			.fb-remove:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-field-hover.gif') no-repeat; }
 			.fb-remove-small { top: 2px !important; }
-			.fb-remove-option { position: absolute; top: 1px; right: 10px; width: 20px; height: 23px; background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option.gif') no-repeat; }
-			.fb-remove-option:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-hover.gif') no-repeat; }
+			.fb-remove-option { position: absolute; top: 1px; right: 10px; width: 20px; height: 23px; background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-option.gif') no-repeat; }
+			.fb-remove-option:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-option-hover.gif') no-repeat; }
 			.fb-reorder { cursor: move; position: relative; }
 			.fb-reorder:hover div { display: block !important; width: 130px !important; position: absolute; top: 0; right: 0; z-index: 200; padding: 5px 10px; color: #555; font-size: 11px; background: #FFF; border: 1px solid #CCC; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 			.fb-right { position: absolute; right: 0; top: 0; width: 315px; margin: 57px 21px 0 0; }
@@ -160,10 +160,10 @@ class Form_View {
 			.rtl .fb-success { right: auto; left: 100px;}
 			.rtl .right { float: left; }
 			@media only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-				.fb-remove { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
-				.fb-remove:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
-				.fb-remove-option { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }
-				.fb-remove-option:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/images/grunion-remove-option-hover-2x.png') no-repeat; background-size: 20px 23px; }
+				.fb-remove { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
+				.fb-remove:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
+				.fb-remove-option { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }
+				.fb-remove-option:hover { background: url('<?php echo Jetpack_Forms::plugin_url(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>/contact-form/images/grunion-remove-option-hover-2x.png') no-repeat; background-size: 20px 23px; }
 			}
 		</style>
 		</head>
@@ -280,6 +280,6 @@ class Form_View {
 			</form>
 		</body>
 		</html>
-<?php
+		<?php
 	}
 }
