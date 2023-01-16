@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: skip rating checking when pulling video data for the block
