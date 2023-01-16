@@ -13,8 +13,8 @@ class JPCRM_Activation_Cest {
 	public function jpcrm_activation( AcceptanceTester $I ) {
 		// If it's installed, activate the plugin
 		$I->amOnPluginsPage();
-		$I->seePluginInstalled( 'zero-bs-crm' );
-		$I->activatePlugin( 'zero-bs-crm' );
+		$I->seePluginInstalled( 'jetpack-crm' );
+		$I->activatePlugin( 'jetpack-crm' );
 
 		// Activating the plugin directly loads the welcome wizard, so no need to move pages here.
 
