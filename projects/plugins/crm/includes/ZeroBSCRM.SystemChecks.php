@@ -25,27 +25,69 @@
   Generic System Check Wrapper/Helper funcs
    ====================================================== */
 
-	#} Can use to check php feat is properly installed :)
-	#} zeroBSCRM_checkSystemFeat('zlib')
-	function zeroBSCRM_checkSystemFeat($key='',$withInfo=false){
+/**
+ * Check if a PHP systems/library is correctly installed.
+ *
+ * @param string $key The feature we want to know the status off.
+ * @param bool   $with_info Weather we should return a message or not.
+ *
+ * @return array|false
+ */
+function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 
-		$featList = array('zlib','dompdf','mb_internal_encoding','pdffonts','curl','phpver','wordpressver','locale','assetdir','executiontime','memorylimit','postmaxsize','uploadmaxfilesize','wpuploadmaxfilesize','dbver','dalver','corever','local','localtime','serverdefaulttime','sqlrights','devmode','permalinks','mysql','innodb', 'fontinstalled', 'encryptionmethod' );
+	$feat_list = array(
+		'zlib',
+		'dompdf',
+		'mb_internal_encoding',
+		'pdffonts',
+		'curl',
+		'phpver',
+		'wordpressver',
+		'locale',
+		'assetdir',
+		'executiontime',
+		'memorylimit',
+		'postmaxsize',
+		'uploadmaxfilesize',
+		'wpuploadmaxfilesize',
+		'dbver',
+		'dalver',
+		'corever',
+		'local',
+		'localtime',
+		'serverdefaulttime',
+		'sqlrights',
+		'devmode',
+		'permalinks',
+		'mysql',
+		'innodb',
+		'fontinstalled',
+		'encryptionmethod',
+	);
 
-		// only show these for legacy users using DAL<3
-		// #backward-compatibility
-		global $zbs;
-		if (!$zbs->isDAL3()) {
-			$featList[] = 'autodraftgarbagecollect';
+	// only show these for legacy users using DAL<3
+	// #backward-compatibility
+	global $zbs;
+	if ( ! $zbs->isDAL3() ) {
+		$feat_list[] = 'autodraftgarbagecollect';
+	}
+
+	if ( in_array( $key, $feat_list, true ) ) {
+		if ( function_exists( 'zeroBSCRM_checkSystemFeat_' . $key ) ) {
+			return call_user_func_array( 'zeroBSCRM_checkSystemFeat_' . $key, array( $with_info ) );
 		}
 
-		if (in_array($key,$featList) && function_exists("zeroBSCRM_checkSystemFeat_".$key)) return call_user_func_array("zeroBSCRM_checkSystemFeat_".$key,array($withInfo));
-
-		if (!$withInfo)
-			return false;
-		else
-			return array(false,'No Check!');
-
+		if ( function_exists( 'zbscrm_check_system_feat_' . $key ) ) {
+			return call_user_func_array( 'zbscrm_check_system_feat_' . $key, array( $with_info ) );
+		}
 	}
+
+	if ( ! $with_info ) {
+		return false;
+	} else {
+		return array( false, __( 'No Check!', 'zero-bs-crm' ) );
+	}
+}
 
 	function zeroBSCRM_checkSystemFeat_permalinks(){
 		 if(zeroBSCRM_checkPrettyPermalinks()){
@@ -545,39 +587,40 @@ function zeroBSCRM_checkPrettyPermalinks(){
 		return array( $enabled, $str );
 	}
 
-	/**
-	 * Check if Dompdf is installed correctly on the server.
-	 *
-	 * @param false $with_info Determine if the returning results contains an explanatory string.
-	 *
-	 * @return array|bool
-	 */
-	function zeroBSCRM_checkSystemFeat_dompdf( $with_info = false ) {
-		$enabled = class_exists( Dompdf\Dompdf::class );
+/**
+ * Check if Dompdf is installed correctly on the server.
+ *
+ * @param false $with_info Determine if the returning results contains an explanatory string.
+ *
+ * @return array|bool
+ */
+function zbscrm_check_system_feat_dompdf( $with_info = false ) {
+	$enabled = class_exists( Dompdf\Dompdf::class );
 
-		if ( ! $with_info ) {
-			return $enabled;
-		}
+	if ( ! $with_info ) {
+		return $enabled;
+	}
 
-		if ( ! $enabled ) {
-			return array(
-				$enabled,
-				__( 'PDF Engine is not installed on your server.', 'zero-bs-crm' )
-			);
-		}
-
-		try {
-			$dompdf  = new \Dompdf\Dompdf();
-			$version = $dompdf->version;
-		} catch ( \Exception $e ) {
-			$version = 'unknown';
-		}
-
+	if ( ! $enabled ) {
 		return array(
 			$enabled,
-			sprintf( __( 'PDF Engine is properly installed on your server (Version: %s).', 'zero-bs-crm' ), $version )
+			__( 'PDF Engine is not installed on your server.', 'zero-bs-crm' ),
 		);
 	}
+
+	try {
+		$dompdf  = new \Dompdf\Dompdf();
+		$version = $dompdf->version;
+	} catch ( \Exception $e ) {
+		$version = 'unknown';
+	}
+
+	return array(
+		$enabled,
+		/* translators: %s a version that explain which library is used and what version number it's running. */
+		sprintf( __( 'PDF Engine is properly installed on your server (Version: %s).', 'zero-bs-crm' ), $version ),
+	);
+}
 
 	function zeroBSCRM_checkSystemFeat_pdffonts($withInfo=false){
 
@@ -655,12 +698,3 @@ function zeroBSCRM_checkPrettyPermalinks(){
 
 		return array($enabled, $enabledStr);
 	}
-
-                       
-
-
-
-
-/* ======================================================
-  / Specific System Check Wrapper/Helper funcs
-   ====================================================== */
