@@ -1270,6 +1270,7 @@ importers:
       '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0
       '@wordpress/element': 4.20.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.22.0
       '@wordpress/icons': 9.13.0
       '@wordpress/url': 3.23.0
@@ -1312,6 +1313,7 @@ importers:
       '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0_qi72e2chmmemxbokngy4ve2xaa
       '@wordpress/element': 4.20.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.22.0
       '@wordpress/icons': 9.13.0
       '@wordpress/url': 3.23.0
@@ -4924,6 +4926,7 @@ packages:
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics/2.0.3:
@@ -8900,7 +8903,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/is-shallow-equal': 4.23.0
@@ -9054,7 +9057,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/is-shallow-equal': 4.23.0
       '@wordpress/shortcode': 3.22.0
@@ -9326,7 +9329,7 @@ packages:
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/deprecated': 3.23.0
       '@wordpress/element': 4.20.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/is-shallow-equal': 4.23.0
       '@wordpress/url': 3.23.0
@@ -9521,7 +9524,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/keyboard-shortcuts': 3.20.0_react@17.0.2
@@ -9661,6 +9664,12 @@ packages:
 
   /@wordpress/html-entities/3.22.0:
     resolution: {integrity: sha512-Wltx+PY0TDIkDQhkA5TbkWNFiPp0qNNHAgckhrz8r61nF/8AhpROhs0V714vDvqctcYCZWwzWTEdemcr9lwDgA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.20.7
+
+  /@wordpress/html-entities/3.24.0:
+    resolution: {integrity: sha512-rwvx8aEJb9gRCj/pJ0v7vh6sT7R6G922LQzHc5cObcSm5cmzPz/Wz07+AZkHA1cmCDQdPiDd3yB8X8l+yeFy0A==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.20.7
