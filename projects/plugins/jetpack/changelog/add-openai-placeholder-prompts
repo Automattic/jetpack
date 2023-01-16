@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add a randomized prompt amongst the best prompts to serve as a placeholder for the AI Image block
