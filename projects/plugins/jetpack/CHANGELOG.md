@@ -34,6 +34,10 @@
 - Update Playwright version. [#28094]
 - WoA: disabled Odyssey Stats for Atomic sites. [#28180]
 
+## 11.7.1 - 2023-01-16
+### Bug fixes
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes. [#28342]
+
 ## [11.7] - 2023-01-10
 ### Enhancements
 - Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
