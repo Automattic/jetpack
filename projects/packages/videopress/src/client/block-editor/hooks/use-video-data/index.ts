@@ -26,7 +26,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 export default function useVideoData( {
 	id,
 	guid,
-	skipRatingChecking = false,
+	skipRatingControl = false,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
@@ -46,7 +46,7 @@ export default function useVideoData( {
 				}
 
 				// Add the birthdate to skip the rating check if it's required.
-				if ( skipRatingChecking ) {
+				if ( skipRatingControl ) {
 					params.birth_day = '1';
 					params.birth_month = '1';
 					params.birth_year = '2000';

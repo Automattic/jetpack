@@ -165,7 +165,7 @@ export function useSyncMedia(
 	const { videoData, isRequestingVideoData } = useVideoData( {
 		id,
 		guid,
-		skipRatingChecking: true,
+		skipRatingControl: true,
 	} );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
