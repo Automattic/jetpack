@@ -1,0 +1,173 @@
+/*
+	This file was abstracted from /css/welcome-to-woo-sync/*.css
+	... for now it's been put into /sass/_temp-*
+	... ultimately we should rewrite the welcome wizard and either dump all these styles or
+	... come to terms with their messy nature.
+
+	... for now I've beautified and then made them all partials in 1 wizard css file
+	wh
+*/
+
+
+#wpadminbar { display:none; }
+
+
+.zbscrm-setup-content {
+
+    max-width: 800px;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+@media (min-width: 992px) {
+    .container {
+        width: 100%;
+    }
+}
+@media (min-width: 768px) {
+    .container {
+        width: 100%;
+    }
+}
+
+
+.setup-content h3 {
+    margin-top:10px !important;
+}
+.stepwizard-step {
+    width:25%;
+}
+
+.wizopt {
+    margin-bottom: 24px;
+}
+.zbs-extrainfo {
+    padding: 12px;
+    background: #d9e5fb;
+    border-radius: 4px;
+    color: #000;
+}
+
+#zbs-lead-header{
+    color:#CCC;
+}
+p.lead {
+    font-size:18px;
+    color:#000;
+}  
+.zbs-sync-wrap {
+
+    padding: 12px;
+    background: #d9e5fb;
+    border-radius: 4px;
+    color: #000;
+
+}
+.zbs-sync-img {
+    text-align: center;         
+    width: 50%;
+    float:right;
+    margin:10px;
+}
+.zbs-sync-wrap img {           
+    width: 100%; 
+    margin-left: auto;
+    margin-right: auto;
+}
+.zbs-sync-wrap h3 {
+    color:#000;
+    margin-top: 8px !important;
+    margin-bottom: 14px !important;
+}
+.zbs-sync-wrap p.lft {            
+    width: 42%;
+    margin-left: 16px;
+    text-align: justify;
+}
+.zbs-sync-wrap .butt {
+    text-align: center;
+    margin: 10px 0 10px 0;
+    padding-top: 16px;
+}
+.zbs-psst {
+    padding: 12px;
+    background: #d9e5fb;
+    border-radius: 4px;
+    color: #000;
+    text-align: center
+}
+
+.zbs-extra {
+
+    background: #2780e3;
+    color: #ffce77 !important;
+    padding: 5px 12px;
+    border-radius: 4px;
+    text-align: center;
+}
+.zbs-extra a {
+    border-bottom: 2px #FFF dotted;
+}
+
+
+.switchbox-right {
+    width:20%;
+    float:right;
+    text-align:right;
+}
+
+.setup-choice h5{
+    text-align:center;
+    font-weight:900;
+}
+.setup-selected{
+    background: #f5f5f5;
+    border:1px dashed #ddd;
+}
+.setup-choice{
+   border:1px dashed #ddd; 
+   padding:10px;
+   min-height:310px;
+}
+
+.setup-choice p{
+    text-align: center;
+}
+.setup-selected .choose{
+    display:none;
+}
+.choose, .selected{
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.btn-green {
+    color: #fff;
+    background-color: #3cc372;
+    border-color: #32af64;
+}
+.btn-green:hover {
+    color: #fff;
+}
+.woo-wizard-logo{
+    text-align: center;
+}
+.woo-wizard-logo img{
+    max-width:150px;
+}
+.woo-wizard-logo .zbs-logo{
+    max-width:70px;
+    margin-right:20px;
+}
+#jpcrm-woo-setup-1 .selected{
+    display:none;
+}
+
+
+.small{
+    font-size:11px !important;
+    font-style:italic;
+    color:black;
+}

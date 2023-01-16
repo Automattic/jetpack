@@ -1,0 +1,44 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 23/04/18
+ */
+/*
+
+	Style overrides for compatibility for Material Admin v3.5
+
+*/
+body.zbs-compat-material-admin #zbs-list-wrap.ui.divided.grid {
+  /* margin-left: -1rem; */
+  /* margin-right: -1rem; */
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+body.zbs-compat-material-admin #wpcontent {
+  margin-left: 230px !important;
+  margin-top: 0px !important;
+}
+body.zbs-compat-material-admin #zbs-admin-top-bar {
+  margin-right: 0px !important;
+}
+body.zbs-compat-material-admin .zbs-admin-main-menu, body.zbs-compat-material-admin .zbs-dash-header {
+  margin-left: -30px !important;
+}
+
+body.zbs-compat-material-admin.zbs-fullscreen #wpcontent {
+  margin-left: -10px !important;
+  margin-top: -50px !important;
+}
+body.zbs-compat-material-admin.zbs-fullscreen #wpadminbar, body.zbs-compat-material-admin.zbs-fullscreen #adminmenuback, body.zbs-compat-material-admin.zbs-fullscreen #adminmenuwrap {
+  display: none;
+}
+body.zbs-compat-material-admin.zbs-fullscreen #zbs-admin-top-bar {
+  margin-right: 0px !important;
+}
+body.zbs-compat-material-admin.zbs-fullscreen .zbs-admin-main-menu, body.zbs-compat-material-admin.zbs-fullscreen .zbs-dash-header {
+  margin-left: -30px !important;
+}
