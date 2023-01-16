@@ -1,0 +1,8 @@
+Significance: patch
+Type: other
+
+For the admin-menus wpcom API endpoint, treat menu urls pointing back to the site as internal URLs rather than blanking them.
+
+This means that menu items that previously pointed to the current page due to being blanked, are now more likely to point to an actual page.
+
+

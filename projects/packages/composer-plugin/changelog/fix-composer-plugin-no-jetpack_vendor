@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure `jetpack_vendor/` exists before trying to write `jetpack_vendor/i18n-map.php`.

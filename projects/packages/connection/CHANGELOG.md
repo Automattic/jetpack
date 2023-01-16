@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.49.0] - 2023-01-11
 ### Added
-- Add new method to get a connected site's blog ID.
+- Add new method to get a connected site's blog ID. [#28208]
 
 ## [1.48.1] - 2022-12-27
 ### Removed

@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.15.4] - 2023-01-11
 ### Changed
-- Modules: Allow for deactivating multiple plugins when activating a module.
+- Modules: Allow for deactivating multiple plugins when activating a module. [#28181]
 
 ## [1.15.3] - 2022-12-19
 ### Changed
