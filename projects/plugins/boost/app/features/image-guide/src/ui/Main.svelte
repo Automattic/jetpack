@@ -27,9 +27,7 @@
 			return;
 		}
 
-		if ( $guideState !== 'always_on' ) {
-			show = false;
-		}
+		show = false;
 	}
 
 	function getGuideSize( width = -1, height = -1 ): GuideSize {
@@ -53,7 +51,6 @@
 	const sizeOnPage = stores[ 0 ].sizeOnPage;
 	$: size = getGuideSize( $sizeOnPage.width, $sizeOnPage.height );
 
-	$: show = $guideState === 'always_on' ? 0 : false;
 	$: toggleBackdrop( show !== false );
 	let position = {
 		top: 0,
@@ -68,7 +65,7 @@
 	}
 </script>
 
-{#if $guideState === 'active' || $guideState === 'always_on'}
+{#if $guideState === 'active'}
 	<div
 		class="guide {size}"
 		class:show={show !== false}
