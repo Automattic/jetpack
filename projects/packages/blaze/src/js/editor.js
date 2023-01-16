@@ -15,6 +15,7 @@ import BlazeIcon from './icon';
 const BlazePostPublishPanel = () => {
 	const { tracks } = useAnalytics();
 
+	// Tracks event when clicking on the Blaze link.
 	const trackClick = useCallback(
 		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
 		[ tracks ]
@@ -44,6 +45,7 @@ const BlazePostPublishPanel = () => {
 		query: `blazepress-widget=post-${ postId }`,
 	} );
 
+	// Decide when the panel should appear, and be tracked.
 	const shouldDisplayPanel = () => {
 		// Only show the panel for Posts, Pages, and Products.
 		if ( ! [ 'page', 'post', 'product' ].includes( postType ) ) {
@@ -58,6 +60,7 @@ const BlazePostPublishPanel = () => {
 		return true;
 	};
 
+	// Tracks event for the display of the panel.
 	useEffect( () => {
 		if ( ! ( wasPublishing && ! isPublishingPost ) ) {
 			return;
