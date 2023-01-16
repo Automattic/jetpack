@@ -59,11 +59,41 @@ const PricingPage = () => {
 				{ name: __( 'Schedule posting', 'jetpack-social' ) },
 				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
-				{ name: __( 'Organic social posts', 'jetpack-social' ) },
-				{ name: __( 'Video sharing', 'jetpack-social' ) },
-				{ name: __( 'Multi-image sharing', 'jetpack-social' ) },
-				{ name: __( 'Recycle content', 'jetpack-social' ) },
-				{ name: __( 'Image generator', 'jetpack-social' ) },
+				{
+					name: __( 'Engagement optimizer', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Enhance social media engagement with personalized posts.',
+						'jetpack-social'
+					),
+				},
+				{
+					name: __( 'Video sharing', 'jetpack-social' ),
+					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
+					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
+				},
+				{
+					name: __( 'Multi-image sharing', 'jetpack-social' ),
+					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Share multiple images at once on social media platforms.',
+						'jetpack-social'
+					),
+				},
+				{
+					name: __( 'Recycle content', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Repurpose, reuse or republish already published content.',
+						'jetpack-social'
+					),
+				},
+				{
+					name: __( 'Image generator', 'jetpack-social' ),
+					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Automatically create custom images, saving you hours of tedious work.',
+						'jetpack-social'
+					),
+				},
 			] }
 		>
 			<PricingTableColumn primary>
