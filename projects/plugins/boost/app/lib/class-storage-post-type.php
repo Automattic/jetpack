@@ -207,8 +207,7 @@ class Storage_Post_Type {
 		if (
 			function_exists( 'wp_cache_flush_group' ) &&
 			function_exists( 'wp_cache_supports' ) &&
-			wp_cache_supports( 'flush_group' ) &&
-			false
+			wp_cache_supports( 'flush_group' )
 		) {
 			$this->clear_bulk();
 		} else {
