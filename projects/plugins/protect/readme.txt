@@ -109,7 +109,12 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.2.0-beta - 2022-12-05
+### 1.2.0 - 2023-01-16
 #### Added
 - Add web application firewall (WAF) features
+- Add progress bar to site scannnig screen
+
+#### Fixed
+- Poll for scan status while scanner is provisioning
+- Bug fixes
 
