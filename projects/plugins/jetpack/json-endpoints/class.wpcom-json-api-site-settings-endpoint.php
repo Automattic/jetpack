@@ -1019,7 +1019,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'page_on_front':
 				case 'page_for_posts':
 					if ( $value === '' ) { // empty is not applicable because '0' may be a valid page id
-						delete_option( $key );
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+
+						break;
 					}
 
 					if ( ! $this->is_valid_page_id( $value ) ) {
@@ -1029,7 +1033,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
 					$related_option_value = get_option( $related_option_key );
 					if ( $related_option_value === $value ) {
-						// page_on_front and page_for_posts are not allowed to be the same
+						// page_on_front and page_forposts are not allowed to be the same
 						break;
 					}
 
