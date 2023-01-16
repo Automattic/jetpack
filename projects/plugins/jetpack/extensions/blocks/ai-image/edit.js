@@ -112,82 +112,80 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			) }
 			{ ! errorMessage && ! loadingImages && resultImages.length === 0 && (
 				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
-					<div>
-						<TextareaControl
-							label={ __( 'What would you like to see?', 'jetpack' ) }
-							placeholder={ placeholder }
-							onChange={ setPrompt }
-						/>
-						<Button variant="primary" onClick={ submit }>
-							{ __( 'Submit', 'jetpack' ) }
-						</Button>
-					</div>
+					<Flex expanded={ true }>
+						<FlexBlock>
+							<TextareaControl
+								label={ __( 'What would you like to see?', 'jetpack' ) }
+								placeholder={ placeholder }
+								onChange={ setPrompt }
+							/>
+							<Button variant="primary" onClick={ submit }>
+								{ __( 'Submit', 'jetpack' ) }
+							</Button>
+						</FlexBlock>
+					</Flex>
 				</Placeholder>
 			) }
 			{ ! errorMessage && ! loadingImages && resultImages.length > 0 && (
 				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
-					<div>
-						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
-							{ attributes.requestedPrompt }
-						</div>
-						<div style={ { fontSize: '20px', lineHeight: '38px' } }>
-							{ __( 'Please choose your image', 'jetpack' ) }
-						</div>
-						<Flex direction="row" justify={ 'space-between' }>
-							{ resultImages.map( image => (
-								<FlexBlock key={ image }>
-									<img
-										className="wp-block-ai-image-image"
-										src={ image }
-										alt=""
-										onClick={ async () => {
-											if ( loadingImages ) {
-												return;
-											}
-											setLoadingImages( true );
-											// First convert image to a proper blob file
-											const resp = await fetch( image );
-											const blob = await resp.blob();
-											const file = new File( [ blob ], 'jetpack_ai_image.png', {
-												type: 'image/png',
-											} );
-											// Actually upload the image
-											mediaUpload( {
-												filesList: [ file ],
-												onFileChange: ( [ img ] ) => {
-													if ( ! img.id ) {
-														// Without this image gets uploaded twice
-														return;
-													}
-													replaceBlock(
-														clientId,
-														createBlock( 'core/image', {
-															url: img.url,
-															caption: attributes.requestedPrompt,
-															alt: attributes.requestedPrompt,
-														} )
-													);
-												},
-												allowedTypes: [ 'image' ],
-												onError: message => {
-													// eslint-disable-next-line no-console
-													console.error( message );
-													setLoadingImages( false );
-												},
-											} );
-										} }
-									/>
-								</FlexBlock>
-							) ) }
-						</Flex>
+					<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
+						{ attributes.requestedPrompt }
 					</div>
+					<div style={ { fontSize: '20px', lineHeight: '38px' } }>
+						{ __( 'Please choose your image', 'jetpack' ) }
+					</div>
+					<Flex direction="row" justify={ 'space-between' }>
+						{ resultImages.map( image => (
+							<FlexItem key={ image }>
+								<img
+									className="wp-block-ai-image-image"
+									src={ image }
+									alt=""
+									onClick={ async () => {
+										if ( loadingImages ) {
+											return;
+										}
+										setLoadingImages( true );
+										// First convert image to a proper blob file
+										const resp = await fetch( image );
+										const blob = await resp.blob();
+										const file = new File( [ blob ], 'jetpack_ai_image.png', {
+											type: 'image/png',
+										} );
+										// Actually upload the image
+										mediaUpload( {
+											filesList: [ file ],
+											onFileChange: ( [ img ] ) => {
+												if ( ! img.id ) {
+													// Without this image gets uploaded twice
+													return;
+												}
+												replaceBlock(
+													clientId,
+													createBlock( 'core/image', {
+														url: img.url,
+														caption: attributes.requestedPrompt,
+														alt: attributes.requestedPrompt,
+													} )
+												);
+											},
+											allowedTypes: [ 'image' ],
+											onError: message => {
+												// eslint-disable-next-line no-console
+												console.error( message );
+												setLoadingImages( false );
+											},
+										} );
+									} }
+								/>
+							</FlexItem>
+						) ) }
+					</Flex>
 				</Placeholder>
 			) }
 			{ ! errorMessage && attributes.content && ! loadingImages && (
 				<Placeholder label={ __( 'AI Image', 'jetpack' ) }>
-					<div>
-						<div className="content">{ attributes.content }</div>
-					</div>
+					<div className="content">{ attributes.content }</div>
 				</Placeholder>
 			) }
 			{ ! errorMessage && loadingImages && (
