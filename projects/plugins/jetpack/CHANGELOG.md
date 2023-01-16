@@ -14,7 +14,7 @@
 - Admin: make URL acceptance more liberal in admin menus. [#28301]
 - Docs: mention `jetpack_blocks_variation` filter in Beta Extensions doc. [#28382]
 - E2E tests: add test for Subscribe block. [#28289]
-- JSON Endpoint: Introducing new '/sites/%s/dropdown-pages/' endpoint. [#28132]
+- JSON Endpoint: introduce new '/sites/%s/dropdown-pages/' endpoint. [#28132]
 - Masterbar: update Blaze conditions to rely on the existing method from the package. [#28340]
 - Site Settings API: expose Jetpack's related posts 'show_date' and 'show_context' options. [#28305]
 - Tests: add user stories for Earn features for ease of testing. [#28283]
