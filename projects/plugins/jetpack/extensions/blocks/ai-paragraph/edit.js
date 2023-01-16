@@ -113,8 +113,11 @@ function createPrompt( title = '', content = '', categoryNames = '' ) {
 		);
 	}
 
-	/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
-	return sprintf( __( 'Write content of a post titled "%s"', 'jetpack' ), title );
+	return sprintf(
+		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
+		__( 'Write content of a post titled "%s"', 'jetpack' ),
+		title
+	);
 }
 
 /**
