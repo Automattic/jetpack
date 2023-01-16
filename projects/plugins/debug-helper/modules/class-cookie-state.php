@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Debug_Helper;
 
-use Automattic\Jetpack\CookieState;
+use Automattic\Jetpack\CookieState as State;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -15,7 +15,7 @@ use WP_REST_Server;
 /**
  * REST_API_Tester to test REST API endpoints.
  */
-class State {
+class Cookie_State {
 
 	const REST_BASE = 'jetpack-debug';
 
@@ -51,7 +51,7 @@ class State {
 				'callback'            => array( $this, 'save' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'key' => array(
+					'key'   => array(
 						'description' => 'The state key.',
 						'type'        => 'string',
 						'required'    => true,
@@ -122,17 +122,17 @@ class State {
 		?>
 		<h1>Cookie State Faker</h1>
 
-		<h2>Current Values</h2>
-
-		<ul class="cookie-state-values-list">
-			<?php foreach ( $this->keys as $key ) : ?>
-				<li><strong><?php echo esc_html( $key ); ?>:</strong> <?php echo esc_html( ( new CookieState() )->state( $key ) ); ?></li>
-			<?php endforeach ?>
-		</ul>
-
-		<h2>Update Values</h2>
-
 		<div class="jetpack-debug-cookie-state">
+			<h2>Current Values</h2>
+
+			<ul class="cookie-state-values-list">
+				<?php foreach ( $this->keys as $key ) : ?>
+					<li><strong><?php echo esc_html( $key ); ?>:</strong> <?php echo esc_html( ( new State() )->state( $key ) ); ?></li>
+				<?php endforeach ?>
+			</ul>
+
+			<h2>Update Values</h2>
+
 			<form method="post" id="jetpack-debug-cookie-state-form">
 				<div class="cookie-state-block">
 					<label for="cookie-state-key">Key:</label>
@@ -181,7 +181,7 @@ class State {
 
 		$key = empty( $params['key'] ) ? null : $params['key'];
 
-		if ( ! $key || ! in_array( $key, $this->keys ) ) {
+		if ( ! $key || ! in_array( $key, $this->keys, true ) ) {
 			return new WP_Error( 'unknown_key' );
 		}
 
@@ -189,10 +189,10 @@ class State {
 			return new WP_Error( 'missing_value' );
 		}
 
-		( new CookieState() )->state( $key, $params['value'] );
+		( new State() )->state( $key, $params['value'] );
 
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 }
 
-add_action( 'plugins_loaded', array( State::class, 'init' ), 1000 );
+add_action( 'plugins_loaded', array( Cookie_State::class, 'init' ), 1000 );
