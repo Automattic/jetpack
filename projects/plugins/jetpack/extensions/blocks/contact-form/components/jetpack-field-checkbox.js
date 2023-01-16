@@ -1,9 +1,16 @@
-import { InspectorControls } from '@wordpress/block-editor';
+import {
+	FontSizePicker,
+	InspectorAdvancedControls,
+	InspectorControls,
+	PanelColorSettings,
+} from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import JetpackFieldControls from './jetpack-field-controls';
+import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldWidth from './jetpack-field-width';
+import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldCheckbox( props ) {
@@ -40,13 +47,6 @@ function JetpackFieldCheckbox( props ) {
 				setAttributes={ setAttributes }
 				attributes={ attributes }
 			/>
-			<JetpackFieldControls
-				id={ id }
-				required={ required }
-				width={ width }
-				setAttributes={ setAttributes }
-				attributes={ attributes }
-			/>
 			<InspectorControls>
 				<PanelBody title={ __( 'Checkbox Settings', 'jetpack' ) }>
 					<ToggleControl
@@ -56,6 +56,50 @@ function JetpackFieldCheckbox( props ) {
 					/>
 				</PanelBody>
 			</InspectorControls>
+			<InspectorControls>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+					<JetpackManageResponsesSettings isChildBlock />
+				</PanelBody>
+				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+					<ToggleControl
+						label={ __( 'Field is required', 'jetpack' ) }
+						className="jetpack-field-label__required"
+						checked={ required }
+						onChange={ value => setAttributes( { required: value } ) }
+						help={ __( 'You can edit the "required" label in the editor', 'jetpack' ) }
+					/>
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
+				</PanelBody>
+
+				<PanelColorSettings
+					title={ __( 'Color', 'jetpack' ) }
+					initialOpen={ false }
+					colorSettings={ [
+						{
+							value: attributes.labelColor,
+							onChange: value => setAttributes( { labelColor: value } ),
+							label: __( 'Label text', 'jetpack' ),
+						},
+					] }
+				></PanelColorSettings>
+				<PanelBody
+					title={ __( 'Label Styles', 'jetpack' ) }
+					initialOpen={ attributes.labelFontSize }
+				>
+					<FontSizePicker
+						withSlider
+						withReset={ true }
+						size="__unstable-large"
+						__nextHasNoMarginBottom
+						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+						value={ attributes.labelFontSize }
+					/>
+				</PanelBody>
+			</InspectorControls>
+
+			<InspectorAdvancedControls>
+				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
+			</InspectorAdvancedControls>
 		</div>
 	);
 }
