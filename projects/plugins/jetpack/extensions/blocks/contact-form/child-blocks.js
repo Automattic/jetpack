@@ -250,6 +250,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 			implicitConsentMessage={ implicitConsentMessage }
 			explicitConsentMessage={ explicitConsentMessage }
 			setAttributes={ setAttributes }
+			attributes={ attributes }
 		/>
 	);
 };
