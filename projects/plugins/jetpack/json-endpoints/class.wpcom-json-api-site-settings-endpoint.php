@@ -1033,7 +1033,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
 					$related_option_value = get_option( $related_option_key );
 					if ( $related_option_value === $value ) {
-						// page_on_front and page_forposts are not allowed to be the same
+						// page_on_front and page_for_posts are not allowed to be the same
 						break;
 					}
 
