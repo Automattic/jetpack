@@ -136,7 +136,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				label={ __( 'AI Image', 'jetpack' ) }
 				notices={ errorMessage && [ <div>{ errorMessage }</div> ] }
 			>
-				{ resultImages.length === 0 && (
+				{ ! loadingImages && resultImages.length === 0 && (
 					<Flex expanded={ true }>
 						<FlexBlock>
 							<TextareaControl
