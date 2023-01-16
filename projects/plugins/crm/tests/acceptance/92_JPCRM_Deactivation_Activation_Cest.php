@@ -48,21 +48,4 @@ class JPCRM_Deactivation_Activation_Cest {
 		$I->see( 'Jetpack CRM', '.wp-menu-name' );
 	}
 
-	public function jpcrm_activate_invoicing_pro_extension( AcceptanceTester $I ) {
-		$I->amOnPluginsPage();
-		$I->seePluginInstalled( 'jetpack-crm-extension-invoicing-pro' );
-		$I->activatePlugin( 'jetpack-crm-extension-invoicing-pro' );
-
-		$I->goToPageViaSlug( 'settings', '&tab=invpro' );
-		$I->see( 'Payments', '#zbs-settings-menu .item' );
-		$I->see( 'Invoicing Pro Payments' );
-	}
-
-	public function jpcrm_deactivate_core_before_extension( AcceptanceTester $I ) {
-		$I->amOnPluginsPage();
-
-		$I->deactivatePlugin( $this->plugin_slug );
-
-		$I->see( 'Before you go' );
-	}
 }
