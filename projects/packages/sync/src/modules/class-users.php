@@ -501,17 +501,20 @@ class Users extends Module {
 			}
 		}
 
-		/**
-		 * Fires when the client needs to sync an updated user.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 *
-		 * @param \WP_User The WP_User object
-		 * @param array    State - New since 5.8.0
-		 */
-		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
-		$this->clear_flags( $user_id );
+		if ( isset( $this->flags[ $user_id ] ) ) {
+
+			/**
+			 * Fires when the client needs to sync an updated user.
+			 *
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
+			 *
+			 * @param \WP_User The WP_User object
+			 * @param array    State - New since 5.8.0
+			 */
+			do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
+			$this->clear_flags( $user_id );
+		}
 	}
 
 	/**
