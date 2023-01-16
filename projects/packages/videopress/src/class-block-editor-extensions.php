@@ -60,8 +60,12 @@ class Block_Editor_Extensions {
 		}
 
 		/*
-		 * Get block variation.
+		 * Get block variation, from the new constant or the old one.
 		 */
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			self::$blocks_variation = 'beta';
+		}
+
 		$blocks_variation = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
 		if ( ! empty( $blocks_variation ) ) {
 			/**
