@@ -143,6 +143,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								label={ __( 'What would you like to see?', 'jetpack' ) }
 								placeholder={ placeholder }
 								onChange={ setPrompt }
+								rows={ 6 }
 							/>
 							<Button variant="primary" onClick={ submit }>
 								{ errorMessage ? __( 'Retry', 'jetpack' ) : __( 'Submit', 'jetpack' ) }
