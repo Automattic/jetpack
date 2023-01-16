@@ -50,46 +50,62 @@ function register_block() {
 		);
 	}
 
-	if ( \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) ) {
-		register_post_meta(
-			'post',
-			META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
-			array(
-				'show_in_rest'  => true,
-				'single'        => true,
-				'type'          => 'string',
-				'auth_callback' => function () {
-					return wp_get_current_user()->has_cap( 'edit_posts' );
-				},
-			)
-		);
-
-		// This ensures Jetpack will sync this post meta to WPCOM.
-		add_filter(
-			'jetpack_sync_post_meta_whitelist',
-			function ( $allowed_meta ) {
-				return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
-			},
-			10
-		);
-
-		// Enable newsletter feature
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
-
-		add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
-
-		// Close comments on the front-end
-		add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments' );
-		add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments' );
-
-		// Hide existing comments
-		add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
-
-		// Gate the excerpt for a post
-		add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+	) {
+		return; // Stop here if our Paid Newsletter feature is not enabled.
 	}
+
+	register_post_meta(
+		'post',
+		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'string',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		},
+	);
+
+	// Hide the content
+	add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+
+	// Close comments on the front-end
+	add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments' );
+	add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments' );
+
+	// Hide existing comments
+	add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
+
+	// Gate the excerpt for a post
+	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
+
+/**
+ * Check if Newsletter plans are available for a site
+ *
+ * @return bool - Default to false.
+ */
+function has_newsletter_plans() {
+	return (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		&& class_exists( 'Jetpack_Memberships' )
+		&& Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
+	);
+}
 
 /**
  * Returns true when in a WP.com environment.
@@ -351,11 +367,7 @@ function get_element_styles_from_attributes( $attributes ) {
  */
 function render_block( $attributes ) {
 	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
-	if (
-		\Automattic\Jetpack\Constants::get_constant( 'JETPACK_BETA_BLOCKS' ) &&
-		class_exists( 'Jetpack_Memberships' ) &&
-		Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
-	) {
+	if ( has_newsletter_plans() ) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
