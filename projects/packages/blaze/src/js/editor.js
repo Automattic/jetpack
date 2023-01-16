@@ -12,7 +12,7 @@ import { Button, PanelRow } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
@@ -50,6 +50,11 @@ const BlazePostPublishPanel = () => {
 	} );
 
 	const { tracks } = useAnalytics();
+	useEffect( () => {
+		if ( isPostPublished ) {
+			tracks.recordEvent( 'jetpack_editor_blaze_post_publish_panel_view' );
+		}
+	}, [ tracks, isPostPublished ] );
 	const trackClick = useCallback(
 		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
 		[ tracks ]
