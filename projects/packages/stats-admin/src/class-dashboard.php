@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 
 /**
@@ -229,10 +230,7 @@ class Dashboard {
 						'username' => 'no-user',
 					),
 					'capabilities' => array(
-						"$blog_id" => array(
-							'manage_options'   => true,
-							'activate_wordads' => true,
-						),
+						"$blog_id" => self::get_current_user_capatibilites(),
 					),
 				),
 				'sites'       => array(
@@ -243,17 +241,15 @@ class Dashboard {
 							'jetpack'      => true,
 							'visible'      => true,
 							'capabilities' => $empty_object,
-							'options'      => array(
-								'admin_url' => admin_url(),
-							),
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'      => array(
-								'wordads' => true,
+								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
+								'admin_url' => admin_url(),
 							),
 						),
 					),
-					'features' => array( "$blog_id" => array( 'data' => array( 'active' => array( 'wordads' ) ) ) ),
+					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),
 				),
 			),
 		);
@@ -292,6 +288,37 @@ class Dashboard {
 			$locale = preg_replace( '/(_.*)$/i', '', $locale );
 		}
 		return $locale;
+	}
+
+	/**
+	 * Get the features of the current plan.
+	 */
+	protected function get_plan_features() {
+		if ( ! class_exists( 'Jetpack_Plan' ) ) {
+			return array();
+		}
+		$plan = \Jetpack_Plan::get();
+		if ( empty( $plan['features'] ) ) {
+			return array();
+		}
+		return $plan['features'];
+	}
+
+	/**
+	 * Get the capabilities of the current user.
+	 *
+	 * @return array An array of capabilities.
+	 */
+	protected function get_current_user_capatibilites() {
+		// TODO: `1.0.0` is just a placeholder. Add required API and then replace with the actual version.
+		if ( version_compare( Main::VERSION, '1.0.0', '<=' ) ) {
+			return array();
+		}
+		$user = wp_get_current_user();
+		if ( ! $user || is_wp_error( $user ) ) {
+			return array();
+		}
+		return $user->allcaps;
 	}
 
 }
