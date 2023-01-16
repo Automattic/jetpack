@@ -39,9 +39,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 		return;
 	}
 
-	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
-
-	if ( $prompt ) {
+	if ( jetpack_is_valid_blogging_prompt( $prompt_id ) ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
 		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
 	}
@@ -73,60 +71,10 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		return $daily_prompts;
 	}
 
-	$path_suffix = '?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
-	$body        = jetpack_fetch_blogging_prompts( $path_suffix );
-
-	if ( ! $body || ! isset( $body->prompts ) ) {
-		return null;
-	}
-
-	$prompts = $body->prompts;
-	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
-
-	return $prompts;
-}
-
-/**
- * Retieve a blogging prompt by prompt id.
- *
- * @param int $prompt_id ID of the prompt to return.
- * @return stdClass|null Prompt object or null if not found.
- */
-function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
-	$locale        = get_locale();
-	$transient_key = 'jetpack_blogging_prompt_' . $prompt_id . '_' . $locale;
-	$prompt        = get_transient( $transient_key );
-
-	// Return the cached prompt, if we have it. Otherwise fetch it from the API.
-	if ( false !== $prompt ) {
-		return $prompt;
-	}
-
-	$path_suffix = '/' . rawurldecode( $prompt_id ) . '?_locale=' . rawurldecode( $locale );
-	$prompt      = jetpack_fetch_blogging_prompts( $path_suffix );
-
-	if ( ! $prompt ) {
-		return null;
-	}
-
-	// Set a long cache timeout: in practice prompts should rarely, if ever, be edited or changed.
-	set_transient( $transient_key, $prompt, MONTH_IN_SECONDS );
-
-	return $prompt;
-}
-
-/**
- * Fetches blogging prompts from the wpcom API.
- *
- * When run on wpcom, uses WPCOM_API_Direct::do_request to avoid an unnecessary http request for Simple sites.
- *
- * @param string $path_suffix Path suffix for API request.
- * @return mixed|null Response body or null if not found.
- */
-function jetpack_fetch_blogging_prompts( $path_suffix ) {
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts' . $path_suffix;
-	$args    = array(
+	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
+
+	$args = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
 			'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
@@ -152,7 +100,14 @@ function jetpack_fetch_blogging_prompts( $path_suffix ) {
 		return null;
 	}
 
-	$prompts = json_decode( wp_remote_retrieve_body( $response ) );
+	$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+	if ( ! $body || ! isset( $body->prompts ) ) {
+		return null;
+	}
+
+	$prompts = $body->prompts;
+	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
 
 	return $prompts;
 }
@@ -227,4 +182,29 @@ function jetpack_is_new_post_screen() {
  */
 function jetpack_is_potential_blogging_site() {
 	return jetpack_has_write_intent() || jetpack_has_posts_page() || jetpack_has_or_will_publish_posts();
+}
+
+/**
+ * Checks if the given prompt id is included in today's blogging prompts.
+ *
+ * Would be best to use the API to check if the prompt id is valid for any day,
+ * but for now we're only using one prompt per day.
+ *
+ * @param int $prompt_id id of blogging prompt.
+ * @return bool
+ */
+function jetpack_is_valid_blogging_prompt( $prompt_id ) {
+	$daily_prompts = jetpack_get_daily_blogging_prompts();
+
+	if ( ! $daily_prompts ) {
+		return false;
+	}
+
+	foreach ( $daily_prompts as $prompt ) {
+		if ( $prompt->id === $prompt_id ) {
+			return true;
+		}
+	}
+
+	return false;
 }

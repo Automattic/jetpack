@@ -23,7 +23,7 @@ function register_extension() {
 
 	// Load the blogging-prompts endpoint here on init so its route will be registered.
 	// We can use it with `WPCOM_API_Direct::do_request` to avoid a network request on Simple Sites.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && get_answer_prompt_id() ) {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && should_load_blogging_prompts() ) {
 		wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' );
 	}
 }
@@ -47,16 +47,14 @@ function inject_blogging_prompts() {
 		return;
 	}
 
-	$prompt_id = get_answer_prompt_id();
-
 	// And only for blogging sites or those explicitly responding to the prompt.
-	if ( $prompt_id ) {
-		$daily_prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
+	if ( should_load_blogging_prompts() ) {
+		$daily_prompts = jetpack_get_daily_blogging_prompts();
 
-		if ( $daily_prompt ) {
+		if ( $daily_prompts ) {
 			wp_add_inline_script(
 				'jetpack-blocks-editor',
-				'var Jetpack_BloggingPrompts = { "prompt": ' . wp_json_encode( $daily_prompt, JSON_HEX_TAG | JSON_HEX_AMP ) . ' };',
+				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $daily_prompts, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 		}
@@ -68,9 +66,9 @@ function inject_blogging_prompts() {
  *
  * @return bool
  */
-function get_answer_prompt_id() {
+function should_load_blogging_prompts() {
 	 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
-	return isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
+	return isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
