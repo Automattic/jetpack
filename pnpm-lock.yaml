@@ -1820,6 +1820,63 @@ importers:
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
 
+  projects/plugins/migration:
+    specifiers:
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-webpack-config': workspace:*
+      '@babel/core': 7.20.7
+      '@babel/preset-env': 7.20.2
+      '@babel/register': 7.18.9
+      '@babel/runtime': 7.20.7
+      '@wordpress/browserslist-config': 5.5.0
+      '@wordpress/data': 7.6.0
+      '@wordpress/date': 4.22.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      concurrently: 6.0.2
+      react: 17.0.2
+      react-dom: 17.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/data': 7.6.0_react@17.0.2
+      '@wordpress/date': 4.22.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/i18n': 4.22.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@babel/core': 7.20.7
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.7
+      '@babel/register': 7.18.9_@babel+core@7.20.7
+      '@babel/runtime': 7.20.7
+      '@wordpress/browserslist-config': 5.5.0
+      concurrently: 6.0.2
+      sass: 1.43.3
+      sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/plugins/migration/tests/e2e:
+    specifiers:
+      '@playwright/test': 1.29.1
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: workspace:*
+    devDependencies:
+      '@playwright/test': 1.29.1
+      allure-playwright: 2.0.0-beta.19
+      config: 3.3.7
+      jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
   projects/plugins/protect:
     specifiers:
       '@automattic/jetpack-analytics': workspace:*
@@ -5547,7 +5604,7 @@ packages:
     resolution: {integrity: sha512-8wmCFBTVGYqFNLWfcOWoVuMuKYPUBTnTMDkdvFtAYELwDOl9RGwOsvQWGPFxDJ8AWY9xM/8xCXdqmPK3+Q5Lug==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
-      '@babel/core': 7.20.7
+      '@babel/core': 7.20.12
       '@jest/types': 29.3.1
       '@jridgewell/trace-mapping': 0.3.17
       babel-plugin-istanbul: 6.1.1
@@ -8085,12 +8142,12 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.4.10
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/8.4.10:
     resolution: {integrity: sha512-Sl/HOqN8NKPmhWo2VBEPm0nvHnu2LL3v9vKo8MEq0EtbJ4eVzGPl41VNPvn5E1i5poMk4/XD8UriLHpJvEP/Nw==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
 
   /@types/estree/0.0.39:
@@ -8102,7 +8159,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: true
 
   /@types/fs-extra/8.1.2:
     resolution: {integrity: sha512-SvSrYXfWSc7R4eqnOzbQF4TZmfpNSM9FrSWLU3EUnWBuyZqNBOrv1B1JA3byUDPUl9z4Ab3jeZG2eDdySlgNMg==}
