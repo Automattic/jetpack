@@ -165,11 +165,34 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$return          = array();
 		$include_viewers = (bool) $args['include_viewers'];
+
+		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
+		$viewers = $include_viewers ? get_private_blog_users(
+			$blog_id,
+			array(
+				'page'     => $page,
+				'per_page' => $args['number'],
+			)
+		) : array();
+		$viewers = array_map( array( $this, 'get_author' ), $viewers );
+
+		// we restrict search field to name when include_viewers is true.
+		if ( $include_viewers && ! empty( $args['search'] ) ) {
+			$viewers = array_filter(
+				$viewers,
+				function ( $viewer ) use ( $args ) {
+					// remove special database search characters from search term
+					$search_term = str_replace( '*', '', $args['search'] );
+					return strpos( $viewer->name, $search_term ) !== false;
+				}
+			);
+		}
+
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found':
 					$user_count     = (int) $user_query->get_total();
-					$viewer_count   = $include_viewers ? (int) get_count_private_blog_users( $blog_id ) : 0;
+					$viewer_count   = $include_viewers ? count( $viewers ) : 0;
 					$return[ $key ] = $user_count + $viewer_count;
 					break;
 				case 'users':
@@ -185,28 +208,6 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 							}
 							$users[] = $the_user;
 						}
-					}
-
-					$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
-					$viewers = $include_viewers ? get_private_blog_users(
-						$blog_id,
-						array(
-							'page'     => $page,
-							'per_page' => $args['number'],
-						)
-					) : array();
-					$viewers = array_map( array( $this, 'get_author' ), $viewers );
-
-					// we restrict search field to name when include_viewers is true.
-					if ( $include_viewers && ! empty( $args['search'] ) ) {
-						$viewers = array_filter(
-							$viewers,
-							function ( $viewer ) use ( $args ) {
-								// remove special database search characters from search term
-								$search_term = str_replace( '*', '', $args['search'] );
-								return strpos( $viewer->name, $search_term ) !== false;
-							}
-						);
 					}
 
 					$combined_users = array_merge( $users, $viewers );
