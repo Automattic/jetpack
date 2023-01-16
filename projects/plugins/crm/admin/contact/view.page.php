@@ -211,19 +211,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 																										// if url isset, pass that data-action, otherwise leave for js to attach to
 																										if ( isset( $action['url'] ) && ! empty( $action['url'] ) ) {
 																											?>
-									data-action="
-																											<?php
-																											if ( isset( $action['url'] ) ) {
-																												echo 'url';
-																											}
-																											?>
-									" data-url="
-																											<?php
-																											if ( isset( $action['url'] ) ) {
-																												echo esc_attr( $action['url'] );
-																											}
-																											?>
-									"
+									data-action="<?php echo isset( $action['url'] ) ? 'url' : ''; ?>"
+									data-url="<?php echo isset( $action['url'] ) ? esc_attr( $action['url'] ) : ''; ?>"
 																											<?php
 																										}
 
