@@ -27,10 +27,17 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha"
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
 	},
 	"require": {
-		"automattic/woocommerce": "^3.0"
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/woocommerce": "^3.0",
+		"dompdf/dompdf": "2.0.1",
+		"automattic/jetpack-composer-plugin": "@dev"
 	},
 	"repositories": [
 		{
