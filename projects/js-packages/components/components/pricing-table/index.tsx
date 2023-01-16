@@ -68,8 +68,8 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 };
 
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
-	isIncluded,
-	isComingSoon,
+	isIncluded = false,
+	isComingSoon = false,
 	index = 0,
 	label = null,
 	tooltipInfo,

@@ -52,7 +52,7 @@ export type PricingTableItemProps = {
 	/**
 	 * Whether the feature is coming soon. Takes precedence over isIncluded.
 	 */
-	isComingSoon: boolean;
+	isComingSoon?: boolean;
 
 	/**
 	 * A custom label to display instead of the default one.
