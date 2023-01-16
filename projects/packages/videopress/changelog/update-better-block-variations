@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Block bundling: sunset existing methods in favor of new constant

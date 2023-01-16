@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\BloggingPrompts\Settings;
 
-use Automattic\Jetpack\Constants;
+use Jetpack_Gutenberg;
 
 /**
  * Renders the settings field for enabling/disabling blogging prompts in the editor.
@@ -30,12 +30,17 @@ function enabled_field_callback() {
  */
 function init() {
 	// If editor extensions are not loaded, don't show the settings.
-	if ( ! \Jetpack_Gutenberg::should_load() ) {
+	if ( ! Jetpack_Gutenberg::should_load() ) {
 		return;
 	}
 
-	// Blogging prompts is an expermental extension: if expermental blocks are not enabled, don't show the settings.
-	if ( ! Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) && ! Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+	/*
+	 * Blogging prompts is an experimental extension:
+	 * Settings should only be shown in an environment
+	 * where beta or experimental extension are loaded.
+	 */
+	$blocks_variation = Jetpack_Gutenberg::blocks_variation();
+	if ( ! in_array( $blocks_variation, array( 'beta', 'experimental' ), true ) ) {
 		return;
 	}
 
