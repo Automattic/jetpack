@@ -88,6 +88,42 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
+	const saveImage = async image => {
+		if ( loadingImages ) {
+			return;
+		}
+		setLoadingImages( true );
+		// First convert image to a proper blob file
+		const resp = await fetch( image );
+		const blob = await resp.blob();
+		const file = new File( [ blob ], 'jetpack_ai_image.png', {
+			type: 'image/png',
+		} );
+		// Actually upload the image
+		mediaUpload( {
+			filesList: [ file ],
+			onFileChange: ( [ img ] ) => {
+				if ( ! img.id ) {
+					// Without this image gets uploaded twice
+					return;
+				}
+				replaceBlock(
+					clientId,
+					createBlock( 'core/image', {
+						url: img.url,
+						caption: attributes.requestedPrompt,
+						alt: attributes.requestedPrompt,
+					} )
+				);
+			},
+			allowedTypes: [ 'image' ],
+			onError: message => {
+				// eslint-disable-next-line no-console
+				console.error( message );
+				setLoadingImages( false );
+			},
+		} );
+	};
 	return (
 		<div { ...useBlockProps() }>
 			<Placeholder
@@ -146,42 +182,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 										className="wp-block-ai-image-image"
 										src={ image }
 										alt=""
-										onClick={ async () => {
-											if ( loadingImages ) {
-												return;
-											}
-											setLoadingImages( true );
-											// First convert image to a proper blob file
-											const resp = await fetch( image );
-											const blob = await resp.blob();
-											const file = new File( [ blob ], 'jetpack_ai_image.png', {
-												type: 'image/png',
-											} );
-											// Actually upload the image
-											mediaUpload( {
-												filesList: [ file ],
-												onFileChange: ( [ img ] ) => {
-													if ( ! img.id ) {
-														// Without this image gets uploaded twice
-														return;
-													}
-													replaceBlock(
-														clientId,
-														createBlock( 'core/image', {
-															url: img.url,
-															caption: attributes.requestedPrompt,
-															alt: attributes.requestedPrompt,
-														} )
-													);
-												},
-												allowedTypes: [ 'image' ],
-												onError: message => {
-													// eslint-disable-next-line no-console
-													console.error( message );
-													setLoadingImages( false );
-												},
-											} );
-										} }
+										onClick={ () => saveImage( image ) }
 									/>
 								</FlexItem>
 							) ) }
