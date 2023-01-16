@@ -139,7 +139,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						<div style={ { fontSize: '20px', lineHeight: '38px' } }>
 							{ __( 'Please choose your image', 'jetpack' ) }
 						</div>
-						<Flex direction="row" justify={ 'space-between' }>
+						<Flex direction="row" justify={ 'space-between' } wrap={ true }>
 							{ resultImages.map( image => (
 								<FlexItem key={ image }>
 									<img
