@@ -31,6 +31,7 @@ function getSuggestionFromOpenAI(
 ) {
 	const needsAtLeast = 36;
 	if ( formattedPrompt.length < needsAtLeast ) {
+		setLoadingCompletion( false );
 		setErrorMessage(
 			sprintf(
 				/** translators: First placeholder is a number of more characters we need */
@@ -134,7 +135,7 @@ function preparePromptBasedOnEditorState( select ) {
 	// Let's grab post data so that we can do something smart.
 	const currentPost = select( 'core/editor' ).getCurrentPost();
 	if ( ! currentPost ) {
-		return createPrompt( '', editorContent, '' );
+		return '';
 	}
 
 	// If there is no title, there is not much we can do.
@@ -144,9 +145,10 @@ function preparePromptBasedOnEditorState( select ) {
 
 	// We are filtering out the default "Uncategorized"
 	const categories = currentPost.categories.filter( catId => catId !== 1 );
+	const tags = currentPost.tags;
 
 	// User did not set any categories, we are going to base the suggestions off a title.
-	if ( ! categories.length ) {
+	if ( ! categories.length && ! tags.length ) {
 		return createPrompt( currentPost.title, editorContent, '' );
 	}
 
@@ -154,18 +156,25 @@ function preparePromptBasedOnEditorState( select ) {
 	const categoryObjects = categories.map( categoryId =>
 		select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId )
 	);
+	const tagObjects = tags.map( tagId =>
+		select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId )
+	);
+
+	// For now categories are combined with tags into the same object. I am not sure they should
+	const taxonomies = categoryObjects.concat( tagObjects );
+
 	// We want to wait until all category names are loaded. This will return empty string (aka loading state) until all objects are truthy.
-	if ( categoryObjects.filter( obj => ! obj || ! obj.name ).length ) {
+	if ( taxonomies.filter( obj => ! obj || ! obj.name ).length ) {
 		return '';
 	}
 
-	const categoryNames = categoryObjects.map( ( { name } ) => name ).join( ', ' );
+	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
 
 	return createPrompt( currentPost.title, editorContent, categoryNames );
 }
 
 export default function Edit( { attributes, setAttributes } ) {
-	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
+	const [ loadingCompletion, setLoadingCompletion ] = useState( true );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
 
 	// Here is where we craft the prompt.
@@ -186,7 +195,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ errorMessage && (
+			{ ! loadingCompletion && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					<Button
 						variant="primary"
