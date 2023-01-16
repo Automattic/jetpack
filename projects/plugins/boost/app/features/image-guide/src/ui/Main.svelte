@@ -7,7 +7,7 @@
 	import type { GuideSize } from '../types';
 
 	export let stores: MeasurableImageStore[];
-	let show: number | false;
+	let show: number | false = false;
 
 	/**
 	 * This onMount is triggered when the window loads
