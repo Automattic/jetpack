@@ -50,6 +50,11 @@ export type PricingTableItemProps = {
 	isIncluded: boolean;
 
 	/**
+	 * Whether the feature is coming soon. Takes precedence over isIncluded.
+	 */
+	isComingSoon: boolean;
+
+	/**
 	 * A custom label to display instead of the default one.
 	 */
 	label?: string | number | React.ReactElement;

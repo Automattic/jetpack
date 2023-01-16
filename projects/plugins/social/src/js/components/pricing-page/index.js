@@ -121,10 +121,10 @@ const PricingPage = () => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
-				<PricingTableItem isIncluded />
+				<PricingTableItem isComingSoon />
+				<PricingTableItem isComingSoon />
+				<PricingTableItem isComingSoon />
+				<PricingTableItem isComingSoon />
 			</PricingTableColumn>
 			<PricingTableColumn primary>
 				<PricingTableHeader>

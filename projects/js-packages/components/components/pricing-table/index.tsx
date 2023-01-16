@@ -42,11 +42,34 @@ const ToS = createInterpolateElement(
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
+const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack' );
 
 const PricingTableContext = createContext( undefined );
 
+const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
+	if ( isComingSoon ) {
+		return {
+			lg: COMING_SOON_TEXT,
+			// translators: Name of the current feature
+			default: sprintf( __( '%s coming soon', 'jetpack' ), featureNameLabel ),
+		};
+	}
+
+	return {
+		lg: isIncluded ? INCLUDED_TEXT : NOT_INCLUDED_TEXT,
+		default: isIncluded
+			? featureNameLabel
+			: sprintf(
+					/* translators: Name of the current feature */
+					__( '%s not included', 'jetpack' ),
+					featureNameLabel
+			  ),
+	};
+};
+
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	isIncluded,
+	isComingSoon,
 	index = 0,
 	label = null,
 	tooltipInfo,
@@ -54,6 +77,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const item = useContext( PricingTableContext )[ index ];
+	const showTick = isComingSoon || isIncluded;
 
 	const featureNameLabel = item.name;
 
@@ -61,26 +85,19 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const defaultTooltipTitle = item.tooltipTitle;
 	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
 
-	const includedLabel = isIncluded ? INCLUDED_TEXT : NOT_INCLUDED_TEXT;
-	const smallIncludedLabel = isIncluded
-		? featureNameLabel
-		: sprintf(
-				/* translators: Name of the current feature */
-				__( '%s not included', 'jetpack' ),
-				featureNameLabel
-		  );
+	const labels = getItemLabels( isComingSoon, isIncluded, featureNameLabel );
 
-	const defaultLabel = isLg ? includedLabel : smallIncludedLabel;
+	const defaultLabel = isLg ? labels.lg : labels.default;
 
 	return (
 		<div className={ classnames( styles.item, styles.value ) }>
 			<Icon
 				className={ classnames(
 					styles.icon,
-					isIncluded ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
+					showTick ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
 				) }
 				size={ 32 }
-				icon={ isIncluded ? check : closeSmall }
+				icon={ showTick ? check : closeSmall }
 			/>
 			<Text variant="body-small">{ label || defaultLabel }</Text>
 			{ showTooltip && (
