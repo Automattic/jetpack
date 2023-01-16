@@ -6016,6 +6016,9 @@ endif;
 			'jetpack_are_blogging_prompts_enabled'         => array(
 				'replacement' => null,
 				'version'     => 'jetpack-$$next-version$$',
+			'jetpack_dsp_promote_posts_enabled'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
 			),
 		);
 

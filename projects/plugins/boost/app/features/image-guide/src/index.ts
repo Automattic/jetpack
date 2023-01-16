@@ -104,7 +104,9 @@ function initialize() {
  * we don't need the guides sooner because
  * images have likely not loaded yet.
  */
-window.addEventListener( 'load', () => {
-	initialize();
-	window.addEventListener( 'resize', debounceDimensionUpdates() );
-} );
+if ( ! window.frameElement ) {
+	window.addEventListener( 'load', () => {
+		initialize();
+		window.addEventListener( 'resize', debounceDimensionUpdates() );
+	} );
+}

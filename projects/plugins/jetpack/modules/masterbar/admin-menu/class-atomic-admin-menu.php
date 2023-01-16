@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Plan;
 
@@ -365,17 +366,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		// performance settings already have a link to Page Optimize settings page.
 		$this->hide_submenu_page( 'options-general.php', 'page-optimize' );
 
-		/**
-		 * Wether to show the Advertising menu under the main Tools menu.
-		 *
-		 * @module masterbar
-		 *
-		 * @since 11.4
-		 *
-		 * @param bool $menu_enabled Wether the menu entry is shown.
-		 * @param int  $user_id      The Advertising menu will be shown/hidden for this user.
-		 */
-		if ( apply_filters( 'jetpack_dsp_promote_posts_enabled', false, get_current_user_id() ) ) {
+		if ( Blaze::should_initialize() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 	}
