@@ -223,7 +223,14 @@ jQuery( document ).ready( function ( $ ) {
 			var hash = location.hash;
 
 			hash = hash.replace( /#\//, '_' );
-			if ( '_dashboard' !== hash ) {
+
+			// We always include the hash if this is My Jetpack page
+			if ( message_path.includes( 'jetpack_page_my-jetpack' )) {
+				message_path = message_path.replace(
+					'jetpack_page_my-jetpack',
+					'jetpack_page_my-jetpack' + hash
+				);
+			} else if ( '_dashboard' !== hash ) {
 				message_path = message_path.replace(
 					'toplevel_page_jetpack',
 					'toplevel_page_jetpack' + hash
@@ -248,20 +255,7 @@ jQuery( document ).ready( function ( $ ) {
 				}
 
 				// for now, always take the first response
-				const data = response [ 0 ];
-
-				const LICENSE_ACTIVATION_NOTICE_KEYS = [
-					'single_licensing_activation_notice',
-					'multiple_licensing_activation_notice',
-				];
-
-				const inJPLicenseActivationPage = window?.location?.href.indexOf( 'jetpack#/add-license' ) >= 0;
-				const isJPLicenseActivationNotice = LICENSE_ACTIVATION_NOTICE_KEYS.includes( data.id );
-
-				// We do not want to display License Activation JITM in the activation page
-				if ( !( isJPLicenseActivationNotice && inJPLicenseActivationPage) ) {
-					setJITMContent( $el, data, redirect );
-				}
+				setJITMContent( $el, response[ 0 ], redirect );
 			} );
 		} );
 	};
