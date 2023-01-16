@@ -836,9 +836,11 @@ class Jetpack_Carousel {
 			foreach ( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-			foreach ( $image_elements as $image_html ) {
-				$find[]    = $image_html;
-				$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+			if ( is_array( $image_elements ) ) {
+				foreach ( $image_elements as $image_html ) {
+					$find[]    = $image_html;
+					$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
+				}
 			}
 		}
 
