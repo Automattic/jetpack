@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fixed JP License Activation JITM to not display in the activation page.
+Prevent the activation page from displaying the JP License Activation JITM.
