@@ -67,6 +67,13 @@ const PricingPage = () => {
 					),
 				},
 				{
+					name: __( 'Recycle content', 'jetpack-social' ),
+					tooltipInfo: __(
+						'Repurpose, reuse or republish already published content.',
+						'jetpack-social'
+					),
+				},
+				{
 					name: __( 'Video sharing', 'jetpack-social' ),
 					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __( 'Upload and share videos to your social platforms.', 'jetpack-social' ),
@@ -76,13 +83,6 @@ const PricingPage = () => {
 					tooltipTitle: __( 'Coming soon', 'jetpack-social' ),
 					tooltipInfo: __(
 						'Share multiple images at once on social media platforms.',
-						'jetpack-social'
-					),
-				},
-				{
-					name: __( 'Recycle content', 'jetpack-social' ),
-					tooltipInfo: __(
-						'Repurpose, reuse or republish already published content.',
 						'jetpack-social'
 					),
 				},
@@ -121,7 +121,7 @@ const PricingPage = () => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem isComingSoon />
+				<PricingTableItem isIncluded />
 				<PricingTableItem isComingSoon />
 				<PricingTableItem isComingSoon />
 				<PricingTableItem isComingSoon />
