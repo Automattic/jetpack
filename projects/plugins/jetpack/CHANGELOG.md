@@ -2,9 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.7.1 - 2023-01-16
+### Bug fixes
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes. [#28342]
+
 ## 11.7 - 2023-01-10
 ### Enhancements
-
 - Contact form: update the description on the response data export modal under CSV section, on the Feedback page. [#28214]
 - Contact form: add a polling function to ensure a successful Google Drive connection, resulting in a usable 'Export' button on the Feedback page. [#28177]
 - Stats: make the toggle for enabling Odyssey Stats visible for all users. [#28105]
