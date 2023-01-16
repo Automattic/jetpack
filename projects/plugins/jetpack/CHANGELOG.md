@@ -3,29 +3,23 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 11.8-a.5 - 2023-01-16
-### Enhancements
-- Add a randomized prompt amongst the best prompts to serve as a placeholder for the AI Image block [#28339]
-- AI Features now have a link to the Forums thread to gather feedback, different icon and simplified way of enabling for testing [#28338]
-- AI Paragraph block now is aware of the rest of editor canvas and can work without any input [#28321]
-- Blaze: Show Advertising in menu for Jetpack sites [#28088]
-
 ### Improved compatibility
-- Add support for the 'connection_disabled' error code. [#28334]
+- Blaze: update logic for showing the Advertising menu on Jetpack sites. [#28088]
+- Connection: add support for 'connection_disabled' error code. [#28334]
 
 ### Bug fixes
-- Jetpack: fix the fullscreen option when using videopress shortcode [#28342]
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes. [#28342]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Add user stories for earn features for ease of testing [#28283]
-- E2E tests: add test for subscribe block [#28289]
-- For the admin-menus wpcom API endpoint, treat menu urls pointing back to the site as internal URLs rather than blanking them.
-  
-  This means that menu items that previously pointed to the current page due to being blanked, are now more likely to point to an actual page. [#28301]
-- JSON Endpoint: Introducing new '/sites/%s/dropdown-pages/' endpoint [#28132]
+- Admin: make URL acceptance more liberal in admin menus. [#28301]
+- Docs: mention `jetpack_blocks_variation` filter in Beta Extensions doc. [#28382]
+- E2E tests: add test for Subscribe block. [#28289]
+- JSON Endpoint: Introducing new '/sites/%s/dropdown-pages/' endpoint. [#28132]
 - Masterbar: update Blaze conditions to rely on the existing method from the package. [#28340]
-- Mention `jetpack_blocks_variation` filter in Beta Extensions doc [#28382]
-- Site Settings API: Expose Jetpack's related posts 'show_date' and 'show_context' options [#28305]
+- Site Settings API: expose Jetpack's related posts 'show_date' and 'show_context' options. [#28305]
+- Tests: add user stories for Earn features for ease of testing. [#28283]
 - Updated package dependencies.
+- WPcom: add groundwork for AI Image block (beta). [#28339, #28338, #28321]
 
 ## 11.8-a.3 - 2023-01-12
 ### Bug fixes
