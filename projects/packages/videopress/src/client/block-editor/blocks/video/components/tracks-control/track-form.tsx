@@ -188,7 +188,9 @@ export default function TrackForm( {
 					<Button
 						isBusy={ isSavingTrack }
 						variant="secondary"
-						disabled={ ! track.tmpFile || isSavingTrack || ( trackExists && ! replaceTrack ) }
+						disabled={
+							! track.tmpFile || isSavingTrack || ( trackExists && ! replaceTrack ) || !! error
+						}
 						onClick={ onSaveHandler }
 					>
 						{ __( 'Save', 'jetpack-videopress-pkg' ) }
