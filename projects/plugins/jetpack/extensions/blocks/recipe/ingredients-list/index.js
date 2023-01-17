@@ -1,7 +1,7 @@
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import icon from '../icon';
+import { IngredientsListIcon } from '../icon';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
@@ -18,10 +18,10 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: icon,
+		src: IngredientsListIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	keywords: [],
 	attributes,
 	edit,

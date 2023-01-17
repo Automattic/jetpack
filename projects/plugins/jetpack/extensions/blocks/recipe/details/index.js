@@ -1,7 +1,7 @@
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
-import icon from '../icon';
+import { DetailIcon } from '../icon';
 import attributes from './attributes';
 import edit from './edit';
 import save from './save';
@@ -22,10 +22,10 @@ export const settings = {
 		align: [ 'left', 'right', 'center' ],
 	},
 	icon: {
-		src: icon,
+		src: DetailIcon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'embed',
 	attributes,
 	edit,
 	save,

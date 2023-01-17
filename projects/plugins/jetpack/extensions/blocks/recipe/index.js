@@ -34,8 +34,17 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
-	keywords: [],
+	category: 'embed',
+	keywords: [
+		'recipes',
+		'recipe block',
+		'recipe patterns',
+		'cooking instructions',
+		'ingredients',
+		'baking instructions',
+		'cooking',
+		'food',
+	],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: [ 'full', 'wide' ] /* if set to true, the 'align' option below can be used*/,
