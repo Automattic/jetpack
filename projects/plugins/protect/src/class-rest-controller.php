@@ -90,7 +90,7 @@ class REST_Controller {
 			'jetpack-protect/v1',
 			'fix-threats',
 			array(
-				'methods'             => \WP_REST_SERVER::EDITABLE,
+				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_fix_threats',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
