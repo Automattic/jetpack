@@ -55,6 +55,7 @@ export const settings = {
 			</div>
 		);
 	},
+	example: {},
 	styles: [
 		{ name: 'default', label: 'Default', isDefault: true },
 		{ name: 'animated', label: 'Animated' },

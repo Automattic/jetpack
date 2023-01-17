@@ -930,7 +930,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
 
-		$css_class = "grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap";
+		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
 
 		if ( 'select' === $attributes['type'] ) {
 			$css_class .= ' contact-form-dropdown-wrap ui-front';
@@ -1000,13 +1000,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} jp-contact-form-date",
+				"{$attributes['type']} jp-contact-form-date grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		} else {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} {$attributes['class']}",
+				"{$attributes['type']} {$attributes['class']} grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		}
@@ -1035,7 +1035,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 		}
 
-		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 	}
 
 	/**
@@ -1069,7 +1069,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' contact-form-dropdown', ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
@@ -1107,7 +1107,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
 				}
 				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
-				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
