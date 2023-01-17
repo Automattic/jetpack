@@ -1921,6 +1921,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		exit();
 	}
 
 	/**
