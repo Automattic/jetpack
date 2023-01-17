@@ -1854,22 +1854,28 @@ class Grunion_Contact_Form_Plugin {
 	 * Download exported data as CSV
 	 */
 	public function download_feedback_as_csv() {
-		$data = $this->get_feedback_entries_from_post();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_feedback_entries_from_post function
+		$post_data = wp_unslash( $_POST );
+		$data      = $this->get_feedback_entries_from_post();
 
 		if ( empty( $data ) ) {
 			return;
 		}
 
-		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
-
 		// Check if we want to download all the feedbacks or just a certain contact form
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
-		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
-			$filename = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$filename = sprintf(
+				'%s - %s.csv',
+				Grunion_Admin::init()->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$filename = sprintf(
+				'%s - %s.csv',
+				Grunion_Admin::init()->get_export_filename(),
+				gmdate( 'Y-m-d H:i' )
+			);
 		}
-
-		$filename = sanitize_file_name( $filename );
 
 		/**
 		 * Extract field names from `$data` for later use.
