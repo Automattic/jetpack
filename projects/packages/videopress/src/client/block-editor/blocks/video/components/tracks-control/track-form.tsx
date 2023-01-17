@@ -14,10 +14,10 @@ import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
- * Internal dependencies
+ * Types
  */
-import { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
-import { TrackFormProps } from './types';
+import type { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
+import type { TrackFormProps } from './types';
 import type React from 'react';
 
 const DEFAULT_KIND = 'subtitles';
