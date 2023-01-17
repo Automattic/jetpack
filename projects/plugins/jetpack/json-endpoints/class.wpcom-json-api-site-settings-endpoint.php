@@ -1011,29 +1011,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'page_on_front':
-					if ( ! $this->is_valid_page_id( $value ) ) {
-						break;
-					}
-
-					$page_for_posts = get_option( 'page_for_posts' );
-					if ( $page_for_posts === $value ) {
-						// page for posts and page on front can't be the same
-						break;
-					}
-
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
-
-					break;
 				case 'page_for_posts':
+					if ( $value === '' ) { // empty function is not applicable here because '0' may be a valid page id
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+
+						break;
+					}
+
 					if ( ! $this->is_valid_page_id( $value ) ) {
 						break;
 					}
 
-					$page_on_front = get_option( 'page_on_front' );
-					if ( $page_on_front === $value ) {
-						// page on front and page for posts can't be the same
+					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
+					$related_option_value = get_option( $related_option_key );
+					if ( $related_option_value === $value ) {
+						// page_on_front and page_for_posts are not allowed to be the same
 						break;
 					}
 
