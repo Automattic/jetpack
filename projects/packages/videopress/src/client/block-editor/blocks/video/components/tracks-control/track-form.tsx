@@ -166,7 +166,7 @@ export default function TrackForm( {
 					disabled={ isSavingTrack }
 				/>
 
-				{ error.length && (
+				{ error && (
 					<Notice status="error" isDismissible={ false }>
 						{ error }
 					</Notice>
