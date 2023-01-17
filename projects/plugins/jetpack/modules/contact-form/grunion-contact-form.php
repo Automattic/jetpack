@@ -1765,13 +1765,17 @@ class Grunion_Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
+				/**
+				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				 */
+				$renamed_field = preg_replace( '/^(\d{1,2}_)/', '', $single_field_name );
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
 				) {
-					$result[ $single_field_name ][] = trim( $single_post_data[ $single_field_name ] );
+					$result[ $renamed_field ][] = trim( $single_post_data[ $single_field_name ] );
 				} else {
-					$result[ $single_field_name ][] = '';
+					$result[ $renamed_field ][] = '';
 				}
 			}
 		}
