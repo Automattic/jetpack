@@ -28,6 +28,7 @@ const JetpackFieldControls = ( {
 	required,
 	setAttributes,
 	width,
+	type,
 } ) => {
 	const setNumberAttribute = ( key, parse = parseInt ) => value => {
 		const parsedValue = parse( value, 10 );
@@ -36,6 +37,51 @@ const JetpackFieldControls = ( {
 			[ key ]: ! isNaN( parsedValue ) ? parsedValue : undefined,
 		} );
 	};
+
+	let colorSettings = [];
+
+	if ( typeof type === 'string' && ( type === 'radio' || type === 'checkbox' ) ) {
+		colorSettings = [
+			{
+				value: attributes.labelColor,
+				onChange: value => setAttributes( { labelColor: value } ),
+				label: __( 'Label text', 'jetpack' ),
+			},
+			{
+				value: attributes.inputColor,
+				onChange: value => setAttributes( { inputColor: value } ),
+				label: __( 'Field text', 'jetpack' ),
+			},
+		];
+	} else {
+		colorSettings = [
+			{
+				value: attributes.labelColor,
+				onChange: value => setAttributes( { labelColor: value } ),
+				label: __( 'Label text', 'jetpack' ),
+			},
+			{
+				value: attributes.inputColor,
+				onChange: value => setAttributes( { inputColor: value } ),
+				label: __( 'Field text', 'jetpack' ),
+			},
+			{
+				value: attributes.fieldBackgroundColor,
+				onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+				label: __( 'Field Background', 'jetpack' ),
+			},
+			{
+				value: attributes.borderColor,
+				onChange: value => setAttributes( { borderColor: value } ),
+				label: __( 'Field Border', 'jetpack' ),
+			},
+			{
+				value: attributes.blockBackgroundColor,
+				onChange: value => setAttributes( { blockBackgroundColor: value } ),
+				label: __( 'Block Background', 'jetpack' ),
+			},
+		];
+	}
 
 	return (
 		<>
@@ -86,33 +132,7 @@ const JetpackFieldControls = ( {
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack' ) }
 					initialOpen={ false }
-					colorSettings={ [
-						{
-							value: attributes.labelColor,
-							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label text', 'jetpack' ),
-						},
-						{
-							value: attributes.inputColor,
-							onChange: value => setAttributes( { inputColor: value } ),
-							label: __( 'Field text', 'jetpack' ),
-						},
-						{
-							value: attributes.fieldBackgroundColor,
-							onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-							label: __( 'Field Background', 'jetpack' ),
-						},
-						{
-							value: attributes.borderColor,
-							onChange: value => setAttributes( { borderColor: value } ),
-							label: __( 'Field Border', 'jetpack' ),
-						},
-						{
-							value: attributes.blockBackgroundColor,
-							onChange: value => setAttributes( { blockBackgroundColor: value } ),
-							label: __( 'Block Background', 'jetpack' ),
-						},
-					] }
+					colorSettings={ colorSettings }
 				></PanelColorSettings>
 				<PanelBody
 					title={ __( 'Label Styles', 'jetpack' ) }
