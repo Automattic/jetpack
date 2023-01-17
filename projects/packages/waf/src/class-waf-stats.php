@@ -15,7 +15,7 @@ class Waf_Stats {
 	/**
 	 * Get IP allow list count
 	 *
-	 * @return integer The number of valid IP addresses in the block list
+	 * @return int The number of valid IP addresses in the allow list
 	 */
 	public static function get_ip_allow_list_count() {
 		$ip_allow_list = get_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME );
@@ -32,7 +32,7 @@ class Waf_Stats {
 	/**
 	 * Get IP block list count
 	 *
-	 * @return integer The number of valid IP addresses in the allow list
+	 * @return int The number of valid IP addresses in the block list
 	 */
 	public static function get_ip_block_list_count() {
 		$ip_block_list = get_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME );
