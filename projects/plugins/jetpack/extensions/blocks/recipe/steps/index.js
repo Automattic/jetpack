@@ -22,7 +22,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'widgets',
 	attributes,
 	edit,
 	save,

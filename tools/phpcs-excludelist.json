@@ -206,7 +206,6 @@
 	"projects/plugins/crm/includes/jpcrm-templating-placeholders.php",
 	"projects/plugins/crm/includes/jpcrm-templating.php",
 	"projects/plugins/crm/includes/jpcrm-usage-tracking.php",
-	"projects/plugins/crm/includes/lib/dompdf-2/autoload.inc.php",
 	"projects/plugins/crm/includes/wh.config.lib.php",
 	"projects/plugins/crm/includes/wh.countries.lib.php",
 	"projects/plugins/crm/includes/wh.currency.lib.php",
