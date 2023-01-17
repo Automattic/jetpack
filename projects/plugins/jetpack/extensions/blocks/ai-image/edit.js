@@ -8,6 +8,7 @@ import {
 	Flex,
 	FlexBlock,
 	FlexItem,
+	Modal,
 	Spinner,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -65,6 +66,7 @@ function getImagesFromOpenAI(
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
+	const [ imageModal, setImageModal ] = useState( null );
 	const [ prompt, setPrompt ] = useState( '' );
 	const { replaceBlock } = useDispatch( blockEditorStore );
 	const [ errorMessage, setErrorMessage ] = useState( null );
@@ -88,6 +90,32 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			setLoadingImages,
 			setResultImages,
 			setErrorMessage
+		);
+	};
+
+	const ImageWithSelect = ( { image, withSelect = true } ) => {
+		return (
+			<Flex direction="column">
+				<FlexBlock>
+					<img
+						className="wp-block-ai-image-image"
+						src={ image }
+						alt=""
+						onClick={ () => setImageModal( image ) }
+					/>
+				</FlexBlock>
+				{ withSelect && (
+					<FlexBlock>
+						<Flex direction="column" style={ { 'align-items': 'center' } }>
+							<FlexItem>
+								<Button variant="primary" onClick={ () => saveImage( image ) }>
+									{ __( 'select', 'jetpack' ) }
+								</Button>
+							</FlexItem>
+						</Flex>
+					</FlexBlock>
+				) }
+			</Flex>
 		);
 	};
 
@@ -142,6 +170,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							<TextareaControl
 								label={ __( 'What would you like to see?', 'jetpack' ) }
 								placeholder={ placeholder }
+								allowedFormats={ [] }
 								onChange={ setPrompt }
 								rows={ 6 }
 							/>
@@ -151,38 +180,38 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						</FlexBlock>
 					</Flex>
 				) }
-				{ resultImages.length > 0 && (
-					<>
-						<div style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic' } }>
+				{ ! loadingImages && resultImages.length > 0 && (
+					<Flex direction="column" style={ { width: '100%' } }>
+						<FlexBlock
+							style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic', width: '100%' } }
+						>
 							{ attributes.requestedPrompt }
-						</div>
-						<div style={ { fontSize: '20px', lineHeight: '38px' } }>
+						</FlexBlock>
+						<FlexBlock style={ { fontSize: '20px', lineHeight: '38px' } }>
 							{ __( 'Please choose your image', 'jetpack' ) }
-						</div>
-						<Flex direction="row" justify={ 'space-between' } wrap={ true }>
+						</FlexBlock>
+						<Flex direction="row" wrap={ true }>
 							{ resultImages.map( image => (
-								<FlexItem key={ image }>
-									<img
-										className="wp-block-ai-image-image"
-										src={ image }
-										alt=""
-										onClick={ () => saveImage( image ) }
-									/>
-								</FlexItem>
+								<ImageWithSelect image={ image } />
 							) ) }
 						</Flex>
-					</>
+					</Flex>
+				) }
+				{ ! loadingImages && imageModal && (
+					<Modal onRequestClose={ () => setImageModal( null ) }>
+						<ImageWithSelect image={ imageModal } withSelect={ false } />
+					</Modal>
 				) }
 				{ attributes.content && <div className="content">{ attributes.content }</div> }
 				{ loadingImages && (
-					<div style={ { padding: '10px', textAlign: 'center' } }>
+					<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
 						<Spinner
 							style={ {
 								height: 'calc(4px * 20)',
 								width: 'calc(4px * 20)',
 							} }
 						/>
-					</div>
+					</FlexBlock>
 				) }
 			</Placeholder>
 		</div>
