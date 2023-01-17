@@ -314,7 +314,6 @@ class Dashboard {
 		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return array();
 		}
-		// TODO: `1.0.0` is just a placeholder. Add required API and then replace with the actual version.
 		if ( version_compare( Main::VERSION, '0.4.0-alpha', '<' ) ) {
 			return array();
 		}
