@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
@@ -192,6 +193,49 @@ const VideoPressUploader = ( {
 
 		// Handle selection of Media Library regular attachment
 		if ( media.id ) {
+			/*
+			 * Check if the selected media is hosted in VideoPress,
+			 * based on the media URL.
+			 */
+			const isVideoPressUrl = media.url?.includes( 'files.wordpress.com' );
+			if ( isVideoPressUrl ) {
+				apiFetch( {
+					path: `wp/v2/media/${ media.id }`,
+				} )
+					.then( ( mediaItem = {} ) => {
+						const { jetpack_videopress: videopressDetails } = mediaItem;
+						if ( ! videopressDetails || Object.keys( videopressDetails ).length === 0 ) {
+							return;
+						}
+
+						const blockAttributes = {
+							id: media.id,
+							guid: videopressDetails.guid,
+							allowDownload: !! videopressDetails.allow_download,
+							title: videopressDetails.title,
+							description: videopressDetails.description,
+							displayEmbed: !! videopressDetails.display_embed,
+							privacySetting: videopressDetails.privacy_setting,
+							rating: videopressDetails.rating,
+						};
+
+						setAttributes( blockAttributes );
+
+						const { url } = buildVideoPressURL( videopressDetails.guid, blockAttributes );
+						onSelectURL( url, media.id );
+					} )
+					.catch( error => {
+						// ToDo" Better error handling
+						console.error( error ); // eslint-disable-line no-console
+					} );
+				return;
+			}
+
+			if ( isSimpleSite() ) {
+				// It should not try to move the file in Simple sites.
+				return;
+			}
+
 			const path = `videopress/v1/upload/${ media.id }`;
 
 			setIsVerifyingLocalMedia( true );
