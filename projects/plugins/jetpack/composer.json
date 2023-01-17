@@ -26,6 +26,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-device-detection": "@dev",
 		"automattic/jetpack-error": "@dev",
+		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-jitm": "@dev",
