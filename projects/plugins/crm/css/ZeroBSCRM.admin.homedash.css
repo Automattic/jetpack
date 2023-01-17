@@ -1,0 +1,468 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.12
+ *
+ * Copyright 2017, ZeroBSCRM.com
+ *
+ * Date: 19/08/2017
+ */
+.zbs-box {
+  height: 300px;
+  background: white;
+  box-shadow: 1px;
+  border: 1px solid #ddd;
+  padding-top: 10px;
+}
+
+.col-md-4 {
+  width: 30%;
+  margin-right: 3%;
+  float: left;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.title {
+  text-align: center;
+}
+
+.title .fa {
+  margin-right: 5px;
+}
+
+.zbs-box p {
+  text-align: center;
+  position: relative;
+}
+
+.zbs-button {
+  display: inline-block;
+  margin: 10px !important;
+}
+
+.video {
+  text-decoration: none;
+}
+
+.center {
+  text-align: center;
+}
+
+.zbs-pad {
+  margin: 5%;
+  text-align: center;
+}
+
+.intro {
+  font-size: 15px;
+  text-align: center;
+}
+
+.video {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+a, a:visited {
+  text-decoration: none;
+}
+
+a:focus {
+  outline: none;
+}
+
+.hide {
+  display: none;
+}
+
+@media all and (max-width: 699px) {
+  .col-md-4 {
+    width: 97%;
+    margin-right: 0%;
+    float: left;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+}
+.zbs-dash-header {
+  background: #3f4348;
+  padding-top: 15px;
+  padding-bottom: 20px;
+  padding-left: 30px;
+  color: white;
+  margin-left: -20px;
+}
+
+body {
+  background: #f5f5f5;
+}
+
+@media (min-width: 1200px) {
+  .col-lg-3 {
+    width: 25%;
+  }
+}
+@media (min-width: 1200px) {
+  .col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9 {
+    float: left;
+  }
+}
+h1, h2, h3, h4, h5, h6 {
+  color: #2a323c;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.col-lg-1, .col-lg-10, .col-lg-11, .col-lg-12, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-md-1, .col-md-10, .col-md-11, .col-md-12, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-sm-1, .col-sm-10, .col-sm-11, .col-sm-12, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-xs-1, .col-xs-10, .col-xs-11, .col-xs-12, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-6 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.text-muted {
+  color: #898989;
+}
+
+.zbs-white {
+  font-size: 18px;
+  line-height: 35px;
+}
+
+.zbs-h2 {
+  margin-top: -10px !important;
+}
+
+.col-md-4-db {
+  width: 33.33333333%;
+  float: left;
+  padding-right: 10px;
+}
+
+.col-md-8 {
+  width: 66.66666667%;
+  float: left;
+}
+
+.col-6 {
+  background: white;
+  width: 48%;
+  float: left;
+  margin-right: 2%;
+  border-radius: 3px;
+  margin-bottom: 20px;
+}
+
+#funnel-container {
+  position: relative;
+  padding: 20px;
+  padding-bottom: 96px;
+}
+
+.zbs-funnel {
+  position: relative;
+}
+
+.zbs-funnel .panel {
+  margin-bottom: 0px !important;
+  box-shadow: 0 0px 0px rgba(0, 0, 0, 0.05);
+}
+
+.zbs-funnel .funnel-label {
+  color: white;
+  font-weight: 900;
+}
+
+.progress {
+  -webkit-box-shadow: none !important;
+  background-color: #f5f5f5;
+  box-shadow: none !important;
+  height: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+#bar-chart {
+  margin-bottom: 6px;
+}
+
+.upsell {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  background: #00a0d2;
+  color: white;
+  padding: 5px;
+  font-size: 10px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.zbs-legend {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+  float: left;
+}
+
+.zbs-label {
+  float: left;
+  margin-right: 5px;
+}
+
+.funnel-legend {
+  float: left;
+  margin-right: 6px;
+  margin-bottom: 5px;
+  position: absolute;
+  bottom: 22px;
+}
+
+.upsell a, .upsell a:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.img-rounded {
+  border-radius: 50%;
+  float: left;
+  margin-right: 5px;
+}
+
+.zbs-s div {
+  background: #ddd;
+  color: white;
+  padding: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.zbs-lead div {
+  background: #222;
+}
+
+.zbs-contacted div {
+  background: #333;
+}
+
+.zbs-customer div {
+  background: #0073aa;
+}
+
+.zbs-upsell div {
+  background: #00a0d2;
+}
+
+.mar {
+  margin-top: 5px;
+}
+
+.when {
+  font-size: 11px;
+  font-weight: 300;
+  color: #ddd;
+}
+
+.learn {
+  margin-left: 10px;
+}
+
+.toplevel_page_zerobscrm-dash #zbs-v3prep-top-menu-notification {
+  margin: 0 !important;
+  margin-right: 0 !important;
+  margin-top: 0 !important;
+  background: #3f4347;
+  padding: 5px;
+  margin-left: -20px !important;
+  margin-bottom: -26px !important;
+  padding-left: 30px !important;
+  padding-right: 30px !important;
+}
+
+#reportrange {
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  margin-top: -3px;
+  width: 220px;
+  position: absolute;
+  right: 70px;
+  background: white;
+  top: -40px;
+  z-index: 2;
+  right: 60px !important;
+}
+
+.dashboard-customiser {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  top: -43px !important;
+  right: 20px;
+  background: white;
+  border-radius: 0px;
+  text-align: center;
+  padding: 4px 2px 3px 2px;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 2;
+  border: 1px solid #ccc;
+}
+
+.dashboard-custom-choices {
+  background-color: #fff;
+  border-radius: 6px;
+  position: relative;
+  box-shadow: 0 2px 5px 0 rgba(51, 51, 79, 0.07);
+  color: black;
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  border: 1px solid #e6e6ff;
+  z-index: 10;
+  max-height: 600px;
+  overflow-x: scroll;
+  min-width: 250px;
+  display: none;
+}
+
+.dashboard-custom-choices ul {
+  padding-top: 10px;
+}
+
+.dashboard-custom-choices ul li {
+  padding: 10px;
+}
+
+.dashboard-custom-choices label {
+  display: inline-block;
+  margin-bottom: 5px;
+  font-weight: 700;
+  color: #3f4347;
+}
+
+.dashboard-custom-choices ul li:hover {
+  background-color: #f1f1f1;
+}
+
+.dashboard-custom-choices input:focus {
+  outline: none;
+}
+
+.dashboard-custom-choices input {
+  margin-right: 15px;
+}
+
+body ::-webkit-scrollbar-track {
+  background: white;
+}
+
+.toplevel_page_zerobscrm-dash #wpcontent .grid {
+  padding-right: 20px !important;
+}
+
+.activity-feed {
+  padding: 15px;
+}
+
+.activity-feed .feed-item {
+  position: relative;
+  padding-bottom: 20px;
+  padding-left: 30px;
+  border-left: 2px solid #e4e8eb;
+}
+
+.activity-feed .feed-item:last-child {
+  border-color: transparent;
+}
+
+.activity-feed .feed-item:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #f37167;
+}
+
+.activity-feed .feed-item .date {
+  position: relative;
+  top: -5px;
+  color: #8c96a3;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.activity-feed .feed-item .text {
+  position: relative;
+  top: -3px;
+}
+
+#settings_dashboard_sales_funnel_display, #settings_dashboard_revenue_chart_display {
+  padding-bottom: 0px;
+}
+#settings_dashboard_sales_funnel_display .panel, #settings_dashboard_revenue_chart_display .panel {
+  border: 1px solid #ccd0d4 !important;
+  padding-left: 10px;
+}
+
+#settings_dashboard_sales_funnel_display {
+  margin-bottom: 15px;
+  padding-bottom: 68px;
+}
+
+.grid .row {
+  padding-bottom: 0px !important;
+  margin-bottom: -15px !important;
+}
+
+#settings_dashboard_latest_contacts_display .panel {
+  padding-bottom: 5px;
+}
+
+.contact-display-chooser .add-or-total {
+  position: absolute;
+  left: 60px;
+  top: 13px;
+}
+.contact-display-chooser .add-or-total .selected {
+  background-color: #01a0d2 !important;
+  color: white !important;
+  font-weight: 900 !important;
+}
+.contact-display-chooser .day-or-month {
+  position: absolute;
+  right: 60px;
+  top: 13px;
+}
+.contact-display-chooser .day-or-month .selected {
+  background-color: #01a0d2 !important;
+  color: white !important;
+  font-weight: 900 !important;
+}
+
+#crm_summary_numbers {
+  font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
+}
+#crm_summary_numbers .range_total {
+  color: #28a745;
+  font-weight: bold;
+  font-size: 1.28571429em;
+  margin-top: -0.21425em;
+  line-height: 1.28571429em;
+}
+#crm_summary_numbers .alltime_total {
+  font-weight: bold;
+  margin: 10px 0 0 0;
+}
+#crm_summary_numbers .ui.button {
+  background: #f6f7f7;
+}
