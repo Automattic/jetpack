@@ -6019,7 +6019,7 @@ endif;
 			),
 			'jetpack_are_blogging_prompts_enabled'         => array(
 				'replacement' => null,
-				'version'     => 'jetpack-$$next-version$$',
+				'version'     => 'jetpack-11.8.0',
 			),
 		);
 
