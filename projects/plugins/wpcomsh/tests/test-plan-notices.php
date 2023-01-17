@@ -46,7 +46,7 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		wpcomsh_plan_notices();
 		$string = ob_get_clean();
 
-		$this->assertContains( 'expires on ' . $plan_date, $string );
+		$this->assertStringContainsString( 'expires on ' . $plan_date, $string );
 
 		// Cleanup.
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );

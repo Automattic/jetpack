@@ -440,7 +440,7 @@ class Colors_Manager_Common {
 						// background is always available for back compat with core
 						$class = 'bg';
 					}
-					echo "<li data-role='{$cat}' class='{$class} clr' data-title='{$title}'>${change}</li>";
+					echo "<li data-role='{$cat}' class='{$class} clr' data-title='{$title}'>{$change}</li>";
 				}
 				?>
 			</ul>
