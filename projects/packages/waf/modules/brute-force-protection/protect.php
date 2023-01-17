@@ -5,8 +5,6 @@
  * @package automattic/jetpack-waf
  */
 
-namespace Automattic\Jetpack\Waf;
-
 use Automattic\Jetpack\Constants;
 
 require_once __DIR__ . '/shared-functions.php';
