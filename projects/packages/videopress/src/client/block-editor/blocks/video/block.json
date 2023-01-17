@@ -9,6 +9,7 @@
 	"description": "Embed a video from your media library or upload a new one with VideoPress.",
 	"supports": {
 		"align": true,
+		"anchor": true,
 		"spacing": {
 			"margin": true,
 			"padding": true
