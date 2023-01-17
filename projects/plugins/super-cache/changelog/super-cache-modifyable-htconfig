@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added the ability to set any header and mod_expires rules in the htaccess file via filters

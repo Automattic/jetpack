@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.5 - 2023-01-16
+### Improved compatibility
+- Blaze: update logic for showing the Advertising menu on Jetpack sites. [#28088]
+- Connection: add support for 'connection_disabled' error code. [#28334]
+
+### Bug fixes
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes. [#28342]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: make URL acceptance more liberal in admin menus. [#28301]
+- Docs: mention `jetpack_blocks_variation` filter in Beta Extensions doc. [#28382]
+- E2E tests: add test for Subscribe block. [#28289]
+- JSON Endpoint: introduce new '/sites/%s/dropdown-pages/' endpoint. [#28132]
+- Masterbar: update Blaze conditions to rely on the existing method from the package. [#28340]
+- Site Settings API: expose Jetpack's related posts 'show_date' and 'show_context' options. [#28305]
+- Tests: add user stories for Earn features for ease of testing. [#28283]
+- Updated package dependencies.
+- WPcom: add groundwork for AI Image block (beta). [#28339, #28338, #28321]
+
 ## 11.8-a.3 - 2023-01-12
 ### Bug fixes
 - Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus. [#28312]
@@ -33,6 +52,10 @@
 - Updated package dependencies.
 - Update Playwright version. [#28094]
 - WoA: disabled Odyssey Stats for Atomic sites. [#28180]
+
+## 11.7.1 - 2023-01-16
+### Bug fixes
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes. [#28342]
 
 ## [11.7] - 2023-01-10
 ### Enhancements
