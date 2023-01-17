@@ -684,13 +684,13 @@ class Jetpack_Gutenberg {
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
-				'is_active'                 => Jetpack::is_connection_ready(),
-				'is_current_user_connected' => $is_current_user_connected,
+				'is_active'                     => Jetpack::is_connection_ready(),
+				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
-				'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-				'is_private_site'           => '-1' === get_option( 'blog_public' ),
-				'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
-				'is_offline_mode'           => $status->is_offline_mode(),
+				'enable_upgrade_nudge'          => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+				'is_private_site'               => '-1' === get_option( 'blog_public' ),
+				'is_coming_soon'                => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
+				'is_offline_mode'               => $status->is_offline_mode(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -701,7 +701,15 @@ class Jetpack_Gutenberg {
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
-				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				/**
+				 * Enable the Paid Newsletters feature in the block editor context.
+				 *
+				 * @since $$next_version$$
+				 *
+				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
+				 */
+				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
