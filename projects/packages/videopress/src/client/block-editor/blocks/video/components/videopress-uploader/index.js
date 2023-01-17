@@ -186,7 +186,7 @@ const VideoPressUploader = ( {
 				? media.videopress_guid[ 0 ] // <- pick the first item when it's an array
 				: media.videopress_guid;
 
-			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
+			const { url: videoUrl } = buildVideoPressURL( videoGuid );
 			onSelectURL( videoUrl, media?.id );
 			return;
 		}
@@ -196,6 +196,7 @@ const VideoPressUploader = ( {
 			/*
 			 * Check if the selected media is hosted in VideoPress,
 			 * based on the media URL.
+			 * Dotcom Media Library doesn't provide the guid.
 			 */
 			const isVideoPressUrl = media.url?.includes( 'files.wordpress.com' );
 			if ( isVideoPressUrl ) {
