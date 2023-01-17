@@ -392,7 +392,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Get WordAds earning for the site.
+	 * Get detailed WordAds earnings information for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
 	 * @return array
@@ -407,9 +407,7 @@ class REST_Controller {
 				)
 			),
 			'v1.1',
-			array( 'timeout' => 5 ),
-			null,
-			'wpcom'
+			array( 'timeout' => 5 )
 		);
 	}
 
@@ -429,9 +427,7 @@ class REST_Controller {
 				)
 			),
 			'v1.1',
-			array( 'timeout' => 5 ),
-			null,
-			'wpcom'
+			array( 'timeout' => 5 )
 		);
 	}
 

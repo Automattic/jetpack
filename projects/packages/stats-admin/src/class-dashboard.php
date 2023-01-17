@@ -310,6 +310,10 @@ class Dashboard {
 	 * @return array An array of capabilities.
 	 */
 	protected function get_current_user_capatibilites() {
+		// Feature lock.
+		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {
+			return array();
+		}
 		// TODO: `1.0.0` is just a placeholder. Add required API and then replace with the actual version.
 		if ( version_compare( Main::VERSION, '1.0.0', '<=' ) ) {
 			return array();
