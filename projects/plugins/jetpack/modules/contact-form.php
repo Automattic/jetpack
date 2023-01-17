@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Contact form module.
  *
@@ -17,6 +20,11 @@
  * Feature: Writing
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
+
+if ( defined( 'JETPACK_BETA_BLOCKS' ) && JETPACK_BETA_BLOCKS ) {
+	Jetpack_Forms::load_contact_form();
+	return true; // Not returning true will cause the module to be deavtivated.
+}
 
 require_once __DIR__ . '/contact-form/grunion-contact-form.php';
 
