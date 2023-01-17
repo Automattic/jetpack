@@ -998,3 +998,32 @@ function jetpack_blog_subscriptions_init() {
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
+
+/**
+ * Sets the default value for `subscription_options` site option.
+ *
+ * This default value is available across Simple, Atomic and Jetpack sites,
+ * including the /sites/$site/settings endpoint.
+ *
+ * @param array  $default Default `subscription_options` array.
+ * @param string $option Option name.
+ * @param bool   $passed_default Whether `get_option()` passed a default value.
+ *
+ * @return array Default value of `subscription_options`.
+ */
+function subscription_options_fallback( $default, $option, $passed_default ) {
+	if ( $passed_default ) {
+		return $default;
+	}
+
+	$site_url    = get_home_url();
+	$display_url = preg_replace( '(^https?://)', '', untrailingslashit( $site_url ) );
+
+	return array(
+		/* translators: Both %1$s and %2$s is site address */
+		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
+		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+	);
+}
+
+add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );
