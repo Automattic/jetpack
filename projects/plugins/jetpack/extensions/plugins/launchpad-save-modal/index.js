@@ -6,41 +6,53 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getModalContentFromFlow, isModalSupportedByFlow } from './util';
+import { isModalSupportedByFlow } from './util';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const isSaving = useSelect(
+		const isSavingSite = useSelect(
 			select => select( editorStore ).isSavingNonPostEntityChanges(),
 			[]
 		);
-		const prevIsSaving = usePrevious( isSaving );
+		const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+
+		const prevIsSavingSite = usePrevious( isSavingSite );
+		const prevIsSavingPost = usePrevious( isSavingPost );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
-		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
+		const isInsideSiteOrBlockEditor =
+			document.getElementById( 'site-editor' ) !== null ||
+			document.querySelector( '.block-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 
-		const modalContent = getModalContentFromFlow( siteIntentOption );
-
 		useEffect( () => {
-			if ( prevIsSaving === true && isSaving === false ) {
-				setIsModalOpen( true );
+			const siteEditorSaved = prevIsSavingSite === true && isSavingSite === false;
+			const postEditorSaved = prevIsSavingPost === true && isSavingPost === false;
+
+			if ( siteEditorSaved || postEditorSaved ) {
+				/* When the user publishes their first post in the post editor, for some reason it triggers the onRequestClose function which immediately closes the modal
+				 * It might have to do with the URL changing from /post-new.php to /post.php and potentially unmounting the component
+				 * A simple workaround I found to be working is to delay the rendering of the modal so the URL has already been changed by then
+				 */
+				setTimeout( () => {
+					setIsModalOpen( true );
+				}, 200 );
 			}
-		}, [ isSaving, prevIsSaving ] );
+		}, [ isSavingSite, prevIsSavingSite, isSavingPost, prevIsSavingPost ] );
 
 		const showModal =
 			isModalSupportedByFlow( siteIntentOption ) &&
-			isInsideSiteEditor &&
+			isInsideSiteOrBlockEditor &&
 			launchpadScreenOption === 'full' &&
 			! dontShowAgain &&
 			isModalOpen;
@@ -51,14 +63,23 @@ export const settings = {
 					isDismissible={ true }
 					className="launchpad__save-modal"
 					onRequestClose={ () => {
-						setIsModalOpen( false );
-						setDontShowAgain( isChecked );
+						if ( ! window.location.href.includes( 'post-new' ) ) {
+							setIsModalOpen( false );
+							setDontShowAgain( isChecked );
+						}
 					} }
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
-							<h1 className="launchpad__save-modal-heading">{ modalContent.heading }</h1>
-							<p className="launchpad__save-modal-message">{ modalContent.body }</p>
+							<h1 className="launchpad__save-modal-heading">
+								{ __( 'Great progress!', 'jetpack' ) }
+							</h1>
+							<p className="launchpad__save-modal-message">
+								{ __(
+									'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
+									'jetpack'
+								) }
+							</p>
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
