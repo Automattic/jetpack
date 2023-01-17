@@ -23,6 +23,66 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+// Enabling THIS will start LOGGING PERFORMANCE TESTS
+// NOTE: This will do for EVERY page load, so just add temporarily else adds rolling DRAIN on sys
+// define( 'ZBSPERFTEST', 1 );
+
+if ( ! defined( 'ZBS_ROOTFILE' ) ) {
+	define( 'ZBS_ROOTFILE', __FILE__ );
+	define( 'ZBS_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+	define( 'ZBS_ROOTDIR', basename( __DIR__ ) );
+	define( 'ZBS_ROOTPLUGIN', ZBS_ROOTDIR . '/' . basename( ZBS_ROOTFILE ) );
+	define( 'ZBS_LANG_DIR', basename( __DIR__ ) . '/languages' );
+}
+
+/**
+ * Jetpack Autoloader.
+ */
+$jetpack_autoloader = ZBS_PLUGIN_DIR . 'vendor/autoload_packages.php';
+if ( is_readable( $jetpack_autoloader ) ) {
+	require_once $jetpack_autoloader;
+	if ( method_exists( \Automattic\Jetpack\Assets::class, 'alias_textdomains_from_file' ) ) {
+		\Automattic\Jetpack\Assets::alias_textdomains_from_file( ZBS_PLUGIN_DIR . 'jetpack_vendor/i18n-map.php' );
+	}
+} else {
+	// Something very unexpected. Error out gently with an admin_notice and exit loading.
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			__( 'Error loading autoloader file for Jetpack CRM plugin', 'zero-bs-crm' )
+		);
+	}
+
+	add_action(
+		'admin_notices',
+		function () {
+			?>
+			<div class="notice notice-error is-dismissible">
+				<p>
+					<?php
+					printf(
+						wp_kses(
+							/* translators: Placeholder is a link to a support document. */
+							__( 'Your installation of Jetpack CRM is incomplete. If you installed Jetpack CRM from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. Jetpack CRM must have Composer dependencies installed and built via the build command.', 'zero-bs-crm' ),
+							array(
+								'a' => array(
+									'href'   => array(),
+									'target' => array(),
+									'rel'    => array(),
+								),
+							)
+						),
+						'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+					);
+					?>
+				</p>
+			</div>
+			<?php
+		}
+	);
+
+	return;
+}
+
 /**
  * Performs some checks before the plugin activation
  *
@@ -138,30 +198,6 @@ function jpcrm_show_admin_notice( $notice_class, $message ) {
 	</div>
 	<?php
 }
-
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
-
-// ====================================================================
-// =========================== Definitions ============================
-
-// Enabling THIS will start LOGGING PERFORMANCE TESTS
-// NOTE: This will do for EVERY page load, so just add temporarily else adds rolling DRAIN on sys
-// define( 'ZBSPERFTEST', 1 );
-
-if ( ! defined( 'ZBS_ROOTFILE' ) ) {
-
-	define( 'ZBS_ROOTFILE', __FILE__ );
-	define( 'ZBS_ROOTDIR', basename( __DIR__ ) ); // zero-bs-crm
-	define( 'ZBS_ROOTPLUGIN', ZBS_ROOTDIR . '/' . basename( ZBS_ROOTFILE ) ); // zero-bs-crm/ZeroBSCRM.php
-	define( 'ZBS_LANG_DIR', basename( __DIR__ ) . '/languages' );
-
-}
-
-// ========================= / Definitions ============================
-// ====================================================================
 
 // ====================================================================
 // =================  Legacy (pre v2.53) Support ======================
