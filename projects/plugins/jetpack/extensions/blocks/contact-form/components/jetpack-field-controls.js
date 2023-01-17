@@ -34,7 +34,7 @@ const JetpackFieldControls = ( {
 		const parsedValue = parse( value, 10 );
 
 		setAttributes( {
-			[ key ]: ! isNaN( parsedValue ) ? parsedValue : undefined,
+			[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
 		} );
 	};
 

@@ -6,10 +6,10 @@ export const useJetpackFieldStyles = attributes => {
 		'--jetpack--contact-form--border-color': attributes.borderColor,
 		'--jetpack--contact-form--border-radius': isNumber( attributes.borderRadius )
 			? `${ attributes.borderRadius }px`
-			: null,
+			: '0px',
 		'--jetpack--contact-form--border-size': isNumber( attributes.borderWidth )
 			? `${ attributes.borderWidth }px`
-			: null,
+			: '0px',
 		'--jetpack--contact-form--input-background': attributes.fieldBackgroundColor,
 		'--jetpack--contact-form--font-size': attributes.fieldFontSize,
 		'--jetpack--contact-form--line-height': attributes.lineHeight,
@@ -24,8 +24,8 @@ export const useJetpackFieldStyles = attributes => {
 	const fieldStyle = {
 		backgroundColor: attributes.fieldBackgroundColor,
 		borderColor: attributes.borderColor,
-		borderRadius: attributes.borderRadius,
-		borderWidth: attributes.borderWidth,
+		borderRadius: isNumber( attributes.borderRadius ) ? attributes.borderRadius : 0,
+		borderWidth: isNumber( attributes.borderWidth ) ? attributes.borderWidth : 0,
 		color: attributes.inputColor,
 		fontSize: attributes.fieldFontSize,
 		lineHeight: attributes.lineHeight,
