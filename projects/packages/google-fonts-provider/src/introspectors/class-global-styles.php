@@ -19,7 +19,7 @@ class Global_Styles {
 	 * @return void
 	 */
 	public static function enqueue_global_styles_fonts() {
-		if ( is_admin() || ! function_exists( 'wp_enqueue_webfont' ) ) {
+		if ( is_admin() || !function_exists( 'wp_enqueue_webfont' ) ) {
 			return;
 		}
 
@@ -40,13 +40,14 @@ class Global_Styles {
 	 * @return array Font faces from Global Styles settings.
 	 */
 	public static function collect_fonts_from_global_styles() {
-		if ( ! function_exists( 'gutenberg_get_global_styles' ) ) {
-			return array();
+		if ( ! function_exists( 'gutenberg_get_global_styles' ) && ! function_exists( 'wp_get_global_styles' ) ) {
+			return [];
 		}
 
-		$global_styles = gutenberg_get_global_styles();
+		$global_styles = function_exists( 'wp_get_global_styles' ) ?
+			wp_get_global_styles() : gutenberg_get_global_styles();
 
-		$found_webfonts = array();
+		$found_webfonts = [];
 
 		// Look for fonts in block presets...
 		if ( isset( $global_styles['blocks'] ) ) {
@@ -88,7 +89,7 @@ class Global_Styles {
 	 * @return string|null
 	 */
 	protected static function extract_font_slug_from_setting( $setting ) {
-		if ( ! isset( $setting['typography']['fontFamily'] ) ) {
+		if ( !isset( $setting['typography']['fontFamily'] ) ) {
 			return null;
 		}
 
