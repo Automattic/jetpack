@@ -30,7 +30,7 @@ function discardSmallImages( images: MeasurableImage[] ) {
  * Initialize the AdminBarToggle component when the DOM is ready.
  */
 document.addEventListener( 'DOMContentLoaded', () => {
-	const adminBarToggle = document.getElementById( 'wp-admin-bar-jetpack-boost-image-guide' );
+	const adminBarToggle = document.getElementById( 'wp-admin-bar-jetpack-boost-guide' );
 	const link = adminBarToggle?.querySelector( 'a' );
 	if ( adminBarToggle && link ) {
 		const href = link.getAttribute( 'href' );
