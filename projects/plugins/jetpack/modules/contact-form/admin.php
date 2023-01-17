@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -1320,7 +1322,7 @@ class Grunion_Admin {
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
-					<?php esc_html_e( 'Download your response form data via CSV file.', 'jetpack' ); ?>
+					<?php esc_html_e( 'Download your form response data via CSV file.', 'jetpack' ); ?>
 				</div>
 				<div class="export-card__body-cta">
 					<?php

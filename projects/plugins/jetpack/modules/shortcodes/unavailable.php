@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Class Jetpack_Shortcode_Unavailable
  */

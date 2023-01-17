@@ -1,0 +1,32 @@
+{
+	"name": "@automattic/jetpack-crm",
+	"version": "5.5.2-alpha",
+	"description": "The CRM for WordPress",
+	"author": "Automattic",
+	"license": "GPL-2.0",
+	"scripts": {
+		"start": "npx wp-env start",
+		"stop": "npx wp-env stop",
+		"clean": "npx wp-env clean all"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/crm"
+	},
+	"devDependencies": {
+		"esm": "^3.2.25",
+		"gulp": "^4.0.2",
+		"gulp-autoprefixer": "^8.0.0",
+		"gulp-clean-css": "^4.3.0",
+		"gulp-rename": "^2.0.0",
+		"gulp-sass": "^5.0.0",
+		"gulp-uglify": "^3.0.2",
+		"sass": "^1.43.4",
+		"uglify-js": "^3.14.3"
+	},
+	"engines": {
+		"node": "^16.13.2",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

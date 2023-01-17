@@ -1,0 +1,53 @@
+/*!
+ * Jetpack CRM
+ * https://jetpackcrm.com
+ * V1.2.5
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 19/01/2017
+ */
+.zerobs-proposal-actions {
+  text-align: center;
+  margin: 30px 10px;
+  padding: 24px;
+}
+.zerobs-proposal-actions .zerobs-proposal-fielderr {
+  display: none;
+  text-align: center;
+  font-size: 0.8em;
+  color: orange;
+}
+.zerobs-proposal-actions .zerobs-proposal-highlight {
+  border: 2px solid orange !important;
+}
+.zerobs-proposal-actions input[type=text] {
+  margin-bottom: 14px;
+}
+
+.zerobs-proposal-fini {
+  display: none;
+  text-align: center;
+  margin: 30px 10px;
+  padding: 24px;
+}
+
+.zerobs-proposal-err {
+  display: none;
+  text-align: center;
+  color: orange;
+  margin: 30px 10px;
+  padding: 24px;
+}
+
+.zerobs-proposal-poweredby {
+  text-align: center;
+  margin: 20px 5px;
+  padding: 14px;
+  font-size: 0.9em;
+}
+.zerobs-proposal-poweredby img {
+  max-width: 32px;
+  display: inline-block !important;
+  vertical-align: middle;
+}

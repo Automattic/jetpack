@@ -2141,6 +2141,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Standard "ask for permission to continue" function.
  * If action cancelled, ask if they need help.

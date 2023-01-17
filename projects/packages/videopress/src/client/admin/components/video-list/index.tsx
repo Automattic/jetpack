@@ -11,7 +11,7 @@ import { useState } from 'react';
  */
 import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
 import Checkbox from '../checkbox';
-import ConnectVideoRow, { VideoRow, Stats } from '../video-row';
+import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
 /**
  * Types
@@ -151,7 +151,7 @@ export const LocalVideoList = ( {
 					return null;
 				}
 				return (
-					<VideoRow
+					<LocalVideoRow
 						key={ `local-video-${ video.id }` }
 						id={ video.id }
 						title={ video.title }
