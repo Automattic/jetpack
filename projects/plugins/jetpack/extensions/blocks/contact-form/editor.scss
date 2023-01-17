@@ -314,6 +314,30 @@
 		margin: 0 0.75rem 0 0
 	}
 
+	&.jetpack-field-multiple {
+		.jetpack-field-multiple__add-option {
+			margin: 0;
+			padding: 0;
+
+			.dashicon {
+				width: 1rem;
+				height: 1rem;
+				display: flex;
+				margin-left: 0;
+				margin-right: 0.75rem;
+
+				&:before {
+					font-size: 1rem;
+				}
+			}
+
+			svg {
+				margin-right: 12px;
+			}
+		}
+	}
+
+
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
 	}
@@ -390,16 +414,6 @@
 .jetpack-option__remove.jetpack-option__remove {
 	padding: 6px;
 	vertical-align: bottom;
-}
-
-.jetpack-field-multiple__add-option {
-	margin-left: -6px;
-	padding: 4px;
-	padding-right: 8px;
-
-	svg {
-		margin-right: 12px;
-	}
 }
 
 .jetpack-field .components-base-control__label {
@@ -599,7 +613,6 @@
 				position: relative;
 				top: 50%;
 				transform: translateY(-50%);
-				pointer-events: none;
 				will-change: transform;
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 				margin: 0;
@@ -724,7 +737,7 @@
 
 			&.is-selected, &.has-placeholder {
 				.animated-label__label {
-					font-size: 0.8em;
+					font-size: 0.75em;
 					transform: translateY(0);
 					top: 2px;
 				}

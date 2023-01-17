@@ -494,7 +494,7 @@
 .contact-form .is-style-animated .grunion-field-wrap *:not(:placeholder-shown) ~ .animated-label__label,
 .contact-form .is-style-animated .grunion-field-wrap *.has-placeholder ~ .animated-label__label
 {
-	font-size: 0.8em;
+	font-size: 0.75em;
 	transform: translateY(0);
 	top: 2px;
 }
