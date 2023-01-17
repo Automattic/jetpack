@@ -1907,7 +1907,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
-      react-router-dom: 6.6.2
+      react-router-dom: 6.2.2
       sass: 1.43.3
       sass-loader: 12.4.0
       webpack: 5.72.1
@@ -1932,7 +1932,7 @@ importers:
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-router-dom: 6.6.2_sfoxds7t5ydpegc3knd667wn6m
+      react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.20.7
@@ -8961,7 +8961,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.24.0
+      '@wordpress/html-entities': 3.22.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/is-shallow-equal': 4.23.0
@@ -9582,7 +9582,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.24.0
+      '@wordpress/html-entities': 3.22.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/keyboard-shortcuts': 3.20.0_react@17.0.2
@@ -19901,6 +19901,18 @@ packages:
       tiny-warning: 1.0.3
     dev: false
 
+  /react-router-dom/6.2.2_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-AtYEsAST7bDD4dLSQHDnk/qxWLJdad5t1HFa1qJyUrCeGgEuCSw0VB/27ARbF9Fi/W5598ujvJOm3ujUCVzuYQ==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-router: 6.2.2_react@17.0.2
+    dev: false
+
   /react-router-dom/6.6.2_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-6SCDXxRQqW5af8ImOqKza7icmQ47/EMbz572uFjzvcArg3lZ+04PxSPp8qGs+p2Y+q+b+S/AjXv8m8dyLndIIA==}
     engines: {node: '>=14'}
@@ -19929,6 +19941,15 @@ packages:
       react-is: 16.13.1
       tiny-invariant: 1.3.1
       tiny-warning: 1.0.3
+    dev: false
+
+  /react-router/6.2.2_react@17.0.2:
+    resolution: {integrity: sha512-/MbxyLzd7Q7amp4gDOGaYvXwhEojkJD5BtExkuKmj39VEE0m3l/zipf6h2WIB2jyAO0lI6NGETh4RDcktRm4AQ==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
     dev: false
 
   /react-router/6.6.2_react@17.0.2:
