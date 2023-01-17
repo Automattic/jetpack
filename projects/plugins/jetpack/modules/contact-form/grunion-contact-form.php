@@ -1364,7 +1364,8 @@ class Grunion_Contact_Form_Plugin {
 		$mapped_fields = array();
 
 		$field_mapping = array(
-			'_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
+			// TODO: Commented out since we'll be re-introducing this after some other changes
+			// '_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
 			'_feedback_author'       => '1_Name',
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
