@@ -40,6 +40,11 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-forms",
+		"changelogger": {
+			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
+		},
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
