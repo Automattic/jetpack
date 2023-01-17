@@ -315,7 +315,7 @@ class Dashboard {
 			return array();
 		}
 		// TODO: `1.0.0` is just a placeholder. Add required API and then replace with the actual version.
-		if ( version_compare( Main::VERSION, '1.0.0', '<=' ) ) {
+		if ( version_compare( Main::VERSION, '0.4.0-alpha', '<' ) ) {
 			return array();
 		}
 		$user = wp_get_current_user();
