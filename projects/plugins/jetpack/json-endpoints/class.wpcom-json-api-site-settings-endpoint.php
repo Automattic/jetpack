@@ -440,7 +440,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
-						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
 						'subscription_options'             => (array) get_option( 'subscription_options', array() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
@@ -1003,11 +1002,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'wpcom_featured_image_in_email':
 					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
-					break;
-
-				case 'jetpack_are_blogging_prompts_enabled':
-					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
-					$updated[ $key ] = (bool) $value;
 					break;
 
 				case 'show_on_front':
