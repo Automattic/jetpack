@@ -160,8 +160,7 @@ class Tracking {
 	 * @param string $login Username or email address.
 	 */
 	public function wp_login_failed( $login ) {
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-		// require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/protect/shared-functions.php';
+		require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php';
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
