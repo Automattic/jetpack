@@ -416,16 +416,20 @@
 	border-left: none;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap *:focus ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap *:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
-.contact-form .is-style-outlined .grunion-field-wrap *.has-placeholder ~ .notched-label .notched-label__notch
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__notch,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__notch
 {
 	border-top-color: transparent;
 }
 
-.contact-form .is-style-outlined .grunion-field-wrap *:focus ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap *:not(:placeholder-shown) ~ .notched-label .notched-label__label,
-.contact-form .is-style-outlined .grunion-field-wrap *.has-placeholder ~ .notched-label .notched-label__label
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:focus ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-field.has-placeholder ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options ~ .notched-label .notched-label__label,
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options ~ .notched-label .notched-label__label
 {
 	top: 0;
 	transform: translateY(-50%);
@@ -490,9 +494,11 @@
 	top: var(--jetpack--contact-form--input-padding-top);
 }
 
-.contact-form .is-style-animated .grunion-field-wrap *:focus ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap *:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap *.has-placeholder ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label
 {
 	font-size: 0.75em;
 	transform: translateY(0);

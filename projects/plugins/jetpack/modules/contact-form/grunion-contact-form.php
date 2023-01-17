@@ -4761,6 +4761,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+		$class .= ' grunion-field';
+
 		if ( $type === 'select' ) {
 			$class .= ' contact-form-dropdown';
 		}
@@ -4783,10 +4785,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 
 		if ( empty( $label ) ) {
-			$wrap_classes .= 'no-label';
+			$wrap_classes .= ' no-label';
 		}
 
-		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
+		$shell_field_class = "class='grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
