@@ -62,7 +62,7 @@ class Jetpack_Network {
 	 */
 	private function __construct() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php'; // For the is_plugin... check.
-		require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php'; // For managing the global whitelist.
+		require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php'; // For managing the global whitelist.
 
 		/**
 		 * Sanity check to ensure the install is Multisite and we
