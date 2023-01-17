@@ -733,7 +733,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_protect_key':
 					require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/protect.php';
-					$protect = Jetpack_Protect_Module::instance();
+					$protect = Brute_Force_Protection_Module::instance();
 					if ( 'create' === $value ) {
 						$result = $protect->get_protect_key();
 					} else {

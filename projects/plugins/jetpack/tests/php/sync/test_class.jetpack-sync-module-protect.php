@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$user = get_userdata( $user_id );
 
-		Jetpack_Protect_Module::instance()->log_failed_attempt( $user->user_email );
+		Brute_Force_Protection_Module::instance()->log_failed_attempt( $user->user_email );
 
 		$this->sender->do_sync();
 
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$user = get_userdata( $user_id );
 		Constants::set_constant( 'XMLRPC_REQUEST', true ); // fake xmlrpc request
-		Jetpack_Protect_Module::instance()->log_failed_attempt( $user->user_email );
+		Brute_Force_Protection_Module::instance()->log_failed_attempt( $user->user_email );
 		Constants::clear_single_constant( 'XMLRPC_REQUEST' );
 		$this->sender->do_sync();
 
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sends_failed_login_empty_message() {
-		Jetpack_Protect_Module::instance()->log_failed_attempt();
+		Brute_Force_Protection_Module::instance()->log_failed_attempt();
 
 		$this->sender->do_sync();
 

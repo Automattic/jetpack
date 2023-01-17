@@ -12,12 +12,12 @@ require_once __DIR__ . '/shared-functions.php';
 /**
  * Jetpack Protect module class.
  */
-class Jetpack_Protect_Module {
+class Brute_Force_Protection_Module {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Jetpack_Protect_Module()
+	 * @var Brute_Force_Protection_Module()
 	 */
 	private static $instance = null;
 
@@ -102,8 +102,8 @@ class Jetpack_Protect_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Jetpack_Protect_Module' ) ) {
-			self::$instance = new Jetpack_Protect_Module();
+		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Module' ) ) {
+			self::$instance = new Brute_Force_Protection_Module();
 		}
 
 		return self::$instance;
@@ -130,7 +130,7 @@ class Jetpack_Protect_Module {
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 
 			include_once __DIR__ . '/math-fallback.php';
-			new Waf_Brute_Force_Protection_Math_Authenticate();
+			new Brute_Force_Protection_Math_Authenticate();
 		}
 
 		// Runs a script every day to clean up expired transients so they don't
@@ -455,7 +455,7 @@ class Jetpack_Protect_Module {
 		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 
 			include_once __DIR__ . '/math-fallback.php';
-			Waf_Brute_Force_Protection_Math_Authenticate::math_authenticate();
+			Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
 
 		return $user;
@@ -563,7 +563,7 @@ class Jetpack_Protect_Module {
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
 				include_once __DIR__ . '/math-fallback.php';
-				new Waf_Brute_Force_Protection_Math_Authenticate();
+				new Brute_Force_Protection_Math_Authenticate();
 
 				return false;
 			}
@@ -682,7 +682,7 @@ class Jetpack_Protect_Module {
 		}
 
 		include_once __DIR__ . '/math-fallback.php';
-		new Waf_Brute_Force_Protection_Math_Authenticate();
+		new Brute_Force_Protection_Math_Authenticate();
 
 		return false;
 	}
@@ -725,7 +725,7 @@ class Jetpack_Protect_Module {
 		}
 
 		require_once __DIR__ . '/blocked-login-page.php';
-		$blocked_login_page = Waf_Brute_Force_Protection_Blocked_Login_Page::instance( $ip );
+		$blocked_login_page = Brute_Force_Protection_Blocked_Login_Page::instance( $ip );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
 			return;
@@ -741,7 +741,7 @@ class Jetpack_Protect_Module {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
 			include_once __DIR__ . '/math-fallback.php';
-			new Waf_Brute_Force_Protection_Math_Authenticate();
+			new Brute_Force_Protection_Math_Authenticate();
 		}
 	}
 
