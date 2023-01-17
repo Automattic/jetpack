@@ -290,7 +290,7 @@ if ( isset( $sbupdated ) ) {
 				<td class="wfieldname">
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
 					<label for="inv_pdf_template"><?php esc_html_e( 'Invoice PDF Template', 'zero-bs-crm' ); ?>:</label><br />
-					<?php esc_html_e( 'Select a template for invoice PDFs.', 'zero-bs-crm' ); ?>                    
+					<?php esc_html_e( 'Select a template for invoice PDFs.', 'zero-bs-crm' ); ?>
 				</td>
 				<td>
 				<?php
@@ -437,7 +437,7 @@ if ( isset( $sbupdated ) ) {
 				<td class="wfieldname">
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
 					<label for="statement_pdf_template"><?php esc_html_e( 'Statement PDF Template', 'zero-bs-crm' ); ?>:</label><br />
-					<?php esc_html_e( 'Select a template for statement PDFs.', 'zero-bs-crm' ); ?>                    
+					<?php esc_html_e( 'Select a template for statement PDFs.', 'zero-bs-crm' ); ?>
 				</td>
 				<td>
 				<?php
@@ -476,7 +476,7 @@ if ( isset( $sbupdated ) ) {
 				<td colspan="2">
 					<p style="text-align:center"><?php esc_html_e( 'Looking for easy-access link settings? You can turn configure those via the Client Portal settings page.', 'zero-bs-crm' ); ?></p>
 					<p style="text-align:center">
-						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- jpcrm_esc_link escapes ?>&tab=clients" class="ui mini button blue"><?php esc_html_e( 'View Client Portal Settings', 'zero-bs-crm' ); ?></a>
+						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] ); ?>&tab=clients" class="ui mini button blue"><?php esc_html_e( 'View Client Portal Settings', 'zero-bs-crm' ); ?></a>
 						<?php // WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['easyaccessguide'] ); ?>" target="_blank" class="ui mini button green"><?php esc_html_e( 'View Easy-Access Links Guide', 'zero-bs-crm' ); ?></a>
 						<?php // /WLREMOVE ?>

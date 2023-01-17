@@ -388,7 +388,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managecontacts'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 
 					<?php if ( zeroBSCRM_permsCustomers() ) { // CONTACT TAGS ?>
-					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_customer', false, 'contact' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- jpcrm_esc_link does escape ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
+					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_customer', false, 'contact' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
 					<?php if ( zeroBSCRM_permsCustomers() && $zbs->isDAL2() ) { // CONTACT SEGMENTS ?>
@@ -477,7 +477,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managequotes'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 					
 					<?php if ( zeroBSCRM_permsQuotes() && $zbs->isDAL3() ) { // TAGS ?>
-					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, ZBS_TYPE_QUOTE, false, 'quote' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- jpcrm_esc_link does escape ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
+					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, ZBS_TYPE_QUOTE, false, 'quote' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
 						<?php if ( zeroBSCRM_permsQuotes() ) { ?>
