@@ -252,7 +252,7 @@ class Waf_Rules_Manager {
 	 * @param string $ips List of ips - example: "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555".
 	 * @return array List of valid IP addresses. - example based on input example: array('8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9')
 	 */
-	private static function ip_option_to_array( $ips ) {
+	public static function ip_option_to_array( $ips ) {
 		$ips = (string) $ips;
 		$ips = preg_split( '/[\s,;]/', $ips );
 
