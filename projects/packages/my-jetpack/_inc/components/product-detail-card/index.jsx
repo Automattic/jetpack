@@ -92,6 +92,8 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
 		wpcomFreeProductSlug,
+		isIntroductoryOffer,
+		introductoryOffer,
 	} = pricingForUi;
 
 	const { recordEvent } = useAnalytics();
@@ -144,6 +146,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					return <SupportedProductIcon key={ iconSlug } size={ 24 } />;
 				} )
 		: null;
+
+	const priceDescription =
+		isIntroductoryOffer && introductoryOffer.intervalUnit === 'month'
+			? __( 'for the first month, billed yearly', 'jetpack-my-jetpack' )
+			: __( '/month, paid yearly', 'jetpack-my-jetpack' );
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
@@ -224,9 +231,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
-						<Text className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-						</Text>
+						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>
 				) }
 
