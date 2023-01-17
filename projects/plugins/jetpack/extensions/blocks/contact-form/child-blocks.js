@@ -52,9 +52,11 @@ const FieldDefaults = {
 		},
 		borderRadius: {
 			type: 'number',
+			default: 0,
 		},
 		borderWidth: {
 			type: 'number',
+			default: 0,
 		},
 		labelFontSize: {
 			type: 'string',
