@@ -176,19 +176,19 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.6.0 - 2022-12-05
+### 1.7.0 - 2023-01-17
 #### Added
-- General: New deactivation survey.
-- General: New tracks events for upgrade CTA impressions.
-- Super Cache: Added a tool for measuring the impact of Super Cache on your site performance.
-- Usability: Prompt new users to setup Boost after plugin activation.
+- New Feature: Jetpack Boost Image Guide.
+- General: Add a notification bubble next to Boost in the WP-admin sidebar.
+- General: Added new tracks events.
+- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
 
 #### Fixed
-- Fixed an error on navigating to the getting-started page
-- Fixed issues in Super Cache measurement tool on some URLs
-- General: Fix showing discount markers on pricing options without a discount.
-- General: Remove invalid link to priority support for free users.
-- Speed Score: Fix un-clickable link to dismiss speed score popups.
+- Admin notices: only display regeneration notice to admins.
+- Compatibility: Improve critical CSS compatibility with older Safari browsers.
+- General: Don't let analytics failures prevent features from functioning.
+- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
+- General: Fix woocommerce deprecation warning.
 
 --------
 
