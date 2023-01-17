@@ -31,7 +31,7 @@ Improving Core Web Vitals helps you rank higher on Google. A faster website also
 
 ### Performance Modules
 
-Optimise your website with the same techniques used on the world's most successful websites.
+Optimize your website with the same techniques used on the world's most successful websites.
 
 Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
 
