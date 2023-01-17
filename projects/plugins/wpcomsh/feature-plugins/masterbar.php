@@ -238,6 +238,16 @@ function wpcomsh_update_plugin_link_destination( $url, $path ) {
 		return $url;
 	}
 
+	// If Jetpack doesn't exist, stay in wp-admin
+	if ( ! class_exists( 'Jetpack' ) ) {
+		return $url;
+	}
+
+	// Run only if SSO is active
+	if ( ! Jetpack::is_module_active( 'sso' ) ) {
+		return $url;
+	}
+
 	// Return WP Admin url for example: plugin-install.php?tab=plugin-information&plugin=classic-editor&TB_iframe=true&width=600&height=550
 	if ( strpos( $path, '?' ) ) {
 		return $url;
