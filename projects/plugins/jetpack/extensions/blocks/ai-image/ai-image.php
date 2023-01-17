@@ -52,7 +52,7 @@ function load_assets( $attr, $content ) {
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',
-		esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
 		$content
 	);
 }
