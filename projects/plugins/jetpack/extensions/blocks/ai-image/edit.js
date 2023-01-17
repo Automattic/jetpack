@@ -13,6 +13,13 @@ import {
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { dalleExamplePrompts } from './dalle-example-prompts';
+
+function getRandomItem( arr ) {
+	// get random index value
+	const randomIndex = Math.floor( Math.random() * arr.length );
+	return arr[ randomIndex ];
+}
 
 function getImagesFromOpenAI(
 	prompt,
@@ -60,6 +67,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ prompt, setPrompt ] = useState( '' );
 	const { replaceBlock } = useDispatch( blockEditorStore );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
+	const [ placeholder ] = useState( getRandomItem( dalleExamplePrompts ) );
 
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -69,14 +77,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		};
 	}, [] );
 
-	const submit = () =>
+	const submit = () => {
+		setErrorMessage( '' );
 		getImagesFromOpenAI(
-			prompt,
+			prompt.trim() === '' ? placeholder : prompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
 			setErrorMessage
 		);
+	};
 
 	return (
 		<div { ...useBlockProps() }>
@@ -88,17 +98,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					<TextareaControl
 						label={ __( 'What would you like to see?', 'jetpack' ) }
 						value={ prompt }
+						placeholder={ placeholder }
 						onChange={ setPrompt }
 					/>
 					<Flex direction="row">
 						<FlexItem>
-							<Button
-								variant="primary"
-								onClick={ () => {
-									setErrorMessage( '' );
-									submit();
-								} }
-							>
+							<Button variant="primary" onClick={ submit }>
 								{ __( 'Retry', 'jetpack' ) }
 							</Button>
 						</FlexItem>
@@ -110,6 +115,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					<div>
 						<TextareaControl
 							label={ __( 'What would you like to see?', 'jetpack' ) }
+							placeholder={ placeholder }
 							onChange={ setPrompt }
 						/>
 						<Button variant="primary" onClick={ submit }>

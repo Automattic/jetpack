@@ -58,7 +58,8 @@ class REST_Controller {
 		$message = 'Rules updated succesfully';
 
 		try {
-			Waf_Runner::generate_rules();
+			Waf_Rules_Manager::generate_automatic_rules();
+			Waf_Rules_Manager::generate_rules();
 		} catch ( \Exception $e ) {
 			$success = false;
 			$message = $e->getMessage();
@@ -86,19 +87,24 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function update_waf( $request ) {
+		// Automatic Rules Enabled
+		if ( isset( $request[ Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+		}
+
 		// IP Lists Enabled
-		if ( isset( $request[ Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Runner::IP_LISTS_ENABLED_OPTION_NAME ) );
+		if ( isset( $request[ Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ) );
 		}
 
 		// IP Block List
-		if ( isset( $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Runner::IP_BLOCK_LIST_OPTION_NAME ] );
+		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] );
 		}
 
 		// IP Allow List
-		if ( isset( $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Runner::IP_ALLOW_LIST_OPTION_NAME ] );
+		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] );
 		}
 
 		// Share Data

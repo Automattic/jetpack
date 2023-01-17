@@ -14,6 +14,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Waf\Waf_Compatibility;
 
 /**
  * Disable direct access.
@@ -2271,6 +2272,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// WAF.
+			'jetpack_waf_automatic_rules'          => array(
+				'description'       => esc_html__( 'Enable automatic rules - Protect your site against untrusted traffic sources with automatic security rules.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => Waf_Compatibility::get_default_automatic_rules_option(),
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'waf',
+			),
 			'jetpack_waf_ip_list'                  => array(
 				'description'       => esc_html__( 'Allow / Block list - Block or allow a specific request IP.', 'jetpack' ),
 				'type'              => 'boolean',
