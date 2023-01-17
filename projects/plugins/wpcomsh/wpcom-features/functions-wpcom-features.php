@@ -103,9 +103,13 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		// Allow overriding the blog ID for feature checks.
 		$blog_id               = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 		$unformatted_purchases = \A8C\Billingdaddy\Container::get_purchases_api()->get_purchases_for_site( (int) $blog_id );
-		$product_cache         = Store_Product_List::get_from_cache();
-		$purchases             = array();
-		$product_catalog       = \A8C\Billingdaddy\Container::get_product_catalog_api();
+		if ( empty( $unformatted_purchases ) ) {
+			return array();
+		}
+
+		$product_cache   = Store_Product_List::get_from_cache();
+		$purchases       = array();
+		$product_catalog = \A8C\Billingdaddy\Container::get_product_catalog_api();
 
 		foreach ( $unformatted_purchases as $unformatted_purchase ) {
 			if ( empty( $product_cache[ $unformatted_purchase->product_id ] ) ) {
