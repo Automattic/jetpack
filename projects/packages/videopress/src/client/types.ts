@@ -93,6 +93,13 @@ export type WPV2mediaGetEndpointResponseProps = {
 /*
  * https://public-api.wordpress.com/rest/v1.1/videos/${ guid }
  */
+export type WPCOMRestAPIVideosGetEndpointRequestArguments = {
+	metadata_token?: string;
+	birth_day?: string;
+	birth_month?: string;
+	birth_year?: string;
+};
+
 export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	// source_url: string;
 

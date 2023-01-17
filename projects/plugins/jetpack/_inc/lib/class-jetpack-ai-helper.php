@@ -71,7 +71,7 @@ class Jetpack_AI_Helper {
 		/**
 		 * Filter whether the AI features are enabled in the Jetpack plugin.
 		 *
-		 * @since $$next-version$$
+		 * @since 11.8
 		 *
 		 * @param bool $default Are AI features enabled? Defaults to false.
 		 */
