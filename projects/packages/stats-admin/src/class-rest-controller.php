@@ -168,6 +168,7 @@ class REST_Controller {
 	 * Only administrators or users with capability `activate_wordads` can access the API.
 	 */
 	public function can_user_view_wordads_stats_callback() {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ) ) {
 			return true;
 		}
