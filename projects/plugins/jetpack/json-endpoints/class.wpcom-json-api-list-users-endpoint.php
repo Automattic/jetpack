@@ -163,8 +163,8 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
-		$return          = array();
-		$include_viewers = (bool) $args['include_viewers'];
+		$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$include_viewers = (bool) $args['include_viewers'] && $is_wpcom;
 
 		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
 		$viewers = $include_viewers ? get_private_blog_users(
@@ -188,6 +188,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			);
 		}
 
+		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found':
