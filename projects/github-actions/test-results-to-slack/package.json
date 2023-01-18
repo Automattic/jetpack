@@ -31,7 +31,7 @@
 		"test-coverage": "jest --config=tests/jest.config.js --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

@@ -51,7 +51,7 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
