@@ -781,8 +781,6 @@ abstract class SAL_Post {
 		$user = get_user_by( 'id', $this->post->post_author );
 
 		if ( ! $user || is_wp_error( $user ) ) {
-			trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
 			return null;
 		}
 
