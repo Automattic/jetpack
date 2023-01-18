@@ -403,7 +403,10 @@ export default function VideoPressEdit( {
 
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
+				return;
 			}
+
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
 		return (
