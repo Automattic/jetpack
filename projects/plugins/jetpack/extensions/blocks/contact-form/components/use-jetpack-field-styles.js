@@ -18,17 +18,12 @@ export const useJetpackFieldStyles = attributes => {
 	const fieldStyle = {
 		backgroundColor: attributes.fieldBackgroundColor,
 		borderColor: attributes.borderColor,
+		borderRadius: isNumber( attributes.borderRadius ) ? attributes.borderRadius : null,
+		borderWidth: isNumber( attributes.borderWidth ) ? attributes.borderWidth : null,
 		color: attributes.inputColor,
 		fontSize: attributes.fieldFontSize,
 		lineHeight: attributes.lineHeight,
 	};
-
-	if ( isNumber( attributes.borderRadius ) ) {
-		fieldStyle.borderRadius = attributes.borderRadius;
-	}
-	if ( isNumber( attributes.borderWidth ) ) {
-		fieldStyle.borderWidth = attributes.borderWidth;
-	}
 
 	return {
 		blockStyle,
