@@ -500,6 +500,27 @@ class Users extends Module {
 				$this->flags[ $user_id ]['email_changed'] = true;
 			}
 		}
+		if ( null !== $old_user && $user->user_login !== $old_user->user_login ) {
+			$this->flags[ $user_id ]['login_changed'] = true;
+		}
+		if ( null !== $old_user && $user->user_nicename !== $old_user->user_nicename ) {
+			$this->flags[ $user_id ]['nicename_changed'] = true;
+		}
+		if ( null !== $old_user && $user->user_url !== $old_user->user_url ) {
+			$this->flags[ $user_id ]['url_changed'] = true;
+		}
+		if ( null !== $old_user && $user->user_registered !== $old_user->user_registered ) {
+			$this->flags[ $user_id ]['registration_date_changed'] = true;
+		}
+		if ( null !== $old_user && $user->user_activation_key !== $old_user->user_activation_key ) {
+			$this->flags[ $user_id ]['activation_key_changed'] = true;
+		}
+		if ( null !== $old_user && $user->user_status !== $old_user->user_status ) {
+			$this->flags[ $user_id ]['status_changed'] = true;
+		}
+		if ( null !== $old_user && $user->display_name !== $old_user->display_name ) {
+			$this->flags[ $user_id ]['display_name_changed'] = true;
+		}
 
 		if ( isset( $this->flags[ $user_id ] ) ) {
 
