@@ -371,12 +371,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 										<div class="content">
 										<div class="header">
 											Noto Sans <?php esc_html_e( '(Installed by default)', 'zero-bs-crm' ); ?> 
-											<a href="
-											<?php
-											$url = '?page=' . $zbs->slugs['settings'] . '&tab=locale&reinstall_default_font=1';
-											echo esc_url( add_query_arg( '_wpnonce', wp_create_nonce( 'zbs-update-settings-reinstall-font' ), $url ) );
-											?>
-											" class="ui right floated mini icon button" title="<?php esc_attr_e( 'Reinstall default fonts', 'zero-bs-crm' ); ?>"><i class="sync icon"></i></a>
+											<?php $url = '?page=' . $zbs->slugs['settings'] . '&tab=locale&reinstall_default_font=1'; ?>
+											<a href="<?php echo esc_url( add_query_arg( '_wpnonce', wp_create_nonce( 'zbs-update-settings-reinstall-font' ), $url ) ); ?>" class="ui right floated mini icon button" title="<?php esc_attr_e( 'Reinstall default fonts', 'zero-bs-crm' ); ?>"><i class="sync icon"></i></a>
 										</div>
 										<!-- from https://fonts.google.com/noto/specimen/Noto+Sans -->
 										<?php esc_html_e( 'Noto Sans is an unmodulated ("sans serif") design for texts in the Latin, Cyrillic and Greek scripts, which is also suitable as the complementary choice for other script-specific Noto Sans fonts.', 'zero-bs-crm' ); ?>
@@ -397,13 +393,9 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 										$font_name     = $fonts->font_slug_to_name( $font_slug );
 										$font_css_name = str_replace( ' ', '', $font_name ); // e.g. NotoSansJP;
 										echo esc_html( $font_name ) . ' <code>' . esc_html( $font_css_name ) . '</code>';
+										$url = '?page=' . $zbs->slugs['settings'] . '&tab=locale&reinstall_font=' . $fonts->font_slug_to_name( $font_slug );
 										?>
-											<a href="
-											<?php
-											$url = '?page=' . $zbs->slugs['settings'] . '&tab=locale&reinstall_font=' . $fonts->font_slug_to_name( $font_slug );
-											echo esc_url( add_query_arg( '_wpnonce', wp_create_nonce( 'zbs-update-settings-reinstall-font' ), $url ) );
-											?>
-											" class="ui right floated mini icon button" title="<?php esc_attr_e( 'Reinstall font', 'zero-bs-crm' ); ?>"><i class="sync icon"></i></a>
+											<a href="<?php echo esc_url( add_query_arg( '_wpnonce', wp_create_nonce( 'zbs-update-settings-reinstall-font' ), $url ) ); ?>" class="ui right floated mini icon button" title="<?php esc_attr_e( 'Reinstall font', 'zero-bs-crm' ); ?>"><i class="sync icon"></i></a>
 										</div>
 										</div>
 									</div>

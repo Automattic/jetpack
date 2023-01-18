@@ -318,7 +318,7 @@ class Status {
 	 * Whether the site is currently private or not.
 	 * On WordPress.com and WoA, sites can be marked as private
 	 *
-	 * @since $$next-version$$
+	 * @since 1.16.0
 	 *
 	 * @return bool True if the site is private.
 	 */
@@ -336,7 +336,7 @@ class Status {
 	 * Whether the site is currently unlaunched or not.
 	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
 	 *
-	 * @since $$next-version$$
+	 * @since 1.16.0
 	 *
 	 * @return bool True if the site is not launched.
 	 */

@@ -6017,6 +6017,10 @@ endif;
 				'replacement' => null,
 				'version'     => 'jetpack-11.8.0',
 			),
+			'jetpack_are_blogging_prompts_enabled'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
+			),
 		);
 
 		foreach ( $filter_deprecated_list as $tag => $args ) {

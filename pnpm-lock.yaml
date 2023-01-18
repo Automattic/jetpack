@@ -1270,6 +1270,7 @@ importers:
       '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0
       '@wordpress/element': 4.20.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.22.0
       '@wordpress/icons': 9.13.0
       '@wordpress/url': 3.23.0
@@ -1312,6 +1313,7 @@ importers:
       '@wordpress/dom-ready': 3.22.0
       '@wordpress/editor': 12.21.0_qi72e2chmmemxbokngy4ve2xaa
       '@wordpress/element': 4.20.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.22.0
       '@wordpress/icons': 9.13.0
       '@wordpress/url': 3.23.0
@@ -4981,6 +4983,7 @@ packages:
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
     engines: {node: '>=0.1.90'}
+    requiresBuild: true
     dev: true
 
   /@dabh/diagnostics/2.0.3:
@@ -8956,7 +8959,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/is-shallow-equal': 4.23.0
@@ -9110,7 +9113,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/is-shallow-equal': 4.23.0
       '@wordpress/shortcode': 3.22.0
@@ -9382,7 +9385,7 @@ packages:
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/deprecated': 3.23.0
       '@wordpress/element': 4.20.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/is-shallow-equal': 4.23.0
       '@wordpress/url': 3.23.0
@@ -9577,7 +9580,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/keyboard-shortcuts': 3.20.0_react@17.0.2
@@ -9717,6 +9720,12 @@ packages:
 
   /@wordpress/html-entities/3.22.0:
     resolution: {integrity: sha512-Wltx+PY0TDIkDQhkA5TbkWNFiPp0qNNHAgckhrz8r61nF/8AhpROhs0V714vDvqctcYCZWwzWTEdemcr9lwDgA==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.20.7
+
+  /@wordpress/html-entities/3.24.0:
+    resolution: {integrity: sha512-rwvx8aEJb9gRCj/pJ0v7vh6sT7R6G922LQzHc5cObcSm5cmzPz/Wz07+AZkHA1cmCDQdPiDd3yB8X8l+yeFy0A==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.20.7
@@ -15006,7 +15015,6 @@ packages:
       minimatch: 3.1.2
       once: 1.4.0
       path-is-absolute: 1.0.1
-    dev: true
 
   /glob/8.0.3:
     resolution: {integrity: sha512-ull455NHSHI/Y1FqGaaYFaLGkNMMJbavMrEGFXG/PGrg6y7sutWHUHrz6gy6WEBH6akM1M414dWKCNs+IhKdiQ==}
@@ -19543,6 +19551,10 @@ packages:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
     engines: {node: '>=6'}
 
+  /punycode/2.2.0:
+    resolution: {integrity: sha512-LN6QV1IJ9ZhxWTNdktaPClrNfp8xdSAYS0Zk2ddX7XsXZAxckMHPCBcHRo0cTcEIgYPRiGEkmji3Idkh2yFtYw==}
+    engines: {node: '>=6'}
+
   /puppeteer-core/13.7.0:
     resolution: {integrity: sha512-rXja4vcnAzFAP1OVLq/5dWNfwBGuzcOARJ6qGV7oAZhnLmVRU8G5MsdeQEAOy332ZhkIOnn9jp15R89LKHyp2Q==}
     engines: {node: '>=10.18.1'}
@@ -20604,7 +20616,7 @@ packages:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
     dependencies:
-      glob: 7.1.6
+      glob: 7.2.3
 
   /rollup-plugin-copy/3.4.0:
     resolution: {integrity: sha512-rGUmYYsYsceRJRqLVlE9FivJMxJ7X6jDlP79fmFkL8sJs7VVMSVyA2yfyL+PGyO/vJs4A87hwhgVfz61njI+uQ==}
@@ -22692,7 +22704,7 @@ packages:
   /uri-js/4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.2.0
 
   /urix/0.1.0:
     resolution: {integrity: sha512-Am1ousAhSLBeB9cG/7k7r2R0zj50uDRlZHPGbazid5s9rlF1F/QKYObEKSIunSjIOkJZqwRRLpvewjEkM7pSqg==}
