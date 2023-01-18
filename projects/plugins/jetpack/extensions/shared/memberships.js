@@ -31,7 +31,7 @@ function setUpModal( button ) {
 }
 
 export const initializeMembershipButtons = selector => {
-	const membershipButtons = [ ...document.querySelectorAll( selector ) ];
+	const membershipButtons = Array.prototype.slice.call( document.querySelectorAll( selector ) );
 	membershipButtons.forEach( button => {
 		if ( button.getAttribute( 'data-jetpack-memberships-button-initialized' ) === 'true' ) {
 			return;
