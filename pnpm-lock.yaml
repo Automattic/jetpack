@@ -1807,9 +1807,6 @@ importers:
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
       typescript: 4.8.2
 
-  projects/plugins/jetpack-mu-wpcom:
-    specifiers: {}
-
   projects/plugins/jetpack/tests/e2e:
     specifiers:
       '@playwright/test': 1.29.1
