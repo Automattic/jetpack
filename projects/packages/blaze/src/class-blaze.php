@@ -68,6 +68,14 @@ class Blaze {
 			return true;
 		}
 
+		/*
+		 * On WordPress.com, we don't need to make an API request,
+		 * we can query directly.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'blaze_is_site_eligible' ) ) {
+			return blaze_is_site_eligible( $blog_id );
+		}
+
 		// Make the API request.
 		$url      = sprintf( '/sites/%d/blaze/status', $blog_id );
 		$response = Client::wpcom_json_api_request_as_blog(
