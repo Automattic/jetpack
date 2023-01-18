@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
-
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use JITM;
