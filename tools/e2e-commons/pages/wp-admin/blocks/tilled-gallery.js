@@ -1,6 +1,6 @@
-import PageActions from '../../page-actions.js';
+import BlockEditorCanvas from './editor-canvas.js';
 
-export default class TiledGallery extends PageActions {
+export default class TiledGallery extends BlockEditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Tiled Gallery block' );
 		this.blockTitle = TiledGallery.title();
@@ -16,7 +16,7 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async addImages( numImages = 4 ) {
-		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
+		await this.canvas().click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
 		await this.click( 'text=Openverse' );
 
 		const modal = this.page.getByRole( 'dialog' );

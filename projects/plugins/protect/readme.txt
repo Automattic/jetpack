@@ -22,9 +22,13 @@ Jetpack Protect scans your site on a daily basis and warns you about:
 - What plugins are installed and any related vulnerabilities
 - What themes are installed and any associated vulnerabilities
 
-== Over 25,000 registered malware and vulnerabilities in our database ==
+== Over 25,000 registered vulnerabilities in our database ==
 
-WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities and malwares are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
+WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
+
+**Want to remove vulnerabilities and additionally malware in one-click?**
+
+Upgrade Protect to also get automated malware scanning and one-click fixes for most issues. Upgrading also gives you dedicated email support access.
 
 == Easy to setup and use ==
 
