@@ -229,6 +229,7 @@ class WPCOM_Features {
 	public const CLOUDFLARE_CDN                = 'cloudflare-cdn';
 	public const CONCIERGE                     = 'concierge';
 	public const CONCIERGE_BUSINESS            = 'concierge-business';
+	public const COPY_SITE                     = 'copy-site';
 	public const CORE_AUDIO                    = 'core/audio';
 	public const CORE_COVER                    = 'core/cover';
 	public const CORE_VIDEO                    = 'core/video';
@@ -437,6 +438,9 @@ class WPCOM_Features {
 			self::WPCOM_ECOMMERCE_PLANS,
 		),
 		self::CONCIERGE_BUSINESS            => array(
+			self::WPCOM_BUSINESS_PLANS,
+		),
+		self::COPY_SITE                     => array(
 			self::WPCOM_BUSINESS_PLANS,
 		),
 		// CORE_AUDIO - core/audio requires a paid plan for uploading audio files.
