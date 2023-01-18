@@ -21,7 +21,7 @@ function setUpModal( button ) {
 		event.preventDefault();
 		const url = button.getAttribute( 'href' );
 		window.scrollTo( 0, 0 );
-		a8c_tb_show( null, url + '&display=alternate&TB_iframe=true', null );
+		a8c_tb_show( null, url + '&display=alternate&TB_iframe=true' );
 		window.addEventListener( 'message', handleIframeResult, false );
 		document.getElementById( 'TB_window' ).classList.add( 'jetpack-memberships-modal' );
 
