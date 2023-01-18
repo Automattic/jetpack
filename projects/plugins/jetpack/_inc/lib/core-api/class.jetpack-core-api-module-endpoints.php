@@ -749,7 +749,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_protect_global_whitelist':
 					if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+						include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php';
 					}
 
 					$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
