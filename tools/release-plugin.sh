@@ -125,6 +125,7 @@ tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
 echo ""
 
+echo "Committing changes..."
 git add --all
 git commit -am "Changelog edits for $PROJECT"
 
@@ -141,10 +142,11 @@ git push -u origin prerelease
 yellow "Waiting for build to complete and push to mirror repos"
 BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
-	echo "Build failed! Check for build errors on GitHub for more information."
+	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi 
-
 
 # After this, run tools/create-release-branch.sh to create a release branch.
 yellow "Build is complete. Creating a release branch."
 tools/create-release-branch.sh "$PROJECT" "$VERSION"
+
+echo "Release branch created!"
