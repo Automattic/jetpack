@@ -71,6 +71,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const { replaceBlock } = useDispatch( blockEditorStore );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ placeholder ] = useState( getRandomItem( dalleExamplePrompts ) );
+	const errorButtonText = __( 'Retry', 'jetpack' );
+	const successButtonText = __( 'Submit', 'jetpack' );
+	const submitButtonText = errorMessage ? errorButtonText : successButtonText;
 
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -109,7 +112,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						<Flex direction="column" style={ { 'align-items': 'center' } }>
 							<FlexItem>
 								<Button variant="primary" onClick={ () => saveImage( image ) }>
-									{ __( 'select', 'jetpack' ) }
+									{ __( 'Use this image', 'jetpack' ) }
 								</Button>
 							</FlexItem>
 						</Flex>
@@ -175,7 +178,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								rows={ 6 }
 							/>
 							<Button variant="primary" onClick={ submit }>
-								{ errorMessage ? __( 'Retry', 'jetpack' ) : __( 'Submit', 'jetpack' ) }
+								{ submitButtonText }
 							</Button>
 						</FlexBlock>
 					</Flex>
