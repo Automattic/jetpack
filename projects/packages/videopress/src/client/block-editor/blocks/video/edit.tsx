@@ -390,11 +390,19 @@ export default function VideoPressEdit( {
 
 	// Render uploading block view
 	if ( isUploadingFile ) {
-		const handleDoneUpload = () => {
+		const handleDoneUpload = newVideoData => {
 			setIsUploadingFile( false );
 			if ( isReplacingFile.isReplacing ) {
+				const newBlockAttributes = {
+					...attributes,
+					...newVideoData,
+				};
+
+				// Delete attributes that are not needed.
+				delete newBlockAttributes.poster;
+
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-				replaceBlock( clientId, createBlock( 'videopress/video', { ...attributes } ) );
+				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
 			}
 		};
 
