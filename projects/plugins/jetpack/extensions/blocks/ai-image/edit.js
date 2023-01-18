@@ -96,9 +96,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
-	const ImageWithSelect = ( { image, withSelect = true } ) => {
+	const ImageWithSelect = ( { image, inModal = false } ) => {
 		return (
 			<Flex direction="column">
+				{ inModal && (
+					<FlexItem style={ { 'text-align': 'center' } }>
+						<Button variant="primary" onClick={ () => saveImage( image ) }>
+							{ __( 'Use this image', 'jetpack' ) }
+						</Button>
+					</FlexItem>
+				) }
 				<FlexBlock>
 					<img
 						className="wp-block-ai-image-image"
@@ -107,7 +114,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						onClick={ () => setImageModal( image ) }
 					/>
 				</FlexBlock>
-				{ withSelect && (
+				{ ! inModal && (
 					<FlexBlock>
 						<Flex direction="column" style={ { 'align-items': 'center' } }>
 							<FlexItem>
@@ -202,7 +209,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				) }
 				{ ! loadingImages && imageModal && (
 					<Modal onRequestClose={ () => setImageModal( null ) }>
-						<ImageWithSelect image={ imageModal } withSelect={ false } />
+						<ImageWithSelect image={ imageModal } inModal={ true } />
 					</Modal>
 				) }
 				{ attributes.content && <div className="content">{ attributes.content }</div> }
