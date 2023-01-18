@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Init 1.0.1-alpha
 
-
+Updated package dependencies.

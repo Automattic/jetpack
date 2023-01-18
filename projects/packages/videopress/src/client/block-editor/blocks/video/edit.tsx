@@ -390,19 +390,11 @@ export default function VideoPressEdit( {
 
 	// Render uploading block view
 	if ( isUploadingFile ) {
-		const handleDoneUpload = newVideoData => {
+		const handleDoneUpload = () => {
 			setIsUploadingFile( false );
 			if ( isReplacingFile.isReplacing ) {
-				const newBlockAttributes = {
-					...attributes,
-					...newVideoData,
-				};
-
-				// Delete attributes that are not needed.
-				delete newBlockAttributes.poster;
-
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
+				replaceBlock( clientId, createBlock( 'videopress/video', { ...attributes } ) );
 			}
 		};
 
@@ -506,12 +498,8 @@ export default function VideoPressEdit( {
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {
-						// Depending on the endpoint, `videopress_guid` can be an array or a string.
-						const mediaGuid = Array.isArray( media.videopress_guid )
-							? media.videopress_guid[ 0 ]
-							: media.videopress_guid;
+						const mediaGuid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
 						if ( ! mediaGuid ) {
-							debug( 'No media guid provided' );
 							return;
 						}
 

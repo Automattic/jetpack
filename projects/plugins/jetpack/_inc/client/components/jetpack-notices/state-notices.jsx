@@ -77,7 +77,6 @@ class JetpackStateNotices extends React.Component {
 					key
 				);
 				break;
-			case 'site_blacklisted':
 			case 'connection_disabled':
 				message = createInterpolateElement(
 					__(
