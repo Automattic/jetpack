@@ -3,7 +3,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 
 /**
- * @typedef {Object} AttachedMediaHook
+ * @typedef {object} AttachedMediaHook
  * @property {Array} attachedMedia - List of media with ID, URL, and metadata.
  * @property {Function} updateAttachedMedia - Callback used to update the attached media.
  */

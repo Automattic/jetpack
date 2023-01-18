@@ -688,8 +688,8 @@ class Jetpack_Gutenberg {
 				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
 				'enable_upgrade_nudge'          => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-				'is_private_site'               => '-1' === get_option( 'blog_public' ),
-				'is_coming_soon'                => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
+				'is_private_site'               => $status->is_private_site(),
+				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
