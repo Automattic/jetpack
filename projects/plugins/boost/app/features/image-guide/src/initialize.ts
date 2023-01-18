@@ -16,9 +16,8 @@ import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 	let current: HTMLElement | null = node.parentElement;
 
-	// Keep track of ancestor elements that do not have a "z-index" set
-	let elementsWithoutZIndex: HTMLElement[] = [];
-
+	// Keep track of target element
+	let target: HTMLElement;
 	while ( current && current instanceof HTMLElement ) {
 		// Don't go past the body element
 		if ( current === document.body ) {
@@ -26,26 +25,26 @@ function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
 		}
 
 		const style = getComputedStyle( current );
+
+		// Guide can't be correctly positioned inside inline elements
+		// because they don't have dimensions.
+		const canContainBlockElements = style.display !== 'inline';
+		const isStatic = style.position === 'static';
+		const isRelative = style.position === 'relative';
+		const hasZIndex = style.zIndex !== 'auto';
+		const isRelativeWithZIndex = isRelative && hasZIndex;
+
 		if (
-			style.zIndex === 'auto' &&
-			( style.position === 'static' || style.position === 'relative' )
+			canContainBlockElements &&
+			( ( ! target && ( isStatic || isRelative ) ) || isRelativeWithZIndex )
 		) {
-			elementsWithoutZIndex.push( current );
-		} else {
-			elementsWithoutZIndex = [];
+			target = current;
 		}
 
-		// Move on to the next parent element
 		current = current.parentElement;
 	}
 
-	// Return the first ancestor element that isn't affected by z-index
-	if ( elementsWithoutZIndex.length > 0 ) {
-		return elementsWithoutZIndex[ 0 ];
-	}
-
-	// If no element was found, return the body element
-	return document.body;
+	return target;
 }
 
 /**
@@ -98,10 +97,7 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		wrapper.classList.add( 'jetpack-boost-guide' );
 		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
 		if ( parentStyle.position === 'static' ) {
-			wrapper.classList.add( 'relative' );
-			Array.from( ancestor.children )
-				.reverse()
-				.forEach( child => wrapper.appendChild( child ) );
+			ancestor.style.position = 'relative';
 		}
 
 		ancestor.prepend( wrapper );
