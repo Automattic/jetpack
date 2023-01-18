@@ -4,17 +4,17 @@
  * @param {object} discountData - Informations about the discount
  * @param {object[]} introOffers - Set of product offering information
  * @param {object[]} suggestions - Suggested products
- * @returns {number} Max discount
+ * @returns {number|undefined} Max discount
  */
 export const computeMaxSuggestedDiscount = ( discountData, introOffers, suggestions ) => {
 	if ( ! discountData || ! introOffers || ! suggestions ) {
-		return;
+		return undefined;
 	}
 
 	const discount = parseInt( discountData?.discount, 10 );
 
 	if ( Number.isNaN( discount ) ) {
-		return;
+		return undefined;
 	}
 
 	const slugs = suggestions.map( ( { slug } ) => slug );
@@ -22,7 +22,7 @@ export const computeMaxSuggestedDiscount = ( discountData, introOffers, suggesti
 	const discounts = offers
 		.map( ( { original_price: originalPrice, raw_price: introPrice } ) => {
 			if ( ! originalPrice ) {
-				return;
+				return undefined;
 			}
 
 			const finalPrice = introPrice * ( 1 - discount / 100 );
@@ -33,7 +33,7 @@ export const computeMaxSuggestedDiscount = ( discountData, introOffers, suggesti
 		.filter( Boolean );
 
 	if ( ! discounts.length ) {
-		return;
+		return undefined;
 	}
 
 	return Math.max( ...discounts );

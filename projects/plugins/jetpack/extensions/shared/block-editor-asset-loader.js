@@ -92,6 +92,8 @@ export function maybeCopyElementsToSiteEditorContext(
 
 		return results;
 	}
+
+	return results;
 }
 
 /**

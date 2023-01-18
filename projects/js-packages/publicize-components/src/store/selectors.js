@@ -98,12 +98,12 @@ export function getTweetStorm( state ) {
  * Constructs the first tweet to use in the thread.
  *
  * @param {object} state - State object.
- * @returns {object} The tweet.
+ * @returns {object|undefined} The tweet.
  */
 export function getFirstTweet( state ) {
 	// This isn't defined properly in the test environment, so we have to skip this function.
 	if ( ! select( 'core' ) ) {
-		return;
+		return undefined;
 	}
 
 	const tweetTemplate = getTweetTemplate( state );
@@ -139,12 +139,12 @@ export function getFirstTweet( state ) {
  * Constructs the last tweet to use in the thread.
  *
  * @param {object} state - State object.
- * @returns {object} The tweet.
+ * @returns {object|undefined} The tweet.
  */
 export function getLastTweet( state ) {
 	// This isn't defined properly in the test environment, so we have to skip this function.
 	if ( ! select( 'core/editor' ) ) {
-		return;
+		return undefined;
 	}
 
 	const { getEditedPostAttribute } = select( 'core/editor' );
