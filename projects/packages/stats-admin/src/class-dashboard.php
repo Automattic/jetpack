@@ -230,7 +230,7 @@ class Dashboard {
 						'username' => 'no-user',
 					),
 					'capabilities' => array(
-						"$blog_id" => self::get_current_user_capatibilites(),
+						"$blog_id" => self::get_current_user_capabilities(),
 					),
 				),
 				'sites'       => array(
@@ -309,7 +309,7 @@ class Dashboard {
 	 *
 	 * @return array An array of capabilities.
 	 */
-	protected function get_current_user_capatibilites() {
+	protected function get_current_user_capabilities() {
 		// Feature lock.
 		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return array();
