@@ -506,8 +506,12 @@ export default function VideoPressEdit( {
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {
-						const mediaGuid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+						// Depending on the endpoint, `videopress_guid` can be an array or a string.
+						const mediaGuid = Array.isArray( media.videopress_guid )
+							? media.videopress_guid[ 0 ]
+							: media.videopress_guid;
 						if ( ! mediaGuid ) {
+							debug( 'No media guid provided' );
 							return;
 						}
 
