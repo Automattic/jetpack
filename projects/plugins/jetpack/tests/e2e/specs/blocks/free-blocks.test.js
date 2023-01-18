@@ -180,6 +180,13 @@ test.describe( 'Free blocks', () => {
 			} );
 		} );
 
+		test.afterEach( async () => {
+			await test.step( 'Visit site editor page', async () => {
+				await siteEditor.page.bringToFront();
+				// await siteEditor.clearCustomizations();
+			} );
+		} );
+
 		test( 'Subscribe block', async ( { page } ) => {
 			await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
 			let block;

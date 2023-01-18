@@ -27,10 +27,12 @@ export default class SubscribeBlock extends PageActions {
 	 * @param {PageActions} frontendPage PageActions page instance
 	 */
 	async isRenderedInFrontend( frontendPage ) {
-		await frontendPage.page.waitForSelector(
+		await frontendPage.waitForElementToBeVisible(
 			'.wp-block-jetpack-subscriptions__container #subscribe-field-1'
 		);
-		await frontendPage.page.waitForSelector( '.wp-block-jetpack-subscriptions__container button' );
+		await frontendPage.waitForElementToBeVisible(
+			'.wp-block-jetpack-subscriptions__container button'
+		);
 		return true;
 	}
 }

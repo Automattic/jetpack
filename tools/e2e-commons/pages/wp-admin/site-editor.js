@@ -12,6 +12,15 @@ export default class SiteEditorPage extends WpPage {
 		this.canvasPage = new EditorCanvas( page );
 	}
 
+	async clearCustomizations() {
+		//todo
+		logger.step( 'Clearing customizations' );
+		await this.click( "button[aria-label='Show template details']" );
+		await this.click( 'button:text("Clear customizations")' );
+
+		//Template reverted.
+	}
+
 	async searchForBlock( searchTerm ) {
 		logger.step( `Search block: '${ searchTerm }'` );
 		await this.click( '.edit-site-header-toolbar__inserter-toggle' );
