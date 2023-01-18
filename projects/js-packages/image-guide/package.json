@@ -16,7 +16,7 @@
 	"author": "Automattic",
 	"scripts": {
 		"prepare": "[ -e ./build/index.js ] || pnpm build",
-		"build": "webpack",
+		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover",
@@ -36,5 +36,6 @@
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
-	"main": "./build/index.js"
+	"main": "./build/index.js",
+	"types": "./build/index.d.ts"
 }

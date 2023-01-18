@@ -1,8 +1,12 @@
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
 module.exports = {
 	entry: './src/index.ts',
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.isProduction ? false : 'source-map',
 	module: {
+		strictExportPresence: true,
 		rules: [
 			{
 				test: /\.ts?$/,
@@ -11,11 +15,19 @@ module.exports = {
 			},
 		],
 	},
+	optimization: {
+		...jetpackWebpackConfig.optimization,
+	},
 	resolve: {
-		extensions: [ '.tsx', '.ts', '.js' ],
+		...jetpackWebpackConfig.resolve,
 	},
 	output: {
-		filename: 'bundle.js',
+		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, 'build' ),
+		filename: 'index.js',
+		library: {
+			type: 'umd',
+		},
 	},
+	plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
 };
