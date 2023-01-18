@@ -16,7 +16,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.4-alpha';
+	const PACKAGE_VERSION = '0.3.4';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -108,6 +108,12 @@ class Blaze {
 			$status->is_private_site()
 			|| $status->is_coming_soon()
 		) {
+			$should_initialize = false;
+		}
+
+		// The feature relies on this module for now.
+		// See 1386-gh-dotcom-forge
+		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
 			$should_initialize = false;
 		}
 

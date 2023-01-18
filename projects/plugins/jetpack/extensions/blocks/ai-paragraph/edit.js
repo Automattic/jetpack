@@ -5,11 +5,14 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 
-function formatPromptToOpenAI( editor ) {
+function formatEditorCanvasContentForCompletion( editor ) {
 	const index = editor.getBlockInsertionPoint().index - 1;
 	const allBlocksBefore = editor.getBlocks().slice( 0, index );
+	if ( ! allBlocksBefore.length ) {
+		return '';
+	}
 	return allBlocksBefore
 		.filter( function ( block ) {
 			return block && block.attributes && block.attributes.content;
@@ -26,18 +29,23 @@ function getSuggestionFromOpenAI(
 	setLoadingCompletion,
 	setErrorMessage
 ) {
-	if ( formattedPrompt.length < 120 ) {
+	const needsAtLeast = 36;
+	if ( formattedPrompt.length < needsAtLeast ) {
+		setLoadingCompletion( false );
 		setErrorMessage(
-			__(
-				'Please write a little bit more. Jetpack AI needs at least 120 characters to make the gears spin.',
-				'jetpack'
+			sprintf(
+				/** translators: First placeholder is a number of more characters we need */
+				__(
+					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
+					'jetpack'
+				),
+				needsAtLeast - formattedPrompt.length
 			)
 		);
 		return;
 	}
 	setErrorMessage( '' );
-	// We only take the last 240 chars into account, otherwise the prompt gets too long and because we have a 110 tokens limit, there is no place for response.
-	formattedPrompt = formattedPrompt.slice( -240 );
+
 	const data = { content: formattedPrompt };
 	setLoadingCompletion( true );
 	setAttributes( { requestedPrompt: true } ); // This will prevent double submitting.
@@ -69,13 +77,108 @@ function getSuggestionFromOpenAI(
 		} );
 }
 
+function createPrompt( title = '', content = '', categoryNames = '' ) {
+	// If title is not added, we will only complete.
+	if ( ! title ) {
+		return content;
+	}
+
+	// Title, content and categories
+	if ( content && categoryNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last 240 characters of content. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			categoryNames,
+			content
+		);
+	}
+
+	// No content, only title and categories
+	if ( categoryNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			categoryNames
+		);
+	}
+
+	// Title and content
+	if ( content ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last 240 characters of content. */
+			__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			content
+		);
+	}
+
+	return sprintf(
+		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
+		__( 'Write content of a post titled "%s"', 'jetpack' ),
+		title
+	);
+}
+
+/**
+ * Gather data available in Gutenberg and prepare the best prompt we can come up with.
+ *
+ * @param {Function} select - function returning Gutenberg data store.
+ * @returns {string} - prompt ready to pipe to OpenAI.
+ */
+function preparePromptBasedOnEditorState( select ) {
+	const editorContent = formatEditorCanvasContentForCompletion(
+		select( 'core/block-editor' )
+	).slice( -240 );
+
+	// Let's grab post data so that we can do something smart.
+	const currentPost = select( 'core/editor' ).getCurrentPost();
+	if ( ! currentPost ) {
+		return '';
+	}
+
+	// If there is no title, there is not much we can do.
+	if ( ! currentPost.title ) {
+		return createPrompt( '', editorContent, '' );
+	}
+
+	// We are filtering out the default "Uncategorized"
+	const categories = currentPost.categories.filter( catId => catId !== 1 );
+	const tags = currentPost.tags;
+
+	// User did not set any categories, we are going to base the suggestions off a title.
+	if ( ! categories.length && ! tags.length ) {
+		return createPrompt( currentPost.title, editorContent, '' );
+	}
+
+	// We are grabbing more data from WP.
+	const categoryObjects = categories.map( categoryId =>
+		select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId )
+	);
+	const tagObjects = tags.map( tagId =>
+		select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId )
+	);
+
+	// For now categories are combined with tags into the same object. I am not sure they should
+	const taxonomies = categoryObjects.concat( tagObjects );
+
+	// We want to wait until all category names are loaded. This will return empty string (aka loading state) until all objects are truthy.
+	if ( taxonomies.filter( obj => ! obj || ! obj.name ).length ) {
+		return '';
+	}
+
+	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
+
+	return createPrompt( currentPost.title, editorContent, categoryNames );
+}
+
 export default function Edit( { attributes, setAttributes } ) {
-	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
+	const [ loadingCompletion, setLoadingCompletion ] = useState( true );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
 
-	const formattedPrompt = useSelect( select => {
-		return formatPromptToOpenAI( select( 'core/block-editor' ) );
-	}, [] );
+	// Here is where we craft the prompt.
+	const formattedPrompt = useSelect( preparePromptBasedOnEditorState, [] );
 
 	//useEffect hook is called only once when block is first rendered.
 	useEffect( () => {
@@ -88,11 +191,11 @@ export default function Edit( { attributes, setAttributes } ) {
 				setErrorMessage
 			);
 		}
-	}, [ attributes, formattedPrompt, setAttributes ] );
+	}, [ setAttributes, attributes ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<div { ...useBlockProps() }>
-			{ errorMessage && (
+			{ ! loadingCompletion && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					<Button
 						variant="primary"

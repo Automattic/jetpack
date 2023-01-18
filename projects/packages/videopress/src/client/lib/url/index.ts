@@ -125,3 +125,7 @@ export function buildVideoPressURL(
 
 	return false;
 }
+
+export const removeFileNameExtension = ( name: string ) => {
+	return name.replace( /\.[^/.]+$/, '' );
+};
