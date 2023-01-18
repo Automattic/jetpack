@@ -73,7 +73,34 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.2.1 - 2023-01-18
+### 1.3.0 - 2023-01-18
+#### Added
+- Added Replace Control to the block
+- Added anchor support to the block
+- Added rating selector on video details edit page
+- Added "publish first video" popover
+- Added embed block transform from/to video block
+- Added "Show video sharing menu" control to VideoPress block
+- Added VideoPress shortcode
+- Added privacy to the edit details page
+
 #### Changed
-- Updated package dependencies.
+- Updated no video dashboard UI
+- Updated footer of the uploader component
+- Enhanced behavior when deleting multiple videos
+- Filtered the video fields that re-render the player when changed
+
+#### Removed
+- Removed src/client files from the final bundle
+- Removed video chapters block
+
+#### Fixed
+- Fixed layout visual issues
+- Fixed issues when setting the video block video from the media library
+- Fixed video attributes not being cleaned when replacing a video file
+- Fixed duplicate uploads when replacing a video
+- Fixed local videos listed as VideoPress videos
+- Fixed player not rendering once file uploads
+- Fixed title and description rendering on the block
+- Fixed exception when deleting the last video of the page
 
