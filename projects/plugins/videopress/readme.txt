@@ -73,22 +73,8 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.2.0 - 2022-12-05
-#### Added
-- Added a static image for when the block acts as an example in Editor inserter.
-- Added example image to the dynamic colors panel.
-- Implemented tracks control implementation.
-
+### 1.2.1 - 2023-01-18
 #### Changed
-- Updated tracks icon.
-- We now include videos with Site Default privacy setting on the search results.
-
-#### Removed
-- Removeed caption field from edit page.
-
-#### Fixed
-- Fixed handling of chapters edition which previously overwrote existing video track file.
-- Fixed issue where video meta could not be saved on a WP.com simple site.
-- Fixed the thumbnail selection to allow selecting the last frame of the video.
-- Fixed video block conversion from core/video.
+- Updated package dependencies.
+- Update playwright dependency
 
