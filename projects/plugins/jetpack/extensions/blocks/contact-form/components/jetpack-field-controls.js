@@ -39,6 +39,8 @@ const JetpackFieldControls = ( {
 	};
 
 	let colorSettings = [];
+	let borderWidthControls = '';
+	let borderRadiusControls = '';
 
 	if ( typeof type === 'string' && ( type === 'radio' || type === 'checkbox' ) ) {
 		colorSettings = [
@@ -53,7 +55,23 @@ const JetpackFieldControls = ( {
 				label: __( 'Field text', 'jetpack' ),
 			},
 		];
+		borderWidthControls = '';
+		borderRadiusControls = '';
 	} else {
+		borderWidthControls = (
+			<TextControl
+				label={ __( 'Border Width', 'jetpack' ) }
+				value={ attributes.borderWidth }
+				onChange={ setNumberAttribute( 'borderWidth' ) }
+			/>
+		);
+		borderRadiusControls = (
+			<TextControl
+				label={ __( 'Border Radius', 'jetpack' ) }
+				value={ attributes.borderRadius }
+				onChange={ setNumberAttribute( 'borderRadius' ) }
+			/>
+		);
 		colorSettings = [
 			{
 				value: attributes.labelColor,
@@ -171,16 +189,8 @@ const JetpackFieldControls = ( {
 						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 						size="__unstable-large"
 					/>
-					<TextControl
-						label={ __( 'Border Width', 'jetpack' ) }
-						value={ attributes.borderWidth }
-						onChange={ setNumberAttribute( 'borderWidth' ) }
-					/>
-					<TextControl
-						label={ __( 'Border Radius', 'jetpack' ) }
-						value={ attributes.borderRadius }
-						onChange={ setNumberAttribute( 'borderRadius' ) }
-					/>
+					{ borderWidthControls }
+					{ borderRadiusControls }
 				</PanelBody>
 			</InspectorControls>
 
