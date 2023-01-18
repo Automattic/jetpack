@@ -1,13 +1,11 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
 
 /**
  * Test pluggable functionality for bruteprotect
  */
-
-require_once __DIR__ . '/../../../jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection.php';
-
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sends_failed_login_message() {

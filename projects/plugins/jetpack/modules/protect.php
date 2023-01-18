@@ -13,7 +13,7 @@
  * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
-require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection.php';
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
 
 $brute_force_protection = Brute_Force_Protection_Module::instance();
 

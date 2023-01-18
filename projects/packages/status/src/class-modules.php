@@ -435,7 +435,7 @@ class Modules {
 
 			// Protect won't work with mis-configured IPs.
 			if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php';
+				include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php';
 				if ( ! jetpack_protect_get_ip() ) {
 					$state->state( 'message', 'protect_misconfigured_ip' );
 					return false;

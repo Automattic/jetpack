@@ -5,7 +5,12 @@
  * @package automattic/jetpack-waf
  */
 
+namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+
 use Automattic\Jetpack\Constants;
+use Jetpack;
+use Jetpack_Client_Server;
+use Jetpack_IXR_Client;
 
 require_once __DIR__ . '/brute-force-protection/shared-functions.php';
 
@@ -129,7 +134,6 @@ class Brute_Force_Protection_Module {
 		// Load math fallback after math page form submission.
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 
-			include_once __DIR__ . '/brute-force-protection/math-fallback.php';
 			new Brute_Force_Protection_Math_Authenticate();
 		}
 
@@ -454,7 +458,6 @@ class Brute_Force_Protection_Module {
 
 		if ( ( 1 == $use_math || 1 == $this->block_login_with_math ) && isset( $_POST['log'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual, WordPress.Security.NonceVerification.Missing -- POST request just determines if we use math authentication.
 
-			include_once __DIR__ . '/brute-force-protection/math-fallback.php';
 			Brute_Force_Protection_Math_Authenticate::math_authenticate();
 		}
 
@@ -562,7 +565,6 @@ class Brute_Force_Protection_Module {
 			$response = $this->protect_call( $action = 'check_ip' ); // phpcs:ignore Squiz.PHP.DisallowMultipleAssignments.Found
 
 			if ( isset( $response['math'] ) && ! function_exists( 'brute_math_authenticate' ) ) {
-				include_once __DIR__ . '/brute-force-protection/math-fallback.php';
 				new Brute_Force_Protection_Math_Authenticate();
 
 				return false;
@@ -681,7 +683,6 @@ class Brute_Force_Protection_Module {
 			$this->kill_login();
 		}
 
-		include_once __DIR__ . '/brute-force-protection/math-fallback.php';
 		new Brute_Force_Protection_Math_Authenticate();
 
 		return false;
@@ -724,7 +725,6 @@ class Brute_Force_Protection_Module {
 			);
 		}
 
-		require_once __DIR__ . '/brute-force-protection/blocked-login-page.php';
 		$blocked_login_page = Brute_Force_Protection_Blocked_Login_Page::instance( $ip );
 
 		if ( $blocked_login_page->is_blocked_user_valid() ) {
@@ -740,7 +740,6 @@ class Brute_Force_Protection_Module {
 	public function check_use_math() {
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
-			include_once __DIR__ . '/brute-force-protection/math-fallback.php';
 			new Brute_Force_Protection_Math_Authenticate();
 		}
 	}

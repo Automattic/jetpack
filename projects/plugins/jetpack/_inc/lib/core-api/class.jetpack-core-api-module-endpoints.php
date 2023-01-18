@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
@@ -732,7 +733,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_key':
-					require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection.php';
 					$protect = Brute_Force_Protection_Module::instance();
 					if ( 'create' === $value ) {
 						$result = $protect->get_protect_key();
@@ -749,7 +749,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'jetpack_protect_global_whitelist':
 					if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php';
+						include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php';
 					}
 
 					$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );

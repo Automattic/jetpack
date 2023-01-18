@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+
 if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 
 	/**

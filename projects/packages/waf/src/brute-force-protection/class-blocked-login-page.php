@@ -1,7 +1,10 @@
 <?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
+use Jetpack;
 
 /**
  * Class Brute_Force_Protection_Blocked_Login_Page
