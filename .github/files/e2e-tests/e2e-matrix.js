@@ -81,14 +81,12 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			const refType = process.env.REF_TYPE;
 
 			if ( repoName === 'jetpack-production' ) {
-				// Tests with Gutenberg fail since Gutenberg 14.9.0 introduced an iframe in the block editor.
-				// Temporary disable the suite until a permanent fix is in place.
-				// projects.push( {
-				// 	project: 'Blocks with latest Gutenberg',
-				// 	path: 'projects/plugins/jetpack/tests/e2e',
-				// 	testArgs: [ 'blocks', '--retries=1' ],
-				// 	suite: 'gutenberg',
-				// } );
+				projects.push( {
+					project: 'Blocks with latest Gutenberg',
+					path: 'projects/plugins/jetpack/tests/e2e',
+					testArgs: [ 'blocks', '--retries=1' ],
+					suite: 'gutenberg',
+				} );
 
 				if ( refType === 'tag' || refName === 'trunk' ) {
 					projects.push( {

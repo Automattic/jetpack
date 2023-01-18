@@ -9,6 +9,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 require_once __DIR__ . '/class.json-api-metadata.php';
 require_once __DIR__ . '/class.json-api-date.php';
 require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -760,7 +762,7 @@ abstract class SAL_Post {
 
 		$pages = $old_pages;
 		$page  = $old_page;
-		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited 
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 		return $return;
 	}
 
@@ -867,7 +869,7 @@ abstract class SAL_Post {
 				}
 				break;
 			case 'display':
-				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( ( new Status() )->is_private_site() && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;
