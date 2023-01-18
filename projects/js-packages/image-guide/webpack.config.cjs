@@ -26,7 +26,7 @@ module.exports = {
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
 		library: {
-			name: 'ImageGuide',
+			name: 'ImageGuideLibrary',
 			type: 'umd',
 		},
 	},
