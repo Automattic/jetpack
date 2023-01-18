@@ -143,8 +143,6 @@ const JetpackFieldControls = ( {
 							'jetpack'
 						) }
 					/>
-
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
 
 				<PanelColorSettings
@@ -174,6 +172,7 @@ const JetpackFieldControls = ( {
 						attributes.lineHeight
 					}
 				>
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<FontSizePicker
 						withSlider
 						withReset={ true }
