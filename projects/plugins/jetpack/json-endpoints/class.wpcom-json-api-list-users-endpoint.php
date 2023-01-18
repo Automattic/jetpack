@@ -217,7 +217,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 						usort(
 							$combined_users,
 							function ( $a, $b ) {
-								return strcmp( $a->name, $b->name );
+								return strcmp( strtolower( $a->name ), strtolower( $b->name ) );
 							}
 						);
 					}
