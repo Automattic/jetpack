@@ -73,8 +73,7 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.3.0 - 2023-01-18
+### 1.2.1 - 2023-01-18
 #### Changed
 - Updated package dependencies.
-- Update playwright dependency
 
