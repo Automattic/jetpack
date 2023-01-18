@@ -1,14 +1,14 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
-import { BlockEditorCanvas } from './index.js';
+import { EditorCanvas } from './index.js';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
 
-		this.canvasPage = new BlockEditorCanvas( page );
+		this.canvasPage = new EditorCanvas( page );
 	}
 
 	//region selectors
