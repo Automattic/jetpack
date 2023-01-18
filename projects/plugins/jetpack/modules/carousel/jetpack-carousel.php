@@ -831,16 +831,18 @@ class Jetpack_Carousel {
 			}
 			$image_elements = $selected_images[ $attachment->ID ];
 
+			if ( ! is_array( $image_elements ) ) {
+				continue;
+			}
+
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-			if ( is_array( $image_elements ) ) {
-				foreach ( $image_elements as $image_html ) {
-					$find[]    = $image_html;
-					$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
-				}
+			foreach ( $image_elements as $image_html ) {
+				$find[]    = $image_html;
+				$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
 			}
 		}
 
