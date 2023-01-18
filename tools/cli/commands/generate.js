@@ -723,7 +723,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -733,6 +733,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 
