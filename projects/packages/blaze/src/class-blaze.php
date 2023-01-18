@@ -138,20 +138,6 @@ class Blaze {
 			$should_initialize = false;
 		}
 
-		/*
-		 * Do not show the UI on private sites
-		 * nor on sites that have not been launched yet.
-		 */
-		if (
-			'-1' === get_option( 'blog_public' )
-			|| (
-				( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
-				|| (bool) get_option( 'wpcom_public_coming_soon' )
-			)
-		) {
-			$should_initialize = false;
-		}
-
 		// The feature relies on this module for now.
 		// See 1386-gh-dotcom-forge
 		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
