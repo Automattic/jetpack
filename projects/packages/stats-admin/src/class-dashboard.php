@@ -314,9 +314,6 @@ class Dashboard {
 		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			return array();
 		}
-		if ( version_compare( Main::VERSION, '0.4.0-alpha', '<' ) ) {
-			return array();
-		}
 		$user = wp_get_current_user();
 		if ( ! $user || is_wp_error( $user ) ) {
 			return array();
