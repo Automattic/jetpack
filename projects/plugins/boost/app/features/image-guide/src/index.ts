@@ -11,7 +11,7 @@ import type { MeasurableImage } from '@automattic/jetpack-image-guide';
  * that are too small, for example
  * avatars, icons, etc.
  *
- * @param  images An array of images to filter
+ * @param images An array of images to filter
  */
 function discardSmallImages( images: MeasurableImage[] ) {
 	const minSize = 65;
