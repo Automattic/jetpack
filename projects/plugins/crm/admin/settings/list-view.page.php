@@ -98,23 +98,13 @@ if ( isset( $sbupdated ) ) {
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_notcontactedinx"><?php esc_html_e( 'Not Contacted in X Days', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter the number of days to use in this filter.', 'zero-bs-crm' ); ?><br /><?php esc_html_e( 'For example, show contacts not contacted in the last 10 days.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
-					<input style="width:100px;padding:10px;" name="wpzbscrm_notcontactedinx" id="wpzbscrm_notcontactedinx" class="form-control" type="text" value="
-					<?php
-					if ( isset( $settings['notcontactedinx'] ) && ! empty( $settings['notcontactedinx'] ) ) {
-						echo esc_attr( $settings['notcontactedinx'] );}
-					?>
-					" />
+					<input style="width:100px;padding:10px;" name="wpzbscrm_notcontactedinx" id="wpzbscrm_notcontactedinx" class="form-control" type="text" value="<?php echo empty( $settings['notcontactedinx'] ) ? '' : esc_attr( $settings['notcontactedinx'] ); ?>" />
 				</td>
 			</tr>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_olderthanx"><?php esc_html_e( 'Older than X days', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter the number of days to use in this filter.', 'zero-bs-crm' ); ?><br /><?php esc_html_e( 'For example, show contacts older than 30 days.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
-					<input style="width:100px;padding:10px;" name="wpzbscrm_olderthanx" id="wpzbscrm_olderthanx" class="form-control" type="text" value="
-					<?php
-					if ( isset( $settings['olderthanx'] ) && ! empty( $settings['olderthanx'] ) ) {
-						echo esc_attr( $settings['olderthanx'] );}
-					?>
-					" />
+					<input style="width:100px;padding:10px;" name="wpzbscrm_olderthanx" id="wpzbscrm_olderthanx" class="form-control" type="text" value="<?php echo empty( $settings['olderthanx'] ) ? '' : esc_attr( $settings['olderthanx'] ); ?>" />
 				</td>
 			</tr>
 			<tr>
