@@ -15,9 +15,9 @@
 
 require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/brute-force-protection.php';
 
-$jetpack_protect = Brute_Force_Protection_Module::instance();
+$brute_force_protection = Brute_Force_Protection_Module::instance();
 
 global $pagenow;
 if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
-	$jetpack_protect->check_login_ability();
+	$brute_force_protection->check_login_ability();
 }
