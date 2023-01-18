@@ -3076,35 +3076,79 @@ function wpsc_get_htaccess_info() {
 	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
 
-	$vary_header = $cache_control_header = '';
+	// Default headers.
+	$headers = array(
+		'Vary'          => 'Accept-Encoding, Cookie',
+		'Cache-Control' => 'max-age=3, must-revalidate',
+	);
 
-	if ( defined( 'WPSC_VARY_HEADER' ) ) {
-		if ( WPSC_VARY_HEADER != '' ) {
-			$vary_header = WPSC_VARY_HEADER;
-		}
-	} else {
-		$vary_header = 'Accept-Encoding, Cookie';
+	// Allow users to override the Vary header with WPSC_VARY_HEADER.
+	if ( defined( 'WPSC_VARY_HEADER' ) && ! empty( WPSC_VARY_HEADER ) ) {
+		$headers['Vary'] = WPSC_VARY_HEADER;
 	}
-	if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) ) {
-		if ( WPSC_CACHE_CONTROL_HEADER != '' ) {
-			$cache_control_header = WPSC_CACHE_CONTROL_HEADER;
-		}
-	} else {
-		$cache_control_header = 'max-age=3, must-revalidate';
+
+	// Allow users to override Cache-control header with WPSC_CACHE_CONTROL_HEADER
+	if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) && ! empty( WPSC_CACHE_CONTROL_HEADER ) ) {
+		$headers['Cache-Control'] = WPSC_CACHE_CONTROL_HEADER;
 	}
-	$headers_text = "";
-	if ( $vary_header != '' ) {
-		$headers_text .= "  Header set Vary '$vary_header'\n";
-	}
-	if ( $cache_control_header != '' ) {
-		$headers_text .= "  Header set Cache-Control '$cache_control_header'\n";
-	}
+
+	// Allow overriding headers with a filter.
+	$headers = apply_filters( 'wpsc_htaccess_mod_headers', $headers );
+
+	// Combine headers into a block of text.
+	$headers_text = join(
+		"\n",
+		array_map(
+			function ( $key, $value ) {
+				return "  Header set $key '" . addcslashes( $value, "'" ) . "'";
+			},
+			array_keys( $headers ),
+			array_values( $headers )
+		)
+	);
+
+	// Pack headers into gziprules (for historic reasons) - TODO refactor the values
+	// returned to better reflect the blocks being written.
 	if ( $headers_text != '' ) {
-		$gziprules .= "<IfModule mod_headers.c>\n$headers_text</IfModule>\n";
+		$gziprules .= "<IfModule mod_headers.c>\n$headers_text\n</IfModule>\n";
 	}
-	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A3\n</IfModule>\n";
+
+	// Deafult mod_expires rules.
+	$expires_rules = array(
+		'ExpiresActive On',
+		'ExpiresByType text/html A3',
+	);
+
+	// Allow overriding mod_expires rules with a filter.
+	$expires_rules = apply_filters( 'wpsc_htaccess_mod_expires', $expires_rules );
+
+	$gziprules .= "<IfModule mod_expires.c>\n";
+	$gziprules .= join(
+		"\n",
+		array_map(
+			function ( $line ) {
+				return "  $line";
+			},
+			$expires_rules
+		)
+	);
+	$gziprules .= "\n</IfModule>\n";
+
 	$gziprules .= "Options -Indexes\n";
-	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "home_root_lc" => $home_root_lc, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
+
+	return array(
+		'document_root'   => $document_root,
+		'apache_root'     => $apache_root,
+		'home_path'       => $home_path,
+		'home_root'       => $home_root,
+		'home_root_lc'    => $home_root_lc,
+		'inst_root'       => $inst_root,
+		'wprules'         => $wprules,
+		'scrules'         => $scrules,
+		'condition_rules' => $condition_rules,
+		'rules'           => $rules,
+		'gziprules'       => $gziprules,
+	);
 }
 
 function clear_post_supercache( $post_id ) {

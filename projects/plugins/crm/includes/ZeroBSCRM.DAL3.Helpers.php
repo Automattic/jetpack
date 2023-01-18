@@ -8999,11 +8999,10 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		
 
 		// if $key isn't in switch, assume it's a slug :)
-		return admin_url('admin.php?page='.$key);
+		return esc_url_raw( admin_url( 'admin.php?page=' . $key ) );
 
 		// none? DASH then!
-		//return admin_url('admin.php?page=zerobscrm-dash');
-
+		// return esc_url_raw( admin_url('admin.php?page=zerobscrm-dash') );
 	}
 
 	#} This is run by main init :) (Installs Quote Templates etc.)
