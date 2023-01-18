@@ -6,7 +6,7 @@ use Automattic\Jetpack\Constants;
  * Test pluggable functionality for bruteprotect
  */
 
-require_once __DIR__ . '/../../../modules/protect.php';
+require_once __DIR__ . '/../../../jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/brute-force-protection.php';
 
 class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
