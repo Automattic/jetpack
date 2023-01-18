@@ -1,5 +1,4 @@
 import PageActions from '../../page-actions.js';
-
 export default class SubscribeBlock extends PageActions {
 	constructor( blockId, page ) {
 		super( page, 'Subscribe' );
@@ -7,7 +6,6 @@ export default class SubscribeBlock extends PageActions {
 		this.page = page;
 		this.blockSelector = '#block-' + blockId;
 	}
-
 	static name() {
 		return 'subscriptions';
 	}
@@ -15,7 +13,6 @@ export default class SubscribeBlock extends PageActions {
 	static title() {
 		return 'Subscribe';
 	}
-
 	async checkBlock() {
 		await this.page.waitForResponse(
 			r =>

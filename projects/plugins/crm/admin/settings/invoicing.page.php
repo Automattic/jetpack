@@ -290,7 +290,7 @@ if ( isset( $sbupdated ) ) {
 				<td class="wfieldname">
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
 					<label for="inv_pdf_template"><?php esc_html_e( 'Invoice PDF Template', 'zero-bs-crm' ); ?>:</label><br />
-					<?php esc_html_e( 'Select a template for invoice PDFs.', 'zero-bs-crm' ); ?>                    
+					<?php esc_html_e( 'Select a template for invoice PDFs.', 'zero-bs-crm' ); ?>
 				</td>
 				<td>
 				<?php
@@ -330,23 +330,13 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="businessextra"><?php esc_html_e( 'Extra Invoice Info', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This information is (optionally) added to your invoice', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><textarea class="winput form-control" name="businessextra" id="businessextra"  placeholder="<?php esc_attr_e( 'e.g. Your Address', 'zero-bs-crm' ); ?>" >
-																																						<?php
-																																						if ( isset( $settings['businessextra'] ) && ! empty( $settings['businessextra'] ) ) {
-																																							echo wp_kses( $settings['businessextra'], $zbs->acceptable_restricted_html );}
-																																						?>
-				</textarea></td>
+				<td style="width:540px"><textarea class="winput form-control" name="businessextra" id="businessextra"  placeholder="<?php esc_attr_e( 'e.g. Your Address', 'zero-bs-crm' ); ?>" ><?php echo empty( $settings['businessextra'] ) ? '' : wp_kses( $settings['businessextra'], $zbs->acceptable_restricted_html ); ?></textarea></td>
 			</tr>
 
 
 			<tr>
 				<td class="wfieldname"><label for="paymentinfo"><?php esc_html_e( 'Payment Info', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This information is (optionally) added to your invoice', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><textarea class="winput form-control" name="paymentinfo" id="paymentinfo"  placeholder="<?php esc_attr_e( 'e.g. BACS details', 'zero-bs-crm' ); ?>" >
-																																					<?php
-																																					if ( isset( $settings['paymentinfo'] ) && ! empty( $settings['paymentinfo'] ) ) {
-																																						echo wp_kses( $settings['paymentinfo'], $zbs->acceptable_restricted_html );}
-																																					?>
-				</textarea></td>
+				<td style="width:540px"><textarea class="winput form-control" name="paymentinfo" id="paymentinfo"  placeholder="<?php esc_attr_e( 'e.g. BACS details', 'zero-bs-crm' ); ?>" ><?php echo empty( $settings['paymentinfo'] ) ? '' : wp_kses( $settings['paymentinfo'], $zbs->acceptable_restricted_html ); ?></textarea></td>
 			</tr>
 
 			<tr>
@@ -440,19 +430,14 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="zbsi_statementextra"><?php esc_html_e( 'Extra Statement Info', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This information is (optionally) added to your statements (e.g. How to pay)', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><textarea class="winput form-control" name="zbsi_statementextra" id="zbsi_statementextra"  placeholder="<?php esc_attr_e( 'e.g. BACS details', 'zero-bs-crm' ); ?>" >
-																																									<?php
-																																									if ( isset( $settings['statementextra'] ) && ! empty( $settings['statementextra'] ) ) {
-																																										echo wp_kses( $settings['statementextra'], $zbs->acceptable_restricted_html );}
-																																									?>
-				</textarea></td>
+				<td style="width:540px"><textarea class="winput form-control" name="zbsi_statementextra" id="zbsi_statementextra"  placeholder="<?php esc_attr_e( 'e.g. BACS details', 'zero-bs-crm' ); ?>" ><?php echo empty( $settings['statementextra'] ) ? '' : wp_kses( $settings['statementextra'], $zbs->acceptable_restricted_html ); ?></textarea></td>
 			</tr>
 
 			<tr>
 				<td class="wfieldname">
 					<div class="ui teal label right floated"><i class="circle info icon link"></i>  <a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank"><?php esc_html_e( 'Read more', 'zero-bs-crm' ); ?></a></div>
 					<label for="statement_pdf_template"><?php esc_html_e( 'Statement PDF Template', 'zero-bs-crm' ); ?>:</label><br />
-					<?php esc_html_e( 'Select a template for statement PDFs.', 'zero-bs-crm' ); ?>                    
+					<?php esc_html_e( 'Select a template for statement PDFs.', 'zero-bs-crm' ); ?>
 				</td>
 				<td>
 				<?php
@@ -484,24 +469,14 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="paythanks"><?php esc_html_e( 'Thank You', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'If text is specified, it will be shown after a user pays for their invoice via portal.', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><textarea class="winput form-control" name="paythanks" id="paythanks"  placeholder="<?php esc_attr_e( 'e.g. Thank you for your custom. If you have any questions let us know', 'zero-bs-crm' ); ?>" >
-																																				<?php
-																																				if ( isset( $settings['paythanks'] ) && ! empty( $settings['paythanks'] ) ) {
-																																					echo wp_kses( $settings['paythanks'], $zbs->acceptable_restricted_html );}
-																																				?>
-				</textarea></td>
+				<td style="width:540px"><textarea class="winput form-control" name="paythanks" id="paythanks"  placeholder="<?php esc_attr_e( 'e.g. Thank you for your custom. If you have any questions let us know', 'zero-bs-crm' ); ?>" ><?php echo empty( $settings['paythanks'] ) ? '' : wp_kses( $settings['paythanks'], $zbs->acceptable_restricted_html ); ?></textarea></td>
 			</tr>
 
 			<tr>
 				<td colspan="2">
 					<p style="text-align:center"><?php esc_html_e( 'Looking for easy-access link settings? You can turn configure those via the Client Portal settings page.', 'zero-bs-crm' ); ?></p>
 					<p style="text-align:center">
-						<a href="
-						<?php
-						echo jpcrm_esc_link( $zbs->slugs['settings'] );
-						echo '&tab=clients';
-						?>
-						" class="ui mini button blue"><?php esc_html_e( 'View Client Portal Settings', 'zero-bs-crm' ); ?></a>
+						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] ); ?>&tab=clients" class="ui mini button blue"><?php esc_html_e( 'View Client Portal Settings', 'zero-bs-crm' ); ?></a>
 						<?php // WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['easyaccessguide'] ); ?>" target="_blank" class="ui mini button green"><?php esc_html_e( 'View Easy-Access Links Guide', 'zero-bs-crm' ); ?></a>
 						<?php // /WLREMOVE ?>

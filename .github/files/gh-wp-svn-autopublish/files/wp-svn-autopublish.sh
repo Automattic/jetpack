@@ -37,8 +37,13 @@ svn up trunk
 echo '::endgroup::'
 
 echo "::group::Checking out SVN tags (shallowly)"
-svn up tags --depth=empty
+svn up tags --depth=immediates
 echo '::endgroup::'
+
+if [[ -e "tags/$TAG" ]]; then
+	echo "::error::Tag $TAG already exists in SVN. Aborting."
+	exit 1
+fi
 
 echo "::group::Deleting everything in trunk except for .svn directories"
 find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
