@@ -11,7 +11,7 @@
 
 let TB_WIDTH = 0;
 let TB_HEIGHT = 0;
-
+const a8c_tb_pathToImage = 'https://s0.wp.com/i/loading/dark-200.gif';
 function show( element ) {
 	element.style.display = 'block';
 	element.style.visibility = 'visible';
@@ -36,6 +36,9 @@ function a8c_tb_init( domChunk ) {
 }
 
 export const a8c_tb_show = function ( caption, url ) {
+	const imgLoader = new Image(); // preload image
+	imgLoader.src = a8c_tb_pathToImage;
+
 	//function called when the user clicks on a thickbox link
 	document.querySelectorAll( 'body', 'html' ).forEach( el => {
 		el.style.height = '100%';
@@ -72,9 +75,13 @@ export const a8c_tb_show = function ( caption, url ) {
 	if ( caption === null ) {
 		caption = '';
 	}
-	document.querySelector( 'body' ).insertAdjacentHTML( 'beforeend', "<div id='TB_load'></div>" ); //add loader to the page
+	document
+		.querySelector( 'body' )
+		.insertAdjacentHTML(
+			'beforeend',
+			"<div id='TB_load'><img src='" + imgLoader.src + "' /></div>"
+		); //add loader to the page
 	show( document.getElementById( 'TB_load' ) ); //show loader
-
 	//code to show html
 	const queryString = url.replace( /^[^?]+\??/, '' );
 	const params = a8c_tb_parseQuery( queryString );

@@ -162,13 +162,12 @@ BODY.modal-open {
 #TB_load{
 	position: fixed;
 	display:none;
-	height:13px;
-	width:208px;
+	height:200px;
+	width:200px;
 	z-index:103;
 	top: 50%;
 	left: 50%;
-	margin: -6px 0 0 -104px; /* -height/2 0 0 -width/2 */
-	background-image: url( 'https://s0.wp.com/i/loading/dark-200.gif' );
+	margin: -100px 0 0 -100px; /* -height/2 0 0 -width/2 */
 }
 
 * html #TB_load { /* ie6 hack */
