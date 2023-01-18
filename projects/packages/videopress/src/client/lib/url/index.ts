@@ -97,18 +97,23 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 	return guid[ 0 ];
 }
 
+type BuildVideoPressURL = {
+	url?: string;
+	guid?: VideoGUID;
+};
+
 /**
  * Build a VideoPress URL from a VideoPress GUID or a VideoPress URL.
  * The function returns an { url, guid } object, or false.
  *
- * @param {string | VideoGUID} value        - The VideoPress GUID or URL.
+ * @param {string|VideoGUID} value          - The VideoPress GUID or URL.
  * @param {VideoPressUrlOptions} attributes - The VideoPress URL options.
- * @returns {false | string}                  VideoPress URL if the string is valid, false otherwise.
+ * @returns {BuildVideoPressURL}              VideoPress URL if the string is valid, false otherwise.
  */
 export function buildVideoPressURL(
 	value: string | VideoGUID,
 	attributes?: VideoPressUrlOptions
-): false | { url: string; guid: VideoGUID } {
+): BuildVideoPressURL {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
 		if ( ! attributes ) {
@@ -123,7 +128,7 @@ export function buildVideoPressURL(
 		return { url: value, guid: isGuidFromUrl };
 	}
 
-	return false;
+	return {};
 }
 
 export const removeFileNameExtension = ( name: string ) => {
