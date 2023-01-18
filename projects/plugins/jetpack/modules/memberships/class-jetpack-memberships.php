@@ -388,7 +388,7 @@ class Jetpack_Memberships {
 		return sprintf(
 			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
-				Jetpack_Gutenberg::block_classes(
+				Blocks::classes(
 					self::$button_block_name,
 					$attrs,
 					array( 'wp-block-button' )
