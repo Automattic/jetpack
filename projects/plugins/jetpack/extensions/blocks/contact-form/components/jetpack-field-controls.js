@@ -166,7 +166,7 @@ const JetpackFieldControls = ( {
 					/>
 				</PanelBody>
 				<PanelBody
-					title={ __( 'Input Styles', 'jetpack' ) }
+					title={ __( 'Input Field Styles', 'jetpack' ) }
 					initialOpen={
 						attributes.borderWidth ||
 						attributes.borderRadius ||
