@@ -16,7 +16,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.4';
+	const PACKAGE_VERSION = '0.3.5-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
