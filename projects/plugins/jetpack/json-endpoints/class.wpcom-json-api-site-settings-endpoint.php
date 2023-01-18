@@ -51,6 +51,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
+			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
+			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
 			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
@@ -356,8 +358,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = array(
 						// also exists as "options".
 						'admin_url'                        => get_admin_url(),
-						'default_ping_status'              => (bool) ( 'closed' !== get_option( 'default_ping_status' ) ),
-						'default_comment_status'           => (bool) ( 'closed' !== get_option( 'default_comment_status' ) ),
+						'default_ping_status'              => 'closed' !== get_option( 'default_ping_status' ),
+						'default_comment_status'           => 'closed' !== get_option( 'default_comment_status' ),
 
 						// new stuff starts here.
 						'instant_search_enabled'           => (bool) get_option( 'instant_search_enabled' ),
@@ -365,8 +367,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
-						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
-						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
+						'jetpack_relatedposts_show_context' => ! empty( $jetpack_relatedposts_options['show_context'] ),
+						'jetpack_relatedposts_show_date'   => ! empty( $jetpack_relatedposts_options['show_date'] ),
+						'jetpack_relatedposts_show_headline' => ! empty( $jetpack_relatedposts_options['show_headline'] ),
+						'jetpack_relatedposts_show_thumbnails' => ! empty( $jetpack_relatedposts_options['show_thumbnails'] ),
 						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
@@ -436,12 +440,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
-						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
-						'subscription_options'             => (array) get_option( 'subscription_options', array() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
+						'subscription_options'             => (array) get_option( 'subscription_options' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -645,6 +648,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 				case 'jetpack_relatedposts_enabled':
+				case 'jetpack_relatedposts_show_context':
+				case 'jetpack_relatedposts_show_date':
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
 					if ( ! $this->jetpack_relatedposts_supported() ) {
@@ -999,11 +1004,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
-				case 'jetpack_are_blogging_prompts_enabled':
-					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
-					$updated[ $key ] = (bool) $value;
-					break;
-
 				case 'show_on_front':
 					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
@@ -1011,29 +1011,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'page_on_front':
-					if ( ! $this->is_valid_page_id( $value ) ) {
-						break;
-					}
-
-					$page_for_posts = get_option( 'page_for_posts' );
-					if ( $page_for_posts === $value ) {
-						// page for posts and page on front can't be the same
-						break;
-					}
-
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
-
-					break;
 				case 'page_for_posts':
+					if ( $value === '' ) { // empty function is not applicable here because '0' may be a valid page id
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+
+						break;
+					}
+
 					if ( ! $this->is_valid_page_id( $value ) ) {
 						break;
 					}
 
-					$page_on_front = get_option( 'page_on_front' );
-					if ( $page_on_front === $value ) {
-						// page on front and page for posts can't be the same
+					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
+					$related_option_value = get_option( $related_option_key );
+					if ( $related_option_value === $value ) {
+						// page_on_front and page_for_posts are not allowed to be the same
 						break;
 					}
 
@@ -1071,7 +1065,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
 				foreach ( $jetpack_relatedposts_options as $key => $value ) {
-					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
+					if ( in_array( $key, array( 'show_context', 'show_date' ), true ) ) {
+						$has_initialized_option = ! isset( $old_relatedposts_options[ $key ] ) && $value;
+						$has_updated_option     = isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ];
+
+						if ( $has_initialized_option || $has_updated_option ) {
+							$updated[ 'jetpack_relatedposts_' . $key ] = (bool) $value;
+						}
+					} elseif ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}

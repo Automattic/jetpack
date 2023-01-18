@@ -1288,8 +1288,18 @@ class Grunion_Admin {
 			$sheet_data[] = $current_row;
 		}
 
-		$user_id           = (int) get_current_user_id();
-		$spreadsheet_title = sprintf( '%s - %s', __( 'Responses', 'jetpack' ), gmdate( 'Y-m-d H:i' ) );
+		$user_id = (int) get_current_user_id();
+
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$spreadsheet_title = sprintf(
+				'%1$s - %2$s',
+				$this->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$spreadsheet_title = sprintf( '%s - %s', $this->get_export_filename(), gmdate( 'Y-m-d H:i' ) );
+		}
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
@@ -1455,6 +1465,27 @@ class Grunion_Admin {
 			false,
 			array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
 		);
+	}
+
+	/**
+	 * Get a filename for export tasks
+	 *
+	 * @param string $source The filtered source for exported data.
+	 * @return string The filename without source nor date suffix.
+	 */
+	public function get_export_filename( $source = '' ) {
+		return $source === ''
+			? sprintf(
+				/* translators: Site title, used to craft the export filename, eg "MySite - Jetpack Form Responses" */
+				__( '%s - Jetpack Form Responses', 'jetpack' ),
+				sanitize_file_name( get_bloginfo( 'name' ) )
+			)
+			: sprintf(
+				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
+				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack' ),
+				sanitize_file_name( get_bloginfo( 'name' ) ),
+				sanitize_file_name( $source )
+			);
 	}
 }
 

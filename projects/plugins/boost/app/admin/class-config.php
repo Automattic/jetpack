@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
@@ -46,6 +47,7 @@ class Config {
 				'online'     => ! ( new Status() )->is_offline_mode(),
 				'assetPath'  => plugins_url( $internal_path, JETPACK_BOOST_PATH ),
 				'getStarted' => self::is_getting_started(),
+				'isAtomic'   => ( new Host() )->is_woa_site(),
 			),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),

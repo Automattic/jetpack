@@ -1,6 +1,6 @@
-import PageActions from '../../page-actions.js';
+import BlockEditorCanvas from './editor-canvas.js';
 
-export default class TiledGallery extends PageActions {
+export default class TiledGallery extends BlockEditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Tiled Gallery block' );
 		this.blockTitle = TiledGallery.title();
@@ -16,7 +16,7 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async addImages( numImages = 4 ) {
-		await this.click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
+		await this.canvas().click( this.#getSelector( 'button.jetpack-external-media-button-menu' ) );
 		await this.click( 'text=Openverse' );
 
 		const modal = this.page.getByRole( 'dialog' );
@@ -33,9 +33,9 @@ export default class TiledGallery extends PageActions {
 	}
 
 	async waitForResponse() {
-		const testUrl = /^https?:\/\/.*%2Fwp%2Fv2%2Fmedia/;
-
-		await this.page.waitForResponse( resp => testUrl.test( resp.url() ) );
+		await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /wp\/v2\/media/ ) && r.status() === 200
+		);
 	}
 
 	async linkToAttachment() {

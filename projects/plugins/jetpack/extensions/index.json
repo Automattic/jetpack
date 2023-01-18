@@ -45,6 +45,8 @@
 		"payment-buttons"
 	],
 	"beta": [
+		"ai-image",
+		"ai-paragraph",
 		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",

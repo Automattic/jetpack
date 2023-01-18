@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/json-api-config.php';
 require_once __DIR__ . '/sal/class.json-api-links.php';
@@ -1313,7 +1314,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		if (
-			-1 === (int) get_option( 'blog_public' ) &&
+			( new Status() )->is_private_site() &&
 			/**
 			 * Filter access to a specific post.
 			 *
@@ -1787,7 +1788,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'display':
-				if ( -1 === (int) get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
+				if ( ( new Status() )->is_private_site() && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;

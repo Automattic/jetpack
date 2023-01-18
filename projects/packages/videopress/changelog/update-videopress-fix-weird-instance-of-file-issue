@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: change the way to detect when the media is a File instance
