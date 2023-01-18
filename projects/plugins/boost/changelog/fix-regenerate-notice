@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed an issue where notice to regenerate critical CSS were showing unnecessarily
