@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.4] - 2023-01-18
+### Added
+- VideoPress: check source language length of the video chapters [#28406]
+
 ## [0.10.3] - 2023-01-16
 ### Added
 - VideoPress: add anchor support to VideoPress video block [#28377]
@@ -630,6 +634,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.0...v0.10.1
