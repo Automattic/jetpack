@@ -403,12 +403,12 @@ class Waf_Runner {
 			return false;
 		}
 
-		// If we do not have the required plan, check the automatic rules file.
+		// Validate that the automatic rules file exists and is not empty.
 		global $wp_filesystem;
 		self::initialize_filesystem();
 		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
-		// If automatic rules files was removed or is now empty, return false.
+		// If the automatic rules file was removed or is now empty, return false.
 		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
 
 			// Delete the automatic rules last updated option.
