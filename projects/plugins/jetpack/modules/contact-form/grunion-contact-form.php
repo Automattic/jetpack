@@ -1324,12 +1324,12 @@ class Grunion_Contact_Form_Plugin {
 		$md[ __( 'IP Address', 'jetpack' ) ] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
-		$md[ __( 'Consent', 'jetpack' ) ] = 0;
+		$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = 0;
 		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
 			$all_fields = $content_fields['_feedback_all_fields'];
 			// check if the email_marketing_consent field exists.
 			if ( isset( $all_fields['email_marketing_consent'] ) ) {
-				$md[ __( 'Consent', 'jetpack' ) ] = $all_fields['email_marketing_consent'];
+				$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = $all_fields['email_marketing_consent'];
 			}
 		}
 
