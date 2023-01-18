@@ -1,12 +1,11 @@
-import PageActions from '../../page-actions.js';
-
-export default class FormBlock extends PageActions {
+import BlockEditorCanvas from './editor-canvas.js';
+import logger from '../../../logger.cjs';
+export default class FormBlock extends BlockEditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Form block' );
 		this.blockTitle = FormBlock.title();
 		this.blockSelector = '#block-' + blockId;
 	}
-
 	static name() {
 		return 'contact-form';
 	}
@@ -15,8 +14,10 @@ export default class FormBlock extends PageActions {
 		return 'Form';
 	}
 
-	async selectFormVariation( variationText = 'Contact Form' ) {
-		await this.click( `text=${ variationText }` );
+	async selectFormVariation() {
+		logger.step( `Selecting form variation` );
+		await this.canvas().click( `button:has-text('Explore Form Patterns')` );
+		await this.click( `button:has-text('Choose')` );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: do not include the sharing buttons in REST API responses.

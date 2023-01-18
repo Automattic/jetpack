@@ -1,4 +1,5 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
@@ -324,6 +325,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Generates the source parameter to pass to the iframe
+	 *
+	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+	 */
+	protected static function get_post_access_level() {
+		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
+		global $post;
+		$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		if ( empty( $meta ) ) {
+			$meta = 'everybody';
+		}
+		return $meta;
+	}
+
+	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -347,6 +363,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
+		$post_access_level            = self::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -360,6 +377,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
+				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -392,6 +411,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							placeholder="%3$s"
 							value=""
 							id="%4$s"
+							required
 						/>',
 						( ! empty( $email_field_classes )
 							? 'class="' . esc_attr( $email_field_classes ) . '"'
@@ -463,7 +483,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>"
+				data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>" >
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
@@ -998,3 +1020,32 @@ function jetpack_blog_subscriptions_init() {
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
+
+/**
+ * Sets the default value for `subscription_options` site option.
+ *
+ * This default value is available across Simple, Atomic and Jetpack sites,
+ * including the /sites/$site/settings endpoint.
+ *
+ * @param array  $default Default `subscription_options` array.
+ * @param string $option Option name.
+ * @param bool   $passed_default Whether `get_option()` passed a default value.
+ *
+ * @return array Default value of `subscription_options`.
+ */
+function subscription_options_fallback( $default, $option, $passed_default ) {
+	if ( $passed_default ) {
+		return $default;
+	}
+
+	$site_url    = get_home_url();
+	$display_url = preg_replace( '(^https?://)', '', untrailingslashit( $site_url ) );
+
+	return array(
+		/* translators: Both %1$s and %2$s is site address */
+		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
+		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+	);
+}
+
+add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );

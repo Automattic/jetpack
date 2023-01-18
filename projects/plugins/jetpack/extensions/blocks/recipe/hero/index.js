@@ -19,7 +19,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'widgets',
 	edit,
 	save,
 	parent: [ 'jetpack/recipe' ],
