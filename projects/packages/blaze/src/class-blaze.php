@@ -63,7 +63,7 @@ class Blaze {
 	 *
 	 * @return bool
 	 */
-	private static function site_supports_blaze( $blog_id ) {
+	public static function site_supports_blaze( $blog_id ) {
 		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
 			return true;
 		}
