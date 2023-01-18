@@ -46,7 +46,7 @@ class REST_API {
 					'methods'             => \WP_REST_Server::CREATABLE,
 					'callback'            => array( $route, 'create_item' ),
 					'permission_callback' => array( $route, 'create_item_permissions_check' ),
-					'allow_batch'         => true,
+					'allow_batch'         => array( 'v1' => true ),
 					'args'                => array( $route, 'get_endpoint_args_for_item_schema' ),
 					'schema'              => array( $route, 'get_public_item_schema' ),
 				)
