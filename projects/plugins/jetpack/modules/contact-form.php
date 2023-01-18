@@ -20,7 +20,17 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
 
-if ( defined( 'JETPACK_FORMS_PACKAGE_ENABLED' ) && JETPACK_FORMS_PACKAGE_ENABLED ) {
+/**
+ * Whether to load the newer Jetpack Forms package.
+ *
+ * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
+ * @module contact-form
+ *
+ * @since $$next-version$$
+ *
+ * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
+ */
+if ( apply_filters( 'jetpack_contact_form_use_package', false ) ) {
 	Jetpack_Forms::load_contact_form();
 	return true; // Not returning true will cause the module to become deactivated.
 }
