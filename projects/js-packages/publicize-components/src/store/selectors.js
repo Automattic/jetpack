@@ -543,7 +543,7 @@ export function getFeatureEnableState() {
 /**
  * Get all Jetpack Social options.
  *
- * @returns {Object} Object with Jetpack Social options.
+ * @returns {object} Object with Jetpack Social options.
  */
 export function getJetpackSocialOptions() {
 	const { getEditedPostAttribute } = select( editorStore );
@@ -554,7 +554,7 @@ export function getJetpackSocialOptions() {
 /**
  * Get whether the post has already been shared.
  *
- * @returns {Object} Object with Jetpack Social options.
+ * @returns {object} Object with Jetpack Social options.
  */
 export function getJetpackSocialPostAlreadyShared() {
 	const { getEditedPostAttribute } = select( editorStore );

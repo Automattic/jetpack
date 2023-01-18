@@ -1,9 +1,9 @@
 /**
  * Return the highest discount amongst all suggested products.
  *
- * @param {Object} discountData - Informations about the discount
- * @param {Object[]} introOffers - Set of product offering information
- * @param {Object[]} suggestions - Suggested products
+ * @param {object} discountData - Informations about the discount
+ * @param {object[]} introOffers - Set of product offering information
+ * @param {object[]} suggestions - Suggested products
  * @returns {number} Max discount
  */
 export const computeMaxSuggestedDiscount = ( discountData, introOffers, suggestions ) => {

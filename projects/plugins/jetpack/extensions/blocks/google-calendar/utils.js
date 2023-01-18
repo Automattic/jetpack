@@ -34,7 +34,7 @@ export function convertShareableUrl( shareableUrl ) {
  * Given an <iframe> that matches IFRAME_REGEX, extract the url, width, and height.
  *
  * @param   {string} html - The HTML to extract from.
- * @returns {Object} An object containing the url, width, and height.
+ * @returns {object} An object containing the url, width, and height.
  */
 export function extractAttributesFromIframe( html ) {
 	const data = IFRAME_REGEX.exec( html );
@@ -73,7 +73,7 @@ export function extractAttributesFromIframe( html ) {
  * potentially width and height data if the embed code is an iframe.
  *
  * @param   {string} embedString - Embed string to parse.
- * @returns {Object} An object containing URL data.
+ * @returns {object} An object containing URL data.
  */
 export function parseEmbed( embedString ) {
 	if ( IFRAME_REGEX.test( embedString ) ) {
