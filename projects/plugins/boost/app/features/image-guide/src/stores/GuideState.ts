@@ -11,7 +11,6 @@ import { derived, Writable, writable } from 'svelte/store';
 const LS_KEY = 'jetpack-boost-guide';
 const store = {
 	active: 'Active',
-	always_on: 'Always On',
 	paused: 'Paused',
 } as const;
 

@@ -3,11 +3,11 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 /**
  * Internal dependencies
  */
 import getMediaToken from '../../../lib/get-media-token';
-import { decodeEntities } from '../../../lib/url';
 /**
  * Types
  */

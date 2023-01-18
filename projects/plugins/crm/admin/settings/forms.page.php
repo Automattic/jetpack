@@ -98,21 +98,11 @@ if ( isset( $sbupdated ) ) {
 			</tr>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_gcaptchasitekey"><?php esc_html_e( 'reCaptcha Site Key', 'zero-bs-crm' ); ?></label><br /></td>
-				<td><input type="text" class="winput form-control" name="wpzbscrm_gcaptchasitekey" id="wpzbscrm_gcaptchasitekey" value="
-				<?php
-				if ( isset( $settings['gcaptchasitekey'] ) && ! empty( $settings['gcaptchasitekey'] ) ) {
-					echo esc_attr( $settings['gcaptchasitekey'] );}
-				?>
-				" placeholder="e.g. 6LekCyoTAPPPALWpHONFsRO5RQPOqoHfehdb4iqG" /></td>
+				<td><input type="text" class="winput form-control" name="wpzbscrm_gcaptchasitekey" id="wpzbscrm_gcaptchasitekey" value="<?php echo empty( $settings['gcaptchasitekey'] ) ? '' : esc_attr( $settings['gcaptchasitekey'] ); ?>" placeholder="e.g. 6LekCyoTAPPPALWpHONFsRO5RQPOqoHfehdb4iqG" /></td>
 			</tr>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_gcaptchasitesecret"><?php esc_html_e( 'reCaptcha Site Secret', 'zero-bs-crm' ); ?></label><br /></td>
-				<td><input type="text" class="winput form-control" name="wpzbscrm_gcaptchasitesecret" id="wpzbscrm_gcaptchasitesecret" value="
-				<?php
-				if ( isset( $settings['gcaptchasitesecret'] ) && ! empty( $settings['gcaptchasitesecret'] ) ) {
-					echo esc_attr( $settings['gcaptchasitesecret'] );}
-				?>
-				" placeholder="e.g. 6LekCyoTAAPPAJbQ1rq81117nMoo9y45fB3OLJVx" /></td>
+				<td><input type="text" class="winput form-control" name="wpzbscrm_gcaptchasitesecret" id="wpzbscrm_gcaptchasitesecret" value="<?php echo empty( $settings['gcaptchasitesecret'] ) ? '' : esc_attr( $settings['gcaptchasitesecret'] ); ?>" placeholder="e.g. 6LekCyoTAAPPAJbQ1rq81117nMoo9y45fB3OLJVx" /></td>
 			</tr>
 
 			</tbody>

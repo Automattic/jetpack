@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2023-01-16
+### Added
+- VideoPress: add anchor support to VideoPress video block [#28377]
+- VideoPress: add rating selector on video details edit page [#28347]
+
+### Changed
+- VideoPress: avoid requesting unneeded preview when block mounts [#28311]
+- VideoPress: fix exception when deleting last video of page [#28281]
+- VideoPress: skip rating checking when pulling video data for the block [#28374]
+- VideoPress: tweak the footer of the uploader component [#28337]
+- VideoPress: use @wordpress/html-entities to handle html entities [#28376]
+
+### Fixed
+- VideoPress: enhance behavior when deleting multiple videos [#28302]
+- VideoPress: fix render player once file uploads issue [#28296]
+- VideoPress: fix setting title when uploading video file [#28329]
+- VideoPress: render properly title and description inputs of the video block [#28341]
+
 ## [0.10.2] - 2023-01-11
 ### Added
 - VideoPress: add Cancel button to uploading file component when replacing file [#28188]
@@ -612,6 +630,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.2...v0.10.0
