@@ -429,7 +429,7 @@ class Listener {
 			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
 				if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
-					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
+					require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/modules/brute-force-protection/shared-functions.php';
 				}
 				$ip = jetpack_protect_get_ip();
 			}
