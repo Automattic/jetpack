@@ -114,7 +114,7 @@ jQuery( function ( $ ) {
 			action: 'jetpack_delete_spam_feedbacks',
 			nonce: nonce,
 		} )
-			.fail( function ( result ) {
+			.fail( function () {
 				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
 				window.location.href = empty_spam_buttons.data( 'failure-url' );
 				return;

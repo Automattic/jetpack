@@ -1,4 +1,5 @@
-/* global grunionEditorView, tinyMCE, QTags, wp */
+/* global grunionEditorView, tinyMCE, QTags */
+
 ( function ( $, wp, grunionEditorView ) {
 	wp.mce = wp.mce || {};
 	if ( 'undefined' === typeof wp.mce.views ) {

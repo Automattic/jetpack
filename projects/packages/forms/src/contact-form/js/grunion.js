@@ -85,7 +85,7 @@ FB.ContactForm = ( function () {
 	const maxNewFields = GrunionFB_i18n.maxNewFields; // See filter in ../grunion-form-view.php
 	let optionsCache = {};
 	let optionsCount = 0; // increment for options
-	let shortcode;
+	let shortcode; //eslint-disable-line no-unused-vars
 
 	/**
 	 *
@@ -145,6 +145,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'addField(): ' + e );
 			}
 		}
@@ -249,6 +250,7 @@ FB.ContactForm = ( function () {
 				.select();
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'addOption(): ' + e );
 			}
 		}
@@ -289,6 +291,7 @@ FB.ContactForm = ( function () {
 			} );
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'buildPreview(): ' + e );
 			}
 		}
@@ -350,6 +353,7 @@ FB.ContactForm = ( function () {
 			return thisOptions;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'customOptions(): ' + e );
 			}
 		}
@@ -371,6 +375,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'deleteField(): ' + e );
 			}
 		}
@@ -388,6 +393,7 @@ FB.ContactForm = ( function () {
 			loadFieldEditor( thisId );
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'editField(): ' + e );
 			}
 		}
@@ -404,6 +410,7 @@ FB.ContactForm = ( function () {
 		} catch ( e ) {
 			alert( GrunionFB_i18n.problemGeneratingForm );
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'grabShortcode(): ' + e );
 			}
 		}
@@ -440,6 +447,7 @@ FB.ContactForm = ( function () {
 			return false;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'hidePopup(): ' + e );
 			}
 		}
@@ -471,6 +479,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'hideShowEditLink(): ' + e );
 			}
 		}
@@ -537,6 +546,7 @@ FB.ContactForm = ( function () {
 			hideDesc();
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'loadFieldEditor(): ' + e );
 			}
 		}
@@ -563,6 +573,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'parseShortcode(): ' + e );
 			}
 		}
@@ -592,6 +603,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'removeOption(): ' + e );
 			}
 		}
@@ -610,6 +622,7 @@ FB.ContactForm = ( function () {
 			fbForm.fields[ thisId ].options = []; // Removes all options
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'removeOptions(): ' + e );
 			}
 		}
@@ -684,6 +697,7 @@ FB.ContactForm = ( function () {
 			} );
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'sendShortcodeToEditor(): ' + e );
 			}
 		}
@@ -708,6 +722,7 @@ FB.ContactForm = ( function () {
 			}, 2500 );
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'showAndHideMessage(): ' + e );
 			}
 		}
@@ -735,6 +750,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'switchTabs(): ' + e );
 			}
 		}
@@ -785,6 +801,7 @@ FB.ContactForm = ( function () {
 			fbForm.fields[ thisId ].label = thisLabel;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateLabel(): ' + e );
 			}
 		}
@@ -798,6 +815,7 @@ FB.ContactForm = ( function () {
 			fbForm.to = thisEmail;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateMyEmail(): ' + e );
 			}
 		}
@@ -825,6 +843,7 @@ FB.ContactForm = ( function () {
 			fbForm.fields[ thisId ].options[ thisOptionid ] = thisOptionValue;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateOption(): ' + e );
 			}
 		}
@@ -848,6 +867,7 @@ FB.ContactForm = ( function () {
 			}
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateRequired(): ' + e );
 			}
 		}
@@ -861,6 +881,7 @@ FB.ContactForm = ( function () {
 			fbForm.subject = thisSubject;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateSubject(): ' + e );
 			}
 		}
@@ -1088,6 +1109,7 @@ FB.ContactForm = ( function () {
 			fbForm.fields[ thisId ].type = thisType;
 		} catch ( e ) {
 			if ( debug ) {
+				// eslint-disable-next-line no-console
 				console.log( 'updateType(): ' + e );
 			}
 		}
@@ -1116,6 +1138,7 @@ FB.ContactForm = ( function () {
 				}
 			} catch ( e ) {
 				if ( debug ) {
+					// eslint-disable-next-line no-console
 					console.log( 'resizePop(): ' + e );
 				}
 			}
