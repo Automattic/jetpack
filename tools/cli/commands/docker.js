@@ -103,6 +103,7 @@ const printPostCmdMsg = argv => {
 	}
 };
 
+// eslint-disable-next-line jsdoc/require-returns-check -- false positive
 /**
  * Default executor with error handler
  *
