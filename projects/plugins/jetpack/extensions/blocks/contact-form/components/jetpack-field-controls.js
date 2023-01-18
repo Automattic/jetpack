@@ -38,68 +38,34 @@ const JetpackFieldControls = ( {
 		} );
 	};
 
-	let colorSettings = [];
-	let borderWidthControls = '';
-	let borderRadiusControls = '';
-
-	if ( typeof type === 'string' && ( type === 'radio' || type === 'checkbox' ) ) {
-		colorSettings = [
-			{
-				value: attributes.labelColor,
-				onChange: value => setAttributes( { labelColor: value } ),
-				label: __( 'Label text', 'jetpack' ),
-			},
-			{
-				value: attributes.inputColor,
-				onChange: value => setAttributes( { inputColor: value } ),
-				label: __( 'Field text', 'jetpack' ),
-			},
-		];
-		borderWidthControls = '';
-		borderRadiusControls = '';
-	} else {
-		borderWidthControls = (
-			<TextControl
-				label={ __( 'Border Width', 'jetpack' ) }
-				value={ attributes.borderWidth }
-				onChange={ setNumberAttribute( 'borderWidth' ) }
-			/>
-		);
-		borderRadiusControls = (
-			<TextControl
-				label={ __( 'Border Radius', 'jetpack' ) }
-				value={ attributes.borderRadius }
-				onChange={ setNumberAttribute( 'borderRadius' ) }
-			/>
-		);
-		colorSettings = [
-			{
-				value: attributes.labelColor,
-				onChange: value => setAttributes( { labelColor: value } ),
-				label: __( 'Label text', 'jetpack' ),
-			},
-			{
-				value: attributes.inputColor,
-				onChange: value => setAttributes( { inputColor: value } ),
-				label: __( 'Field text', 'jetpack' ),
-			},
-			{
-				value: attributes.fieldBackgroundColor,
-				onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-				label: __( 'Field Background', 'jetpack' ),
-			},
-			{
-				value: attributes.borderColor,
-				onChange: value => setAttributes( { borderColor: value } ),
-				label: __( 'Field Border', 'jetpack' ),
-			},
-			{
-				value: attributes.blockBackgroundColor,
-				onChange: value => setAttributes( { blockBackgroundColor: value } ),
-				label: __( 'Block Background', 'jetpack' ),
-			},
-		];
-	}
+	const hasBorderControls = type === 'radio' || type === 'checkbox';
+	const colorSettings = [
+		{
+			value: attributes.labelColor,
+			onChange: value => setAttributes( { labelColor: value } ),
+			label: __( 'Label text', 'jetpack' ),
+		},
+		{
+			value: attributes.inputColor,
+			onChange: value => setAttributes( { inputColor: value } ),
+			label: __( 'Field text', 'jetpack' ),
+		},
+		{
+			value: attributes.fieldBackgroundColor,
+			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
+			label: __( 'Field Background', 'jetpack' ),
+		},
+		{
+			value: attributes.borderColor,
+			onChange: value => setAttributes( { borderColor: value } ),
+			label: __( 'Field Border', 'jetpack' ),
+		},
+		{
+			value: attributes.blockBackgroundColor,
+			onChange: value => setAttributes( { blockBackgroundColor: value } ),
+			label: __( 'Block Background', 'jetpack' ),
+		},
+	];
 
 	return (
 		<>
@@ -144,12 +110,11 @@ const JetpackFieldControls = ( {
 						) }
 					/>
 				</PanelBody>
-
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack' ) }
 					initialOpen={ false }
-					colorSettings={ colorSettings }
-				></PanelColorSettings>
+					colorSettings={ hasBorderControls ? colorSettings.slice( 0, 2 ) : colorSettings }
+				/>
 				<PanelBody
 					title={ __( 'Label Styles', 'jetpack' ) }
 					initialOpen={ attributes.labelFontSize }
@@ -188,8 +153,17 @@ const JetpackFieldControls = ( {
 						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 						size="__unstable-large"
 					/>
-					{ borderWidthControls }
-					{ borderRadiusControls }
+
+					<TextControl
+						label={ __( 'Border Width', 'jetpack' ) }
+						value={ attributes.borderWidth }
+						onChange={ setNumberAttribute( 'borderWidth' ) }
+					/>
+					<TextControl
+						label={ __( 'Border Radius', 'jetpack' ) }
+						value={ attributes.borderRadius }
+						onChange={ setNumberAttribute( 'borderRadius' ) }
+					/>
 				</PanelBody>
 			</InspectorControls>
 
