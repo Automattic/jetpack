@@ -32,6 +32,23 @@ class Users extends Module {
 	protected $flags = array();
 
 	/**
+	 * Mapping between user fields to flags.
+	 *
+	 * @var array
+	 */
+	protected $user_fields_to_flags_mapping = array(
+		'user_pass'           => 'password_changed',
+		'user_email'          => 'email_changed',
+		'user_login'          => 'login_changed',
+		'user_nicename'       => 'nicename_changed',
+		'user_url'            => 'url_changed',
+		'user_registered'     => 'registration_date_changed',
+		'user_activation_key' => 'activation_key_changed',
+		'user_status'         => 'status_changed',
+		'display_name'        => 'display_name_changed',
+	);
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -487,39 +504,27 @@ class Users extends Module {
 			$old_user = $old_user_data;
 		}
 
-		if ( null !== $old_user && $user->user_pass !== $old_user->user_pass ) {
-			$this->flags[ $user_id ]['password_changed'] = true;
+		if ( ! is_object( $old_user ) ) {
+			return;
 		}
-		if ( null !== $old_user && $user->data->user_email !== $old_user->user_email ) {
-			/**
-			 * The '_new_email' user meta is deleted right after the call to wp_update_user
-			 * that got us to this point so if it's still set then this was a user confirming
-			 * their new email address.
-			 */
-			if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
-				$this->flags[ $user_id ]['email_changed'] = true;
+
+		$old_user_array = get_object_vars( $old_user );
+
+		foreach ( $old_user_array as $user_field => $field_value ) {
+			if ( $user->$user_field !== $old_user->$user_field ) {
+				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
+				if ( 'user_email' === $user_field ) {
+					/**
+					 * The '_new_email' user meta is deleted right after the call to wp_update_user
+					 * that got us to this point so if it's still set then this was a user confirming
+					 * their new email address.
+					 */
+					if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
+						$this->flags[ $user_id ]['email_changed'] = true;
+					}
+				}
+				$this->flags[ $user_id ][ $flag ] = true;
 			}
-		}
-		if ( null !== $old_user && $user->user_login !== $old_user->user_login ) {
-			$this->flags[ $user_id ]['login_changed'] = true;
-		}
-		if ( null !== $old_user && $user->user_nicename !== $old_user->user_nicename ) {
-			$this->flags[ $user_id ]['nicename_changed'] = true;
-		}
-		if ( null !== $old_user && $user->user_url !== $old_user->user_url ) {
-			$this->flags[ $user_id ]['url_changed'] = true;
-		}
-		if ( null !== $old_user && $user->user_registered !== $old_user->user_registered ) {
-			$this->flags[ $user_id ]['registration_date_changed'] = true;
-		}
-		if ( null !== $old_user && $user->user_activation_key !== $old_user->user_activation_key ) {
-			$this->flags[ $user_id ]['activation_key_changed'] = true;
-		}
-		if ( null !== $old_user && $user->user_status !== $old_user->user_status ) {
-			$this->flags[ $user_id ]['status_changed'] = true;
-		}
-		if ( null !== $old_user && $user->display_name !== $old_user->display_name ) {
-			$this->flags[ $user_id ]['display_name_changed'] = true;
 		}
 
 		if ( isset( $this->flags[ $user_id ] ) ) {
