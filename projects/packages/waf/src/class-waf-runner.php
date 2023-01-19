@@ -26,8 +26,8 @@ class Waf_Runner {
 		if ( ! self::is_enabled() ) {
 			return;
 		}
-		self::define_mode();
-		self::define_share_data();
+		Waf_Constants::define_mode();
+		Waf_Constants::define_share_data();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
@@ -50,30 +50,6 @@ class Waf_Runner {
 	public static function add_hooks() {
 		// Register REST routes.
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-	}
-
-	/**
-	 * Set the mode definition if it has not been set.
-	 *
-	 * @return void
-	 */
-	public static function define_mode() {
-		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( self::MODE_OPTION_NAME );
-			define( 'JETPACK_WAF_MODE', $mode_option );
-		}
-	}
-
-	/**
-	 * Set the share data definition if it has not been set.
-	 *
-	 * @return void
-	 */
-	public static function define_share_data() {
-		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
-			$share_data_option = get_option( self::SHARE_DATA_OPTION_NAME, false );
-			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
-		}
 	}
 
 	/**
@@ -172,7 +148,7 @@ class Waf_Runner {
 			Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME => get_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ),
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
-			'automatic_rules_available'                  => (bool) get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME ),
+			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
 		);
 	}
 
@@ -193,7 +169,7 @@ class Waf_Runner {
 	 * @return string The full file path to the provided file in the WAF directory.
 	 */
 	public static function get_waf_file_path( $file ) {
-		Waf_Constants::initialize_constants();
+		Waf_Constants::define_waf_directory();
 
 		// Ensure the file path starts with a slash.
 		if ( '/' !== substr( $file, 0, 1 ) ) {
@@ -214,7 +190,7 @@ class Waf_Runner {
 			return;
 		}
 
-		Waf_Constants::initialize_constants();
+		Waf_Constants::initialize_bootstrap_constants();
 
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// and we're running as a plugin (meh). Otherwise, we're running via something
@@ -290,7 +266,7 @@ class Waf_Runner {
 	 * @return void
 	 */
 	public static function activate() {
-		self::define_mode();
+		Waf_Constants::define_mode();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
@@ -317,7 +293,7 @@ class Waf_Runner {
 	 */
 	public static function create_waf_directory() {
 		WP_Filesystem();
-		Waf_Constants::initialize_constants();
+		Waf_Constants::define_waf_directory();
 
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
@@ -390,4 +366,40 @@ class Waf_Runner {
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
+	/**
+	 * Check if an automatic rules file is available
+	 *
+	 * @return bool False if an automatic rules file is not available, true otherwise
+	 */
+	public static function automatic_rules_available() {
+		$automatic_rules_last_updated = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+		// If we do not have a automatic rules last updated timestamp cached, return false.
+		if ( ! $automatic_rules_last_updated ) {
+			return false;
+		}
+
+		// Validate that the automatic rules file exists and is not empty.
+		global $wp_filesystem;
+		self::initialize_filesystem();
+		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
+
+		// If the automatic rules file was removed or is now empty, return false.
+		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
+
+			// Delete the automatic rules last updated option.
+			delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+			$automatic_rules_enabled = get_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+
+			// If automatic rules setting is enabled, disable it.
+			if ( $automatic_rules_enabled ) {
+				update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+			}
+
+			return false;
+		}
+
+		return true;
+	}
 }

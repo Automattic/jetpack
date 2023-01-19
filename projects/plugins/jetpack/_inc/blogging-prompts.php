@@ -41,7 +41,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 
 	if ( jetpack_is_valid_blogging_prompt( $prompt_id ) ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
-		wp_add_post_tags( $post_id, 'dailyprompt' );
+		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
 	}
 }
 
@@ -52,28 +52,10 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  */
 
 /**
- * Get the 'jetpack_blogging_prompts_enabled' and default to true if the site appears to be a blog.
- *
- * @return boolean
- */
-function jetpack_are_blogging_prompts_enabled() {
-	$prompts_enabled = (bool) get_option( 'jetpack_blogging_prompts_enabled', false );
-
-	/**
-	 * Filters whether blogging prompts are enabled.
-	 *
-	 * @since 11.7
-	 *
-	 * @param bool $prompts_enabled Whether blogging prompts are enabled.
-	 */
-	return apply_filters( 'jetpack_are_blogging_prompts_enabled', $prompts_enabled );
-}
-
-/**
  * Retrieve daily blogging prompts from the wpcom API and cache them.
  *
  * @param int $time Unix timestamp representing the day for which to get blogging prompts.
- * @return stdClass[] Array of blogging prompt objects.
+ * @return stdClass[]|null Array of blogging prompt objects or null.
  */
 function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 	$timestamp = $time ? $time : time();
@@ -91,7 +73,8 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 
 	$blog_id = \Jetpack_Options::get_option( 'id' );
 	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
-	$args    = array(
+
+	$args = array(
 		'headers' => array(
 			'Content-Type'    => 'application/json',
 			'X-Forwarded-For' => ( new \Automattic\Jetpack\Status\Visitor() )->get_ip( true ),
@@ -106,7 +89,7 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		// This will load the library, but it may be too late to automatically load any endpoints using WPCOM_API_Direct::register_endpoints.
 		// In that case, call `wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' )`
 		// on the `init` hook to load the blogging-prompts endpoint before calling this function.
-		require_lib( 'wpcom-api-direct' );
+		require_once WP_CONTENT_DIR . '/lib/wpcom-api-direct/wpcom-api-direct.php';
 		$response = \WPCOM_API_Direct::do_request( $args );
 	} else {
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user( $path, 'v2', $args, null, 'wpcom' );
@@ -119,7 +102,7 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 
 	$body = json_decode( wp_remote_retrieve_body( $response ) );
 
-	if ( ! $body ) {
+	if ( ! $body || ! isset( $body->prompts ) ) {
 		return null;
 	}
 
