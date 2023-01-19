@@ -138,7 +138,13 @@ function jetpack_add_google_fonts_provider() {
 			$fonts = array( $font_normal, $font_italic );
 		}
 
-		wp_register_webfonts( $fonts );
+		// New fonts register function since Gutenberg 15.0 or 15.1
+		// See https://github.com/Automattic/jetpack/issues/28063#issuecomment-1387090575
+		if ( function_exists( 'wp_register_fonts' ) ) {
+			wp_register_fonts( $fonts );
+		} else {
+			wp_register_webfonts( $fonts );
+		}
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_add_google_fonts_provider' );

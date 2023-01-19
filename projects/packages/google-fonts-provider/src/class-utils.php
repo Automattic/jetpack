@@ -50,7 +50,7 @@ class Utils {
 			if (
 				! function_exists( 'wp_webfonts' ) ||
 				! class_exists( 'WP_Web_Fonts' ) ||
-				! class_exists( 'WP_Webfonts_Utils' )
+				! class_exists( 'WP_Fonts_Utils' )
 			) {
 				return;
 			}
@@ -61,7 +61,7 @@ class Utils {
 				return;
 			}
 
-			$handle = \WP_Webfonts_Utils::convert_font_family_into_handle( $font_family_name );
+			$handle = \WP_Fonts_Utils::convert_font_family_into_handle( $font_family_name );
 
 			return in_array( $handle, $wp_webfonts->get_registered_font_families(), true );
 
