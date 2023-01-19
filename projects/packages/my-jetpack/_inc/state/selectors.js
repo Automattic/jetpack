@@ -18,13 +18,9 @@ export const getProduct = ( state, productId ) => {
 
 	product.pricingForUi.fullPricePerMonth =
 		Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100;
-	const discountedPricePerMonth =
-		product.pricingForUi.isIntroductoryOffer &&
-		product.pricingForUi.introductoryOffer.intervalUnit === 'month'
-			? product.pricingForUi.discountPrice
-			: product.pricingForUi.discountPrice / 12;
 
-	product.pricingForUi.discountPricePerMonth = Math.ceil( discountedPricePerMonth * 100 ) / 100;
+	product.pricingForUi.discountPricePerMonth =
+		Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100;
 
 	return product;
 };
