@@ -61,8 +61,6 @@ const getMediaDetails = media => {
 };
 
 const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
-const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
-const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
 
 const validationErrorMessages = {
 	[ FILE_TYPE_ERROR ]: __(
@@ -107,7 +105,7 @@ export default function MediaSection() {
 		}
 	}, [ updateAttachedMedia, getValidationError, metaData ] );
 
-	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
+	// const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
 		media => {
 			const { id, url } = media;
@@ -118,48 +116,54 @@ export default function MediaSection() {
 		[ updateAttachedMedia ]
 	);
 
-	const renderPreview = useCallback( () => {
-		if ( isVideo( metaData.mime ) ) {
-			// TBD
-			return <div>Video Preview</div>;
-		}
+	const renderPreview = useCallback(
+		open => {
+			if ( isVideo( metaData.mime ) ) {
+				// TBD
+				return <div>Video Preview</div>;
+			}
 
-		const { width, height, sourceUrl } = mediaData;
+			const { width, height, sourceUrl } = mediaData;
 
-		if ( width && height && sourceUrl ) {
-			return (
-				<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-					<img src={ sourceUrl } alt="" />
-				</ResponsiveWrapper>
-			);
-		}
-	}, [ mediaData, metaData ] );
-
-	const setMediaRender = useCallback(
-		( { open } ) => (
-			<div className={ styles.container }>
-				<Button
-					variant="secondary"
-					size="small"
-					className={ mediaObject && styles.preview }
-					onClick={ open }
-				>
-					{ mediaObject && renderPreview() }
-					{ ! mediaObject && ( attachedMedia.length ? <Spinner /> : ADD_MEDIA_LABEL ) }
-				</Button>
-				<span>{ __( 'Add an image or video', 'jetpack' ) }</span>
-			</div>
-		),
-		[ mediaObject, attachedMedia, renderPreview ]
+			if ( width && height && sourceUrl ) {
+				return (
+					<button className={ styles.preview } onClick={ open }>
+						<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
+							<img src={ sourceUrl } alt="" />
+						</ResponsiveWrapper>
+					</button>
+				);
+			}
+		},
+		[ mediaData, metaData ]
 	);
 
-	const replaceMediaRender = useCallback(
-		( { open } ) => (
-			<Button onClick={ open } variant="secondary">
-				{ REPLACE_MEDIA_LABEL }
-			</Button>
+	const renderPicker = useCallback(
+		open => (
+			<div className={ styles.container }>
+				{ ! attachedMedia.length ? (
+					<>
+						<Button
+							variant="secondary"
+							size="small"
+							className={ mediaObject && styles.preview }
+							onClick={ open }
+						>
+							{ ! attachedMedia.length && ADD_MEDIA_LABEL }
+						</Button>
+						<span>{ __( 'Add an image or video', 'jetpack' ) }</span>
+					</>
+				) : (
+					<Spinner />
+				) }
+			</div>
 		),
-		[]
+		[ mediaObject, attachedMedia ]
+	);
+
+	const setMediaRender = useCallback(
+		( { open } ) => ( mediaObject ? renderPreview( open ) : renderPicker( open ) ),
+		[ mediaObject, renderPreview, renderPicker ]
 	);
 
 	const onDismissClick = useCallback( () => setValidationError( null ), [] );
@@ -179,19 +183,6 @@ export default function MediaSection() {
 						render={ setMediaRender }
 						value={ attachedMedia[ 0 ]?.id }
 					/>
-					{ mediaObject && (
-						<>
-							<MediaUpload
-								title={ REPLACE_MEDIA_LABEL }
-								onSelect={ onUpdateMedia }
-								allowedTypes={ allowedMediaTypes }
-								render={ replaceMediaRender }
-							/>
-							<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-								{ REMOVE_MEDIA_LABEL }
-							</Button>
-						</>
-					) }
 					{ validationError && (
 						<Notice
 							className={ styles.notice }

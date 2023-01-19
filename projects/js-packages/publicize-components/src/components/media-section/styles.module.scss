@@ -24,11 +24,15 @@
 	margin-bottom: 16px;
 	padding: 24px;
 	width: 100%;
+	min-height: 130px;
 	border-radius: calc( var( --jp-border-radius ) * 0.5 );
+
+	> * {
+		justify-self: center;
+	}
 
 	> button {
 		grid-row: 2;
-		justify-self: center;
 
 		&::after {
 			content: '';
@@ -48,6 +52,21 @@
 		text-align: center;
 		color: var( --jp-gray-60 );
 	}
+
+	> svg {
+		position: absolute;
+		align-self: center;
+		margin: 0;
+	}
+}
+
+.preview {
+	width: 100%;
+	appearance: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
 }
 
 .notice {
@@ -59,35 +78,4 @@
 .max_notice {
 	padding: 0 0 0 8px;
 	margin: 0;
-}
-
-.toggle,
-.preview {
-	display: block;
-	width: 100%;
-	padding: 0;
-	transition: all 0.1s ease-out;
-	box-shadow: 0 0 0 0 var( --wp-admin-theme-color );
-}
-
-.preview {
-	height: auto;
-}
-
-.preview:not( :disabled ):not( [aria-disabled='true'] ):focus {
-	box-shadow: 0 0 0 4px var( --wp-admin-theme-color );
-}
-
-.toggle {
-	border-radius: 2px;
-	background-color: #f0f0f0;
-	min-height: 90px;
-	line-height: 20px;
-	padding: 8px 0;
-	text-align: center;
-
-	&:hover {
-		background: #ddd;
-		color: #1e1e1e;
-	}
 }
