@@ -13,6 +13,7 @@ import {
 	ToolbarGroup,
 	ToolbarButton,
 	Path,
+	RangeControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import renderMaterialIcon from '../../../shared/render-material-icon';
@@ -161,15 +162,21 @@ const JetpackFieldControls = ( {
 
 					{ hasBorderControls && (
 						<>
-							<TextControl
+							<RangeControl
 								label={ __( 'Border Width', 'jetpack' ) }
 								value={ attributes[ borderWidthType ] }
+								initialPosition={ 1 }
 								onChange={ setNumberAttribute( borderWidthType ) }
+								min={ 0 }
+								max={ 100 }
 							/>
-							<TextControl
+							<RangeControl
 								label={ __( 'Border Radius', 'jetpack' ) }
 								value={ attributes[ borderRadiusType ] }
+								initialPosition={ 0 }
 								onChange={ setNumberAttribute( borderRadiusType ) }
+								min={ 0 }
+								max={ 100 }
 							/>
 						</>
 					) }
