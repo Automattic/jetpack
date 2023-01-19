@@ -79,7 +79,7 @@ export const pickGUIDFromUrl: ( url: string ) => null | string = url => {
 	 * http://videos.files.wordpress.com/<guid>/<filename>.<extension>
 	 */
 	const urlParts = url.match(
-		/^https?:\/\/(?<host>video(?:\.word|s\.files.word)?press\.com)(?:\/v|\/embed)?\/(?<guid>[a-zA-Z\d]{8})/
+		/^https?:\/\/(?<host>video(?:\.word|s\.files\.word)?press\.com)(?:\/v|\/embed)?\/(?<guid>[a-zA-Z\d]{8})/
 	);
 
 	if ( ! urlParts?.groups?.guid ) {
