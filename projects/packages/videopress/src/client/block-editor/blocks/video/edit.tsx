@@ -114,6 +114,13 @@ export default function VideoPressEdit( {
 		isExample,
 	} = attributes;
 
+	/*
+	 * Force className cleanup.
+	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
+	 * when transforming from embed block.
+	 */
+	delete attributes.className;
+
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
