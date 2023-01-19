@@ -834,56 +834,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 				'Dummy',
 				'display_name_changed',
 			),
-			array(
-				'fist_name',
-				'Dummy',
-				'first_name_changed',
-			),
-			array(
-				'last_name',
-				'Dummy',
-				'last_name_changed',
-			),
-			array(
-				'description',
-				'Dummy',
-				'description_changed',
-			),
-			array(
-				'rich_editing',
-				true,
-				'rich_editing_changed',
-			),
-			array(
-				'syntax_highlighting',
-				true,
-				'syntax_highlighting_changed',
-			),
-			array(
-				'comment_shortcuts',
-				true,
-				'comment_shortcuts_changed',
-			),
-			array(
-				'admin_color',
-				'fresh',
-				'admin_color_changed',
-			),
-			array(
-				'use_ssl',
-				true,
-				'use_ssl_changed',
-			),
-			array(
-				'spam',
-				true,
-				'spam_changed',
-			),
-			array(
-				'show_admin_bar_front',
-				'true',
-				'show_admin_bar_front_changed',
-			),
 		);
 	}
 
