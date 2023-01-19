@@ -7,6 +7,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"outDir": "./build/",
 		"noEmit": false,
-		"declaration": true
+		"declaration": true,
+		"module": "es6",
+		"target": "es5"
 	}
 }
