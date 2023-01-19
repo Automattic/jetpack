@@ -21,13 +21,14 @@ export default class SiteEditorPage extends WpPage {
 
 	async clearCustomizations() {
 		logger.step( 'Attempting clear customizations' );
-		await this.waitForElementToBeHidden( '.components-snackbar__content' );
+		await this.waitForNoticeToDisappear();
 		await this.click( "button[aria-label='Show template details']" );
 		const clearCustomizationsBtn = 'span:text("Clear customizations")';
 		if ( await this.isElementVisible( clearCustomizationsBtn, 1000 ) ) {
 			logger.info( 'Clearing customizations' );
 			await this.click( clearCustomizationsBtn );
-			await this.waitForElementToBeVisible( '.components-snackbar__content' );
+			await this.waitForNoticeToAppear();
+			await this.savePage();
 		}
 	}
 
@@ -55,9 +56,11 @@ export default class SiteEditorPage extends WpPage {
 	async savePage() {
 		const firstSaveBtnSelector = 'button.edit-site-save-button__button';
 		logger.step( `Saving page` );
+		await this.waitForNoticeToDisappear();
 		await this.click( firstSaveBtnSelector );
 		await this.waitForElementToBeVisible( "button:has-text('Cancel')" );
 		await this.click( 'button.editor-entities-saved-states__save-button' );
+		await this.waitForNoticeToAppear();
 		await expect( this.page.locator( firstSaveBtnSelector ) ).toBeDisabled();
 	}
 
@@ -74,5 +77,13 @@ export default class SiteEditorPage extends WpPage {
 		await viewPageTab.waitForLoadState();
 		await viewPageTab.bringToFront();
 		return viewPageTab;
+	}
+
+	async waitForNoticeToAppear() {
+		await this.waitForElementToBeVisible( '.components-snackbar__content' );
+	}
+
+	async waitForNoticeToDisappear() {
+		await this.waitForElementToBeHidden( '.components-snackbar__content' );
 	}
 }
