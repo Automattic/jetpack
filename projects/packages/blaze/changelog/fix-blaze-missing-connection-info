@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Always enqueue Jetpack Connnection info when enqueuing Blaze script
