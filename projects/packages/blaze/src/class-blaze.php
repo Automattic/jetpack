@@ -64,10 +64,6 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function site_supports_blaze( $blog_id ) {
-		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
-			return true;
-		}
-
 		/*
 		 * On WordPress.com, we don't need to make an API request,
 		 * we can query directly.
@@ -113,34 +109,34 @@ class Blaze {
 		$connection        = new Jetpack_Connection();
 		$site_id           = Jetpack_Connection::get_site_id();
 
-		/*
-		 * These features currently only work on WordPress.com,
-		 * so the site must be connected to WordPress.com, and the user as well for things to work.
-		 * Or we must be on a WordPress.com site where we have direct access to things.
-		 */
-		if (
-			is_wp_error( $site_id )
-			|| (
-				! $is_wpcom &&
-				( ! $connection->is_connected() || ! $connection->is_user_connected() )
-			)
-		) {
-			$should_initialize = false;
-		}
+		// On self-hosted sites, we must do some additional checks.
+		if ( ! $is_wpcom ) {
+			/*
+			* These features currently only work on WordPress.com,
+			* so the site must be connected to WordPress.com, and the user as well for things to work.
+			*/
+			if (
+				is_wp_error( $site_id )
+				|| ! $connection->is_connected()
+				|| ! $connection->is_user_connected()
+			) {
+				$should_initialize = false;
+			}
 
-		// The whole thing is also powered by Sync!
-		if ( ! Sync_Settings::is_sync_enabled() ) {
-			$should_initialize = false;
+			// The whole thing is powered by Sync!
+			if ( ! Sync_Settings::is_sync_enabled() ) {
+				$should_initialize = false;
+			}
+
+			// The feature relies on this module for now.
+			// See 1386-gh-dotcom-forge
+			if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
+				$should_initialize = false;
+			}
 		}
 
 		// Check if the site supports Blaze.
-		if ( ! self::site_supports_blaze( $site_id ) ) {
-			$should_initialize = false;
-		}
-
-		// The feature relies on this module for now.
-		// See 1386-gh-dotcom-forge
-		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
+		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
 			$should_initialize = false;
 		}
 
