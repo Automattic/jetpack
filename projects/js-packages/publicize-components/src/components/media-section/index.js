@@ -160,6 +160,10 @@ export default function MediaSection() {
 
 	return (
 		<div className={ styles.wrapper }>
+			<Text variant={ 'editor-headline' }>{ __( 'Media', 'jetpack' ) }</Text>
+			<Text variant={ 'editor-body' }>
+				{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+			</Text>
 			<MediaUploadCheck>
 				<MediaUpload
 					title={ ADD_MEDIA_LABEL }

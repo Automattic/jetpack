@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 /* Reset all margin and padding for used components */
 .reset {
 	margin: 0;
@@ -79,6 +81,24 @@
 	font-size: var(--font-body-extra-small);
 	font-weight: 600;
 	line-height: 16px;
+}
+
+/* TODO: Add Emerald Typography for editor text */
+.editor-headline {
+	color: $gray-900;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 16px;
+	text-transform: uppercase;
+	margin-bottom: 4px;
+}
+
+.editor-body {
+	color: $gray-700;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 16px;
+	margin-bottom: 8px;
 }
 
 /** Box-Model: Spacing (margin) */

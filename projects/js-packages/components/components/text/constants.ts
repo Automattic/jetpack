@@ -10,6 +10,8 @@ export const VARIANTS_MAPPING = {
 	'body-extra-small': 'p',
 	'body-extra-small-bold': 'p',
 	label: 'p',
+	'editor-headline': 'p',
+	'editor-body': 'p',
 } as const;
 
 export const BOX_MODEL_VALUES = [
