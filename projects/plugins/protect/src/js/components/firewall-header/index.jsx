@@ -90,7 +90,12 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan, automaticRulesApply, manualRulesApply } ) => {
+const FirewallHeader = ( {
+	status,
+	hasRequiredPlan,
+	automaticRulesEnabled,
+	automaticRulesAvailable,
+} ) => {
 	return (
 		<AdminSectionHero>
 			<Container
@@ -105,7 +110,7 @@ const FirewallHeader = ( { status, hasRequiredPlan, automaticRulesApply, manualR
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ automaticRulesApply && ! manualRulesApply
+								{ automaticRulesEnabled
 									? __( 'Automatic firewall is on', 'jetpack-protect' )
 									: __(
 											'Firewall is on',
@@ -122,7 +127,7 @@ const FirewallHeader = ( { status, hasRequiredPlan, automaticRulesApply, manualR
 								{ __( 'Inactive', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-								{ automaticRulesApply && ! manualRulesApply
+								{ automaticRulesAvailable
 									? __( 'Automatic firewall is off', 'jetpack-protect' )
 									: __(
 											'Firewall is off',
@@ -165,8 +170,8 @@ const ConnectedFirewallHeader = () => {
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
-			automaticRulesApply={ hasRequiredPlan || automaticRulesAvailable }
-			manualRulesApply={ jetpackWafIpList && ! jetpackWafAutomaticRules }
+			automaticRulesEnabled={ jetpackWafAutomaticRules }
+			automaticRulesAvailable={ automaticRulesAvailable }
 		/>
 	);
 };
