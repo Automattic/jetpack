@@ -62,5 +62,6 @@ export default class SiteEditorPage extends WpPage {
 		logger.action( 'Waiting for new page' );
 		await viewPageTab.waitForLoadState();
 		await viewPageTab.bringToFront();
+		return viewPageTab;
 	}
 }

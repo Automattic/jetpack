@@ -28,7 +28,7 @@ export default class SubscribeBlock extends PageActions {
 	 */
 	async isRenderedInFrontend( frontendPage ) {
 		await frontendPage.waitForElementToBeVisible(
-			'.wp-block-jetpack-subscriptions__container #subscribe-field-1'
+			".wp-block-jetpack-subscriptions__container input[name='email']"
 		);
 		await frontendPage.waitForElementToBeVisible(
 			'.wp-block-jetpack-subscriptions__container button'

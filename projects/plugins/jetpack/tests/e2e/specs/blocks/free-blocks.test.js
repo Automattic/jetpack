@@ -200,14 +200,15 @@ test.describe( 'Free blocks', () => {
 				await block.checkBlock();
 			} );
 
+			let newTab;
 			await test.step( 'Can publish a page with a Subscribe block', async () => {
 				await siteEditor.savePage();
-				await siteEditor.viewPage();
+				newTab = await siteEditor.viewPage();
 			} );
 
 			await test.step( 'Can assert that Subscribe block is rendered', async () => {
 				expect(
-					await block.isRenderedInFrontend( await SitePage.init( page ) ),
+					await block.isRenderedInFrontend( await SitePage.init( newTab ) ),
 					'Block should be displayed'
 				).toBeTruthy();
 			} );
