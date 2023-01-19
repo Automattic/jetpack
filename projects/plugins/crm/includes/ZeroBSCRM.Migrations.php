@@ -978,34 +978,34 @@ function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // p
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	// Skip if this is not a custom file for a contact
 	// (the only type that should exist, but we are being extra careful here).
-	if ( $meta_row->zbsm_objtype != ZBS_TYPE_CONTACT ) {
+	if ( $meta_row->zbsm_objtype !== ZBS_TYPE_CONTACT ) {
 		return;
 	}
 	$file_path = $meta_row->zbsm_val;
 	// Skip if this file doesn't exist (user may have deleted using the filesystem).
 	if ( ! file_exists( $file_path ) ) {
-		error_log( sprintf( 'JPCRM migration error while searching for upload box file %s', $file_path ) );
+		error_log( sprintf( 'JPCRM migration error while searching for upload box file %s', $file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
 	}
 	$new_dir = jpcrm_storage_dir_info_for_contact( $meta_row->zbsm_objid );
 	// Skip if there is no information for the files subfolder.
 	if ( $new_dir === false || ! isset( $new_dir['files'] ) ) {
-		error_log( sprintf( 'JPCRM migration error missing subfolder files for contact ID %s', $meta_row->zbsm_objid ) );
+		error_log( sprintf( 'JPCRM migration error missing subfolder files for contact ID %s', $meta_row->zbsm_objid ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
 	}
 	$new_dir_info         = $new_dir['files'];
 	$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
 	if ( $upload_folder_exists === false ) {
 		// We shouldn't have any errors here, but if we do we log it and skip this one.
-		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) );
+		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
 	}
 	$file_name     = basename( $file_path );
 	$new_file_path = $new_dir_info['path'] . '/' . $file_name;
 	// Moving the file.
-	if ( ! rename( $file_path, $new_file_path ) ) {
+	if ( ! WP_Filesystem_Direct::move( $file_path, $new_file_path, true ) ) {
 		// We shouldn't have any errors here, but if we do we log it and skip this one.
-		error_log( sprintf( 'JPCRM migration error while moving upload box %s to %s', $file_path, $new_file_path ) );
+		error_log( sprintf( 'JPCRM migration error while moving upload box %s to %s', $file_path, $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
 	}
 
@@ -1027,7 +1027,7 @@ function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // p
 	);
 
 	if ( $update_result === false ) {
-		error_log( sprintf( 'JPCRM migration error while updating upload box meta %s to %s', $meta_row->ID ) );
+		error_log( sprintf( 'JPCRM migration error while updating upload box meta %s to %s', $meta_row->ID ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 }
 
@@ -1097,7 +1097,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 		$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
 		if ( $upload_folder_exists === false ) {
 			// We shouldn't have any errors here, but if we do we log it and skip this one.
-			error_log( sprintf( 'JPCRM migration error while creating folder %s ', $new_dir_info['path'] ) );
+			error_log( sprintf( 'JPCRM migration error while creating folder %s ', $new_dir_info['path'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			$new_file_array[] = $outdated_file_meta;
 			return;
 		}
@@ -1105,9 +1105,9 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 		$file_name     = basename( $outdated_file_meta['file'] );
 		$new_file_path = $new_dir_info['path'] . '/' . $file_name;
 		// Moving the file.
-		if ( ! rename( $outdated_file_meta['file'], $new_file_path ) ) {
+		if ( ! WP_Filesystem_Direct::move( $outdated_file_meta['file'], $new_file_path, true ) ) {
 			// We shouldn't have any errors here, but if we do we log it and skip this one.
-			error_log( sprintf( 'JPCRM migration error while moving %s to %s', $outdated_file_meta['file'], $new_file_path ) );
+			error_log( sprintf( 'JPCRM migration error while moving %s to %s', $outdated_file_meta['file'], $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			$new_file_array[] = $outdated_file_meta;
 			continue;
 		}
@@ -1121,7 +1121,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 	$update_result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$ZBSCRM_t['meta'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		array(
-			'zbsm_val'         => json_encode( $new_file_array ),
+			'zbsm_val'         => wp_json_encode( $new_file_array ),
 			'zbsm_lastupdated' => time(),
 		),
 		array( 'ID' => $meta_row->ID ),
@@ -1135,7 +1135,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 	);
 
 	if ( $update_result === false ) {
-		error_log( sprintf( 'JPCRM migration error while updating file array meta %s to %s', $meta_row->ID ) );
+		error_log( sprintf( 'JPCRM migration error while updating file array meta %s to %s', $meta_row->ID ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 }
 
