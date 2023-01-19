@@ -103,7 +103,7 @@ if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
-	red "Working directory not clean, make sure you're working from a clean checkout and try again." && die
+	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
 # Check out and push pre-release branch
