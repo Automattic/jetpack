@@ -9,6 +9,16 @@ describe( 'buildVideoPressURL', () => {
 		expect( result ).toStrictEqual( {} );
 	} );
 
+	it( 'should return undefined GUID', () => {
+		const { guid } = buildVideoPressURL( 'https://custom-domain.com/v/xyrdcYF4' );
+		expect( guid ).toBeUndefined();
+	} );
+
+	it( 'should return undefined URL', () => {
+		const { url } = buildVideoPressURL( 'https://custom-domain.com/v/xyrdcYF4' );
+		expect( url ).toBeUndefined();
+	} );
+
 	it( 'should return for videopress.com/v/guid', () => {
 		const result = buildVideoPressURL( 'https://videopress.com/v/xyrdcYF4' );
 		expect( result ).toStrictEqual( {

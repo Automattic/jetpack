@@ -115,7 +115,7 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 export function buildVideoPressURL(
 	value: string | VideoGUID,
 	attributes?: VideoPressUrlOptions
-): false | { url: string; guid: VideoGUID } {
+): { url?: string; guid?: VideoGUID } {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
 		if ( ! attributes ) {
@@ -130,7 +130,7 @@ export function buildVideoPressURL(
 		return { url: value, guid: isGuidFromUrl };
 	}
 
-	return false;
+	return {};
 }
 
 export const removeFileNameExtension = ( name: string ) => {
