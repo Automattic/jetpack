@@ -39,6 +39,10 @@ export default class TiledGallery extends EditorCanvas {
 	}
 
 	async linkToAttachment() {
+		const settingTabSelector = "button[role='tab'][aria-label='Settings']";
+		if ( await this.isElementVisible( settingTabSelector, 5000 ) ) {
+			await this.click( settingTabSelector );
+		}
 		await this.click( "button[data-label='Block']" );
 		await this.selectOption( 'select.components-select-control__input', 'Attachment Page' );
 	}
