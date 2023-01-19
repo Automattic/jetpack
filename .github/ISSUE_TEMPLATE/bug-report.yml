@@ -21,6 +21,7 @@ body:
         - Boost
         - Beta
         - Debug Helper
+        - Migration
         - Protect
         - Search
         - Social
