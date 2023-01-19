@@ -55,22 +55,16 @@ shift "$(($OPTIND -1))"
 
 # Get the project slug.
 PROJECT=
-for ARG in "$@"
-	do
-		SLUG="${ARG#projects/}" # DWIM
-		SLUG="${SLUG%/}" # Sanitize
-		if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
-			yellow "Project found: $ARG"
-			PROJECT="$SLUG"
-			shift
-			break
-		fi
-	done
-[[ -z "$PROJECT" ]] && die "A valid project slug must be specified."
+SLUG="${1#projects/}" # DWIM
+SLUG="${SLUG%/}" # Sanitize
+if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
+	yellow "Project found: $SLUG"
+	PROJECT="$SLUG"
+fi
+[[ -z "$PROJECT" ]] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
 
 # Determine the project version
-
-[[ -z $1 ]] && die "Please specify a version number"
+[[ -z $2 ]] && die "Please specify a version number"
 # Figure out the version(s) to use for the plugin(s).
 function check_ver {
 	normalize_version_number "$1"
@@ -88,13 +82,13 @@ function check_ver {
 	return 0
 }
 
-if ! check_ver "$1"; then
+if ! check_ver "$2"; then
 	die "Please specify a valid version number."
 fi
-VERSION="$1"
+VERSION="$2"
 
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
-
+exit
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
