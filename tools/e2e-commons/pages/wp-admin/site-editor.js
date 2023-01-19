@@ -12,19 +12,28 @@ export default class SiteEditorPage extends WpPage {
 		this.canvasPage = new EditorCanvas( page );
 	}
 
+	async edit() {
+		const editBtnSelector = "button[aria-label='Open the editor']";
+		if ( await this.isElementVisible( editBtnSelector, 2000 ) ) {
+			await this.click( editBtnSelector );
+		}
+	}
+
 	async clearCustomizations() {
 		logger.step( 'Attempting clear customizations' );
+		await this.waitForElementToBeHidden( '.components-snackbar__content' );
 		await this.click( "button[aria-label='Show template details']" );
 		const clearCustomizationsBtn = 'span:text("Clear customizations")';
 		if ( await this.isElementVisible( clearCustomizationsBtn, 1000 ) ) {
 			logger.info( 'Clearing customizations' );
 			await this.click( clearCustomizationsBtn );
+			await this.waitForElementToBeVisible( '.components-snackbar__content' );
 		}
 	}
 
 	async searchForBlock( searchTerm ) {
 		logger.step( `Search block: '${ searchTerm }'` );
-		await this.click( '.edit-site-header-toolbar__inserter-toggle' );
+		await this.click( "button[aria-label='Toggle block inserter']" );
 		await this.fill( '.components-search-control__input', searchTerm );
 	}
 
