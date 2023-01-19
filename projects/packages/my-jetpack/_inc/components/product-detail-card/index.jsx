@@ -92,7 +92,6 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
 		wpcomFreeProductSlug,
-		isIntroductoryOffer,
 		introductoryOffer,
 	} = pricingForUi;
 
@@ -148,7 +147,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		: null;
 
 	const priceDescription =
-		isIntroductoryOffer && introductoryOffer.intervalUnit === 'month'
+		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
 			? __( 'for the first month, billed yearly', 'jetpack-my-jetpack' )
 			: __( '/month, paid yearly', 'jetpack-my-jetpack' );
 
