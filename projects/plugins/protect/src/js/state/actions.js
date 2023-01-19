@@ -23,10 +23,12 @@ const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
 
 const SET_WAF_IS_SEEN = 'SET_WAF_IS_SEEN';
+const SET_WAF_UPGRADE_IS_SEEN = 'SET_WAF_UPGRADE_IS_SEEN';
 const SET_WAF_IS_ENABLED = 'SET_WAF_IS_ENABLED';
 const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
 const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
+const SET_WAF_STATS = 'SET_WAF_STATS';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -373,6 +375,10 @@ const setWafIsSeen = isSeen => {
 	return { type: SET_WAF_IS_SEEN, isSeen };
 };
 
+const setWafUpgradeIsSeen = upgradeIsSeen => {
+	return { type: SET_WAF_UPGRADE_IS_SEEN, upgradeIsSeen };
+};
+
 const setWafIsUpdating = isUpdating => {
 	return { type: SET_WAF_IS_UPDATING, isUpdating };
 };
@@ -383,6 +389,10 @@ const setWafIsToggling = isToggling => {
 
 const setWafConfig = config => {
 	return { type: SET_WAF_CONFIG, config };
+};
+
+const setWafStats = stats => {
+	return { type: SET_WAF_STATS, stats };
 };
 
 const actions = {
@@ -411,9 +421,11 @@ const actions = {
 	setScanIsUnavailable,
 	setWafIsEnabled,
 	setWafIsSeen,
+	setWafUpgradeIsSeen,
 	setWafIsUpdating,
 	setWafIsToggling,
 	setWafConfig,
+	setWafStats,
 };
 
 export {
@@ -437,9 +449,11 @@ export {
 	SET_THREATS_ARE_FIXING,
 	SET_HAS_REQUIRED_PLAN,
 	SET_WAF_IS_SEEN,
+	SET_WAF_UPGRADE_IS_SEEN,
 	SET_WAF_IS_ENABLED,
 	SET_WAF_IS_UPDATING,
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
+	SET_WAF_STATS,
 	actions as default,
 };
