@@ -1,6 +1,6 @@
 # WordPress.com Features (jetpack-mu-wpcom)
 
-Note: This plugin is intended for internal use by WordPress.com only.
+Note: This package is intended for internal use by WordPress.com only.
 
 Enhances your site with features powered by WordPress.com
 
