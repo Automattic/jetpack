@@ -56,6 +56,29 @@ class Jetpack_AI_Helper {
 	}
 
 	/**
+	 * Return true if these features should be active on the current site.
+	 * Currently, it's limited to WPCOM Simple and Atomic.
+	 */
+	public static function is_enabled() {
+		$default = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$default = true;
+		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
+			$default = true;
+		}
+
+		/**
+		 * Filter whether the AI features are enabled in the Jetpack plugin.
+		 *
+		 * @since 11.8
+		 *
+		 * @param bool $default Are AI features enabled? Defaults to false.
+		 */
+		return apply_filters( 'jetpack_ai_enabled', $default );
+	}
+
+	/**
 	 * Get the name of the transient for image generation. Unique per prompt and allows for reuse of results for the same prompt across entire WPCOM.
 	 * I expext "puppy" to always be from cache.
 	 *

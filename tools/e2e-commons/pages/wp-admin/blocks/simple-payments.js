@@ -1,6 +1,6 @@
-import PageActions from '../../page-actions.js';
+import BlockEditorCanvas from './editor-canvas.js';
 
-export default class SimplePaymentBlock extends PageActions {
+export default class SimplePaymentBlock extends BlockEditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
@@ -27,10 +27,10 @@ export default class SimplePaymentBlock extends PageActions {
 		const priceSelector = this.getSelector( '.simple-payments__field-price input' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email input' );
 
-		await this.fill( titleSelector, title );
-		await this.fill( descriptionSelector, description );
-		await this.fill( priceSelector, price );
-		await this.fill( emailSelector, email );
+		await this.canvas().fill( titleSelector, title );
+		await this.canvas().fill( descriptionSelector, description );
+		await this.canvas().fill( priceSelector, price );
+		await this.canvas().fill( emailSelector, email );
 		await this.waitForResponse();
 	}
 
@@ -50,8 +50,6 @@ export default class SimplePaymentBlock extends PageActions {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = '.jetpack-simple-payments-product';
-
-		await page.waitForSelector( containerSelector );
+		await page.waitForSelector( '.jetpack-simple-payments-product' );
 	}
 }

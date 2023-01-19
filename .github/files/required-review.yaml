@@ -6,9 +6,10 @@
   teams:
    - jetpack-approvers
 
-# Everyone who can approve anything can merge pnpm.lock.
+# Everyone who can approve anything can merge pnpm.lock and docs.
 - name: pnpm lockfile, composer files
   paths:
+   - 'docs/**'
    - 'pnpm-lock.yaml'
    - 'projects/plugins/*/composer.lock'
    - 'projects/plugins/*/composer.json'
@@ -16,11 +17,13 @@
   teams:
    # Unfortunately this list need to be maintaned manually...
    # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
-   - jetpack-approvers
-   - yamato-backup-and-security
+   - avengers
+   - caribou
    - heart-of-gold
+   - jetpack-approvers
    - jetpack-reach
    - red
+   - yamato-backup-and-security
 
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
@@ -40,6 +43,31 @@
    - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-approvers
+
+
+# The Avengers team reviews changes to the CRM plugin,
+# and can add dependencies to the monorepo's lock file.
+- name: CRM
+  paths:
+    - 'projects/plugins/crm/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - avengers
+    - jetpack-approvers
+
+# The Caribou team reviews changes to the Migration plugin,
+# and can add dependencies to the monorepo's lock file.
+- name: Migration
+  paths:
+    - 'projects/plugins/migration/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - caribou
+    - jetpack-approvers
 
 # The Backup team reviews changes to the VaultPress and Backup plugin,
 # and can add dependencies to the monorepo's lock file.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: verify array to avoid PHP warnings
