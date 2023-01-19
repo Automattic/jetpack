@@ -104,6 +104,11 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 	return guid[ 0 ];
 }
 
+type BuildVideoPressURLProps = {
+	url?: string;
+	guid?: VideoGUID;
+};
+
 /**
  * Build a VideoPress URL from a VideoPress GUID or a VideoPress URL.
  * The function returns an { url, guid } object, or false.
@@ -115,7 +120,7 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 export function buildVideoPressURL(
 	value: string | VideoGUID,
 	attributes?: VideoPressUrlOptions
-): { url?: string; guid?: VideoGUID } {
+): BuildVideoPressURLProps {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
 		if ( ! attributes ) {
