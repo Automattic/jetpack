@@ -17,9 +17,8 @@
   / Breaking Checks
    ====================================================== */
 
-
-
-
+require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
 
 /* ======================================================
 	MIGRATION FUNCS
@@ -1000,10 +999,11 @@ function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // p
 		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
 	}
-	$file_name     = basename( $file_path );
-	$new_file_path = $new_dir_info['path'] . '/' . $file_name;
+	$file_name            = basename( $file_path );
+	$new_file_path        = $new_dir_info['path'] . '/' . $file_name;
+	$wp_filesystem_direct = new WP_Filesystem_Direct( false );
 	// Moving the file.
-	if ( ! WP_Filesystem_Direct::move( $file_path, $new_file_path, true ) ) {
+	if ( ! $wp_filesystem_direct->move( $file_path, $new_file_path, true ) ) {
 		// We shouldn't have any errors here, but if we do we log it and skip this one.
 		error_log( sprintf( 'JPCRM migration error while moving upload box %s to %s', $file_path, $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		return;
@@ -1102,10 +1102,11 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 			return;
 		}
 
-		$file_name     = basename( $outdated_file_meta['file'] );
-		$new_file_path = $new_dir_info['path'] . '/' . $file_name;
+		$file_name            = basename( $outdated_file_meta['file'] );
+		$new_file_path        = $new_dir_info['path'] . '/' . $file_name;
+		$wp_filesystem_direct = new WP_Filesystem_Direct( false );
 		// Moving the file.
-		if ( ! WP_Filesystem_Direct::move( $outdated_file_meta['file'], $new_file_path, true ) ) {
+		if ( ! $wp_filesystem_direct->move( $outdated_file_meta['file'], $new_file_path, true ) ) {
 			// We shouldn't have any errors here, but if we do we log it and skip this one.
 			error_log( sprintf( 'JPCRM migration error while moving %s to %s', $outdated_file_meta['file'], $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			$new_file_array[] = $outdated_file_meta;
