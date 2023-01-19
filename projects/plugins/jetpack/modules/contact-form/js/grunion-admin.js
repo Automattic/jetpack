@@ -179,6 +179,45 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
+	function startPollingConnection( { name, value } ) {
+		let hasConnection = false;
+		let replacementHtml = null;
+		let interval = setInterval( function () {
+			if ( hasConnection ) {
+				return;
+			}
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_gdrive_connection',
+					[ name ]: value,
+				},
+				function ( data ) {
+					if ( data && data.connection && data.html ) {
+						clearInterval( interval );
+						hasConnection = true;
+						replacementHtml = $( data.html );
+						$( '#jetpack-form-responses-connect' ).replaceWith( replacementHtml );
+					}
+				}
+			).fail( function () {
+				clearInterval( interval );
+			} );
+		}, 5000 );
+	}
+
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+		const $this = $( this );
+		const name = $this.data( 'nonce-name' );
+		const value = $( '#' + name ).attr( 'value' );
+		$this.attr( 'disabled', 'disabled' );
+		$this.text(
+			( window.exportParameters && window.exportParameters.waitingConnection ) ||
+				'Waiting for connection...'
+		);
+		startPollingConnection( { name, value } );
+	} );
+
 	// Handle export to Google Drive
 	$( document ).on( 'click', '#jetpack-export-feedback-gdrive', function ( event ) {
 		event.preventDefault();
@@ -226,7 +265,7 @@ jQuery( function ( $ ) {
 	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
 		e.preventDefault();
 
-		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
+		var nonceName = $( e.target ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
@@ -247,12 +286,15 @@ jQuery( function ( $ ) {
 				selected: selected,
 				[ nonceName ]: nonce,
 			},
-			function ( response ) {
+			function ( response, status, xhr ) {
 				var blob = new Blob( [ response ], { type: 'application/octetstream' } );
-
 				var a = document.createElement( 'a' );
 				a.href = window.URL.createObjectURL( blob );
-				a.download = 'feedback.csv';
+
+				// Get filename from backend headers
+				var contentDispositionHeader = xhr.getResponseHeader( 'content-disposition' );
+				a.download =
+					contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
 
 				document.body.appendChild( a );
 				a.click();

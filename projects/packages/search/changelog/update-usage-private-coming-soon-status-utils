@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Start using utilities from Status package to detect whether a site is private or "coming-soon" (unlaunched).

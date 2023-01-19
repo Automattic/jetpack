@@ -388,7 +388,7 @@ class Jetpack_Memberships {
 		return sprintf(
 			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
-				Jetpack_Gutenberg::block_classes(
+				Blocks::classes(
 					self::$button_block_name,
 					$attrs,
 					array( 'wp-block-button' )
@@ -454,7 +454,7 @@ class Jetpack_Memberships {
 
 		$newsletter_access_level = self::get_newsletter_access_level();
 		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level, get_the_ID() );
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
 	/**

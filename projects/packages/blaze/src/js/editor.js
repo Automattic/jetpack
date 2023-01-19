@@ -13,7 +13,7 @@ import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
@@ -31,7 +31,7 @@ function getConnectedUserLocale() {
 const BlazePostPublishPanel = () => {
 	const panelBodyProps = {
 		name: 'blaze-panel',
-		title: __( 'Blaze this post', 'jetpack-blaze' ),
+		title: __( 'Promote with Blaze', 'jetpack-blaze' ),
 		className: 'blaze-panel',
 		icon: <BlazeIcon />,
 		initialOpen: true,
@@ -105,7 +105,11 @@ const BlazePostPublishPanel = () => {
 				onKeyDown={ trackClick }
 			>
 				<Button variant="secondary" href={ blazeUrl } target="_top">
-					{ __( 'Blaze', 'jetpack-blaze' ) }{ ' ' }
+					{ sprintf(
+						/* translators: %s is the post type (e.g. Post, Page, Product). */
+						__( 'Blaze this %s', 'jetpack-blaze' ),
+						postType
+					) }{ ' ' }
 					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
 				</Button>
 			</div>

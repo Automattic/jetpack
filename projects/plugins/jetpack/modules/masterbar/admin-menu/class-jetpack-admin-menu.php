@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Blaze;
+
 require_once __DIR__ . '/class-admin-menu.php';
 
 /**
@@ -183,7 +185,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		$position = 0;
 		global $submenu;
 		foreach ( $submenu['jetpack'] as $submenu_item ) {
-			$position ++;
+			++$position;
 			if ( __( 'Backup', 'jetpack' ) === $submenu_item[3] ) {
 				break;
 			}
@@ -231,7 +233,9 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_tools_menu() {
 		add_menu_page( esc_attr__( 'Tools', 'jetpack' ), __( 'Tools', 'jetpack' ), 'publish_posts', 'tools.php', null, 'dashicons-admin-tools', 75 );
-
+		if ( Blaze::should_initialize() ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+		}
 		add_submenu_page( 'tools.php', esc_attr__( 'Marketing', 'jetpack' ), __( 'Marketing', 'jetpack' ), 'publish_posts', 'https://wordpress.com/marketing/tools/' . $this->domain );
 		add_submenu_page( 'tools.php', esc_attr__( 'Earn', 'jetpack' ), __( 'Earn', 'jetpack' ), 'manage_options', 'https://wordpress.com/earn/' . $this->domain );
 
@@ -287,7 +291,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		end( $menu );
 		$position = key( $menu );
 
-		$this->add_admin_menu_separator( ++ $position );
+		$this->add_admin_menu_separator( ++$position );
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
 	}
 }

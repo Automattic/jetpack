@@ -149,7 +149,6 @@ class Security extends Module_Product {
 		}
 
 		return $activation;
-
 	}
 
 	/**

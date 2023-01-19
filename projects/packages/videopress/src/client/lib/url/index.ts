@@ -1,5 +1,20 @@
 import { addQueryArgs } from '@wordpress/url';
-import { VideoBlockAttributes } from '../../block-editor/blocks/video/types';
+import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
+
+type VideoPressUrlOptions = Pick<
+	VideoBlockAttributes,
+	| 'autoplay'
+	| 'controls'
+	| 'loop'
+	| 'muted'
+	| 'playsinline'
+	| 'poster'
+	| 'preload'
+	| 'seekbarColor'
+	| 'seekbarPlayedColor'
+	| 'seekbarLoadingColor'
+	| 'useAverageColor'
+>;
 
 export const getVideoPressUrl = (
 	guid: string,
@@ -15,7 +30,7 @@ export const getVideoPressUrl = (
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		useAverageColor,
-	}: VideoBlockAttributes
+	}: VideoPressUrlOptions
 ) => {
 	if ( ! guid ) {
 		return null;
@@ -51,7 +66,7 @@ export const getVideoPressUrl = (
 	return addQueryArgs( `https://videopress.com/v/${ guid }`, options );
 };
 
-export const pickGUIDFromUrl = ( url: string ) => {
+export const pickGUIDFromUrl: ( url: string ) => null | string = url => {
 	if ( ! url ) {
 		return null;
 	}
@@ -65,4 +80,52 @@ export const pickGUIDFromUrl = ( url: string ) => {
 	}
 
 	return urlParts.groups.guid;
+};
+
+/**
+ * Check if a string is a valid VideoPress GUID.
+ *
+ * @param {string} value - The string to check.
+ * @returns {boolean | VideoGUID} Video GUID if the string is valid, false otherwise.
+ */
+export function isVideoPressGuid( value: string ): boolean | VideoGUID {
+	const guid = value.match( /^[a-zA-Z\d]{8}$/ );
+	if ( ! guid ) {
+		return false;
+	}
+
+	return guid[ 0 ];
+}
+
+/**
+ * Build a VideoPress URL from a VideoPress GUID or a VideoPress URL.
+ * The function returns an { url, guid } object, or false.
+ *
+ * @param {string | VideoGUID} value        - The VideoPress GUID or URL.
+ * @param {VideoPressUrlOptions} attributes - The VideoPress URL options.
+ * @returns {false | string}                  VideoPress URL if the string is valid, false otherwise.
+ */
+export function buildVideoPressURL(
+	value: string | VideoGUID,
+	attributes?: VideoPressUrlOptions
+): false | { url: string; guid: VideoGUID } {
+	const isGuidValue = isVideoPressGuid( value );
+	if ( isGuidValue ) {
+		if ( ! attributes ) {
+			return { url: `https://videopress.com/v/${ value }`, guid: value };
+		}
+
+		return { url: getVideoPressUrl( value, attributes ), guid: value };
+	}
+
+	const isGuidFromUrl = pickGUIDFromUrl( value );
+	if ( isGuidFromUrl ) {
+		return { url: value, guid: isGuidFromUrl };
+	}
+
+	return false;
+}
+
+export const removeFileNameExtension = ( name: string ) => {
+	return name.replace( /\.[^/.]+$/, '' );
 };

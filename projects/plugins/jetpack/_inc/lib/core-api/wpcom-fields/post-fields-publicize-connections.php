@@ -24,7 +24,7 @@
  *     jetpack_publicize_feature_enabled: (boolean) Is this publicize feature enabled?
  *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
  *     jetpack_social_options: {
- *       attached_media: (array) List of media IDs that will be attached to the social media post.
+ *       attached_media: (array) List of media that will be attached to the social media post.
  *     }
  *   ...
  * }
@@ -190,7 +190,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 */
 	public function get_permission_check( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->permission_check( isset( $post_array['id'] ) ? $post_array['id'] : 0 );
-
 	}
 
 	/**

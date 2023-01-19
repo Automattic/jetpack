@@ -17,13 +17,15 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME    = 'jp-premium-content-session';
-	const DECODE_EXCEPTION_FEATURE      = 'memberships';
-	const DECODE_EXCEPTION_MESSAGE      = 'Problem decoding provided token';
-	const REST_URL_ORIGIN               = 'https://subscribe.wordpress.com/';
-	const BLOG_SUB_ACTIVE               = 'active';
-	const BLOG_SUB_PENDING              = 'pending';
-	const POST_ACCESS_LEVEL_SUBSCRIBERS = 'subscribers';
+	const JWT_AUTH_TOKEN_COOKIE_NAME         = 'jp-premium-content-session';
+	const DECODE_EXCEPTION_FEATURE           = 'memberships';
+	const DECODE_EXCEPTION_MESSAGE           = 'Problem decoding provided token';
+	const REST_URL_ORIGIN                    = 'https://subscribe.wordpress.com/';
+	const BLOG_SUB_ACTIVE                    = 'active';
+	const BLOG_SUB_PENDING                   = 'pending';
+	const POST_ACCESS_LEVEL_EVERYBODY        = 'everybody';
+	const POST_ACCESS_LEVEL_SUBSCRIBERS      = 'subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS = 'paid_subscribers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -115,22 +117,21 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 			return true;
 		}
 
-		if ( empty( $access_level ) || $access_level === 'everybody' ) {
+		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
 			// empty level means the post is not gated for paid users
 			return true;
 		}
 
-		if ( $access_level === 'subscribers' ) {
+		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
 			return $is_blog_subscriber || $is_paid_subscriber;
 		}
 
-		if ( $access_level === 'paid_subscribers' ) {
+		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
 			return $is_paid_subscriber;
 		}
 
 		// This should not be a use case
 		return false;
-
 	}
 
 	/**

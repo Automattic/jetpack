@@ -40,7 +40,7 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 		$i = 1;
 		foreach ( $tests as $in => $out ) {
 			$this->assertSame( $out, $this->t->$tfn( $in ), "Failed #$i with input: $in" );
-			$i++;
+			++$i;
 		}
 	}
 
@@ -258,16 +258,11 @@ final class WafTransformsTest extends PHPUnit\Framework\TestCase {
 				'/*TestCase */'               => ' ',
 				'Before/* TestCase */After'   => 'Before After',
 				'Before /* TestCase */ After' => 'Before   After',
-				"/* Test\nCase */"            => ' ',
 				"/* Test\x0d\x0aCase */"      => ' ',
 				"/* Test\x0aCase */"          => ' ',
 				"/* Test\x0dCase */"          => ' ',
 				"Before/* Test\x0d\x0aCase "  => 'Before ',
 				"Before /* Test\x0aCase "     => 'Before  ',
-				"Before/* Test\x0d\x0aCase "  => 'Before ',
-				"Before /* Test\x0aCase "     => 'Before  ',
-				"Test\x0d\x0aCase */After"    => "Test\x0d\x0aCase */After",
-				"Test\x0aCase */ After"       => "Test\x0aCase */ After",
 				"Test\x0d\x0aCase */After"    => "Test\x0d\x0aCase */After",
 				"Test\x0aCase */ After"       => "Test\x0aCase */ After",
 			),

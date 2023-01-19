@@ -192,6 +192,8 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					'blog_public'                          => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 					'jetpack_sync_non_public_post_stati'   => '(bool) allow sync of post and pages with non-public posts stati',
 					'jetpack_relatedposts_enabled'         => '(bool) Enable related posts?',
+					'jetpack_relatedposts_show_context'    => '(bool) Show post\'s tags and category in related posts?',
+					'jetpack_relatedposts_show_date'       => '(bool) Show date in related posts?',
 					'jetpack_relatedposts_show_headline'   => '(bool) Show headline in related posts?',
 					'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 					'instant_search_enabled'               => '(bool) Enable the new Jetpack Instant Search interface',
@@ -262,6 +264,8 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 					'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
 					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
+					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 				),
 
 				'response_format' => array(
@@ -330,6 +334,17 @@ class WP_Test_WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WP_UnitTestCase
 			'woocommerce_onboarding_profile bool'       => array( 'woocommerce_onboarding_profile', true, array( true ) ),
 			'woocommerce_onboarding_profile example'    => array( 'woocommerce_onboarding_profile', $this->onboarding_profile_example, $this->onboarding_profile_example ),
 			'show_on_front'                             => array( 'show_on_front', 'page', 'page' ),
+			'subscription_options html'                 => array(
+				'subscription_options',
+				array(
+					'invitation'     => '<strong>Test</strong> string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+				array(
+					'invitation'     => 'Test string <a href="#">link</a>',
+					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
 		);
 	}
 }

@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the VideoPress product
  */
-class Videopress extends Hybrid_Product {
+class Videopress extends Product {
 
 	/**
 	 * The product slug
@@ -145,8 +145,6 @@ class Videopress extends Hybrid_Product {
 	public static function get_manage_url() {
 		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
 			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
-		} else {
-			return admin_url( 'admin.php?page=jetpack#/settings?term=videopress' );
 		}
 	}
 

@@ -7,9 +7,10 @@ import { __ } from '@wordpress/i18n';
 import { Fragment, useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaRestrictions, {
-	getAllowedMediaTypes,
+	isVideo,
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
+	VIDEO_LENGTH_ERROR,
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
@@ -17,34 +18,45 @@ import styles from './styles.module.scss';
 /**
  * Get relevant details from a WordPress media object.
  *
- * @param {Object} media - WordPress media object.
- * @returns {{ mediaWidth: [ number ], mediaHeight: [ number ], mediaSourceUrl: [ string ] }} - Media details.
+ * @param {object} media - WordPress media object.
+ * @returns {{
+ * mediaData: {width: number, height: number, sourceUrl: string},
+ * metaData: {mime: string, fileSize: number, length: number}
+ * }} - Media details.
  */
 const getMediaDetails = media => {
 	if ( ! media ) {
 		return {};
 	}
 
+	const metaData = {
+		mime: media.mime_type,
+		fileSize: media.media_details.filesize,
+		length: media.media_details?.length,
+	};
+
 	const sizes = media?.media_details?.sizes ?? {};
 
 	if ( Object.keys( sizes ).length === 0 ) {
 		return {
-			mediaWidth: media.media_details.width,
-			mediaHeight: media.media_details.height,
-			mediaSourceUrl: media.source_url,
-			fullFileSize: media.media_details.filesize,
-			mime: media.mime_type,
+			mediaData: {
+				width: media.media_details.width,
+				height: media.media_details.height,
+				sourceUrl: media.source_url,
+			},
+			metaData,
 		};
 	}
 
 	const mediaObject = sizes.large || sizes.thumbnail;
 
 	return {
-		mediaWidth: mediaObject.width,
-		mediaHeight: mediaObject.height,
-		mediaSourceUrl: mediaObject.source_url,
-		fullFileSize: media.media_details.filesize,
-		mime: media.mime_type,
+		mediaData: {
+			width: mediaObject.width,
+			height: mediaObject.height,
+			sourceUrl: mediaObject.source_url,
+		},
+		metaData,
 	};
 };
 
@@ -58,6 +70,7 @@ const validationErrorMessages = {
 		'jetpack'
 	),
 	[ FILE_SIZE_ERROR ]: __( 'The selected media size is too big for these platforms.', 'jetpack' ),
+	[ VIDEO_LENGTH_ERROR ]: __( 'The selected video is too long for these platforms.', 'jetpack' ),
 };
 
 /**
@@ -70,63 +83,68 @@ export default function MediaSection() {
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
 
-	const { maxImageSize, getValidationError } = useMediaRestrictions( enabledConnections );
-	const allowedMediaTypes = getAllowedMediaTypes();
+	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
+		enabledConnections
+	);
 
 	const mediaObject = useSelect(
-		select => select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } ),
+		select => select( 'core' ).getMedia( attachedMedia[ 0 ]?.id || null, { context: 'view' } ),
 		[ attachedMedia[ 0 ] ]
 	);
-	const { mediaWidth, mediaHeight, mediaSourceUrl, fullFileSize, mime } = getMediaDetails(
-		mediaObject
-	);
+
+	const { mediaData, metaData } = getMediaDetails( mediaObject );
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! mediaObject ) {
+		if ( ! metaData ) {
 			return;
 		}
 
-		const error = getValidationError( fullFileSize, mime );
+		const error = getValidationError( metaData );
 		if ( error ) {
 			setValidationError( error );
 			updateAttachedMedia( [] );
 		}
-	}, [ updateAttachedMedia, mediaObject, getValidationError, fullFileSize, mime ] );
+	}, [ updateAttachedMedia, getValidationError, metaData ] );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
 		media => {
-			// allowedTypes doesn't properly disallow uploaded media types.
-			// See: https://github.com/WordPress/gutenberg/issues/25130
-			// Do not select media if criteria is not met
-			const error = getValidationError( media.filesizeInBytes, media.mime );
-			if ( error ) {
-				updateAttachedMedia( [] );
-				setValidationError( error );
-				return;
-			}
+			const { id, url } = media;
 
-			updateAttachedMedia( [ media.id ] );
+			updateAttachedMedia( [ { id, url } ] );
 			setValidationError( null );
 		},
-		[ updateAttachedMedia, getValidationError ]
+		[ updateAttachedMedia ]
 	);
+
+	const renderPreview = useCallback( () => {
+		if ( isVideo( metaData.mime ) ) {
+			// TBD
+			return <div>Video Preview</div>;
+		}
+
+		const { width, height, sourceUrl } = mediaData;
+
+		if ( width && height && sourceUrl ) {
+			return (
+				<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
+					<img src={ sourceUrl } alt="" />
+				</ResponsiveWrapper>
+			);
+		}
+	}, [ mediaData, metaData ] );
 
 	const setMediaRender = useCallback(
 		( { open } ) => (
 			<div className={ styles.container }>
 				<Button className={ ! mediaObject ? styles.toggle : styles.preview } onClick={ open }>
-					{ mediaWidth && mediaHeight && mediaSourceUrl && (
-						<ResponsiveWrapper naturalWidth={ mediaWidth } naturalHeight={ mediaHeight } isInline>
-							<img src={ mediaSourceUrl } alt="" />
-						</ResponsiveWrapper>
-					) }
+					{ mediaObject && renderPreview() }
 					{ ! mediaObject && ( attachedMedia.length ? <Spinner /> : ADD_MEDIA_LABEL ) }
 				</Button>
 			</div>
 		),
-		[ mediaHeight, mediaObject, mediaSourceUrl, mediaWidth, attachedMedia ]
+		[ mediaObject, attachedMedia, renderPreview ]
 	);
 
 	const replaceMediaRender = useCallback(
@@ -148,7 +166,7 @@ export default function MediaSection() {
 					onSelect={ onUpdateMedia }
 					allowedTypes={ allowedMediaTypes }
 					render={ setMediaRender }
-					value={ attachedMedia[ 0 ] }
+					value={ attachedMedia[ 0 ]?.id }
 				/>
 				{ mediaObject && (
 					<>

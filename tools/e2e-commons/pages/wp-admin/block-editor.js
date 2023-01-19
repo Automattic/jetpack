@@ -1,11 +1,14 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { BlockEditorCanvas } from './index.js';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
+
+		this.canvasPage = new BlockEditorCanvas( page );
 	}
 
 	//region selectors
@@ -80,14 +83,15 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async getInsertedBlock( blockName ) {
-		return (
-			await this.waitForElementToBeVisible( this.insertedBlockSel( blockName ) )
-		 ).getAttribute( 'data-block' );
+		const blockElement = await this.canvasPage
+			.canvas()
+			.waitForSelector( this.insertedBlockSel( blockName ) );
+		return blockElement.getAttribute( 'data-block' );
 	}
 
 	async setTitle( title ) {
 		await this.selectPostTitle();
-		await this.fill( this.postTitleFldSel, title );
+		await this.canvasPage.canvas().fill( this.postTitleFldSel, title );
 	}
 
 	async publishPost() {
@@ -107,8 +111,8 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async selectPostTitle() {
-		await this.focus( this.postTitleFldSel );
-		await this.click( this.postTitleFldSel );
+		await this.canvasPage.canvas().focus( this.postTitleFldSel );
+		await this.canvasPage.canvas().click( this.postTitleFldSel );
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
@@ -137,5 +141,13 @@ export default class BlockEditorPage extends WpPage {
 				.getBlockTypes()
 				.map( b => b.name )
 		);
+	}
+
+	async openSettingsSidebar() {
+		const settingsLocator = 'button[aria-label="Settings"][aria-pressed="false"]';
+
+		if ( await this.isElementVisible( settingsLocator ) ) {
+			await this.click( settingsLocator );
+		}
 	}
 }

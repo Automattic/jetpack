@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.27.0 - 2023-01-18
+### Added
+- Added Advanced Social plan to pricing table [#28258]
+
+## 0.26.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
 ## 0.26.4 - 2022-12-19
 ### Added
 - Add Jetpack VaultPress Backup Logo [#27802]

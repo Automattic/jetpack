@@ -127,20 +127,42 @@ class Jetpack {
 	 * @var array Plugins to deactivate by module.
 	 */
 	public $plugins_to_deactivate = array(
-		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
-		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
-		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
-		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
-		'random-redirect'     => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		'videopress'          => array( 'video/video.php', 'VideoPress' ),
-		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
-		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
+		'contact-form'        => array(
+			array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+			array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
+		),
+		'custom-css'          => array(
+			array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
+		),
+		'gravatar-hovercards' => array(
+			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		),
+		'latex'               => array(
+			array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
+		),
+		'random-redirect'     => array(
+			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		),
+		'sharedaddy'          => array(
+			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		),
+		'shortlinks'          => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'stats'               => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'twitter-widget'      => array(
+			array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
+		),
+		'videopress'          => array(
+			array( 'video/video.php', 'VideoPress' ),
+		),
+		'widget-visibility'   => array(
+			array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
+			array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
+		),
 	);
 
 	/**
@@ -817,6 +839,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'blaze',
 				'jitm',
 				'sync',
 				'waf',
@@ -904,7 +927,6 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( new Plugin_Tracking(), 'init' ) );
 		}
-
 	}
 
 	/**
@@ -1011,7 +1033,6 @@ class Jetpack {
 				'path' => $query_args['amp;c'],
 			)
 		);
-
 	}
 
 	/**
@@ -1653,7 +1674,6 @@ class Jetpack {
 		}
 
 		return $notice;
-
 	}
 	/**
 	 * Get Jetpack offline mode notice text and notice class.
@@ -2517,10 +2537,12 @@ class Jetpack {
 		}
 
 		$deactivated = array();
-		foreach ( $to_deactivate as $module => $deactivate_me ) {
-			list( $probable_file, $probable_title ) = $deactivate_me;
-			if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
-				$deactivated[] = $module;
+		foreach ( $to_deactivate as $module => $deactivate_us ) {
+			foreach ( $deactivate_us as $i => $deactivate_me ) {
+				list( $probable_file, $probable_title ) = $deactivate_me;
+				if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
+					$deactivated[] = "$module:$i";
+				}
 			}
 		}
 
@@ -2862,7 +2884,6 @@ p {
 	 */
 	public static function set_update_modal_display() {
 		self::state( 'display_update_modal', true );
-
 	}
 
 	/**
@@ -2938,14 +2959,11 @@ p {
 				$active_modules,
 				false
 			);
+		} elseif ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) { // Check for a user connection.
+			self::activate_default_modules( false, false, array(), false, null, null, null );
+			Jetpack_Options::update_option( 'active_modules_initialized', true );
 		} else {
-			// Check for a user connection.
-			if ( $should_activate_user_modules && ( new Connection_Manager() )->get_connection_owner_id() ) {
-				self::activate_default_modules( false, false, array(), false, null, null, null );
-				Jetpack_Options::update_option( 'active_modules_initialized', true );
-			} else {
-				self::activate_default_modules( false, false, array(), false, null, null, false );
-			}
+			self::activate_default_modules( false, false, array(), false, null, null, false );
 		}
 	}
 
@@ -3399,10 +3417,12 @@ p {
 			return;
 		}
 
-		foreach ( $this->plugins_to_deactivate as $deactivate_me ) {
-			if ( "plugin-activation-error_{$deactivate_me[0]}" === $action ) {
-				/* translators: Plugin name to deactivate. */
-				self::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
+		foreach ( $this->plugins_to_deactivate as $deactivate_us ) {
+			foreach ( $deactivate_us as $deactivate_me ) {
+				if ( "plugin-activation-error_{$deactivate_me[0]}" === $action ) {
+					/* translators: Plugin name to deactivate. */
+					self::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
+				}
 			}
 		}
 	}
@@ -4089,11 +4109,12 @@ p {
 			$deactivated_plugins = explode( ',', $deactivated_plugins );
 			$deactivated_titles  = array();
 			foreach ( $deactivated_plugins as $deactivated_plugin ) {
-				if ( ! isset( $this->plugins_to_deactivate[ $deactivated_plugin ] ) ) {
+				list( $module, $idx ) = explode( ':', $deactivated_plugin );
+				if ( ! isset( $this->plugins_to_deactivate[ $module ][ $idx ] ) ) {
 					continue;
 				}
 
-				$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[ $deactivated_plugin ][1] ) . '</strong>';
+				$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[ $module ][ $idx ][1] ) . '</strong>';
 			}
 
 			if ( $deactivated_titles ) {
@@ -4362,7 +4383,6 @@ endif;
 
 		$a8c_mc_stats_instance = new Automattic\Jetpack\A8c_Mc_Stats();
 		return $a8c_mc_stats_instance->build_stats_url( $args );
-
 	}
 
 	/**
@@ -4623,7 +4643,7 @@ endif;
 		}
 
 		// Increment number of times connected.
-		$jetpack_unique_registrations ++;
+		++$jetpack_unique_registrations;
 		Jetpack_Options::update_option( 'unique_registrations', $jetpack_unique_registrations );
 	}
 
@@ -5992,6 +6012,14 @@ endif;
 			'sharing_services_email'                       => array(
 				'replacement' => null,
 				'version'     => 'jetpack-11.0.0',
+			),
+			'jetpack_dsp_promote_posts_enabled'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
+			),
+			'jetpack_are_blogging_prompts_enabled'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
 			),
 		);
 

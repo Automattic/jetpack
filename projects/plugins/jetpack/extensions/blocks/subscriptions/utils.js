@@ -1,5 +1,6 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ToolbarButton } from '@wordpress/components';
-import { _x } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 /**
  * Apply HTML encoding for special characters inside shortcode attributes.
@@ -26,15 +27,13 @@ export const getPaidPlanLink = hasNewsletterPlans => {
 };
 
 export const isNewsletterFeatureEnabled = () => {
-	return !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-		'paid-newsletters-in-subscriptions' // We probably want to introduce a new "extension" instaed of reusing this one.
-	];
+	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: _x( 'Add paid plan', '', 'jetpack' );
+		: __( 'Add paid plan', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (

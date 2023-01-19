@@ -50,7 +50,6 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
-
 	}
 
 	/**
@@ -302,7 +301,6 @@ class Admin_UI {
 			});
 		</script>
 		<?php
-
 	}
 
 	/**
@@ -374,7 +372,6 @@ class Admin_UI {
 			});
 		</script>
 		<?php
-
 	}
 
 	/**

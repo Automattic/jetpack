@@ -1,10 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
-import { sprintf, __ } from '@wordpress/i18n';
+import { sprintf, _n, __ } from '@wordpress/i18n';
 import camelize from 'camelize';
 
 const SET_CREDENTIALS_STATE_IS_FETCHING = 'SET_CREDENTIALS_STATE_IS_FETCHING';
 const SET_CREDENTIALS_STATE = 'SET_CREDENTIALS_STATE';
 const SET_STATUS = 'SET_STATUS';
+const SET_STATUS_PROGRESS = 'SET_STATUS_PROGRESS';
 const START_SCAN_OPTIMISTICALLY = 'START_SCAN_OPTIMISTICALLY';
 const SET_STATUS_IS_FETCHING = 'SET_STATUS_IS_FETCHING';
 const SET_SCAN_IS_UNAVAILABLE = 'SET_SCAN_IS_UNAVAILABLE';
@@ -28,6 +29,10 @@ const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
+};
+
+const setStatusProgress = currentProgress => {
+	return { type: SET_STATUS_PROGRESS, currentProgress };
 };
 
 const startScanOptimistically = () => {
@@ -164,10 +169,6 @@ const setJetpackScan = scan => {
 	return { type: SET_JETPACK_SCAN, scan };
 };
 
-const setProductData = productData => {
-	return { type: SET_PRODUCT_DATA, productData };
-};
-
 const setThreatIsUpdating = ( threatId, isUpdating ) => {
 	return { type: SET_THREAT_IS_UPDATING, payload: { threatId, isUpdating } };
 };
@@ -244,7 +245,12 @@ const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
 					type: 'success',
 					message: sprintf(
 						// translators: placeholder is the number amount of fixed threats.
-						__( '%s threats were fixed successfully', 'jetpack-protect' ),
+						_n(
+							'%s threat was fixed successfully',
+							'%s threats were fixed successfully',
+							threatIds.length,
+							'jetpack-protect'
+						),
 						threatIds.length
 					),
 				} )
@@ -379,6 +385,7 @@ const actions = {
 	setCredentials,
 	setCredentialsIsFetching,
 	setStatus,
+	setStatusProgress,
 	startScanOptimistically,
 	refreshStatus,
 	setStatusIsFetching,
@@ -387,7 +394,6 @@ const actions = {
 	setInstalledThemes,
 	setwpVersion,
 	setJetpackScan,
-	setProductData,
 	ignoreThreat,
 	setModal,
 	setNotice,
@@ -408,6 +414,7 @@ export {
 	SET_CREDENTIALS_STATE,
 	SET_CREDENTIALS_STATE_IS_FETCHING,
 	SET_STATUS,
+	SET_STATUS_PROGRESS,
 	START_SCAN_OPTIMISTICALLY,
 	SET_STATUS_IS_FETCHING,
 	SET_SCAN_IS_UNAVAILABLE,

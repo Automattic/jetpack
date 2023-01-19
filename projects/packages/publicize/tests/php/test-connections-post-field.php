@@ -156,7 +156,6 @@ class Test_Connections_Post_Field  extends TestCase {
 				'post_date_gmt'         => '',
 			)
 		);
-
 	}
 
 	/**

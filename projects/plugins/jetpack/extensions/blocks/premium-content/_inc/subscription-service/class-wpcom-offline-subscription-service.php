@@ -1,6 +1,6 @@
 <?php
 /**
- * This subscription service is used when a subscriber is online
+ * This subscription service is used when a subscriber is offline and a token is not available.
  *
  * @package Automattic\Jetpack\Extensions\Premium_Content
  */

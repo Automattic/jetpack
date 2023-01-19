@@ -312,11 +312,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				wp_set_current_user( 0 );
 			}
 			$online_subscription_service = new WPCOM_Online_Subscription_Service();
-			$result                      = $online_subscription_service->visitor_can_view_content(
-				array( $this->plan_id ),
-				$post_access_level,
-				$logged && $is_blog_subscriber
-			);
+			$ref_method                  = new ReflectionMethod( $online_subscription_service, 'user_can_view_content' );
+			$ref_method->setAccessible( true );
+			$result = $ref_method->invoke( $online_subscription_service, array( $this->plan_id ), $post_access_level, $logged && $is_blog_subscriber, get_the_ID() );
 		}
 
 		$this->assertEquals(

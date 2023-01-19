@@ -5,6 +5,9 @@ export { default as MailchimpBlock } from './blocks/mailchimp.js';
 export { default as SimplePaymentBlock } from './blocks/simple-payments.js';
 export { default as WordAdsBlock } from './blocks/word-ads.js';
 export { default as FormBlock } from './blocks/form.js';
+export { default as TiledGalleryBlock } from './blocks/tilled-gallery.js';
+export { default as SubscribeBlock } from './blocks/subscribe.js';
+export { default as BlockEditorCanvas } from './blocks/editor-canvas.js';
 
 export { default as DashboardPage } from './dashboard.js';
 export { default as InPlacePlansPage } from './in-place-plans.js';

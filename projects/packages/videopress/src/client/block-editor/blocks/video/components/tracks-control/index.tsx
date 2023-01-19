@@ -13,12 +13,16 @@ import debugFactory from 'debug';
  */
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { deleteTrackForGuid, uploadTrackForGuid } from '../../../../../lib/video-tracks';
-import { TrackProps, VideoControlProps } from '../../types';
 import { tracksIcon } from '../icons';
 import './style.scss';
 import TrackForm from './track-form';
-import { TrackItemProps, TrackListProps } from './types';
+/**
+ * Types
+ */
+import type { TrackProps, VideoControlProps } from '../../types';
+import type { TrackItemProps, TrackListProps } from './types';
 import type React from 'react';
+
 const debug = debugFactory( 'videopress:video:tracks-control' );
 
 /**
