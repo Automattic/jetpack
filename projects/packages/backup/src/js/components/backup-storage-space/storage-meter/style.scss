@@ -1,13 +1,8 @@
-/**
- * .backup-storage-space__progress-bar: wraps the storage progress bar
- * .progress-bar: the actual progress bar, both filled and empty portions
- * .progress-bar__progress: the filled part of the bar
-**/
 .backup-storage-space__progress-bar {
-	height: 20px;
+	height: 24px;
 	line-height: 0;
-	margin-top: 8px;
-	margin-bottom: 8px;
+	margin-top: 24px;
+	margin-bottom: 16px;
 
 	.progress-bar {
 		height: 100%;
@@ -33,7 +28,7 @@
 
 		&.no-warning {
 			.progress-bar__progress {
-				background-color: var(--jp-green-50);
+				background-color: var(--jp-black);;
 			}
 		}
 

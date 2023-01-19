@@ -19,7 +19,7 @@ import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
-import BackupStorageSection from './backup-storage-section';
+import BackupStorageSpace from './backup-storage-space';
 import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -121,7 +121,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 			</Col>
 			{ hasBackupPlan && connectionStatus.isUserConnected && (
 				<Col lg={ 6 } md={ 6 } className="backup-segments__storage-section">
-					{ <BackupStorageSection /> }
+					{ <BackupStorageSpace /> }
 				</Col>
 			) }
 			<Col lg={ 6 } md={ 6 }>
