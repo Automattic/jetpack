@@ -148,6 +148,7 @@ export const JetpackDropdownEdit = ( {
 				width={ width }
 				placeholder={ toggleLabel }
 				placeholderField="toggleLabel"
+				type="dropdown"
 			/>
 		</div>
 	);

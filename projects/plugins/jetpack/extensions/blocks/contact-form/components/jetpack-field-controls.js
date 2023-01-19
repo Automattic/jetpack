@@ -39,6 +39,9 @@ const JetpackFieldControls = ( {
 	};
 
 	const hasBorderControls = type !== 'radio' && type !== 'checkbox';
+	const borderRadiusType = type === 'dropdown' ? 'blockBorderRadius' : 'borderRadius';
+	const borderWidthType = type === 'dropdown' ? 'blockBorderWidth' : 'borderWidth';
+
 	const colorSettings = [
 		{
 			value: attributes.labelColor,
@@ -133,6 +136,8 @@ const JetpackFieldControls = ( {
 					initialOpen={
 						attributes.borderWidth ||
 						attributes.borderRadius ||
+						attributes.blockBorderWidth ||
+						attributes.blockBorderRadius ||
 						attributes.fieldFontSize ||
 						attributes.lineHeight
 					}
@@ -158,13 +163,13 @@ const JetpackFieldControls = ( {
 						<>
 							<TextControl
 								label={ __( 'Border Width', 'jetpack' ) }
-								value={ attributes.borderWidth }
-								onChange={ setNumberAttribute( 'borderWidth' ) }
+								value={ attributes[ borderWidthType ] }
+								onChange={ setNumberAttribute( borderWidthType ) }
 							/>
 							<TextControl
 								label={ __( 'Border Radius', 'jetpack' ) }
-								value={ attributes.borderRadius }
-								onChange={ setNumberAttribute( 'borderRadius' ) }
+								value={ attributes[ borderRadiusType ] }
+								onChange={ setNumberAttribute( borderRadiusType ) }
 							/>
 						</>
 					) }

@@ -4,6 +4,12 @@ export const useJetpackFieldStyles = attributes => {
 	const blockStyle = {
 		backgroundColor: attributes.blockBackgroundColor,
 		'--jetpack--contact-form--border-color': attributes.borderColor,
+		'--jetpack--contact-form--border-radius': isNumber( attributes.blockBorderRadius )
+			? `${ attributes.blockBorderRadius }px`
+			: null,
+		'--jetpack--contact-form--border-width': isNumber( attributes.blockBorderWidth )
+			? `${ attributes.blockBorderWidth }px`
+			: null,
 		'--jetpack--contact-form--input-background': attributes.fieldBackgroundColor,
 		'--jetpack--contact-form--font-size': attributes.fieldFontSize,
 		'--jetpack--contact-form--line-height': attributes.lineHeight,
