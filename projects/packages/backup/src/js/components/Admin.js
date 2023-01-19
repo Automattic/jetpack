@@ -328,15 +328,7 @@ const NoBackupCapabilities = () => {
 
 			if ( res.introductory_offer ) {
 				setIntroOffer( res.introductory_offer );
-				const {
-					cost_per_interval: costPerInterval,
-					interval_count: intervalCount,
-					interval_unit: intervalUnit,
-				} = res.introductory_offer;
-				const discountedPrice =
-					intervalCount === 1 && intervalUnit === 'month' ? costPerInterval : costPerInterval / 12;
-
-				setPriceAfter( discountedPrice );
+				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );
 			} else {
 				setPriceAfter( res.cost / 12 );
 			}
