@@ -14,12 +14,12 @@ const transfromFromCoreEmbed = {
 	transform: attrs => {
 		const { url, providerNameSlug } = attrs;
 		const guid = pickGUIDFromUrl( url );
-		const isCoreEmbedVideoPressVariation = providerNameSlug === 'videopress' && !! guid;
 
 		/*
 		 * Do not add transform when the block
 		 * is not a core/embed VideoPress block variation
 		 */
+		const isCoreEmbedVideoPressVariation = providerNameSlug === 'videopress' && !! guid;
 		if ( ! isCoreEmbedVideoPressVariation ) {
 			return createBlock( 'core/embed', attrs );
 		}
