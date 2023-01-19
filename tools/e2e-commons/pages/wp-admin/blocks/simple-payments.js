@@ -1,5 +1,4 @@
 import EditorCanvas from './editor-canvas.js';
-
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );

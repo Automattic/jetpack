@@ -13,12 +13,13 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async clearCustomizations() {
-		//todo
-		logger.step( 'Clearing customizations' );
+		logger.step( 'Attempting clear customizations' );
 		await this.click( "button[aria-label='Show template details']" );
-		await this.click( 'button:text("Clear customizations")' );
-
-		//Template reverted.
+		const clearCustomizationsBtn = 'span:text("Clear customizations")';
+		if ( await this.isElementVisible( clearCustomizationsBtn, 1000 ) ) {
+			logger.info( 'Clearing customizations' );
+			await this.click( clearCustomizationsBtn );
+		}
 	}
 
 	async searchForBlock( searchTerm ) {
@@ -38,6 +39,7 @@ export default class SiteEditorPage extends WpPage {
 			.waitForSelector( `div[data-type='jetpack/${ blockName }']` );
 		const blockId = await blockElement.getAttribute( 'data-block' );
 		logger.info( `Block inserted: {name: ${ blockName }, id: ${ blockId }}` );
+		await this.canvasPage.canvas().focus( `#block-${ blockId }` );
 		return blockId;
 	}
 

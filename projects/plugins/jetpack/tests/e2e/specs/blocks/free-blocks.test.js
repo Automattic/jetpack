@@ -177,13 +177,13 @@ test.describe( 'Free blocks', () => {
 		test.beforeEach( async ( { page } ) => {
 			await test.step( 'Visit site editor page', async () => {
 				siteEditor = await SiteEditorPage.visit( page );
+				await siteEditor.clearCustomizations();
 			} );
 		} );
 
 		test.afterEach( async () => {
 			await test.step( 'Visit site editor page', async () => {
 				await siteEditor.page.bringToFront();
-				// await siteEditor.clearCustomizations();
 			} );
 		} );
 
