@@ -12,7 +12,6 @@
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-status": "@dev",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {

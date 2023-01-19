@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a public load_contact_form method for initializing the contact form module.

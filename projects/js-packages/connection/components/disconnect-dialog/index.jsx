@@ -302,7 +302,7 @@ const DisconnectDialog = props => {
 	/**
 	 * Determine what step to show based on the current state
 	 *
-	 * @returns { React.Component } - component for current step
+	 * @returns { React.Component|undefined } - component for current step
 	 */
 	const getCurrentStep = () => {
 		if ( ! isDisconnected ) {
@@ -342,6 +342,8 @@ const DisconnectDialog = props => {
 		} else if ( isFeedbackProvided ) {
 			return <StepThankYou onExit={ backToWordpress } />;
 		}
+
+		return undefined;
 	};
 
 	return (

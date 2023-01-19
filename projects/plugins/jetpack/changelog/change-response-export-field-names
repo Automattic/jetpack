@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Contact Form: update the name of the columns used when exporting Contact Form responses to CSV. The file will now use clear and detailed column names.

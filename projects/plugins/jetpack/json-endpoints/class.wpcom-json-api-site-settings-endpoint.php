@@ -1063,7 +1063,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( count( $jetpack_relatedposts_options ) ) {
 			// track new jetpack_relatedposts options against old.
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
-			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+
+			$jetpack_relatedposts_options_to_save = $old_relatedposts_options;
+			foreach ( $jetpack_relatedposts_options as $key => $value ) {
+				$jetpack_relatedposts_options_to_save[ $key ] = $value;
+			}
+
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options_to_save ) ) {
 				foreach ( $jetpack_relatedposts_options as $key => $value ) {
 					if ( in_array( $key, array( 'show_context', 'show_date' ), true ) ) {
 						$has_initialized_option = ! isset( $old_relatedposts_options[ $key ] ) && $value;
