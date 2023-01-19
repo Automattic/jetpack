@@ -159,7 +159,7 @@ export function attachGuides( measuredImages: MeasurableImage[] ) {
 
 	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration )
-		.map( config => {
+		.map( ( config: ImageGuideConfig ) => {
 			// eslint-disable-next-line no-new
 			new Main( config );
 			return config.props.stores;
