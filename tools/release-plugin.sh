@@ -88,7 +88,7 @@ fi
 VERSION="$2"
 
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
-exit
+
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
