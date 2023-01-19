@@ -15,8 +15,39 @@
 }
 
 .container {
-	margin-bottom: 1em;
 	position: relative;
+	display: grid;
+	justify-content: center;
+	grid-template-rows: 1fr auto 2fr;
+	background-color: var( --jp-gray-0 );
+	border: 1px dashed var( --jp-gray-20 );
+	margin-bottom: 16px;
+	padding: 24px;
+	width: 100%;
+	border-radius: calc( var( --jp-border-radius ) * 0.5 );
+
+	> button {
+		grid-row: 2;
+		justify-self: center;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+		}
+	}
+
+	> span {
+		grid-row: 3;
+		margin-top: 16px;
+		font-size: 13px;
+		line-height: 16px;
+		text-align: center;
+		color: var( --jp-gray-60 );
+	}
 }
 
 .notice {

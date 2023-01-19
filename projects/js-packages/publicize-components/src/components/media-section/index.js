@@ -1,6 +1,6 @@
-import { Text } from '@automattic/jetpack-components';
+import { Button, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Button, ResponsiveWrapper, Spinner, Notice } from '@wordpress/components';
+import { ResponsiveWrapper, Spinner, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -138,10 +138,16 @@ export default function MediaSection() {
 	const setMediaRender = useCallback(
 		( { open } ) => (
 			<div className={ styles.container }>
-				<Button className={ ! mediaObject ? styles.toggle : styles.preview } onClick={ open }>
+				<Button
+					variant="secondary"
+					size="small"
+					className={ mediaObject && styles.preview }
+					onClick={ open }
+				>
 					{ mediaObject && renderPreview() }
 					{ ! mediaObject && ( attachedMedia.length ? <Spinner /> : ADD_MEDIA_LABEL ) }
 				</Button>
+				<span>{ __( 'Add an image or video', 'jetpack' ) }</span>
 			</div>
 		),
 		[ mediaObject, attachedMedia, renderPreview ]
@@ -159,55 +165,57 @@ export default function MediaSection() {
 	const onDismissClick = useCallback( () => setValidationError( null ), [] );
 
 	return (
-		<div className={ styles.wrapper }>
-			<Text variant={ 'editor-headline' }>{ __( 'Media', 'jetpack' ) }</Text>
-			<Text variant={ 'editor-body' }>
-				{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
-			</Text>
-			<MediaUploadCheck>
-				<MediaUpload
-					title={ ADD_MEDIA_LABEL }
-					onSelect={ onUpdateMedia }
-					allowedTypes={ allowedMediaTypes }
-					render={ setMediaRender }
-					value={ attachedMedia[ 0 ]?.id }
-				/>
-				{ mediaObject && (
-					<>
-						<MediaUpload
-							title={ REPLACE_MEDIA_LABEL }
-							onSelect={ onUpdateMedia }
-							allowedTypes={ allowedMediaTypes }
-							render={ replaceMediaRender }
-						/>
-						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-							{ REMOVE_MEDIA_LABEL }
-						</Button>
-					</>
-				) }
-				{ validationError && (
-					<Notice
-						className={ styles.notice }
-						isDismissible={ true }
-						onDismiss={ onDismissClick }
-						status="warning"
-					>
-						<p>{ validationErrorMessages[ validationError ] }</p>
-					</Notice>
-				) }
-				{ ! mediaObject && (
-					<Fragment>
-						<Text variant="title-small">{ __( 'Max image size', 'jetpack' ) }</Text>
-						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ maxImageSize } Mb` }</Text>
+		<ThemeProvider>
+			<div className={ styles.wrapper }>
+				<Text variant="editor-headline">{ __( 'Media', 'jetpack' ) }</Text>
+				<Text variant="editor-body">
+					{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+				</Text>
+				<MediaUploadCheck>
+					<MediaUpload
+						title={ ADD_MEDIA_LABEL }
+						onSelect={ onUpdateMedia }
+						allowedTypes={ allowedMediaTypes }
+						render={ setMediaRender }
+						value={ attachedMedia[ 0 ]?.id }
+					/>
+					{ mediaObject && (
+						<>
+							<MediaUpload
+								title={ REPLACE_MEDIA_LABEL }
+								onSelect={ onUpdateMedia }
+								allowedTypes={ allowedMediaTypes }
+								render={ replaceMediaRender }
+							/>
+							<Button onClick={ onRemoveMedia } variant="link" isDestructive>
+								{ REMOVE_MEDIA_LABEL }
+							</Button>
+						</>
+					) }
+					{ validationError && (
+						<Notice
+							className={ styles.notice }
+							isDismissible={ true }
+							onDismiss={ onDismissClick }
+							status="warning"
+						>
+							<p>{ validationErrorMessages[ validationError ] }</p>
 						</Notice>
-						<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
-						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ allowedMediaTypes.join( ', ' ) }` }</Text>
-						</Notice>
-					</Fragment>
-				) }
-			</MediaUploadCheck>
-		</div>
+					) }
+					{ ! mediaObject && (
+						<Fragment>
+							<Text variant="title-small">{ __( 'Max image size', 'jetpack' ) }</Text>
+							<Notice className={ styles.max_notice } isDismissible={ false } status="info">
+								<Text>{ ` ${ maxImageSize } Mb` }</Text>
+							</Notice>
+							<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
+							<Notice className={ styles.max_notice } isDismissible={ false } status="info">
+								<Text>{ ` ${ allowedMediaTypes.join( ', ' ) }` }</Text>
+							</Notice>
+						</Fragment>
+					) }
+				</MediaUploadCheck>
+			</div>
+		</ThemeProvider>
 	);
 }
