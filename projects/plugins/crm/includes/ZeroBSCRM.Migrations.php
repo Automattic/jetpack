@@ -1151,7 +1151,7 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 	// This was the hard-coded value in JPCRM < 5.4.x.
 	$previous_folder = 'zbscrm-store';
 	// We only store files in the meta table.
-	$query         = sprintf( "SELECT * FROM `%s` WHERE `zbsm_val` LIKE '%%%s%%'", $ZBSCRM_t['meta'], '%s' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$query         = sprintf( "SELECT * FROM `%s` WHERE `zbsm_val` LIKE '%s'", $ZBSCRM_t['meta'], '%%%s%%' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$outdated_rows = $wpdb->get_results( $wpdb->prepare( $query, $previous_folder ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	if ( is_array( $outdated_rows ) ) {
