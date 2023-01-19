@@ -5,7 +5,7 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, getVideoPressUrl, pickGUIDFromUrl } from '../../../../lib/url';
+import { buildVideoPressURL, pickGUIDFromUrl } from '../../../../lib/url';
 
 const transfromFromCoreEmbed = {
 	type: 'block',
@@ -31,13 +31,15 @@ const transfromFromCoreEmbed = {
 const transfromToCoreEmbed = {
 	type: 'block',
 	blocks: [ 'core/embed' ],
-	isMatch: attrs => attrs?.src || getVideoPressUrl( attrs?.guid, attrs ),
+	isMatch: attrs => attrs?.src || attrs?.guid,
 	transform: attrs => {
-		const { guid } = attrs;
+		const { guid, src: srcFromAttr } = attrs;
 
 		// Build the source (URL) in case it isn't defined.
 		const { url } = buildVideoPressURL( guid );
-		if ( ! url ) {
+
+		const src = srcFromAttr || url;
+		if ( ! src ) {
 			return createBlock( 'core/embed' );
 		}
 
