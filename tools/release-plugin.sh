@@ -115,7 +115,7 @@ fi
 
 git checkout -b prerelease
 if ! git push -u origin HEAD; then
-	red "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 
 # Run the changelogger release script
