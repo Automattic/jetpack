@@ -807,12 +807,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	 * @return array
 	 */
 	public function get_user_fields_and_flags() {
+
 		return array(
-			array(
-				'user_login',
-				'dummy',
-				'login_changed',
-			),
 			array(
 				'user_nicename',
 				'dummy',
@@ -820,12 +816,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			),
 			array(
 				'user_url',
-				'dummy.com',
+				'http://dummy.com',
 				'url_changed',
 			),
 			array(
 				'user_registered',
-				'2022-12-12',
+				'2022-12-12 10:10:10',
 				'registration_date_changed',
 			),
 			array(
@@ -834,14 +830,59 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 				'activation_key_changed',
 			),
 			array(
-				'user_status',
-				'0',
-				'status_changed',
-			),
-			array(
 				'display_name',
 				'Dummy',
 				'display_name_changed',
+			),
+			array(
+				'fist_name',
+				'Dummy',
+				'first_name_changed',
+			),
+			array(
+				'last_name',
+				'Dummy',
+				'last_name_changed',
+			),
+			array(
+				'description',
+				'Dummy',
+				'description_changed',
+			),
+			array(
+				'rich_editing',
+				true,
+				'rich_editing_changed',
+			),
+			array(
+				'syntax_highlighting',
+				true,
+				'syntax_highlighting_changed',
+			),
+			array(
+				'comment_shortcuts',
+				true,
+				'comment_shortcuts_changed',
+			),
+			array(
+				'admin_color',
+				'fresh',
+				'admin_color_changed',
+			),
+			array(
+				'use_ssl',
+				true,
+				'use_ssl_changed',
+			),
+			array(
+				'spam',
+				true,
+				'spam_changed',
+			),
+			array(
+				'show_admin_bar_front',
+				'true',
+				'show_admin_bar_front_changed',
 			),
 		);
 	}

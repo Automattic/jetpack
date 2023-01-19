@@ -37,15 +37,24 @@ class Users extends Module {
 	 * @var array
 	 */
 	protected $user_fields_to_flags_mapping = array(
-		'user_pass'           => 'password_changed',
-		'user_email'          => 'email_changed',
-		'user_login'          => 'login_changed',
-		'user_nicename'       => 'nicename_changed',
-		'user_url'            => 'url_changed',
-		'user_registered'     => 'registration_date_changed',
-		'user_activation_key' => 'activation_key_changed',
-		'user_status'         => 'status_changed',
-		'display_name'        => 'display_name_changed',
+		'user_pass'            => 'password_changed',
+		'user_email'           => 'email_changed',
+		'user_nicename'        => 'nicename_changed',
+		'user_url'             => 'url_changed',
+		'user_registered'      => 'registration_date_changed',
+		'user_activation_key'  => 'activation_key_changed',
+		'nickname'             => 'nickname_changed',
+		'display_name'         => 'display_name_changed',
+		'fist_name'            => 'first_name_changed',
+		'last_name'            => 'last_name_changed',
+		'description'          => 'description_changed',
+		'rich_editing'         => 'rich_editing_changed',
+		'syntax_highlighting'  => 'syntax_highlighting_changed',
+		'comment_shortcuts'    => 'comment_shortcuts_changed',
+		'admin_color'          => 'admin_color_changed',
+		'use_ssl'              => 'use_ssl_changed',
+		'spam'                 => 'spam_changed',
+		'show_admin_bar_front' => 'show_admin_bar_front_changed',
 	);
 
 	/**
@@ -511,7 +520,10 @@ class Users extends Module {
 		$old_user_array = get_object_vars( $old_user );
 
 		foreach ( $old_user_array as $user_field => $field_value ) {
-			if ( $user->$user_field !== $old_user->$user_field ) {
+			if ( false === property_exists( $user_field, $user ) ) {
+				continue;
+			}
+			if ( $user->$user_field !== $field_value ) {
 				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
 				if ( 'user_email' === $user_field ) {
 					/**
@@ -521,6 +533,7 @@ class Users extends Module {
 					 */
 					if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
 						$this->flags[ $user_id ]['email_changed'] = true;
+						continue;
 					}
 				}
 				$this->flags[ $user_id ][ $flag ] = true;
