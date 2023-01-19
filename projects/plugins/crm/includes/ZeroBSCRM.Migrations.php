@@ -998,7 +998,6 @@ function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // p
 	if ( $upload_folder_exists === false ) {
 		// We shouldn't have any errors here, but if we do we log it and skip this one.
 		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) );
-		$new_file_array[] = $outdated_file_meta;
 		return;
 	}
 	$file_name     = basename( $file_path );
@@ -1081,7 +1080,7 @@ function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore 
 
 	// This was the hard-coded value in JPCRM < 5.4.x.
 	$previous_folder = 'zbscrm-store';
-	$new_file_array  = [];
+	$new_file_array  = array();
 	foreach ( $outdated_file_array as $outdated_file_meta ) {
 		// Skip if this has an unknown format.
 		// Skip if this isn't an outdate file.
