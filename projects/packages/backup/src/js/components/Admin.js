@@ -346,7 +346,7 @@ const NoBackupCapabilities = () => {
 		'jetpack-backup-pkg'
 	);
 	const priceDetails =
-		introOffer && introOffer.interval_unit === 'month'
+		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
 			? __( 'for the first month, billed yearly', 'jetpack-backup-pkg' )
 			: __( 'per month, billed yearly', 'jetpack-backup-pkg' );
 
