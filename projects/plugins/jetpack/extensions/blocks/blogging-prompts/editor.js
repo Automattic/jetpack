@@ -1,13 +1,24 @@
 import { createBlock } from '@wordpress/blocks';
 import { dispatch } from '@wordpress/data';
+import registerJetpackBlock from '../../shared/register-jetpack-block';
 import { waitForEditor } from '../../shared/wait-for-editor';
+import { name, settings } from '.';
+
+registerJetpackBlock( name, settings );
 
 async function insertTemplate( prompt ) {
 	await waitForEditor();
 
 	const { insertBlocks } = dispatch( 'core/block-editor' );
 	const bloggingPromptBlocks = [
-		createBlock( 'core/pullquote', { value: prompt.text } ),
+		createBlock( 'jetpack/blogging-prompts', {
+			answerCount: prompt.answered_users_count,
+			gravatars: prompt.answered_users_sample,
+			prompt: prompt.text,
+			prompt_id: prompt.id,
+			showLabel: true,
+			showAnswers: true,
+		} ),
 		createBlock( 'core/paragraph' ),
 	];
 
