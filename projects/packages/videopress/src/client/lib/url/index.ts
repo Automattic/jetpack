@@ -71,8 +71,15 @@ export const pickGUIDFromUrl: ( url: string ) => null | string = url => {
 		return null;
 	}
 
+	/*
+	 * http://videopress.com/v/<guid>
+	 * http://videopress.com/embed/<guid>
+	 * http://video.videopress.com/v/<guid>
+	 * http://video.videopress.com/embed/<guid>
+	 * http://videos.files.wordpress.com/<guid>/<filename>.<extension>
+	 */
 	const urlParts = url.match(
-		/^https?:\/\/(?<host>video(?:\.word)?press\.com)\/(?:v|embed)\/(?<guid>[a-zA-Z\d]{8})/
+		/^https?:\/\/(?<host>video(?:\.word|s.files.word)?press\.com)(?:\/v|\/embed)?\/(?<guid>[a-zA-Z\d]{8})/
 	);
 
 	if ( ! urlParts?.groups?.guid ) {
@@ -97,6 +104,11 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 	return guid[ 0 ];
 }
 
+type BuildVideoPressURLProps = {
+	url?: string;
+	guid?: VideoGUID;
+};
+
 /**
  * Build a VideoPress URL from a VideoPress GUID or a VideoPress URL.
  * The function returns an { url, guid } object, or false.
@@ -108,7 +120,7 @@ export function isVideoPressGuid( value: string ): boolean | VideoGUID {
 export function buildVideoPressURL(
 	value: string | VideoGUID,
 	attributes?: VideoPressUrlOptions
-): false | { url: string; guid: VideoGUID } {
+): BuildVideoPressURLProps {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
 		if ( ! attributes ) {
@@ -123,7 +135,7 @@ export function buildVideoPressURL(
 		return { url: value, guid: isGuidFromUrl };
 	}
 
-	return false;
+	return {};
 }
 
 export const removeFileNameExtension = ( name: string ) => {
