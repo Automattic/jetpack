@@ -102,7 +102,7 @@ if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 	git checkout trunk && git pull
 fi
 
-if [[ "$(git status --porcelain)" ]]; then
+if [[ -n "$(git status --porcelain)" ]]; then
 	red "Working directory not clean, make sure you're working from a clean checkout and try again." && die
 fi
 
