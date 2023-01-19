@@ -355,8 +355,8 @@
 .contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
 {
-	padding: var(--jetpack--contact-form--input-padding);
-	padding-top: calc(var(--jetpack--contact-form--input-padding) + 4px);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
 	flex-grow: 1;
 }
 
@@ -374,7 +374,7 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
-	width: calc(var(--jetpack--contact-form--input-padding-left) - var(--jetpack--contact-form--border-size));
+	width: calc(var(--jetpack--contact-form--input-padding-left, 16px) - var(--jetpack--contact-form--border-size, 1px));
 	border-radius: var(--jetpack--contact-form--border-radius);
 	border: var(--jetpack--contact-form--border);
 	border-right: none;
@@ -405,7 +405,7 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
-	top: var(--jetpack--contact-form--input-padding-top);
+	top: var(--jetpack--contact-form--input-padding-top, 16px);
 	transform: unset;
 }
 
@@ -445,7 +445,7 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap textarea {
-	padding: var(--jetpack--contact-form--input-padding);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap input {
@@ -453,7 +453,7 @@
 }
 
 .contact-form .is-style-animated .grunion-field-wrap textarea {
-	padding: var(--jetpack--contact-form--input-padding);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
 	outline: none;
 }
 
@@ -479,7 +479,7 @@
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
 	position: absolute;
 	top: 50%;
-	left: calc(var(--jetpack--contact-form--input-padding-left) + var(--jetpack--contact-form--border-size) );
+	left: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size, 1px) );
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
@@ -491,7 +491,7 @@
 
 .contact-form .is-style-animated .grunion-field-textarea-wrap .animated-label__label {
 	transform: unset;
-	top: var(--jetpack--contact-form--input-padding-top);
+	top: var(--jetpack--contact-form--input-padding-top, 16px);
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
@@ -507,4 +507,12 @@
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
 	margin-left: var(--jetpack--contact-form--border-size);
+}
+
+.wp-block-jetpack-contact-form-container {
+	filter: blur(10px);
+}
+
+.contact-form-styles-loaded .wp-block-jetpack-contact-form-container {
+	filter: blur(0px);
 }
