@@ -217,7 +217,7 @@ class Dashboard {
 		if (
 			property_exists( $current_screen, 'base' ) &&
 			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
-			! $this->plan->supports_search()
+			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
 		) {
 			$this->module_control->deactivate();
 		}
