@@ -21,7 +21,11 @@
     "build-production-js": "echo 'Not implemented.'",
     "clean": "true"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "svelte": "3.55.1",
+    "typescript": "4.8.2",
+    "zod": "3.20.2"
+  },
   "engines": {
     "node": "^16.13.2",
     "yarn": "use pnpm instead - see docs/yarn-upgrade.md"

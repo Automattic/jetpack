@@ -1475,6 +1475,16 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/wp-svelte-store:
+    specifiers:
+      svelte: 3.55.1
+      typescript: 4.8.2
+      zod: 3.20.2
+    devDependencies:
+      svelte: 3.55.1
+      typescript: 4.8.2
+      zod: 3.20.2
+
   projects/plugins/boost:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:*
@@ -21889,6 +21899,11 @@ packages:
     resolution: {integrity: sha512-Q4/hHkktZogGhN5iqxqSi9sjEVoe/NbIxX4hXEHoasTxj+TxEQVAq66LnDMdAZxjmsodkoI5F3slqsS68U7FNw==}
     engines: {node: '>= 8'}
 
+  /svelte/3.55.1:
+    resolution: {integrity: sha512-S+87/P0Ve67HxKkEV23iCdAh/SX1xiSfjF1HOglno/YTbSTW7RniICMCofWGdJJbdjw3S+0PfFb1JtGfTXE0oQ==}
+    engines: {node: '>= 8'}
+    dev: true
+
   /svelte2tsx/0.1.193_blprp4ovaphqvsbuhbk2xnyjlu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
     peerDependencies:
@@ -23544,6 +23559,10 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: false
+
+  /zod/3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: true
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
