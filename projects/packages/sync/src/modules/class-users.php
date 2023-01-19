@@ -520,7 +520,7 @@ class Users extends Module {
 		$old_user_array = get_object_vars( $old_user );
 
 		foreach ( $old_user_array as $user_field => $field_value ) {
-			if ( false === property_exists( $user_field, $user ) ) {
+			if ( false === property_exists( $user, $user_field ) ) {
 				continue;
 			}
 			if ( $user->$user_field !== $field_value ) {
