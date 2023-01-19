@@ -77,7 +77,5 @@ class Utils {
 
 			return isset( $wp_webfonts->get_registered_webfonts()[ $slug ] );
 		}
-
-		return;
 	}
 }
