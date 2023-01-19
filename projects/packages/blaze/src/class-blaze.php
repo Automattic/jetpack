@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
@@ -190,5 +191,8 @@ class Blaze {
 				'textdomain' => 'jetpack-blaze',
 			)
 		);
+
+		// Adds Connection package initial state.
+		wp_add_inline_script( 'jetpack-promote-editor', Connection_Initial_State::render(), 'before' );
 	}
 }
