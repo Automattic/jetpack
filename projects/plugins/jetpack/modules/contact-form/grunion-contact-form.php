@@ -4070,6 +4070,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'borderradius'           => null,
 				'borderwidth'            => null,
 				'lineheight'             => null,
+				'labellineheight'        => null,
 				'bordercolor'            => null,
 				'inputcolor'             => null,
 				'labelcolor'             => null,
@@ -4293,6 +4294,11 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
 			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+		}
+		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
+			$this->label_styles .= $this->get_attribute( 'type' ) === 'select'
+				? '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'labellineheight' ) ) . ';'
+				: 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
 		}
 
 		if ( ! empty( $field_width ) ) {
