@@ -3,7 +3,9 @@
 	"description": "Test plugin for the jetpack-mu-wpcom package",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-mu-wpcom": "@dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
