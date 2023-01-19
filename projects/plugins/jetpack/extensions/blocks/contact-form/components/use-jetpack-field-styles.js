@@ -19,6 +19,7 @@ export const useJetpackFieldStyles = attributes => {
 	const labelStyle = {
 		color: attributes.labelColor,
 		fontSize: attributes.labelFontSize,
+		lineHeight: attributes.labelLineHeight,
 	};
 
 	const fieldStyle = {

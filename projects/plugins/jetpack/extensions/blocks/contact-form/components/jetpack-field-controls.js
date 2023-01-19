@@ -131,6 +131,13 @@ const JetpackFieldControls = ( {
 						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
 						value={ attributes.labelFontSize }
 					/>
+					<LineHeightControl
+						__unstableInputWidth="100%"
+						__nextHasNoMarginBottom={ true }
+						value={ attributes.labelLineHeight }
+						onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
+						size="__unstable-large"
+					/>
 				</PanelBody>
 				<PanelBody
 					title={ __( 'Input Field Styles', 'jetpack' ) }

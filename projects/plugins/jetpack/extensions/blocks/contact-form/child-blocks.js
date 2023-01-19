@@ -75,6 +75,9 @@ const FieldDefaults = {
 		lineHeight: {
 			type: 'number',
 		},
+		labelLineHeight: {
+			type: 'number',
+		},
 		inputColor: {
 			type: 'string',
 		},
