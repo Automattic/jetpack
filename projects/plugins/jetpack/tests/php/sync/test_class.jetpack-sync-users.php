@@ -849,7 +849,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	/**
 	 * Test that user field updates are synced with the appropriate flags.
 	 *
-	 * @dataProvider get_field_ranges_posts_args_provider
+	 * @dataProvider get_user_fields_and_flags
 	 *
 	 * @param string $field_name  User field name to update.
 	 * @param mixed  $field_value User field value to set.
