@@ -108,7 +108,7 @@ fi
 
 # Check out and push pre-release branch
 BRANCHES="$( git branch )"
-if [[ "$BRANCHES" =~ "prerelease" ]]; then
+if git rev-parse --verify prerelease &>/dev/null; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
 	git branch -D prerelease
 fi
