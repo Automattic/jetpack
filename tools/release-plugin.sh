@@ -122,7 +122,7 @@ fi
 tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 
 # When it completes, wait for user to edit anything they want, then push key to continue.
-read -r -s -p $'Edit any changelog entries you want, then press enter to continue the release process.'
+read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
 
 echo "Committing changes..."
