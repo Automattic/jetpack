@@ -1,4 +1,4 @@
-import { Button, Text, ThemeProvider } from '@automattic/jetpack-components';
+import { Button, Text, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { ResponsiveWrapper, ExternalLink, Spinner, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -195,7 +195,7 @@ export default function MediaSection() {
 						render={ setMediaRender }
 						value={ attachedMedia[ 0 ]?.id }
 					/>
-					<ExternalLink href="#">
+					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
 						{ __( 'Learn photo and video best practices', 'jetpack' ) }
 					</ExternalLink>
 					{ validationError && (
@@ -206,7 +206,9 @@ export default function MediaSection() {
 							status="warning"
 						>
 							<p>{ validationErrorMessages[ validationError ] }</p>
-							<ExternalLink href="#">{ __( 'Troubleshooting tips', 'jetpack' ) }</ExternalLink>
+							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+								{ __( 'Troubleshooting tips', 'jetpack' ) }
+							</ExternalLink>
 						</Notice>
 					) }
 				</MediaUploadCheck>
