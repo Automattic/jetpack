@@ -14,28 +14,23 @@ export const name = 'contact-form';
 
 const icon = renderMaterialIcon(
 	<>
+		<Path fillRule="evenodd" clipRule="evenodd" d="M18 9H13V7.5H18V9Z" fill={ getIconColor() } />
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
-			d="M18.5 9H12.5V7.5H18.5V9Z"
+			d="M18 16.5H13V15H18V16.5Z"
 			fill={ getIconColor() }
 		/>
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
-			d="M18.5 16.5H12.5V15H18.5V16.5Z"
+			d="M9.5 7.5H7.5V9.5H9.5V7.5ZM7.5 6H9.5C10.3284 6 11 6.67157 11 7.5V9.5C11 10.3284 10.3284 11 9.5 11H7.5C6.67157 11 6 10.3284 6 9.5V7.5C6 6.67157 6.67157 6 7.5 6Z"
 			fill={ getIconColor() }
 		/>
 		<Path
 			fillRule="evenodd"
 			clipRule="evenodd"
-			d="M9 7.5H7V9.5H9V7.5ZM7 6H9C9.82843 6 10.5 6.67157 10.5 7.5V9.5C10.5 10.3284 9.82843 11 9 11H7C6.17157 11 5.5 10.3284 5.5 9.5V7.5C5.5 6.67157 6.17157 6 7 6Z"
-			fill={ getIconColor() }
-		/>
-		<Path
-			fillRule="evenodd"
-			clipRule="evenodd"
-			d="M9 14.5H7V16.5H9V14.5ZM7 13H9C9.82843 13 10.5 13.6716 10.5 14.5V16.5C10.5 17.3284 9.82843 18 9 18H7C6.17157 18 5.5 17.3284 5.5 16.5V14.5C5.5 13.6716 6.17157 13 7 13Z"
+			d="M9.5 14.5H7.5V16.5H9.5V14.5ZM7.5 13H9.5C10.3284 13 11 13.6716 11 14.5V16.5C11 17.3284 10.3284 18 9.5 18H7.5C6.67157 18 6 17.3284 6 16.5V14.5C6 13.6716 6.67157 13 7.5 13Z"
 			fill={ getIconColor() }
 		/>
 		<Path
