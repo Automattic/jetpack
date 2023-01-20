@@ -114,6 +114,13 @@ export default function VideoPressEdit( {
 		isExample,
 	} = attributes;
 
+	/*
+	 * Force className cleanup.
+	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
+	 * when transforming from embed block.
+	 */
+	delete attributes.className;
+
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
@@ -390,12 +397,23 @@ export default function VideoPressEdit( {
 
 	// Render uploading block view
 	if ( isUploadingFile ) {
-		const handleDoneUpload = () => {
+		const handleDoneUpload = newVideoData => {
 			setIsUploadingFile( false );
 			if ( isReplacingFile.isReplacing ) {
+				const newBlockAttributes = {
+					...attributes,
+					...newVideoData,
+				};
+
+				// Delete attributes that are not needed.
+				delete newBlockAttributes.poster;
+
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-				replaceBlock( clientId, createBlock( 'videopress/video', { ...attributes } ) );
+				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
+				return;
 			}
+
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
 		return (
@@ -498,8 +516,12 @@ export default function VideoPressEdit( {
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {
-						const mediaGuid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+						// Depending on the endpoint, `videopress_guid` can be an array or a string.
+						const mediaGuid = Array.isArray( media.videopress_guid )
+							? media.videopress_guid[ 0 ]
+							: media.videopress_guid;
 						if ( ! mediaGuid ) {
+							debug( 'No media guid provided' );
 							return;
 						}
 
@@ -512,14 +534,14 @@ export default function VideoPressEdit( {
 						} );
 					} }
 					onSelectURL={ videoSource => {
-						const videoUrlData = buildVideoPressURL( videoSource );
-						if ( ! videoUrlData ) {
+						const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+						if ( ! guidFromSource ) {
 							debug( 'Invalid URL. No video GUID  provided' );
 							return;
 						}
 
 						// Update guid based on the URL.
-						setAttributes( { guid: videoUrlData.guid, src: videoUrlData.url } );
+						setAttributes( { guid: guidFromSource, src: srcFromSource } );
 					} }
 				/>
 			</BlockControls>
