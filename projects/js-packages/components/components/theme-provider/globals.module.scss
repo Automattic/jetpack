@@ -1,0 +1,6 @@
+/* DO NOT USE THIS TO OVERRIDE STYLES */
+.theme {
+	& * {
+		box-sizing: border-box;
+	}
+}
