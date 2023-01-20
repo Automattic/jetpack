@@ -67,4 +67,12 @@ runs:
         echo "Data: $DATA"
         JSON="$(curl -v -X "$METHOD" --header "authorization: Bearer $TOKEN" --url "$URL" --data "$DATA")"
         echo "$JSON"
-        echo "id=$(jq -r .id <<<"$JSON")" >> "$GITHUB_OUTPUT"
+        if jq -e .id <<<"$JSON" &>/dev/null; then
+          echo "id=$(jq -r .id <<<"$JSON")" >> "$GITHUB_OUTPUT"
+        elif jq -e .message <<<"$JSON" &>/dev/null; then
+          echo "::error::Failed to create/update check run: $(jq -r .message <<<"$JSON")"
+          exit 1
+        else
+          echo "::error::Failed to create/update check run, and no message was returned by GitHub."
+          exit 1
+        fi
