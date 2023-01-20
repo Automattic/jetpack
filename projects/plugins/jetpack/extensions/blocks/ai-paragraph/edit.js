@@ -179,45 +179,37 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			} );
 	};
 
-	if (
-		! attributes.content &&
-		( ! loadingCompletion || ! loadingCategories ) &&
-		content.length < numberOfCharactersNeeded
-	) {
-		setErrorMessage(
-			sprintf(
-				/** translators: First placeholder is a number of more characters we need */
-				__(
-					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
-					'jetpack'
-				),
-				numberOfCharactersNeeded - content.length
-			)
-		);
-		setNeedsMoreCharacters( true );
-	} else if ( needsMoreCharacters && content.length >= numberOfCharactersNeeded ) {
-		setErrorMessage(
-			/** translators: This is to retry to complete the text */
-			__( 'Ready to retry', 'jetpack' )
-		);
-		setShowRetry( true );
-		setNeedsMoreCharacters( false );
-	}
+	// Waiting state means there is nothing to be done until it resolves
+	const waitingState = completionFinished || loadingCompletion || loadingCategories;
 
-	if ( ! completionFinished ) {
-		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
-			if ( ! errorMessage ) {
-				setErrorMessage(
-					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-				);
-			}
-		} else if (
-			! loadingCompletion &&
-			! loadingCategories &&
-			! errorMessage &&
-			! needsMoreCharacters
-		) {
+	if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
+		if ( ! errorMessage ) {
+			setErrorMessage(
+				/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+				__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+			);
+		}
+	} else if ( ! waitingState ) {
+		if ( content.length < numberOfCharactersNeeded ) {
+			setErrorMessage(
+				sprintf(
+					/** translators: First placeholder is a number of more characters we need */
+					__(
+						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
+						'jetpack'
+					),
+					numberOfCharactersNeeded - content.length
+				)
+			);
+			setNeedsMoreCharacters( true );
+		} else if ( needsMoreCharacters && content.length >= numberOfCharactersNeeded ) {
+			setErrorMessage(
+				/** translators: This is to retry to complete the text */
+				__( 'Ready to retry', 'jetpack' )
+			);
+			setShowRetry( true );
+			setNeedsMoreCharacters( false );
+		} else {
 			getSuggestionFromOpenAI();
 		}
 	}
@@ -233,6 +225,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					) }
 				</Placeholder>
 			) }
+
 			{ attributes.content && (
 				<div>
 					<div className="content">
@@ -240,6 +233,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					</div>
 				</div>
 			) }
+
 			{ ! attributes.content && ( loadingCompletion || loadingCategories ) && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
