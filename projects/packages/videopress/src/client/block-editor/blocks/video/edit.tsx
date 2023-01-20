@@ -46,6 +46,8 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
+const { adminUrl } = window.videoPressEditorState;
+
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
 export const PlaceholderWrapper = withNotices( function ( {
@@ -138,7 +140,12 @@ export default function VideoPressEdit( {
 		poster,
 	} );
 
-	const { isUserConnected } = useConnection();
+	// Get the redirect URI for the connection flow.
+	const redirectUri = window.location.href.replace( adminUrl, '' );
+	const { isUserConnected, handleRegisterSite } = useConnection( {
+		from: 'block-editor',
+		redirectUri,
+	} );
 
 	/*
 	 * Request token when site is private
@@ -432,7 +439,7 @@ export default function VideoPressEdit( {
 									'jetpack-videopress-pkg'
 								),
 								{
-									link: <ExternalLink href="#" />,
+									link: <ExternalLink onClick={ handleRegisterSite } />,
 								}
 							) }
 						</Banner>
