@@ -12,6 +12,6 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
  */
 class Data_Sync {
 
-	const PACKAGE_VERSION = '1.0.0-alpha';
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 }
