@@ -1,0 +1,17 @@
+.block-banner {
+	display: flex;
+    height: 48px;
+    font-size: 14px;
+    align-self: center;
+    align-items: center;
+    background: #F4F4F4;
+    padding: 0 16px;
+
+    .components-external-link {
+        margin: 0 4px;
+    }
+}
+
+.editor-styles-wrapper .wp-block-post-content .components-external-link {
+    color: var( --wp-components-color-accent,var( --wp-admin-theme-color, #007cba ) );
+}
