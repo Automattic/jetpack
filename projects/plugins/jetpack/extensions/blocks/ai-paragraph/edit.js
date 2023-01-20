@@ -139,7 +139,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const contentToUseForPrompt = createPrompt( currentPostTitle, content, categoryNames );
 
 	const getSuggestionFromOpenAI = useCallback( () => {
-		if ( completionFinished ) {
+		if ( completionFinished || loadingCompletion ) {
 			return;
 		}
 
@@ -179,7 +179,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				);
 				setLoadingCompletion( false );
 			} );
-	}, [ completionFinished, contentToUseForPrompt, setAttributes ] );
+	}, [ completionFinished, contentToUseForPrompt, setAttributes, loadingCompletion ] );
 
 	useEffect( () => {
 		if (
