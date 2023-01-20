@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -9,9 +10,10 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
+import { Spinner, Placeholder, Button, withNotices, ExternalLink } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -22,6 +24,7 @@ import debugFactory from 'debug';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
+import Banner from './components/banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -134,6 +137,8 @@ export default function VideoPressEdit( {
 		useAverageColor,
 		poster,
 	} );
+
+	const { isUserConnected } = useConnection();
 
 	/*
 	 * Request token when site is private
@@ -418,14 +423,29 @@ export default function VideoPressEdit( {
 
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
-				<VideoPressUploader
-					setAttributes={ setAttributes }
-					attributes={ attributes }
-					handleDoneUpload={ handleDoneUpload }
-					fileToUpload={ fileToUpload }
-					isReplacing={ isReplacingFile?.isReplacing }
-					onReplaceCancel={ cancelReplacingVideoFile }
-				/>
+				<>
+					{ ! isUserConnected && (
+						<Banner>
+							{ createInterpolateElement(
+								__(
+									'<link>Connect your account</link> to continue using VideoPress',
+									'jetpack-videopress-pkg'
+								),
+								{
+									link: <ExternalLink href="#" />,
+								}
+							) }
+						</Banner>
+					) }
+					<VideoPressUploader
+						setAttributes={ setAttributes }
+						attributes={ attributes }
+						handleDoneUpload={ handleDoneUpload }
+						fileToUpload={ fileToUpload }
+						isReplacing={ isReplacingFile?.isReplacing }
+						onReplaceCancel={ cancelReplacingVideoFile }
+					/>
+				</>
 			</div>
 		);
 	}
