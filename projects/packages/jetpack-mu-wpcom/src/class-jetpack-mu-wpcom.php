@@ -16,4 +16,22 @@ class Jetpack_Mu_Wpcom {
 
 	const PACKAGE_VERSION = '0.1.0';
 
+	/**
+	 * Whether this class has been initialized.
+	 *
+	 * @var boolean
+	 */
+	private static $initialized = false;
+
+	/**
+	 * Initialize the class.
+	 *
+	 * @return void
+	 */
+	public static function init() {
+		if ( ! self::$initialized ) {
+			self::$initialized = true;
+			// Todo: init starts here.
+		}
+	}
 }
