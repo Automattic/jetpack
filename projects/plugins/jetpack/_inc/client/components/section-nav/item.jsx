@@ -56,8 +56,14 @@ class NavItem extends React.PureComponent {
 					<span className={ 'dops-section-nav-' + itemClassPrefix + '__text' }>
 						{ this.props.children }
 						{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
+						{ this.props.externalLinkIcon && (
+							<Icon
+								size={ 12 }
+								icon={ external }
+								className={ 'dops-section-nav-' + itemClassPrefix + '__icon' }
+							/>
+						) }
 					</span>
-					{ this.props.externalLinkIcon && <Icon size={ 12 } icon={ external } /> }
 				</a>
 			</li>
 		);
