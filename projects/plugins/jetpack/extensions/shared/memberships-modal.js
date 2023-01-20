@@ -71,8 +71,7 @@ export const a8c_tb_show = function ( caption, url ) {
 	if ( caption === null ) {
 		caption = '';
 	}
-	document.querySelector( 'body' ).insertAdjacentHTML( 'beforeend', "<div id='TB_load'></div>" ); //add loader to the page
-	show( document.getElementById( 'TB_load' ) ); //show loader
+
 	//code to show html
 	const queryString = url.replace( /^[^?]+\??/, '' );
 	const params = a8c_tb_parseQuery( queryString );
@@ -121,7 +120,6 @@ export const a8c_tb_show = function ( caption, url ) {
 						"px;'> </iframe>"
 				);
 		}
-		document.getElementById( 'TB_iframeContent' ).onload = a8c_tb_showIframe;
 	} else if ( document.getElementById( 'TB_window' ).style.display !== 'block' ) {
 		// not an iframe, ajax
 		if ( params.modal !== 'true' ) {
@@ -174,7 +172,6 @@ export const a8c_tb_show = function ( caption, url ) {
 				.append( document.getElementById( 'TB_ajaxContent' ).children() ); // move elements back when you're finished
 		};
 		a8c_tb_position();
-		document.getElementById( 'TB_load' ).remove();
 		show( document.getElementById( 'TB_window' ) );
 	} else if ( url.indexOf( 'TB_iframe' ) !== -1 ) {
 		a8c_tb_position();
@@ -182,7 +179,6 @@ export const a8c_tb_show = function ( caption, url ) {
 
 		if ( isSafari ) {
 			//safari needs help because it will not fire iframe onload
-			document.getElementById( 'TB_load' ).remove();
 			show( document.getElementById( 'TB_window' ) );
 		}
 	} else {
@@ -191,7 +187,6 @@ export const a8c_tb_show = function ( caption, url ) {
 			.load( ( url += '&random=' + new Date().getTime() ), function () {
 				//to do a post change this load method
 				a8c_tb_position();
-				document.getElementById( 'TB_load' ).remove();
 				a8c_tb_init( '#TB_ajaxContent a.thickbox' );
 				show( document.getElementById( 'TB_window' ) );
 			} );
@@ -215,12 +210,6 @@ export const a8c_tb_show = function ( caption, url ) {
 	}
 };
 
-//helper functions below
-export const a8c_tb_showIframe = function () {
-	document.getElementById( 'TB_load' )?.remove();
-	show( document.getElementById( 'TB_window' ) );
-};
-
 export const a8c_tb_remove = function () {
 	document.getElementById( 'TB_imageOff' )?.removeEventListener( 'click', a8c_tb_remove );
 	document.getElementById( 'TB_closeWindowButton' )?.removeEventListener( 'click', a8c_tb_remove );
@@ -229,7 +218,6 @@ export const a8c_tb_remove = function () {
 		el.dispatchEvent( new Event( 'unload' ) );
 		el.remove();
 	} );
-	document.getElementById( 'TB_load' )?.remove();
 	if ( typeof document.body.style.maxHeight === 'undefined' ) {
 		//if IE 6
 		document.querySelectorAll( 'body', 'html' ).forEach( function ( el ) {

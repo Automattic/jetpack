@@ -82,26 +82,17 @@ BODY.modal-open {
 	opacity: 0.75;
 }
 
-* html #TB_overlay { /* ie6 hack */
-	position: absolute;
-	height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
-}
-
 #TB_window {
 	position: fixed;
 	background: #ffffff;
 	z-index: 102;
+	display: block;
+	visibility: visible;
 	color:#000000;
-	display:none;
 	border: 4px solid #525252;
 	text-align:left;
 	top:50%;
 	left:50%;
-}
-
-* html #TB_window { /* ie6 hack */
-	position: absolute;
-	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
 }
 
 #TB_window img#TB_Image {
@@ -170,10 +161,7 @@ BODY.modal-open {
 	margin: -100px 0 0 -100px; /* -height/2 0 0 -width/2 */
 }
 
-* html #TB_load { /* ie6 hack */
-	position: absolute;
-	margin-top: expression(0 - parseInt(this.offsetHeight / 2) + (TBWindowMargin = document.documentElement && document.documentElement.scrollTop || document.body.scrollTop) + 'px');
-}
+
 
 #TB_HideSelect{
 	z-index:99;
@@ -189,10 +177,6 @@ BODY.modal-open {
 	width:100%;
 }
 
-* html #TB_HideSelect { /* ie6 hack */
-	position: absolute;
-	height: expression(document.body.scrollHeight > document.body.offsetHeight ? document.body.scrollHeight : document.body.offsetHeight + 'px');
-}
 
 #TB_iframeContent{
 	clear:both;
