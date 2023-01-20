@@ -58,6 +58,9 @@ class Authorize_Redirect {
 
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
 			// The user is either already connected, or finished the connection process.
+
+			// TODO: redirect users to the "Activate License" page if they already have a plan.
+
 			wp_safe_redirect( $dest_url );
 			exit;
 		} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
