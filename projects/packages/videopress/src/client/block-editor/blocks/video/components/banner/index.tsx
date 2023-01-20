@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Spinner } from '@wordpress/components';
 import { Icon, warning } from '@wordpress/icons';
 /**
  * Types
@@ -12,6 +13,7 @@ import './style.scss';
 type BlockBannerProps = {
 	icon?: React.ReactNode;
 	children: React.ReactNode;
+	isLoading?: boolean;
 };
 
 /**
@@ -25,11 +27,13 @@ type BlockBannerProps = {
 export default function BlockBanner( {
 	icon = warning,
 	children,
+	isLoading,
 }: BlockBannerProps ): React.ReactElement {
 	return (
 		<div className="block-banner">
 			<Icon icon={ icon } />
-			{ children }
+			<div className="block-banner__content">{ children }</div>
+			{ isLoading && <Spinner /> }
 		</div>
 	);
 }

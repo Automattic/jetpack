@@ -7,6 +7,11 @@
     background: #F4F4F4;
     padding: 0 16px;
 
+    .block-banner__content {
+        flex-grow: 2;
+        margin: 0 8px;
+    }
+
     .components-external-link {
         margin: 0 4px;
         cursor: pointer;
