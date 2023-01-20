@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Cleaning PHP deprecated error notice from the log
