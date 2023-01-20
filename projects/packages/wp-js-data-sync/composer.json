@@ -1,14 +1,9 @@
 {
-	"name": "automattic/jetpack-stats-admin",
-	"description": "Stats Dashboard",
+	"name": "automattic/jetpack-wp-js-data-sync",
+	"description": "A package to setup REST API and script localization to pass data to a JavaScript client.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {
-		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-stats": "@dev",
-		"automattic/jetpack-status": "@dev"
-	},
+	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
@@ -31,8 +26,7 @@
 		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'",
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"repositories": [
 		{
@@ -46,14 +40,17 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"autotagger": true,
-		"mirror-repo": "Automattic/jetpack-stats-admin",
-		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+		"mirror-repo": "Automattic/jetpack-wp-js-data-sync",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-wp-js-data-sync/compare/v${old}...v${new}"
 		},
-		"textdomain": "jetpack-stats-admin",
+		"autotagger": true,
+		"branch-alias": {
+			"dev-trunk": "0.1.x-dev"
+		},
+		"textdomain": "jetpack-wp-js-data-sync",
 		"version-constants": {
-			"::VERSION": "src/class-main.php"
+			"::PACKAGE_VERSION": "src/class-data-sync.php"
 		}
 	},
 	"config": {
