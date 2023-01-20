@@ -6,17 +6,18 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { isModalSupportedByFlow } from './util';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const isSaving = useSelect(
+		const isSavingSite = useSelect(
 			select => select( editorStore ).isSavingNonPostEntityChanges(),
 			[]
 		);
-		const prevIsSaving = usePrevious( isSaving );
+		const prevIsSavingSite = usePrevious( isSavingSite );
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
@@ -30,15 +31,15 @@ export const settings = {
 		} );
 
 		useEffect( () => {
-			if ( prevIsSaving === true && isSaving === false ) {
+			if ( prevIsSavingSite === true && isSavingSite === false ) {
 				setIsModalOpen( true );
 			}
-		}, [ isSaving, prevIsSaving ] );
+		}, [ isSavingSite, prevIsSavingSite ] );
 
 		const showModal =
+			isModalSupportedByFlow( siteIntentOption ) &&
 			isInsideSiteEditor &&
 			launchpadScreenOption === 'full' &&
-			siteIntentOption === 'link-in-bio' &&
 			! dontShowAgain &&
 			isModalOpen;
 
@@ -55,11 +56,11 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Your site is ready to launch!', 'jetpack' ) }
+								{ __( 'Great progress!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
 								{ __(
-									'Launching your Link in Bio will allow you to share a link with others and promote your site.',
+									'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
 									'jetpack'
 								) }
 							</p>
