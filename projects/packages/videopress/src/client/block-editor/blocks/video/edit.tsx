@@ -433,11 +433,12 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
+		const isReconnectingUser = userIsConnecting || siteIsRegistering;
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					{ ! isUserConnected && (
-						<Banner isLoading={ siteIsRegistering || userIsConnecting }>
+						<Banner isLoading={ isReconnectingUser }>
 							{ createInterpolateElement(
 								__(
 									'<link>Connect your account</link> to continue using VideoPress',
@@ -446,7 +447,7 @@ export default function VideoPressEdit( {
 								{
 									link: (
 										<ExternalLink
-											disabled={ siteIsRegistering || userIsConnecting }
+											className={ isReconnectingUser ? 'is-reconnecting' : '' }
 											onClick={ handleRegisterSite }
 										/>
 									),
