@@ -120,9 +120,12 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 				) }
 			</Col>
 			{ hasBackupPlan && connectionStatus.isUserConnected && (
-				<Col lg={ 6 } md={ 6 } className="backup-segments__storage-section">
-					{ <BackupStorageSpace /> }
-				</Col>
+				<>
+					<Col lg={ 1 } md={ 1 } />
+					<Col lg={ 5 } md={ 5 } className="backup-segments__storage-section">
+						{ <BackupStorageSpace /> }
+					</Col>
+				</>
 			) }
 			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
