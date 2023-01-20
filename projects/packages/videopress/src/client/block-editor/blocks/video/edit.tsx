@@ -114,6 +114,13 @@ export default function VideoPressEdit( {
 		isExample,
 	} = attributes;
 
+	/*
+	 * Force className cleanup.
+	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
+	 * when transforming from embed block.
+	 */
+	delete attributes.className;
+
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
@@ -527,14 +534,14 @@ export default function VideoPressEdit( {
 						} );
 					} }
 					onSelectURL={ videoSource => {
-						const videoUrlData = buildVideoPressURL( videoSource );
-						if ( ! videoUrlData ) {
+						const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+						if ( ! guidFromSource ) {
 							debug( 'Invalid URL. No video GUID  provided' );
 							return;
 						}
 
 						// Update guid based on the URL.
-						setAttributes( { guid: videoUrlData.guid, src: videoUrlData.url } );
+						setAttributes( { guid: guidFromSource, src: srcFromSource } );
 					} }
 				/>
 			</BlockControls>
