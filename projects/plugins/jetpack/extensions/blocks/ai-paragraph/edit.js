@@ -9,9 +9,40 @@ import { sprintf, __ } from '@wordpress/i18n';
 
 const numberOfCharactersNeeded = 36;
 
+function ShowLittleByLittle( { html, showAnimation } ) {
+	const [ content, setContent ] = useState( '' );
+	const [ contentSet, setContentSet ] = useState( false );
+
+	if ( ! contentSet ) {
+		// That will only be used once
+		if ( showAnimation ) {
+			// This is to animate text input. I think this will give an idea of a "better" AI.
+			// At this point this is an established pattern.
+			const tokens = html.split( ' ' );
+			for ( let i = 1; i < tokens.length; i++ ) {
+				const output = tokens.slice( 0, i ).join( ' ' );
+				setTimeout( () => setContent( output ), 50 * i );
+			}
+			setTimeout( () => setContent( html ), 50 * tokens.length );
+		} else {
+			setContent( html );
+		}
+		setContentSet( true );
+	}
+
+	return (
+		<>
+			<div className="content">
+				<RawHTML>{ content }</RawHTML>
+			</div>
+		</>
+	);
+}
+
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
 	const [ loadingCategories, setLoadingCategories ] = useState( false );
+	const [ showAnimation, setShowAnimation ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ completionFinished, setCompletionFinished ] = useState( !! attributes.content );
@@ -157,6 +188,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 				// We set it up so it doesn't start with nothing
 				setCompletionFinished( true );
+				setShowAnimation( true );
 				setLoadingCompletion( false );
 				setAttributes( { content: result } );
 			} )
@@ -219,11 +251,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			) }
 
 			{ attributes.content && (
-				<div>
-					<div className="content">
-						<RawHTML>{ attributes.content.trim().replaceAll( '\n', '<br/>' ) }</RawHTML>
-					</div>
-				</div>
+				<ShowLittleByLittle
+					showAnimation={ showAnimation }
+					html={ attributes.content.trim().replaceAll( '\n', '<br/>' ) }
+				/>
 			) }
 
 			{ ! attributes.content && ( loadingCompletion || loadingCategories ) && (
