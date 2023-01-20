@@ -1,5 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useConnection from '../../hooks/useConnection';
@@ -47,6 +47,18 @@ const BackupStorageSpace = () => {
 		setUsageLevel( getUsageLevel( storageSize, storageLimit ) );
 	}, [ storageSize, storageLimit ] );
 
+	const sectionHeader = useMemo( () => {
+		if ( usageLevel === StorageUsageLevels.Full ) {
+			return __( 'Cloud storage full', 'jetpack-backup-pkg' );
+		}
+
+		if ( usageLevel === StorageUsageLevels.Critical ) {
+			return __( 'Cloud storage is almost full', 'jetpack-backup-pkg' );
+		}
+
+		return __( 'Cloud storage space', 'jetpack-backup-pkg' );
+	}, [ usageLevel ] );
+
 	if ( ! showComponent ) {
 		return null;
 	}
@@ -54,11 +66,7 @@ const BackupStorageSpace = () => {
 	return (
 		showComponent && (
 			<>
-				<h2>
-					{ usageLevel === StorageUsageLevels.Full
-						? __( 'Cloud storage full', 'jetpack-backup-pkg' )
-						: __( 'Cloud storage space', 'jetpack-backup-pkg' ) }
-				</h2>
+				<h2>{ sectionHeader }</h2>
 				<StorageMeter
 					storageUsed={ storageSize }
 					storageLimit={ storageLimit }
