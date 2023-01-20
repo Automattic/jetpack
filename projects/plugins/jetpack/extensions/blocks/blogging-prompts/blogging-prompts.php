@@ -15,6 +15,8 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 const FEATURE_NAME = 'blogging-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
+// TODO: Enqueue styles for front-end view of block
+
 /**
  * Registers the blogging prompt integration for the block editor.
  */

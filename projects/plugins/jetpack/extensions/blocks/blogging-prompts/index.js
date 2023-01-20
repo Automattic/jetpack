@@ -6,6 +6,8 @@ import save from './save';
 export const name = 'blogging-prompts';
 export const title = __( 'Writing Prompt', 'jetpack' );
 
+// TODO: Add transforms and example.
+
 export const settings = {
 	title,
 	icon,
