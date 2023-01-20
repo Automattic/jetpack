@@ -583,9 +583,9 @@ class Jetpack_Backup {
 	 * @return string Suggested addon storage slug
 	 */
 	public static function get_storage_addon_upsell_slug( $bytes_used, $bytes_available ) {
-		$bytes_10gb  = 10737418240;
-		$bytes_100gb = 107374182400;
-		$bytes_1tb   = 1099511627776;
+		$bytes_10gb  = 10 * 1024 * 1024 * 1024; // 10GB in bytes
+		$bytes_100gb = 100 * 1024 * 1024 * 1024; // 100GB in bytes
+		$bytes_1tb   = 1024 * 1024 * 1024 * 1024; // 1TB in bytes
 
 		$upsell_products = array(
 			$bytes_10gb  => 'jetpack_backup_addon_storage_10gb_monthly',
