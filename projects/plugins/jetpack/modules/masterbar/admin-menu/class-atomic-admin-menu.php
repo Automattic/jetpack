@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
 use Jetpack_Plan;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -198,7 +199,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
 		$icon           = get_site_icon_url( 32, $default );
 		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {

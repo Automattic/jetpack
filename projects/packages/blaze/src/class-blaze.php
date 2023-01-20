@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
@@ -16,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.4';
+	const PACKAGE_VERSION = '0.3.5-alpha';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
@@ -63,6 +64,7 @@ class Blaze {
 	 * @return bool
 	 */
 	public static function should_initialize() {
+		$status            = ( new Status() );
 		$should_initialize = true;
 		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$user_data         = $is_wpcom
@@ -104,11 +106,8 @@ class Blaze {
 		 * nor on sites that have not been launched yet.
 		 */
 		if (
-			'-1' === get_option( 'blog_public' )
-			|| (
-				( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
-				|| (bool) get_option( 'wpcom_public_coming_soon' )
-			)
+			$status->is_private_site()
+			|| $status->is_coming_soon()
 		) {
 			$should_initialize = false;
 		}
@@ -192,5 +191,8 @@ class Blaze {
 				'textdomain' => 'jetpack-blaze',
 			)
 		);
+
+		// Adds Connection package initial state.
+		wp_add_inline_script( 'jetpack-promote-editor', Connection_Initial_State::render(), 'before' );
 	}
 }

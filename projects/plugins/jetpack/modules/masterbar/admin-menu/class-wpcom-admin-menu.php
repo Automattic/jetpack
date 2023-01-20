@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Status;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -146,17 +147,19 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default        = plugins_url( 'globe-icon.svg', __FILE__ );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( wpcom_is_coming_soon() && is_private_blog() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$default         = plugins_url( 'globe-icon.svg', __FILE__ );
+		$icon            = get_site_icon_url( 32, $default );
+		$blog_name       = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$status          = new Status();
+		$is_private_site = $status->is_private_site();
+		$is_coming_soon  = $status->is_coming_soon();
 
 		if ( $default === $icon && blavatar_exists( $this->domain ) ) {
 			$icon = blavatar_url( $this->domain, 'img', 32 );
 		}
 
 		$badge = '';
-		if ( is_private_blog() || $is_coming_soon ) {
+		if ( $is_private_site || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
 				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
