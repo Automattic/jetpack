@@ -153,6 +153,7 @@ class Block_Editor_Extensions {
 			array(
 				'extensions' => $extensions_list,
 				'siteType'   => $site_type,
+				'adminUrl'   => admin_url(),
 			)
 		);
 	}
