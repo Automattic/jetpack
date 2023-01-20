@@ -366,10 +366,10 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes ) {
-	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+	// We only want the sites that have newsletter plans to be graced by this JavaScript.
 	if ( has_newsletter_plans() ) {
-		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
-		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+		// We only want the sites that have newsletter plans to be graced by this JavaScript.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array() );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
 		}
