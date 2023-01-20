@@ -43,5 +43,8 @@
 		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
 		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
 		"release-branch-prefix": "jetpack"
+	},
+	"config": {
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥversion"
 	}
 }
