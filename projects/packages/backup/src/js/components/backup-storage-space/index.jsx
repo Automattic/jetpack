@@ -15,7 +15,7 @@ const BackupStorageSpace = () => {
 	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingRewindSize() );
 	const storageLimit = useSelect( select => select( STORE_ID ).getRewindStorageLimit() );
 	const storageSize = useSelect( select => select( STORE_ID ).getRewindSize() );
-	const showComponent = storageSize && storageLimit > 0;
+	const showComponent = storageSize !== null && storageLimit > 0;
 
 	const [ usageLevel, setUsageLevel ] = useState( StorageUsageLevels.Normal );
 	const dispatch = useDispatch( STORE_ID );
@@ -46,6 +46,10 @@ const BackupStorageSpace = () => {
 	useEffect( () => {
 		setUsageLevel( getUsageLevel( storageSize, storageLimit ) );
 	}, [ storageSize, storageLimit ] );
+
+	if ( ! showComponent ) {
+		return null;
+	}
 
 	return (
 		showComponent && (
