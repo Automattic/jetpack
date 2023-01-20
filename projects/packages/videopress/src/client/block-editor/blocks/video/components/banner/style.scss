@@ -15,6 +15,12 @@
     .components-external-link {
         margin: 0 4px;
         cursor: pointer;
+
+        &.is-reconnecting {
+            opacity: 0.5;
+            cursor: default;
+            text-decoration: none;
+        }
     }
 }
 
