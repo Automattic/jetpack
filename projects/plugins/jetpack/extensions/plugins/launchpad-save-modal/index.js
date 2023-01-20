@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -26,14 +26,20 @@ export const settings = {
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
-		const isInsideSiteOrBlockEditor =
-			document.getElementById( 'site-editor' ) !== null ||
-			document.querySelector( '.block-editor' ) !== null;
+		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
+		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
 			query: `siteSlug=${ siteFragment }`,
 		} );
+		const { tracks } = useAnalytics();
+
+		const recordTracksEvent = eventName =>
+			tracks.recordEvent( eventName, {
+				launchpad_screen: launchpadScreenOption,
+				site_intent: siteIntentOption,
+			} );
 
 		useEffect( () => {
 			const siteEditorSaved = prevIsSavingSite === true && isSavingSite === false;
@@ -52,7 +58,7 @@ export const settings = {
 
 		const showModal =
 			isModalSupportedByFlow( siteIntentOption ) &&
-			isInsideSiteOrBlockEditor &&
+			( isInsidePostEditor || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
 			! dontShowAgain &&
 			isModalOpen;
@@ -66,6 +72,10 @@ export const settings = {
 						if ( ! window.location.href.includes( 'post-new' ) ) {
 							setIsModalOpen( false );
 							setDontShowAgain( isChecked );
+							const eventName = isInsidePostEditor
+								? 'wpcom_block_editor_launchpad_modal_close'
+								: 'site_editor_launchpad_modal_close';
+							recordTracksEvent( eventName );
 						}
 					} }
 				>
@@ -93,11 +103,25 @@ export const settings = {
 									onClick={ () => {
 										setDontShowAgain( isChecked );
 										setIsModalOpen( false );
+										const eventName = isInsidePostEditor
+											? 'wpcom_block_editor_launchpad_modal_back_to_edit'
+											: 'site_editor_launchpad_modal_back_to_edit';
+										recordTracksEvent( eventName );
 									} }
 								>
 									{ __( 'Back to Edit', 'jetpack' ) }
 								</Button>
-								<Button variant="primary" href={ launchPadUrl } target="_top">
+								<Button
+									variant="primary"
+									onClick={ () => {
+										const eventName = isInsidePostEditor
+											? 'wpcom_block_editor_launchpad_modal_next_steps'
+											: 'site_editor_launchpad_modal_next_steps';
+										recordTracksEvent( eventName );
+										window.location.assign( launchPadUrl );
+									} }
+									target="_top"
+								>
 									{ __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
