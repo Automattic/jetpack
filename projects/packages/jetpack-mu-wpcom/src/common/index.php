@@ -6,7 +6,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-namespace Jetpack\Mu_Wpcom\Common;
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 /**
  * Returns ISO 639 conforming locale string.

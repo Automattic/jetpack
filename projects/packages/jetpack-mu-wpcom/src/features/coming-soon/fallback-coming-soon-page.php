@@ -10,6 +10,8 @@
 
 namespace A8C\FSE\Coming_soon;
 
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
+
 /**
  * Returns the current locale
  *
@@ -17,7 +19,7 @@ namespace A8C\FSE\Coming_soon;
  */
 function get_current_locale() {
 	$language = function_exists( 'get_blog_lang_code' ) ? get_blog_lang_code() : get_locale();
-	return \Jetpack\Mu_Wpcom\Common\get_iso_639_locale( $language );
+	return Common\get_iso_639_locale( $language );
 }
 
 /**

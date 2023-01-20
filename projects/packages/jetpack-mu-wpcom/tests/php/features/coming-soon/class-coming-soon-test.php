@@ -7,8 +7,10 @@
 
 namespace A8C\FSE\Coming_soon;
 
-require_once JETPACK_MU_WPCOM__PLUGIN_DIR . 'src/features/coming-soon/coming-soon.php';
-require_once JETPACK_MU_WPCOM__PLUGIN_DIR . 'tests/lib/functions-wordpress.php';
+use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/coming-soon/coming-soon.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'tests/lib/functions-wordpress.php';
 
 /**
  * Class Coming_Soon_Test

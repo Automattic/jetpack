@@ -11,4 +11,4 @@
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 \WorDBless\Load::load();
-require_once __DIR__ . '/../../jetpack-mu-wpcom.php';
+require_once __DIR__ . '/../../src/class-jetpack-mu-wpcom.php';
