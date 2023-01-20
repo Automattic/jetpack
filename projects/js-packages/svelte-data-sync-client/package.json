@@ -1,0 +1,33 @@
+{
+  "private": true,
+  "name": "@automattic/jetpack-svelte-data-sync-client",
+  "version": "0.1.0-alpha",
+  "description": "A Svelte.js client for the wp-js-data-sync package",
+  "homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/svelte-data-sync-client/#readme",
+  "bugs": {
+    "url": "https://github.com/Automattic/jetpack/labels/[JS Package] Svelte Data Sync Client"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Automattic/jetpack.git",
+    "directory": "projects/js-packages/svelte-data-sync-client"
+  },
+  "license": "GPL-2.0-or-later",
+  "author": "Automattic",
+  "scripts": {
+    "test": "jest tests",
+    "test-coverage": "jest tests --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+  },
+  "devDependencies": {
+    "jest": "29.3.1"
+  },
+  "engines": {
+    "node": "^16.13.2",
+    "yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+  },
+  "exports": {
+    ".": "./index.jsx",
+    "./state": "./src/state",
+    "./action-types": "./src/state/action-types"
+  }
+}
