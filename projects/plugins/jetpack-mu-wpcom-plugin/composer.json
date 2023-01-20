@@ -38,6 +38,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
-		"release-branch-prefix": "jetpack-mu-wpcom-plugin"
+		"autorelease": true,
+		"autotagger": true,
+		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
+		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
+		"release-branch-prefix": "jetpack"
 	}
 }
