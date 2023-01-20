@@ -149,7 +149,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	const priceDescription =
 		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
 			? __( 'for the first month, billed yearly', 'jetpack-my-jetpack' )
-			: __( '/month, paid yearly', 'jetpack-my-jetpack' );
+			: __(
+					'/month, paid yearly',
+					'jetpack-my-jetpack',
+					/* dummy arg to avoid bad minification */ 0
+			  );
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
