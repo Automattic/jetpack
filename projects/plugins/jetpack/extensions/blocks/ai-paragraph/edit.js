@@ -23,51 +23,49 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		[]
 	);
 
-	// We are grabbing more data from WP.
+	let loading = false;
 	const categories = useSelect(
 		select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ),
 		[]
 	);
-	const categoryObjects = useSelect( select => {
-		const _catObjects = [];
-		let loading = false;
-		for ( const categoryId in categories ) {
-			const cat = select( 'core' ).getEntityRecord(
-				'taxonomy',
-				'category',
-				categories[ categoryId ]
-			);
-			if ( ! cat === null ) {
-				// Data not yet loaded https://developer.wordpress.org/block-editor/reference-guides/data/data-core/#getentityrecord
-				loading = true;
-				continue;
-			}
 
-			if ( ! cat ) {
-				continue;
-			}
-			_catObjects.push( cat );
-		}
-		setLoadingCategories( loading );
-		return _catObjects;
-	}, [] );
+	const categoryObjects = useSelect( select => {
+		return categories
+			.map( categoryId => {
+				const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
+
+				if ( ! category ) {
+					// Data is not yet loaded
+					loading = true;
+					return;
+				}
+
+				return category;
+			} )
+			.filter( Boolean ); // Remove undefined values
+	} );
 
 	const tags = useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] );
+
 	const tagObjects = useSelect( select => {
-		const _tagObjects = [];
-		let loading = false;
-		for ( const tagId in tags ) {
-			const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tags[ tagId ] );
-			if ( ! tag ) {
-				// Data not yet loaded https://developer.wordpress.org/block-editor/reference-guides/data/data-core/#getentityrecord
-				loading = true;
-				continue;
-			}
-			_tagObjects.push( tag );
-		}
+		return tags
+			.map( tagId => {
+				const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
+
+				if ( ! tag ) {
+					// Data is not yet loaded
+					loading = true;
+					return;
+				}
+
+				return tag;
+			} )
+			.filter( Boolean ); // Remove undefined values
+	} );
+
+	if ( loadingCategories !== loading ) {
 		setLoadingCategories( loading );
-		return _tagObjects;
-	}, [] );
+	}
 
 	const createPrompt = ( title = '', content = '', categoryNames = '' ) => {
 		content = content.slice( -240 );
