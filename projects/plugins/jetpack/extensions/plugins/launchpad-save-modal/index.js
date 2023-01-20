@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -22,13 +22,23 @@ export const settings = {
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
-		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
+		const { launchpadScreenOption, siteIntentOption } =
+			window?.Jetpack_Launchpad_save_modalSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
 			query: `siteSlug=${ siteFragment }`,
 		} );
+
+		const { tracks } = useAnalytics();
+
+		const recordTracksEvent = eventName =>
+			tracks.recordEvent( eventName, {
+				site_intent: siteIntentOption,
+				launchpad_screen: launchpadScreenOption,
+				dont_show_again: dontShowAgain,
+			} );
 
 		useEffect( () => {
 			if ( prevIsSavingSite === true && isSavingSite === false ) {
@@ -51,6 +61,7 @@ export const settings = {
 					onRequestClose={ () => {
 						setIsModalOpen( false );
 						setDontShowAgain( isChecked );
+						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
 					<div className="launchpad__save-modal-body">
@@ -77,11 +88,19 @@ export const settings = {
 									onClick={ () => {
 										setDontShowAgain( isChecked );
 										setIsModalOpen( false );
+										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
 								>
 									{ __( 'Back to Edit', 'jetpack' ) }
 								</Button>
-								<Button variant="primary" href={ launchPadUrl } target="_top">
+								<Button
+									variant="primary"
+									onClick={ () => {
+										window.location.assign( launchPadUrl );
+										recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' );
+									} }
+									target="_top"
+								>
 									{ __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
