@@ -1,5 +1,5 @@
 /** @ssr-ready **/
-
+import { Icon, external } from '@wordpress/icons';
 import classNames from 'classnames';
 import Count from 'components/count';
 import PropTypes from 'prop-types';
@@ -18,6 +18,7 @@ class NavItem extends React.PureComponent {
 		tabIndex: PropTypes.number,
 		onClick: PropTypes.func,
 		isExternalLink: PropTypes.bool,
+		externalLinkIcon: PropTypes.bool,
 		disabled: PropTypes.bool,
 		count: PropTypes.number,
 	};
@@ -56,6 +57,7 @@ class NavItem extends React.PureComponent {
 						{ this.props.children }
 						{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
 					</span>
+					{ this.props.externalLinkIcon && <Icon size={ 12 } icon={ external } /> }
 				</a>
 			</li>
 		);
