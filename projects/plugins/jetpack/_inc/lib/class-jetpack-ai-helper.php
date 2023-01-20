@@ -205,6 +205,7 @@ class Jetpack_AI_Helper {
 	public static function get_dalle_generation( $prompt, $post_id ) {
 		$cache = get_transient( self::transient_name_for_image_generation( $prompt ) );
 		if ( $cache ) {
+			self::mark_post_as_ai_assisted( $post_id );
 			return $cache;
 		}
 
@@ -230,6 +231,7 @@ class Jetpack_AI_Helper {
 				return $result;
 			}
 			set_transient( self::transient_name_for_image_generation( $prompt ), $result, self::$image_generation_cache_timeout );
+			self::mark_post_as_ai_assisted( $post_id );
 			return $result;
 		}
 
@@ -258,6 +260,7 @@ class Jetpack_AI_Helper {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
 		set_transient( self::transient_name_for_image_generation( $prompt ), $data, self::$image_generation_cache_timeout );
+		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
 	}
