@@ -12,7 +12,7 @@ const numberOfCharactersNeeded = 36;
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
 	const [ loadingCategories, setLoadingCategories ] = useState( false );
-	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
+	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ completionFinished, setCompletionFinished ] = useState( !! attributes.content );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -143,7 +143,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 		setShowRetry( false );
 		setErrorMessage( false );
-		setNeedsMoreCharacters( false );
+		setNeedsMoreCharacters( 0 );
 		setLoadingCompletion( true );
 
 		const data = { content: contentToUseForPrompt };
@@ -158,15 +158,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				// We set it up so it doesn't start with nothing
 				setCompletionFinished( true );
 				setLoadingCompletion( false );
-
-				// This is to animate text input. I think this will give an idea of a "better" AI.
-				// At this point this is an established pattern.
-				const tokens = result.split( ' ' );
-				for ( let i = 1; i < tokens.length; i++ ) {
-					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setAttributes( { content: output } ), 50 * i );
-				}
-				setTimeout( () => setAttributes( { content: result } ), 50 * tokens.length );
+				setAttributes( { content: result } );
 			} )
 			.catch( () => {
 				setErrorMessage(
@@ -182,15 +174,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Waiting state means there is nothing to be done until it resolves
 	const waitingState = completionFinished || loadingCompletion || loadingCategories;
 
-	if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
-		if ( ! errorMessage ) {
-			setErrorMessage(
-				/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-				__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-			);
-		}
-	} else if ( ! waitingState ) {
-		if ( content.length < numberOfCharactersNeeded ) {
+	if ( ! waitingState ) {
+		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
+			if ( ! errorMessage ) {
+				setErrorMessage(
+					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+				);
+			}
+		} else if ( content.length < numberOfCharactersNeeded && needsMoreCharacters === 0 ) {
 			setErrorMessage(
 				sprintf(
 					/** translators: First placeholder is a number of more characters we need */
@@ -201,14 +193,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					numberOfCharactersNeeded - content.length
 				)
 			);
-			setNeedsMoreCharacters( true );
-		} else if ( needsMoreCharacters && content.length >= numberOfCharactersNeeded ) {
+			setNeedsMoreCharacters( numberOfCharactersNeeded - content.length );
+		} else if ( needsMoreCharacters !== 0 && content.length >= numberOfCharactersNeeded ) {
 			setErrorMessage(
 				/** translators: This is to retry to complete the text */
 				__( 'Ready to retry', 'jetpack' )
 			);
 			setShowRetry( true );
-			setNeedsMoreCharacters( false );
+			setNeedsMoreCharacters( 0 );
 		} else {
 			getSuggestionFromOpenAI();
 		}
