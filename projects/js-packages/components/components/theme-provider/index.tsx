@@ -93,7 +93,7 @@ const setup = ( root: HTMLElement, id: string, withGlobalStyles?: boolean ) => {
 	}
 
 	if ( withGlobalStyles ) {
-		root.classList.add( styles.theme );
+		root.classList.add( styles.global );
 	}
 
 	if ( ! id ) {
