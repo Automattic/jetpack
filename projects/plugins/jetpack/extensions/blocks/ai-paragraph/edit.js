@@ -205,7 +205,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	// Waiting state means there is nothing to be done until it resolves
 	const waitingState = completionFinished || loadingCompletion || loadingCategories;
-
+	const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
 	if ( ! waitingState ) {
 		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
 			if ( ! errorMessage ) {
@@ -214,7 +214,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
 				);
 			}
-		} else if ( content.length < numberOfCharactersNeeded && needsMoreCharacters === 0 ) {
+		} else if (
+			content.length < numberOfCharactersNeeded &&
+			needsMoreCharacters !== nbCharactersNeeded
+		) {
 			setErrorMessage(
 				sprintf(
 					/** translators: First placeholder is a number of more characters we need */
@@ -222,10 +225,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
 						'jetpack'
 					),
-					numberOfCharactersNeeded - content.length
+					nbCharactersNeeded
 				)
 			);
-			setNeedsMoreCharacters( numberOfCharactersNeeded - content.length );
+			setNeedsMoreCharacters( nbCharactersNeeded );
 		} else if ( needsMoreCharacters !== 0 && content.length >= numberOfCharactersNeeded ) {
 			setErrorMessage(
 				/** translators: This is to retry to complete the text */
@@ -233,7 +236,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			);
 			setShowRetry( true );
 			setNeedsMoreCharacters( 0 );
-		} else {
+		} else if ( needsMoreCharacters === 0 && ! showRetry ) {
 			getSuggestionFromOpenAI();
 		}
 	}
