@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
@@ -111,12 +112,20 @@ class Block_Editor_Extensions {
 			$site_type = 'atomic';
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$is_current_user_connected = true;
+		} else {
+			$connection                = new Connection_Manager();
+			$is_current_user_connected = $connection->is_user_connected();
+		}
+
 		wp_localize_script(
 			self::SCRIPT_HANDLE,
 			'videoPressEditorState',
 			array(
-				'extensions' => $extensions_list,
-				'siteType'   => $site_type,
+				'extensions'      => $extensions_list,
+				'siteType'        => $site_type,
+				'isUserConnected' => $is_current_user_connected,
 			)
 		);
 	}
