@@ -26,7 +26,7 @@ module.exports = {
 		path: path.resolve( __dirname, 'build' ),
 		filename: 'index.js',
 		library: {
-			name: 'SvelteDateSyncClient',
+			name: 'SvelteDataSyncClient',
 			type: 'umd',
 		},
 	},
