@@ -1,0 +1,41 @@
+.jetpack-blogging-prompts {
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+	padding: 24px;
+
+	&__label {
+		font-size: 14px;
+		margin-bottom: 16px;
+
+		svg {
+			// fill: var(--color-black);
+		}
+	}
+
+	&__prompt {
+		font-size: 24px;
+		margin-bottom: 16px;
+	}
+
+	&__answers-link {
+		display: inline-block;
+		margin-left: 10px;
+		text-decoration: underline;
+	}
+
+	&__answers {
+		font-size: 16px;
+	}
+
+	&__answers-gravatar {
+		border: 2px solid white;
+		border-radius: 50%;
+		height: 24px;
+		vertical-align: middle;
+		width: 24px;
+
+		&:not(:first-child) {
+			margin-left: -15px;
+		}
+	}
+}

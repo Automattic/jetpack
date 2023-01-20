@@ -3,6 +3,7 @@ import { dispatch } from '@wordpress/data';
 import registerJetpackBlock from '../../shared/register-jetpack-block';
 import { waitForEditor } from '../../shared/wait-for-editor';
 import { name, settings } from '.';
+import './style.scss';
 
 registerJetpackBlock( name, settings );
 
@@ -13,11 +14,11 @@ async function insertTemplate( prompt ) {
 	const bloggingPromptBlocks = [
 		createBlock( 'jetpack/blogging-prompts', {
 			answerCount: prompt.answered_users_count,
-			gravatars: prompt.answered_users_sample,
+			gravatars: prompt.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 			prompt: prompt.text,
 			prompt_id: prompt.id,
 			showLabel: true,
-			showAnswers: true,
+			showResponses: true,
 		} ),
 		createBlock( 'core/paragraph' ),
 	];
