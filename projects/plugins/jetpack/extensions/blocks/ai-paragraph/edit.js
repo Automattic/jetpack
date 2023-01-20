@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, useCallback, RawHTML, useEffect } from '@wordpress/element';
+import { useState, RawHTML } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 
 const numberOfCharactersNeeded = 36;
@@ -14,7 +14,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ loadingCategories, setLoadingCategories ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
-	const [ completionFinished, setCompletionFinished ] = useState( attributes.content );
+	const [ completionFinished, setCompletionFinished ] = useState( !! attributes.content );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 
 	// Let's grab post data so that we can do something smart.
@@ -136,7 +136,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		.join( '\n' );
 	const contentToUseForPrompt = createPrompt( currentPostTitle, content, categoryNames );
 
-	const getSuggestionFromOpenAI = useCallback( () => {
+	const getSuggestionFromOpenAI = () => {
 		if ( completionFinished || loadingCompletion ) {
 			return;
 		}
@@ -154,14 +154,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} )
 			.then( res => {
 				const result = res.prompts[ 0 ].text;
+
+				// We set it up so it doesn't start with nothing
+				setCompletionFinished( true );
+				setLoadingCompletion( false );
+
 				// This is to animate text input. I think this will give an idea of a "better" AI.
 				// At this point this is an established pattern.
 				const tokens = result.split( ' ' );
-
-				// We set it up so it doesn't start with nothing
-				setLoadingCompletion( false );
-				setCompletionFinished( true );
-
 				for ( let i = 1; i < tokens.length; i++ ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
 					setTimeout( () => setAttributes( { content: output } ), 50 * i );
@@ -177,75 +177,57 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				);
 				setLoadingCompletion( false );
 			} );
-	}, [ completionFinished, contentToUseForPrompt, setAttributes, loadingCompletion ] );
+	};
 
-	useEffect( () => {
-		if (
-			! attributes.content &&
-			( ! loadingCompletion || ! loadingCategories ) &&
-			content.length < numberOfCharactersNeeded
-		) {
-			setErrorMessage(
-				sprintf(
-					/** translators: First placeholder is a number of more characters we need */
-					__(
-						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
-						'jetpack'
-					),
-					numberOfCharactersNeeded - content.length
-				)
-			);
-			setNeedsMoreCharacters( true );
-		} else if ( needsMoreCharacters && content.length >= numberOfCharactersNeeded ) {
-			setErrorMessage(
-				/** translators: This is to retry to complete the text */
-				__( 'Ready to retry', 'jetpack' )
-			);
-			setShowRetry( true );
-			setNeedsMoreCharacters( false );
-		}
-	}, [
-		attributes.content,
-		loadingCompletion,
-		loadingCategories,
-		content.length,
-		needsMoreCharacters,
-	] );
+	if (
+		! attributes.content &&
+		( ! loadingCompletion || ! loadingCategories ) &&
+		content.length < numberOfCharactersNeeded
+	) {
+		setErrorMessage(
+			sprintf(
+				/** translators: First placeholder is a number of more characters we need */
+				__(
+					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
+					'jetpack'
+				),
+				numberOfCharactersNeeded - content.length
+			)
+		);
+		setNeedsMoreCharacters( true );
+	} else if ( needsMoreCharacters && content.length >= numberOfCharactersNeeded ) {
+		setErrorMessage(
+			/** translators: This is to retry to complete the text */
+			__( 'Ready to retry', 'jetpack' )
+		);
+		setShowRetry( true );
+		setNeedsMoreCharacters( false );
+	}
 
-	useEffect( () => {
-		if ( ! completionFinished ) {
-			if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
-				if ( ! errorMessage ) {
-					setErrorMessage(
-						/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-						__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-					);
-				}
-			} else if (
-				! loadingCompletion &&
-				! loadingCategories &&
-				! errorMessage &&
-				! needsMoreCharacters
-			) {
-				getSuggestionFromOpenAI();
+	if ( ! completionFinished ) {
+		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
+			if ( ! errorMessage ) {
+				setErrorMessage(
+					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+				);
 			}
+		} else if (
+			! loadingCompletion &&
+			! loadingCategories &&
+			! errorMessage &&
+			! needsMoreCharacters
+		) {
+			getSuggestionFromOpenAI();
 		}
-	}, [
-		completionFinished,
-		contentBefore,
-		loadingCompletion,
-		loadingCategories,
-		errorMessage,
-		needsMoreCharacters,
-		getSuggestionFromOpenAI,
-	] );
+	}
 
 	return (
 		<div { ...useBlockProps() }>
 			{ ! loadingCompletion && ! loadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
-						<Button variant="primary" onClick={ getSuggestionFromOpenAI }>
+						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
 					) }
