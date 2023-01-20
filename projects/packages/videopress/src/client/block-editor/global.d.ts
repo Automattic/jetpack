@@ -7,6 +7,7 @@ declare global {
 		videoPressEditorState: {
 			extensions: VideoPressExtensionsProps;
 			siteType: 'simple' | 'atomic' | 'jetpack';
+			isUserConnected: '1' | '0';
 		};
 	}
 }
