@@ -50,7 +50,7 @@
 		},
 		"textdomain": "jetpack-wp-js-data-sync",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-wp-js-data-sync.php"
+			"::PACKAGE_VERSION": "src/class-data-sync.php"
 		}
 	},
 	"config": {
