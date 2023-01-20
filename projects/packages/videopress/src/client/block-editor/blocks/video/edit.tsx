@@ -142,7 +142,12 @@ export default function VideoPressEdit( {
 
 	// Get the redirect URI for the connection flow.
 	const redirectUri = window.location.href.replace( adminUrl, '' );
-	const { isUserConnected, handleRegisterSite } = useConnection( {
+	const {
+		isUserConnected,
+		handleRegisterSite,
+		userIsConnecting,
+		siteIsRegistering,
+	} = useConnection( {
 		from: 'block-editor',
 		redirectUri,
 	} );
@@ -432,14 +437,19 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					{ ! isUserConnected && (
-						<Banner>
+						<Banner isLoading={ siteIsRegistering || userIsConnecting }>
 							{ createInterpolateElement(
 								__(
 									'<link>Connect your account</link> to continue using VideoPress',
 									'jetpack-videopress-pkg'
 								),
 								{
-									link: <ExternalLink onClick={ handleRegisterSite } />,
+									link: (
+										<ExternalLink
+											disabled={ siteIsRegistering || userIsConnecting }
+											onClick={ handleRegisterSite }
+										/>
+									),
 								}
 							) }
 						</Banner>
