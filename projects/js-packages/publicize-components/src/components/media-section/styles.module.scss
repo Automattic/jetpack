@@ -21,11 +21,12 @@
 	grid-template-rows: 1fr auto 2fr;
 	background-color: var( --jp-gray-0 );
 	border: 1px dashed var( --jp-gray-20 );
-	margin-bottom: 16px;
+	margin-bottom: 8px;
 	padding: 24px;
 	width: 100%;
 	min-height: 130px;
 	border-radius: calc( var( --jp-border-radius ) * 0.5 );
+	overflow: hidden;
 
 	> * {
 		justify-self: center;
@@ -69,13 +70,11 @@
 	cursor: pointer;
 }
 
-.notice {
-	margin: 0 0 8px 0;
-	padding-right: 8px !important;
-	padding-bottom: 0;
-}
+.notice.notice {
+	margin: 16px 0 8px 0;
+	padding-right: 8px;
 
-.max_notice {
-	padding: 0 0 0 8px;
-	margin: 0;
+	p {
+		margin: 0 0 4px;
+	}
 }

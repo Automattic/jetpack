@@ -1,16 +1,17 @@
 import { Button, Text, ThemeProvider } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { ResponsiveWrapper, Spinner, Notice } from '@wordpress/components';
+import { ResponsiveWrapper, ExternalLink, Spinner, Notice } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Fragment, useEffect, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaRestrictions, {
 	isVideo,
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
-	VIDEO_LENGTH_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import styles from './styles.module.scss';
@@ -60,16 +61,7 @@ const getMediaDetails = media => {
 	};
 };
 
-const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
-
-const validationErrorMessages = {
-	[ FILE_TYPE_ERROR ]: __(
-		'The selected media type is not accepted by these platforms.',
-		'jetpack'
-	),
-	[ FILE_SIZE_ERROR ]: __( 'The selected media size is too big for these platforms.', 'jetpack' ),
-	[ VIDEO_LENGTH_ERROR ]: __( 'The selected video is too long for these platforms.', 'jetpack' ),
-};
+const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
 
 /**
  * Wrapper that handles media-related functionality.
@@ -84,6 +76,26 @@ export default function MediaSection() {
 	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
 	);
+
+	const validationErrorMessages = {
+		[ FILE_TYPE_ERROR ]: __(
+			'The selected media type is not accepted by these platforms.',
+			'jetpack'
+		),
+		[ FILE_SIZE_ERROR ]: sprintf(
+			/* translators: placeholder is the maximum image size in MB */
+			__( 'This media is over %d MB and cannot be used for these platforms.', 'jetpack' ),
+			maxImageSize
+		),
+		[ VIDEO_LENGTH_TOO_LONG_ERROR ]: __(
+			'The selected video is too long for these platforms.',
+			'jetpack'
+		),
+		[ VIDEO_LENGTH_TOO_SHORT_ERROR ]: __(
+			'The selected video is too short for these platforms.',
+			'jetpack'
+		),
+	};
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( attachedMedia[ 0 ]?.id || null, { context: 'view' } ),
@@ -183,6 +195,9 @@ export default function MediaSection() {
 						render={ setMediaRender }
 						value={ attachedMedia[ 0 ]?.id }
 					/>
+					<ExternalLink href="#">
+						{ __( 'Learn photo and video best practices', 'jetpack' ) }
+					</ExternalLink>
 					{ validationError && (
 						<Notice
 							className={ styles.notice }
@@ -191,19 +206,8 @@ export default function MediaSection() {
 							status="warning"
 						>
 							<p>{ validationErrorMessages[ validationError ] }</p>
+							<ExternalLink href="#">{ __( 'Troubleshooting tips', 'jetpack' ) }</ExternalLink>
 						</Notice>
-					) }
-					{ ! mediaObject && (
-						<Fragment>
-							<Text variant="title-small">{ __( 'Max image size', 'jetpack' ) }</Text>
-							<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-								<Text>{ ` ${ maxImageSize } Mb` }</Text>
-							</Notice>
-							<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
-							<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-								<Text>{ ` ${ allowedMediaTypes.join( ', ' ) }` }</Text>
-							</Notice>
-						</Fragment>
 					) }
 				</MediaUploadCheck>
 			</div>
