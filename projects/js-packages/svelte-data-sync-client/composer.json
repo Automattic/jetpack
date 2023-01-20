@@ -14,13 +14,23 @@
     ]
   },
   "scripts": {
-    "test-js": [
-      "pnpm run test"
-    ],
-    "test-coverage": [
-      "pnpm run test-coverage"
-    ]
-  },
+	"build-development": [
+		"pnpm run build"
+	],
+	"build-production": [
+		"NODE_ENV=production pnpm run build"
+	],
+	"watch": [
+		"Composer\\Config::disableProcessTimeout",
+		"pnpm run watch"
+	],
+	"test-js": [
+		"pnpm run test"
+	],
+	"test-coverage": [
+		"pnpm run test-coverage"
+	]
+},
   "repositories": [
     {
       "type": "path",

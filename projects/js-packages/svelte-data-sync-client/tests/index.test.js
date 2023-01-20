@@ -5,3 +5,8 @@
 //
 // The default setup is to have files named like "name.test.js" (or .jsx, .ts, or .tsx) in this `tests/` directory.
 // But you could instead put them in `src/`, or put files like "name.js" (or .jsx, .ts, or .tsx) in `test` or `__tests__` directories somewhere.
+describe( 'Blank Test', () => {
+	it( 'is a noop', () => {
+		expect( true ).toBe( true );
+	} );
+} );
