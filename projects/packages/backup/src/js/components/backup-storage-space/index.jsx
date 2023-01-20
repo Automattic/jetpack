@@ -11,16 +11,16 @@ import { getUsageLevel, StorageUsageLevels } from './storage-usage-levels';
 
 const BackupStorageSpace = () => {
 	const [ connectionStatus ] = useConnection();
-	const isFetchingPolicies = useSelect( select => select( STORE_ID ).isFetchingRewindPolicies() );
-	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingRewindSize() );
-	const storageLimit = useSelect( select => select( STORE_ID ).getRewindStorageLimit() );
-	const storageSize = useSelect( select => select( STORE_ID ).getRewindSize() );
+	const isFetchingPolicies = useSelect( select => select( STORE_ID ).isFetchingBackupPolicies() );
+	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingBackupSize() );
+	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
+	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
 	const showComponent = storageSize !== null && storageLimit > 0;
 
 	const [ usageLevel, setUsageLevel ] = useState( StorageUsageLevels.Normal );
 	const dispatch = useDispatch( STORE_ID );
 
-	// Fetch rewind policies and site size
+	// Fetch backup policies and site size
 	useEffect( () => {
 		const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
 		if ( ! connectionLoaded ) {

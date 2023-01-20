@@ -1,15 +1,15 @@
 import APISelectors from './api';
 import connectedPluginsSelectors from './connected-plugins';
 import jetpackStatusSelectors from './jetpack-status';
+import siteBackupSelectors from './site-backup';
 import siteDataSelectors from './site-data';
-import siteRewindSelectors from './site-rewind';
 
 const selectors = {
 	...APISelectors,
 	...jetpackStatusSelectors,
 	...connectedPluginsSelectors,
 	...siteDataSelectors,
-	...siteRewindSelectors,
+	...siteBackupSelectors,
 };
 
 export default selectors;

@@ -276,10 +276,10 @@ class Jetpack_Backup {
 		// Get site size
 		register_rest_route(
 			'jetpack/v4',
-			'/site/rewind/size',
+			'/site/backup/size',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_rewind_size',
+				'callback'            => __CLASS__ . '::get_site_backup_size',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -287,10 +287,10 @@ class Jetpack_Backup {
 		// Get site policies
 		register_rest_route(
 			'jetpack/v4',
-			'/site/rewind/policies',
+			'/site/backup/policies',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_rewind_policies',
+				'callback'            => __CLASS__ . '::get_site_backup_policies',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -298,10 +298,10 @@ class Jetpack_Backup {
 		// Get site add-on offer
 		register_rest_route(
 			'jetpack/v4',
-			'/site/rewind/addon-offer',
+			'/site/backup/addon-offer',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_rewind_addon_offer',
+				'callback'            => __CLASS__ . '::get_site_backup_addon_offer',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 				'args'                => array(
 					'storage_size'  => array(
@@ -529,7 +529,7 @@ class Jetpack_Backup {
 	 *
 	 * @return string|WP_Error A JSON object with the site storage size if the request was successful, or a WP_Error otherwise.
 	 */
-	public static function get_site_rewind_size() {
+	public static function get_site_backup_size() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
@@ -555,7 +555,7 @@ class Jetpack_Backup {
 	 * @return string|WP_Error A JSON object with the site storage policies if the request was successful,
 	 *                         or a WP_Error otherwise.
 	 */
-	public static function get_site_rewind_policies() {
+	public static function get_site_backup_policies() {
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
 		$response = Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
@@ -635,7 +635,7 @@ class Jetpack_Backup {
 	 * @return string|WP_Error A JSON object with the suggested storage addon details if the request was successful,
 	 *                         or a WP_Error otherwise.
 	 */
-	public static function get_site_rewind_addon_offer( $request ) {
+	public static function get_site_backup_addon_offer( $request ) {
 		$suggested_addon = self::get_storage_addon_upsell_slug(
 			$request['storage_size'],
 			$request['storage_limit']

@@ -1,10 +1,10 @@
 import { expect } from '@jest/globals';
 import {
-	SITE_REWIND_SIZE_GET,
-	SITE_REWIND_SIZE_GET_SUCCESS,
-	SITE_REWIND_SIZE_GET_FAILED,
+	SITE_BACKUP_SIZE_GET,
+	SITE_BACKUP_SIZE_GET_SUCCESS,
+	SITE_BACKUP_SIZE_GET_FAILED,
 } from '../../actions/types';
-import siteRewindSize from '../site-rewind-size';
+import siteBackupSize from '../site-backup-size';
 
 describe( 'reducer', () => {
 	const fixtures = {
@@ -25,7 +25,7 @@ describe( 'reducer', () => {
 		},
 	};
 
-	describe( 'siteRewindSize()', () => {
+	describe( 'siteBackupSize()', () => {
 		it.each( [
 			{
 				state: undefined,
@@ -34,13 +34,13 @@ describe( 'reducer', () => {
 			},
 			{
 				state: fixtures.initialState,
-				action: { type: SITE_REWIND_SIZE_GET },
+				action: { type: SITE_BACKUP_SIZE_GET },
 				expected: fixtures.fetchingState,
 			},
 			{
 				state: fixtures.initialState,
 				action: {
-					type: SITE_REWIND_SIZE_GET_SUCCESS,
+					type: SITE_BACKUP_SIZE_GET_SUCCESS,
 					payload: {
 						size: 10737418240,
 					},
@@ -54,12 +54,12 @@ describe( 'reducer', () => {
 			{
 				state: fixtures.initialState,
 				action: {
-					type: SITE_REWIND_SIZE_GET_FAILED,
+					type: SITE_BACKUP_SIZE_GET_FAILED,
 				},
 				expected: fixtures.failedState,
 			},
 		] )( 'should return expected state', ( { state, action, expected } ) => {
-			expect( siteRewindSize( state, action ) ).toEqual( expected );
+			expect( siteBackupSize( state, action ) ).toEqual( expected );
 		} );
 	} );
 } );

@@ -1,7 +1,7 @@
 import {
-	SITE_REWIND_SIZE_GET,
-	SITE_REWIND_SIZE_GET_SUCCESS,
-	SITE_REWIND_SIZE_GET_FAILED,
+	SITE_BACKUP_SIZE_GET,
+	SITE_BACKUP_SIZE_GET_SUCCESS,
+	SITE_BACKUP_SIZE_GET_FAILED,
 } from '../actions/types';
 
 const initialState = {
@@ -10,9 +10,9 @@ const initialState = {
 	size: null,
 };
 
-const siteRewindSize = ( state = initialState, action ) => {
+const siteBackupSize = ( state = initialState, action ) => {
 	switch ( action.type ) {
-		case SITE_REWIND_SIZE_GET: {
+		case SITE_BACKUP_SIZE_GET: {
 			return {
 				...state,
 				isFetching: true,
@@ -20,7 +20,7 @@ const siteRewindSize = ( state = initialState, action ) => {
 			};
 		}
 
-		case SITE_REWIND_SIZE_GET_SUCCESS: {
+		case SITE_BACKUP_SIZE_GET_SUCCESS: {
 			return {
 				...state,
 				isFetching: false,
@@ -28,7 +28,7 @@ const siteRewindSize = ( state = initialState, action ) => {
 				size: action.payload.size,
 			};
 		}
-		case SITE_REWIND_SIZE_GET_FAILED: {
+		case SITE_BACKUP_SIZE_GET_FAILED: {
 			return {
 				...state,
 				isFetching: false,
@@ -40,4 +40,4 @@ const siteRewindSize = ( state = initialState, action ) => {
 	}
 };
 
-export default siteRewindSize;
+export default siteBackupSize;

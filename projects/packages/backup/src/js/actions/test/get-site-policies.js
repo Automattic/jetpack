@@ -1,9 +1,9 @@
 import apiFetch from '@wordpress/api-fetch';
 import actions from '../index';
 import {
-	SITE_REWIND_POLICIES_GET,
-	SITE_REWIND_POLICIES_GET_FAILED,
-	SITE_REWIND_POLICIES_GET_SUCCESS,
+	SITE_BACKUP_POLICIES_GET,
+	SITE_BACKUP_POLICIES_GET_FAILED,
+	SITE_BACKUP_POLICIES_GET_SUCCESS,
 } from '../types';
 
 const anyFunction = () => {};
@@ -11,7 +11,7 @@ jest.mock( '@wordpress/api-fetch' );
 
 const apiFixtures = {
 	requestOptions: {
-		path: '/jetpack/v4/site/rewind/policies',
+		path: '/jetpack/v4/site/backup/policies',
 	},
 	successWithPoliciesResponse: {
 		policies: {
@@ -38,7 +38,7 @@ const successWithNoPoliciesPayload = {
 describe( 'getSiteSize', () => {
 	beforeEach( () => jest.clearAllMocks() );
 
-	it( 'dispatches SITE_REWIND_SIZE_GET and SITE_REWIND_POLICIES_GET_SUCCESS with policy when fetches site with policies', async () => {
+	it( 'dispatches SITE_BACKUP_SIZE_GET and SITE_BACKUP_POLICIES_GET_SUCCESS with policy when fetches site with policies', async () => {
 		const dispatch = jest.fn( anyFunction );
 		apiFetch.mockReturnValue( Promise.resolve( apiFixtures.successWithPoliciesResponse ) );
 
@@ -47,10 +47,10 @@ describe( 'getSiteSize', () => {
 
 		expect( dispatch ).toHaveBeenCalledTimes( 2 );
 		expect( dispatch ).toHaveBeenCalledWith( {
-			type: SITE_REWIND_POLICIES_GET,
+			type: SITE_BACKUP_POLICIES_GET,
 		} );
 		expect( dispatch ).toHaveBeenCalledWith( {
-			type: SITE_REWIND_POLICIES_GET_SUCCESS,
+			type: SITE_BACKUP_POLICIES_GET_SUCCESS,
 			payload: successWithPoliciesPayload,
 		} );
 	} );
@@ -66,7 +66,7 @@ describe( 'getSiteSize', () => {
 			apiMockResponse: '',
 		},
 	] )(
-		'dispatches SITE_REWIND_SIZE_GET and SITE_REWIND_POLICIES_GET_SUCCESS with no policy when fetches site without policies',
+		'dispatches SITE_BACKUP_SIZE_GET and SITE_BACKUP_POLICIES_GET_SUCCESS with no policy when fetches site without policies',
 		async ( { apiMockResponse } ) => {
 			const dispatch = jest.fn( anyFunction );
 
@@ -77,16 +77,16 @@ describe( 'getSiteSize', () => {
 
 			expect( dispatch ).toHaveBeenCalledTimes( 2 );
 			expect( dispatch ).toHaveBeenCalledWith( {
-				type: SITE_REWIND_POLICIES_GET,
+				type: SITE_BACKUP_POLICIES_GET,
 			} );
 			expect( dispatch ).toHaveBeenCalledWith( {
-				type: SITE_REWIND_POLICIES_GET_SUCCESS,
+				type: SITE_BACKUP_POLICIES_GET_SUCCESS,
 				payload: successWithNoPoliciesPayload,
 			} );
 		}
 	);
 
-	it( 'dispatches SITE_REWIND_SIZE_GET and SITE_REWIND_POLICIES_GET_FAILED when API call fails', async () => {
+	it( 'dispatches SITE_BACKUP_SIZE_GET and SITE_BACKUP_POLICIES_GET_FAILED when API call fails', async () => {
 		const dispatch = jest.fn( anyFunction );
 		apiFetch.mockReturnValue( Promise.reject( 'Timeout error' ) );
 
@@ -95,10 +95,10 @@ describe( 'getSiteSize', () => {
 
 		expect( dispatch ).toHaveBeenCalledTimes( 2 );
 		expect( dispatch ).toHaveBeenCalledWith( {
-			type: SITE_REWIND_POLICIES_GET,
+			type: SITE_BACKUP_POLICIES_GET,
 		} );
 		expect( dispatch ).toHaveBeenCalledWith( {
-			type: SITE_REWIND_POLICIES_GET_FAILED,
+			type: SITE_BACKUP_POLICIES_GET_FAILED,
 		} );
 	} );
 } );

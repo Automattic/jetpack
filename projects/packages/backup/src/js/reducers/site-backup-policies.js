@@ -1,7 +1,7 @@
 import {
-	SITE_REWIND_POLICIES_GET,
-	SITE_REWIND_POLICIES_GET_SUCCESS,
-	SITE_REWIND_POLICIES_GET_FAILED,
+	SITE_BACKUP_POLICIES_GET,
+	SITE_BACKUP_POLICIES_GET_SUCCESS,
+	SITE_BACKUP_POLICIES_GET_FAILED,
 } from '../actions/types';
 
 const initialState = {
@@ -11,9 +11,9 @@ const initialState = {
 	storageLimitBytes: null,
 };
 
-const siteRewindPolicies = ( state = initialState, action ) => {
+const siteBackupPolicies = ( state = initialState, action ) => {
 	switch ( action.type ) {
-		case SITE_REWIND_POLICIES_GET: {
+		case SITE_BACKUP_POLICIES_GET: {
 			return {
 				...state,
 				isFetching: true,
@@ -21,7 +21,7 @@ const siteRewindPolicies = ( state = initialState, action ) => {
 			};
 		}
 
-		case SITE_REWIND_POLICIES_GET_SUCCESS: {
+		case SITE_BACKUP_POLICIES_GET_SUCCESS: {
 			return {
 				...state,
 				isFetching: false,
@@ -30,7 +30,7 @@ const siteRewindPolicies = ( state = initialState, action ) => {
 				storageLimitBytes: action.payload.storageLimitBytes,
 			};
 		}
-		case SITE_REWIND_POLICIES_GET_FAILED: {
+		case SITE_BACKUP_POLICIES_GET_FAILED: {
 			return {
 				...state,
 				isFetching: false,
@@ -42,4 +42,4 @@ const siteRewindPolicies = ( state = initialState, action ) => {
 	}
 };
 
-export default siteRewindPolicies;
+export default siteBackupPolicies;

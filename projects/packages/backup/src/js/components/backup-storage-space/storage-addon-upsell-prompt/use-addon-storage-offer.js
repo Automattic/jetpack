@@ -7,14 +7,14 @@ const useAddonStorageOffer = () => {
 	const [ addonSlug, setAddonSlug ] = useState( null );
 	const [ addonSizeText, setAddonSizeText ] = useState( null );
 	const [ addonPricing, setAddonPricing ] = useState( null );
-	const storageLimit = useSelect( select => select( STORE_ID ).getRewindStorageLimit() );
-	const storageSize = useSelect( select => select( STORE_ID ).getRewindSize() );
+	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
+	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
 
 	const [ addOnLoaded, setAddonLoaded ] = useState( false );
 
 	const fetchAddOnOffer = () =>
 		apiFetch( {
-			path: `/jetpack/v4/site/rewind/addon-offer?storage_size=${ storageSize }&storage_limit=${ storageLimit }`,
+			path: `/jetpack/v4/site/backup/addon-offer?storage_size=${ storageSize }&storage_limit=${ storageLimit }`,
 		} ).then(
 			res => {
 				if ( res.slug && res.pricing && res.size_text ) {

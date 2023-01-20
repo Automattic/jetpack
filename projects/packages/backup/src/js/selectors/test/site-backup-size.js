@@ -1,34 +1,34 @@
 import { expect } from '@jest/globals';
-import selectors from '../site-rewind';
+import selectors from '../site-backup';
 
-describe( 'siteRewindSizeSelectors', () => {
+describe( 'siteBackupSizeSelectors', () => {
 	const fixtures = {
 		emptyObject: {
-			siteRewindSize: {},
+			siteBackupSize: {},
 		},
 		initialState: {
-			siteRewindSize: {
+			siteBackupSize: {
 				isFetching: false,
 				loaded: false,
 				size: null,
 			},
 		},
 		fetchingState: {
-			siteRewindSize: {
+			siteBackupSize: {
 				isFetching: true,
 				loaded: false,
 				size: null,
 			},
 		},
 		failedState: {
-			siteRewindSize: {
+			siteBackupSize: {
 				isFetching: false,
 				loaded: false,
 				size: null,
 			},
 		},
 		successState: {
-			siteRewindSize: {
+			siteBackupSize: {
 				isFetching: false,
 				loaded: true,
 				size: 10737418240,
@@ -36,35 +36,7 @@ describe( 'siteRewindSizeSelectors', () => {
 		},
 	};
 
-	describe( 'isRewindSizeLoaded()', () => {
-		it.each( [
-			{
-				state: fixtures.emptyObject,
-				expected: null,
-			},
-			{
-				state: fixtures.initialState,
-				expected: false,
-			},
-			{
-				state: fixtures.fetchingState,
-				expected: false,
-			},
-			{
-				state: fixtures.failedState,
-				expected: false,
-			},
-			{
-				state: fixtures.successState,
-				expected: true,
-			},
-		] )( 'should return loaded bool value if passed, null otherwise', ( { state, expected } ) => {
-			const output = selectors.isRewindSizeLoaded( state );
-			expect( output ).toBe( expected );
-		} );
-	} );
-
-	describe( 'isFetchingRewindSize()', () => {
+	describe( 'isFetchingBackupSize()', () => {
 		it.each( [
 			{
 				state: fixtures.emptyObject,
@@ -89,13 +61,13 @@ describe( 'siteRewindSizeSelectors', () => {
 		] )(
 			'should return isFetching bool value if passed, null otherwise',
 			( { state, expected } ) => {
-				const output = selectors.isFetchingRewindSize( state );
+				const output = selectors.isFetchingBackupSize( state );
 				expect( output ).toBe( expected );
 			}
 		);
 	} );
 
-	describe( 'getRewindSize()', () => {
+	describe( 'getBackupSize()', () => {
 		it.each( [
 			{
 				state: fixtures.emptyObject,
@@ -118,7 +90,7 @@ describe( 'siteRewindSizeSelectors', () => {
 				expected: 10737418240,
 			},
 		] )( 'should return size value if passed, null otherwise', ( { state, expected } ) => {
-			const output = selectors.getRewindSize( state );
+			const output = selectors.getBackupSize( state );
 			expect( output ).toBe( expected );
 		} );
 	} );

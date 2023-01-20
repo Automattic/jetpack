@@ -3,9 +3,9 @@ import API from './api';
 import assets from './assets';
 import connectedPlugins from './connected-plugins';
 import jetpackStatus from './jetpack-status';
+import siteBackupPolicies from './site-backup-policies';
+import siteBackupSize from './site-backup-size';
 import siteData from './site-data';
-import siteRewindPolicies from './site-rewind-policies';
-import siteRewindSize from './site-rewind-size';
 
 const reducer = combineReducers( {
 	connectedPlugins,
@@ -13,8 +13,8 @@ const reducer = combineReducers( {
 	jetpackStatus,
 	assets,
 	siteData,
-	siteRewindSize,
-	siteRewindPolicies,
+	siteBackupSize,
+	siteBackupPolicies,
 } );
 
 export default reducer;
