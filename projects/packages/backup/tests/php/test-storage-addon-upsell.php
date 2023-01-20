@@ -25,12 +25,12 @@ class Test_Storage_Addon_Upsell extends TestCase {
 			'1TB'   => 'jetpack_backup_addon_storage_1tb_monthly',
 		);
 
-		yield 'Over limit needs 1TB'   => array( TB_IN_BYTES * 2, TB_IN_BYTES, $addons['1TB'] );
-		yield 'Over limit needs 100GB' => array( TB_IN_BYTES + GB_IN_BYTES * 50, TB_IN_BYTES, $addons['100GB'] );
-		yield 'Over limit needs 10GB'  => array( TB_IN_BYTES + GB_IN_BYTES * 5, TB_IN_BYTES, $addons['10GB'] );
-		yield 'Under limit with 1GB'   => array( GB_IN_BYTES / 2, GB_IN_BYTES, $addons['10GB'] );
-		yield 'Under limit with 10GB'  => array( GB_IN_BYTES * 5, GB_IN_BYTES * 10, $addons['10GB'] );
-		yield 'Under limit with 1TB'   => array( GB_IN_BYTES * 500, TB_IN_BYTES, $addons['1TB'] );
+		yield 'Over limit needs 1TB'   => array( self::TB_IN_BYTES * 2, self::TB_IN_BYTES, $addons['1TB'] );
+		yield 'Over limit needs 100GB' => array( self::TB_IN_BYTES + self::GB_IN_BYTES * 50, self::TB_IN_BYTES, $addons['100GB'] );
+		yield 'Over limit needs 10GB'  => array( self::TB_IN_BYTES + self::GB_IN_BYTES * 5, self::TB_IN_BYTES, $addons['10GB'] );
+		yield 'Under limit with 1GB'   => array( self::GB_IN_BYTES / 2, self::GB_IN_BYTES, $addons['10GB'] );
+		yield 'Under limit with 10GB'  => array( self::GB_IN_BYTES * 5, self::GB_IN_BYTES * 10, $addons['10GB'] );
+		yield 'Under limit with 1TB'   => array( self::GB_IN_BYTES * 500, self::TB_IN_BYTES, $addons['1TB'] );
 	}
 
 	/**
