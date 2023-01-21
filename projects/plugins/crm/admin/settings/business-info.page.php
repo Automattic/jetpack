@@ -112,24 +112,14 @@ if ( isset( $sbupdated ) ) {
 
 		<tr>
 			<td class="wfieldname"><label for="businessname"><?php esc_html_e( 'Your Business Name', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="businessname" id="businessname" value="
-			<?php
-			if ( isset( $settings['businessname'] ) && ! empty( $settings['businessname'] ) ) {
-				echo esc_attr( $settings['businessname'] );}
-			?>
-			" placeholder="e.g. Widget Co Ltd." /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="businessname" id="businessname" value="<?php echo empty( $settings['businessname'] ) ? '' : esc_attr( $settings['businessname'] ); ?>" placeholder="e.g. Widget Co Ltd." /></td>
 		</tr>
 
 
 		<tr>
 			<td class="wfieldname"><label for="wpzbscrm_invoicelogourl"><?php esc_html_e( 'Your Business Logo', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter an URL here, or upload a default logo to use on your invoices etc.', 'zero-bs-crm' ); ?></td>
 			<td style="width:540px">
-				<input style="width:90%;padding:10px;" name="wpzbscrm_invoicelogourl" id="wpzbscrm_invoicelogourl" class="form-control link" type="text" value="
-				<?php
-				if ( isset( $settings['invoicelogourl'] ) && ! empty( $settings['invoicelogourl'] ) ) {
-					echo esc_attr( $settings['invoicelogourl'] );}
-				?>
-				" />
+				<input style="width:90%;padding:10px;" name="wpzbscrm_invoicelogourl" id="wpzbscrm_invoicelogourl" class="form-control link" type="text" value="<?php echo empty( $settings['invoicelogourl'] ) ? '' : esc_attr( $settings['invoicelogourl'] ); ?>" />
 				<button id="wpzbscrm_invoicelogourlAdd" class="button" type="button"><?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?></button>
 			</td>
 		</tr>
@@ -150,42 +140,22 @@ if ( isset( $sbupdated ) ) {
 
 		<tr>
 			<td class="wfieldname"><label for="businessyourname"><?php esc_html_e( 'Owner Name', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'The name of the business owner which will be shown on your invoices.', 'zero-bs-crm' ); ?></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="businessyourname" id="businessyourname" value="
-			<?php
-			if ( isset( $settings['businessyourname'] ) && ! empty( $settings['businessyourname'] ) ) {
-				echo esc_attr( $settings['businessyourname'] );}
-			?>
-			" placeholder="e.g. John Doe" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="businessyourname" id="businessyourname" value="<?php echo empty( $settings['businessyourname'] ) ? '' : esc_attr( $settings['businessyourname'] ); ?>" placeholder="e.g. John Doe" /></td>
 		</tr>
 
 		<tr>
 			<td class="wfieldname"><label for="businessyouremail"><?php esc_html_e( 'Business Contact Email', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="businessyouremail" id="businessyouremail" value="
-			<?php
-			if ( isset( $settings['businessyouremail'] ) && ! empty( $settings['businessyouremail'] ) ) {
-				echo esc_attr( $settings['businessyouremail'] );}
-			?>
-			" placeholder="e.g. email@domain.com" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="businessyouremail" id="businessyouremail" value="<?php echo empty( $settings['businessyouremail'] ) ? '' : esc_attr( $settings['businessyouremail'] ); ?>" placeholder="e.g. email@domain.com" /></td>
 		</tr>
 
 		<tr>
 			<td class="wfieldname"><label for="businessyoururl"><?php esc_html_e( 'Business Website URL', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="businessyoururl" id="businessyoururl" value="
-			<?php
-			if ( isset( $settings['businessyoururl'] ) && ! empty( $settings['businessyoururl'] ) ) {
-				echo esc_attr( $settings['businessyoururl'] );}
-			?>
-			" placeholder="e.g. https://example.com" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="businessyoururl" id="businessyoururl" value="<?php echo empty( $settings['businessyoururl'] ) ? '' : esc_attr( $settings['businessyoururl'] ); ?>" placeholder="e.g. https://example.com" /></td>
 		</tr>
 
 		<tr>
 			<td class="wfieldname"><label for="businesstel"><?php esc_html_e( 'Business Telephone Number', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="businesstel" id="businesstel" value="
-			<?php
-			if ( isset( $settings['businesstel'] ) && ! empty( $settings['businesstel'] ) ) {
-				echo esc_attr( $settings['businesstel'] );}
-			?>
-			" placeholder="" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="businesstel" id="businesstel" value="<?php echo empty( $settings['businesstel'] ) ? '' : esc_attr( $settings['businesstel'] ); ?>" placeholder="" /></td>
 		</tr>
 
 
@@ -209,32 +179,17 @@ if ( isset( $sbupdated ) ) {
 
 		<tr>
 			<td class="wfieldname"><label for="wpzbs_twitter"><?php esc_html_e( 'Twitter Handle', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_twitter" id="wpzbs_twitter" value="
-			<?php
-			if ( isset( $settings['twitter'] ) && ! empty( $settings['twitter'] ) ) {
-				echo esc_attr( $settings['twitter'] );}
-			?>
-			" placeholder="e.g. twitter (no @)" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_twitter" id="wpzbs_twitter" value="<?php echo empty( $settings['twitter'] ) ? '' : esc_attr( $settings['twitter'] ); ?>" placeholder="e.g. twitter (no @)" /></td>
 		</tr>
 
 		<tr>
 			<td class="wfieldname"><label for="wpzbs_facebook"><?php esc_html_e( 'Facebook Page', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_facebook" id="wpzbs_facebook" value="
-			<?php
-			if ( isset( $settings['facebook'] ) && ! empty( $settings['facebook'] ) ) {
-				echo esc_attr( $settings['facebook'] );}
-			?>
-			" placeholder="e.g. facebookpagename" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_facebook" id="wpzbs_facebook" value="<?php echo empty( $settings['facebook'] ) ? '' : esc_attr( $settings['facebook'] ); ?>" placeholder="e.g. facebookpagename" /></td>
 		</tr>
 
 		<tr>
 			<td class="wfieldname"><label for="wpzbs_linkedin"><?php esc_html_e( 'LinkedIn ID', 'zero-bs-crm' ); ?>:</label></td>
-			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_linkedin" id="wpzbs_linkedin" value="
-			<?php
-			if ( isset( $settings['linkedin'] ) && ! empty( $settings['linkedin'] ) ) {
-				echo esc_attr( $settings['linkedin'] );}
-			?>
-			" placeholder="e.g. linkedinco" /></td>
+			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_linkedin" id="wpzbs_linkedin" value="<?php echo empty( $settings['linkedin'] ) ? '' : esc_attr( $settings['linkedin'] ); ?>" placeholder="e.g. linkedinco" /></td>
 		</tr>
 		<?php // WLREMOVE ?>
 		<tr>

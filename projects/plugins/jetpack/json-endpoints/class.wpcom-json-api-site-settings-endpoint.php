@@ -440,12 +440,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
-						'jetpack_blogging_prompts_enabled' => (bool) jetpack_are_blogging_prompts_enabled(),
-						'subscription_options'             => (array) get_option( 'subscription_options', array() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
+						'subscription_options'             => (array) get_option( 'subscription_options' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -1005,11 +1004,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
-				case 'jetpack_are_blogging_prompts_enabled':
-					update_option( 'jetpack_blogging_prompts_enabled', (bool) $value );
-					$updated[ $key ] = (bool) $value;
-					break;
-
 				case 'show_on_front':
 					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
@@ -1017,29 +1011,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'page_on_front':
-					if ( ! $this->is_valid_page_id( $value ) ) {
-						break;
-					}
-
-					$page_for_posts = get_option( 'page_for_posts' );
-					if ( $page_for_posts === $value ) {
-						// page for posts and page on front can't be the same
-						break;
-					}
-
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
-
-					break;
 				case 'page_for_posts':
+					if ( $value === '' ) { // empty function is not applicable here because '0' may be a valid page id
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+
+						break;
+					}
+
 					if ( ! $this->is_valid_page_id( $value ) ) {
 						break;
 					}
 
-					$page_on_front = get_option( 'page_on_front' );
-					if ( $page_on_front === $value ) {
-						// page on front and page for posts can't be the same
+					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
+					$related_option_value = get_option( $related_option_key );
+					if ( $related_option_value === $value ) {
+						// page_on_front and page_for_posts are not allowed to be the same
 						break;
 					}
 
@@ -1075,7 +1063,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( count( $jetpack_relatedposts_options ) ) {
 			// track new jetpack_relatedposts options against old.
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
-			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+
+			$jetpack_relatedposts_options_to_save = $old_relatedposts_options;
+			foreach ( $jetpack_relatedposts_options as $key => $value ) {
+				$jetpack_relatedposts_options_to_save[ $key ] = $value;
+			}
+
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options_to_save ) ) {
 				foreach ( $jetpack_relatedposts_options as $key => $value ) {
 					if ( in_array( $key, array( 'show_context', 'show_date' ), true ) ) {
 						$has_initialized_option = ! isset( $old_relatedposts_options[ $key ] ) && $value;

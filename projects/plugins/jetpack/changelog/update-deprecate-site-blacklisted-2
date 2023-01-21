@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove handling for an error code that no longer exists.

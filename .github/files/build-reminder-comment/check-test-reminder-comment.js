@@ -33,7 +33,7 @@ async function isTouchingSomethingNeedingTesting( github, owner, repo, number, c
  * If there isn't, create one if it is needed.
  *
  * @param {github} github  - Pre-authenticated octokit/rest.js client with pagination plugins
- * @param {Object} context - Context of the workflow run
+ * @param {object} context - Context of the workflow run
  * @param {core}   core    - A reference to the @actions/core package
  * @returns {Promise<number>} Promise resolving to a comment ID, or 0 if no comment is found.
  */

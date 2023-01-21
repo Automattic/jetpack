@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
@@ -138,5 +139,7 @@ class Block_Editor_Extensions {
 		);
 
 		Assets::enqueue_script( $handle );
+
+		wp_add_inline_script( $handle, Connection_Initial_State::render(), 'before' );
 	}
 }

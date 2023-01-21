@@ -10,6 +10,8 @@
  *
  * @package automattic/jetpack
  **/
+
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class.json-api-date.php';
@@ -717,7 +719,7 @@ abstract class SAL_Site {
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Could be a string or int.
+			( new Status() )->is_private_site() &&
 			/**
 			 * Filter access to a specific post.
 			 *

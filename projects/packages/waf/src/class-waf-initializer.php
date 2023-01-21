@@ -111,7 +111,7 @@ class Waf_Initializer {
 	 */
 	public static function check_for_waf_update() {
 		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
-			Waf_Runner::define_mode();
+			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 				return;
 			}
