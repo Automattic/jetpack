@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Trigger wp_cache_cleared when clearing the cache as a result of the "clear on post updated/published" option
