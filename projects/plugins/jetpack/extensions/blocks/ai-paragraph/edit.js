@@ -6,26 +6,32 @@ import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, RawHTML } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
 
 const numberOfCharactersNeeded = 36;
 
+/**
+ * This is a higher order component that will show the content little by little.
+ */
 function ShowLittleByLittle( { html, showAnimation } ) {
 	const [ content, setContent ] = useState( '' );
 	const [ contentSet, setContentSet ] = useState( false );
+	const md = new MarkdownIt();
 
+	// That will only be used once
 	if ( ! contentSet ) {
-		// That will only be used once
+		// This is to animate text input. I think this will give an idea of a "better" AI.
+		// At this point this is an established pattern.
 		if ( showAnimation ) {
-			// This is to animate text input. I think this will give an idea of a "better" AI.
-			// At this point this is an established pattern.
 			const tokens = html.split( ' ' );
+			console.log( 'markdown ====\n', html, '\n======\n', md.render( html ) );
 			for ( let i = 1; i < tokens.length; i++ ) {
 				const output = tokens.slice( 0, i ).join( ' ' );
-				setTimeout( () => setContent( output ), 50 * i );
+				setTimeout( () => setContent( md.render( output ) ), 50 * i );
 			}
-			setTimeout( () => setContent( html ), 50 * tokens.length );
+			setTimeout( () => setContent( md.render( html.trim() ) ), 50 * tokens.length );
 		} else {
-			setContent( html );
+			setContent( md.render( html.trim() ) );
 		}
 		setContentSet( true );
 	}
@@ -256,7 +262,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			{ attributes.content && (
 				<ShowLittleByLittle
 					showAnimation={ showAnimation }
-					html={ attributes.content.trim().replaceAll( '\n', '<br/>' ) }
+					html={ attributes.content }
 				/>
 			) }
 

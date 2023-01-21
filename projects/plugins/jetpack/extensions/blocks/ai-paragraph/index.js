@@ -2,8 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Fragment, RawHTML } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
@@ -73,7 +74,16 @@ export const settings = {
 	edit,
 	save: attrs => {
 		const blockProps = useBlockProps.save();
-		return <div { ...blockProps }>{ attrs.attributes.content }</div>;
+		const md = new MarkdownIt();
+		const html = md.render( attrs.attributes.content );
+		return (
+			<>
+				<pre { ...blockProps }>{ attrs.attributes.content }</pre>
+				<div>
+					<RawHTML>{ html }</RawHTML>
+				</div>
+			</>
+		);
 	},
 	attributes,
 	transforms: {
