@@ -41,6 +41,9 @@ define( 'JETPACK_PROTECT_NAME', 'Jetpack Protect' );
 define( 'JETPACK_PROTECT_URI', 'https://jetpack.com/jetpack-protect' );
 define( 'JETPACK_PROTECT_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 define( 'JETPACK_PROTECT_BASE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+defined( 'JETPACK_PROTECT__API_HOST' ) || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
+// For testing until we update the BFP user agent and request to accept Protect data
+defined( 'JETPACK__VERSION' ) || define( 'JETPACK__VERSION', '7.5' );
 
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_PROTECT_DIR . 'vendor/autoload_packages.php';
@@ -121,3 +124,12 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactiva
 
 // Main plugin class.
 new Jetpack_Protect();
+
+// Testing the pagenow check until we find an appropriate place for this to be.
+if ( \Automattic\Jetpack\Waf\Waf_Runner::is_brute_force_protection_enabled() ) {
+	global $pagenow;
+	if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+		$brute_force_protection = \Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection::instance();
+		$brute_force_protection->check_login_ability();
+	}
+}

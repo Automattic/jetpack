@@ -25,6 +25,7 @@ use Automattic\Jetpack\Protect\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Stats;
 
@@ -34,6 +35,7 @@ use Automattic\Jetpack\Waf\Waf_Stats;
 class Jetpack_Protect {
 
 	const JETPACK_WAF_MODULE_SLUG           = 'waf';
+	const JETPACK_PROTECT_MODULE_SLUG       = 'protect';
 	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
@@ -194,15 +196,16 @@ class Jetpack_Protect {
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
 			'waf'               => array(
-				'isSupported'         => Waf_Runner::is_supported_environment(),
-				'isSeen'              => self::get_waf_seen_status(),
-				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
-				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
-				'isEnabled'           => Waf_Runner::is_enabled(),
-				'isToggling'          => false,
-				'isUpdating'          => false,
-				'config'              => Waf_Runner::get_config(),
-				'stats'               => self::get_waf_stats(),
+				'isSupported'                   => Waf_Runner::is_supported_environment(),
+				'isSeen'                        => self::get_waf_seen_status(),
+				'upgradeIsSeen'                 => self::get_waf_upgrade_seen_status(),
+				'displayUpgradeBadge'           => self::get_waf_upgrade_badge_display_status(),
+				'isEnabled'                     => Waf_Runner::is_enabled(),
+				'isToggling'                    => false,
+				'isUpdating'                    => false,
+				'config'                        => Waf_Runner::get_config(),
+				'stats'                         => self::get_waf_stats(),
+				'isBruteForceProtectionEnabled' => Waf_Runner::is_brute_force_protection_enabled(),
 			),
 		);
 
@@ -237,16 +240,19 @@ class Jetpack_Protect {
 	 */
 	public static function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && ( new Connection_Manager() )->is_connected() ) {
-			self::activate_module();
+			self::activate_modules();
 		}
 	}
 
 	/**
-	 * Activates the Publicize module and disables the activation option
+	 * Activates the WAF and Brute force protection modules and disables the activation option
 	 */
-	public static function activate_module() {
+	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
+		// Instance needs to be created before module enabled in order to run on_activation
+		Brute_Force_Protection::instance();
+		( new Modules() )->activate( self::JETPACK_PROTECT_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -296,13 +302,13 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Adds module to the list of available modules
+	 * Adds modules to the list of available modules
 	 *
 	 * @param array $modules The available modules.
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_PROTECT_MODULE_SLUG ), $modules );
 	}
 
 	/**

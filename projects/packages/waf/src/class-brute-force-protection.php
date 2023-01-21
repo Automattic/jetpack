@@ -8,21 +8,23 @@
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\CookieState;
+use Automattic\Jetpack\Modules;
 use Jetpack;
-use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 
 require_once __DIR__ . '/brute-force-protection/shared-functions.php';
 
 /**
- * Jetpack Protect module class.
+ * Brute Force Protection class.
  */
-class Brute_Force_Protection_Module {
+class Brute_Force_Protection {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Brute_Force_Protection_Module()
+	 * @var Brute_Force_Protection()
 	 */
 	private static $instance = null;
 
@@ -107,8 +109,8 @@ class Brute_Force_Protection_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Module' ) ) {
-			self::$instance = new Brute_Force_Protection_Module();
+		if ( ! is_a( self::$instance, 'Brute_Force_Protection' ) ) {
+			self::$instance = new Brute_Force_Protection();
 		}
 
 		return self::$instance;
@@ -300,6 +302,28 @@ class Brute_Force_Protection_Module {
 	}
 
 	/**
+	 * Deactivate a plugin.
+	 *
+	 * @param string $probable_file Expected plugin file.
+	 * @param string $probable_title Expected plugin title.
+	 */
+	public static function deactivate_plugin( $probable_file, $probable_title ) {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		if ( is_plugin_active( $probable_file ) ) {
+			deactivate_plugins( $probable_file );
+		} else {
+			// If the plugin is not in the usual place, try looking through all active plugins.
+			$active_plugins = get_option( 'active_plugins' );
+			foreach ( $active_plugins as $plugin ) {
+				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+				if ( $data['Name'] === $probable_title ) {
+					deactivate_plugins( $plugin );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Request an api key from wordpress.com
 	 *
 	 * @return bool | string
@@ -362,11 +386,11 @@ class Brute_Force_Protection_Module {
 		}
 
 		// Key generation successful!
-		$active_plugins = Jetpack::get_active_plugins();
+		$active_plugins = get_option( 'active_plugins' );
 
 		// We only want to deactivate BruteProtect if we successfully get a key.
 		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins, true ) ) {
-			Jetpack_Client_Server::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
+			deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
 		}
 
 		$key = $response['data'];
@@ -416,9 +440,13 @@ class Brute_Force_Protection_Module {
 
 	/**
 	 * Set up the Protect configuration page
+	 *
+	 * @uses Jetpack::enable_module_configurable
 	 */
 	public function modules_loaded() {
-		Jetpack::enable_module_configurable( __FILE__ );
+		if ( class_exists( 'Jetpack' ) ) {
+			Jetpack::enable_module_configurable( __FILE__ );
+		}
 	}
 
 	/**
@@ -592,9 +620,9 @@ class Brute_Force_Protection_Module {
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip && class_exists( 'Jetpack' ) ) {
-			Jetpack::deactivate_module( 'protect' );
+			( new Modules() )->deactivate( 'protect' );
 			ob_start();
-			Jetpack::state( 'message', 'protect_misconfigured_ip' );
+			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
 			ob_end_clean();
 			return true;
 		}
@@ -768,10 +796,10 @@ class Brute_Force_Protection_Module {
 	public function get_main_blog_jetpack_id() {
 		if ( ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
-			$id = Jetpack::get_option( 'id', false );
+			$id = Jetpack_Options::get_option( 'id', false );
 			restore_current_blog();
 		} else {
-			$id = Jetpack::get_option( 'id' );
+			$id = Jetpack_Options::get_option( 'id' );
 		}
 
 		return $id;

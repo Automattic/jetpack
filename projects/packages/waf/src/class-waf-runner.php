@@ -153,10 +153,39 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Disabled the WAF module on the site.
+	 * Disables the WAF module on the site.
 	 */
 	public static function disable() {
 		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
+	}
+
+	/**
+	 * Determines if the Brute Force Protection module, currently 'protect', is enabled on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_brute_force_protection_enabled() {
+		// if ABSPATH is defined, then WordPress has already been instantiated,
+		// so we can check to see if the Brute Force Protection module is activated.
+		if ( defined( 'ABSPATH' ) ) {
+			return ( new Modules() )->is_active( 'protect' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Enables the Brute Force Protection module, currently 'protect', on the site.
+	 */
+	public static function enable_brute_force_protection() {
+		return ( new Modules() )->activate( 'protect', false, false );
+	}
+
+	/**
+	 * Disables the Brute Force Protection module, currently 'protect', on the site.
+	 */
+	public static function disable_brute_force_protection() {
+		return ( new Modules() )->deactivate( 'protect' );
 	}
 
 	/**
