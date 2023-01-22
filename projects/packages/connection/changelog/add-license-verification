@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Check for user licenses and redirect them to the license activation page.
