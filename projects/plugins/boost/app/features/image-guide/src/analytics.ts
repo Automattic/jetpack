@@ -70,7 +70,7 @@ export default class ImageGuideAnalytics {
 	/**
 	 * Track events to record the outcome of the image guide for the current page.
 	 *
-	 * @param  imageStores
+	 * @param imageStores
 	 */
 	public static async trackPage( imageStores: MeasurableImageStore[] ) {
 		if ( ! imageStores.length || ImageGuideAnalytics.trackingComplete ) {

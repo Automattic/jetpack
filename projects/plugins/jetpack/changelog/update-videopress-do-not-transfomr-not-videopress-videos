@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack: do not add block transform to v6 when video is not a VideoPress video

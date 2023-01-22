@@ -3109,6 +3109,8 @@ function wp_cache_post_edit( $post_id ) {
 		wp_cache_debug( "wp_cache_post_edit: Clearing cache $blog_cache_dir and {$cache_path}supercache/ on post edit per config.", 2 );
 		prune_super_cache( $blog_cache_dir, true );
 		prune_super_cache( get_supercache_dir(), true );
+
+		do_action( 'wp_cache_cleared' );
 	} else {
 		$action = current_filter();
 		wp_cache_debug( "wp_cache_post_edit: Clearing cache for post $post_id on {$action}", 2 );

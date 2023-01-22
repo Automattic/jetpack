@@ -219,28 +219,6 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param boolean
-		 */
-		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
-		}
-
-		/**
-		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
-		 *
-		 * @since 8.4.0
-		 *
-		 * @param boolean
-		 */
-		if ( apply_filters( 'jetpack_load_experimental_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_EXPERIMENTAL_BLOCKS', true );
-		}
-
-		/**
 		 * Filter the list of block editor extensions that are available through Jetpack.
 		 *
 		 * @since 7.0.0
@@ -684,13 +662,13 @@ class Jetpack_Gutenberg {
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
-				'is_active'                 => Jetpack::is_connection_ready(),
-				'is_current_user_connected' => $is_current_user_connected,
+				'is_active'                     => Jetpack::is_connection_ready(),
+				'is_current_user_connected'     => $is_current_user_connected,
 				/** This filter is documented in class.jetpack-gutenberg.php */
-				'enable_upgrade_nudge'      => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
-				'is_private_site'           => '-1' === get_option( 'blog_public' ),
-				'is_coming_soon'            => ( function_exists( 'site_is_coming_soon' ) && site_is_coming_soon() ) || (bool) get_option( 'wpcom_public_coming_soon' ),
-				'is_offline_mode'           => $status->is_offline_mode(),
+				'enable_upgrade_nudge'          => apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false ),
+				'is_private_site'               => $status->is_private_site(),
+				'is_coming_soon'                => $status->is_coming_soon(),
+				'is_offline_mode'               => $status->is_offline_mode(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -701,7 +679,15 @@ class Jetpack_Gutenberg {
 				 *
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
-				'republicize_enabled'       => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
+				/**
+				 * Enable the Paid Newsletters feature in the block editor context.
+				 *
+				 * @since $$next_version$$
+				 *
+				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
+				 */
+				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
@@ -869,19 +855,79 @@ class Jetpack_Gutenberg {
 		// Default to production blocks.
 		$block_varation = 'production';
 
-		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+		/*
+		 * Prefer to use this JETPACK_BLOCKS_VARIATION constant
+		 * or the jetpack_blocks_variation filter
+		 * to set the block variation in your code.
+		 */
+		$default = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		if ( ! empty( $default ) && in_array( $default, array( 'beta', 'experimental', 'production' ), true ) ) {
+			$block_varation = $default;
+		}
+
+		/**
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_beta = apply_filters_deprecated(
+			'jetpack_load_beta_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
+		/*
+		 * Switch to beta blocks if you use the JETPACK_BETA_BLOCKS constant
+		 * or the deprecated jetpack_load_beta_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
+		 */
+		if (
+			empty( $default )
+			&& (
+				$is_beta
+				|| Constants::is_true( 'JETPACK_BETA_BLOCKS' )
+			)
+		) {
 			$block_varation = 'beta';
 		}
 
+		/**
+		* Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		$is_experimental = apply_filters_deprecated(
+			'jetpack_load_experimental_blocks',
+			array( false ),
+			'jetpack-11.8.0',
+			'jetpack_blocks_variation'
+		);
+
 		/*
-		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant
+		 * or the deprecated jetpack_load_experimental_blocks filter.
+		 * This only applies when not using the newer JETPACK_BLOCKS_VARIATION constant.
 		 */
-		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
+		if (
+			empty( $default )
+			&& (
+				$is_experimental
+				|| Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' )
+			)
+		) {
 			$block_varation = 'experimental';
 		}
 
 		/**
 		 * Allow customizing the variation of blocks in use on a site.
+		 * Overwrites any previously set values, whether by constant or filter.
 		 *
 		 * @since 8.1.0
 		 *

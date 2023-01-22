@@ -150,4 +150,8 @@ export default class BlockEditorPage extends WpPage {
 			await this.click( settingsLocator );
 		}
 	}
+
+	async waitForEditor() {
+		await this.canvasPage.canvas().waitForSelector( "h1[aria-label='Add title']" );
+	}
 }
