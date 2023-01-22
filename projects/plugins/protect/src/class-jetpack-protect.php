@@ -25,7 +25,6 @@ use Automattic\Jetpack\Protect\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Stats;
 
@@ -250,8 +249,6 @@ class Jetpack_Protect {
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
-		// Instance needs to be created before module enabled in order to run on_activation
-		Brute_Force_Protection::instance();
 		( new Modules() )->activate( self::JETPACK_PROTECT_MODULE_SLUG, false, false );
 	}
 

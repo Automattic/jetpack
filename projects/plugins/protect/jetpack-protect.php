@@ -125,11 +125,3 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactiva
 // Main plugin class.
 new Jetpack_Protect();
 
-// Testing the pagenow check until we find an appropriate place for this to be.
-if ( \Automattic\Jetpack\Waf\Waf_Runner::is_brute_force_protection_enabled() ) {
-	global $pagenow;
-	if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
-		$brute_force_protection = \Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection::instance();
-		$brute_force_protection->check_login_ability();
-	}
-}
