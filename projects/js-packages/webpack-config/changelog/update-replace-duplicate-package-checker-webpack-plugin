@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Replace `duplicate-package-checker-webpack-plugin` with `@cerner/duplicate-package-checker-webpack-plugin`.
