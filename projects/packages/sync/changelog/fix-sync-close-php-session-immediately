@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Close PHP Session if it's active when running a Dedicated Sync request.
