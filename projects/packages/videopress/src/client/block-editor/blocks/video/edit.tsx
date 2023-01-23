@@ -423,6 +423,10 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
+		const connectButtonText = isRedirectingToMyJetpack
+			? __( 'Redirecting', 'jetpack-videopress-pkg' )
+			: __( 'Connect', 'jetpack-videopress-pkg' );
+
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
@@ -438,9 +442,7 @@ export default function VideoPressEdit( {
 									disabled={ isRedirectingToMyJetpack }
 									isBusy={ isRedirectingToMyJetpack }
 								>
-									{ isRedirectingToMyJetpack
-										? __( 'Redirecting…', 'jetpack-videopress-pkg' )
-										: __( 'Connect', 'jetpack-videopress-pkg' ) }
+									{ connectButtonText }
 								</Button>
 							}
 						>
