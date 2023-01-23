@@ -138,7 +138,7 @@ git commit -am "Changelog edits for $PROJECT"
 # If we're running a beta, amend the changelog
 if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
 	yellow "Releasing a beta, amending the readme.txt"
-	jetpack changelog squash plugins/jetpack readme
+	pnpm jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
 fi
 
@@ -147,7 +147,7 @@ yellow "Pushing changes."
 git push -u origin prerelease
 
 yellow "Waiting for build to complete and push to mirror repos"
-BUILDID="$( gh run list -b prerelease -w Build --json event,databaseId,headSha | jq --arg HEADSHA "$HEADSHA" '.[] | select(.event=="push" and .headSha==$HEADSHA) | .databaseId' )"
+BUILDID=
 
 # If the build ID doesn't exist, try every five seconds until timeout after a minute.
 TIMEOUT=$((SECONDS+60))
