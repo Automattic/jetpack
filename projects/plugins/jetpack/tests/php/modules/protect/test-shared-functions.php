@@ -6,7 +6,7 @@
  */
 
 // Require the functions.
-require_once JETPACK__PLUGIN_DIR . '/modules/protect/shared-functions.php';
+require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php';
 
 /**
  * Tests for modules/protect/shared_functions.php

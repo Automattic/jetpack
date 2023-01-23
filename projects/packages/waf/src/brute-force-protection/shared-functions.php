@@ -2,7 +2,7 @@
 /**
  * These functions are shared by the Protect module and its related json-endpoints
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-waf
  */
 
 /**
@@ -95,13 +95,13 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 	$whitelist_error = false;
 	$new_items       = array();
 	if ( ! is_array( $whitelist ) ) {
-		return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack' ) );
+		return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack-waf' ) );
 	}
 	if ( $global && ! is_multisite() ) {
-		return new WP_Error( 'invalid_parameters', __( 'Cannot use global flag on non-multisites', 'jetpack' ) );
+		return new WP_Error( 'invalid_parameters', __( 'Cannot use global flag on non-multisites', 'jetpack-waf' ) );
 	}
 	if ( $global && ! current_user_can( 'manage_network' ) ) {
-		return new WP_Error( 'permission_denied', __( 'Only super admins can edit the global whitelist', 'jetpack' ) );
+		return new WP_Error( 'permission_denied', __( 'Only super admins can edit the global whitelist', 'jetpack-waf' ) );
 	}
 	// Validate each item.
 	foreach ( $whitelist as $item ) {
@@ -143,7 +143,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 		$new_items[] = $new_item;
 	} // End item loop.
 	if ( ! empty( $whitelist_error ) ) {
-		return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack' ) );
+		return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack-waf' ) );
 	}
 	if ( $global ) {
 		update_site_option( 'jetpack_protect_global_whitelist', $new_items );
