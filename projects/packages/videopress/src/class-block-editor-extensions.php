@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
+// use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -153,7 +154,7 @@ class Block_Editor_Extensions {
 			array(
 				'extensions' => $extensions_list,
 				'siteType'   => $site_type,
-				'adminUrl'   => admin_url(),
+				'siteSuffix' => ( new \Automattic\Jetpack\Status() )->get_site_suffix(),
 			)
 		);
 	}

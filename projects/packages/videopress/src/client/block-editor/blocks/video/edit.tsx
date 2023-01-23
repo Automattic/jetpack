@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -45,7 +45,7 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
-const { adminUrl } = window.videoPressEditorState;
+const { siteSuffix } = window.videoPressEditorState;
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -140,15 +140,10 @@ export default function VideoPressEdit( {
 	} );
 
 	// Get the redirect URI for the connection flow.
-	const redirectUri = window.location.href.replace( adminUrl, '' );
-	const {
-		isUserConnected,
-		handleRegisterSite,
-		userIsConnecting,
-		siteIsRegistering,
-	} = useConnection( {
-		from: 'block-editor',
-		redirectUri,
+	const { run, hasCheckoutStarted, isRegistered } = useProductCheckoutWorkflow( {
+		siteSuffix,
+		productSlug: 'jetpack_videopress',
+		redirectUrl: window.location.href,
 	} );
 
 	/*
@@ -432,18 +427,17 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
-		const isReconnectingUser = userIsConnecting || siteIsRegistering;
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
-					{ ! isUserConnected && (
+					{ ! isRegistered && (
 						<Banner
 							action={
 								<Button
 									variant="primary"
-									onClick={ handleRegisterSite }
-									disabled={ isReconnectingUser }
-									isBusy={ isReconnectingUser }
+									onClick={ run }
+									disabled={ hasCheckoutStarted }
+									isBusy={ hasCheckoutStarted }
 								>
 									{ __( 'Connect', 'jetpack-videopress-pkg' ) }
 								</Button>
