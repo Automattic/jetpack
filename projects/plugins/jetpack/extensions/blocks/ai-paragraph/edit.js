@@ -105,6 +105,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	}, [ loading ] );
 
 	const createPrompt = () => {
+		const content = contentBefore
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br>', '\n' );
+			} )
+			.join( '\n' );
 		const shorter_content = content.slice( -240 );
 
 		// If title is not added, we will only complete.
@@ -166,15 +174,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
-	const content = contentBefore
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br>', '\n' );
-		} )
-		.join( '\n' );
-
 	const getSuggestionFromOpenAI = () => {
 		if ( !! attributes.content || isLoadingCompletion ) {
 			return;
@@ -219,7 +218,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
 	if ( ! noLogicNeeded ) {
-		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
+		const prompt = createPrompt();
+		const nbCharactersNeeded = numberOfCharactersNeeded - prompt.length;
 
 		if ( containsAiUntriggeredParagraph() ) {
 			if ( ! isWaitingForPreviousBlock ) {
@@ -230,7 +230,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setIsWaitingForPreviousBlock( true );
 			}
 		} else if (
-			content.length < numberOfCharactersNeeded &&
+			prompt.length < numberOfCharactersNeeded &&
 			needsMoreCharacters !== nbCharactersNeeded
 		) {
 			setErrorMessage(
@@ -245,7 +245,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			);
 			setIsWaitingForPreviousBlock( false );
 			setNeedsMoreCharacters( nbCharactersNeeded );
-		} else if ( needsMoreCharacters !== 0 && content.length >= numberOfCharactersNeeded ) {
+		} else if ( needsMoreCharacters !== 0 && prompt.length >= numberOfCharactersNeeded ) {
 			setErrorMessage(
 				/** translators: This is to retry to complete the text */
 				__( 'Ready to retry', 'jetpack' )
