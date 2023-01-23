@@ -4,7 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, RawHTML } from '@wordpress/element';
+import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 
 const numberOfCharactersNeeded = 36;
@@ -99,7 +99,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		[ tags ]
 	);
 
-	setIsLoadingCategories( loading );
+	useEffect( () => {
+		setIsLoadingCategories( loading );
+	}, [ loading ] );
 
 	const createPrompt = () => {
 		const shorter_content = content.slice( -240 );
@@ -192,8 +194,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				const result = res.prompts[ 0 ].text;
 
 				setShowAnimation( true );
-				setIsLoadingCompletion( false );
 				setAttributes( { content: result } );
+				setIsLoadingCompletion( false );
 			} )
 			.catch( () => {
 				setErrorMessage(
@@ -207,12 +209,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	};
 
 	// Waiting state means there is nothing to be done until it resolves
-	const waitingState = isLoadingCompletion || isLoadingCategories;
+	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
 	// We do nothing is we are waiting for stuff OR if the content is already loaded.
-	const noLogicNeeded = contentIsLoaded || waitingState;
+	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
 	if ( ! noLogicNeeded ) {
 		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
@@ -263,14 +265,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 
-			{ attributes.content && (
+			{ contentIsLoaded && (
 				<ShowLittleByLittle
 					showAnimation={ showAnimation }
 					html={ attributes.content.trim().replaceAll( '\n', '<br/>' ) }
 				/>
 			) }
 
-			{ ! attributes.content && ( isLoadingCompletion || isLoadingCategories ) && (
+			{ ! attributes.content && isWaitingState && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {
