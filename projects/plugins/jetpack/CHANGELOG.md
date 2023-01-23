@@ -12,7 +12,7 @@
 - Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat. [#28434]
 - VideoPress: do not add block transform to v6 when video is not a VideoPress video. [#28477]
 
-### Bug fixe
+### Bug fixes
 - Dashboard: fix the price display and description for products with intro offers for the first month. [#28424]
 - Dashboard: show Boost in My Plans dashboard when added to a site. [#28336]
 - Infinite Scroll: fix an AMP related bug. [#28466]
