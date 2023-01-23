@@ -9,7 +9,7 @@ import './view.scss';
 export default function RevueEdit( { className } ) {
 	const migrationMoreInfoLink =
 		'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/';
-	const siteUrl = `https://wordpress.com/people/email-followers/${ getSiteFragment() }`;
+	const migrationLink = `https://wordpress.com/people/email-followers/${ getSiteFragment() }`;
 
 	return (
 		<div className={ className }>
@@ -31,7 +31,7 @@ export default function RevueEdit( { className } ) {
 						</ExternalLink>
 						<br />
 						<br />
-						<ExternalLink href={ siteUrl }>
+						<ExternalLink href={ migrationLink }>
 							{ __( 'Import your subscribers to WordPress.com here.', 'jetpack' ) }
 						</ExternalLink>
 					</div>
