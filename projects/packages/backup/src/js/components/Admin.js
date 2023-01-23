@@ -317,12 +317,17 @@ const NoBackupCapabilities = () => {
 	const { tracks } = useAnalytics();
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ price, setPrice ] = useState( 0 );
+	const [ currencyCode, setCurrencyCode ] = useState( 'USD' );
+	const [ introOffer, setIntroOffer ] = useState( null );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
+			setCurrencyCode( res.currency_code );
 			setPrice( res.cost / 12 );
+
 			if ( res.introductory_offer ) {
+				setIntroOffer( res.introductory_offer );
 				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );
 			} else {
 				setPriceAfter( res.cost / 12 );
@@ -340,6 +345,15 @@ const NoBackupCapabilities = () => {
 		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 		'jetpack-backup-pkg'
 	);
+	const priceDetails =
+		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
+			? __( 'for the first month, billed yearly', 'jetpack-backup-pkg' )
+			: __(
+					'per month, billed yearly',
+					'jetpack-backup-pkg',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -369,6 +383,8 @@ const NoBackupCapabilities = () => {
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ price }
+					currencyCode={ currencyCode }
+					priceDetails={ priceDetails }
 					title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 				/>
 			</Col>

@@ -1,13 +1,14 @@
 /**
  * WordPress dependencies
  */
-
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
 	useBlockProps,
 	InspectorControls,
 	BlockControls,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -19,7 +20,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import getMediaToken from '../../../lib/get-media-token';
-import { getVideoPressUrl, pickGUIDFromUrl } from '../../../lib/url';
+import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -32,12 +33,13 @@ import TracksControl from './components/tracks-control';
 import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
-import './editor.scss';
 /**
  * Types
  */
 import type { VideoBlockAttributes } from './types';
 import type React from 'react';
+
+import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
@@ -111,6 +113,13 @@ export default function VideoPressEdit( {
 		caption,
 		isExample,
 	} = attributes;
+
+	/*
+	 * Force className cleanup.
+	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
+	 * when transforming from embed block.
+	 */
+	delete attributes.className;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -197,10 +206,18 @@ export default function VideoPressEdit( {
 	const { filename } = videoData;
 
 	// Get video preview status.
+	const defaultPreview = { html: null, scripts: [], width: null, height: null };
 	const { preview, isRequestingEmbedPreview } = useSelect(
 		select => {
+			if ( ! videoPressUrl ) {
+				return {
+					preview: defaultPreview,
+					isRequestingEmbedPreview: false,
+				};
+			}
+
 			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || false,
+				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || defaultPreview,
 				isRequestingEmbedPreview:
 					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
 			};
@@ -209,9 +226,7 @@ export default function VideoPressEdit( {
 	);
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview
-		? preview
-		: { html: null, scripts: [], width: null, height: null };
+	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -263,7 +278,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< NodeJS.Timeout >();
+	const rePreviewAttemptTimer = useRef< NodeJS.Timeout | void >();
 
 	/**
 	 * Clean the generating process timer.
@@ -275,44 +290,56 @@ export default function VideoPressEdit( {
 			return;
 		}
 
-		clearInterval( rePreviewAttemptTimer.current );
+		/*
+		 * Clean the timer, and updates the reference
+		 * to force a new attempt in case the preview is not available.
+		 */
+		rePreviewAttemptTimer.current = clearInterval( rePreviewAttemptTimer.current );
 	}
 
 	useEffect( () => {
-		// Attempts limit achieved. Bail early.
 		if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+			debug( 'Generating preview ➡ attempts number reached out 😪', generatingPreviewCounter );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// VideoPress URL is not defined. Bail early and cleans the time.
 		if ( ! videoPressUrl ) {
+			debug( 'Generating preview ➡ No URL Provided 👋🏻' );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early (clean the timer) if the preview is already being requested.
 		if ( isRequestingEmbedPreview ) {
+			debug( 'Generating preview ➡ Requesting… ⌛' );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early (clean the timer) when preview is defined.
-		if ( preview ) {
-			setGeneratingPreviewCounter( 0 ); // reset counter.
+		if ( preview.html ) {
+			debug( 'Generating preview ➡ Preview achieved 🎉 %o', preview );
 			return cleanRegeneratingProcessTimer();
 		}
 
 		// Bail early when it has been already started.
 		if ( rePreviewAttemptTimer?.current ) {
+			debug( 'Generating preview ➡ Process already requested ⌛' );
 			return;
 		}
 
 		rePreviewAttemptTimer.current = setTimeout( () => {
 			// Abort whether the preview is already defined.
-			if ( preview ) {
+			if ( preview.html ) {
+				debug( 'Generating preview ➡ Preview already achieved 🎉 %o', preview );
 				setGeneratingPreviewCounter( 0 ); // reset counter.
 				return;
 			}
 
 			setGeneratingPreviewCounter( v => v + 1 );
+			debug(
+				'Generating preview ➡ Not achieved so far. Start attempt %o 🔥',
+				generatingPreviewCounter + 1 // +1 because the counter is updated after the effect.
+			);
 			invalidateCachedEmbedPreview();
 		}, 2000 );
 
@@ -333,6 +360,8 @@ export default function VideoPressEdit( {
 	// Setting video media process
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
+
+	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	// Replace video state
 	const [ isReplacingFile, setIsReplacingFile ] = useState< {
@@ -368,8 +397,23 @@ export default function VideoPressEdit( {
 
 	// Render uploading block view
 	if ( isUploadingFile ) {
-		const handleDoneUpload = () => {
+		const handleDoneUpload = newVideoData => {
 			setIsUploadingFile( false );
+			if ( isReplacingFile.isReplacing ) {
+				const newBlockAttributes = {
+					...attributes,
+					...newVideoData,
+				};
+
+				// Delete attributes that are not needed.
+				delete newBlockAttributes.poster;
+
+				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
+				return;
+			}
+
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
 		return (
@@ -388,7 +432,7 @@ export default function VideoPressEdit( {
 
 	// Generating video preview.
 	if (
-		( isRequestingEmbedPreview || ! preview ) &&
+		( isRequestingEmbedPreview || ! preview.html ) &&
 		generatingPreviewCounter > 0 &&
 		generatingPreviewCounter < VIDEO_PREVIEW_ATTEMPTS_LIMIT
 	) {
@@ -406,7 +450,7 @@ export default function VideoPressEdit( {
 	}
 
 	// 5 - Generating video preview failed.
-	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview ) {
+	if ( generatingPreviewCounter >= VIDEO_PREVIEW_ATTEMPTS_LIMIT && ! preview.html ) {
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<PlaceholderWrapper
@@ -458,18 +502,26 @@ export default function VideoPressEdit( {
 					setAttributes={ setAttributes }
 					attributes={ attributes }
 					onUploadFileStart={ media => {
+						// Store current attributes in case we wanto to cancel the replacing.
 						setIsReplacingFile( {
 							isReplacing: true,
 							prevAttrs: attributes,
 						} );
-
-						setAttributes( { id: null, guid: null } );
 						setIsUploadingFile( true );
+
+						// Clean relevant attributes to show the uploader placeholder.
+						setAttributes( { id: null, guid: null, cacheHtml: '', videoRatio: null } );
+
+						// Pass, through local state, the new file to upload.
 						setFileToUpload( media );
 					} }
 					onSelectVideoFromLibrary={ media => {
-						const mediaGuid = media.videopress_guid?.[ 0 ] ?? media.videopress_guid;
+						// Depending on the endpoint, `videopress_guid` can be an array or a string.
+						const mediaGuid = Array.isArray( media.videopress_guid )
+							? media.videopress_guid[ 0 ]
+							: media.videopress_guid;
 						if ( ! mediaGuid ) {
+							debug( 'No media guid provided' );
 							return;
 						}
 
@@ -481,15 +533,15 @@ export default function VideoPressEdit( {
 							description: media.description,
 						} );
 					} }
-					onSelectURL={ url => {
-						const videoGuid = pickGUIDFromUrl( url );
-						if ( ! videoGuid ) {
+					onSelectURL={ videoSource => {
+						const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+						if ( ! guidFromSource ) {
 							debug( 'Invalid URL. No video GUID  provided' );
 							return;
 						}
 
 						// Update guid based on the URL.
-						setAttributes( { guid: videoGuid, src: url } );
+						setAttributes( { guid: guidFromSource, src: srcFromSource } );
 					} }
 				/>
 			</BlockControls>

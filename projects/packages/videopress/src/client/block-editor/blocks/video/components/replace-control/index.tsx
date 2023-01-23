@@ -2,12 +2,16 @@
  * WordPress dependencies
  */
 import { MediaReplaceFlow } from '@wordpress/block-editor';
-import { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 /**
  * Internal dependencies
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { VideoBlockAttributes } from '../../types';
+/**
+ * Types
+ */
+import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
+import type { VideoBlockAttributes } from '../../types';
+
 import './style.scss';
 
 type ReplaceControlProps = {
@@ -39,6 +43,10 @@ const ReplaceControl = ( {
 		onSelectVideoFromLibrary( media as AdminAjaxQueryAttachmentsResponseItemProps );
 	}
 
+	const shareVideoUrlBase = attributes.isPrivate
+		? 'https://video.wordpress.com/v'
+		: 'https://videopress.com/v';
+
 	return (
 		<MediaReplaceFlow
 			mediaId={ attributes.id }
@@ -46,7 +54,7 @@ const ReplaceControl = ( {
 			accept="video/*"
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
 			onSelect={ selectMediaHandler }
-			mediaURL={ attributes.src }
+			mediaURL={ `${ shareVideoUrlBase }/${ attributes.guid }` }
 			onSelectURL={ onSelectURL }
 		/>
 	);

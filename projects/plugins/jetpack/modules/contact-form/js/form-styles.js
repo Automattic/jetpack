@@ -16,7 +16,7 @@ window.addEventListener( 'load', () => {
 			childList: true,
 			subtree: true,
 		} );
-	}, 1000 );
+	}, 100 );
 } );
 
 function generateStyleVariables( selector, outputSelector = 'body' ) {
@@ -37,14 +37,26 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
 	const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
 
-	if (
-		! doc.querySelectorAll( selector ).length ||
-		doc.querySelectorAll( `.${ STYLE_PROBE_CLASS }` ).length
-	) {
+	if ( ! doc.querySelectorAll( selector ).length ) {
 		return;
 	}
 
-	const styleProbe = doc.createElement( 'div' );
+	let styleProbe = doc.querySelector( `.${ STYLE_PROBE_CLASS }` );
+	const outputContainer = doc.querySelector( outputSelector );
+
+	if ( styleProbe ) {
+		const node = styleProbe.querySelector( 'input[type="text"]' );
+		const inputBorder = window.getComputedStyle( node ).border;
+		const currentInputBorder = outputContainer.style.getPropertyValue(
+			'--jetpack--contact-form--border'
+		);
+
+		if ( inputBorder === currentInputBorder ) {
+			return;
+		}
+	}
+
+	styleProbe = doc.createElement( 'div' );
 	styleProbe.className = STYLE_PROBE_CLASS;
 	styleProbe.style = STYLE_PROBE_STYLE;
 	styleProbe.innerHTML = HTML;
@@ -75,7 +87,6 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 		lineHeight,
 	} = window.getComputedStyle( inputNode );
 
-	const outputContainer = doc.querySelector( outputSelector );
 	outputContainer.style.setProperty( '--jetpack--contact-form--primary-color', primaryColor );
 	outputContainer.style.setProperty( '--jetpack--contact-form--background-color', backgroundColor );
 	outputContainer.style.setProperty( '--jetpack--contact-form--text-color', textColor );
@@ -97,6 +108,10 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-size', fontSize );
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-family', fontFamily );
 	outputContainer.style.setProperty( '--jetpack--contact-form--line-height', lineHeight );
+
+	setTimeout( () => {
+		bodyNode.classList.add( 'contact-form-styles-loaded' );
+	}, 200 );
 }
 
 function getBackgroundColor( backgroundColorNode ) {

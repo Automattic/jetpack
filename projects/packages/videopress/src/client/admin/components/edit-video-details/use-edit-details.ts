@@ -10,9 +10,14 @@ import { useParams, useHistory } from 'react-router-dom';
  */
 import useMetaUpdate from '../../../hooks/use-meta-update';
 import { STORE_ID } from '../../../state';
+import { VIDEO_PRIVACY_LEVELS } from '../../../state/constants';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
+/**
+ * Types
+ */
+import type { RatingProp } from '../../../types';
 
 const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	const updateMeta = useMetaUpdate( videoId );
@@ -28,7 +33,9 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [ 'title', 'description' ].some( field => hasFieldChanged( field ) );
+	const metaChanged = [ 'title', 'description', 'rating' ].some( field =>
+		hasFieldChanged( field )
+	);
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -36,6 +43,10 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 
 	const setDescription = ( description: string ) => {
 		updateData( { description } );
+	};
+
+	const setRating = ( rating: RatingProp ) => {
+		updateData( { rating } );
 	};
 
 	const handleMetaUpdate = () => {
@@ -51,6 +62,7 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	return {
 		setTitle,
 		setDescription,
+		setRating,
 		handleMetaUpdate,
 		metaChanged,
 	};
@@ -67,7 +79,7 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching, processing } = useVideo( Number( videoId ) );
+	const { data: video, isFetching, processing, updateVideoPrivacy } = useVideo( Number( videoId ) );
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
@@ -78,10 +90,14 @@ export default () => {
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ updated, setUpdated ] = useState( false );
+	const [ privacySetting, setPrivacySetting ] = useState(
+		VIDEO_PRIVACY_LEVELS[ video?.privacySetting ]
+	);
 
 	const [ formData, setFormData ] = useState( {
 		title: video?.title,
 		description: video?.description,
+		rating: video?.rating,
 	} );
 
 	const updateData = newData => {
@@ -112,7 +128,11 @@ export default () => {
 		setPosterImageSource( 'video' );
 	}, [ selectedTime ] );
 
-	const hasChanges = metaChanged || selectedTime != null || libraryAttachment != null;
+	const hasChanges =
+		metaChanged ||
+		selectedTime != null ||
+		libraryAttachment != null ||
+		privacySetting !== VIDEO_PRIVACY_LEVELS[ video?.privacySetting ];
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();
@@ -134,11 +154,19 @@ export default () => {
 			promises.push( updatePosterImageFromLibrary( libraryAttachment.id ) );
 		}
 
+		if ( privacySetting !== VIDEO_PRIVACY_LEVELS[ video?.privacySetting ] ) {
+			updateVideoPrivacy( privacySetting );
+		}
+
 		// TODO: handle errors
 		Promise.allSettled( promises ).then( () => {
 			const videoData = { ...video, ...formData };
+
 			// posterImage already set by the action
 			delete videoData.posterImage;
+
+			// privacySetting already set by the action
+			delete videoData.privacySetting;
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
@@ -159,6 +187,7 @@ export default () => {
 			setFormData( {
 				title: video?.title,
 				description: video?.description,
+				rating: video?.rating,
 			} );
 		}
 
@@ -184,6 +213,8 @@ export default () => {
 		updating,
 		updated,
 		selectedTime,
+		setPrivacySetting,
+		privacySetting,
 		...metaEditData,
 		...posterEditData,
 	};

@@ -1,34 +1,37 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import {
-	isAtomicSite,
-	isPrivateSite,
-	isSimpleSite,
-	getJetpackData,
-	isCurrentUserConnected,
-	getSiteFragment,
-	useAnalytics,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
+import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
 import BlazeIcon from './icon';
 
-/**
- * Return the connected WordPress.com's user locale.
- *
- * @returns {string} User locale.
- */
-function getConnectedUserLocale() {
-	return getJetpackData()?.tracksUserData?.user_locale || 'en';
-}
-
 const BlazePostPublishPanel = () => {
+	const { tracks } = useAnalytics();
+
+	// Tracks event when clicking on the Blaze link.
+	const trackClick = useCallback(
+		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
+		[ tracks ]
+	);
+
+	const { isPostPublished, isPublishingPost, postId, postType, postVisibility } = useSelect(
+		selector => ( {
+			isPostPublished: selector( editorStore ).isCurrentPostPublished(),
+			isPublishingPost: selector( editorStore ).isPublishingPost(),
+			postId: selector( editorStore ).getCurrentPostId(),
+			postType: selector( editorStore ).getCurrentPostType(),
+			postVisibility: selector( editorStore ).getEditedPostVisibility(),
+		} )
+	);
+	const wasPublishing = usePrevious( isPublishingPost );
+
 	const panelBodyProps = {
 		name: 'blaze-panel',
 		title: __( 'Promote with Blaze', 'jetpack-blaze' ),
@@ -37,53 +40,44 @@ const BlazePostPublishPanel = () => {
 		initialOpen: true,
 	};
 
-	const { isPostPublished, postId, postType, postVisibility } = useSelect( selector => ( {
-		isPostPublished: selector( editorStore ).isCurrentPostPublished(),
-		postId: selector( editorStore ).getCurrentPostId(),
-		postType: selector( editorStore ).getCurrentPostType(),
-		postVisibility: selector( editorStore ).getEditedPostVisibility(),
-	} ) );
-
 	const blazeUrl = getRedirectUrl( 'jetpack-blaze', {
 		site: getSiteFragment(),
 		query: `blazepress-widget=post-${ postId }`,
 	} );
 
-	const { tracks } = useAnalytics();
-	const trackClick = useCallback(
-		() => tracks.recordEvent( 'jetpack_editor_blaze_publish_click' ),
-		[ tracks ]
-	);
+	// Decide when the panel should appear, and be tracked.
+	const shouldDisplayPanel = () => {
+		// Only show the panel for Posts, Pages, and Products.
+		if ( ! [ 'page', 'post', 'product' ].includes( postType ) ) {
+			return false;
+		}
 
-	// Only show the panel for Posts, Pages, and Products.
-	if ( ! [ 'page', 'post', 'product' ].includes( postType ) ) {
-		return null;
-	}
+		// If the post is not published, or published with a password or private, do not show the panel.
+		if ( ! isPostPublished || postVisibility === 'password' || postVisibility === 'private' ) {
+			return false;
+		}
 
-	// Only show the panel for WPCOM sites.
-	const isWPCOMSite = isSimpleSite() || isAtomicSite();
-	if ( ! isWPCOMSite ) {
-		return null;
-	}
+		return true;
+	};
 
-	// Only show the panel for public sites.
-	if ( isPrivateSite() ) {
-		return null;
-	}
+	// Tracks event for the display of the panel.
+	useEffect( () => {
+		if ( ! ( wasPublishing && ! isPublishingPost ) ) {
+			return;
+		}
 
-	// Do not show the panel if the current user is not connected
-	// and thus does not have access to the Advertising tools.
-	if ( ! isCurrentUserConnected() ) {
-		return null;
-	}
+		if ( ! shouldDisplayPanel() ) {
+			return;
+		}
 
-	// Only show the panel to WordPress.com users with interface set to English.
-	if ( ! [ 'en', 'en-gb' ].includes( getConnectedUserLocale() ) ) {
-		return null;
-	}
+		if ( ! isPostPublished ) {
+			return;
+		}
 
-	// If the post is not published, or published with a password or private, do not show the panel.
-	if ( ! isPostPublished || postVisibility === 'password' || postVisibility === 'private' ) {
+		tracks.recordEvent( 'jetpack_editor_blaze_post_publish_panel_view' );
+	}, [ tracks, isPublishingPost, isPostPublished, wasPublishing ] );
+
+	if ( ! shouldDisplayPanel() ) {
 		return null;
 	}
 

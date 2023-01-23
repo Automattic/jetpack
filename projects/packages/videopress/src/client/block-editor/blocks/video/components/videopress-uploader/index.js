@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { pickGUIDFromUrl } from '../../../../../lib/url';
+import { buildVideoPressURL } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
 import { description, title } from '../../index';
@@ -32,7 +32,7 @@ const VideoPressUploader = ( {
 	onReplaceCancel,
 } ) => {
 	const [ uploadPaused, setUploadPaused ] = useState( false );
-	const [ uploadCompleted, setUploadCompleted ] = useState( false );
+	const [ uploadedVideoData, setUploadedVideoData ] = useState( false );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const [ isVerifyingLocalMedia, setIsVerifyingLocalMedia ] = useState( false );
 
@@ -86,39 +86,30 @@ const VideoPressUploader = ( {
 		setUploadErrorDataState( error );
 	}, [] );
 
-	/*
-	 * Handle upload success
-	 */
-	const handleUploadSuccess = attr => {
-		setAttributes( attr );
-		setUploadCompleted( true );
-	};
-
 	// Get file upload handlers, data, and error.
 	const { uploadHandler, resumeHandler, error: uploadingError } = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
-		onSuccess: handleUploadSuccess,
+		onSuccess: setUploadedVideoData,
 	} );
 
 	/**
 	 * Handler to add a video via an URL.
 	 *
-	 * @param {string} videoUrl - URL of the video to attach
+	 * @param {string} videoSource - URL of the video to attach
 	 * @param {string} id - Attachment ID if available
 	 */
-	function onSelectURL( videoUrl, id = undefined ) {
-		const videoGuid = pickGUIDFromUrl( videoUrl );
-		if ( ! videoGuid ) {
+	function onSelectURL( videoSource, id ) {
+		// If the video source is a VideoPress URL, we can use it directly.
+		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+		if ( ! guidFromSource ) {
 			setUploadErrorDataState( {
 				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
 			} );
 			return;
 		}
 
-		// Update guid based on the URL.
-		setAttributes( { guid: videoGuid, src: videoUrl, id } );
-		handleDoneUpload();
+		handleDoneUpload( { guid: guidFromSource, src: srcFromSource, id } );
 	}
 
 	const startUpload = file => {
@@ -138,7 +129,7 @@ const VideoPressUploader = ( {
 	const startUploadFromLibrary = attachmentId => {
 		uploadFromLibrary( attachmentId )
 			.then( result => {
-				handleUploadSuccess( result );
+				setUploadedVideoData( result );
 			} )
 			.catch( error => {
 				setUploadErrorDataState( error );
@@ -193,8 +184,7 @@ const VideoPressUploader = ( {
 				? media.videopress_guid[ 0 ] // <- pick the first item when it's an array
 				: media.videopress_guid;
 
-			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
-			onSelectURL( videoUrl, media?.id );
+			onSelectURL( videoGuid, media?.id );
 			return;
 		}
 
@@ -215,8 +205,7 @@ const VideoPressUploader = ( {
 						setIsUploadingInProgress( true );
 						startUploadFromLibrary( media.id );
 					} else if ( 'uploaded' === result.status ) {
-						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
-						onSelectURL( videoUrl );
+						onSelectURL( result.uploaded_video_guid );
 					} else {
 						setUploadErrorDataState( {
 							data: {
@@ -298,7 +287,7 @@ const VideoPressUploader = ( {
 				file={ uploadFile }
 				progress={ progress }
 				paused={ uploadPaused }
-				completed={ uploadCompleted }
+				uploadedVideoData={ uploadedVideoData }
 				onPauseOrResume={ pauseOrResumeUpload }
 				onReplaceCancel={ cancelUploadingReplaceFile }
 				isReplacing={ isReplacing }

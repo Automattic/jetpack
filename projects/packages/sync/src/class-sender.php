@@ -379,6 +379,24 @@ class Sender {
 		// Try to disconnect the request as quickly as possible and process things in the background.
 		$this->fastcgi_finish_request();
 
+		/**
+		 * Close the PHP session to free up the server threads to handle other requests while we
+		 * send sync data with Dedicated Sync.
+		 *
+		 * When we spawn Dedicated Sync, we send `$_COOKIES` with the request to help out with any
+		 * firewall and/or caching functionality that might prevent us to ping the site directly.
+		 *
+		 * This will cause Dedicated Sync to reuse the visitor's PHP session and lock it until the
+		 * request finishes, which can take anywhere from 1 to 30+ seconds, depending on the server
+		 * `max_execution_time` configuration.
+		 *
+		 * By closing the session we're freeing up the session, so other requests can acquire the
+		 * lock and proceed with their own tasks.
+		 */
+		if ( session_status() === PHP_SESSION_ACTIVE ) {
+			session_write_close();
+		}
+
 		// Output not used right now. Try to release dedicated sync lock
 		Dedicated_Sender::try_release_lock_spawn_request();
 

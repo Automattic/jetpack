@@ -592,7 +592,7 @@
 			}
 
 			.notched-label__leading {
-				width: calc(var(--jetpack--contact-form--input-padding-left) - 4px);
+				width: calc(var(--jetpack--contact-form--input-padding-left, 16px) - 4px);
 				border: var(--jetpack--contact-form--border);
 				border-right: none;
 				border-radius: var(--jetpack--contact-form--border-radius);
@@ -632,7 +632,7 @@
 			}
 
 			&.jetpack-field-textarea .notched-label__label {
-				top: var(--jetpack--contact-form--input-padding-top);
+				top: var(--jetpack--contact-form--input-padding-top, 16px);
 				transform: unset;
 			}
 
@@ -667,8 +667,8 @@
 				background-color: var(--jetpack--contact-form--input-background);
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
-				padding: var(--jetpack--contact-form--input-padding);
-				padding-top: calc(var(--jetpack--contact-form--input-padding) + 4px);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
 				border-top: none;
 
 				.notched-label {
@@ -697,7 +697,7 @@
 			}
 
 			.jetpack-field__textarea {
-				padding: var(--jetpack--contact-form--input-padding);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
 				outline: none;
 			}
 
@@ -711,7 +711,7 @@
 
 			&.jetpack-field-multiple {
 				background-color: var(--jetpack--contact-form--input-background);
-				padding: var(--jetpack--contact-form--input-padding);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
 				padding-top: 1.7em;
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
@@ -721,7 +721,7 @@
 				position: absolute;
 				z-index: 1;
 				top: 50%;
-				left: calc(var(--jetpack--contact-form--input-padding-left) + var(--jetpack--contact-form--border-size) );
+				left: calc(var(--jetpack--contact-form--input-padding-left, 16px) + var(--jetpack--contact-form--border-size, 1px) );
 				width: 100%;
 				max-width: 100%;
 				box-sizing: border-box;
@@ -732,7 +732,7 @@
 
 			&.jetpack-field-textarea .animated-label__label {
 				transform: unset;
-				top: var(--jetpack--contact-form--input-padding-top);
+				top: var(--jetpack--contact-form--input-padding-top, 16px);
 			}
 
 			&.is-selected, &.has-placeholder {
@@ -751,4 +751,12 @@
 			flex-direction: column-reverse;
 		}
 	}
+}
+
+.wp-block[data-type="jetpack/contact-form"] {
+	filter: blur(10px);
+}
+
+.contact-form-styles-loaded .wp-block[data-type="jetpack/contact-form"] {
+	filter: blur(0px);
 }

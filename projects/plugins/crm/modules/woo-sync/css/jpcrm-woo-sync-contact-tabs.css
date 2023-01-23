@@ -1,0 +1,12 @@
+/*!
+ * Jetpack CRM Extension: WooCommerce Contact Tabs
+ * https://jetpackcrm.com
+ * V1.0
+ */
+.woo-sync-subs .label, .woo-sync-mem .label, .woo-sync-book .label {
+  text-transform: capitalize !important;
+}
+.woo-sync-subs .active, .woo-sync-subs .paid, .woo-sync-subs .completed, .woo-sync-mem .active, .woo-sync-mem .paid, .woo-sync-mem .completed, .woo-sync-book .active, .woo-sync-book .paid, .woo-sync-book .completed {
+  color: white !important;
+  background: #21ba46 !important;
+}
