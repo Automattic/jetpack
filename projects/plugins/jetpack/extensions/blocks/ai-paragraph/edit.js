@@ -186,7 +186,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			.then( res => {
 				const result = res.prompts[ 0 ].text;
 
-				// We set it up so it doesn't start with nothing
 				setIsCompletionFinished( true );
 				setShowAnimation( true );
 				setIsLoadingCompletion( false );
