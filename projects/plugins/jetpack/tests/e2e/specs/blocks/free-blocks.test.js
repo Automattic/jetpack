@@ -5,6 +5,7 @@ import {
 	EventbriteBlock,
 	FormBlock,
 	TiledGalleryBlock,
+	SubscribeBlock,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import config from 'config';
@@ -28,6 +29,7 @@ test.describe.parallel( 'Free blocks', () => {
 		await test.step( 'Visit block editor page', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.resolveWelcomeGuide( false );
+			await blockEditor.waitForEditor();
 		} );
 	} );
 
@@ -135,6 +137,33 @@ test.describe.parallel( 'Free blocks', () => {
 			const frontend = await PostFrontendPage.init( page );
 			expect(
 				await frontend.isRenderedBlockPresent( TiledGalleryBlock ),
+				'Block should be displayed'
+			).toBeTruthy();
+		} );
+	} );
+
+	test( 'Subscribe block', async ( { page } ) => {
+		await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
+
+		await test.step( 'Can visit the block editor and add a Subscribe block', async () => {
+			const blockId = await blockEditor.insertBlock(
+				SubscribeBlock.name(),
+				SubscribeBlock.title()
+			);
+			const block = new SubscribeBlock( blockId, page );
+			await block.checkBlock();
+		} );
+
+		await test.step( 'Can publish a post with a Subscribe block', async () => {
+			await blockEditor.selectPostTitle();
+			await blockEditor.publishPost();
+			await blockEditor.viewPost();
+		} );
+
+		await test.step( 'Can assert that Subscribe block is rendered', async () => {
+			const frontend = await PostFrontendPage.init( page );
+			expect(
+				await frontend.isRenderedBlockPresent( SubscribeBlock ),
 				'Block should be displayed'
 			).toBeTruthy();
 		} );

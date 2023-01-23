@@ -15,8 +15,8 @@ import {
  * Return media token data hiting the admin-ajax endpoint.
  *
  * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
- * @param {GetMediaTokenArgsProps} args - function arguments
- * @returns {MediaTokenProps}            Media token data.
+ * @param {GetMediaTokenArgsProps} args - function arguments.
+ * @returns {MediaTokenProps}             Media token data.
  */
 const getMediaToken = function (
 	scope: MediaTokenScopeProps,

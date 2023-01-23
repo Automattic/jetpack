@@ -42,6 +42,13 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Undeclared dependency on prop-types.
+	// https://github.com/nutboltu/storybook-addon-mock/issues/157
+	if ( pkg.name === 'storybook-addon-mock' ) {
+		pkg.dependencies ||= {};
+		pkg.dependencies[ 'prop-types' ] = '*';
+	}
+
 	// Missing dep or peer dep on @wordpress/element.
 	// https://github.com/WordPress/gutenberg/issues/41341
 	// https://github.com/WordPress/gutenberg/issues/41346
@@ -147,6 +154,14 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@wordpress/data' ] === '^6.1.5'
 	) {
 		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
+	}
+
+	// Outdated peer dependency.
+	if (
+		pkg.name === 'eslint-plugin-wpcalypso' &&
+		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] === '^37.5.1'
+	) {
+		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '>=37.5.1';
 	}
 
 	return pkg;

@@ -77,7 +77,7 @@ class JetpackStateNotices extends React.Component {
 					key
 				);
 				break;
-			case 'site_blacklisted':
+			case 'connection_disabled':
 				message = createInterpolateElement(
 					__(
 						"This site can't be connected to WordPress.com because it violates our <a>Terms of Service</a>.",

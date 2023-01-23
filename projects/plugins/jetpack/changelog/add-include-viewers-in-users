@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds a include_viewer parameter to the /sites/$site_id/users endpoint.

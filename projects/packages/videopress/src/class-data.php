@@ -354,7 +354,8 @@ class Data {
 				),
 				'query'                        => $videopress_data['query'],
 				'_meta'                        => array(
-					'relyOnInitialState' => true,
+					'processedAllVideosBeingRemoved' => true,
+					'relyOnInitialState'             => true,
 				),
 			),
 			'localVideos'  => array(

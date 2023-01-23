@@ -1,0 +1,111 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.80+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 29/04/18
+ */
+
+/*
+	Global styles for ZBS Licensing Nag
+*/
+
+.zbs_nf{
+    position: fixed;
+    bottom: 0px;
+    width: 100%;
+    left: 0px;
+    right: 0px;
+    z-index: 10;
+    background: red;
+    padding: 15px;
+    padding-left: 180px;
+    color: white;
+    font-size: 16px;
+    font-weight: 900;
+    border-top: 5px solid #de1b1b;
+}
+.zbs_overlay{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 100000;
+    color: white;
+    text-align: center;
+    font-size: 20px;
+    background: rgba(0, 0, 0, 0.85);
+
+    display: -webkit-box;  /* OLD - iOS 6-, Safari 3.1-6, BB7 */
+    display: -ms-flexbox;  /* TWEENER - IE 10 */
+    display: -webkit-flex; /* NEW - Safari 6.1+. iOS 7.1+, BB10 */
+    display: flex;         /* NEW, Spec - Firefox, Chrome, Opera */
+    
+    justify-content: center;
+    align-items: center;
+
+}
+
+.close_nag_modal a{
+    color:white;
+}
+
+.zbs-message h3{
+    color:white;
+}
+
+.zbs_overlay p{
+    font-size:16px;
+}
+.zbs_overlay p a{
+    color: orange;
+    text-decoration:underline;
+}
+.close_nag_modal{
+    position: absolute;
+    top:10px;
+    right: 10px;
+    cursor:pointer;
+}
+.zbs-message-body{
+    width:400px;
+    line-height:30px;
+}
+
+.jpcrm-promo.ui.segment{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    position:relative;
+    margin-right: 20px;
+
+    border-left: 5px solid #069E09;
+
+    #jpcrm-dismiss{
+        position:absolute;
+        right:5px;
+        top:10px;
+        color:black;
+        font-weight:500;
+        margin-top:5px;
+    }
+    .notice-dismiss{
+        margin-top:5px;
+    }
+    .button {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+
+
+.jpcrm-error.ui.segment{
+  margin-right: 20px;
+  border-left: 5px solid #cf0606;
+}

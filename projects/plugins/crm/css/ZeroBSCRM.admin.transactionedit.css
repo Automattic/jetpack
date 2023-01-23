@@ -1,0 +1,22 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 02/06/16
+ */
+#zeroBSCRM-transaction-meta-box input {
+  width: 90%;
+}
+#zeroBSCRM-transaction-meta-box .hide {
+  display: none;
+}
+#zeroBSCRM-transaction-meta-box .twitter-typeahead {
+  width: 90%;
+}
+
+#zeroBSCRM-transaction-meta-box #zbs-transaction-assignment-wrap input.zbstypeahead, #zeroBSCRM-transaction-meta-box #zbs-transaction-assignment-wrap .twitter-typeahead {
+  width: 100%;
+}
