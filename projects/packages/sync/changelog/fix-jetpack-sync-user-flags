@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Sync: prevent syncing user update when corresponding flags are not set.

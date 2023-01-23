@@ -446,7 +446,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "bac1bf8e0acf71eaabe4e99f5016b38965c2041d"
+                "reference": "fe763a3537f4a36cecda89a019600116ad551a4d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -455,7 +455,6 @@
             "require-dev": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/jetpack-status": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -467,7 +466,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.4.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -920,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "fb95e8781f9cd26bc4cb8f3d6645a99a748a6248"
+                "reference": "306f844ea57b3f1002b232e86fed6360131c1b41"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -963,8 +962,11 @@
                 "build-development": [
                     "echo 'Add your build step to composer.json, please!'"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
