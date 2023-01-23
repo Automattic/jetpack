@@ -45,7 +45,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showAnimation, setShowAnimation ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
-	const [ isCompletionFinished, setIsCompletionFinished ] = useState( !! attributes.content );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 
 	// Let's grab post data so that we can do something smart.
@@ -168,7 +167,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		.join( '\n' );
 
 	const getSuggestionFromOpenAI = () => {
-		if ( isCompletionFinished || isLoadingCompletion ) {
+		if ( !! attributes.content || isLoadingCompletion ) {
 			return;
 		}
 
@@ -186,7 +185,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			.then( res => {
 				const result = res.prompts[ 0 ].text;
 
-				setIsCompletionFinished( true );
 				setShowAnimation( true );
 				setIsLoadingCompletion( false );
 				setAttributes( { content: result } );
@@ -203,9 +201,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	};
 
 	// Waiting state means there is nothing to be done until it resolves
-	const waitingState = isCompletionFinished || isLoadingCompletion || isLoadingCategories;
-	const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
-	if ( ! waitingState ) {
+	const waitingState = isLoadingCompletion || isLoadingCategories;
+	// Content is loaded
+	const contentIsLoaded = !! attributes.content;
+
+	// We do nothing is we are waiting for stuff OR if the content is already loaded.
+	const noLogicNeeded = contentIsLoaded || waitingState;
+
+	if ( ! noLogicNeeded ) {
+		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
+
 		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
 			if ( ! errorMessage ) {
 				setErrorMessage(
