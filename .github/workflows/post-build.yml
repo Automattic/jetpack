@@ -39,7 +39,7 @@ jobs:
 
       - name: Get token
         id: get_token
-        uses: getsentry/action-github-app-token@v2.0.0
+        uses: ./.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
@@ -67,7 +67,7 @@ jobs:
 
       - name: Get token
         id: get_token
-        uses: getsentry/action-github-app-token@v2.0.0
+        uses: ./.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
@@ -131,7 +131,7 @@ jobs:
       - name: Get token
         id: get_token
         if: ${{ ! success() }}
-        uses: getsentry/action-github-app-token@v2.0.0
+        uses: ./.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
@@ -159,7 +159,7 @@ jobs:
 
       - name: Get token
         id: get_token
-        uses: getsentry/action-github-app-token@v2.0.0
+        uses: ./.github/actions/gh-app-token
         with:
           app_id: ${{ secrets.JP_LAUNCH_CONTROL_ID }}
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
@@ -212,7 +212,7 @@ jobs:
 
       - name: Get token
         id: get_token
-        uses: getsentry/action-github-app-token@v2.0.0
+        uses: ./monorepo/.github/actions/gh-app-token
         env:
           # Work around a weird node 16/openssl 3 issue in the docker env
           OPENSSL_CONF: '/dev/null'
