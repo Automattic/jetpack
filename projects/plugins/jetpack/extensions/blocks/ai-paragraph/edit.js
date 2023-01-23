@@ -40,12 +40,12 @@ function ShowLittleByLittle( { html, showAnimation } ) {
 }
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
-	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
-	const [ loadingCategories, setLoadingCategories ] = useState( false );
+	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
+	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ showAnimation, setShowAnimation ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
-	const [ completionFinished, setCompletionFinished ] = useState( !! attributes.content );
+	const [ isCompletionFinished, setIsCompletionFinished ] = useState( !! attributes.content );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 
 	// Let's grab post data so that we can do something smart.
@@ -94,9 +94,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			.filter( Boolean ); // Remove undefined values
 	} );
 
-	if ( loadingCategories !== loading ) {
-		setLoadingCategories( loading );
-	}
+	setIsLoadingCategories( loading );
 
 	const createPrompt = () => {
 		const shorter_content = content.slice( -240 );
@@ -167,14 +165,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		.join( '\n' );
 
 	const getSuggestionFromOpenAI = () => {
-		if ( completionFinished || loadingCompletion ) {
+		if ( isCompletionFinished || isLoadingCompletion ) {
 			return;
 		}
 
 		setShowRetry( false );
 		setErrorMessage( false );
 		setNeedsMoreCharacters( 0 );
-		setLoadingCompletion( true );
+		setIsLoadingCompletion( true );
 
 		const data = { content: createPrompt() };
 		apiFetch( {
@@ -186,9 +184,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				const result = res.prompts[ 0 ].text;
 
 				// We set it up so it doesn't start with nothing
-				setCompletionFinished( true );
+				setIsCompletionFinished( true );
 				setShowAnimation( true );
-				setLoadingCompletion( false );
+				setIsLoadingCompletion( false );
 				setAttributes( { content: result } );
 			} )
 			.catch( () => {
@@ -198,12 +196,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						'jetpack'
 					)
 				);
-				setLoadingCompletion( false );
+				setIsLoadingCompletion( false );
 			} );
 	};
 
 	// Waiting state means there is nothing to be done until it resolves
-	const waitingState = completionFinished || loadingCompletion || loadingCategories;
+	const waitingState = isCompletionFinished || isLoadingCompletion || isLoadingCategories;
 	const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
 	if ( ! waitingState ) {
 		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
@@ -242,7 +240,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ ! loadingCompletion && ! loadingCategories && errorMessage && (
+			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
@@ -259,7 +257,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				/>
 			) }
 
-			{ ! attributes.content && ( loadingCompletion || loadingCategories ) && (
+			{ ! attributes.content && ( isLoadingCompletion || isLoadingCategories ) && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {
