@@ -98,22 +98,22 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setLoadingCategories( loading );
 	}
 
-	const createPrompt = ( title = '', content = '', categoryNames = '' ) => {
-		content = content.slice( -240 );
+	const createPrompt = () => {
+		const shorter_content = content.slice( -240 );
 
 		// If title is not added, we will only complete.
-		if ( ! title ) {
-			return content;
+		if ( ! currentPostTitle ) {
+			return shorter_content;
 		}
 
 		// Title, content and categories
-		if ( content && categoryNames.length ) {
+		if ( shorter_content && categoryNames.length ) {
 			return sprintf(
 				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last 240 characters of content. */
 				__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				title,
+				currentPostTitle,
 				categoryNames,
-				content
+				shorter_content
 			);
 		}
 
@@ -122,25 +122,25 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			return sprintf(
 				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
 				__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				title,
+				currentPostTitle,
 				categoryNames
 			);
 		}
 
 		// Title and content
-		if ( content ) {
+		if ( shorter_content ) {
 			return sprintf(
 				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last 240 characters of content. */
 				__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				title,
-				content
+				currentPostTitle,
+				shorter_content
 			);
 		}
 
 		return sprintf(
 			/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
 			__( 'Write content of a post titled "%s"', 'jetpack' ),
-			title
+			currentPostTitle
 		);
 	};
 
@@ -165,7 +165,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			return block.attributes.content.replaceAll( '<br>', '\n' );
 		} )
 		.join( '\n' );
-	const contentToUseForPrompt = createPrompt( currentPostTitle, content, categoryNames );
 
 	const getSuggestionFromOpenAI = () => {
 		if ( completionFinished || loadingCompletion ) {
@@ -177,7 +176,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setNeedsMoreCharacters( 0 );
 		setLoadingCompletion( true );
 
-		const data = { content: contentToUseForPrompt };
+		const data = { content: createPrompt() };
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
