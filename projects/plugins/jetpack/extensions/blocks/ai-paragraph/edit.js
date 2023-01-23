@@ -195,7 +195,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} )
 			.then( res => {
 				const result = res.prompts[ 0 ].text;
-
 				setShowAnimation( true );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
@@ -207,6 +206,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						'jetpack'
 					)
 				);
+				setShowRetry( true );
 				setIsLoadingCompletion( false );
 			} );
 	};
