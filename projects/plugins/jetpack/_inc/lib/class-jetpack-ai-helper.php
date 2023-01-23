@@ -134,7 +134,6 @@ class Jetpack_AI_Helper {
 		$content = wp_strip_all_tags( $content );
 		$cache   = get_transient( self::transient_name_for_completion() );
 		if ( $cache ) {
-			self::mark_post_as_ai_assisted( $post_id );
 			return $cache;
 		}
 
