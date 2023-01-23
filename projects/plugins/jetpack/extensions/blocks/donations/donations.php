@@ -106,7 +106,7 @@ function render_block( $attr, $content ) {
 		return '';
 	}
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'jetpack-thickbox' ) );
 
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-currencies.php';
 

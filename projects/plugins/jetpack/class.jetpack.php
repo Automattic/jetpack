@@ -1243,6 +1243,25 @@ class Jetpack {
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
 			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 		}
+
+		if ( ! wp_script_is( 'jetpack-thickbox', 'registered' ) ) {
+			wp_register_script(
+				'jetpack-thickbox',
+				Assets::get_file_url_for_environment( '_inc/build/jetpack-thickbox.min.js', '_inc/jetpack-thickbox.js' ),
+				array(),
+				JETPACK__VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'jetpack-thickbox',
+				'jetpackThickbox',
+				array(
+					'closeText' => esc_attr_x( 'Close', 'verb', 'jetpack' ),
+					'orEscKey'  => esc_attr__( 'or esc key', 'jetpack' ),
+				)
+			);
+		}
 	}
 
 	/**

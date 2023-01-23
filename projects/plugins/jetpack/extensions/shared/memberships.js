@@ -1,4 +1,4 @@
-import { a8c_tb_show, a8c_tb_remove } from './memberships-modal';
+/* global a8c_tb_show, a8c_tb_remove */
 
 /**
  * Since "close" button is inside our checkout iframe, in order to close it, it has to pass a message to higher scope to close the modal.

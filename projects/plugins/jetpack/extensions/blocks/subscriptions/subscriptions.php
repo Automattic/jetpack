@@ -369,7 +369,7 @@ function render_block( $attributes ) {
 	// We only want the sites that have newsletter plans to be graced by this JavaScript.
 	if ( has_newsletter_plans() ) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript.
-		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array() );
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'jetpack-thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
 		}

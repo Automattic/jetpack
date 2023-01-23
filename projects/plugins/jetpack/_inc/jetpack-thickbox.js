@@ -1,5 +1,4 @@
-// phpcs:disable no-undef
-
+/* global jetpackThickbox */
 /*
  * Thickbox 3.1 - One Box To Rule Them All. jQuery was removed by Automattic. VErsion was heavily modified and features removed.
  * By Cody Lindley (http://www.codylindley.com)
@@ -34,7 +33,7 @@ function a8c_tb_init( domChunk ) {
 	} );
 }
 
-export const a8c_tb_show = function ( caption, url ) {
+function a8c_tb_show( caption, url ) {
 	//function called when the user clicks on a thickbox link
 	document.querySelectorAll( 'body', 'html' ).forEach( el => {
 		el.style.height = '100%';
@@ -83,25 +82,38 @@ export const a8c_tb_show = function ( caption, url ) {
 	if ( url.indexOf( 'TB_iframe' ) !== -1 ) {
 		// either iframe or ajax window
 		const urlNoQuery = url.split( 'TB_' );
-		document.getElementById( 'TB_iframeContent' )?.remove();
+		const iframeContent = document.getElementById( 'TB_iframeContent' );
+		if ( iframeContent ) {
+			iframeContent.remove();
+		}
 		if ( params.modal !== 'true' ) {
 			//iframe no modal
-			document
-				.getElementById( 'TB_window' )
-				.insertAdjacentHTML(
-					'beforeend',
-					"<div id='TB_title'><div id='TB_ajaxWindowTitle'>" +
-						caption +
-						"</div><div id='TB_closeAjaxWindow'><a href='#' id='TB_closeWindowButton' title='Close'>close</a> or Esc Key</div></div><iframe frameborder='0' hspace='0' src='" +
-						urlNoQuery[ 0 ] +
-						"' id='TB_iframeContent' name='TB_iframeContent" +
-						Math.round( Math.random() * 1000 ) +
-						"' style='width:" +
-						( ajaxContentW + 29 ) +
-						'px;height:' +
-						( ajaxContentH + 17 ) +
-						"px;' > </iframe>"
-				);
+			document.getElementById( 'TB_window' ).insertAdjacentHTML(
+				'beforeend',
+				`
+					<div id='TB_title'>
+						<div id='TB_ajaxWindowTitle'>
+							${ caption }
+						</div>
+						<div id='TB_closeAjaxWindow'>
+							<a href='#' id='TB_closeWindowButton' title='${ jetpackThickbox.closeText }'>${
+					jetpackThickbox.closeText
+				}</a>
+							${ jetpackThickbox.orEscKey }
+						</div>
+					</div>
+					<iframe
+						frameborder='0'
+						hspace='0'
+						src='${ urlNoQuery[ 0 ] }'
+						id='TB_iframeContent'
+						name='TB_iframeContent${ Math.round( Math.random() * 1000 ) }'
+						style='width:${ ajaxContentW + 29 }px;height:${ ajaxContentH + 17 }px;'
+						onload='a8c_tb_showIframe()'>
+
+					</iframe>
+					`
+			);
 		} else {
 			//iframe modal
 			document.getElementById( 'TB_overlay' ).removeEventListener( 'click', a8c_tb_remove, false );
@@ -208,12 +220,24 @@ export const a8c_tb_show = function ( caption, url ) {
 			}
 		};
 	}
-};
+}
 
-export const a8c_tb_remove = function () {
-	document.getElementById( 'TB_imageOff' )?.removeEventListener( 'click', a8c_tb_remove );
-	document.getElementById( 'TB_closeWindowButton' )?.removeEventListener( 'click', a8c_tb_remove );
-	document.getElementById( 'TB_window' )?.remove();
+function a8c_tb_remove() {
+	const imageOff = document.getElementById( 'TB_imageOff' );
+	if ( imageOff ) {
+		imageOff.removeEventListener( 'click', a8c_tb_remove );
+	}
+
+	const closeWindowButton = document.getElementById( 'TB_closeWindowButton' );
+	if ( closeWindowButton ) {
+		closeWindowButton.removeEventListener( 'click', a8c_tb_remove );
+	}
+
+	const tbWindow = document.getElementById( 'TB_window' );
+	if ( tbWindow ) {
+		tbWindow.remove();
+	}
+
 	document.querySelectorAll( '#TB_window,#TB_overlay,#TB_HideSelect' ).forEach( el => {
 		el.dispatchEvent( new Event( 'unload' ) );
 		el.remove();
@@ -229,7 +253,7 @@ export const a8c_tb_remove = function () {
 	document.onkeydown = '';
 	document.onkeyup = '';
 	return false;
-};
+}
 
 function a8c_tb_position() {
 	document.getElementById( 'TB_window' ).style.marginLeft =
