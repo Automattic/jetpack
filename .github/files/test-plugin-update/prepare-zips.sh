@@ -39,6 +39,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 			else
 				echo "::error::Unexpected response from betadownload.jetpack.me for $SLUG"
 				echo "$JSON"
+				echo "info=❌ Unexpected response from betadownload.jetpack.me for $SLUG" >> "$GITHUB_OUTPUT"
 				exit 1
 			fi
 		fi
@@ -59,7 +60,10 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	else
 		echo "::error::Unexpected response from WordPress.org API for $SLUG"
 		echo "$JSON"
+		echo "info=❌ Unexpected response from WordPress.org API for $SLUG" >> "$GITHUB_OUTPUT"
 		exit 1
 	fi
 	echo "::endgroup::"
 done < build/plugins.tsv
+
+echo 'info=' >> "$GITHUB_OUTPUT"

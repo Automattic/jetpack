@@ -52,4 +52,11 @@
 	<rule ref="PHPCompatibility.Interfaces.NewInterfaces.throwableFound">
 		<severity>0</severity>
 	</rule>
+
+	<!-- Custom JPCRM escape function -->
+	<rule ref="WordPress.Security.EscapeOutput">
+		<properties>
+			<property name="customAutoEscapedFunctions" type="array" value="jpcrm_esc_link"/>
+		</properties>
+	</rule>
 </ruleset>

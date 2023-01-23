@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use wp_get_global_styles() and fallback to gutenberg_get_global_styles() since the latter was removed from Gutenberg
