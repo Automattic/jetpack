@@ -13,6 +13,7 @@ import useMediaRestrictions, {
 	VIDEO_LENGTH_ERROR,
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
 /**
@@ -119,12 +120,18 @@ export default function MediaSection() {
 	);
 
 	const renderPreview = useCallback( () => {
+		const { width, height, sourceUrl } = mediaData;
+
 		if ( isVideo( metaData.mime ) ) {
 			// TBD
-			return <div>Video Preview</div>;
+			return (
+				<VideoPreview
+					sourceUrl={ sourceUrl }
+					mime={ metaData.mime }
+					duration={ metaData.length }
+				></VideoPreview>
+			);
 		}
-
-		const { width, height, sourceUrl } = mediaData;
 
 		if ( width && height && sourceUrl ) {
 			return (
