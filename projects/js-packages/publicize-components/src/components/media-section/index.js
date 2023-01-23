@@ -1,9 +1,17 @@
-import { Button, Text, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
+import { Button, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { ResponsiveWrapper, ExternalLink, Spinner, Notice } from '@wordpress/components';
+import {
+	ResponsiveWrapper,
+	ExternalLink,
+	Spinner,
+	Notice,
+	BaseControl,
+	VisuallyHidden,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Icon, closeSmall } from '@wordpress/icons';
 import { useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaRestrictions, {
@@ -117,7 +125,7 @@ export default function MediaSection() {
 		}
 	}, [ updateAttachedMedia, getValidationError, metaData ] );
 
-	// const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
+	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
 		media => {
 			const { id, url } = media;
@@ -139,15 +147,21 @@ export default function MediaSection() {
 
 			if ( width && height && sourceUrl ) {
 				return (
-					<button className={ styles.preview } onClick={ open }>
-						<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-							<img src={ sourceUrl } alt="" />
-						</ResponsiveWrapper>
-					</button>
+					<div class={ styles[ 'preview-wrapper' ] }>
+						<button class={ styles.remove } onClick={ onRemoveMedia }>
+							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+							<Icon icon={ closeSmall } />
+						</button>
+						<button className={ styles.preview } onClick={ open }>
+							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
+								<img src={ sourceUrl } alt="" />
+							</ResponsiveWrapper>
+						</button>
+					</div>
 				);
 			}
 		},
-		[ mediaData, metaData ]
+		[ mediaData, metaData, onRemoveMedia ]
 	);
 
 	const renderPicker = useCallback(
@@ -183,35 +197,36 @@ export default function MediaSection() {
 	return (
 		<ThemeProvider>
 			<div className={ styles.wrapper }>
-				<Text variant="editor-headline">{ __( 'Media', 'jetpack' ) }</Text>
-				<Text variant="editor-body">
-					{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
-				</Text>
-				<MediaUploadCheck>
-					<MediaUpload
-						title={ ADD_MEDIA_LABEL }
-						onSelect={ onUpdateMedia }
-						allowedTypes={ allowedMediaTypes }
-						render={ setMediaRender }
-						value={ attachedMedia[ 0 ]?.id }
-					/>
-					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-						{ __( 'Learn photo and video best practices', 'jetpack' ) }
-					</ExternalLink>
-					{ validationError && (
-						<Notice
-							className={ styles.notice }
-							isDismissible={ true }
-							onDismiss={ onDismissClick }
-							status="warning"
-						>
-							<p>{ validationErrorMessages[ validationError ] }</p>
-							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-								{ __( 'Troubleshooting tips', 'jetpack' ) }
-							</ExternalLink>
-						</Notice>
-					) }
-				</MediaUploadCheck>
+				<BaseControl label={ __( 'Media', 'jetpack' ) }>
+					<MediaUploadCheck>
+						<p class={ styles.subtitle }>
+							{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+						</p>
+						<MediaUpload
+							title={ ADD_MEDIA_LABEL }
+							onSelect={ onUpdateMedia }
+							allowedTypes={ allowedMediaTypes }
+							render={ setMediaRender }
+							value={ attachedMedia[ 0 ]?.id }
+						/>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+							{ __( 'Learn photo and video best practices', 'jetpack' ) }
+						</ExternalLink>
+						{ validationError && (
+							<Notice
+								className={ styles.notice }
+								isDismissible={ true }
+								onDismiss={ onDismissClick }
+								status="warning"
+							>
+								<p>{ validationErrorMessages[ validationError ] }</p>
+								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+									{ __( 'Troubleshooting tips', 'jetpack' ) }
+								</ExternalLink>
+							</Notice>
+						) }
+					</MediaUploadCheck>
+				</BaseControl>
 			</div>
 		</ThemeProvider>
 	);

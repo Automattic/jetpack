@@ -499,6 +499,7 @@ importers:
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.22.0
       '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
       babel-jest: 29.3.1
       classnames: 2.3.1
       jest: 29.3.1
@@ -526,6 +527,7 @@ importers:
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.22.0
       '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1

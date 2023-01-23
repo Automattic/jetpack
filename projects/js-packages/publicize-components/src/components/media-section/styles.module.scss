@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .wrapper {
 	padding: 0;
 
@@ -61,6 +63,18 @@
 	}
 }
 
+.subtitle {
+	color: $gray-700;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 16px;
+	margin-bottom: 8px;
+}
+
+.preview-wrapper {
+	position: relative;
+}
+
 .preview {
 	width: 100%;
 	appearance: none;
@@ -68,6 +82,25 @@
 	padding: 0;
 	margin: 0;
 	cursor: pointer;
+}
+
+.remove {
+	position: absolute;
+	top: -3px;
+	right: -3px;
+	appearance: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	cursor: pointer;
+	z-index: 2;
+	line-height: 0;
+	background-color: var( --jp-black );
+	border: 1.5px solid var( --jp-white );
+
+	svg {
+		fill: var( --jp-white );
+	}
 }
 
 .notice.notice {
