@@ -45,7 +45,7 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
-const { adminUrl } = window.videoPressEditorState;
+const { myJetpackConnectUrl } = window.videoPressEditorState;
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -140,17 +140,8 @@ export default function VideoPressEdit( {
 	} );
 
 	// Get the redirect URI for the connection flow.
-	const redirectUri = window.location.href.replace( adminUrl, '' );
-	const {
-		isUserConnected,
-		handleRegisterSite,
-		userIsConnecting,
-		siteIsRegistering,
-	} = useConnection( {
-		from: 'block-editor',
-		redirectUri,
-	} );
-
+	const { isUserConnected } = useConnection();
+	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
 	/*
 	 * Request token when site is private
 	 */
@@ -432,7 +423,6 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
-		const isReconnectingUser = userIsConnecting || siteIsRegistering;
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
@@ -441,9 +431,12 @@ export default function VideoPressEdit( {
 							action={
 								<Button
 									variant="primary"
-									onClick={ handleRegisterSite }
-									disabled={ isReconnectingUser }
-									isBusy={ isReconnectingUser }
+									onClick={ () => {
+										setIsRedirectingToMyJetpack( true );
+										window.location.href = myJetpackConnectUrl;
+									} }
+									disabled={ isRedirectingToMyJetpack }
+									isBusy={ isRedirectingToMyJetpack }
 								>
 									{ __( 'Connect', 'jetpack-videopress-pkg' ) }
 								</Button>

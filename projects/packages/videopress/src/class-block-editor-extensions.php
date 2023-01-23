@@ -151,9 +151,9 @@ class Block_Editor_Extensions {
 			self::SCRIPT_HANDLE,
 			'videoPressEditorState',
 			array(
-				'extensions' => $extensions_list,
-				'siteType'   => $site_type,
-				'adminUrl'   => admin_url(),
+				'extensions'          => $extensions_list,
+				'siteType'            => $site_type,
+				'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 			)
 		);
 	}
