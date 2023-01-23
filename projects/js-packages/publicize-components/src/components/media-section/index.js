@@ -196,38 +196,36 @@ export default function MediaSection() {
 
 	return (
 		<ThemeProvider>
-			<div className={ styles.wrapper }>
-				<BaseControl label={ __( 'Media', 'jetpack' ) }>
-					<MediaUploadCheck>
-						<p class={ styles.subtitle }>
-							{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
-						</p>
-						<MediaUpload
-							title={ ADD_MEDIA_LABEL }
-							onSelect={ onUpdateMedia }
-							allowedTypes={ allowedMediaTypes }
-							render={ setMediaRender }
-							value={ attachedMedia[ 0 ]?.id }
-						/>
-						<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-							{ __( 'Learn photo and video best practices', 'jetpack' ) }
-						</ExternalLink>
-						{ validationError && (
-							<Notice
-								className={ styles.notice }
-								isDismissible={ true }
-								onDismiss={ onDismissClick }
-								status="warning"
-							>
-								<p>{ validationErrorMessages[ validationError ] }</p>
-								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-									{ __( 'Troubleshooting tips', 'jetpack' ) }
-								</ExternalLink>
-							</Notice>
-						) }
-					</MediaUploadCheck>
-				</BaseControl>
-			</div>
+			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
+				<MediaUploadCheck>
+					<p class={ styles.subtitle }>
+						{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+					</p>
+					<MediaUpload
+						title={ ADD_MEDIA_LABEL }
+						onSelect={ onUpdateMedia }
+						allowedTypes={ allowedMediaTypes }
+						render={ setMediaRender }
+						value={ attachedMedia[ 0 ]?.id }
+					/>
+					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+						{ __( 'Learn photo and video best practices', 'jetpack' ) }
+					</ExternalLink>
+					{ validationError && (
+						<Notice
+							className={ styles.notice }
+							isDismissible={ true }
+							onDismiss={ onDismissClick }
+							status="warning"
+						>
+							<p>{ validationErrorMessages[ validationError ] }</p>
+							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+								{ __( 'Troubleshooting tips', 'jetpack' ) }
+							</ExternalLink>
+						</Notice>
+					) }
+				</MediaUploadCheck>
+			</BaseControl>
 		</ThemeProvider>
 	);
 }
