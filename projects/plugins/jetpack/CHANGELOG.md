@@ -2,6 +2,56 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.9 - 2023-01-23
+### Enhancements
+- Adds a include_viewer parameter to the /sites/$site_id/users endpoint. [#28317]
+- Contact Form: update the name of the columns used when exporting Contact Form responses to CSV. The file will now use clear and detailed column names. [#28425]
+- Entire posts can now be restricted to either paid subscribers, or email subscribers. This will enable site owners to:
+  - reward their paying subscribers with secret Lasagna recipes
+  - create paid-only issues of their newsletters
+  - create incentives and landing pages to gain subscribers
+  - create paid courses, and pursue other subscriber-only models
+  - support themselves financially without sacrificing creative freedom
+  - buy literal jetpacks from all the money they make on their sites (outcome not guaranteed) [#28170]
+- Fix some styling issues for the AI block [#28380]
+- Improve file/spreadsheet naming when exporting form responses. [Site name] - Jetpack Form Responses - [form source] - [date] [#28413]
+- Jetpack: do not add block transform to v6 when video is not a VideoPress video [#28477]
+- More transparent prompt engineering for ai paragraph block [#28351]
+- Paid Newsletter functionality:
+  If the site owner creates one or more "newsletter" paid plans available for purchase, subscribers will be given an option to pay while subscribing through the subscribe block.
+  This change goes together with ./add-post-visibility-setting to create a paid newsletter functionality. [#28170]
+- VideoPress: set video block availability, based on site plan [#28391]
+- Writing prompts: removes placeholder prompt and setting [#28387]
+
+### Improved compatibility
+- Refactor subscription services [#28170]
+- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat. [#28434]
+
+### Bug fixes
+- Fixing AMP related bug [#28466]
+- Include Boost in My Plans [#28336]
+- Intro offers: fix the price display and description for products with intro offers for the first month. [#28424]
+- Premium-content block is shipped with a JWT lib that had a bug in its encode() method [#28170]
+- RAPI: Fix Related Posts options saving [#28435]
+- Sharing: do not include the sharing buttons in REST API responses. [#28412]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a new endpoint, template-loader, to resolve the correct template by its type [#28158]
+- Add default_option_subscription_options filter [#28320]
+- Added the dependency on automattic/jetpack-forms [#28416]
+- Block bundling: sunset existing methods in favor of new `JETPACK_BLOCKS_VARIATION` constant [#28390]
+- Blocks: move away from deprecated methods in multiple blocks. [#28415]
+- Carousel: verify array to avoid PHP warnings [#28388]
+- Cleaning PHP deprecated error notice from the log [#28508]
+- Clean up JavaScript eslint issues. [#28441]
+- Fixes a regression introduced when loading saved Jetpack AI block [#28488]
+- Jetpack VideoPress module: Add test for generated embed code [#28358]
+- Remove handling for an error code that no longer exists. [#28436]
+- Removing SAL user error writing [#28442]
+- Settings API: Allow to unassign 'page_for_posts' and 'page_on_front' options [#28379]
+- Start using utilities from Status package to detect whether a site is private or "coming-soon" (unlaunched). [#28328]
+- Widget visibility: add missing Jetpack config external. [#28402]
+
 ## 11.8-a.7 - 2023-01-17
 ### Changed
 - Updated package dependencies.

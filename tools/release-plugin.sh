@@ -138,22 +138,23 @@ git commit -am "Changelog edits for $PROJECT"
 # If we're running a beta, amend the changelog
 if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
 	yellow "Releasing a beta, amending the readme.txt"
-	jetpack changelog squash plugins/jetpack readme
+	pnpm jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
 fi
 
+HEADSHA=$(git rev-parse HEAD)
 yellow "Pushing changes."
 git push -u origin prerelease
 
 yellow "Waiting for build to complete and push to mirror repos"
-BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
+BUILDID=
 
 # If the build ID doesn't exist, try every five seconds until timeout after a minute.
 TIMEOUT=$((SECONDS+60))
 while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
 	echo "Waiting for build to become available..."
 	sleep 5
-	BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
+	BUILDID="$( gh run list -b prerelease -w Build --json event,databaseId,headSha | jq --arg HEADSHA "$HEADSHA" '.[] | select(.event=="push" and .headSha==$HEADSHA) | .databaseId' )"
 done
 
 if [[ -z "$BUILDID" ]]; then
@@ -163,7 +164,7 @@ fi
 yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
 	echo "Build failed! Check for build errors on GitHub for more information." && die
-fi 
+fi
 
 # After this, run tools/create-release-branch.sh to create a release branch.
 yellow "Build is complete. Creating a release branch."
