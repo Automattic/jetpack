@@ -25,6 +25,7 @@ use Automattic\Jetpack\Protect\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Stats;
 
@@ -42,6 +43,7 @@ class Jetpack_Protect {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'wp_loaded', array( $this, 'create_brute_force_protection_instance' ) );
 		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
 		// Activate the module as the plugin is activated
@@ -111,6 +113,22 @@ class Jetpack_Protect {
 
 		// Sets up JITMS.
 		JITM::configure();
+	}
+
+	/**
+	 * Handles Brute force protection instance creation when the "protect" module is active.
+	 * Runs login ability checks when the current page is wp-login.php.
+	 */
+	public function create_brute_force_protection_instance() {
+		$brute_force_protection_enabled = Waf_Runner::is_brute_force_protection_enabled();
+		$brute_force_protection         = Brute_Force_Protection::instance();
+
+		if ( $brute_force_protection_enabled ) {
+			global $pagenow;
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$brute_force_protection->check_login_ability();
+			}
+		}
 	}
 
 	/**
@@ -249,6 +267,10 @@ class Jetpack_Protect {
 	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
+		// Handles the initial setup of the Brute Force Protection instance.
+		$brute_force_protection = Brute_Force_Protection::instance();
+		$brute_force_protection->maybe_update_headers();
+		$brute_force_protection->maybe_display_security_warning();
 		( new Modules() )->activate( self::JETPACK_PROTECT_MODULE_SLUG, false, false );
 	}
 

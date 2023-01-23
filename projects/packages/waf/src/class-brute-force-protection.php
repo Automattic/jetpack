@@ -109,6 +109,7 @@ class Brute_Force_Protection {
 	 * @return object
 	 */
 	public static function instance() {
+		error_log( 'BFP instance created!' );
 		if ( ! is_a( self::$instance, 'Brute_Force_Protection' ) ) {
 			self::$instance = new Brute_Force_Protection();
 		}
@@ -148,6 +149,7 @@ class Brute_Force_Protection {
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
+		error_log( 'bfp_on_activation' );
 		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
@@ -162,6 +164,7 @@ class Brute_Force_Protection {
 	 * On module deactivation, unset protect_active
 	 */
 	public function on_deactivation() {
+		error_log( 'bfp_on_deactivation' );
 		if ( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 0 );
 		}
@@ -188,6 +191,7 @@ class Brute_Force_Protection {
 	 * @param bool $force - if we're forcing the request.
 	 */
 	public function maybe_update_headers( $force = false ) {
+		error_log( 'bfp_maybe_update_headers' );
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
 
 		if ( ! $force ) {
@@ -214,6 +218,7 @@ class Brute_Force_Protection {
 	 * Handle discplaying a security warning.
 	 */
 	public function maybe_display_security_warning() {
+		error_log( 'bfp_maybe_display_security_warning' );
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 				require_once ABSPATH . '/wp-admin/includes/plugin.php';
@@ -408,6 +413,7 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public function log_failed_attempt( $login_user = null ) {
+		error_log( 'bfp_log_failed_attempt' );
 
 		/**
 		 * Fires before every failed login attempt.
@@ -444,6 +450,7 @@ class Brute_Force_Protection {
 	 * @uses Jetpack::enable_module_configurable
 	 */
 	public function modules_loaded() {
+		error_log( 'bfp_modules_loaded' );
 		if ( class_exists( 'Jetpack' ) ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 		}
@@ -458,6 +465,7 @@ class Brute_Force_Protection {
 	 * @param string $user - the user.
 	 */
 	public function log_successful_login( $user_login, $user = null ) {
+		error_log( 'bfp_log_successful_login' );
 		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
 			$user = get_user_by( 'login', $user_login );
 		}
@@ -477,6 +485,7 @@ class Brute_Force_Protection {
 	 * @return string $user
 	 */
 	public function check_preauth( $user = 'Not Used By Protect', $username = 'Not Used By Protect', $password = 'Not Used By Protect' ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		error_log( 'bfp_check_preauth' );
 		$allow_login = $this->check_login_ability( true );
 		$use_math    = $this->get_transient( 'brute_use_math' );
 
@@ -766,6 +775,7 @@ class Brute_Force_Protection {
 	 * Checks if the protect API call has failed, and if so initiates the math captcha fallback.
 	 */
 	public function check_use_math() {
+		error_log( 'bfp_check_use_math' );
 		$use_math = $this->get_transient( 'brute_use_math' );
 		if ( $use_math ) {
 			new Brute_Force_Protection_Math_Authenticate();
