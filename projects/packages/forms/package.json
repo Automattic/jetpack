@@ -15,13 +15,20 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "echo 'Not implemented.'",
-		"build-js": "echo 'Not implemented.'",
-		"build-production": "echo 'Not implemented.'",
-		"build-production-js": "echo 'Not implemented.'",
+		"build": "pnpm run build:contact-form",
+		"build:contact-form": "webpack --config ./tools/webpack.config.contact-form.js",
 		"clean": "true"
 	},
-	"devDependencies": {},
+	"dependencies": {
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/remove-asset-webpack-plugin": "workspace:*",
+		"postcss-loader": "6.2.0",
+		"sass-loader": "12.4.0"
+	},
 	"engines": {
 		"node": "^16.13.2",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
