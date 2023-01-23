@@ -147,14 +147,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
-	const containsAiUntriggeredParapgraph = () => {
-		return (
-			content.filter(
-				block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
-			).length > 0
-		);
-	};
-
 	const taxonomies = categoryObjects.filter( cat => cat.id !== 1 ).concat( tagObjects );
 	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
 	const contentBefore = useSelect( select => {
@@ -162,6 +154,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const index = editor.getBlockIndex( clientId );
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
+
+	const containsAiUntriggeredParapgraph = () => {
+		return (
+			contentBefore.filter(
+				block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
+			).length > 0
+		);
+	};
 
 	const content = contentBefore
 		.filter( function ( block ) {
@@ -217,7 +217,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	if ( ! noLogicNeeded ) {
 		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
 
-		if ( containsAiUntriggeredParapgraph( contentBefore ) ) {
+		if ( containsAiUntriggeredParapgraph() ) {
 			if ( ! errorMessage ) {
 				setErrorMessage(
 					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
