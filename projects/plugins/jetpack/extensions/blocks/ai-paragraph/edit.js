@@ -10,10 +10,10 @@ import { sprintf, __ } from '@wordpress/i18n';
 const numberOfCharactersNeeded = 36;
 
 function ShowLittleByLittle( { html, showAnimation } ) {
-	const [ content, setContent ] = useState( '' );
-	const [ contentSet, setContentSet ] = useState( false );
+	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
+	const [ isContentSet, setIsContentSet ] = useState( false );
 
-	if ( ! contentSet ) {
+	if ( ! isContentSet ) {
 		// That will only be used once
 		if ( showAnimation ) {
 			// This is to animate text input. I think this will give an idea of a "better" AI.
@@ -21,19 +21,19 @@ function ShowLittleByLittle( { html, showAnimation } ) {
 			const tokens = html.split( ' ' );
 			for ( let i = 1; i < tokens.length; i++ ) {
 				const output = tokens.slice( 0, i ).join( ' ' );
-				setTimeout( () => setContent( output ), 50 * i );
+				setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
 			}
-			setTimeout( () => setContent( html ), 50 * tokens.length );
+			setTimeout( () => setDisplayedRawHTML( html ), 50 * tokens.length );
 		} else {
-			setContent( html );
+			setDisplayedRawHTML( html );
 		}
-		setContentSet( true );
+		setIsContentSet( true );
 	}
 
 	return (
 		<>
 			<div className="content">
-				<RawHTML>{ content }</RawHTML>
+				<RawHTML>{ displayedRawHTML }</RawHTML>
 			</div>
 		</>
 	);
