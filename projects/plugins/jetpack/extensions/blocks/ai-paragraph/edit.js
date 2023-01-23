@@ -59,39 +59,45 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		[]
 	);
 
-	const categoryObjects = useSelect( select => {
-		return categories
-			.map( categoryId => {
-				const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
+	const categoryObjects = useSelect(
+		select => {
+			return categories
+				.map( categoryId => {
+					const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
 
-				if ( ! category ) {
-					// Data is not yet loaded
-					loading = true;
-					return;
-				}
+					if ( ! category ) {
+						// Data is not yet loaded
+						loading = true;
+						return;
+					}
 
-				return category;
-			} )
-			.filter( Boolean ); // Remove undefined values
-	} );
+					return category;
+				} )
+				.filter( Boolean ); // Remove undefined values
+		},
+		[ categories ]
+	);
 
 	const tags = useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] );
 
-	const tagObjects = useSelect( select => {
-		return tags
-			.map( tagId => {
-				const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
+	const tagObjects = useSelect(
+		select => {
+			return tags
+				.map( tagId => {
+					const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
 
-				if ( ! tag ) {
-					// Data is not yet loaded
-					loading = true;
-					return;
-				}
+					if ( ! tag ) {
+						// Data is not yet loaded
+						loading = true;
+						return;
+					}
 
-				return tag;
-			} )
-			.filter( Boolean ); // Remove undefined values
-	} );
+					return tag;
+				} )
+				.filter( Boolean ); // Remove undefined values
+		},
+		[ tags ]
+	);
 
 	setIsLoadingCategories( loading );
 
