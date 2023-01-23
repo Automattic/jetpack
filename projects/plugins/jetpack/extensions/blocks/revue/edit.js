@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -7,9 +8,12 @@ import './view.scss';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function RevueEdit( { className } ) {
-	const migrationMoreInfoLink =
-		'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/';
-	const migrationLink = `https://wordpress.com/people/email-followers/${ getSiteFragment() }`;
+	const migrationMoreInfoLink = getRedirectUrl(
+		'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/'
+	);
+	const migrationLink = getRedirectUrl(
+		`https://wordpress.com/people/email-followers/${ getSiteFragment() }`
+	);
 
 	return (
 		<div className={ className }>
