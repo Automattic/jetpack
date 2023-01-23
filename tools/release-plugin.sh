@@ -25,6 +25,17 @@ function usage {
 	exit 1
 }
 
+# Make sure the GitHub CLI is installed.
+if ! command -v gh &> /dev/null; then
+	yellow "This tool requires the GitHub CLI, which was not found."
+	if command -v brew &> /dev/null; then
+		proceed_p "Install the GitHub CLI via brew?"
+		brew install gh
+	else
+		die "Please install the GitHub CLI before proceeding"
+	fi 
+fi
+
 # Get the options passed and parse them.
 ARGS=('-p')
 ALPHABETA=
@@ -100,8 +111,8 @@ if [[ -n "$(git status --porcelain)" ]]; then
 	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
+yellow "Checking out prerelease branch."
 # Check out and push pre-release branch
-BRANCHES="$( git branch )"
 if git rev-parse --verify prerelease &>/dev/null; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
 	git branch -D prerelease
@@ -112,6 +123,7 @@ if ! git push -u origin HEAD; then
 	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
 fi
 
+yellow "Updating the changelogs."
 # Run the changelogger release script
 tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 
@@ -119,28 +131,43 @@ tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
 
-echo "Committing changes..."
+yellow "Committing changes."
 git add --all
 git commit -am "Changelog edits for $PROJECT"
 
 # If we're running a beta, amend the changelog
 if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
-	echo "Releasing a beta, amending the readme.txt"
-	jetpack changelog squash plugins/jetpack readme
+	yellow "Releasing a beta, amending the readme.txt"
+	pnpm jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
 fi
 
-# Push the changes, then tell the user to wait for the builds to complete and things to update.
+HEADSHA=$(git rev-parse HEAD)
+yellow "Pushing changes."
 git push -u origin prerelease
 
 yellow "Waiting for build to complete and push to mirror repos"
-BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
+BUILDID=
+
+# If the build ID doesn't exist, try every five seconds until timeout after a minute.
+TIMEOUT=$((SECONDS+60))
+while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
+	echo "Waiting for build to become available..."
+	sleep 5
+	BUILDID="$( gh run list -b prerelease -w Build --json event,databaseId,headSha | jq --arg HEADSHA "$HEADSHA" '.[] | select(.event=="push" and .headSha==$HEADSHA) | .databaseId' )"
+done
+
+if [[ -z "$BUILDID" ]]; then
+	die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
+fi 
+
+yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
 	echo "Build failed! Check for build errors on GitHub for more information." && die
-fi 
+fi
 
 # After this, run tools/create-release-branch.sh to create a release branch.
 yellow "Build is complete. Creating a release branch."
 tools/create-release-branch.sh "$PROJECT" "$VERSION"
 
-echo "Release branch created!"
+yellow "Release branch created!"
