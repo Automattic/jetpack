@@ -1,6 +1,5 @@
 import { useMemo, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
 
 const StorageUnits = {
 	Gigabyte: 2 ** 30,

@@ -1,7 +1,6 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import useConnection from '../../hooks/useConnection';
 import { STORE_ID } from '../../store';
 import { StorageAddonUpsellPrompt } from './storage-addon-upsell-prompt';
