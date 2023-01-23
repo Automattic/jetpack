@@ -1,6 +1,6 @@
 <?php
 /**
- * Posts REST route
+ * Comments REST route
  *
  * @package automattic/jetpack-import
  */
@@ -8,30 +8,23 @@
 namespace Automattic\Jetpack_Import\REST_API\Endpoints;
 
 /**
- * Class Post
+ * Comment Category
  */
-class Post extends \WP_REST_Posts_Controller {
+class Comment extends \WP_REST_Comments_Controller {
 	/**
 	 * The Import ID add a new item to the schema.
 	 */
 	use Import_ID;
 
 	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		parent::__construct( 'post' );
-	}
-
-	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
+	 * @see WP_REST_Comments_Controller::register_rest_route()
 	 */
 	public function register_routes() {
 		register_rest_route(
 			JETPACK_IMPORT_REST_NAMESPACE,
-			JETPACK_IMPORT_REST_PREFIX . '/posts',
+			JETPACK_IMPORT_REST_PREFIX . '/comments',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,

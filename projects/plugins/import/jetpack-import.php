@@ -50,6 +50,10 @@ if ( ! defined( 'JETPACK_IMPORT_REST_PREFIX' ) ) {
 	define( 'JETPACK_IMPORT_REST_PREFIX', '' );
 }
 
+if ( ! defined( 'JETPACK_IMPORTE_ID_META_NAME' ) ) {
+	define( 'JETPACK_IMPORT_ID_META_NAME', 'unified_importer_id' );
+}
+
 // Jetpack Autoloader.
 $jetpack_autoloader = JETPACK_IMPORT_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {

@@ -79,6 +79,7 @@ class Jetpack_Import {
 	public function init_rest_api() {
 		$routes = array(
 			'categories' => Automattic\Jetpack_Import\REST_API\Endpoints\Category::class,
+			'comments'   => Automattic\Jetpack_Import\REST_API\Endpoints\Comment::class,
 			'posts'      => Automattic\Jetpack_Import\REST_API\Endpoints\Post::class,
 			'tags'       => Automattic\Jetpack_Import\REST_API\Endpoints\Tag::class,
 		);
