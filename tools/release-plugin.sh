@@ -27,8 +27,13 @@ function usage {
 
 # Make sure the GitHub CLI is installed.
 if ! command -v gh &> /dev/null; then
-	proceed_p "This tool requires the GitHub CLI, which was not found." "Install it?"
-	brew install gh
+	yellow "This tool requires the GitHub CLI, which was not found."
+	if command -v brew &> /dev/null; then
+		proceed_p "Install the GitHub CLI via brew?"
+		brew install gh
+	else
+		die "Please install the GitHub CLI before proceeding"
+	fi 
 fi
 
 # Get the options passed and parse them.
