@@ -25,6 +25,13 @@ class Block_Editor_Extensions {
 	const SCRIPT_HANDLE = 'videopress-extensions';
 
 	/**
+	 * What version of the blocks we are loading.
+	 *
+	 * @var string
+	 */
+	public static $blocks_variation = 'production';
+
+	/**
 	 * Initializer
 	 *
 	 * This method should be called only once by the Initializer class. Do not call this method again.
@@ -35,14 +42,42 @@ class Block_Editor_Extensions {
 		}
 
 		/**
-		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param boolean
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated Jetpack 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		if (
+			apply_filters_deprecated(
+				'jetpack_load_beta_blocks',
+				array( false ),
+				'jetpack-11.8.0',
+				'jetpack_blocks_variation'
+			)
+		) {
+			self::$blocks_variation = 'beta';
+		}
+
+		/*
+		 * Get block variation, from the new constant or the old one.
 		 */
-		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			self::$blocks_variation = 'beta';
+		}
+
+		$blocks_variation = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		if ( ! empty( $blocks_variation ) ) {
+			/**
+			 * Allow customizing the variation of blocks in use on a site.
+			 * Overwrites any previously set values, whether by constant or filter.
+			 *
+			 * @since Jetpack 8.1.0
+			 *
+			 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+			 */
+			self::$blocks_variation = apply_filters( 'jetpack_blocks_variation', $blocks_variation );
 		}
 
 		// Register the script.
@@ -71,7 +106,7 @@ class Block_Editor_Extensions {
 				return (array) array(
 					'name'      => $extension,
 					'isBeta'    => true,
-					'isEnabled' => Constants::is_true( 'JETPACK_BETA_BLOCKS' ),
+					'isEnabled' => 'beta' === self::$blocks_variation,
 				);
 			},
 			$videopress_extensions_data['beta']
