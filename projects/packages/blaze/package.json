@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-blaze",
-	"version": "0.3.5-alpha",
+	"version": "0.4.0-alpha",
 	"description": "Attract high-quality traffic to your site using Blaze. Using this service, you can advertise a post or page on some of the millions of pages across WordPress.com and Tumblr from just $5 per day.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/blaze/#readme",
 	"bugs": {
@@ -27,6 +27,7 @@
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/block-editor": "10.5.0",
 		"@wordpress/components": "22.1.0",
+		"@wordpress/compose": "5.20.0",
 		"@wordpress/data": "7.6.0",
 		"@wordpress/element": "4.20.0",
 		"@wordpress/icons": "9.13.0",
