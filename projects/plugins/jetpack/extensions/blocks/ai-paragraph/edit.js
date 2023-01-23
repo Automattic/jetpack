@@ -157,7 +157,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
 
-	const containsAiUntriggeredParapgraph = () => {
+	const containsAiUntriggeredParagraph = () => {
 		return (
 			contentBefore.filter(
 				block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
@@ -219,7 +219,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	if ( ! noLogicNeeded ) {
 		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
 
-		if ( containsAiUntriggeredParapgraph() ) {
+		if ( containsAiUntriggeredParagraph() ) {
 			if ( ! errorMessage ) {
 				setErrorMessage(
 					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
