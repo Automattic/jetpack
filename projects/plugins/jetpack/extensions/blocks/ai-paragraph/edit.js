@@ -142,10 +142,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
-	const containsAiUntriggeredParapgraph = _content =>
-		_content.filter(
-			block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
-		).length > 0;
+	const containsAiUntriggeredParapgraph = () => {
+		return (
+			content.filter(
+				block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
+			).length > 0
+		);
+	};
 
 	const taxonomies = categoryObjects.filter( cat => cat.id !== 1 ).concat( tagObjects );
 	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
