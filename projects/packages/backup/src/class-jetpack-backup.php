@@ -457,7 +457,7 @@ class Jetpack_Backup {
 			return true;
 		}
 		foreach ( $licenses as $license ) {
-			if ( in_array( $license->product_id, self::JETPACK_PRODUCT_IDS, true ) ) {
+			if ( in_array( $license->product_id, self::JETPACK_BACKUP_PRODUCT_IDS, true ) ) {
 				return true;
 			}
 		}
