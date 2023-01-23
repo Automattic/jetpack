@@ -951,7 +951,27 @@ importers:
       webpack-cli: 4.9.1_webpack@5.72.1
 
   projects/packages/forms:
-    specifiers: {}
+    specifiers:
+      '@automattic/jetpack-webpack-config': workspace:*
+      '@automattic/remove-asset-webpack-plugin': workspace:*
+      autoprefixer: 10.4.12
+      postcss: 8.4.21
+      postcss-loader: 6.2.0
+      sass: 1.38.1
+      sass-loader: 12.4.0
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+    dependencies:
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@automattic/remove-asset-webpack-plugin': link:../../js-packages/remove-asset-webpack-plugin
+      autoprefixer: 10.4.12_postcss@8.4.21
+      postcss: 8.4.21
+      postcss-loader: 6.2.0_4y4aznponuaovazqx4t4g76j4i
+      sass: 1.38.1
+      sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
 
   projects/packages/google-fonts-provider:
     specifiers: {}
@@ -1505,6 +1525,9 @@ importers:
       size-limit: 6.0.4
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/packages/wp-js-data-sync:
+    specifiers: {}
 
   projects/plugins/boost:
     specifiers:
