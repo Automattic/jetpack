@@ -64,7 +64,17 @@ class Authorize_Redirect {
 			) {
 				// If the destination URL is checkout page,
 				// see if there are unattached licenses they could use instead of getting a new one.
+
 				$licenses = Licensing::instance()->get_user_licenses( true );
+
+				/**
+				 * Filter the list of options that are manageable via the JSON API.
+				 *
+				 * @since 3.8.2
+				 *
+				 * @param bool Whether a license was already found.
+				 * @param array Unattached licenses the user has purchased.
+				 */
 				if ( count( $licenses )
 					&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses )
 				) {
