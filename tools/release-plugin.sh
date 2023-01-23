@@ -150,8 +150,8 @@ BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[
 
 # If the build ID doesn't exist, try every five seconds until timeout after a minute.
 TIMEOUT=$((SECONDS+60))
-while [ $SECONDS -lt $TIMEOUT ] && [[ -z "$BUILDID" ]]; do
-    echo "Waiting for build to become available..."
+while [[ $SECONDS -lt $TIMEOUT &&  -z "$BUILDID" ]]; do
+	echo "Waiting for build to become available..."
 	sleep 5
 	BUILDID="$( gh run list --json headBranch,event,databaseId,workflowName --jq '.[] | select(.event=="push" and .headBranch=="prerelease" and .workflowName=="Build") | .databaseId' )"
 done
