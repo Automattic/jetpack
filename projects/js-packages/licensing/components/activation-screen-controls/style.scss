@@ -70,7 +70,7 @@
 	.jp-license-activation-screen-controls--license-field-error {
 		display: flex;
 		flex-direction: row;
-		align-items: start;
+		align-items: flex-start;
 		color: var(--jp-red);
 		max-width: 500px;
 
