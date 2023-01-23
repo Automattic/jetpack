@@ -242,9 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-a.7 - 2023-01-17
-#### Changed
-- Updated package dependencies.
+### 11.8-a.9 - 2023-01-23
+#### Enhancements
+- Contact Form: improve file naming when exporting form responses.
+- Contact Form: update column names when exporting Contact Form responses to CSV for clarity.
+- VideoPress: show VideoPress block availability based on site plan.
+
+#### Improved compatibility
+- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
+- VideoPress: do not add block transform to v6 when video is not a VideoPress video.
+
+#### Bug fixes
+- Dashboard: fix the price display and description for products with intro offers for the first month.
+- Dashboard: show Boost in My Plans dashboard when added to a site.
+- Infinite Scroll: fix an AMP related bug.
+- Related Posts: fix Related Posts options saving.
+- Sharing: do not include the sharing buttons in REST API responses.
 
 --------
 
