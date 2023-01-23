@@ -7,7 +7,7 @@ export const useJetpackFieldStyles = attributes => {
 		'--jetpack--contact-form--border-radius': isNumber( attributes.blockBorderRadius )
 			? `${ attributes.blockBorderRadius }px`
 			: null,
-		'--jetpack--contact-form--border-width': isNumber( attributes.blockBorderWidth )
+		'--jetpack--contact-form--border-size': isNumber( attributes.blockBorderWidth )
 			? `${ attributes.blockBorderWidth }px`
 			: null,
 		'--jetpack--contact-form--input-background': attributes.fieldBackgroundColor,
