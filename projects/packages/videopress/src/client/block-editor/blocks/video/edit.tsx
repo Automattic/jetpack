@@ -10,10 +10,9 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices, ExternalLink } from '@wordpress/components';
+import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -438,20 +437,21 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					{ ! isUserConnected && (
-						<Banner isLoading={ isReconnectingUser }>
-							{ createInterpolateElement(
-								__(
-									'<link>Connect your account</link> to continue using VideoPress',
-									'jetpack-videopress-pkg'
-								),
-								{
-									link: (
-										<ExternalLink
-											className={ isReconnectingUser ? 'is-reconnecting' : '' }
-											onClick={ handleRegisterSite }
-										/>
-									),
-								}
+						<Banner
+							action={
+								<Button
+									variant="primary"
+									onClick={ handleRegisterSite }
+									disabled={ isReconnectingUser }
+									isBusy={ isReconnectingUser }
+								>
+									{ __( 'Connect', 'jetpack-videopress-pkg' ) }
+								</Button>
+							}
+						>
+							{ __(
+								'Connect your account to continue using VideoPress',
+								'jetpack-videopress-pkg'
 							) }
 						</Banner>
 					) }
