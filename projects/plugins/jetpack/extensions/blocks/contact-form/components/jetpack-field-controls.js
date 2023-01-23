@@ -155,7 +155,6 @@ const JetpackFieldControls = ( {
 						withSlider
 						withReset={ true }
 						size="__unstable-large"
-						__nextHasNoMarginBottom
 						onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
 						value={ attributes.fieldFontSize }
 					/>
