@@ -17,12 +17,12 @@ require_once __DIR__ . '/brute-force-protection/shared-functions.php';
 /**
  * Jetpack Protect module class.
  */
-class Brute_Force_Protection_Module {
+class Brute_Force_Protection {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Brute_Force_Protection_Module()
+	 * @var Brute_Force_Protection()
 	 */
 	private static $instance = null;
 
@@ -107,8 +107,8 @@ class Brute_Force_Protection_Module {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Module' ) ) {
-			self::$instance = new Brute_Force_Protection_Module();
+		if ( ! is_a( self::$instance, 'Brute_Force_Protection' ) ) {
+			self::$instance = new Brute_Force_Protection();
 		}
 
 		return self::$instance;

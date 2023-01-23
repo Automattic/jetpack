@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
 /**
  * Class to handle sync for Protect.
@@ -46,7 +46,7 @@ class Protect extends Module {
 	 * @param array $failed_attempt Failed attempt data.
 	 */
 	public function maybe_log_failed_login_attempt( $failed_attempt ) {
-		$protect = Brute_Force_Protection_Module::instance();
+		$protect = Brute_Force_Protection::instance();
 		if ( $protect->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}

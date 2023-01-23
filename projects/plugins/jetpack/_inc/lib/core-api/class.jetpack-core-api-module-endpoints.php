@@ -9,7 +9,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
@@ -733,7 +733,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_key':
-					$protect = Brute_Force_Protection_Module::instance();
+					$protect = Brute_Force_Protection::instance();
 					if ( 'create' === $value ) {
 						$result = $protect->get_protect_key();
 					} else {

@@ -13,9 +13,9 @@
  * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
 
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Module;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
-$brute_force_protection = Brute_Force_Protection_Module::instance();
+$brute_force_protection = Brute_Force_Protection::instance();
 
 global $pagenow;
 if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
