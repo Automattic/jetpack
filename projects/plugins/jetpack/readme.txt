@@ -252,7 +252,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
 - VideoPress: do not add block transform to v6 when video is not a VideoPress video.
 
-#### Bug fixe
+#### Bug fixes
 - Dashboard: fix the price display and description for products with intro offers for the first month.
 - Dashboard: show Boost in My Plans dashboard when added to a site.
 - Infinite Scroll: fix an AMP related bug.
