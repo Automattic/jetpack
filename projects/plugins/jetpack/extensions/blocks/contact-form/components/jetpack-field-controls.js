@@ -161,7 +161,6 @@ const JetpackFieldControls = ( {
 					/>
 					<LineHeightControl
 						__unstableInputWidth="100%"
-						__nextHasNoMarginBottom={ true }
 						value={ attributes.lineHeight }
 						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
 						size="__unstable-large"
