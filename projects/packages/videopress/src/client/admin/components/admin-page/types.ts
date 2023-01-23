@@ -1,6 +1,6 @@
 import {
 	productOriginalProps,
-	ProductPriceOriginalProps,
+	productPriceOriginalProps,
 	siteProductOriginalProps,
 } from '../../hooks/use-plan/types';
 import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
@@ -21,11 +21,16 @@ declare global {
 			};
 			siteProductData: siteProductOriginalProps;
 			productData?: productOriginalProps;
-			productPrice?: ProductPriceOriginalProps;
+			productPrice?: productPriceOriginalProps;
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;
 			contentNonce: string;
+			initialState: {
+				videos?: {
+					isFetching?: boolean;
+				};
+			};
 		};
 	}
 }
