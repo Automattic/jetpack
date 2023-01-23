@@ -88,16 +88,13 @@ class Speed_Score {
 			return $url;
 		}
 
-		$score_request = $this->get_score_request_by_url( $url );
-		if ( empty( $score_request ) || ! $score_request->is_pending() ) {
-			// Create and store the Speed Score request.
-			$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
-			$score_request  = new Speed_Score_Request( $url, $active_modules );
-			$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
+		// Create and store the Speed Score request.
+		$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
+		$score_request  = new Speed_Score_Request( $url, $active_modules );
+		$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
-			// Send the request.
-			$score_request->execute();
-		}
+		// Send the request.
+		$score_request->execute();
 
 		$score_request_no_boost = $this->maybe_dispatch_no_boost_score_request( $url );
 

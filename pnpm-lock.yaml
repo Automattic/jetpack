@@ -742,13 +742,13 @@ importers:
       '@babel/preset-react': 7.18.6
       '@babel/preset-typescript': 7.18.6
       '@babel/runtime': 7.20.7
+      '@cerner/duplicate-package-checker-webpack-plugin': 2.3.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.5.0
       babel-loader: 8.3.0
       browserslist: 4.20.4
       css-loader: 6.5.1
       css-minimizer-webpack-plugin: 4.0.0
-      duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
       terser-webpack-plugin: 5.3.3
       thread-loader: 3.0.4
@@ -767,13 +767,13 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.7
       '@babel/preset-react': 7.18.6_@babel+core@7.20.7
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.7
+      '@cerner/duplicate-package-checker-webpack-plugin': 2.3.0_webpack@5.72.1
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.5.0_webpack@5.72.1
       babel-loader: 8.3.0_t7jx4cl4qpbwg7355cfrhdqi44
       browserslist: 4.20.4
       css-loader: 6.5.1_webpack@5.72.1
       css-minimizer-webpack-plugin: 4.0.0_webpack@5.72.1
-      duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5_webpack@5.72.1
       terser-webpack-plugin: 5.3.3_webpack@5.72.1
       thread-loader: 3.0.4_webpack@5.72.1
@@ -900,6 +900,7 @@ importers:
       '@wordpress/block-editor': 10.5.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/components': 22.1.0
+      '@wordpress/compose': 5.20.0
       '@wordpress/data': 7.6.0
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -917,6 +918,7 @@ importers:
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/block-editor': 10.5.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
+      '@wordpress/compose': 5.20.0_react@17.0.2
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -1503,6 +1505,9 @@ importers:
       size-limit: 6.0.4
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/packages/wp-js-data-sync:
+    specifiers: {}
 
   projects/plugins/boost:
     specifiers:
@@ -5003,6 +5008,19 @@ packages:
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@cerner/duplicate-package-checker-webpack-plugin/2.3.0_webpack@5.72.1:
+    resolution: {integrity: sha512-2FdUL/10qOjXzPTt/2dcjQPHDcsI+svvdU3KERGZaUvH5IwDdzE+nGLAx1+ICxhr6cqU29zvWR6GHGOFp+fbWA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      webpack: ^4.30.0 || ^5.0.0
+    dependencies:
+      chalk: 4.1.2
+      find-root: 1.1.0
+      lodash.groupby: 4.6.0
+      semver: 7.3.8
+      webpack: 5.72.1_webpack-cli@4.9.1
+    dev: false
 
   /@cnakazawa/watch/1.0.4:
     resolution: {integrity: sha512-v9kIhKwjeZThiWrLmj0y17CWoyddASLj9O2yvbZkbvw/N3rWOYy9zkV66ursAoVr0mV15bL8g0c4QZUE6cdDoQ==}
@@ -12986,15 +13004,6 @@ packages:
       stream-shift: 1.0.1
     dev: true
 
-  /duplicate-package-checker-webpack-plugin/3.0.0:
-    resolution: {integrity: sha512-aO50/qPC7X2ChjRFniRiscxBLT/K01bALqfcDaf8Ih5OqQ1N4iT/Abx9Ofu3/ms446vHTm46FACIuJUmgUQcDQ==}
-    dependencies:
-      chalk: 2.4.2
-      find-root: 1.1.0
-      lodash: 4.17.21
-      semver: 5.7.1
-    dev: false
-
   /each-props/1.3.2:
     resolution: {integrity: sha512-vV0Hem3zAGkJAyU7JSjixeU66rwdynTAa1vofCrSA5fEln+m67Az9CcnkVD776/fsN/UjIWmBDoNRS6t6G9RfA==}
     dependencies:
@@ -17443,6 +17452,10 @@ packages:
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
+  /lodash.groupby/4.6.0:
+    resolution: {integrity: sha512-5dcWxm23+VAoz+awKmBaiBvzox8+RqMgFhi7UvX9DHZr2HdxHXM/Wrf8cfKpsW37RNrvtPn6hSwNqurSILbmJw==}
+    dev: false
+
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: true
@@ -21111,6 +21124,7 @@ packages:
   /semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
     hasBin: true
+    dev: true
 
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
