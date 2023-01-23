@@ -22,8 +22,7 @@ export const settings = {
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
-		const { launchpadScreenOption, siteIntentOption } =
-			window?.Jetpack_Launchpad_save_modalSaveModal || {};
+		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
