@@ -438,7 +438,9 @@ export default function VideoPressEdit( {
 									disabled={ isRedirectingToMyJetpack }
 									isBusy={ isRedirectingToMyJetpack }
 								>
-									{ __( 'Connect', 'jetpack-videopress-pkg' ) }
+									{ isRedirectingToMyJetpack
+										? __( 'Redirecting…', 'jetpack-videopress-pkg' )
+										: __( 'Connect', 'jetpack-videopress-pkg' ) }
 								</Button>
 							}
 						>
