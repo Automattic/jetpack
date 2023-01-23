@@ -10,7 +10,9 @@ import { sprintf, __ } from '@wordpress/i18n';
 const numberOfCharactersNeeded = 36;
 
 function ShowLittleByLittle( { html, showAnimation } ) {
+	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
+	// This let's the component know if the content was set (basically on first pass).
 	const [ isContentSet, setIsContentSet ] = useState( false );
 
 	if ( ! isContentSet ) {
