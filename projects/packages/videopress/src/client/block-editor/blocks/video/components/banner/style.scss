@@ -4,26 +4,11 @@
     font-size: 14px;
     align-self: center;
     align-items: center;
-    background: #F4F4F4;
+    background: #F6F7F7;
     padding: 0 16px;
 
     .block-banner__content {
         flex-grow: 2;
         margin: 0 8px;
     }
-
-    .components-external-link {
-        margin: 0 4px;
-        cursor: pointer;
-
-        &.is-reconnecting {
-            opacity: 0.5;
-            cursor: default;
-            text-decoration: none;
-        }
-    }
-}
-
-.editor-styles-wrapper .wp-block-post-content .components-external-link {
-    color: var( --wp-components-color-accent,var( --wp-admin-theme-color, #007cba ) );
 }
