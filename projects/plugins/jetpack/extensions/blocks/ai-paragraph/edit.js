@@ -42,6 +42,7 @@ function ShowLittleByLittle( { html, showAnimation } ) {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
+	const [ isWaitingForPreviousBlock, setIsWaitingForPreviousBlock ] = useState( false );
 	const [ showAnimation, setShowAnimation ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
@@ -180,6 +181,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		}
 
 		setShowRetry( false );
+		setIsWaitingForPreviousBlock( false );
 		setErrorMessage( false );
 		setNeedsMoreCharacters( 0 );
 		setIsLoadingCompletion( true );
@@ -220,11 +222,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const nbCharactersNeeded = numberOfCharactersNeeded - content.length;
 
 		if ( containsAiUntriggeredParagraph() ) {
-			if ( ! errorMessage ) {
+			if ( ! isWaitingForPreviousBlock ) {
 				setErrorMessage(
 					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
 					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
 				);
+				setIsWaitingForPreviousBlock( true );
 			}
 		} else if (
 			content.length < numberOfCharactersNeeded &&
@@ -240,6 +243,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					nbCharactersNeeded
 				)
 			);
+			setIsWaitingForPreviousBlock( false );
 			setNeedsMoreCharacters( nbCharactersNeeded );
 		} else if ( needsMoreCharacters !== 0 && content.length >= numberOfCharactersNeeded ) {
 			setErrorMessage(
@@ -247,6 +251,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				__( 'Ready to retry', 'jetpack' )
 			);
 			setShowRetry( true );
+			setIsWaitingForPreviousBlock( false );
 			setNeedsMoreCharacters( 0 );
 		} else if ( needsMoreCharacters === 0 && ! showRetry ) {
 			getSuggestionFromOpenAI();
