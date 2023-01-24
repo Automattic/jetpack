@@ -11,13 +11,14 @@ import { name as aiParagraphBlockName } from './index';
 const numberOfCharactersNeeded = 36;
 
 // This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
+function ShowLittleByLittle( { text, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
 	// This let's the component know if the content was set (basically on first pass).
 
 	useEffect(
 		() => {
+			const html = text.replaceAll( '\n', '<br/>' );
 			// That will only happen once
 			if ( showAnimation ) {
 				// This is to animate text input. I think this will give an idea of a "better" AI.
@@ -197,7 +198,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				const result = res.prompts[ 0 ].text.trim()
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
@@ -280,7 +281,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					onAnimationDone={ () => {
 						setAttributes( { animationDone: true } );
 					} }
-					html={ attributes.content }
+					text={ attributes.content }
 				/>
 			) }
 
