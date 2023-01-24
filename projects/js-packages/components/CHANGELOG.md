@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.27.1 - 2023-01-23
+### Fixed
+- Components: Fix usage of box-sizing across the elements [#28489]
+
 ## 0.27.0 - 2023-01-18
 ### Added
 - Added Advanced Social plan to pricing table [#28258]

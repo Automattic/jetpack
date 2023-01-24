@@ -49,7 +49,7 @@
 		"jest-extended": "2.0.0"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
