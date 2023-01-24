@@ -366,7 +366,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Toggles the Brute Force Protection module on or off for the API endpoint
+	 * Toggles the Brute force protection module on or off for the API endpoint
 	 *
 	 * @return WP_REST_Response
 	 */

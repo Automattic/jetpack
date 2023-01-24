@@ -136,13 +136,13 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Determines if the Brute Force Protection module, currently 'protect', is enabled on the site.
+	 * Determines if the Brute force protection module, currently 'protect', is enabled on the site.
 	 *
 	 * @return bool
 	 */
 	public static function is_brute_force_protection_enabled() {
 		// if ABSPATH is defined, then WordPress has already been instantiated,
-		// so we can check to see if the Brute Force Protection module is activated.
+		// so we can check to see if the Brute force protection module is activated.
 		if ( defined( 'ABSPATH' ) ) {
 			return ( new Modules() )->is_active( 'protect' );
 		}
@@ -151,14 +151,14 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Enables the Brute Force Protection module, currently 'protect', on the site.
+	 * Enables the Brute force protection module, currently 'protect', on the site.
 	 */
 	public static function enable_brute_force_protection() {
 		return ( new Modules() )->activate( 'protect', false, false );
 	}
 
 	/**
-	 * Disables the Brute Force Protection module, currently 'protect', on the site.
+	 * Disables the Brute force protection module, currently 'protect', on the site.
 	 */
 	public static function disable_brute_force_protection() {
 		return ( new Modules() )->deactivate( 'protect' );

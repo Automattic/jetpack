@@ -12,7 +12,7 @@ use Jetpack_Options;
  * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
- * Class will only be instanciated if Brute Force Protection has detected a hard blocked IP address.
+ * Class will only be instanciated if Brute force protection has detected a hard blocked IP address.
  */
 class Brute_Force_Protection_Blocked_Login_Page {
 

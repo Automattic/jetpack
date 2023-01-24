@@ -17,7 +17,7 @@ use Jetpack_Options;
 require_once __DIR__ . '/brute-force-protection/shared-functions.php';
 
 /**
- * Brute Force Protection class.
+ * Brute force protection class.
  */
 class Brute_Force_Protection {
 
@@ -252,15 +252,15 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Displays a warning about Brute Force Protection's network activation requirement.
+	 * Displays a warning about Brute force protection's network activation requirement.
 	 * Attaches some custom JS to Core's `is-dismissible` UI to save the dismissed state.
 	 */
 	public function admin_jetpack_manage_notice() {
 		?>
 		<div class="jetpack-protect-warning notice notice-warning is-dismissible" data-dismiss-nonce="<?php echo esc_attr( wp_create_nonce( 'jetpack_protect_multisite_banner_opt_out' ) ); ?>">
-			<h2><?php esc_html_e( 'Brute Force Protection cannot keep your site secure', 'jetpack-waf' ); ?></h2>
+			<h2><?php esc_html_e( 'Brute force protection cannot keep your site secure', 'jetpack-waf' ); ?></h2>
 
-			<p><?php esc_html_e( 'Thanks for activating the Brute Force Protection feature! To start protecting your whole WordPress Multisite Network, please network activate the Jetpack plugin. Due to the way logins are handled on WordPress Multisite Networks, Jetpack must be network activated in order for the Brute Force Protection feature to work properly.', 'jetpack-waf' ); ?></p>
+			<p><?php esc_html_e( 'Thanks for activating the Brute force protection feature! To start protecting your whole WordPress Multisite Network, please network activate the Jetpack plugin. Due to the way logins are handled on WordPress Multisite Networks, Jetpack must be network activated in order for the Brute force protection feature to work properly.', 'jetpack-waf' ); ?></p>
 
 			<p>
 				<a class="button-primary" href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>">

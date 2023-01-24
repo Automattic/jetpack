@@ -28,7 +28,6 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function init() {
-		error_log( 'Waf_Initializer::init() ran!' );
 
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
@@ -41,8 +40,8 @@ class Waf_Initializer {
 		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
 		// WAF activation/deactivation hooks
-		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
-		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
+		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
 
 		// Brute force protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
@@ -70,7 +69,7 @@ class Waf_Initializer {
 	/**
 	 * On WAF module activation set up mode
 	 */
-	public static function on_activation() {
+	public static function on_waf_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 		Waf_Runner::activate();
@@ -80,7 +79,7 @@ class Waf_Initializer {
 	/**
 	 * On WAF module deactivation, unset mode
 	 */
-	public static function on_deactivation() {
+	public static function on_waf_deactivation() {
 		Waf_Runner::deactivate();
 	}
 
@@ -88,16 +87,14 @@ class Waf_Initializer {
 	 * On Brute force protection module activation
 	 */
 	public static function on_brute_force_protection_activation() {
-		$brute_force_protection = Brute_Force_Protection::instance();
-		$brute_force_protection->on_activation();
+		Brute_Force_Protection::instance()->on_activation();
 	}
 
 	/**
 	 * On Brute force protection module deactivation
 	 */
 	public static function on_brute_force_protection_deactivation() {
-		$brute_force_protection = Brute_Force_Protection::instance();
-		$brute_force_protection->on_deactivation();
+		Brute_Force_Protection::instance()->on_deactivation();
 	}
 
 	/**
