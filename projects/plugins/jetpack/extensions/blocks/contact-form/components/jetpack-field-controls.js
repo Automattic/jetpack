@@ -119,7 +119,6 @@ const JetpackFieldControls = ( {
 					initialOpen={ attributes.labelFontSize }
 				>
 					<FontSizePicker
-						withSlider
 						withReset={ true }
 						size="__unstable-large"
 						__nextHasNoMarginBottom
@@ -147,7 +146,6 @@ const JetpackFieldControls = ( {
 				>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<FontSizePicker
-						withSlider
 						withReset={ true }
 						size="__unstable-large"
 						__nextHasNoMarginBottom
