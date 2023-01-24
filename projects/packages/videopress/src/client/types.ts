@@ -152,6 +152,7 @@ export type WPCOMRestAPIVideosGetEndpointResponseProps = {
 	post_id: number;
 	is_private: boolean;
 	privacy_setting: PrivacySettingProp;
+	private_enabled_for_site: boolean;
 	upload_date: string;
 	finished: boolean;
 	files_status: {

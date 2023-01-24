@@ -192,7 +192,10 @@ export function useSyncMedia(
 			return;
 		}
 
-		if ( ! videoData || Object.keys( videoData ).length === 0 ) {
+		if (
+			! videoData ||
+			Object.keys( videoData ).filter( key => key !== 'private_enabled_for_site' ).length === 0
+		) {
 			return;
 		}
 
