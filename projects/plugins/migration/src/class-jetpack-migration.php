@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -100,7 +101,7 @@ class Jetpack_Migration {
 		);
 		Assets::enqueue_script( 'jetpack-migration' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-migration', \Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'jetpack-migration', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-migration', $this->render_initial_state(), 'before' );
 	}
 
