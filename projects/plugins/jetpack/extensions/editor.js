@@ -58,7 +58,7 @@ apiFetch.use( ( options, next ) => {
  */
 export function isBetaExtension( name ) {
 	if ( ! extensionList ) {
-		return;
+		return false;
 	}
 
 	const betaExtensions = extensionList.beta || [];

@@ -12,7 +12,7 @@ use Jetpack_Options;
  * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
- * Class will only be instanciated if Protect has detected a hard blocked IP address.
+ * Class will only be instanciated if Brute Force Protection has detected a hard blocked IP address.
  */
 class Brute_Force_Protection_Blocked_Login_Page {
 
@@ -52,14 +52,10 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	public $email_address;
 
 	/**
-	 * URL to support page
+	 * Status code for too many requests.
 	 *
-	 * @deprecated 8.5.0 Use Brute_Force_Protection_Blocked_Login_Page::get_help_url()
-	 * @see Brute_Force_Protection_Blocked_Login_Page::get_help_url()
-	 *
-	 * @var string string $HELP_URL
+	 * @var int
 	 */
-	const HELP_URL                           = 'https://jetpack.com/support/security-features/#unblock';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**

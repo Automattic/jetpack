@@ -2,6 +2,47 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.9 - 2023-01-23
+### Enhancements
+- Contact Form: improve file naming when exporting form responses. [#28413]
+- Contact Form: update column names when exporting Contact Form responses to CSV for clarity. [#28425]
+- VideoPress: show VideoPress block availability based on site plan. [#28391]
+
+### Improved compatibility
+- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat. [#28434]
+- VideoPress: do not add block transform to v6 when video is not a VideoPress video. [#28477]
+
+### Bug fixes
+- Dashboard: fix the price display and description for products with intro offers for the first month. [#28424]
+- Dashboard: show Boost in My Plans dashboard when added to a site. [#28336]
+- Infinite Scroll: fix an AMP related bug. [#28466]
+- Related Posts: fix Related Posts options saving. [#28435]
+- Sharing: do not include the sharing buttons in REST API responses. [#28412]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add a new endpoint 'template-loader' to resolve the correct template by its type. [#28158]
+- Blocks: sunset existing methods in favor of new `JETPACK_BLOCKS_VARIATION` constant for bundling. [#28390]
+- Blocks: move away from deprecated methods in multiple blocks. [#28415]
+- Carousel: verify array type to avoid PHP warnings. [#28388]
+- General: cleanup PHP deprecated error notices from logs. [#28508]
+- General: cleanup JavaScript eslint issues. [#28441]
+- General: remove handling for an error code that no longer exists. [#28436]
+- Jetpack: add dependency 'automattic/jetpack-forms'. [#28416]
+- SAL: remove SAL user error writing. [#28442]
+- Settings API: allow to unassign 'page_for_posts' and 'page_on_front' options. [#28379]
+- Status: start using utilities from Status package to detect whether a site is private or "coming-soon" (unlaunched). [#28328]
+- VideoPress: add test for generated embed code. [#28358]
+- Widgets: add missing Jetpack config external for widgets visibility. [#28402]
+- WPcom: add an 'include_viewer' parameter to the '/sites/$site_id/users' endpoint. [#28317]
+- WPcom: add 'default_option_subscription_options' filter for Reading Settings. [#28320]
+- WPcom: introduce Paid Newsletter functionality. [#28170]
+- WPcom: remove placeholder writing prompt and setting. [#28387]
+- WPcom: various changes for AI Image block (beta). [#28380, #28351, #28488]
+
+## 11.8-a.7 - 2023-01-17
+### Changed
+- Updated package dependencies.
+
 ## 11.8-a.5 - 2023-01-16
 ### Improved compatibility
 - Blaze: update logic for showing the Advertising menu on Jetpack sites. [#28088]

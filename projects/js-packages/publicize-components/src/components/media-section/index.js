@@ -18,7 +18,7 @@ import styles from './styles.module.scss';
 /**
  * Get relevant details from a WordPress media object.
  *
- * @param {Object} media - WordPress media object.
+ * @param {object} media - WordPress media object.
  * @returns {{
  * mediaData: {width: number, height: number, sourceUrl: string},
  * metaData: {mime: string, fileSize: number, length: number}

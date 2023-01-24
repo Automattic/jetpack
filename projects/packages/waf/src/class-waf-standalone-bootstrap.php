@@ -42,7 +42,7 @@ class Waf_Standalone_Bootstrap {
 	 * @return void
 	 */
 	private function initialize_constants() {
-		Waf_Constants::initialize_constants();
+		Waf_Constants::initialize_bootstrap_constants();
 	}
 
 	/**

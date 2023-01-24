@@ -70,7 +70,7 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function update_rules_cron() {
-		Waf_Runner::define_mode();
+		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
@@ -87,7 +87,7 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function update_rules_if_changed() {
-		Waf_Runner::define_mode();
+		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 			return;
 		}
