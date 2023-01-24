@@ -210,7 +210,7 @@ export default function VideoPressEdit( {
 		}
 	);
 
-	const { filename } = videoData;
+	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	// Get video preview status.
 	const defaultPreview = { html: null, scripts: [], width: null, height: null };
@@ -592,7 +592,9 @@ export default function VideoPressEdit( {
 					{ ...{ attributes, setAttributes } }
 				/>
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
-				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PrivacyAndRatingPanel
+					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
+				/>
 				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
 
