@@ -1,6 +1,5 @@
-import PageActions from '../../page-actions.js';
-
-export default class WordAdsBlock extends PageActions {
+import BlockEditorCanvas from './editor-canvas.js';
+export default class WordAdsBlock extends BlockEditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Ad block' );
 		this.blockTitle = WordAdsBlock.title();
@@ -27,7 +26,7 @@ export default class WordAdsBlock extends PageActions {
 	}
 
 	async focus() {
-		return await this.click( this.getSelector( '.wp-block-jetpack-wordads' ) );
+		return await this.canvas().click( this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**

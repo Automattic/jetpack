@@ -10,6 +10,9 @@ import { sprintf, __ } from '@wordpress/i18n';
 function formatEditorCanvasContentForCompletion( editor ) {
 	const index = editor.getBlockInsertionPoint().index - 1;
 	const allBlocksBefore = editor.getBlocks().slice( 0, index );
+	if ( ! allBlocksBefore.length ) {
+		return '';
+	}
 	return allBlocksBefore
 		.filter( function ( block ) {
 			return block && block.attributes && block.attributes.content;
@@ -28,15 +31,15 @@ function getSuggestionFromOpenAI(
 ) {
 	const needsAtLeast = 36;
 	if ( formattedPrompt.length < needsAtLeast ) {
+		setLoadingCompletion( false );
 		setErrorMessage(
 			sprintf(
-				/** translators: First placeholder is a number of more characters we need, second is the total number we need */
+				/** translators: First placeholder is a number of more characters we need */
 				__(
-					'AI needs you to write %1$d more characters above this block. When inserted into an empty post with a title (or additionally categories selected), AI Paragraph will generate a new post for you. If you insert the AI Paragraph block following other text, it will attemp to auto-complete, but it needs at least %2$d characters of input.',
+					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
 					'jetpack'
 				),
-				needsAtLeast - formattedPrompt.length,
-				needsAtLeast
+				needsAtLeast - formattedPrompt.length
 			)
 		);
 		return;
@@ -74,6 +77,50 @@ function getSuggestionFromOpenAI(
 		} );
 }
 
+function createPrompt( title = '', content = '', categoryNames = '' ) {
+	// If title is not added, we will only complete.
+	if ( ! title ) {
+		return content;
+	}
+
+	// Title, content and categories
+	if ( content && categoryNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last 240 characters of content. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			categoryNames,
+			content
+		);
+	}
+
+	// No content, only title and categories
+	if ( categoryNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			categoryNames
+		);
+	}
+
+	// Title and content
+	if ( content ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last 240 characters of content. */
+			__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			title,
+			content
+		);
+	}
+
+	return sprintf(
+		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
+		__( 'Write content of a post titled "%s"', 'jetpack' ),
+		title
+	);
+}
+
 /**
  * Gather data available in Gutenberg and prepare the best prompt we can come up with.
  *
@@ -81,13 +128,9 @@ function getSuggestionFromOpenAI(
  * @returns {string} - prompt ready to pipe to OpenAI.
  */
 function preparePromptBasedOnEditorState( select ) {
-	const prompt = formatEditorCanvasContentForCompletion( select( 'core/block-editor' ) );
-
-	// If a user started typing something, we will just create a completion.
-	if ( prompt.length > 0 ) {
-		// We only take the last 240 chars into account, otherwise the prompt gets too long and because we have a 110 tokens limit, there is no place for response.
-		return prompt.slice( -240 );
-	}
+	const editorContent = formatEditorCanvasContentForCompletion(
+		select( 'core/block-editor' )
+	).slice( -240 );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPost = select( 'core/editor' ).getCurrentPost();
@@ -97,39 +140,41 @@ function preparePromptBasedOnEditorState( select ) {
 
 	// If there is no title, there is not much we can do.
 	if ( ! currentPost.title ) {
-		return '';
+		return createPrompt( '', editorContent, '' );
 	}
 
 	// We are filtering out the default "Uncategorized"
 	const categories = currentPost.categories.filter( catId => catId !== 1 );
+	const tags = currentPost.tags;
 
 	// User did not set any categories, we are going to base the suggestions off a title.
-	if ( ! categories.length ) {
-		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
-		return sprintf( __( 'Write content of a post titled "%s"', 'jetpack' ), currentPost.title );
+	if ( ! categories.length && ! tags.length ) {
+		return createPrompt( currentPost.title, editorContent, '' );
 	}
 
 	// We are grabbing more data from WP.
 	const categoryObjects = categories.map( categoryId =>
 		select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId )
 	);
+	const tagObjects = tags.map( tagId =>
+		select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId )
+	);
+
+	// For now categories are combined with tags into the same object. I am not sure they should
+	const taxonomies = categoryObjects.concat( tagObjects );
+
 	// We want to wait until all category names are loaded. This will return empty string (aka loading state) until all objects are truthy.
-	if ( categoryObjects.filter( obj => ! obj || ! obj.name ).length ) {
+	if ( taxonomies.filter( obj => ! obj || ! obj.name ).length ) {
 		return '';
 	}
 
-	const categoryNames = categoryObjects.map( ( { name } ) => name ).join( ', ' );
+	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
 
-	return sprintf(
-		/** translators: This will be a prompt to OpenAI to generate a post based on the comma-seperated category names and the post title */
-		__( 'Write content of a post with categories "%1$s" titled "%2$s"', 'jetpack' ),
-		categoryNames,
-		currentPost.title
-	);
+	return createPrompt( currentPost.title, editorContent, categoryNames );
 }
 
 export default function Edit( { attributes, setAttributes } ) {
-	const [ loadingCompletion, setLoadingCompletion ] = useState( false );
+	const [ loadingCompletion, setLoadingCompletion ] = useState( true );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
 
 	// Here is where we craft the prompt.
@@ -150,7 +195,7 @@ export default function Edit( { attributes, setAttributes } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ errorMessage && (
+			{ ! loadingCompletion && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					<Button
 						variant="primary"
@@ -167,14 +212,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					</Button>
 				</Placeholder>
 			) }
-			{ attributes.content && ! loadingCompletion && (
+			{ attributes.content && (
 				<div>
 					<div className="content">
 						<RawHTML>{ attributes.content.trim().replaceAll( '\n', '<br/>' ) }</RawHTML>
 					</div>
 				</div>
 			) }
-			{ loadingCompletion && (
+			{ loadingCompletion && ! attributes.content && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {

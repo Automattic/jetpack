@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "71841eee0e4daa46ef9c75742b3e2aa10e497a6f"
+                "reference": "3186b3f3ab55a859ad09c5439abb3609d114bc68"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -268,7 +268,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.10.x-dev"
+                    "dev-trunk": "1.11.x-dev"
                 }
             },
             "autoload": {
@@ -1233,7 +1233,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "575fcee63967fb62bd6a838d0ac59b33325ce9e0"
+                "reference": "bf9eb3491de43cfa22638ce03c02d1a4e60ee11e"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1260,7 +1260,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.46.x-dev"
+                    "dev-trunk": "1.47.x-dev"
                 }
             },
             "autoload": {

@@ -426,6 +426,11 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 				{
 					type: 'block',
 					blocks: [ 'core/video' ],
+					isMatch: attrs => {
+						const { src, guid } = attrs;
+						const guidFromSrc = pickGUIDFromUrl( src );
+						return guid || guidFromSrc;
+					},
 					transform: attrs => createBlock( 'videopress/video', attrs ),
 				},
 			],

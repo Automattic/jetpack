@@ -833,11 +833,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 
 	  
 		<div class="ui divider"></div>
-		<textarea cols="70" rows="25" name="zbstemplatehtml" id="zbstemplatehtml">
-		<?php
-			echo jpcrm_retrieve_template( 'emails/default-email.html', false );
-		?>
-		</textarea>
+		<textarea cols="70" rows="25" name="zbstemplatehtml" id="zbstemplatehtml"><?php echo esc_textarea( jpcrm_retrieve_template( 'emails/default-email.html', false ) ); ?></textarea>
 		<div class="ui grid" style="margin-right:-15px;margin-top:20px;">
 			<div class="eight wide column">
 			<?php

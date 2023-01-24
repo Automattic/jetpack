@@ -7,7 +7,7 @@ import { VideoGUID, VideoId } from '../../blocks/video/types';
 export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
-	isPrivate?: boolean;
+	skipRatingControl: boolean;
 };
 
 export type VideoDataProps = {

@@ -10,6 +10,9 @@ export const getProduct = ( state, productId ) => {
 
 	const product = mapObjectKeysToCamel( stateProduct, true );
 	product.pricingForUi = mapObjectKeysToCamel( product.pricingForUi || {}, true );
+	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
+		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
+		: null;
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 

@@ -191,12 +191,7 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbs_unsub"><?php esc_html_e( 'Email Unsubscribe Line', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This line will be shown in your email templates with the placeholder ##UNSUB-LINE##, we recommend you complete this where it is legal to offer contacts the ability to stop communication. We cannot be held responsible for your emails meeting your local laws. Any text here will append this to your default email templates (Mail Campaigns).', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_unsub" id="wpzbs_unsub" value="
-				<?php
-				if ( isset( $settings['businessyourname'] ) && ! empty( $settings['unsub'] ) ) {
-					echo esc_attr( $settings['unsub'] );}
-				?>
-				" placeholder="<?php esc_attr_e( "e.g. You're seeing this because you're registered as a contact of Michael Scott Paper Company, if you'd like to unsubscribe from any future communications please click ##UNSUB-LINK##.", 'zero-bs-crm' ); ?>" /></td>
+				<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_unsub" id="wpzbs_unsub" value="<?php echo empty( $settings['unsub'] ) ? '' : esc_attr( $settings['unsub'] ); ?>" placeholder="<?php esc_attr_e( "e.g. You're seeing this because you're registered as a contact of Michael Scott Paper Company, if you'd like to unsubscribe from any future communications please click ##UNSUB-LINK##.", 'zero-bs-crm' ); ?>" /></td>
 			</tr>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_unsubpage"><?php esc_html_e( 'Unsubscribe Page', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Select the WordPress page with your unsubscribe shortcode (Required for Mail Campaigns).', 'zero-bs-crm' ); ?>
@@ -258,12 +253,7 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbs_unsubmsg"><?php esc_html_e( 'Email Unsubscribe Line', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This message will be shown to contacts after they have unsubscribed.', 'zero-bs-crm' ); ?></td>
-				<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_unsubmsg" id="wpzbs_unsubmsg" value="
-				<?php
-				if ( isset( $settings['unsubmsg'] ) && ! empty( $settings['unsubmsg'] ) ) {
-					echo esc_attr( $settings['unsubmsg'] );}
-				?>
-				" placeholder="e.g. You've been successfully unsubscribed." /></td>
+				<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_unsubmsg" id="wpzbs_unsubmsg" value="<?php echo empty( $settings['unsubmsg'] ) ? '' : esc_attr( $settings['unsubmsg'] ); ?>" placeholder="e.g. You've been successfully unsubscribed." /></td>
 			</tr>
 
 			</tbody>

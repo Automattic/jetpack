@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2023-01-23
+### Added
+- Add new method to request eligibility to Blaze from WordPress.com. [#28353]
+- Add tracking when the post-publish panel is displayed. [#28392]
+
+### Changed
+- Start using utilities from Status package to detect whether a site is private or "coming-soon" (unlaunched). [#28328]
+
+### Fixed
+- Always enqueue Jetpack Connnection info when enqueuing Blaze script [#28457]
+
+## [0.3.4] - 2023-01-16
+### Added
+- Do not display the Blaze UI on private or unlaunched sites. [#28315]
+
+### Changed
+- Do not load the Blaze UI if the JSON API module is inactive. [#28267]
+- Only display the Blaze UI if the connected user's language is English. [#28266]
+
 ## [0.3.3] - 2023-01-11
 ### Changed
 - Updated package dependencies. [#28127]
@@ -34,6 +53,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.4.0]: https://github.com/automattic/jetpack-blaze/compare/v0.3.4...v0.4.0
+[0.3.4]: https://github.com/automattic/jetpack-blaze/compare/v0.3.3...v0.3.4
 [0.3.3]: https://github.com/automattic/jetpack-blaze/compare/v0.3.2...v0.3.3
 [0.3.2]: https://github.com/automattic/jetpack-blaze/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/automattic/jetpack-blaze/compare/v0.3.0...v0.3.1
