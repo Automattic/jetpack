@@ -16,13 +16,25 @@ export const settings = {
 			select => select( editorStore ).isSavingNonPostEntityChanges(),
 			[]
 		);
+		const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+		const isCurrentPostPublished = useSelect(
+			select => select( editorStore ).isCurrentPostPublished(),
+			[]
+		);
+
 		const prevIsSavingSite = usePrevious( isSavingSite );
+		const prevIsSavingPost = usePrevious( isSavingPost );
+
+		// We use this state as a flag to manually handle the modal close on first post publish
+		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
+
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
+		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
@@ -35,17 +47,32 @@ export const settings = {
 			tracks.recordEvent( eventName, {
 				site_intent: siteIntentOption,
 				launchpad_screen: launchpadScreenOption,
-				dont_show_again: dontShowAgain,
+				dont_show_again: isChecked,
+				editor_type: isInsideSiteEditor ? 'site' : 'post',
 			} );
 
 		useEffect( () => {
-			if ( prevIsSavingSite === true && isSavingSite === false ) {
+			if (
+				( prevIsSavingSite === true && isSavingSite === false ) ||
+				( prevIsSavingPost === true && isSavingPost === false )
+			) {
 				setIsModalOpen( true );
 			}
-		}, [ isSavingSite, prevIsSavingSite ] );
+		}, [ isSavingSite, prevIsSavingSite, isSavingPost, prevIsSavingPost ] );
+
+		useEffect( () => {
+			// if the isCurrentPostPublished is ever false it means this current post hasn't been published yet so we set the initialPostPublish state
+			if ( isCurrentPostPublished === false ) {
+				setIsInitialPostPublish( true );
+			}
+		}, [ isCurrentPostPublished ] );
 
 		const showModal =
-			isInsideSiteEditor && launchpadScreenOption === 'full' && ! dontShowAgain && isModalOpen;
+			( isInsideSiteEditor || isInsidePostEditor ) &&
+			launchpadScreenOption === 'full' &&
+			! dontShowAgain &&
+			isCurrentPostPublished &&
+			isModalOpen;
 
 		return (
 			showModal && (
@@ -53,6 +80,11 @@ export const settings = {
 					isDismissible={ true }
 					className="launchpad__save-modal"
 					onRequestClose={ () => {
+						// bypass the onRequestClose function the first time it's called when you publish a post because it closes the modal immediately
+						if ( isInitialPostPublish ) {
+							setIsInitialPostPublish( false );
+							return;
+						}
 						setIsModalOpen( false );
 						setDontShowAgain( isChecked );
 						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
