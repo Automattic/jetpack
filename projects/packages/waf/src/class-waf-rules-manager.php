@@ -2,7 +2,7 @@
 /**
  * Class for generating and working with firewall rule files.
  *
- * @since 0.8.3
+ * @since $$next-version$$
  *
  * @package automattic/jetpack-waf
  */
