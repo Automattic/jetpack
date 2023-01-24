@@ -2,7 +2,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 
 /**
- * @typedef {Object} MessageHook
+ * @typedef {object} MessageHook
  * @property {string} message - The text of the message.
  * @property {number} maxLength - The maximum length of the message.
  * @property {Function} updateMessage - Callback used to update the message.

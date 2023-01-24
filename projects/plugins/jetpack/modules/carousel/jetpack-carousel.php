@@ -831,6 +831,10 @@ class Jetpack_Carousel {
 			}
 			$image_elements = $selected_images[ $attachment->ID ];
 
+			if ( ! is_array( $image_elements ) ) {
+				continue;
+			}
+
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
