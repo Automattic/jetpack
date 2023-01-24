@@ -23,6 +23,20 @@ $common_mappings = array(
 	'edit.php?post_type=jetpack-testimonial' => 'https://wordpress.com/types/jetpack-testimonial/',
 );
 
+if (
+	/**
+	 * Filter to enable the modernized Reading Settings in Calypso UI.
+	 *
+	 * @since $$next-version$$
+	 * @module masterbar
+	 *
+	 * @param bool false Should the modernized Reading Settings be enabled? Default to false.
+	 */
+	apply_filters( 'calypso_use_modernized_reading_settings', false )
+) {
+	$common_mappings['options-reading.php'] = 'https://wordpress.com/settings/reading/';
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	// WPCOM Specific mappings.
 	$common_mappings['export.php'] = 'https://wordpress.com/export/';
