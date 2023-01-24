@@ -87,9 +87,6 @@ const FieldDefaults = {
 		fieldBackgroundColor: {
 			type: 'string',
 		},
-		blockBackgroundColor: {
-			type: 'string',
-		},
 		borderColor: {
 			type: 'string',
 		},

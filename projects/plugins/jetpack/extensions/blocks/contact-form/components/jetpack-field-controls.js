@@ -64,11 +64,6 @@ const JetpackFieldControls = ( {
 			onChange: value => setAttributes( { borderColor: value } ),
 			label: __( 'Border', 'jetpack' ),
 		},
-		{
-			value: attributes.blockBackgroundColor,
-			onChange: value => setAttributes( { blockBackgroundColor: value } ),
-			label: __( 'Block Background', 'jetpack' ),
-		},
 	];
 
 	return (
@@ -155,6 +150,7 @@ const JetpackFieldControls = ( {
 						withSlider
 						withReset={ true }
 						size="__unstable-large"
+						__nextHasNoMarginBottom
 						onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
 						value={ attributes.fieldFontSize }
 					/>

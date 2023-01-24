@@ -2,7 +2,6 @@ import { isNumber } from 'lodash';
 
 export const useJetpackFieldStyles = attributes => {
 	const blockStyle = {
-		backgroundColor: attributes.blockBackgroundColor,
 		'--jetpack--contact-form--border-color': attributes.borderColor,
 		'--jetpack--contact-form--border-radius': isNumber( attributes.blockBorderRadius )
 			? `${ attributes.blockBorderRadius }px`
