@@ -3586,25 +3586,19 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 			$min_refresh_interval = 30;
 		}
 	}
+
+	// Set to true if the preload interval is changed, and a reschedule is required.
+	$force_preload_reschedule = false;
+
 	if ( isset( $_POST[ 'wp_cache_preload_interval' ] ) && ( $_POST[ 'wp_cache_preload_interval' ] == 0 || $_POST[ 'wp_cache_preload_interval' ] >= $min_refresh_interval ) ) {
-		// if preload interval changes than unschedule any preload jobs and schedule any new one.
 		$_POST[ 'wp_cache_preload_interval' ] = (int)$_POST[ 'wp_cache_preload_interval' ];
 		if ( $wp_cache_preload_interval != $_POST[ 'wp_cache_preload_interval' ] ) {
-			$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
-			if ( $next_preload ) {
-				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-				add_option( 'preload_cache_stop', 1 );
-				wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
-				if ( $wp_cache_preload_interval == 0 ) {
-					$return[] = "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
-				}
-				if ( $_POST[ 'wp_cache_preload_interval' ] != 0 )
-					wp_schedule_single_event( time() + ( $_POST[ 'wp_cache_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
-			}
+			$force_preload_reschedule = true;
 		}
 
-		$wp_cache_preload_interval = (int)$_POST[ 'wp_cache_preload_interval' ];
-		wp_cache_setting( "wp_cache_preload_interval", $wp_cache_preload_interval );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$wp_cache_preload_interval = (int) $_POST['wp_cache_preload_interval'];
+		wp_cache_setting( 'wp_cache_preload_interval', $wp_cache_preload_interval );
 	}
 
 	if ( $_POST[ 'wp_cache_preload_posts' ] == 'all' ) {
@@ -3639,6 +3633,33 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		$wp_cache_preload_on = 0;
 	}
 	wp_cache_setting( 'wp_cache_preload_on', $wp_cache_preload_on );
+
+	// Ensure that preload settings are applied to scheduled cron.
+	$next_preload    = wp_next_scheduled( 'wp_cache_full_preload_hook' );
+	$should_schedule = ( $wp_cache_preload_on === 1 && $wp_cache_preload_interval > 0 );
+
+	// If forcing a reschedule, or preload is disabled, clear the next scheduled event.
+	if ( $next_preload && ( ! $should_schedule || $force_preload_reschedule ) ) {
+		wp_cache_debug( 'Clearing old preload event' );
+		update_option(
+			'preload_cache_counter',
+			array(
+				'c' => 0,
+				't' => time(),
+			)
+		);
+
+		add_option( 'preload_cache_stop', 1 );
+		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
+
+		$next_preload = 0;
+	}
+
+	// Ensure a preload is scheduled if it should be.
+	if ( ! $next_preload && $should_schedule ) {
+		wp_cache_debug( 'Scheduling new preload event' );
+		wp_schedule_single_event( time() + ( $wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
+	}
 
 	return $return;
 }
