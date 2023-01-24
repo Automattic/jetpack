@@ -10,7 +10,7 @@ import type { MeasurableImage } from '@automattic/jetpack-image-guide';
  * within the DOM tree, and to prevent it from  being obscured
  * by other elements with a higher z-index.
  *
- * @param  node The node to start searching from
+ * @param node The node to start searching from
  * @return The closest parent element that is able to contain the image guide component
  */
 function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
