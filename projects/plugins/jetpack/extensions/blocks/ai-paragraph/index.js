@@ -73,11 +73,7 @@ export const settings = {
 	edit,
 	save: attrs => {
 		const blockProps = useBlockProps.save();
-		return (
-			<RawHTML { ...blockProps }>
-				{ attrs.attributes.content.trim().replaceAll( '\n', '<br/>' ) }
-			</RawHTML>
-		);
+		return <RawHTML { ...blockProps }>{ attrs.attributes.content }</RawHTML>;
 	},
 	attributes,
 	transforms: {

@@ -197,7 +197,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text;
+				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
@@ -280,7 +280,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					onAnimationDone={ () => {
 						setAttributes( { animationDone: true } );
 					} }
-					html={ attributes.content.trim().replaceAll( '\n', '<br/>' ) }
+					html={ attributes.content }
 				/>
 			) }
 
