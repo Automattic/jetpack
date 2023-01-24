@@ -114,7 +114,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				return block && block.attributes && block.attributes.content;
 			} )
 			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br>', '\n' );
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
 			} )
 			.join( '\n' );
 		const shorter_content = content.slice( -240 );
