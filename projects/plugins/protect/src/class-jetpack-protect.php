@@ -247,7 +247,6 @@ class Jetpack_Protect {
 	 * Activates the WAF and Brute force protection modules and disables the activation option
 	 */
 	public static function activate_modules() {
-		error_log( 'Activating modules' );
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
 		( new Modules() )->activate( self::JETPACK_PROTECT_MODULE_SLUG, false, false );
