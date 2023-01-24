@@ -35,9 +35,6 @@ class Block_Editor_Content {
 		add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
 
 		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
-
-		// Exposes VideoPress site settings to the Block Editor context.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_scripts' ), 0 );
 	}
 
 	/**
@@ -238,34 +235,5 @@ class Block_Editor_Content {
 		}
 
 		return '';
-	}
-
-	/**
-	 * Enqueues block editor scripts.
-	 */
-	public static function enqueue_block_editor_scripts() {
-		wp_register_script( Admin_UI::JETPACK_VIDEOPRESS_PKG_NAMESPACE, false, array(), Package_Version::PACKAGE_VERSION, true );
-		wp_enqueue_script( Admin_UI::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
-		wp_add_inline_script( Admin_UI::JETPACK_VIDEOPRESS_PKG_NAMESPACE, self::render_site_settings() );
-	}
-
-	/**
-	 * Render the site settings into a JavaScript variable.
-	 *
-	 * @return string
-	 */
-	public static function render_site_settings() {
-		return 'var jetpackVideoPressSiteSettings=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( self::site_settings() ) ) . '"));';
-	}
-
-	/**
-	 * Get the site settings data for hydrating the React UI.
-	 *
-	 * @return array
-	 */
-	public static function site_settings() {
-		return array(
-			'videoPressVideosPrivateForSite' => Data::get_videopress_videos_private_for_site(),
-		);
 	}
 }
