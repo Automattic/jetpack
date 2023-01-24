@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.5] - 2023-01-23
+### Added
+- VideoPress: add connect banner when user is not connected [#28501]
+- VideoPress: do not prompt to convert embed block to VideoPress video block [#28474]
+- VideoPress: do not request video data when user is not connected [#28493]
+- VideoPress: improve buildVideoPressURL(). Add tests. [#28465]
+
+### Changed
+- Block bundling: sunset existing methods in favor of new `JETPACK_BLOCKS_VARIATION` constant [#28390]
+- VideoPress: Prevent flash of initial state when there are search params [#28528]
+- VideoPress: remove undesired border of the video player [#28484]
+- VideoPress: tweak uploader layout of the VideoPress video block [#28482]
+
+### Fixed
+- VideoPress: fix replace video by uploading a new file issue [#28451]
+
+## [0.10.4] - 2023-01-18
+### Added
+- VideoPress: check source language length of the video chapters [#28406]
+
 ## [0.10.3] - 2023-01-16
 ### Added
 - VideoPress: add anchor support to VideoPress video block [#28377]
@@ -630,6 +650,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.0...v0.10.1

@@ -90,7 +90,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-#pnpm jetpack install --all
+pnpm jetpack install --all
 
 DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED

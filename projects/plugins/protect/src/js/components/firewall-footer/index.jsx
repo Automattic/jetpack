@@ -44,7 +44,7 @@ const StandaloneMode = () => {
 };
 
 const ShareData = () => {
-	const { config, isLoading, toggleShareData } = useWafData();
+	const { config, isUpdating, toggleShareData } = useWafData();
 	const { jetpackWafShareData } = config || {};
 	const { setNotice } = useDispatch( STORE_ID );
 
@@ -93,7 +93,7 @@ const ShareData = () => {
 				<CheckboxControl
 					checked={ Boolean( settings.jetpack_waf_share_data ) }
 					onChange={ handleShareDataChange }
-					disabled={ isLoading }
+					disabled={ isUpdating }
 				/>
 				<Text>
 					{ __(

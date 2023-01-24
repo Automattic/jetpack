@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.6 - 2023-01-18
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
 ## 0.24.5 - 2023-01-11
 ### Changed
 - Updated package dependencies.
