@@ -4056,7 +4056,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'options'                => array(),
 				'id'                     => null,
 				'style'                  => null,
-				'blockbackgroundcolor'   => null,
 				'fieldbackgroundcolor'   => null,
 				'textcolor'              => null,
 				'default'                => null,
@@ -4818,10 +4817,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="';
-		if ( $this->get_attribute( 'blockbackgroundcolor' ) ) {
-			$block_style .= 'background-color: ' . $this->get_attribute( 'blockbackgroundcolor' );
-		}
+		$block_style  = 'style="';
 		$block_style .= '"';
 
 		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
