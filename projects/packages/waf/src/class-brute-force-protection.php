@@ -121,8 +121,6 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
-		add_action( 'jetpack_deactivate_module_protect', array( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );

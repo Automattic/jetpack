@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
+
 /**
  * Initializes the module
  */
@@ -25,6 +27,8 @@ class Waf_Initializer {
 	 * @return void
 	 */
 	public static function init() {
+		error_log( 'Waf_Initializer::init() ran!' );
+
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
 		if ( ! Waf_Runner::is_supported_environment() ) {
@@ -35,19 +39,35 @@ class Waf_Initializer {
 		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
-		// Activation/Deactivation hooks
+		// WAF activation/deactivation hooks
 		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
 		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+
+		// Brute force protection activation/deactivation hooks
+		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
+		add_action( 'jetpack_deactivate_module_protect', __CLASS__ . '::on_brute_force_protection_deactivation' );
 
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
 
 		// Run the WAF
 		Waf_Runner::initialize();
+
+		$brute_force_protection_enabled = Waf_Runner::is_brute_force_protection_enabled();
+
+		// Verify login ability when Brute force protection module is enabled
+		if ( $brute_force_protection_enabled ) {
+			global $pagenow;
+			$brute_force_protection = Brute_Force_Protection::instance();
+
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$brute_force_protection->check_login_ability();
+			}
+		}
 	}
 
 	/**
-	 * On module activation set up waf mode
+	 * On WAF module activation set up mode
 	 */
 	public static function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
@@ -57,10 +77,26 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * On module deactivation, unset waf mode
+	 * On WAF module deactivation, unset mode
 	 */
 	public static function on_deactivation() {
 		Waf_Runner::deactivate();
+	}
+
+	/**
+	 * On Brute force protection module activation
+	 */
+	public static function on_brute_force_protection_activation() {
+		$brute_force_protection = Brute_Force_Protection::instance();
+		$brute_force_protection->on_activation();
+	}
+
+	/**
+	 * On Brute force protection module deactivation
+	 */
+	public static function on_brute_force_protection_deactivation() {
+		$brute_force_protection = Brute_Force_Protection::instance();
+		$brute_force_protection->on_deactivation();
 	}
 
 	/**
