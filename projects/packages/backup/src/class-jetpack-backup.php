@@ -138,8 +138,7 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		$status  = new Status();
-		$manager = new Connection_Manager( 'jetpack-backup' );
+		$status = new Status();
 
 		Assets::register_script(
 			'jetpack-backup',
@@ -156,7 +155,7 @@ class Jetpack_Backup {
 		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
 
 		// Load script for analytics.
-		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
+		if ( ! $status->is_offline_mode() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 	}
