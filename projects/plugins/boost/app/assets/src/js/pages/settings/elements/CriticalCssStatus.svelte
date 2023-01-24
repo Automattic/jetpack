@@ -66,7 +66,7 @@
 	{#if $criticalCssStatus.status !== 'requesting'}
 		<button type="button" class="components-button is-link" on:click={() => dispatch( 'retry' )}>
 			<RefreshIcon />
-			{__( 'Regenerate', 'jetpack-boost' )}
+			{__( 'Regenerate Critical CSS', 'jetpack-boost' )}
 		</button>
 	{/if}
 </div>
