@@ -5,7 +5,7 @@
 	"description": "Test plugin for the jetpack-mu-wpcom package",
 	"homepage": "https://jetpack.com",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Jetpack Mu Wpcom Plugin"
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Mu Wpcom Plugin"
 	},
 	"repository": {
 		"type": "git",
