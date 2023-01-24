@@ -5,12 +5,13 @@
  * @package automattic/jetpack-migration-plugin
  */
 
+namespace Automattic\Jetpack\Migration;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -28,6 +29,9 @@ class Jetpack_Migration {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		// Set up the REST API routes.
+		new REST_Controller();
+
 		// Set up the top-level menu
 		add_action( 'admin_menu', array( $this, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 
@@ -35,7 +39,7 @@ class Jetpack_Migration {
 		add_action(
 			'plugins_loaded',
 			function () {
-				$config = new Automattic\Jetpack\Config();
+				$config = new \Automattic\Jetpack\Config();
 				// Connection package.
 				$config->ensure(
 					'connection',
@@ -96,7 +100,7 @@ class Jetpack_Migration {
 		);
 		Assets::enqueue_script( 'jetpack-migration' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-migration', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'jetpack-migration', \Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-migration', $this->render_initial_state(), 'before' );
 	}
 
