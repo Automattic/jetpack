@@ -72,6 +72,8 @@
 				{/if}
 
 				{#if $isEnabled}
+					<slot name="sub-paragraph" />
+
 					<slot name="meta" />
 				{/if}
 			</div>

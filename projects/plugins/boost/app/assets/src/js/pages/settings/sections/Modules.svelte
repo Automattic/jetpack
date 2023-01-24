@@ -38,7 +38,7 @@
 		on:mountEnabled={maybeGenerateCriticalCss}
 	>
 		<h3 slot="title">
-			{__( 'Optimize CSS Loading', 'jetpack-boost' )}
+			{__( 'Optimize CSS Loading - Manual Critical CSS Generation', 'jetpack-boost' )}
 		</h3>
 		<p slot="description">
 			<TemplatedString
@@ -49,6 +49,13 @@
 				vars={externalLinkTemplateVar( criticalCssLink )}
 			/>
 		</p>
+
+		<div class="sub-paragraph" slot="sub-paragraph">
+			{__(
+				'You should regenerate Critical CSS to improve the speed of your site whenever you make changes to your site’s CSS or HTML structure.',
+				'jetpack-boost'
+			)}
+		</div>
 
 		<div slot="meta">
 			<CriticalCssMeta />
@@ -131,6 +138,7 @@
 		border-top: 1px solid hsl( 0, 0%, 90% );
 		padding-top: 20px;
 	}
+
 	.beta {
 		background: hsl( 0, 0%, 90% );
 		color: hsl( 0, 0%, 20% );
@@ -140,5 +148,10 @@
 		margin-left: 10px;
 		transform: translateY( -4.5px );
 		display: inline-block;
+	}
+
+	.sub-paragraph {
+		font-size: 0.9em;
+		margin-bottom: 1em;
 	}
 </style>
