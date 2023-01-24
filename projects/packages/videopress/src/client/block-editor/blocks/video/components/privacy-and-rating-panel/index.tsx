@@ -16,7 +16,29 @@ import {
 	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
 import { VideoControlProps } from '../../types';
+/**
+ * Types
+ */
 import type React from 'react';
+
+/**
+ * Gets the label for the privacy setting.
+ *
+ * @returns {string} The label for the privacy setting.
+ */
+function getDefaultPrivacyLabel() {
+	const videoPressVideosPrivateForSite =
+		window.jetpackVideoPressSiteSettings?.videoPressVideosPrivateForSite ?? null;
+
+	switch ( videoPressVideosPrivateForSite ) {
+		case false:
+			return _x( 'Site Default (Public)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' );
+		case true:
+			return _x( 'Site Default (Private)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' );
+		default:
+			return _x( 'Site Default', 'VideoPress privacy setting', 'jetpack-videopress-pkg' );
+	}
+}
 
 /**
  * Sidebar Control component.
@@ -68,7 +90,7 @@ export default function PrivacyAndRatingPanel( { attributes, setAttributes }: Vi
 				options={ [
 					{
 						value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_SITE_DEFAULT ) ),
-						label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+						label: getDefaultPrivacyLabel(),
 					},
 					{
 						value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) ),
