@@ -117,7 +117,7 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
  *
  * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
  *
- * @param  measuredImages
+ * @param measuredImages
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
 	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
