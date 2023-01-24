@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix to add jp-tracks when no user is connected
