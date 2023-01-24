@@ -73,9 +73,7 @@ export const settings = {
 	edit,
 	save: attrs => {
 		const blockProps = useBlockProps.save();
-		return (
-			<RawHTML { ...blockProps }>{ attrs.attributes.content?.replaceAll( '\n', '<br/>' ) }</RawHTML>
-		);
+		return <RawHTML { ...blockProps }>{ attrs.attributes.content }</RawHTML>;
 	},
 	attributes,
 	transforms: {
@@ -85,7 +83,7 @@ export const settings = {
 				blocks: [ 'core/paragraph' ],
 				transform: ( { content } ) => {
 					return createBlock( 'core/paragraph', {
-						content: content?.replaceAll( '\n', '<br/>' ),
+						content,
 					} );
 				},
 			},

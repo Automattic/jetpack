@@ -1,7 +1,7 @@
 export default {
 	content: {
 		type: 'string',
-		source: 'text',
+		source: 'html',
 	},
 	animationDone: {
 		type: 'boolean',
