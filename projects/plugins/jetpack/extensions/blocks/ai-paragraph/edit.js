@@ -10,7 +10,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 const numberOfCharactersNeeded = 36;
 
 // This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation } ) {
+function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
 	// This let's the component know if the content was set (basically on first pass).
@@ -26,7 +26,10 @@ function ShowLittleByLittle( { html, showAnimation } ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
 					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
 				}
-				setTimeout( () => setDisplayedRawHTML( html ), 50 * tokens.length );
+				setTimeout( () => {
+					setDisplayedRawHTML( html );
+					onAnimationDone();
+				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
 			}
@@ -46,7 +49,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isWaitingForPreviousBlock, setIsWaitingForPreviousBlock ] = useState( false );
-	const [ showAnimation, setShowAnimation ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -194,7 +196,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} )
 			.then( res => {
 				const result = res.prompts[ 0 ].text;
-				setShowAnimation( true );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
@@ -273,7 +274,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 			{ contentIsLoaded && (
 				<ShowLittleByLittle
-					showAnimation={ showAnimation }
+					showAnimation={ ! attributes.animationDone }
+					onAnimationDone={ () => {
+						setAttributes( { animationDone: true } );
+					} }
 					html={ attributes.content.trim().replaceAll( '\n', '<br/>' ) }
 				/>
 			) }

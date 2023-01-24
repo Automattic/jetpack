@@ -95,7 +95,7 @@ export const settings = {
 	},
 	example: {
 		attributes: {
-			requestedPrompt: true,
+			animationDone: false,
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},

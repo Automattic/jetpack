@@ -3,7 +3,7 @@ export default {
 		type: 'string',
 		source: 'text',
 	},
-	requestedPrompt: {
+	animationDone: {
 		type: 'boolean',
 		default: false,
 	},
