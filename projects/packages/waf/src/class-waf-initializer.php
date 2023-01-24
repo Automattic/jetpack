@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
 /**
@@ -55,8 +56,8 @@ class Waf_Initializer {
 
 		$brute_force_protection_enabled = Waf_Runner::is_brute_force_protection_enabled();
 
-		// Verify login ability when Brute force protection module is enabled
-		if ( $brute_force_protection_enabled ) {
+		// Verify login ability when Brute force protection module is enabled on a connected Jetpack site.
+		if ( $brute_force_protection_enabled && ( new Connection_Manager() )->is_connected() ) {
 			global $pagenow;
 			$brute_force_protection = Brute_Force_Protection::instance();
 
