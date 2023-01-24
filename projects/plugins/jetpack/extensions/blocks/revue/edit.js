@@ -8,13 +8,9 @@ import './view.scss';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function RevueEdit( { className } ) {
-	const migrationMoreInfoLink = getRedirectUrl(
-		'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/'
-	);
-	const migrationLink = getRedirectUrl(
-		`https://wordpress.com/people/email-followers/${ getSiteFragment() }`
-	);
-
+	const migrationLink = getRedirectUrl( 'revue-block-follower-migration', {
+		site: getSiteFragment(),
+	} );
 	return (
 		<div className={ className }>
 			{
@@ -27,7 +23,7 @@ export default function RevueEdit( { className } ) {
 					label={ __( 'Revue', 'jetpack' ) }
 				>
 					<div className={ `components-placeholder__learn-more` }>
-						<ExternalLink href={ migrationMoreInfoLink }>
+						<ExternalLink href={ getRedirectUrl( 'revue-block-migration-info' ) }>
 							{ __(
 								'You can migrate from Revue to the WordPress.com Newsletter - find out more here.',
 								'jetpack'
