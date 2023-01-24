@@ -3598,13 +3598,16 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 				if ( $wp_cache_preload_interval == 0 ) {
 					$return[] = "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
 				}
-				if ( $_POST[ 'wp_cache_preload_interval' ] != 0 )
-					wp_schedule_single_event( time() + ( $_POST[ 'wp_cache_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$wp_cache_preload_interval = (int) $_POST['wp_cache_preload_interval'];
+			wp_cache_setting( 'wp_cache_preload_interval', $wp_cache_preload_interval );
+
+			if ( $wp_cache_preload_interval !== 0 ) {
+				wp_schedule_single_event( time() + ( $wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
 			}
 		}
-
-		$wp_cache_preload_interval = (int)$_POST[ 'wp_cache_preload_interval' ];
-		wp_cache_setting( "wp_cache_preload_interval", $wp_cache_preload_interval );
 	}
 
 	if ( $_POST[ 'wp_cache_preload_posts' ] == 'all' ) {
