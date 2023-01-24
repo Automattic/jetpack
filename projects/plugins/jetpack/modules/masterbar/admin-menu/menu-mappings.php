@@ -24,14 +24,7 @@ $common_mappings = array(
 );
 
 if (
-	/**
-	 * Filter to enable the modernized Reading Settings in Calypso UI.
-	 *
-	 * @since $$next-version$$
-	 * @module masterbar
-	 *
-	 * @param bool false Should the modernized Reading Settings be enabled? Default to false.
-	 */
+	 /** This filter is documented in modules/masterbar/admin-menu/class-admin-menu.php */
 	apply_filters( 'calypso_use_modernized_reading_settings', false )
 ) {
 	$common_mappings['options-reading.php'] = 'https://wordpress.com/settings/reading/';
