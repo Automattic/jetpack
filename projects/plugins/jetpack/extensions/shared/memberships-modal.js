@@ -1,5 +1,3 @@
-// phpcs:disable no-undef
-
 /*
  * Thickbox 3.1 - One Box To Rule Them All. jQuery was removed by Automattic. VErsion was heavily modified and features removed.
  * By Cody Lindley (http://www.codylindley.com)
