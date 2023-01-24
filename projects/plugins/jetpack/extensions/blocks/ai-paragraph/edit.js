@@ -6,6 +6,7 @@ import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { name as aiParagraphBlockName } from './index';
 
 const numberOfCharactersNeeded = 36;
 
@@ -170,9 +171,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	const containsAiUntriggeredParagraph = () => {
+		const blockName = 'jetpack/' + aiParagraphBlockName;
 		return (
 			contentBefore.filter(
-				block => block.name && block.name === 'jetpack/ai-paragraph' && ! block.attributes.content
+				block => block.name && block.name === blockName && ! block.attributes.content
 			).length > 0
 		);
 	};
