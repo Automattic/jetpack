@@ -9,7 +9,6 @@ declare global {
 	interface Window {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
-		// Admin UI
 		jetpackVideoPressInitialState?: {
 			allowedVideoExtensions: Record< string, string >;
 			apiNonce: string;
@@ -32,10 +31,6 @@ declare global {
 					isFetching?: boolean;
 				};
 			};
-		};
-		// Block editor
-		jetpackVideoPressSiteSettings?: {
-			videoPressVideosPrivateForSite: boolean;
 		};
 	}
 }
