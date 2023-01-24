@@ -61,7 +61,7 @@ jest.mock( '@wordpress/components', () => {
  * Helper method to set up the user event.
  *
  * @param {ReactElement} jsx - The element to render.
- * @returns {Object} An object with the user method and everything from the render method.
+ * @returns {object} An object with the user method and everything from the render method.
  */
 const setup = jsx => ( {
 	user: userEvent.setup(),
