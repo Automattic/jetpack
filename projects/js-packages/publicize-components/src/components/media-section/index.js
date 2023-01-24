@@ -27,7 +27,7 @@ import styles from './styles.module.scss';
 /**
  * Get relevant details from a WordPress media object.
  *
- * @param {Object} media - WordPress media object.
+ * @param {object} media - WordPress media object.
  * @returns {{
  * mediaData: {width: number, height: number, sourceUrl: string},
  * metaData: {mime: string, fileSize: number, length: number}
@@ -147,8 +147,8 @@ export default function MediaSection() {
 
 			if ( width && height && sourceUrl ) {
 				return (
-					<div class={ styles[ 'preview-wrapper' ] }>
-						<button class={ styles.remove } onClick={ onRemoveMedia }>
+					<div className={ styles[ 'preview-wrapper' ] }>
+						<button className={ styles.remove } onClick={ onRemoveMedia }>
 							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
 							<Icon icon={ closeSmall } />
 						</button>
@@ -198,7 +198,7 @@ export default function MediaSection() {
 		<ThemeProvider>
 			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
 				<MediaUploadCheck>
-					<p class={ styles.subtitle }>
+					<p className={ styles.subtitle }>
 						{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
 					</p>
 					<MediaUpload
