@@ -38,6 +38,11 @@ const supportContext = __(
 	'jetpack-boost'
 );
 
+const tooltipListStyles = {
+	listStyle: 'unset',
+	paddingLeft: '20px',
+};
+
 export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 	const [ choosePremiumPlan, setChoosePremiumPlan ] = useState( false );
 	const [ chooseFreePlan, setChooseFreePlan ] = useState( false );
@@ -102,6 +107,47 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 				<PricingTableItem
 					isIncluded={ true }
 					label={ __( 'Automatic Critical CSS Generation', 'jetpack-boost' ) }
+					tooltipInfo={
+						<div>
+							{ createInterpolateElement(
+								__(
+									"You should regenerate <link>Critical CSS</link> to optimize speed whenever your site's HTML or CSS structure changes after:",
+									'jetpack-boost'
+								),
+								{
+									link: (
+										// eslint-disable-next-line jsx-a11y/anchor-has-content
+										<a
+											href={ getRedirectUrl( 'jetpack-boost-critical-css' ) }
+											target="_blank"
+											rel="noreferrer"
+										/>
+									),
+								}
+							) }
+							<ul style={ tooltipListStyles }>
+								<li>{ __( 'Making theme changes.', 'jetpack-boost' ) }</li>
+								<li>{ __( 'Writing a new post/page.', 'jetpack-boost' ) }</li>
+								<li>{ __( 'Editing a post/page.', 'jetpack-boost' ) }</li>
+								<li>
+									{ __(
+										'Activating, deactivating, or updating plugins that impact your site layout ',
+										'jetpack-boost'
+									) }
+								</li>
+								<li>
+									{ __(
+										'Upgrading your WordPress version if the new release includes core CSS changes.',
+										'jetpack-boost'
+									) }
+								</li>
+							</ul>
+							{ __(
+								"Being on top of this can be tedious and time-consuming. Boost's cloud service can automatically detect when your site needs a new Critical CSS and generate it, improving site performance and SEO without requiring manual monitoring.",
+								'jetpack-boost'
+							) }
+						</div>
+					}
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
