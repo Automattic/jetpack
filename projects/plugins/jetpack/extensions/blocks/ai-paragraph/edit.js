@@ -9,35 +9,36 @@ import { sprintf, __ } from '@wordpress/i18n';
 
 const numberOfCharactersNeeded = 36;
 
+// This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
 	// This let's the component know if the content was set (basically on first pass).
-	const [ isContentSet, setIsContentSet ] = useState( false );
 
-	if ( ! isContentSet ) {
-		// That will only be used once
-		if ( showAnimation ) {
-			// This is to animate text input. I think this will give an idea of a "better" AI.
-			// At this point this is an established pattern.
-			const tokens = html.split( ' ' );
-			for ( let i = 1; i < tokens.length; i++ ) {
-				const output = tokens.slice( 0, i ).join( ' ' );
-				setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
+	useEffect(
+		() => {
+			// That will only happen once
+			if ( showAnimation ) {
+				// This is to animate text input. I think this will give an idea of a "better" AI.
+				// At this point this is an established pattern.
+				const tokens = html.split( ' ' );
+				for ( let i = 1; i < tokens.length; i++ ) {
+					const output = tokens.slice( 0, i ).join( ' ' );
+					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
+				}
+				setTimeout( () => setDisplayedRawHTML( html ), 50 * tokens.length );
+			} else {
+				setDisplayedRawHTML( html );
 			}
-			setTimeout( () => setDisplayedRawHTML( html ), 50 * tokens.length );
-		} else {
-			setDisplayedRawHTML( html );
-		}
-		setIsContentSet( true );
-	}
+		},
+		// eslint-disable-next-line
+		[]
+	);
 
 	return (
-		<>
-			<div className="content">
-				<RawHTML>{ displayedRawHTML }</RawHTML>
-			</div>
-		</>
+		<div className="content">
+			<RawHTML>{ displayedRawHTML }</RawHTML>
+		</div>
 	);
 }
 
@@ -51,15 +52,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ errorMessage, setErrorMessage ] = useState( false );
 
 	// Let's grab post data so that we can do something smart.
-	const currentPostTitle = useSelect(
-		select => select( 'core/editor' ).getEditedPostAttribute( 'title' ),
-		[]
+	const currentPostTitle = useSelect( select =>
+		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
 
 	let loading = false;
-	const categories = useSelect(
-		select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ),
-		[]
+	const categories = useSelect( select =>
+		select( 'core/editor' ).getEditedPostAttribute( 'categories' )
 	);
 
 	const categoryObjects = useSelect(
