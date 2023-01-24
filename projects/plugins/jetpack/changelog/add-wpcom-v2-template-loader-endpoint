@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Add a new endpoint, template-loader, to resolve the correct template by its type
