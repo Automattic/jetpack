@@ -1,6 +1,6 @@
 import { useEffect } from '@wordpress/element';
 import classnames from 'classnames';
-import { isEmpty, isNil, noop } from 'lodash';
+import { isEmpty, isNil } from 'lodash';
 import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -42,7 +42,11 @@ export default function JetpackFieldTextarea( props ) {
 					setAttributes={ setAttributes }
 					style={ formStyle }
 				/>
-				<textarea className="jetpack-field__textarea" value={ placeholder } onChange={ noop } />
+				<textarea
+					className="jetpack-field__textarea"
+					value={ placeholder }
+					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
+				/>
 			</div>
 
 			<JetpackFieldControls

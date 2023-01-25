@@ -1,7 +1,7 @@
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import classnames from 'classnames';
-import { isEmpty, noop } from 'lodash';
+import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
@@ -39,7 +39,7 @@ export default function JetpackField( props ) {
 					type="text"
 					className="jetpack-field__input"
 					value={ placeholder }
-					onChange={ noop }
+					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
 				/>
 			</div>
 
