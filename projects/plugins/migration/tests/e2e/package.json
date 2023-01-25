@@ -36,7 +36,7 @@
 		"jetpack-e2e-commons": "workspace:*"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"pnpm": "^7.1.1"
 	},
 	"browserslist": [],

@@ -89,6 +89,7 @@ export default function useVideoData( {
 					filename,
 					tracks: response.tracks,
 					is_private: response.is_private,
+					private_enabled_for_site: response.private_enabled_for_site,
 				} );
 			} catch ( error ) {
 				setIsRequestingVideoData( false );

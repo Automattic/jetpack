@@ -23,11 +23,8 @@
 }
 
 @media ( max-width: 599px ) {
-    .standalone-mode-section {
-        margin-bottom: 0;
-    }
 
     .share-data-section {
-        margin-top: calc( var( --spacing-base ) * 7 ); // 56px;
+        margin-top: 0;
     }
 }
