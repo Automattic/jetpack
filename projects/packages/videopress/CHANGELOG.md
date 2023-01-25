@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.6] - 2023-01-25
+### Changed
+- VideoPress: Refactor video data check when populating block attributes [#28566]
+- VideoPress: Show site default privacy setting in video block control [#28553]
+
 ## [0.10.5] - 2023-01-23
 ### Added
 - VideoPress: add connect banner when user is not connected [#28501]
@@ -650,6 +655,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.4...v0.10.5
 [0.10.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.3...v0.10.4
 [0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
