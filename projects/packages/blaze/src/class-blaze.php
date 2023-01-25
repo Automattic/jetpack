@@ -42,10 +42,8 @@ class Blaze {
 	public function register() {
 
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
-			if ( self::should_initialize() ) {
-				add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
-				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_block_editor_assets' ) );
-			}
+			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_block_editor_assets' ) );
 
 			/**
 			 * Action called after initializing Blaze.
@@ -73,6 +71,11 @@ class Blaze {
 			return blaze_is_site_eligible( $blog_id );
 		}
 
+		$cached_result = get_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id );
+		if ( false !== $cached_result ) {
+			return $cached_result;
+		}
+
 		// Make the API request.
 		$url      = sprintf( '/sites/%d/blaze/status', $blog_id );
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -95,6 +98,9 @@ class Blaze {
 		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
 			return false;
 		}
+
+		// Cache the result for 24 hours.
+		set_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id, (bool) $result['approved'], DAY_IN_SECONDS );
 
 		return (bool) $result['approved'];
 	}
@@ -160,6 +166,11 @@ class Blaze {
 	 * @return array
 	 */
 	public function jetpack_blaze_row_action( $post_actions, $post ) {
+		// Bail on sites that do not support Blaze.
+		if ( ! self::should_initialize() ) {
+			return $post_actions;
+		}
+
 		$post_id = $post->ID;
 
 		if ( $post->post_status !== 'publish' ) {
@@ -201,6 +212,11 @@ class Blaze {
 		 * See #20357 for more info.
 		 */
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		// Bail on sites that do not support Blaze.
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 
