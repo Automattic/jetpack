@@ -55,6 +55,28 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @param int $parent_import_id The parent ID.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
+		$posts = get_posts(
+			array(
+				'numberposts' => 1,
+				'fields'      => 'ids',
+				'meta_query'  => array(
+					array(
+						'key'   => JETPACK_IMPORT_ID_META_NAME,
+						'value' => $parent_import_id,
+					),
+				),
+			)
+		);
 
+		if ( is_array( $posts ) && count( $posts ) === 1 ) {
+			$parent_id = $posts[0];
+
+			wp_update_post(
+				array(
+					'ID'          => $resource_id,
+					'post_parent' => $parent_id,
+				)
+			);
+		}
 	}
 }
