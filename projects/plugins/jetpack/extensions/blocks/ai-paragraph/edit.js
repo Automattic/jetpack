@@ -12,7 +12,12 @@ import { name as aiParagraphBlockName } from './index';
 const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
-const createPrompt = ( postTitle, contentBeforeCurrentBlock, categoriesNames, tagsNames ) => {
+const createPrompt = (
+	postTitle = '',
+	contentBeforeCurrentBlock = [],
+	categoriesNames = '',
+	tagsNames = ''
+) => {
 	const content = contentBeforeCurrentBlock
 		.filter( function ( block ) {
 			return block && block.attributes && block.attributes.content;
@@ -24,7 +29,7 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, categoriesNames, ta
 	const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 	// We prevent a prompt if everything is empty
-	if ( ! postTitle && ! contentBeforeCurrentBlock && categoriesNames.length === 0 ) {
+	if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames ) {
 		return false;
 	}
 
@@ -41,12 +46,12 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, categoriesNames, ta
 		prompt = __( 'This is a post', 'jetpack' );
 	}
 
-	if ( categoriesNames.length ) {
+	if ( categoriesNames ) {
 		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
 		prompt += sprintf( __( ", published in categories '%1$s'", 'jetpack' ), categoriesNames );
 	}
 
-	if ( tagsNames.length ) {
+	if ( tagsNames ) {
 		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
 		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
 	}
@@ -161,6 +166,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		.map( ( { name } ) => name )
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
+
 	const contentBefore = useSelect( select => {
 		const editor = select( 'core/block-editor' );
 		const index = editor.getBlockIndex( clientId );
