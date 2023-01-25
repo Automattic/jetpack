@@ -19,6 +19,7 @@ import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
+import BackupStorageSpace from './backup-storage-space';
 import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -99,7 +100,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
-			<Col lg={ 6 } md={ 4 }>
+			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( "Your site's heartbeat", 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -118,8 +119,15 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 					</p>
 				) }
 			</Col>
-			<Col lg={ 1 } md={ 1 } sm={ 0 } />
-			<Col lg={ 5 } md={ 3 } sm={ 4 }>
+			{ hasBackupPlan && connectionStatus.isUserConnected && (
+				<>
+					<Col lg={ 1 } md={ 1 } />
+					<Col lg={ 5 } md={ 5 } className="backup-segments__storage-section">
+						{ <BackupStorageSpace /> }
+					</Col>
+				</>
+			) }
+			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -208,7 +216,7 @@ const ReviewMessage = connectionLoaded => {
 	}
 
 	return (
-		<Col lg={ 6 } md={ 4 }>
+		<Col lg={ 6 } md={ 6 }>
 			<ReviewRequest
 				cta={ createInterpolateElement(
 					__(
@@ -317,12 +325,17 @@ const NoBackupCapabilities = () => {
 	const { tracks } = useAnalytics();
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ price, setPrice ] = useState( 0 );
+	const [ currencyCode, setCurrencyCode ] = useState( 'USD' );
+	const [ introOffer, setIntroOffer ] = useState( null );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
+			setCurrencyCode( res.currency_code );
 			setPrice( res.cost / 12 );
+
 			if ( res.introductory_offer ) {
+				setIntroOffer( res.introductory_offer );
 				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );
 			} else {
 				setPriceAfter( res.cost / 12 );
@@ -340,6 +353,15 @@ const NoBackupCapabilities = () => {
 		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 		'jetpack-backup-pkg'
 	);
+	const priceDetails =
+		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
+			? __( 'for the first month, billed yearly', 'jetpack-backup-pkg' )
+			: __(
+					'per month, billed yearly',
+					'jetpack-backup-pkg',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -369,6 +391,8 @@ const NoBackupCapabilities = () => {
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ price }
+					currencyCode={ currencyCode }
+					priceDetails={ priceDetails }
 					title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 				/>
 			</Col>

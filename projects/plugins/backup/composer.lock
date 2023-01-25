@@ -238,7 +238,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "71841eee0e4daa46ef9c75742b3e2aa10e497a6f"
+                "reference": "3186b3f3ab55a859ad09c5439abb3609d114bc68"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -268,7 +268,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.10.x-dev"
+                    "dev-trunk": "1.11.x-dev"
                 }
             },
             "autoload": {

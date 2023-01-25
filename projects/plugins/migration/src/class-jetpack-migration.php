@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -29,15 +28,8 @@ class Jetpack_Migration {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
-		$page_suffix = Admin_Menu::add_menu(
-			__( 'Jetpack Migration', 'jetpack-migration' ),
-			_x( 'Migration', 'The Jetpack Migration product name, without the Jetpack prefix', 'jetpack-migration' ),
-			'manage_options',
-			'jetpack-migration',
-			array( $this, 'plugin_settings_page' ),
-			99
-		);
-		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		// Set up the top-level menu
+		add_action( 'admin_menu', array( $this, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 
 		// Init Jetpack packages
 		add_action(
@@ -63,6 +55,23 @@ class Jetpack_Migration {
 		);
 
 		My_Jetpack_Initializer::init();
+	}
+
+	/**
+	 * Set up the admin menu.
+	 */
+	public function admin_menu_hook_callback() {
+		$page_suffix = add_menu_page(
+			'Move to WordPress.com',
+			'Move to WordPress.com',
+			'manage_options',
+			'jetpack-migration',
+			array( $this, 'plugin_settings_page' ),
+			'dashicons-admin-generic',
+			79 // right before the Settings menu (80)
+		);
+
+		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
 
 	/**

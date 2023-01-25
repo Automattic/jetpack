@@ -58,7 +58,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_resource_stats' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -69,7 +69,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_resource' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -80,7 +80,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -91,7 +91,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post_likes' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -102,7 +102,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_stats' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -113,7 +113,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'site_has_never_published_post' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -124,7 +124,29 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_posts' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// WordAds Earnings.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/earnings', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_wordads_earnings' ),
+				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+			)
+		);
+
+		// WordAds Stats.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/stats', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_wordads_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
 			)
 		);
 	}
@@ -134,8 +156,20 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function check_user_privileges_callback() {
+	public function can_user_view_general_stats_callback() {
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) ) {
+			return true;
+		}
+
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Only administrators or users with capability `activate_wordads` can access the API.
+	 */
+	public function can_user_view_wordads_stats_callback() {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ) ) {
 			return true;
 		}
 
@@ -355,6 +389,46 @@ class REST_Controller {
 			array( 'timeout' => 5 ),
 			null,
 			'wpcom'
+		);
+	}
+
+	/**
+	 * Get detailed WordAds earnings information for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_wordads_earnings( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/wordads/earnings',
+				Jetpack_Options::get_option( 'id' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 5 )
+		);
+	}
+
+	/**
+	 * Get WordAds stats for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_wordads_stats( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/wordads/stats',
+				Jetpack_Options::get_option( 'id' ),
+				http_build_query(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 5 )
 		);
 	}
 
