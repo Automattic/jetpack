@@ -166,7 +166,7 @@ class Blaze {
 	 * @return array
 	 */
 	public function jetpack_blaze_row_action( $post_actions, $post ) {
-		// no need on sites that do not support Blaze.
+		// Bail on sites that do not support Blaze.
 		if ( ! self::should_initialize() ) {
 			return $post_actions;
 		}
@@ -215,7 +215,7 @@ class Blaze {
 			return;
 		}
 
-		// No need on sites that do not support Blaze.
+		// Bail on sites that do not support Blaze.
 		if ( ! self::should_initialize() ) {
 			return;
 		}
