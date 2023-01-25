@@ -153,6 +153,7 @@ const JetpackFieldControls = ( {
 						value={ attributes.fieldFontSize }
 					/>
 					<LineHeightControl
+						__nextHasNoMarginBottom={ true }
 						__unstableInputWidth="100%"
 						value={ attributes.lineHeight }
 						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
