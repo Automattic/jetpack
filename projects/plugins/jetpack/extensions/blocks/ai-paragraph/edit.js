@@ -71,6 +71,7 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 };
 
 function ShowContent( { html, showAnimation, setAttributes } ) {
+	const DELAY = 50;
 	const [ content, setContent ] = useState( html );
 
 	useEffect(
@@ -82,12 +83,12 @@ function ShowContent( { html, showAnimation, setAttributes } ) {
 				const tokens = html.split( ' ' );
 				for ( let i = 1; i < tokens.length; i++ ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setContent( output ), 50 * i );
+					setTimeout( () => setContent( output ), DELAY * i );
 				}
 				setTimeout( () => {
 					setContent( html );
 					setAttributes( { animationDone: true } );
-				}, 50 * tokens.length );
+				}, DELAY * tokens.length );
 			}
 		},
 		// eslint-disable-next-line
