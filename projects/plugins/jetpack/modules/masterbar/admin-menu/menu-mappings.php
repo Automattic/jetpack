@@ -24,7 +24,7 @@ $common_mappings = array(
 );
 
 if (
-	 /** This filter is documented in modules/masterbar/admin-menu/class-admin-menu.php */
+	/** This filter is documented in modules/masterbar/admin-menu/class-admin-menu.php */
 	apply_filters( 'calypso_use_modernized_reading_settings', false )
 ) {
 	$common_mappings['options-reading.php'] = 'https://wordpress.com/settings/reading/';
