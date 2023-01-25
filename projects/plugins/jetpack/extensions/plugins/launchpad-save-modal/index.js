@@ -68,10 +68,9 @@ export const settings = {
 		}, [ isCurrentPostPublished ] );
 
 		const showModal =
-			( isInsideSiteEditor || isInsidePostEditor ) &&
+			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
 			! dontShowAgain &&
-			isCurrentPostPublished &&
 			isModalOpen;
 
 		return (
