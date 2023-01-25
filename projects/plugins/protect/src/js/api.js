@@ -26,6 +26,12 @@ const API = {
 			path: 'jetpack-protect/v1/waf-seen',
 			method: 'POST',
 		} ),
+
+	wafUpgradeSeen: () =>
+		apiFetch( {
+			path: 'jetpack-protect/v1/waf-upgrade-seen',
+			method: 'POST',
+		} ),
 };
 
 export default API;

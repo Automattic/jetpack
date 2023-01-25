@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.27.0",
+	"version": "0.27.2-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -65,7 +65,7 @@
 		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

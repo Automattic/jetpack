@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { useConnection } from '@automattic/jetpack-connection';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -22,6 +23,7 @@ import debugFactory from 'debug';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
+import Banner from './components/banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -42,6 +44,8 @@ import type React from 'react';
 import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
+
+const { myJetpackConnectUrl } = window.videoPressEditorState;
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -135,6 +139,9 @@ export default function VideoPressEdit( {
 		poster,
 	} );
 
+	// Get the redirect URI for the connection flow.
+	const { isUserConnected } = useConnection();
+	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
 	/*
 	 * Request token when site is private
 	 */
@@ -203,7 +210,7 @@ export default function VideoPressEdit( {
 		}
 	);
 
-	const { filename } = videoData;
+	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	// Get video preview status.
 	const defaultPreview = { html: null, scripts: [], width: null, height: null };
@@ -416,16 +423,45 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
+		let connectButtonText = __( 'Connect', 'jetpack-videopress-pkg' );
+		if ( isRedirectingToMyJetpack ) {
+			connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
+		}
+
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
-				<VideoPressUploader
-					setAttributes={ setAttributes }
-					attributes={ attributes }
-					handleDoneUpload={ handleDoneUpload }
-					fileToUpload={ fileToUpload }
-					isReplacing={ isReplacingFile?.isReplacing }
-					onReplaceCancel={ cancelReplacingVideoFile }
-				/>
+				<>
+					{ ! isUserConnected && (
+						<Banner
+							action={
+								<Button
+									variant="primary"
+									onClick={ () => {
+										setIsRedirectingToMyJetpack( true );
+										window.location.href = myJetpackConnectUrl;
+									} }
+									disabled={ isRedirectingToMyJetpack }
+									isBusy={ isRedirectingToMyJetpack }
+								>
+									{ connectButtonText }
+								</Button>
+							}
+						>
+							{ __(
+								'Connect your account to continue using VideoPress',
+								'jetpack-videopress-pkg'
+							) }
+						</Banner>
+					) }
+					<VideoPressUploader
+						setAttributes={ setAttributes }
+						attributes={ attributes }
+						handleDoneUpload={ handleDoneUpload }
+						fileToUpload={ fileToUpload }
+						isReplacing={ isReplacingFile?.isReplacing }
+						onReplaceCancel={ cancelReplacingVideoFile }
+					/>
+				</>
 			</div>
 		);
 	}
@@ -556,7 +592,9 @@ export default function VideoPressEdit( {
 					{ ...{ attributes, setAttributes } }
 				/>
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
-				<PrivacyAndRatingPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+				<PrivacyAndRatingPanel
+					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
+				/>
 				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
 

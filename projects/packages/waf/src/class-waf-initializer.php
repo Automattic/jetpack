@@ -51,6 +51,7 @@ class Waf_Initializer {
 	 */
 	public static function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 		Waf_Runner::activate();
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
@@ -110,13 +111,13 @@ class Waf_Initializer {
 	 */
 	public static function check_for_waf_update() {
 		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
-			Waf_Runner::define_mode();
+			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 				return;
 			}
 
-			Waf_Runner::generate_ip_rules();
-			Waf_Runner::generate_rules();
+			Waf_Rules_Manager::generate_ip_rules();
+			Waf_Rules_Manager::generate_rules();
 			( new Waf_Standalone_Bootstrap() )->generate();
 
 			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );

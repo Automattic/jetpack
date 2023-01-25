@@ -227,14 +227,14 @@ export default function Edit( { attributes, setAttributes } ) {
 					</Button>
 				</Placeholder>
 			) }
-			{ attributes.content && ! loadingCompletion && (
+			{ attributes.content && (
 				<div>
 					<div className="content">
 						<RawHTML>{ attributes.content.trim().replaceAll( '\n', '<br/>' ) }</RawHTML>
 					</div>
 				</div>
 			) }
-			{ loadingCompletion && (
+			{ loadingCompletion && ! attributes.content && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {

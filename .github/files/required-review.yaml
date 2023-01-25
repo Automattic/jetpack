@@ -103,6 +103,8 @@
    - 'projects/plugins/boost/**'
    - 'projects/plugins/super-cache/**'
    - 'projects/js-packages/image-guide/**'
+   - 'projects/js-packages/svelte-data-sync-client/**'
+   - 'projects/packages/wp-js-data-sync/**'
    - '!projects/plugins/*/composer.lock'
    - '!projects/plugins/*/composer.json'
    - '!projects/plugins/*/changelog/*'

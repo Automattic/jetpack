@@ -700,6 +700,32 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/js-packages/svelte-data-sync-client:
+    specifiers:
+      '@automattic/jetpack-webpack-config': workspace:*
+      '@typescript-eslint/parser': 5.36.1
+      eslint: 8.22.0
+      jest: 29.3.1
+      svelte: 3.55.1
+      ts-loader: 9.4.2
+      tslib: 2.3.1
+      typescript: 4.8.2
+      webpack: 5.72.1
+      webpack-cli: 4.9.1
+      zod: 3.20.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config': link:../webpack-config
+      '@typescript-eslint/parser': 5.36.1_shit3uhl6a7megkzgoz6xssnfa
+      eslint: 8.22.0
+      jest: 29.3.1
+      svelte: 3.55.1
+      ts-loader: 9.4.2_czu7yixrf7btnlqoc6r2d4xkfq
+      tslib: 2.3.1
+      typescript: 4.8.2
+      webpack: 5.72.1_webpack-cli@4.9.1
+      webpack-cli: 4.9.1_webpack@5.72.1
+      zod: 3.20.2
+
   projects/js-packages/webpack-config:
     specifiers:
       '@automattic/babel-plugin-preserve-i18n': 1.0.0
@@ -716,13 +742,13 @@ importers:
       '@babel/preset-react': 7.18.6
       '@babel/preset-typescript': 7.18.6
       '@babel/runtime': 7.20.7
+      '@cerner/duplicate-package-checker-webpack-plugin': 2.3.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.5.0
       babel-loader: 8.3.0
       browserslist: 4.20.4
       css-loader: 6.5.1
       css-minimizer-webpack-plugin: 4.0.0
-      duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5
       terser-webpack-plugin: 5.3.3
       thread-loader: 3.0.4
@@ -741,13 +767,13 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.7
       '@babel/preset-react': 7.18.6_@babel+core@7.20.7
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.7
+      '@cerner/duplicate-package-checker-webpack-plugin': 2.3.0_webpack@5.72.1
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/dependency-extraction-webpack-plugin': 4.5.0_webpack@5.72.1
       babel-loader: 8.3.0_t7jx4cl4qpbwg7355cfrhdqi44
       browserslist: 4.20.4
       css-loader: 6.5.1_webpack@5.72.1
       css-minimizer-webpack-plugin: 4.0.0_webpack@5.72.1
-      duplicate-package-checker-webpack-plugin: 3.0.0
       mini-css-extract-plugin: 2.4.5_webpack@5.72.1
       terser-webpack-plugin: 5.3.3_webpack@5.72.1
       thread-loader: 3.0.4_webpack@5.72.1
@@ -800,6 +826,8 @@ importers:
 
   projects/packages/backup:
     specifiers:
+      '@automattic/components': 2.0.1
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-api': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
@@ -830,6 +858,8 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/components': 2.0.1_5ca7al7cn46tt3ovgjcst44g2i
+      '@automattic/format-currency': 1.0.1
       '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-components': link:../../js-packages/components
@@ -874,6 +904,7 @@ importers:
       '@wordpress/block-editor': 10.5.0
       '@wordpress/browserslist-config': 5.5.0
       '@wordpress/components': 22.1.0
+      '@wordpress/compose': 5.20.0
       '@wordpress/data': 7.6.0
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -891,6 +922,7 @@ importers:
       '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@wordpress/block-editor': 10.5.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
+      '@wordpress/compose': 5.20.0_react@17.0.2
       '@wordpress/data': 7.6.0_react@17.0.2
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.22.0
@@ -962,6 +994,9 @@ importers:
       sass-loader: 12.4.0_sass@1.43.3+webpack@5.72.1
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+
+  projects/packages/jetpack-mu-wpcom:
+    specifiers: {}
 
   projects/packages/jitm:
     specifiers:
@@ -1475,6 +1510,9 @@ importers:
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
+  projects/packages/wp-js-data-sync:
+    specifiers: {}
+
   projects/plugins/boost:
     specifiers:
       '@automattic/jetpack-base-styles': workspace:*
@@ -1905,10 +1943,11 @@ importers:
       classnames: 2.3.1
       concurrently: 6.0.2
       diff: ^4.0.2
+      moment: 2.29.4
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2
-      react-router-dom: 6.6.2
+      react-router-dom: 6.2.2
       sass: 1.43.3
       sass-loader: 12.4.0
       webpack: 5.72.1
@@ -1929,10 +1968,11 @@ importers:
       camelize: 1.0.0
       classnames: 2.3.1
       diff: 4.0.2
+      moment: 2.29.4
       prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
-      react-router-dom: 6.6.2_sfoxds7t5ydpegc3knd667wn6m
+      react-router-dom: 6.2.2_sfoxds7t5ydpegc3knd667wn6m
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@babel/core': 7.20.7
@@ -4972,6 +5012,19 @@ packages:
   /@bcoe/v8-coverage/0.2.3:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
+
+  /@cerner/duplicate-package-checker-webpack-plugin/2.3.0_webpack@5.72.1:
+    resolution: {integrity: sha512-2FdUL/10qOjXzPTt/2dcjQPHDcsI+svvdU3KERGZaUvH5IwDdzE+nGLAx1+ICxhr6cqU29zvWR6GHGOFp+fbWA==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      webpack: ^4.30.0 || ^5.0.0
+    dependencies:
+      chalk: 4.1.2
+      find-root: 1.1.0
+      lodash.groupby: 4.6.0
+      semver: 7.3.8
+      webpack: 5.72.1_webpack-cli@4.9.1
+    dev: false
 
   /@cnakazawa/watch/1.0.4:
     resolution: {integrity: sha512-v9kIhKwjeZThiWrLmj0y17CWoyddASLj9O2yvbZkbvw/N3rWOYy9zkV66ursAoVr0mV15bL8g0c4QZUE6cdDoQ==}
@@ -12955,15 +13008,6 @@ packages:
       stream-shift: 1.0.1
     dev: true
 
-  /duplicate-package-checker-webpack-plugin/3.0.0:
-    resolution: {integrity: sha512-aO50/qPC7X2ChjRFniRiscxBLT/K01bALqfcDaf8Ih5OqQ1N4iT/Abx9Ofu3/ms446vHTm46FACIuJUmgUQcDQ==}
-    dependencies:
-      chalk: 2.4.2
-      find-root: 1.1.0
-      lodash: 4.17.21
-      semver: 5.7.1
-    dev: false
-
   /each-props/1.3.2:
     resolution: {integrity: sha512-vV0Hem3zAGkJAyU7JSjixeU66rwdynTAa1vofCrSA5fEln+m67Az9CcnkVD776/fsN/UjIWmBDoNRS6t6G9RfA==}
     dependencies:
@@ -17412,6 +17456,10 @@ packages:
   /lodash.debounce/4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
 
+  /lodash.groupby/4.6.0:
+    resolution: {integrity: sha512-5dcWxm23+VAoz+awKmBaiBvzox8+RqMgFhi7UvX9DHZr2HdxHXM/Wrf8cfKpsW37RNrvtPn6hSwNqurSILbmJw==}
+    dev: false
+
   /lodash.isequal/4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
     dev: true
@@ -19550,6 +19598,7 @@ packages:
   /punycode/2.1.1:
     resolution: {integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==}
     engines: {node: '>=6'}
+    dev: false
 
   /punycode/2.2.0:
     resolution: {integrity: sha512-LN6QV1IJ9ZhxWTNdktaPClrNfp8xdSAYS0Zk2ddX7XsXZAxckMHPCBcHRo0cTcEIgYPRiGEkmji3Idkh2yFtYw==}
@@ -19902,6 +19951,18 @@ packages:
       tiny-warning: 1.0.3
     dev: false
 
+  /react-router-dom/6.2.2_sfoxds7t5ydpegc3knd667wn6m:
+    resolution: {integrity: sha512-AtYEsAST7bDD4dLSQHDnk/qxWLJdad5t1HFa1qJyUrCeGgEuCSw0VB/27ARbF9Fi/W5598ujvJOm3ujUCVzuYQ==}
+    peerDependencies:
+      react: '>=16.8'
+      react-dom: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      react-router: 6.2.2_react@17.0.2
+    dev: false
+
   /react-router-dom/6.6.2_sfoxds7t5ydpegc3knd667wn6m:
     resolution: {integrity: sha512-6SCDXxRQqW5af8ImOqKza7icmQ47/EMbz572uFjzvcArg3lZ+04PxSPp8qGs+p2Y+q+b+S/AjXv8m8dyLndIIA==}
     engines: {node: '>=14'}
@@ -19930,6 +19991,15 @@ packages:
       react-is: 16.13.1
       tiny-invariant: 1.3.1
       tiny-warning: 1.0.3
+    dev: false
+
+  /react-router/6.2.2_react@17.0.2:
+    resolution: {integrity: sha512-/MbxyLzd7Q7amp4gDOGaYvXwhEojkJD5BtExkuKmj39VEE0m3l/zipf6h2WIB2jyAO0lI6NGETh4RDcktRm4AQ==}
+    peerDependencies:
+      react: '>=16.8'
+    dependencies:
+      history: 5.3.0
+      react: 17.0.2
     dev: false
 
   /react-router/6.6.2_react@17.0.2:
@@ -21058,6 +21128,7 @@ packages:
   /semver/5.7.1:
     resolution: {integrity: sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ==}
     hasBin: true
+    dev: true
 
   /semver/6.3.0:
     resolution: {integrity: sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==}
@@ -21889,6 +21960,11 @@ packages:
     resolution: {integrity: sha512-Q4/hHkktZogGhN5iqxqSi9sjEVoe/NbIxX4hXEHoasTxj+TxEQVAq66LnDMdAZxjmsodkoI5F3slqsS68U7FNw==}
     engines: {node: '>= 8'}
 
+  /svelte/3.55.1:
+    resolution: {integrity: sha512-S+87/P0Ve67HxKkEV23iCdAh/SX1xiSfjF1HOglno/YTbSTW7RniICMCofWGdJJbdjw3S+0PfFb1JtGfTXE0oQ==}
+    engines: {node: '>= 8'}
+    dev: true
+
   /svelte2tsx/0.1.193_blprp4ovaphqvsbuhbk2xnyjlu:
     resolution: {integrity: sha512-vzy4YQNYDnoqp2iZPnJy7kpPAY6y121L0HKrSBjU/IWW7DQ6T7RMJed2VVHFmVYm0zAGYMDl9urPc6R4DDUyhg==}
     peerDependencies:
@@ -22238,7 +22314,7 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       psl: 1.9.0
-      punycode: 2.1.1
+      punycode: 2.2.0
       universalify: 0.2.0
       url-parse: 1.5.10
 
@@ -22248,14 +22324,14 @@ packages:
   /tr46/1.0.1:
     resolution: {integrity: sha512-dTpowEjclQ7Kgx5SdBkqRzVhERQXov8/l9Ft9dVM9fmg0W0KQSVaXX9T4i6twCPNtYiZM53lpSSUAwJbFPOHxA==}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.2.0
     dev: true
 
   /tr46/3.0.0:
     resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
     engines: {node: '>=12'}
     dependencies:
-      punycode: 2.1.1
+      punycode: 2.2.0
 
   /traverse/0.6.7:
     resolution: {integrity: sha512-/y956gpUo9ZNCb99YjxG7OaslxZWHfCHAUUfshwqOXmxUIvqLjVO581BT+gM59+QV9tFe6/CGG53tsA1Y7RSdg==}
@@ -23544,6 +23620,10 @@ packages:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
     dev: false
+
+  /zod/3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: true
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
