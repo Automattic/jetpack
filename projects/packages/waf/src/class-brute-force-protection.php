@@ -842,16 +842,18 @@ class Brute_Force_Protection {
 
 		$api_key = $this->maybe_get_protect_key();
 
-		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
+		$plugin_and_version = class_exists( 'Jetpack' ) ? 'Jetpack/' . constant( 'JETPACK__VERSION' ) : 'JetpackProtect/' . constant( 'JETPACK_PROTECT_VERSION' );
 
-		$request['action']            = $action;
-		$request['ip']                = jetpack_protect_get_ip();
-		$request['host']              = $this->get_local_host();
-		$request['headers']           = wp_json_encode( $this->get_headers() );
-		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
-		$request['wordpress_version'] = (string) $wp_version;
-		$request['api_key']           = $api_key;
-		$request['multisite']         = '0';
+		$user_agent = "WordPress/{$wp_version} | " . $plugin_and_version;
+
+		$request['action']             = $action;
+		$request['ip']                 = jetpack_protect_get_ip();
+		$request['host']               = $this->get_local_host();
+		$request['headers']            = wp_json_encode( $this->get_headers() );
+		$request['plugin_and_version'] = $plugin_and_version;
+		$request['wordpress_version']  = (string) $wp_version;
+		$request['api_key']            = $api_key;
+		$request['multisite']          = '0';
 
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
