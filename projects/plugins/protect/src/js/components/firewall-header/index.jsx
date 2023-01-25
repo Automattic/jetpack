@@ -17,7 +17,6 @@ const UpgradePrompt = () => {
 
 	const {
 		config: { automaticRulesAvailable },
-		bruteForceProtectionIsEnabled,
 	} = useWafData();
 
 	const { run } = useProductCheckoutWorkflow( {
@@ -40,12 +39,10 @@ const UpgradePrompt = () => {
 
 	return (
 		<>
-			<div className={ styles[ 'rules-notice' ] }>
+			<div className={ styles[ 'manual-rules-notice' ] }>
 				<Text weight={ 600 }>
-					{ bruteForceProtectionIsEnabled &&
-						__( 'Brute force protection is active. ', 'jetpack-protect' ) }
 					{ ! automaticRulesAvailable
-						? __( 'Only manual rules will be applied', 'jetpack-protect' )
+						? __( 'Only manual rules will be applied.', 'jetpack-protect' )
 						: __(
 								'Your site is not receiving the latest updates to automatic rules.',
 								'jetpack-protect',
@@ -98,6 +95,7 @@ const FirewallHeader = ( {
 	hasRequiredPlan,
 	automaticRulesEnabled,
 	automaticRulesAvailable,
+	bruteForceProtectionIsEnabled,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -121,6 +119,10 @@ const FirewallHeader = ( {
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</H3>
+							<Text weight={ 600 }>
+								{ bruteForceProtectionIsEnabled &&
+									__( 'Brute force protection is active.', 'jetpack-protect' ) }
+							</Text>
 							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
@@ -138,6 +140,8 @@ const FirewallHeader = ( {
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</H3>
+							{ bruteForceProtectionIsEnabled &&
+								__( 'Brute force protection is active.', 'jetpack-protect' ) }
 							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
@@ -165,6 +169,7 @@ const ConnectedFirewallHeader = () => {
 	const {
 		config: { jetpackWafAutomaticRules, jetpackWafIpList, automaticRulesAvailable },
 		isToggling,
+		bruteForceProtectionIsEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
@@ -175,6 +180,7 @@ const ConnectedFirewallHeader = () => {
 			hasRequiredPlan={ hasRequiredPlan }
 			automaticRulesEnabled={ jetpackWafAutomaticRules }
 			automaticRulesAvailable={ automaticRulesAvailable }
+			bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 		/>
 	);
 };
