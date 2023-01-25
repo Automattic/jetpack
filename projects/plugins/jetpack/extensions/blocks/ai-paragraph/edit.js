@@ -1,5 +1,6 @@
 import './editor.scss';
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
@@ -27,7 +28,8 @@ function getSuggestionFromOpenAI(
 	setAttributes,
 	formattedPrompt,
 	setLoadingCompletion,
-	setErrorMessage
+	setErrorMessage,
+	postId
 ) {
 	const needsAtLeast = 36;
 	if ( formattedPrompt.length < needsAtLeast ) {
@@ -46,7 +48,10 @@ function getSuggestionFromOpenAI(
 	}
 	setErrorMessage( '' );
 
-	const data = { content: formattedPrompt };
+	const data = {
+		content: formattedPrompt,
+		post_id: postId,
+	};
 	setLoadingCompletion( true );
 	setAttributes( { requestedPrompt: true } ); // This will prevent double submitting.
 	apiFetch( {
@@ -176,9 +181,11 @@ function preparePromptBasedOnEditorState( select ) {
 export default function Edit( { attributes, setAttributes } ) {
 	const [ loadingCompletion, setLoadingCompletion ] = useState( true );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
+	const { tracks } = useAnalytics();
 
 	// Here is where we craft the prompt.
 	const formattedPrompt = useSelect( preparePromptBasedOnEditorState, [] );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	//useEffect hook is called only once when block is first rendered.
 	useEffect( () => {
@@ -188,8 +195,12 @@ export default function Edit( { attributes, setAttributes } ) {
 				setAttributes,
 				formattedPrompt,
 				setLoadingCompletion,
-				setErrorMessage
+				setErrorMessage,
+				postId
 			);
+			tracks.recordEvent( 'jetpack_ai_gpt3_completion_automatic', {
+				post_id: postId,
+			} );
 		}
 	}, [ setAttributes, attributes ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -204,8 +215,12 @@ export default function Edit( { attributes, setAttributes } ) {
 								setAttributes,
 								formattedPrompt,
 								setLoadingCompletion,
-								setErrorMessage
+								setErrorMessage,
+								postId
 							);
+							tracks.recordEvent( 'jetpack_ai_gpt3_completion_manual', {
+								post_id: postId,
+							} );
 						} }
 					>
 						{ __( 'Retry', 'jetpack' ) }
