@@ -70,28 +70,27 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 	);
 };
 
-// This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, setAttributes } ) {
+function ShowContent( { html, showAnimation, setAttributes } ) {
 	// This is the HTML to be displayed.
-	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
+	const [ content, setContent ] = useState( '' );
 
 	useEffect(
 		() => {
-			// That will only happen once
+			// That will only happen once and will displays the content word by word if showAnimation is truthy
 			if ( showAnimation ) {
 				// This is to animate text input. I think this will give an idea of a "better" AI.
 				// At this point this is an established pattern.
 				const tokens = html.split( ' ' );
 				for ( let i = 1; i < tokens.length; i++ ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
+					setTimeout( () => setContent( output ), 50 * i );
 				}
 				setTimeout( () => {
-					setDisplayedRawHTML( html );
+					setContent( html );
 					setAttributes( { animationDone: true } );
 				}, 50 * tokens.length );
 			} else {
-				setDisplayedRawHTML( html );
+				setContent( html );
 			}
 		},
 		// eslint-disable-next-line
@@ -102,8 +101,8 @@ function ShowLittleByLittle( { html, showAnimation, setAttributes } ) {
 		<div className="content">
 			<RichText
 				tagName="p"
+				value={ content }
 				identifier="content"
-				value={ displayedRawHTML }
 				onChange={ value => setAttributes( { content: value } ) }
 			/>
 		</div>
@@ -296,10 +295,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			) }
 
 			{ contentIsLoaded && (
-				<ShowLittleByLittle
-					showAnimation={ ! attributes.animationDone }
-					setAttributes={ setAttributes }
+				<ShowContent
 					html={ attributes.content }
+					setAttributes={ setAttributes }
+					showAnimation={ ! attributes.animationDone }
 				/>
 			) }
 
