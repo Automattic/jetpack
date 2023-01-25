@@ -9,10 +9,10 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
-const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
+export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
-const createPrompt = (
+export const createPrompt = (
 	postTitle = '',
 	contentBeforeCurrentBlock = [],
 	categoriesNames = '',
@@ -58,10 +58,10 @@ const createPrompt = (
 
 	if ( shorter_content ) {
 		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-		prompt += sprintf( __( ':\n\n … %1$s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+		prompt += sprintf( __( ':\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
 
-	return prompt;
+	return prompt.trim();
 };
 
 // This component displays the text word by word if show animation is true
