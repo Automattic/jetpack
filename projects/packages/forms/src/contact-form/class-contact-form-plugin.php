@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contact_Form_Plugin class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
@@ -173,11 +178,11 @@ class Contact_Form_Plugin {
 			'feedback',
 			array(
 				'labels'                => array(
-					'name'               => __( 'Form Responses', 'jetpack' ),
-					'singular_name'      => __( 'Form Responses', 'jetpack' ),
-					'search_items'       => __( 'Search Responses', 'jetpack' ),
-					'not_found'          => __( 'No responses found', 'jetpack' ),
-					'not_found_in_trash' => __( 'No responses found', 'jetpack' ),
+					'name'               => __( 'Form Responses', 'jetpack-forms' ),
+					'singular_name'      => __( 'Form Responses', 'jetpack-forms' ),
+					'search_items'       => __( 'Search Responses', 'jetpack-forms' ),
+					'not_found'          => __( 'No responses found', 'jetpack-forms' ),
+					'not_found_in_trash' => __( 'No responses found', 'jetpack-forms' ),
 				),
 				'menu_icon'             => 'dashicons-feedback',
 				'show_ui'               => true,
@@ -217,7 +222,7 @@ class Contact_Form_Plugin {
 				'exclude_from_search'    => true,
 				'show_in_admin_all_list' => false,
 				// translators: The spam count.
-				'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
+				'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack-forms' ),
 				'protected'              => true,
 				'_builtin'               => false,
 			)
@@ -364,7 +369,7 @@ class Contact_Form_Plugin {
 				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
 				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
 				esc_url( get_the_permalink() ),
-				esc_html__( 'Submit a form.', 'jetpack' )
+				esc_html__( 'Submit a form.', 'jetpack-forms' )
 			);
 		}
 
@@ -547,11 +552,11 @@ class Contact_Form_Plugin {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'consent' );
 
 		if ( ! isset( $atts['implicitConsentMessage'] ) ) {
-			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack' );
+			$atts['implicitConsentMessage'] = __( "By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.", 'jetpack-forms' );
 		}
 
 		if ( ! isset( $atts['explicitConsentMessage'] ) ) {
-			$atts['explicitConsentMessage'] = __( 'Can we send you an email from time to time?', 'jetpack' );
+			$atts['explicitConsentMessage'] = __( 'Can we send you an email from time to time?', 'jetpack-forms' );
 		}
 
 		return Contact_Form::parse_contact_field( $atts, $content );
@@ -564,8 +569,8 @@ class Contact_Form_Plugin {
 		$slug = 'feedback';
 
 		add_menu_page(
-			__( 'Feedback', 'jetpack' ),
-			__( 'Feedback', 'jetpack' ),
+			__( 'Feedback', 'jetpack-forms' ),
+			__( 'Feedback', 'jetpack-forms' ),
 			'edit_pages',
 			$slug,
 			null,
@@ -575,8 +580,8 @@ class Contact_Form_Plugin {
 
 		add_submenu_page(
 			$slug,
-			__( 'Form Responses', 'jetpack' ),
-			__( 'Form Responses', 'jetpack' ),
+			__( 'Form Responses', 'jetpack-forms' ),
+			__( 'Form Responses', 'jetpack-forms' ),
 			'edit_pages',
 			'edit.php?post_type=feedback',
 			null,
@@ -806,7 +811,7 @@ class Contact_Form_Plugin {
 		if ( ! $submission_result ) {
 			header( 'HTTP/1.1 500 Server Error', 500, true );
 			echo '<div class="form-error"><ul class="form-errors"><li class="form-error-message">';
-			esc_html_e( 'An error occurred. Please try again later.', 'jetpack' );
+			esc_html_e( 'An error occurred. Please try again later.', 'jetpack-forms' );
 			echo '</li></ul></div>';
 		} elseif ( is_wp_error( $submission_result ) ) {
 			header( 'HTTP/1.1 400 Bad Request', 403, true );
@@ -814,7 +819,7 @@ class Contact_Form_Plugin {
 			echo esc_html( $submission_result->get_error_message() );
 			echo '</li></ul></div>';
 		} else {
-			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack' ) . '</h4>' . wp_kses(
+			echo '<h4>' . esc_html__( 'Your message has been sent', 'jetpack-forms' ) . '</h4>' . wp_kses(
 				$submission_result,
 				array(
 					'br'         => array(),
@@ -1090,7 +1095,7 @@ class Contact_Form_Plugin {
 		$result = false;
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' ) {
-			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack' ) );
+			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
 		} elseif ( isset( $response[1] ) && 'true' === trim( $response[1] ) ) { // 'true' is spam
 			$result = true;
 		}
@@ -1145,7 +1150,7 @@ class Contact_Form_Plugin {
 	public static function form_posts_dropdown( $selected_id ) {
 		?>
 		<select name="jetpack_form_parent_id">
-			<option value="all"><?php esc_html_e( 'All sources', 'jetpack' ); ?></option>
+			<option value="all"><?php esc_html_e( 'All sources', 'jetpack-forms' ); ?></option>
 			<?php echo self::get_feedbacks_as_options( $selected_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is escaped in the function. ?>
 		</select>
 		<?php
@@ -1175,18 +1180,18 @@ class Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                                  = get_post_meta( $post_id, '_feedback_extra_fields', true );
-		$md[ __( 'Date', 'jetpack' ) ]       = get_the_date( DATE_RFC3339, $post_id );
-		$content_fields                      = self::parse_fields_from_content( $post_id );
-		$md[ __( 'IP Address', 'jetpack' ) ] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md                                        = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md[ __( 'Date', 'jetpack-forms' ) ]       = get_the_date( DATE_RFC3339, $post_id );
+		$content_fields                            = self::parse_fields_from_content( $post_id );
+		$md[ __( 'IP Address', 'jetpack-forms' ) ] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
-		$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = 0;
+		$md[ _x( 'Consent', 'noun', 'jetpack-forms' ) ] = 0;
 		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
 			$all_fields = $content_fields['_feedback_all_fields'];
 			// check if the email_marketing_consent field exists.
 			if ( isset( $all_fields['email_marketing_consent'] ) ) {
-				$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = $all_fields['email_marketing_consent'];
+				$md[ _x( 'Consent', 'noun', 'jetpack-forms' ) ] = $all_fields['email_marketing_consent'];
 			}
 		}
 
@@ -1222,12 +1227,12 @@ class Contact_Form_Plugin {
 
 		$field_mapping = array(
 			// TODO: Commented out since we'll be re-introducing this after some other changes
-			// '_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
+			// '_feedback_subject'      => __( 'Contact Form', 'jetpack-forms' ),
 			'_feedback_author'       => '1_Name',
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
 			'_feedback_main_comment' => '4_Comment',
-			'_feedback_ip'           => __( 'IP Address', 'jetpack' ),
+			'_feedback_ip'           => __( 'IP Address', 'jetpack-forms' ),
 		);
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
@@ -1253,7 +1258,7 @@ class Contact_Form_Plugin {
 	 */
 	public function register_personal_data_exporter( $exporters ) {
 		$exporters['jetpack-feedback'] = array(
-			'exporter_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'exporter_friendly_name' => __( 'Feedback', 'jetpack-forms' ),
 			'callback'               => array( $this, 'personal_data_exporter' ),
 		);
 
@@ -1271,7 +1276,7 @@ class Contact_Form_Plugin {
 	 */
 	public function register_personal_data_eraser( $erasers ) {
 		$erasers['jetpack-feedback'] = array(
-			'eraser_friendly_name' => __( 'Feedback', 'jetpack' ),
+			'eraser_friendly_name' => __( 'Feedback', 'jetpack-forms' ),
 			'callback'             => array( $this, 'personal_data_eraser' ),
 		);
 
@@ -1341,7 +1346,7 @@ class Contact_Form_Plugin {
 
 			$export_data[] = array(
 				'group_id'    => 'feedback',
-				'group_label' => __( 'Feedback', 'jetpack' ),
+				'group_label' => __( 'Feedback', 'jetpack-forms' ),
 				'item_id'     => 'feedback-' . $post_id,
 				'data'        => $post_export_data,
 			);
@@ -1408,7 +1413,7 @@ class Contact_Form_Plugin {
 				} else {
 					$messages[] = sprintf(
 					// translators: %d: Post ID.
-						__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+						__( 'Feedback ID %d could not be removed at this time.', 'jetpack-forms' ),
 						$post_id
 					);
 				}
@@ -1424,7 +1429,7 @@ class Contact_Form_Plugin {
 				$retained   = true;
 				$messages[] = sprintf(
 				// translators: %d: Post ID.
-					__( 'Feedback ID %d could not be removed at this time.', 'jetpack' ),
+					__( 'Feedback ID %d could not be removed at this time.', 'jetpack-forms' ),
 					$post_id
 				);
 			}
@@ -1964,7 +1969,7 @@ class Contact_Form_Plugin {
 
 		// Loop the fields array in order to fill the $row_items array correctly
 		foreach ( $fields as $field ) {
-			if ( $field === __( 'Contact Form', 'jetpack' ) ) { // the first field will ever be the contact form, so we can continue
+			if ( $field === __( 'Contact Form', 'jetpack-forms' ) ) { // the first field will ever be the contact form, so we can continue
 				continue;
 			} elseif ( array_key_exists( $field, $all_fields ) ) {
 				$row_items[] = $all_fields[ $field ];

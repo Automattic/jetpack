@@ -1,15 +1,16 @@
 <?php
+/**
+ * A prototype to allow inline editing / editor views for contact forms.
+ *
+ * Originally developed in: https://github.com/automattic/gm2016-grunion-editor
+ * Authors: Michael Arestad, Andrew Ozz, and George Stephanis
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
-
-/*
- * A prototype to allow inline editing / editor views for contact forms.\
- *
- * Originally developed in: https://github.com/automattic/gm2016-grunion-editor
- * Authors: Michael Arestad, Andrew Ozz, and George Stephanis
- */
 
 /**
  * Grunion editor view class.
@@ -39,7 +40,7 @@ class Editor_View {
 	 * Render the grunion media button.
 	 */
 	public static function grunion_media_button() {
-		$title = __( 'Add Contact Form', 'jetpack' );
+		$title = __( 'Add Contact Form', 'jetpack-forms' );
 		?>
 
 		<button type="button" id="insert-jetpack-contact-form" class="button" title="<?php echo esc_attr( $title ); ?>" href="javascript:;">
@@ -110,17 +111,17 @@ class Editor_View {
 				'inline_editing_style'     => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
 				'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),
 				'dashicons_css_url'        => includes_url( 'css/dashicons.css' ),
-				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]' .
-									'[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]' .
-									'[contact-field label="' . __( 'Website', 'jetpack' ) . '" type="url" /]' .
-									'[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]',
+				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack-forms' ) . '" type="name"  required="true" /]' .
+									'[contact-field label="' . __( 'Email', 'jetpack-forms' ) . '" type="email" required="true" /]' .
+									'[contact-field label="' . __( 'Website', 'jetpack-forms' ) . '" type="url" /]' .
+									'[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]',
 				'labels'                   => array(
-					'submit_button_text'  => __( 'Submit', 'jetpack' ),
+					'submit_button_text'  => __( 'Submit', 'jetpack-forms' ),
 					/** This filter is documented in modules/contact-form/grunion-contact-form.php */
-					'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ),
-					'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack' ),
-					'quicktags_label'     => __( 'contact form', 'jetpack' ),
-					'tinymce_label'       => __( 'Add contact form', 'jetpack' ),
+					'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack-forms' ) ),
+					'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack-forms' ),
+					'quicktags_label'     => __( 'contact form', 'jetpack-forms' ),
+					'tinymce_label'       => __( 'Add contact form', 'jetpack-forms' ),
 				),
 			)
 		);
@@ -179,7 +180,7 @@ class Editor_View {
 <script type="text/html" id="tmpl-grunion-field-checkbox">
 	<div>
 		<label class='grunion-field-label checkbox'>
-			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr__( 'Yes', 'jetpack' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
+			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr__( 'Yes', 'jetpack-forms' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
 				<span>{{ data.label }}</span><# if ( data.required ) print( " <span>" + data.required + "</span>" ) #>
 		</label>
 		<div class='clear-form'></div>
@@ -233,29 +234,29 @@ class Editor_View {
 
 
 <script type="text/html" id="tmpl-grunion-field-edit">
-	<div class="card is-compact grunion-field-edit grunion-field-{{ data.type }}" aria-label="<?php esc_attr_e( 'Form Field', 'jetpack' ); ?>">
+	<div class="card is-compact grunion-field-edit grunion-field-{{ data.type }}" aria-label="<?php esc_attr_e( 'Form Field', 'jetpack-forms' ); ?>">
 		<label class="grunion-name">
-			<span><?php esc_html_e( 'Field Label', 'jetpack' ); ?></span>
-			<input type="text" name="label" placeholder="<?php esc_attr_e( 'Label', 'jetpack' ); ?>" value="{{ data.label }}"/>
+			<span><?php esc_html_e( 'Field Label', 'jetpack-forms' ); ?></span>
+			<input type="text" name="label" placeholder="<?php esc_attr_e( 'Label', 'jetpack-forms' ); ?>" value="{{ data.label }}"/>
 		</label>
 
 		<?php
 		$grunion_field_types = array(
-			'text'              => __( 'Text', 'jetpack' ),
-			'name'              => __( 'Name', 'jetpack' ),
-			'email'             => __( 'Email', 'jetpack' ),
-			'url'               => __( 'Website', 'jetpack' ),
-			'textarea'          => __( 'Textarea', 'jetpack' ),
-			'checkbox'          => __( 'Checkbox', 'jetpack' ),
-			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack' ),
-			'select'            => __( 'Drop down', 'jetpack' ),
-			'radio'             => __( 'Radio', 'jetpack' ),
-			'date'              => __( 'Date', 'jetpack' ),
+			'text'              => __( 'Text', 'jetpack-forms' ),
+			'name'              => __( 'Name', 'jetpack-forms' ),
+			'email'             => __( 'Email', 'jetpack-forms' ),
+			'url'               => __( 'Website', 'jetpack-forms' ),
+			'textarea'          => __( 'Textarea', 'jetpack-forms' ),
+			'checkbox'          => __( 'Checkbox', 'jetpack-forms' ),
+			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack-forms' ),
+			'select'            => __( 'Drop down', 'jetpack-forms' ),
+			'radio'             => __( 'Radio', 'jetpack-forms' ),
+			'date'              => __( 'Date', 'jetpack-forms' ),
 		);
 		?>
 		<div class="grunion-type-options">
 			<label class="grunion-type">
-				<?php esc_html_e( 'Field Type', 'jetpack' ); ?>
+				<?php esc_html_e( 'Field Type', 'jetpack-forms' ); ?>
 				<select name="type">
 					<?php foreach ( $grunion_field_types as $type => $label ) : ?>
 					<option <# if ( '<?php echo esc_js( $type ); ?>' === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
@@ -267,54 +268,54 @@ class Editor_View {
 
 			<label class="grunion-required">
 				<input type="checkbox" name="required" value="1" <# if ( data.required ) print( 'checked="checked"' ) #> />
-				<span><?php esc_html_e( 'Required?', 'jetpack' ); ?></span>
+				<span><?php esc_html_e( 'Required?', 'jetpack-forms' ); ?></span>
 			</label>
 		</div>
 
 		<label class="grunion-options">
-			<?php esc_html_e( 'Options', 'jetpack' ); ?>
+			<?php esc_html_e( 'Options', 'jetpack-forms' ); ?>
 			<ol>
 				<# if ( data.options ) { #>
 					<# _.each( data.options, function( option ) { #>
-						<li><input type="text" name="option" value="{{ option }}" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack' ); ?></span></a></li>
+						<li><input type="text" name="option" value="{{ option }}" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
 					<# }); #>
 				<# } else { #>
-					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack' ); ?></span></a></li>
-					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack' ); ?></span></a></li>
-					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack' ); ?></span></a></li>
+					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
+					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
+					<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
 				<# } #>
-				<li><a class="add-option" href="javascript:;"><?php esc_html_e( 'Add new option...', 'jetpack' ); ?></a></li>
+				<li><a class="add-option" href="javascript:;"><?php esc_html_e( 'Add new option...', 'jetpack-forms' ); ?></a></li>
 			</ol>
 		</label>
 
-		<a href="javascript:;" class="delete-field"><span class="screen-reader-text"><?php esc_html_e( 'Delete Field', 'jetpack' ); ?></span></a>
+		<a href="javascript:;" class="delete-field"><span class="screen-reader-text"><?php esc_html_e( 'Delete Field', 'jetpack-forms' ); ?></span></a>
 	</div>
 </script>
 
 <script type="text/html" id="tmpl-grunion-field-edit-option">
-	<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack' ); ?></span></a></li>
+	<li><input type="text" name="option" /> <a class="delete-option" href="javascript:;"><span class="screen-reader-text"><?php esc_html_e( 'Delete Option', 'jetpack-forms' ); ?></span></a></li>
 </script>
 
 <script type="text/html" id="tmpl-grunion-editor-inline">
-			<h1 id="form-settings-header" class="grunion-section-header"><?php esc_html_e( 'Contact form information', 'jetpack' ); ?></h1>
+			<h1 id="form-settings-header" class="grunion-section-header"><?php esc_html_e( 'Contact form information', 'jetpack-forms' ); ?></h1>
 			<section class="card grunion-form-settings" aria-labelledby="form-settings-header">
-				<label><?php esc_html_e( 'What would you like the subject of the email to be?', 'jetpack' ); ?>
+				<label><?php esc_html_e( 'What would you like the subject of the email to be?', 'jetpack-forms' ); ?>
 					<input type="text" name="subject" value="{{ data.subject }}" />
 				</label>
-				<label><?php esc_html_e( 'Which email address should we send the submissions to?', 'jetpack' ); ?>
+				<label><?php esc_html_e( 'Which email address should we send the submissions to?', 'jetpack-forms' ); ?>
 					<input type="text" name="to" value="{{ data.to }}" />
 				</label>
 			</section>
-			<h1 id="form-fields-header" class="grunion-section-header"><?php esc_html_e( 'Contact form fields', 'jetpack' ); ?></h1>
+			<h1 id="form-fields-header" class="grunion-section-header"><?php esc_html_e( 'Contact form fields', 'jetpack-forms' ); ?></h1>
 			<section class="grunion-fields" aria-labelledby="form-fields-header">
 				{{{ data.fields }}}
 			</section>
 			<section class="grunion-controls">
-				<?php submit_button( esc_html__( 'Add Field', 'jetpack' ), 'secondary', 'add-field', false ); ?>
+				<?php submit_button( esc_html__( 'Add Field', 'jetpack-forms' ), 'secondary', 'add-field', false ); ?>
 
 				<div class="grunion-update-controls">
-					<?php submit_button( esc_html__( 'Cancel', 'jetpack' ), 'delete', 'cancel', false ); ?>
-					<?php submit_button( esc_html__( 'Update Form', 'jetpack' ), 'primary', 'submit', false ); ?>
+					<?php submit_button( esc_html__( 'Cancel', 'jetpack-forms' ), 'delete', 'cancel', false ); ?>
+					<?php submit_button( esc_html__( 'Update Form', 'jetpack-forms' ), 'primary', 'submit', false ); ?>
 				</div>
 			</section>
 </script>

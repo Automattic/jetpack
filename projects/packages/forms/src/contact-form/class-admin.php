@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contact_Form_Admin class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
@@ -89,8 +94,8 @@ class Admin {
 		}
 		add_thickbox();
 		$localized_strings = array(
-			'exportError'       => esc_js( __( 'There was an error exporting your results', 'jetpack' ) ),
-			'waitingConnection' => esc_js( __( 'Waiting for connection...', 'jetpack' ) ),
+			'exportError'       => esc_js( __( 'There was an error exporting your results', 'jetpack-forms' ) ),
+			'waitingConnection' => esc_js( __( 'Waiting for connection...', 'jetpack-forms' ) ),
 		);
 		wp_localize_script( 'grunion-admin', 'exportParameters', $localized_strings );
 	}
@@ -118,8 +123,8 @@ class Admin {
 		<div id="feedback-export-modal" style="display: none;">
 			<div class="feedback-export-modal__wrapper">
 				<div class="feedback-export-modal__header">
-					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export your Form Responses', 'jetpack' ); ?></h1>
-					<p class="feedback-export-modal__header-subtitle"><?php esc_html_e( 'Choose your favorite file format or export destination:', 'jetpack' ); ?></p>
+					<h1 class="feedback-export-modal__header-title"><?php esc_html_e( 'Export your Form Responses', 'jetpack-forms' ); ?></h1>
+					<p class="feedback-export-modal__header-subtitle"><?php esc_html_e( 'Choose your favorite file format or export destination:', 'jetpack-forms' ); ?></p>
 				</div>
 				<div class="feedback-export-modal__content">
 					<?php $this->get_csv_export_section(); ?>
@@ -127,17 +132,17 @@ class Admin {
 				</div>
 				<div class="feedback-export-modal__footer">
 					<div class="feedback-export-modal__footer-column">
-						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
 							<?php echo $jetpack_logo->get_jp_emblem(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
-						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
-							<?php echo esc_html_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack' ); ?>
+						<a href="https://jetpack.com/support/jetpack-blocks/contact-form/" title="<?php echo esc_attr_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
+							<?php echo esc_html_x( 'Jetpack Forms', 'Name of Jetpack’s Contact Form feature', 'jetpack-forms' ); ?>
 						</a>
 					</div>
 					<div class="feedback-export-modal__footer-column">
 						<a href="https://automattic.com" title="Automattic" rel="noopener noreferer" target="_blank" class="feedback-export-modal__footer-link">
 							<svg role="img" x="0" y="0" viewBox="0 0 935 38.2" enable-background="new 0 0 935 38.2" aria-labelledby="jp-automattic-byline-logo-title" height="7" class="jp-automattic-byline-logo">
-								<desc id="jp-automattic-byline-logo-title"><?php esc_html_e( 'An Automattic Airline', 'jetpack' ); ?></desc>
+								<desc id="jp-automattic-byline-logo-title"><?php esc_html_e( 'An Automattic Airline', 'jetpack-forms' ); ?></desc>
 								<path d="M317.1 38.2c-12.6 0-20.7-9.1-20.7-18.5v-1.2c0-9.6 8.2-18.5 20.7-18.5 12.6 0 20.8 8.9 20.8 18.5v1.2C337.9 29.1 329.7 38.2 317.1 38.2zM331.2 18.6c0-6.9-5-13-14.1-13s-14 6.1-14 13v0.9c0 6.9 5 13.1 14 13.1s14.1-6.2 14.1-13.1V18.6zM175 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7L157 1.3h5.5L182 36.8H175zM159.7 8.2L152 23.1h15.7L159.7 8.2zM212.4 38.2c-12.7 0-18.7-6.9-18.7-16.2V1.3h6.6v20.9c0 6.6 4.3 10.5 12.5 10.5 8.4 0 11.9-3.9 11.9-10.5V1.3h6.7V22C231.4 30.8 225.8 38.2 212.4 38.2zM268.6 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H268.6zM397.3 36.8V8.7l-1.8 3.1 -14.9 25h-3.3l-14.7-25 -1.8-3.1v28.1h-6.5V1.3h9.2l14 24.4 1.7 3 1.7-3 13.9-24.4h9.1v35.5H397.3zM454.4 36.8l-4.7-8.8h-20.9l-4.5 8.8h-7l19.2-35.5h5.5l19.5 35.5H454.4zM439.1 8.2l-7.7 14.9h15.7L439.1 8.2zM488.4 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H488.4zM537.3 6.8v30h-6.7v-30h-15.5V1.3h37.7v5.5H537.3zM569.3 36.8V4.6c2.7 0 3.7-1.4 3.7-3.4h2.8v35.5L569.3 36.8 569.3 36.8zM628 11.3c-3.2-2.9-7.9-5.7-14.2-5.7 -9.5 0-14.8 6.5-14.8 13.3v0.7c0 6.7 5.4 13 15.3 13 5.9 0 10.8-2.8 13.9-5.7l4 4.2c-3.9 3.8-10.5 7.1-18.3 7.1 -13.4 0-21.6-8.7-21.6-18.3v-1.2c0-9.6 8.9-18.7 21.9-18.7 7.5 0 14.3 3.1 18 7.1L628 11.3zM321.5 12.4c1.2 0.8 1.5 2.4 0.8 3.6l-6.1 9.4c-0.8 1.2-2.4 1.6-3.6 0.8l0 0c-1.2-0.8-1.5-2.4-0.8-3.6l6.1-9.4C318.7 11.9 320.3 11.6 321.5 12.4L321.5 12.4z"></path><path d="M37.5 36.7l-4.7-8.9H11.7l-4.6 8.9H0L19.4 0.8H25l19.7 35.9H37.5zM22 7.8l-7.8 15.1h15.9L22 7.8zM82.8 36.7l-23.3-24 -2.3-2.5v26.6h-6.7v-36H57l22.6 24 2.3 2.6V0.8h6.7v35.9H82.8z"></path>
 								<path d="M719.9 37l-4.8-8.9H694l-4.6 8.9h-7.1l19.5-36h5.6l19.8 36H719.9zM704.4 8l-7.8 15.1h15.9L704.4 8zM733 37V1h6.8v36H733zM781 37c-1.8 0-2.6-2.5-2.9-5.8l-0.2-3.7c-0.2-3.6-1.7-5.1-8.4-5.1h-12.8V37H750V1h19.6c10.8 0 15.7 4.3 15.7 9.9 0 3.9-2 7.7-9 9 7 0.5 8.5 3.7 8.6 7.9l0.1 3c0.1 2.5 0.5 4.3 2.2 6.1V37H781zM778.5 11.8c0-2.6-2.1-5.1-7.9-5.1h-13.8v10.8h14.4c5 0 7.3-2.4 7.3-5.2V11.8zM794.8 37V1h6.8v30.4h28.2V37H794.8zM836.7 37V1h6.8v36H836.7zM886.2 37l-23.4-24.1 -2.3-2.5V37h-6.8V1h6.5l22.7 24.1 2.3 2.6V1h6.8v36H886.2zM902.3 37V1H935v5.6h-26v9.2h20v5.5h-20v10.1h26V37H902.3z"></path>
 							</svg>
@@ -147,7 +152,7 @@ class Admin {
 			</div>
 		</div>
 		<?php
-		$opener_label        = esc_html__( 'Export', 'jetpack' );
+		$opener_label        = esc_html__( 'Export', 'jetpack-forms' );
 		$export_modal_opener = wp_is_mobile()
 			? "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=550&height=550&inlineId=feedback-export-modal'>{$opener_label}</a>"
 			: "<a id='export-modal-opener' class='button button-primary' href='#TB_inline?&width=680&height=600&inlineId=feedback-export-modal'>{$opener_label}</a>";
@@ -174,7 +179,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -231,7 +236,7 @@ class Admin {
 	 */
 	public function get_csv_export_section() {
 		$button_csv_html = get_submit_button(
-			esc_html__( 'Download', 'jetpack' ),
+			esc_html__( 'Download', 'jetpack-forms' ),
 			'primary export-button export-csv',
 			'jetpack-export-feedback-csv',
 			false,
@@ -243,11 +248,11 @@ class Admin {
 				<svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path fill-rule="evenodd" clip-rule="evenodd" d="M11.2309 5.04199L10.0797 2.73945C9.98086 2.54183 9.77887 2.41699 9.55792 2.41699H2.83333C2.51117 2.41699 2.25 2.67816 2.25 3.00033V16.7087C2.25 17.0308 2.51117 17.292 2.83333 17.292H19.1667C19.4888 17.292 19.75 17.0308 19.75 16.7087V5.62533C19.75 5.30316 19.4888 5.04199 19.1667 5.04199H11.2309ZM12.3125 3.29199L11.6449 1.95683C11.2497 1.16633 10.4417 0.666992 9.55792 0.666992H2.83333C1.54467 0.666992 0.5 1.71166 0.5 3.00033V16.7087C0.5 17.9973 1.54467 19.042 2.83333 19.042H19.1667C20.4553 19.042 21.5 17.9973 21.5 16.7087V5.62533C21.5 4.33666 20.4553 3.29199 19.1667 3.29199H12.3125Z" fill="#008710"/>
 				</svg>
-				<div class="export-card__header-title"><?php esc_html_e( 'CSV File', 'jetpack' ); ?></div>
+				<div class="export-card__header-title"><?php esc_html_e( 'CSV File', 'jetpack-forms' ); ?></div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
-					<?php esc_html_e( 'Download your form response data via CSV file.', 'jetpack' ); ?>
+					<?php esc_html_e( 'Download your form response data via CSV file.', 'jetpack-forms' ); ?>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
@@ -267,7 +272,7 @@ class Admin {
 	 * If the user doesn't hold a Google Drive connection a button to connect will render (See grunion-admin.js).
 	 */
 	public function get_gdrive_export_section() {
-		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
+		$user_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
 		if ( ! $user_connected ) {
 			return;
 		}
@@ -284,8 +289,8 @@ class Admin {
 			$button_html = sprintf(
 				'<a href="%1$s" id="%4$s" data-nonce-name="%5$s" class="button button-primary export-button export-gdrive" title="%2$s" rel="noopener noreferer" target="_blank">%3$s</a>',
 				esc_url( Redirect::get_url( $slug ) ),
-				esc_attr__( 'connect to Google Drive', 'jetpack' ),
-				esc_html__( 'Connect Google Drive', 'jetpack' ),
+				esc_attr__( 'connect to Google Drive', 'jetpack-forms' ),
+				esc_html__( 'Connect Google Drive', 'jetpack-forms' ),
 				$slug,
 				$this->export_nonce_field_gdrive
 			);
@@ -297,23 +302,23 @@ class Admin {
 				<svg width="18" height="24" viewBox="0 0 18 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 					<path d="M11.8387 1.16016H2C1.44772 1.16016 1 1.60787 1 2.16016V21.8053V21.8376C1 22.3899 1.44772 22.8376 2 22.8376H16C16.5523 22.8376 17 22.3899 17 21.8376V5.80532M11.8387 1.16016V5.80532H17M11.8387 1.16016L17 5.80532M4.6129 13.0311V16.1279H9.25806M4.6129 13.0311V9.93435H9.25806M4.6129 13.0311H13.9032M13.9032 13.0311V9.93435H9.25806M13.9032 13.0311V16.1279H9.25806M9.25806 9.93435V16.1279" stroke="#008710" stroke-width="1.5"/>
 				</svg>
-				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack' ); ?></div>
+				<div class="export-card__header-title"><?php esc_html_e( 'Google Sheets', 'jetpack-forms' ); ?></div>
 				<div class="export-card__beta-badge">BETA</div>
 			</div>
 			<div class="export-card__body">
 				<div class="export-card__body-description">
 					<div>
-						<?php esc_html_e( 'Export your data into a Google Sheets file.', 'jetpack' ); ?>
+						<?php esc_html_e( 'Export your data into a Google Sheets file.', 'jetpack-forms' ); ?>
 						<?php
 						printf(
 							'<a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferer">%3$s</a>',
 							esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-							esc_attr__( 'connect to Google Drive', 'jetpack' ),
-							esc_html__( 'You need to connect to Google Drive.', 'jetpack' )
+							esc_attr__( 'connect to Google Drive', 'jetpack-forms' ),
+							esc_html__( 'You need to connect to Google Drive.', 'jetpack-forms' )
 						);
 						?>
 					</div>
-					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack' ); ?></p>
+					<p class="export-card__body-description-footer"><?php esc_html_e( 'This premium feature is currently free to use in beta.', 'jetpack-forms' ); ?></p>
 				</div>
 				<div class="export-card__body-cta">
 					<?php
@@ -343,7 +348,7 @@ class Admin {
 			! wp_verify_nonce( sanitize_text_field( $post_data[ $this->export_nonce_field_gdrive ] ), 'feedback_export' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -374,7 +379,7 @@ class Admin {
 	 */
 	public function get_gdrive_export_button_markup() {
 		return get_submit_button(
-			esc_html__( 'Export', 'jetpack' ),
+			esc_html__( 'Export', 'jetpack-forms' ),
 			'primary export-button export-gdrive',
 			'jetpack-export-feedback-gdrive',
 			false,
@@ -392,12 +397,12 @@ class Admin {
 		return $source === ''
 			? sprintf(
 				/* translators: Site title, used to craft the export filename, eg "MySite - Jetpack Form Responses" */
-				__( '%s - Jetpack Form Responses', 'jetpack' ),
+				__( '%s - Jetpack Form Responses', 'jetpack-forms' ),
 				sanitize_file_name( get_bloginfo( 'name' ) )
 			)
 			: sprintf(
 				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
-				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack' ),
+				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
 				sanitize_file_name( get_bloginfo( 'name' ) ),
 				sanitize_file_name( $source )
 			);
@@ -416,7 +421,7 @@ class Admin {
 		}
 
 		$iframe_post_id = (int) ( 0 === $post_ID ? $temp_ID : $post_ID );// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$title          = __( 'Add Contact Form', 'jetpack' );
+		$title          = __( 'Add Contact Form', 'jetpack-forms' );
 		$site_url       = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
 		?>
 
@@ -501,13 +506,13 @@ class Admin {
 		if ( isset( $_GET['post_status'] ) && 'spam' === $_GET['post_status'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no changes to the site, we're only rendering the option to choose bulk delete/spam.
 			// Create Delete Permanently bulk item
 			$option_val      = 'delete';
-			$option_txt      = __( 'Delete Permanently', 'jetpack' );
+			$option_txt      = __( 'Delete Permanently', 'jetpack-forms' );
 			$pseudo_selector = 'last-child';
 
 		} else {
 			// Create Mark Spam bulk item
 			$option_val      = 'spam';
-			$option_txt      = __( 'Mark as Spam', 'jetpack' );
+			$option_txt      = __( 'Mark as Spam', 'jetpack-forms' );
 			$pseudo_selector = 'first-child';
 		}
 
@@ -551,7 +556,7 @@ class Admin {
 
 		foreach ( $post_ids as $post_id ) {
 			if ( ! current_user_can( 'edit_page', $post_id ) ) {
-				wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack' ) );
+				wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack-forms' ) );
 			}
 
 			$post           = array(
@@ -587,7 +592,7 @@ class Admin {
 	 * @return void
 	 */
 	public function grunion_message_bulk_spam() {
-		echo '<div class="updated"><p>' . esc_html__( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
+		echo '<div class="updated"><p>' . esc_html__( 'Feedback(s) marked as spam', 'jetpack-forms' ) . '</p></div>';
 	}
 
 	/**
@@ -622,7 +627,7 @@ class Admin {
 
 		preg_match( '|post_type=feedback\'( class="current")?\>(.*)\<span class=|', $views['all'], $match );
 		if ( ! empty( $match[2] ) ) {
-			$views['all'] = str_replace( $match[2], __( 'Messages', 'jetpack' ) . ' ', $views['all'] );
+			$views['all'] = str_replace( $match[2], __( 'Messages', 'jetpack-forms' ) . ' ', $views['all'] );
 		}
 
 		return $views;
@@ -637,10 +642,10 @@ class Admin {
 	public function grunion_post_type_columns_filter( $cols ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return array(
 			'cb'                => '<input type="checkbox" />',
-			'feedback_from'     => __( 'From', 'jetpack' ),
-			'feedback_source'   => __( 'Source', 'jetpack' ),
-			'feedback_date'     => __( 'Date', 'jetpack' ),
-			'feedback_response' => __( 'Response Data', 'jetpack' ),
+			'feedback_from'     => __( 'From', 'jetpack-forms' ),
+			'feedback_source'   => __( 'Source', 'jetpack-forms' ),
+			'feedback_date'     => __( 'Date', 'jetpack-forms' ),
+			'feedback_response' => __( 'Response Data', 'jetpack-forms' ),
 		);
 	}
 
@@ -681,7 +686,7 @@ class Admin {
 			return;
 		}
 
-		echo esc_html__( 'Unknown', 'jetpack' );
+		echo esc_html__( 'Unknown', 'jetpack-forms' );
 	}
 
 	/**
@@ -717,10 +722,10 @@ class Admin {
 
 		echo '<div class="feedback_response__item">';
 		if ( isset( $content_fields['_feedback_ip'] ) ) {
-			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack' ) . '</div>';
+			echo '<div class="feedback_response__item-key">' . esc_html__( 'IP', 'jetpack-forms' ) . '</div>';
 			echo '<div class="feedback_response__item-value">' . esc_html( $content_fields['_feedback_ip'] ) . '</div>';
 		}
-		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack' ) . '</div>';
+		echo '<div class="feedback_response__item-key">' . esc_html__( 'Source', 'jetpack-forms' ) . '</div>';
 		echo '<div class="feedback_response__item-value"><a href="' . esc_url( get_permalink( $post->post_parent ) ) . '" target="_blank" rel="noopener noreferrer">' . esc_html( get_permalink( $post->post_parent ) ) . '</a></div>';
 		echo '</div>';
 	}
@@ -836,40 +841,40 @@ class Admin {
 		if ( $post->post_status === 'trash' ) {
 			$actions['untrash'] = sprintf(
 				'<a title="%s" href="%s">%s</a>',
-				esc_attr__( 'Restore this item from the Trash', 'jetpack' ),
+				esc_attr__( 'Restore this item from the Trash', 'jetpack-forms' ),
 				esc_url( wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&action=untrash', rawurlencode( $post->ID ) ) ) ), 'untrash-' . $post->post_type . '_' . $post->ID ),
-				esc_html__( 'Restore', 'jetpack' )
+				esc_html__( 'Restore', 'jetpack-forms' )
 			);
 			$actions['delete']  = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr( __( 'Delete this item permanently', 'jetpack' ) ),
+				esc_attr( __( 'Delete this item permanently', 'jetpack-forms' ) ),
 				get_delete_post_link( $post->ID, '', true ),
-				esc_html__( 'Delete Permanently', 'jetpack' )
+				esc_html__( 'Delete Permanently', 'jetpack-forms' )
 			);
 		} elseif ( $post->post_status === 'publish' ) {
 			$actions['spam']  = sprintf(
 				'<a title="%s" href="%s">%s</a>',
-				esc_html__( 'Mark this message as spam', 'jetpack' ),
+				esc_html__( 'Mark this message as spam', 'jetpack-forms' ),
 				esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?post_id=' . rawurlencode( $post->ID ) . '&action=spam' ) ), 'spam-feedback_' . $post->ID ),
-				esc_html__( 'Spam', 'jetpack' )
+				esc_html__( 'Spam', 'jetpack-forms' )
 			);
 			$actions['trash'] = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr__( 'Trash', 'jetpack' ),
+				esc_attr__( 'Trash', 'jetpack-forms' ),
 				get_delete_post_link( $post->ID ),
-				esc_html__( 'Trash', 'jetpack' )
+				esc_html__( 'Trash', 'jetpack-forms' )
 			);
 		} elseif ( $post->post_status === 'spam' ) {
 			$actions['unspam unapprove'] = sprintf(
 				'<a title="%s" href="">%s</a>',
-				esc_html__( 'Mark this message as NOT spam', 'jetpack' ),
-				esc_html__( 'Not Spam', 'jetpack' )
+				esc_html__( 'Mark this message as NOT spam', 'jetpack-forms' ),
+				esc_html__( 'Not Spam', 'jetpack-forms' )
 			);
 			$actions['delete']           = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr( __( 'Delete this item permanently', 'jetpack' ) ),
+				esc_attr( __( 'Delete this item permanently', 'jetpack-forms' ) ),
 				get_delete_post_link( $post->ID, '', true ),
-				esc_html__( 'Delete Permanently', 'jetpack' )
+				esc_html__( 'Delete Permanently', 'jetpack-forms' )
 			);
 		}
 
@@ -1020,7 +1025,7 @@ class Admin {
 		$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
 		check_ajax_referer( 'grunion-post-status' );
 		if ( ! current_user_can( 'edit_page', $post_id ) ) {
-			wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack' ) );
+			wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack-forms' ) );
 		}
 
 		require_once __DIR__ . '/grunion-contact-form.php';
@@ -1110,19 +1115,19 @@ class Admin {
 			}
 		} elseif ( $_POST['make_it'] === 'publish' ) {
 			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
-				wp_die( esc_html__( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );
+				wp_die( esc_html__( 'You are not allowed to move this item out of the Trash.', 'jetpack-forms' ) );
 			}
 
 			if ( ! wp_untrash_post( $post_id ) ) {
-				wp_die( esc_html__( 'Error in restoring from Trash.', 'jetpack' ) );
+				wp_die( esc_html__( 'Error in restoring from Trash.', 'jetpack-forms' ) );
 			}
 		} elseif ( $_POST['make_it'] === 'trash' ) {
 			if ( ! current_user_can( $post_type_object->cap->delete_post, $post_id ) ) {
-				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack' ) );
+				wp_die( esc_html__( 'You are not allowed to move this item to the Trash.', 'jetpack-forms' ) );
 			}
 
 			if ( ! wp_trash_post( $post_id ) ) {
-				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack' ) );
+				wp_die( esc_html__( 'Error in moving to Trash.', 'jetpack-forms' ) );
 			}
 		}
 
@@ -1147,7 +1152,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Messages', 'jetpack' ) . ' <span class="count">';
+			$status_html .= '>' . __( 'Messages', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['publish'] ) . ')';
 			$status_html .= '</span></a> |</li>';
 		}
@@ -1158,7 +1163,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Trash', 'jetpack' ) . ' <span class="count">';
+			$status_html .= '>' . __( 'Trash', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['trash'] ) . ')';
 			$status_html .= '</span></a>';
 			if ( isset( $status['spam'] ) ) {
@@ -1173,7 +1178,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Spam', 'jetpack' ) . ' <span class="count">';
+			$status_html .= '>' . __( 'Spam', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['spam'] ) . ')';
 			$status_html .= '</span></a></li>';
 		}
@@ -1240,12 +1245,12 @@ class Admin {
 
 		$button_parameters = array(
 			/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
-			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack' ),
+			'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack-forms' ),
 			'success_url'    => $success_url,
 			'failure_url'    => $failure_url,
 			'spam_count'     => $spam_count,
 			'nonce'          => $nonce,
-			'label'          => __( 'Empty Spam', 'jetpack' ),
+			'label'          => __( 'Empty Spam', 'jetpack-forms' ),
 		);
 
 		wp_localize_script( 'grunion-admin', 'jetpack_empty_spam_button_parameters', $button_parameters );
@@ -1274,7 +1279,7 @@ class Admin {
 		$nonce_name = 'feedback_export_nonce';
 
 		$button_html = get_submit_button(
-			__( 'Export', 'jetpack' ),
+			__( 'Export', 'jetpack-forms' ),
 			'primary',
 			'jetpack-export-feedback',
 			false,
@@ -1301,7 +1306,7 @@ class Admin {
 		$nonce_name = 'jetpack_check_feedback_spam_' . (string) get_current_blog_id();
 		// Get HTML for the button.
 		$button_html  = get_submit_button(
-			__( 'Check for Spam', 'jetpack' ),
+			__( 'Check for Spam', 'jetpack-forms' ),
 			'secondary',
 			'jetpack-check-feedback-spam',
 			false,
@@ -1334,7 +1339,7 @@ class Admin {
 			|| ! wp_verify_nonce( sanitize_key( $_POST[ 'jetpack_check_feedback_spam_' . (string) $blog_id ] ), 'grunion_recheck_queue' )
 		) {
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1343,7 +1348,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack' ),
+				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1404,10 +1409,10 @@ class Admin {
 	/**
 	 * Delete a number of spam feedbacks via an AJAX request.
 	 */
-	function grunion_delete_spam_feedbacks() {
+	public function grunion_delete_spam_feedbacks() {
 		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- core doesn't sanitize nonce checks either.
 			wp_send_json_error(
-				__( 'You aren’t authorized to do that.', 'jetpack' ),
+				__( 'You aren’t authorized to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1416,7 +1421,7 @@ class Admin {
 
 		if ( ! current_user_can( 'delete_others_posts' ) ) {
 			wp_send_json_error(
-				__( 'You don’t have permission to do that.', 'jetpack' ),
+				__( 'You don’t have permission to do that.', 'jetpack-forms' ),
 				403
 			);
 
@@ -1472,9 +1477,9 @@ class Admin {
 	 */
 	public function grunion_feedback_admin_notice() {
 		if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack' ) ) . '</p></div>';
+			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack-forms' ) ) . '</p></div>';
 		} elseif ( isset( $_GET['jetpack_check_feedback_spam_error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack' ) ) . '</p></div>';
+			echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to check for spam among the feedback you received.', 'jetpack-forms' ) ) . '</p></div>';
 		}
 	}
 }

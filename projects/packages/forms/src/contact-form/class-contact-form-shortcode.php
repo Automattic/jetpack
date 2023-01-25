@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contact_Form_Shortcode class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 

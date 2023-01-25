@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contact_Form_Endpoint class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
@@ -17,7 +22,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return new \WP_Error(
 				'rest_cannot_view',
-				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
+				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )
 			);
 		}
@@ -35,7 +40,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		if ( ! is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return new \WP_Error(
 				'rest_cannot_view',
-				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack' ),
+				esc_html__( 'Sorry, you cannot view this resource.', 'jetpack-forms' ),
 				array( 'status' => 401 )
 			);
 		}

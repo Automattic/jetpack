@@ -1,7 +1,16 @@
 <?php
+/**
+ * Contact_Form_Util class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+/**
+ * This class serves as a container for what previously were standalone grunion functions.
+ * In the long term we should aim to move things to other classes and gradually get rid of this rather than adding more.
+ */
 class Util {
 
 	/**
@@ -29,9 +38,12 @@ class Util {
 		add_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
 	}
 
+	/**
+	 * Registers contact form block patterns.
+	 */
 	public static function register_pattern() {
 		$category_slug = 'forms';
-		register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack' ) ) );
+		register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack-forms' ) ) );
 
 		$patterns = array(
 			'contact-form'      => array(

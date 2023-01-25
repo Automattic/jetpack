@@ -1,4 +1,9 @@
 <?php
+/**
+ * Contact_Form class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
@@ -91,7 +96,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( $post ) {
 			$default_subject = sprintf(
 				// translators: the blog name and post title.
-				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ),
+				_x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack-forms' ),
 				$default_subject,
 				Contact_Form_Plugin::strip_tags( $post->post_title )
 			);
@@ -101,7 +106,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'widget-' . $attributes['widget'];
 			// translators: the blog name (and post name, if applicable).
-			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
+			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack-forms' ), $default_subject );
 		} elseif ( ! empty( $attributes['block_template'] ) && $attributes['block_template'] ) {
 			$default_to      .= get_option( 'admin_email' );
 			$attributes['id'] = 'block-template-' . $attributes['block_template'];
@@ -125,11 +130,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'block_template'         => null, // Not exposed to the user. Works with template_loader
 			'block_template_part'    => null, // Not exposed to the user. Works with Grunion_Contact_Form::parse()
 			'id'                     => null, // Not exposed to the user. Set above.
-			'submit_button_text'     => __( 'Submit', 'jetpack' ),
+			'submit_button_text'     => __( 'Submit', 'jetpack-forms' ),
 			// These attributes come from the block editor, so use camel case instead of snake case.
 			'customThankyou'         => '', // Whether to show a custom thankyou response after submitting a form. '' for no, 'message' for a custom message, 'redirect' to redirect to a new URL.
-			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack' ), // The text to show above customThankyouMessage.
-			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack' ), // The message to show when customThankyou is set to 'message'.
+			'customThankyouHeading'  => __( 'Your message has been sent', 'jetpack-forms' ), // The text to show above customThankyouMessage.
+			'customThankyouMessage'  => __( 'Thank you for your submission!', 'jetpack-forms' ), // The message to show when customThankyou is set to 'message'.
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 		);
@@ -145,17 +150,17 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( empty( $this->fields ) ) {
 			// same as the original Grunion v1 form.
 			$default_form = '
-				[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]
-				[contact-field label="' . __( 'Email', 'jetpack' ) . '" type="email" required="true" /]
-				[contact-field label="' . __( 'Website', 'jetpack' ) . '" type="url" /]';
+				[contact-field label="' . __( 'Name', 'jetpack-forms' ) . '" type="name"  required="true" /]
+				[contact-field label="' . __( 'Email', 'jetpack-forms' ) . '" type="email" required="true" /]
+				[contact-field label="' . __( 'Website', 'jetpack-forms' ) . '" type="url" /]';
 
 			if ( 'yes' === strtolower( $this->get_attribute( 'show_subject' ) ) ) {
 				$default_form .= '
-					[contact-field label="' . __( 'Subject', 'jetpack' ) . '" type="subject" /]';
+					[contact-field label="' . __( 'Subject', 'jetpack-forms' ) . '" type="subject" /]';
 			}
 
 			$default_form .= '
-				[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]';
+				[contact-field label="' . __( 'Message', 'jetpack-forms' ) . '" type="textarea" /]';
 
 			$this->parse_content( $default_form );
 
@@ -270,7 +275,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
-			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack' ) . "</h3>\n<ul class='form-errors'>\n";
+			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack-forms' ) . "</h3>\n<ul class='form-errors'>\n";
 			foreach ( $form->errors->get_error_messages() as $message ) {
 				$r .= "\t<li class='form-error-message'>" . esc_html( $message ) . "</li>\n";
 			}
@@ -288,7 +293,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$back_url = remove_query_arg( array( 'contact-form-id', 'contact-form-sent', '_wpnonce' ) );
 			$r       .= '<div class="contact-form-submission">';
 
-			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack' ) . '</a> </p>';
+			$r_success_message = '<p class="go-back-message"> <a class="link" href="' . esc_url( $back_url ) . '">' . esc_html__( 'Go back', 'jetpack-forms' ) . '</a> </p>';
 
 			$r_success_message .=
 				'<h4 id="contact-form-success-header">' . esc_html( $form->get_attribute( 'customThankyouHeading' ) ) .
@@ -798,37 +803,37 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$str = null;
 		switch ( $type ) {
 			case 'text':
-				$str = __( 'Text', 'jetpack' );
+				$str = __( 'Text', 'jetpack-forms' );
 				break;
 			case 'name':
-				$str = __( 'Name', 'jetpack' );
+				$str = __( 'Name', 'jetpack-forms' );
 				break;
 			case 'email':
-				$str = __( 'Email', 'jetpack' );
+				$str = __( 'Email', 'jetpack-forms' );
 				break;
 			case 'url':
-				$str = __( 'Website', 'jetpack' );
+				$str = __( 'Website', 'jetpack-forms' );
 				break;
 			case 'date':
-				$str = __( 'Date', 'jetpack' );
+				$str = __( 'Date', 'jetpack-forms' );
 				break;
 			case 'telephone':
-				$str = __( 'Phone', 'jetpack' );
+				$str = __( 'Phone', 'jetpack-forms' );
 				break;
 			case 'textarea':
-				$str = __( 'Message', 'jetpack' );
+				$str = __( 'Message', 'jetpack-forms' );
 				break;
 			case 'checkbox-multiple':
-				$str = __( 'Choose several', 'jetpack' );
+				$str = __( 'Choose several', 'jetpack-forms' );
 				break;
 			case 'radio':
-				$str = __( 'Choose one', 'jetpack' );
+				$str = __( 'Choose one', 'jetpack-forms' );
 				break;
 			case 'select':
-				$str = __( 'Select one', 'jetpack' );
+				$str = __( 'Select one', 'jetpack-forms' );
 				break;
 			case 'consent':
-				$str = __( 'Consent', 'jetpack' );
+				$str = __( 'Consent', 'jetpack-forms' );
 				break;
 			default:
 				$str = null;
@@ -1246,7 +1251,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$url     = $block_template || $block_template_part || $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
 		// translators: the time of the form submission.
-		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
+		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack-forms' );
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
 		$time             = wp_date( $date_time_format );
 
@@ -1331,9 +1336,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$message,
 			'<br />',
 			'<hr />',
-			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
-			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			__( 'Contact Form URL:', 'jetpack' ) . ' ' . $url . '<br />'
+			__( 'Time:', 'jetpack-forms' ) . ' ' . $time . '<br />',
+			__( 'IP Address:', 'jetpack-forms' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			__( 'Contact Form URL:', 'jetpack-forms' ) . ' ' . $url . '<br />'
 		);
 
 		if ( is_user_logged_in() ) {
@@ -1341,13 +1346,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$message,
 				sprintf(
 					// translators: the the name of the site.
-					'<p>' . __( 'Sent by a verified %s user.', 'jetpack' ) . '</p>',
+					'<p>' . __( 'Sent by a verified %s user.', 'jetpack-forms' ) . '</p>',
 					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
 						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 				)
 			);
 		} else {
-			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
+			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '</p>' );
 		}
 
 		$message = join( '', $message );

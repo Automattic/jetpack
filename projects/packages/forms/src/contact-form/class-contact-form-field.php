@@ -1,10 +1,14 @@
 <?php
+/**
+ * Contact_Form_Field class.
+ *
+ * @package automattic/jetpack-forms
+ */
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Assets;
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- how many times I have to disable this?
 /**
  * Class for the contact-field shortcode.
  * Parses shortcode to output the contact form field as HTML.
@@ -83,7 +87,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		if ( $attributes['requiredtext'] === null ) {
-			$attributes['requiredtext'] = __( '(required)', 'jetpack' );
+			$attributes['requiredtext'] = __( '(required)', 'jetpack-forms' );
 		}
 
 		// parse out comma-separated options list (for selects, radios, and checkbox-multiples)
@@ -183,28 +187,28 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 					$field_value
 				) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s: Please enter a valid URL - https://www.example.com', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'email':
 				// Make sure the email address is valid
 				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			case 'checkbox-multiple':
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack-forms' ), $field_label ) );
 				}
 				break;
 			default:
 				// Just check for presence of any text
 				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
-					$this->add_error( sprintf( __( '%s is required', 'jetpack' ), $field_label ) );
+					$this->add_error( sprintf( __( '%s is required', 'jetpack-forms' ), $field_label ) );
 				}
 		}
 	}
@@ -423,7 +427,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_url_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
-		$custom_validation_message = __( 'Please enter a valid URL - https://www.example.com', 'jetpack' );
+		$custom_validation_message = __( 'Please enter a valid URL - https://www.example.com', 'jetpack-forms' );
 		$validation_attrs          = array(
 			'title'              => $custom_validation_message,
 			'oninvalid'          => 'setCustomValidity("' . $custom_validation_message . '")',
@@ -511,7 +515,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field      = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
 			$field .= "\t\t" . esc_html( $label ) . ( $required ? '<span>' . $required_field_text . '</span>' : '' );
 		$field     .= "</label>\n";
 		$field     .= "<div class='clear-form'></div>\n";
@@ -531,9 +535,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
 
 		if ( 'implicit' === $consent_type ) {
-			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' style='display:none;' /> \n";
+			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' style='display:none;' /> \n";
 		} else {
-			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' " . $class . "/> \n";
+			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . "/> \n";
 		}
 		$field .= "\t\t" . esc_html( $consent_message );
 		$field .= "</label>\n";
