@@ -46,7 +46,11 @@ class REST_Controller {
 	 * GET `jetpack/v4/migration/status`
 	 */
 	public function get_migration() {
-		$blog_id  = $this->get_blog_id();
+		$blog_id = \Automattic\Jetpack\Connection\Manager::get_site_id();
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
 		$path     = sprintf( '/migrations/from-source/%d', absint( $blog_id ) );
 		$response = Client::wpcom_json_api_request_as_user( $path, '2', array(), null, 'wpcom' );
 		return rest_ensure_response( $this->make_proper_response( $response ) );
@@ -92,13 +96,5 @@ class REST_Controller {
 			isset( $body['message'] ) ? $body['message'] : 'unknown remote error',
 			array( 'status' => $status_code )
 		);
-	}
-
-	/**
-	 * Get blog id
-	 */
-	protected function get_blog_id() {
-		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		return $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
 	}
 }
