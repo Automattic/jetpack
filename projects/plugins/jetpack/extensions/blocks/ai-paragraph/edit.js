@@ -8,13 +8,16 @@ import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
-const numberOfCharactersNeeded = 36;
+// Minimum number of characters needed in the prompt to send it to the backend
+const NUMBER_OF_CHARACTERS_NEEDED = 36;
+
+// Maximum number of characters we send from the content
+const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
 
 // This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-	// This let's the component know if the content was set (basically on first pass).
 
 	useEffect(
 		() => {
@@ -117,7 +120,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				return block.attributes.content.replaceAll( '<br/>', '\n' );
 			} )
 			.join( '\n' );
-		const shorter_content = content.slice( -240 );
+		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 		// If title is not added, we will only complete.
 		if ( ! currentPostTitle ) {
@@ -127,7 +130,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		// Title, content and categories
 		if ( shorter_content && categoryNames.length ) {
 			return sprintf(
-				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last 240 characters of content. */
+				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
 				__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 				currentPostTitle,
 				categoryNames,
@@ -148,7 +151,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		// Title and content
 		if ( shorter_content ) {
 			return sprintf(
-				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last 240 characters of content. */
+				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
 				__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 				currentPostTitle,
 				shorter_content
@@ -223,7 +226,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	if ( ! noLogicNeeded ) {
 		const prompt = createPrompt();
-		const nbCharactersNeeded = numberOfCharactersNeeded - prompt.length;
+		const nbCharactersNeeded = NUMBER_OF_CHARACTERS_NEEDED - prompt.length;
 
 		if ( containsAiUntriggeredParagraph() ) {
 			if ( ! isWaitingForPreviousBlock ) {
@@ -234,7 +237,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setIsWaitingForPreviousBlock( true );
 			}
 		} else if (
-			prompt.length < numberOfCharactersNeeded &&
+			prompt.length < NUMBER_OF_CHARACTERS_NEEDED &&
 			needsMoreCharacters !== nbCharactersNeeded
 		) {
 			setErrorMessage(
@@ -249,7 +252,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			);
 			setIsWaitingForPreviousBlock( false );
 			setNeedsMoreCharacters( nbCharactersNeeded );
-		} else if ( needsMoreCharacters !== 0 && prompt.length >= numberOfCharactersNeeded ) {
+		} else if ( needsMoreCharacters !== 0 && prompt.length >= NUMBER_OF_CHARACTERS_NEEDED ) {
 			setErrorMessage(
 				/** translators: This is to retry to complete the text */
 				__( 'Ready to retry', 'jetpack' )
