@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+createPrompt will now create a prompt for every case except when the post is totally empty
