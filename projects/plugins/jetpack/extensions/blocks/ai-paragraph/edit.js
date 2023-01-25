@@ -102,7 +102,6 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ isWaitingForPreviousBlock, setIsWaitingForPreviousBlock ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -188,7 +187,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		}
 
 		setShowRetry( false );
-		setIsWaitingForPreviousBlock( false );
 		setErrorMessage( false );
 		setNeedsMoreCharacters( false );
 		setIsLoadingCompletion( true );
@@ -226,39 +224,44 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// We do nothing is we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
-	if ( ! noLogicNeeded ) {
-		const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
+	useSelect( () => {
+		if ( ! noLogicNeeded ) {
+			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
-		if ( containsAiUntriggeredParagraph() ) {
-			if ( ! isWaitingForPreviousBlock ) {
+			if ( containsAiUntriggeredParagraph() ) {
 				setErrorMessage(
 					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
 					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
 				);
-				setIsWaitingForPreviousBlock( true );
+			} else if ( ! prompt ) {
+				setErrorMessage(
+					/** translators: First placeholder is a number of more characters we need */
+					__(
+						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
+						'jetpack'
+					)
+				);
+				setNeedsMoreCharacters( true );
+			} else if ( needsMoreCharacters ) {
+				setErrorMessage(
+					/** translators: This is to retry to complete the text */
+					__( 'Ready to retry', 'jetpack' )
+				);
+				setShowRetry( true );
+				setNeedsMoreCharacters( false );
+			} else if ( ! needsMoreCharacters && ! showRetry ) {
+				getSuggestionFromOpenAI();
 			}
-		} else if ( ! prompt && ! errorMessage ) {
-			setErrorMessage(
-				/** translators: First placeholder is a number of more characters we need */
-				__(
-					'Please write a title or a few more words in this post. Our AI model needs some content.',
-					'jetpack'
-				)
-			);
-			setIsWaitingForPreviousBlock( false );
-			setNeedsMoreCharacters( true );
-		} else if ( needsMoreCharacters && prompt ) {
-			setErrorMessage(
-				/** translators: This is to retry to complete the text */
-				__( 'Ready to retry', 'jetpack' )
-			);
-			setShowRetry( true );
-			setIsWaitingForPreviousBlock( false );
-			setNeedsMoreCharacters( false );
-		} else if ( ! needsMoreCharacters && ! showRetry ) {
-			getSuggestionFromOpenAI();
 		}
-	}
+	}, [
+		currentPostTitle,
+		contentBefore,
+		categoryNames,
+		tagNames,
+		noLogicNeeded,
+		needsMoreCharacters,
+		showRetry,
+	] );
 
 	return (
 		<div { ...useBlockProps() }>
