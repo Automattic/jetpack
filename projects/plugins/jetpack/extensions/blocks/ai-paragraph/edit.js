@@ -1,5 +1,6 @@
 import './editor.scss';
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
@@ -111,11 +112,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
+	const { tracks } = useAnalytics();
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
+
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	let loading = false;
 	const categories = useSelect( select =>
@@ -194,7 +198,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setNeedsMoreCharacters( 0 );
 		setIsLoadingCompletion( true );
 
-		const data = { content: createPrompt( currentPostTitle, contentBefore, categoryNames ) };
+		const data = {
+			content: createPrompt( currentPostTitle, contentBefore, categoryNames ),
+			post_id: postId,
+		};
+
+		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+			post_id: postId,
+		} );
+
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
