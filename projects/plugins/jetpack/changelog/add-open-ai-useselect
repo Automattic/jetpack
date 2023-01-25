@@ -1,4 +1,4 @@
 Significance: minor
 Type: bugfix
 
-Fix openAI paragraph. Refactor most of it. Added dynamic error when content length changes. 
+Fix openAI paragraph. Refactor most of it. Added dynamic error when content length changes.

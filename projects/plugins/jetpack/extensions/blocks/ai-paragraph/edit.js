@@ -14,6 +14,61 @@ const NUMBER_OF_CHARACTERS_NEEDED = 36;
 // Maximum number of characters we send from the content
 const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
 
+// Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
+const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNames ) => {
+	const content = contentBeforeCurrentBlock
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+	const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+
+	// If title is not added, we will only complete.
+	if ( ! postTitle ) {
+		return shorter_content;
+	}
+
+	// Title, content and categories
+	if ( shorter_content && tagsAndCategoriesNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			postTitle,
+			tagsAndCategoriesNames,
+			shorter_content
+		);
+	}
+
+	// No content, only title and categories
+	if ( tagsAndCategoriesNames.length ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
+			__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			postTitle,
+			tagsAndCategoriesNames
+		);
+	}
+
+	// Title and content
+	if ( shorter_content ) {
+		return sprintf(
+			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
+			__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			postTitle,
+			shorter_content
+		);
+	}
+
+	return sprintf(
+		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
+		__( 'Write content of a post titled "%s"', 'jetpack' ),
+		postTitle
+	);
+};
+
 // This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
@@ -111,60 +166,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setIsLoadingCategories( loading );
 	}, [ loading ] );
 
-	const createPrompt = () => {
-		const content = contentBefore
-			.filter( function ( block ) {
-				return block && block.attributes && block.attributes.content;
-			} )
-			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br/>', '\n' );
-			} )
-			.join( '\n' );
-		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
-
-		// If title is not added, we will only complete.
-		if ( ! currentPostTitle ) {
-			return shorter_content;
-		}
-
-		// Title, content and categories
-		if ( shorter_content && categoryNames.length ) {
-			return sprintf(
-				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
-				__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				currentPostTitle,
-				categoryNames,
-				shorter_content
-			);
-		}
-
-		// No content, only title and categories
-		if ( categoryNames.length ) {
-			return sprintf(
-				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
-				__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				currentPostTitle,
-				categoryNames
-			);
-		}
-
-		// Title and content
-		if ( shorter_content ) {
-			return sprintf(
-				/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
-				__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				currentPostTitle,
-				shorter_content
-			);
-		}
-
-		return sprintf(
-			/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
-			__( 'Write content of a post titled "%s"', 'jetpack' ),
-			currentPostTitle
-		);
-	};
-
 	const taxonomies = categoryObjects.filter( cat => cat.id !== 1 ).concat( tagObjects );
 	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
 	const contentBefore = useSelect( select => {
@@ -193,7 +194,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setNeedsMoreCharacters( 0 );
 		setIsLoadingCompletion( true );
 
-		const data = { content: createPrompt() };
+		const data = { content: createPrompt( currentPostTitle, contentBefore, categoryNames ) };
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
@@ -225,7 +226,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
 	if ( ! noLogicNeeded ) {
-		const prompt = createPrompt();
+		const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames );
 		const nbCharactersNeeded = NUMBER_OF_CHARACTERS_NEEDED - prompt.length;
 
 		if ( containsAiUntriggeredParagraph() ) {
