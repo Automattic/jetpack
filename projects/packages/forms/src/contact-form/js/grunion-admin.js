@@ -304,12 +304,16 @@ jQuery( function ( $ ) {
 				selected: selected,
 				[ nonceName ]: nonce,
 			},
-			function ( response ) {
+			function ( response, status, xhr ) {
 				const blob = new Blob( [ response ], { type: 'application/octetstream' } );
 
 				const a = document.createElement( 'a' );
 				a.href = window.URL.createObjectURL( blob );
-				a.download = 'feedback.csv';
+
+				// Get filename from backend headers
+				var contentDispositionHeader = xhr.getResponseHeader( 'content-disposition' );
+				a.download =
+					contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
 
 				document.body.appendChild( a );
 				a.click();
