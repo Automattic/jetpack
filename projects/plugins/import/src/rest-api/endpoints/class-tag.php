@@ -20,7 +20,10 @@ class Tag extends \WP_REST_Terms_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'tag' );
+		parent::__construct( 'post_tag' );
+
+		// @see add_term_meta
+		$this->import_id_meta_name = 'term';
 	}
 
 	/**
@@ -43,5 +46,33 @@ class Tag extends \WP_REST_Terms_Controller {
 				'schema'      => array( $this, 'get_public_item_schema' ),
 			)
 		);
+	}
+
+	/**
+	 * Update the tag parent ID.
+	 *
+	 * @param int $resource_id      The resource ID.
+	 * @param int $parent_import_id The parent ID.
+	 */
+	protected function update_parent_id( $resource_id, $parent_import_id ) {
+		$terms = get_terms(
+			array(
+				'taxonomy'   => 'post_tag',
+				'number'     => 1,
+				'fields'     => 'ids',
+				'meta_query' => array(
+					array(
+						'key'   => JETPACK_IMPORT_ID_META_NAME,
+						'value' => $parent_import_id,
+					),
+				),
+			)
+		);
+
+		if ( is_array( $terms ) && count( $terms ) === 1 ) {
+			$parent_id = $terms[0];
+
+			wp_update_term( $resource_id, $this->import_id_meta_name, array( 'parent' => $parent_id ) );
+		}
 	}
 }

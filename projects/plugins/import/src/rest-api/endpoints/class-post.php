@@ -21,6 +21,9 @@ class Post extends \WP_REST_Posts_Controller {
 	 */
 	public function __construct() {
 		parent::__construct( 'post' );
+
+		// @see add_post_meta
+		$this->import_id_meta_name = 'post';
 	}
 
 	/**
@@ -43,5 +46,15 @@ class Post extends \WP_REST_Posts_Controller {
 				'schema'      => array( $this, 'get_public_item_schema' ),
 			)
 		);
+	}
+
+	/**
+	 * Update the post parent ID.
+	 *
+	 * @param int $resource_id      The resource ID.
+	 * @param int $parent_import_id The parent ID.
+	 */
+	protected function update_parent_id( $resource_id, $parent_import_id ) {
+
 	}
 }

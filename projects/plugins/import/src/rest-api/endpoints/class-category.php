@@ -21,6 +21,9 @@ class Category extends \WP_REST_Terms_Controller {
 	 */
 	public function __construct() {
 		parent::__construct( 'category' );
+
+		// @see add_term_meta
+		$this->import_id_meta_name = 'term';
 	}
 
 	/**
@@ -43,5 +46,37 @@ class Category extends \WP_REST_Terms_Controller {
 				'schema'      => array( $this, 'get_public_item_schema' ),
 			)
 		);
+	}
+
+	/**
+	 * Update the category parent ID.
+	 *
+	 * @param int $resource_id      The resource ID.
+	 * @param int $parent_import_id The parent ID.
+	 */
+	protected function update_parent_id( $resource_id, $parent_import_id ) {
+		$categories = get_categories(
+			array(
+				'number'     => 1,
+				'fields'     => 'ids',
+				'meta_query' => array(
+					array(
+						'key'   => JETPACK_IMPORT_ID_META_NAME,
+						'value' => $parent_import_id,
+					),
+				),
+			)
+		);
+
+		if ( is_array( $categories ) && count( $categories ) === 1 ) {
+			$parent_id = $categories[0];
+
+			wp_update_category(
+				array(
+					'cat_ID'          => $resource_id,
+					'category_parent' => $parent_id,
+				)
+			);
+		}
 	}
 }
