@@ -23,14 +23,30 @@ class Block_Editor_Extensions {
 	public static $blocks_variation = 'production';
 
 	/**
+	 * Script handle
+	 *
+	 * @var string
+	 */
+	public static $script_handle = '';
+
+	/**
 	 * Initializer
 	 *
-	 * This method should be called only once by the Initializer class. Do not call this method again.
+	 * This method should be called only once by the Block registrar.
+	 * Do not call this method again.
+	 *
+	 * @param array $block_metadata - The block metadata.
 	 */
-	public static function init() {
+	public static function init( $block_metadata ) {
 		if ( ! Status::is_active() ) {
 			return;
 		}
+
+		/*
+		 * Use the videopress/video editor script handle to localize enqueue scripts.
+		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
+		 */
+		self::$script_handle = generate_block_asset_handle( $block_metadata->name, 'editorScript' );
 
 		/**
 		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
@@ -142,16 +158,10 @@ class Block_Editor_Extensions {
 			'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 		);
 
-		/*
-		 * Use the videopress/video editor script handle to localize the script.
-		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
-		 */
-		$handle = generate_block_asset_handle( 'videopress/video', 'editorScript' );
-
 		// Expose initital state of site connection
-		wp_add_inline_script( $handle, Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( self::$script_handle, Connection_Initial_State::render(), 'before' );
 
 		// Expose initital state of videoPress editor
-		wp_localize_script( $handle, 'videoPressEditorState', $videopress_editor_state );
+		wp_localize_script( self::$script_handle, 'videoPressEditorState', $videopress_editor_state );
 	}
 }
