@@ -12,6 +12,12 @@
 		"codeception/util-universalframework": "^1.0"
 	},
 	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build"
+		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
