@@ -1,8 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, RichText } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ExternalLink } from '@wordpress/components';
-import { Fragment, RawHTML } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -73,7 +73,7 @@ export const settings = {
 	edit,
 	save: attrs => {
 		const blockProps = useBlockProps.save();
-		return <RawHTML { ...blockProps }>{ attrs.attributes.content }</RawHTML>;
+		return <RichText.Content { ...blockProps } value={ attrs.attributes.content } />;
 	},
 	attributes,
 	transforms: {

@@ -2,10 +2,10 @@ import './editor.scss';
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, RichText } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, RawHTML, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
@@ -71,7 +71,7 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 };
 
 // This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
+function ShowLittleByLittle( { html, showAnimation, setAttributes } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
 
@@ -88,7 +88,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 				}
 				setTimeout( () => {
 					setDisplayedRawHTML( html );
-					onAnimationDone();
+					setAttributes( { animationDone: true } );
 				}, 50 * tokens.length );
 			} else {
 				setDisplayedRawHTML( html );
@@ -100,7 +100,12 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 
 	return (
 		<div className="content">
-			<RawHTML>{ displayedRawHTML }</RawHTML>
+			<RichText
+				tagName="p"
+				identifier="content"
+				value={ displayedRawHTML }
+				onChange={ value => setAttributes( { content: value } ) }
+			/>
 		</div>
 	);
 }
@@ -293,9 +298,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			{ contentIsLoaded && (
 				<ShowLittleByLittle
 					showAnimation={ ! attributes.animationDone }
-					onAnimationDone={ () => {
-						setAttributes( { animationDone: true } );
-					} }
+					setAttributes={ setAttributes }
 					html={ attributes.content }
 				/>
 			) }
