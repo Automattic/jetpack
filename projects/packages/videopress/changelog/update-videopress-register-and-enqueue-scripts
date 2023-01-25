@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: change the logic to enqueue video block scripts
