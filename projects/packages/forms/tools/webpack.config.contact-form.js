@@ -8,7 +8,6 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 
-const webpack = jetpackWebpackConfig.webpack;
 const sharedWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
@@ -83,42 +82,11 @@ const sharedWebpackConfig = {
 	],
 };
 
-// A bunch of the CSS here expects the RTL version to be named like "module-rtl.css" and "module-rtl.min.css"
-// rather than "module.rtl.css" and "module.min.rtl.css" like our Webpack config does it.
-// This minimal plugin renames the assets to conform to that style.
-const RenamerPlugin = {
-	apply( compiler ) {
-		compiler.hooks.thisCompilation.tap( 'Renamer', compilation => {
-			compilation.hooks.processAssets.tap(
-				{
-					name: 'Renamer',
-					stage: webpack.Compilation.PROCESS_ASSETS_STAGE_OPTIMIZE_INLINE,
-					additionalAssets: true,
-				},
-				assets => {
-					for ( const [ name, asset ] of Object.entries( assets ) ) {
-						const m = name.match( /^(.*?)((?:\.min)?)\.rtl\.css$/ );
-						if ( m ) {
-							delete assets[ name ];
-							assets[ `${ m[ 1 ] }-rtl${ m[ 2 ] }.css` ] = asset;
-						}
-					}
-				}
-			);
-		} );
-	},
-};
+// Entries to minify
+const entries = {};
 
-// CSS that needs to have the rtl files renamed using the above RenamerPlugin.
-const weirdRtlEntries = {
-	'css/jetpack': [
-		// When making changes to that list, you must also update $concatenated_style_handles in class.jetpack.php.
-		'src/contact-form/css/grunion.css',
-	].map( n => path.join( __dirname, '..', n ) ),
-};
-
-// Non-minified CSS, that also needs to have the rtl files renamed using the above RenamerPlugin.
-const weirdRtlNominEntries = {};
+// Entries to not minify
+const nominEntries = {};
 
 // Admin CSS files to insert into weirdRtlNominEntries and weirdRtlEntries.
 for ( const name of [
@@ -126,34 +94,33 @@ for ( const name of [
 	'src/contact-form/css/editor-style',
 	'src/contact-form/css/editor-ui',
 ] ) {
-	weirdRtlNominEntries[ name ] = path.join( __dirname, '..', name + '.css' );
-	weirdRtlEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );
+	entries[ name ] = path.join( __dirname, '..', name + '.css' );
+	nominEntries[ name + '.min' ] = path.join( __dirname, '..', name + '.css' );
 }
 
 // Weird frontend CSS files, only a minified rtl is built (and without the ".min" extension).
 // The ltr version is apparently used unminified.
 for ( const name of [ 'src/contact-form/css/grunion' ] ) {
-	weirdRtlEntries[ name ] = path.join( __dirname, '..', name + '.css' );
+	entries[ name ] = path.join( __dirname, '..', name + '.css' );
 }
 
 module.exports = [
 	{
 		...sharedWebpackConfig,
-		entry: weirdRtlEntries,
+		entry: entries,
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			// In some cases an output filename is the same as the input. Don't overwrite in that case.
 			new RemoveAssetWebpackPlugin( {
-				assets: Object.values( weirdRtlEntries )
+				assets: Object.values( entries )
 					.filter( n => typeof n === 'string' )
 					.map( n => path.relative( path.dirname( __dirname ), n ) ),
 			} ),
-			RenamerPlugin,
 		],
 	},
 	{
 		...sharedWebpackConfig,
-		entry: weirdRtlNominEntries,
+		entry: nominEntries,
 		optimization: {
 			...sharedWebpackConfig.optimization,
 			minimize: false,
@@ -162,11 +129,10 @@ module.exports = [
 			...sharedWebpackConfig.plugins,
 			// In some cases an output filename is the same as the input. Don't overwrite in that case.
 			new RemoveAssetWebpackPlugin( {
-				assets: Object.values( weirdRtlNominEntries )
+				assets: Object.values( nominEntries )
 					.filter( n => typeof n === 'string' )
 					.map( n => path.relative( path.dirname( __dirname ), n ) ),
 			} ),
-			RenamerPlugin,
 		],
 	},
 ];

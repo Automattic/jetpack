@@ -4,4 +4,4 @@ node_modules/
 
 /src/**/*.css.map
 /src/**/*.min.css
-/src/**/*-rtl.css
+/src/**/*.rtl.css
