@@ -17,6 +17,7 @@ const UpgradePrompt = () => {
 
 	const {
 		config: { automaticRulesAvailable },
+		bruteForceProtectionIsEnabled,
 	} = useWafData();
 
 	const { run } = useProductCheckoutWorkflow( {
@@ -39,8 +40,10 @@ const UpgradePrompt = () => {
 
 	return (
 		<>
-			<div className={ styles[ 'manual-rules-notice' ] }>
+			<div className={ styles[ 'rules-notice' ] }>
 				<Text weight={ 600 }>
+					{ bruteForceProtectionIsEnabled &&
+						__( 'Brute force protection is active. ', 'jetpack-protect' ) }
 					{ ! automaticRulesAvailable
 						? __( 'Only manual rules will be applied', 'jetpack-protect' )
 						: __(
