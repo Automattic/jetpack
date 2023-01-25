@@ -28,6 +28,7 @@ class Connection_Notice {
 	public function __construct() {
 		if ( ! $this->is_initialized ) {
 			add_action( 'current_screen', array( $this, 'initialize_notices' ) );
+			$this->is_initialized = true;
 		}
 	}
 
