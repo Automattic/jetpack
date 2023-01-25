@@ -3,7 +3,7 @@
 	import React from 'react';
 	import { derived } from 'svelte/store';
 	import { createInterpolateElement } from '@wordpress/element';
-	import { __ } from '@wordpress/i18n';
+	import { __, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import config from '../../stores/config';
@@ -21,17 +21,25 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	const infoText = createInterpolateElement(
-		__(
-			`By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareLink>share details</shareLink> with WordPress.com.`,
-			'jetpack-boost'
+	const ctaText = __( 'Upgrade Jetpack Boost', 'jetpack-boost' );
+
+	const tosText = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is a button label */
+			__(
+				'By clicking the <strong>%s</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+				'jetpack-boost'
+			),
+			ctaText
 		),
+
 		{
+			strong: React.createElement( 'strong' ),
 			tosLink: React.createElement( 'a', {
 				href: jetpackURL( 'https://jetpack.com/redirect/?source=wpcom-tos' ),
 				target: '_blank',
 			} ),
-			shareLink: React.createElement( 'a', {
+			shareDetailsLink: React.createElement( 'a', {
 				href: jetpackURL(
 					'https://jetpack.com/redirect/?source=jetpack-support-what-data-does-jetpack-sync'
 				),
@@ -78,9 +86,9 @@
 						priceAfter={$pricing.yearly.priceAfter / 12}
 						priceDetails={__( '/month, paid yearly', 'jetpack-boost' )}
 						currencyCode={$pricing.yearly.currencyCode}
-						ctaText={__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}
+						{ctaText}
 						onCtaClick={goToCheckout}
-						{infoText}
+						{tosText}
 					/>
 				{/if}
 			</div>

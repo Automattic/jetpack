@@ -90,6 +90,8 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 				<div className="jp-components__pricing-card__extra-content-wrapper">{ props.children }</div>
 			) }
 
+			{ props.tosText && <div className="jp-components__pricing-card__tos">{ props.tosText }</div> }
+
 			{ props.ctaText && (
 				<div className="jp-components__pricing-card__cta">
 					<Button
