@@ -19,6 +19,7 @@ import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
+import BackupStorageSpace from './backup-storage-space';
 import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -99,7 +100,7 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
-			<Col lg={ 6 } md={ 4 }>
+			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( "Your site's heartbeat", 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -118,8 +119,15 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 					</p>
 				) }
 			</Col>
-			<Col lg={ 1 } md={ 1 } sm={ 0 } />
-			<Col lg={ 5 } md={ 3 } sm={ 4 }>
+			{ hasBackupPlan && connectionStatus.isUserConnected && (
+				<>
+					<Col lg={ 1 } md={ 1 } />
+					<Col lg={ 5 } md={ 5 } className="backup-segments__storage-section">
+						{ <BackupStorageSpace /> }
+					</Col>
+				</>
+			) }
+			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -208,7 +216,7 @@ const ReviewMessage = connectionLoaded => {
 	}
 
 	return (
-		<Col lg={ 6 } md={ 4 }>
+		<Col lg={ 6 } md={ 6 }>
 			<ReviewRequest
 				cta={ createInterpolateElement(
 					__(

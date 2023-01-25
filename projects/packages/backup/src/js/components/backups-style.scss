@@ -58,10 +58,10 @@
 	width: 0%;
 	background: var( --jp-green-primary );
 }
-.backup__latest {
+
+.jp-content .backup__latest {
 	display: flex;
 	align-items: center;
-	margin-bottom: 32px;
 
 	svg,
 	img {
@@ -70,13 +70,19 @@
 	}
 
 	h2 {
-		margin: 0;
-		margin-left: 12px;
+		color: var( --jp-gray-80 );
+		font-size: var( --font-body );
+		font-weight: 400;
+		line-height: 24px;
+		margin: 0.5em;
 		vertical-align: -1px;
 	}
 
 	+ h1 {
 		white-space: nowrap;
+		line-height: 40px;
+		font-weight: 700;
+		margin-bottom: 24px;
 	}
 }
 
@@ -221,5 +227,13 @@
 	p {
 		margin-top: 8px;
 		margin-bottom: 8px;
+	}
+
+	.backup-segments__storage-section {
+		grid-row: span 2;
+
+		@include for-tablet-down {
+			grid-row: 1;
+		}
 	}
 }
