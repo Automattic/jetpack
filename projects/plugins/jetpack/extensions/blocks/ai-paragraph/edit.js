@@ -237,11 +237,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				);
 				setIsWaitingForPreviousBlock( true );
 			}
-		} else if ( ! prompt ) {
+		} else if ( ! prompt && ! errorMessage ) {
 			setErrorMessage(
 				/** translators: First placeholder is a number of more characters we need */
 				__(
-					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
+					'Please write a title or a few more words in this post. Our AI model needs some content.',
 					'jetpack'
 				)
 			);
