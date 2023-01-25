@@ -89,10 +89,8 @@ export const settings = {
 								</Button>
 								<Button
 									variant="primary"
-									onClick={ () => {
-										window.location.href = launchPadUrl;
-										recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' );
-									} }
+									href={ launchPadUrl }
+									onClick={ () => recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' ) }
 									target="_top"
 								>
 									{ __( 'Next Steps', 'jetpack' ) }
