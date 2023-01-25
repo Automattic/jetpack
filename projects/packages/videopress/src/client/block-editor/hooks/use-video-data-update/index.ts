@@ -192,9 +192,10 @@ export function useSyncMedia(
 			return;
 		}
 
+		// Bail early if the video data is not available.
 		if (
 			! videoData ||
-			Object.keys( videoData ).filter( key => key !== 'private_enabled_for_site' ).length === 0
+			Object.keys( videoData ).filter( key => videoFieldsToUpdate.includes( key ) ).length === 0
 		) {
 			return;
 		}
