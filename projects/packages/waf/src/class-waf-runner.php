@@ -140,7 +140,7 @@ class Waf_Runner {
 	 *
 	 * @return bool
 	 */
-	public static function is_brute_force_protection_enabled() {
+	public static function brute_force_protection_is_enabled() {
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// so we can check to see if the Brute force protection module is activated.
 		if ( defined( 'ABSPATH' ) ) {

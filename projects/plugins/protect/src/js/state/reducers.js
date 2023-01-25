@@ -25,6 +25,7 @@ import {
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 	SET_WAF_STATS,
+	SET_BRUTE_FORCE_PROTECTION_IS_ENABLED,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -179,6 +180,8 @@ const waf = ( state = defaultWaf, action ) => {
 			return { ...state, isUpdating: action.isUpdating };
 		case SET_WAF_IS_TOGGLING:
 			return { ...state, isToggling: action.isToggling };
+		case SET_BRUTE_FORCE_PROTECTION_IS_ENABLED:
+			return { ...state, bruteForceProtectionIsEnabled: action.bruteForceProtectionIsEnabled };
 	}
 	return state;
 };

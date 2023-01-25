@@ -15,6 +15,7 @@ const useWafData = () => {
 		setWafIsEnabled,
 		setWafIsUpdating,
 		setWafIsToggling,
+		setBruteForceProtectionIsEnabled,
 	} = useDispatch( STORE_ID );
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
@@ -30,9 +31,16 @@ const useWafData = () => {
 				setWafIsEnabled( response?.isEnabled );
 				setWafConfig( response?.config );
 				setWafStats( response?.stats );
+				setBruteForceProtectionIsEnabled( response?.bruteForceProtectionIsEnabled );
 			} )
 			.finally( () => setWafIsUpdating( false ) );
-	}, [ setWafConfig, setWafStats, setWafIsEnabled, setWafIsUpdating ] );
+	}, [
+		setWafIsUpdating,
+		setWafIsEnabled,
+		setWafConfig,
+		setWafStats,
+		setBruteForceProtectionIsEnabled,
+	] );
 
 	/**
 	 * Toggle WAF Module
@@ -51,6 +59,20 @@ const useWafData = () => {
 				setWafIsUpdating( false );
 			} );
 	}, [ refreshWaf, waf.isEnabled, setWafIsToggling, setWafIsUpdating ] );
+
+	/**
+	 * Toggle Brute force protection Module
+	 *
+	 * Flips the switch on the Brute force protection module, and then refreshes the data.
+	 */
+	const toggleBruteForceProtection = useCallback( () => {
+		setWafIsUpdating( true );
+		return API.toggleBruteForceProtection()
+			.then( refreshWaf )
+			.finally( () => {
+				setWafIsUpdating( false );
+			} );
+	}, [ refreshWaf, setWafIsUpdating ] );
 
 	/**
 	 * Ensure WAF Module Is Enabled
@@ -131,6 +153,7 @@ const useWafData = () => {
 		...waf,
 		refreshWaf,
 		toggleWaf,
+		toggleBruteForceProtection,
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleShareData,

@@ -136,10 +136,10 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'toggle-waf',
+			'toggle-brute_force_protection',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_toggle_waf',
+				'callback'            => __CLASS__ . '::api_toggle_brute_force_protection',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -148,10 +148,10 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'toggle-brute_force_protection',
+			'toggle-waf',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::api_toggle_brute_force_protection',
+				'callback'            => __CLASS__ . '::api_toggle_waf',
 				'permission_callback' => function () {
 					return current_user_can( 'manage_options' );
 				},
@@ -351,6 +351,20 @@ class REST_Controller {
 	}
 
 	/**
+	 * Toggles the Brute force protection module on or off for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_toggle_brute_force_protection() {
+		if ( Waf_Runner::brute_force_protection_is_enabled() ) {
+			Waf_Runner::disable_brute_force_protection();
+			return rest_ensure_response( true, 200 );
+		}
+		Waf_Runner::enable_brute_force_protection();
+		return rest_ensure_response( true, 200 );
+	}
+
+	/**
 	 * Toggles the WAF module on or off for the API endpoint
 	 *
 	 * @return WP_REST_Response
@@ -366,20 +380,6 @@ class REST_Controller {
 	}
 
 	/**
-	 * Toggles the Brute force protection module on or off for the API endpoint
-	 *
-	 * @return WP_REST_Response
-	 */
-	public static function api_toggle_brute_force_protection() {
-		if ( Waf_Runner::is_brute_force_protection_enabled() ) {
-			Waf_Runner::disable_brute_force_protection();
-			return rest_ensure_response( true, 200 );
-		}
-		Waf_Runner::enable_brute_force_protection();
-		return rest_ensure_response( true, 200 );
-	}
-
-	/**
 	 * Get WAF data for the API endpoint
 	 *
 	 * @return WP_Rest_Response
@@ -390,10 +390,11 @@ class REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'is_seen'    => Jetpack_Protect::get_waf_seen_status(),
-				'is_enabled' => Waf_Runner::is_enabled(),
-				'config'     => Waf_Runner::get_config(),
-				'stats'      => Jetpack_Protect::get_waf_stats(),
+				'is_seen'                           => Jetpack_Protect::get_waf_seen_status(),
+				'is_enabled'                        => Waf_Runner::is_enabled(),
+				'config'                            => Waf_Runner::get_config(),
+				'stats'                             => Jetpack_Protect::get_waf_stats(),
+				'brute_force_protection_is_enabled' => Waf_Runner::brute_force_protection_is_enabled(),
 			)
 		);
 	}

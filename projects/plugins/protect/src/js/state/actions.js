@@ -29,6 +29,7 @@ const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
 const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
 const SET_WAF_STATS = 'SET_WAF_STATS';
+const SET_BRUTE_FORCE_PROTECTION_IS_ENABLED = 'SET_BRUTE_FORCE_PROTECTION_IS_ENABLED';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -395,6 +396,10 @@ const setWafStats = stats => {
 	return { type: SET_WAF_STATS, stats };
 };
 
+const setBruteForceProtectionIsEnabled = bruteForceProtectionIsEnabled => {
+	return { type: SET_BRUTE_FORCE_PROTECTION_IS_ENABLED, bruteForceProtectionIsEnabled };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -426,6 +431,7 @@ const actions = {
 	setWafIsToggling,
 	setWafConfig,
 	setWafStats,
+	setBruteForceProtectionIsEnabled,
 };
 
 export {
@@ -455,5 +461,6 @@ export {
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 	SET_WAF_STATS,
+	SET_BRUTE_FORCE_PROTECTION_IS_ENABLED,
 	actions as default,
 };

@@ -204,7 +204,7 @@ class Jetpack_Protect {
 				'isUpdating'                    => false,
 				'config'                        => Waf_Runner::get_config(),
 				'stats'                         => self::get_waf_stats(),
-				'isBruteForceProtectionEnabled' => Waf_Runner::is_brute_force_protection_enabled(),
+				'bruteForceProtectionIsEnabled' => Waf_Runner::brute_force_protection_is_enabled(),
 			),
 		);
 

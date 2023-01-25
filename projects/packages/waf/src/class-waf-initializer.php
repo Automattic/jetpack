@@ -53,10 +53,10 @@ class Waf_Initializer {
 		// Run the WAF
 		Waf_Runner::initialize();
 
-		$brute_force_protection_enabled = Waf_Runner::is_brute_force_protection_enabled();
+		$brute_force_protection_is_enabled = Waf_Runner::brute_force_protection_is_enabled();
 
 		// Verify login ability when Brute force protection module is enabled on a connected Jetpack site.
-		if ( $brute_force_protection_enabled && ( new Connection_Manager() )->is_connected() ) {
+		if ( $brute_force_protection_is_enabled && ( new Connection_Manager() )->is_connected() ) {
 			global $pagenow;
 			$brute_force_protection = Brute_Force_Protection::instance();
 

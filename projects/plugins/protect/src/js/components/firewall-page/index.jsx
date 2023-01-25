@@ -65,8 +65,9 @@ const FirewallPage = () => {
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleWaf,
+		toggleBruteForceProtection,
 		updateConfig,
-		isBruteForceProtectionEnabled,
+		bruteForceProtectionIsEnabled,
 	} = useWafData();
 	const { ipAllowListCount, ipBlockListCount, rulesVersion, automaticRulesLastUpdated } = stats;
 	const { hasRequiredPlan } = useProtectData();
@@ -95,7 +96,7 @@ const FirewallPage = () => {
 		jetpack_waf_ip_list: jetpackWafIpList,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-		jetpack_waf_brute_force_protection: isBruteForceProtectionEnabled,
+		brute_force_protection_is_enabled: bruteForceProtectionIsEnabled,
 	} );
 
 	/**
@@ -166,12 +167,12 @@ const FirewallPage = () => {
 
 	const handleBruteForceProtectionChange = useCallback( () => {
 		setFormIsSubmitting( true );
-		const newValue = ! formState.jetpack_waf_brute_force_protection;
+		const newValue = ! formState.brute_force_protection_is_enabled;
 		setFormState( {
 			...formState,
-			jetpack_waf_brute_force_protection: newValue,
+			brute_force_protection_is_enabled: newValue,
 		} );
-		API.toggleBruteForceProtection()
+		toggleBruteForceProtection()
 			.then( () => {
 				setNotice( {
 					type: 'success',
@@ -193,7 +194,7 @@ const FirewallPage = () => {
 				} );
 			} )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, setNotice ] );
+	}, [ formState, toggleBruteForceProtection, setNotice ] );
 
 	/**
 	 * Handle Automatic Rules Change
@@ -307,7 +308,7 @@ const FirewallPage = () => {
 				jetpack_waf_ip_list: jetpackWafIpList,
 				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
-				jetpack_waf_brute_force_protection: isBruteForceProtectionEnabled,
+				brute_force_protection_is_enabled: bruteForceProtectionIsEnabled,
 			} );
 		}
 	}, [
@@ -315,7 +316,7 @@ const FirewallPage = () => {
 		jetpackWafIpBlockList,
 		jetpackWafIpAllowList,
 		jetpackWafAutomaticRules,
-		isBruteForceProtectionEnabled,
+		bruteForceProtectionIsEnabled,
 		isUpdating,
 	] );
 
@@ -512,10 +513,10 @@ const FirewallPage = () => {
 			>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
-						id="jetpack_waf_brute_force_protection"
-						checked={ isEnabled && formState.jetpack_waf_brute_force_protection }
+						id="brute_force_protection_is_enabled"
+						checked={ formState.brute_force_protection_is_enabled }
 						onChange={ handleBruteForceProtectionChange }
-						disabled={ formIsSubmitting || ! isEnabled }
+						disabled={ formIsSubmitting }
 					/>
 				</div>
 				<div className={ styles[ 'toggle-section__content' ] }>
