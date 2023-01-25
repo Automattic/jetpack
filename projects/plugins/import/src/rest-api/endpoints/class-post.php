@@ -53,6 +53,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 *
 	 * @param int $resource_id      The resource ID.
 	 * @param int $parent_import_id The parent ID.
+	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
 		$posts = get_posts(
@@ -71,12 +72,14 @@ class Post extends \WP_REST_Posts_Controller {
 		if ( is_array( $posts ) && count( $posts ) === 1 ) {
 			$parent_id = $posts[0];
 
-			wp_update_post(
+			return (bool) wp_update_post(
 				array(
 					'ID'          => $resource_id,
 					'post_parent' => $parent_id,
 				)
 			);
 		}
+
+		return false;
 	}
 }

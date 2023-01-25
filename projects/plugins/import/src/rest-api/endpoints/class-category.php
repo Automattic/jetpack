@@ -53,6 +53,7 @@ class Category extends \WP_REST_Terms_Controller {
 	 *
 	 * @param int $resource_id      The resource ID.
 	 * @param int $parent_import_id The parent ID.
+	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
 		$categories = get_categories(
@@ -71,12 +72,14 @@ class Category extends \WP_REST_Terms_Controller {
 		if ( is_array( $categories ) && count( $categories ) === 1 ) {
 			$parent_id = $categories[0];
 
-			wp_update_category(
+			return (bool) wp_update_category(
 				array(
 					'cat_ID'          => $resource_id,
 					'category_parent' => $parent_id,
 				)
 			);
 		}
+
+		return false;
 	}
 }

@@ -53,6 +53,7 @@ class Comment extends \WP_REST_Comments_Controller {
 	 *
 	 * @param int $resource_id      The resource ID.
 	 * @param int $parent_import_id The parent ID.
+	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
 		$comments = get_comments(
@@ -71,12 +72,14 @@ class Comment extends \WP_REST_Comments_Controller {
 		if ( is_array( $comments ) && count( $comments ) === 1 ) {
 			$parent_id = $comments[0];
 
-			wp_update_comment(
+			return (bool) wp_update_comment(
 				array(
 					'comment_ID'     => $resource_id,
 					'comment_parent' => $parent_id,
 				)
 			);
 		}
+
+		return false;
 	}
 }

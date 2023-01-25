@@ -74,6 +74,7 @@ trait Import_ID {
 	 *
 	 * @param int $resource_id      The resource ID.
 	 * @param int $parent_import_id The parent ID.
+	 * @return bool True if updated.
 	 */
 	abstract protected function update_parent_id( $resource_id, $parent_import_id );
 }
