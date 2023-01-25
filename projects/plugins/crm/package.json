@@ -5,6 +5,7 @@
 	"author": "Automattic",
 	"license": "GPL-2.0",
 	"scripts": {
+		"build": "webpack",
 		"start": "npx wp-env start",
 		"stop": "npx wp-env stop",
 		"clean": "npx wp-env clean all"
@@ -15,6 +16,14 @@
 		"directory": "projects/plugins/crm"
 	},
 	"devDependencies": {
+		"glob": "8.1.0",
+		"sass": "1.43.4",
+		"sass-loader": "12.4.0",
+		"file-loader": "6.2.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1",
+		"remove-files-webpack-plugin": "1.5.0",
+		"terser-webpack-plugin": "5.3.6"
 	},
 	"engines": {
 		"node": "^18.13.0",
