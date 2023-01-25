@@ -121,7 +121,6 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
 		XMLRPC::init();
-		Block_Editor_Extensions::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
@@ -180,6 +179,9 @@ class Initializer {
 	 * @return void
 	 */
 	public static function register_videopress_video_block() {
+		// Register and enqueue scripts used by the VideoPress block.
+		Block_Editor_Extensions::init();
+
 		$videopress_video_metadata_file        = __DIR__ . '/../build/block-editor/blocks/video/block.json';
 		$videopress_video_metadata_file_exists = file_exists( $videopress_video_metadata_file );
 		if ( ! $videopress_video_metadata_file_exists ) {

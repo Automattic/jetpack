@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
@@ -16,14 +15,6 @@ use Automattic\Jetpack\Status\Host;
  * VideoPress Extensions class.
  */
 class Block_Editor_Extensions {
-
-	/**
-	 * The handle used to enqueue the script
-	 *
-	 * @var string
-	 */
-	const SCRIPT_HANDLE = 'videopress-extensions';
-
 	/**
 	 * What version of the blocks we are loading.
 	 *
@@ -136,8 +127,6 @@ class Block_Editor_Extensions {
 	 * Enqueues the extensions script.
 	 */
 	public static function enqueue_extensions() {
-		self::enqueue_script();
-
 		$extensions_list = self::get_list();
 
 		$site_type = 'jetpack';
@@ -147,35 +136,22 @@ class Block_Editor_Extensions {
 			$site_type = 'atomic';
 		}
 
-		wp_localize_script(
-			self::SCRIPT_HANDLE,
-			'videoPressEditorState',
-			array(
-				'extensions'          => $extensions_list,
-				'siteType'            => $site_type,
-				'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
-			)
-		);
-	}
-
-	/**
-	 * Enqueues only the JS script
-	 *
-	 * @param string $handle The script handle to identify the script.
-	 */
-	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
-		Assets::register_script(
-			$handle,
-			'../build/block-editor/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => false,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
+		$videopress_editor_state = array(
+			'extensions'          => $extensions_list,
+			'siteType'            => $site_type,
+			'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 		);
 
-		Assets::enqueue_script( $handle );
+		/*
+		 * Use the videopress/video editor script handle to localize the script.
+		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
+		 */
+		$handle = generate_block_asset_handle( 'videopress/video', 'editorScript' );
 
+		// Expose initital state of site connection
 		wp_add_inline_script( $handle, Connection_Initial_State::render(), 'before' );
+
+		// Expose initital state of videoPress editor
+		wp_localize_script( $handle, 'videoPressEditorState', $videopress_editor_state );
 	}
 }
