@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
+	import ContextInfo from '../../../elements/ContextInfo.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { modules } from '../../../stores/modules';
 	import {
@@ -55,6 +56,37 @@
 				'You should regenerate Critical CSS to improve the speed of your site whenever you make changes to your site’s CSS or HTML structure.',
 				'jetpack-boost'
 			)}
+			<ContextInfo placement="left">
+				<p>
+					{__(
+						'Actions that could change your CSS or HTML structure included but are not limited to:',
+						'jetpack-boost'
+					)}
+				</p>
+				<ul>
+					<li>{__( 'Making changes to your theme.', 'jetpack-boost' )}</li>
+					<li>{__( 'Writing a new post/page.', 'jetpack-boost' )}</li>
+					<li>{__( 'Editing a post/page.', 'jetpack-boost' )}</li>
+					<li>
+						{__(
+							'Activating, deactivating, or updating plugins that impact your site layout or HTML structure.',
+							'jetpack-boost'
+						)}
+					</li>
+					<li>
+						{__(
+							'Changing the settings of plugins that affect your site layout or HTML structure.',
+							'jetpack-boost'
+						)}
+					</li>
+					<li>
+						{__(
+							'Upgrading your WordPress version if the new release includes core CSS changes.',
+							'jetpack-boost'
+						)}
+					</li>
+				</ul>
+			</ContextInfo>
 		</div>
 
 		<div slot="meta">
