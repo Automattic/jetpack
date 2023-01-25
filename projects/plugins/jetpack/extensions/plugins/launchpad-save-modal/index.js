@@ -6,7 +6,6 @@ import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { isModalSupportedByFlow } from './util';
 import './editor.scss';
 
 export const name = 'launchpad-save-modal';
@@ -26,7 +25,7 @@ export const settings = {
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
-		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
+		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 
@@ -46,11 +45,7 @@ export const settings = {
 		}, [ isSavingSite, prevIsSavingSite ] );
 
 		const showModal =
-			isModalSupportedByFlow( siteIntentOption ) &&
-			isInsideSiteEditor &&
-			launchpadScreenOption === 'full' &&
-			! dontShowAgain &&
-			isModalOpen;
+			isInsideSiteEditor && launchpadScreenOption === 'full' && ! dontShowAgain && isModalOpen;
 
 		return (
 			showModal && (
@@ -95,7 +90,7 @@ export const settings = {
 								<Button
 									variant="primary"
 									onClick={ () => {
-										window.location.assign( launchPadUrl );
+										window.location.href = launchPadUrl;
 										recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' );
 									} }
 									target="_top"
