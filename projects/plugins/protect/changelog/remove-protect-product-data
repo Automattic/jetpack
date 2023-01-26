@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Removed unused productData state variable.

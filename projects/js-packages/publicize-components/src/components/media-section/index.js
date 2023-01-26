@@ -1,16 +1,25 @@
-import { Text } from '@automattic/jetpack-components';
+import { Button, ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Button, ResponsiveWrapper, Spinner, Notice } from '@wordpress/components';
+import {
+	ResponsiveWrapper,
+	ExternalLink,
+	Spinner,
+	Notice,
+	BaseControl,
+	VisuallyHidden,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Fragment, useEffect, useState } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, closeSmall } from '@wordpress/icons';
+import { useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaRestrictions, {
 	isVideo,
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
-	VIDEO_LENGTH_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import VideoPreview from '../video-preview';
@@ -61,18 +70,7 @@ const getMediaDetails = media => {
 	};
 };
 
-const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
-const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
-const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
-
-const validationErrorMessages = {
-	[ FILE_TYPE_ERROR ]: __(
-		'The selected media type is not accepted by these platforms.',
-		'jetpack'
-	),
-	[ FILE_SIZE_ERROR ]: __( 'The selected media size is too big for these platforms.', 'jetpack' ),
-	[ VIDEO_LENGTH_ERROR ]: __( 'The selected video is too long for these platforms.', 'jetpack' ),
-};
+const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
 
 /**
  * Wrapper that handles media-related functionality.
@@ -87,6 +85,26 @@ export default function MediaSection() {
 	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
 	);
+
+	const validationErrorMessages = {
+		[ FILE_TYPE_ERROR ]: __(
+			'The selected media type is not accepted by these platforms.',
+			'jetpack'
+		),
+		[ FILE_SIZE_ERROR ]: sprintf(
+			/* translators: placeholder is the maximum image size in MB */
+			__( 'This media is over %d MB and cannot be used for these platforms.', 'jetpack' ),
+			maxImageSize
+		),
+		[ VIDEO_LENGTH_TOO_LONG_ERROR ]: __(
+			'The selected video is too long for these platforms.',
+			'jetpack'
+		),
+		[ VIDEO_LENGTH_TOO_SHORT_ERROR ]: __(
+			'The selected video is too short for these platforms.',
+			'jetpack'
+		),
+	};
 
 	const mediaObject = useSelect(
 		select => select( 'core' ).getMedia( attachedMedia[ 0 ]?.id || null, { context: 'view' } ),
@@ -119,98 +137,101 @@ export default function MediaSection() {
 		[ updateAttachedMedia ]
 	);
 
-	const renderPreview = useCallback( () => {
-		const { width, height, sourceUrl } = mediaData;
+	const renderPreview = useCallback(
+		open => {
+			if ( isVideo( metaData.mime ) ) {
+				return (
+					<VideoPreview
+						sourceUrl={ sourceUrl }
+						mime={ metaData.mime }
+						duration={ metaData.length }
+					></VideoPreview>
+				);
+			}
 
-		if ( isVideo( metaData.mime ) ) {
-			// TBD
-			return (
-				<VideoPreview
-					sourceUrl={ sourceUrl }
-					mime={ metaData.mime }
-					duration={ metaData.length }
-				></VideoPreview>
-			);
-		}
+			const { width, height, sourceUrl } = mediaData;
 
-		if ( width && height && sourceUrl ) {
-			return (
-				<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
-					<img src={ sourceUrl } alt="" />
-				</ResponsiveWrapper>
-			);
-		}
-	}, [ mediaData, metaData ] );
-
-	const setMediaRender = useCallback(
-		( { open } ) => (
-			<div className={ styles.container }>
-				<Button className={ ! mediaObject ? styles.toggle : styles.preview } onClick={ open }>
-					{ mediaObject && renderPreview() }
-					{ ! mediaObject && ( attachedMedia.length ? <Spinner /> : ADD_MEDIA_LABEL ) }
-				</Button>
-			</div>
-		),
-		[ mediaObject, attachedMedia, renderPreview ]
+			if ( width && height && sourceUrl ) {
+				return (
+					<div className={ styles[ 'preview-wrapper' ] }>
+						<button className={ styles.remove } onClick={ onRemoveMedia }>
+							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+							<Icon icon={ closeSmall } />
+						</button>
+						<button className={ styles.preview } onClick={ open }>
+							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
+								<img src={ sourceUrl } alt="" />
+							</ResponsiveWrapper>
+						</button>
+					</div>
+				);
+			}
+		},
+		[ mediaData, metaData, onRemoveMedia ]
 	);
 
-	const replaceMediaRender = useCallback(
-		( { open } ) => (
-			<Button onClick={ open } variant="secondary">
-				{ REPLACE_MEDIA_LABEL }
-			</Button>
+	const renderPicker = useCallback(
+		open => (
+			<div className={ styles.container }>
+				{ ! attachedMedia.length ? (
+					<>
+						<Button
+							variant="secondary"
+							size="small"
+							className={ mediaObject && styles.preview }
+							onClick={ open }
+						>
+							{ ! attachedMedia.length && ADD_MEDIA_LABEL }
+						</Button>
+						<span>{ __( 'Add an image or video', 'jetpack' ) }</span>
+					</>
+				) : (
+					<Spinner />
+				) }
+			</div>
 		),
-		[]
+		[ mediaObject, attachedMedia ]
+	);
+
+	const setMediaRender = useCallback(
+		( { open } ) => ( mediaObject ? renderPreview( open ) : renderPicker( open ) ),
+		[ mediaObject, renderPreview, renderPicker ]
 	);
 
 	const onDismissClick = useCallback( () => setValidationError( null ), [] );
 
 	return (
-		<div className={ styles.wrapper }>
-			<MediaUploadCheck>
-				<MediaUpload
-					title={ ADD_MEDIA_LABEL }
-					onSelect={ onUpdateMedia }
-					allowedTypes={ allowedMediaTypes }
-					render={ setMediaRender }
-					value={ attachedMedia[ 0 ]?.id }
-				/>
-				{ mediaObject && (
-					<>
-						<MediaUpload
-							title={ REPLACE_MEDIA_LABEL }
-							onSelect={ onUpdateMedia }
-							allowedTypes={ allowedMediaTypes }
-							render={ replaceMediaRender }
-						/>
-						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-							{ REMOVE_MEDIA_LABEL }
-						</Button>
-					</>
-				) }
-				{ validationError && (
-					<Notice
-						className={ styles.notice }
-						isDismissible={ true }
-						onDismiss={ onDismissClick }
-						status="warning"
-					>
-						<p>{ validationErrorMessages[ validationError ] }</p>
-					</Notice>
-				) }
-				{ ! mediaObject && (
-					<Fragment>
-						<Text variant="title-small">{ __( 'Max image size', 'jetpack' ) }</Text>
-						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ maxImageSize } Mb` }</Text>
+		<ThemeProvider>
+			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
+				<MediaUploadCheck>
+					<p className={ styles.subtitle }>
+						{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+					</p>
+					<MediaUpload
+						title={ ADD_MEDIA_LABEL }
+						onSelect={ onUpdateMedia }
+						allowedTypes={ allowedMediaTypes }
+						render={ setMediaRender }
+						value={ attachedMedia[ 0 ]?.id }
+					/>
+					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+						{ __( 'Learn photo and video best practices', 'jetpack' ) }
+					</ExternalLink>
+					{ validationError && (
+						<Notice
+							className={ styles.notice }
+							isDismissible={ true }
+							onDismiss={ onDismissClick }
+							status="warning"
+						>
+							<p>{ validationErrorMessages[ validationError ] }</p>
+							<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+								{ __( 'Troubleshooting tips', 'jetpack' ) }
+							</ExternalLink>
 						</Notice>
-						<Text variant="title-small">{ __( 'Allowed types', 'jetpack' ) }</Text>
-						<Notice className={ styles.max_notice } isDismissible={ false } status="info">
-							<Text>{ ` ${ allowedMediaTypes.join( ', ' ) }` }</Text>
-						</Notice>
-					</Fragment>
-				) }
-			</MediaUploadCheck>
-		</div>
+					) }
+				</MediaUploadCheck>
+			</BaseControl>
+		</ThemeProvider>
 	);
 }

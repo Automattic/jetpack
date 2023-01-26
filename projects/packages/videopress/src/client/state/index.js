@@ -17,7 +17,15 @@ import storeHolder from './store-holder';
  */
 export const stateDebug = debugFactory( 'videopress/media:state' );
 
-const initialState = window.jetpackVideoPressInitialState?.initialState || {};
+const initialState = window.jetpackVideoPressInitialState?.initialState || { videos: {} };
+
+const hash = window.location.hash.replace( /#\/\??/, '' );
+const hasSearchParams = new URLSearchParams( hash ).toString().replace( 'page=1', '' ).length > 0;
+
+if ( hasSearchParams ) {
+	// Avoid flash of initial data when we have a query
+	initialState.videos.isFetching = true;
+}
 
 /**
  * jetpack-videopress redux initializer

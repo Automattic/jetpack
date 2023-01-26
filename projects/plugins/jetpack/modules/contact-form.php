@@ -26,7 +26,7 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
  * @module contact-form
  *
- * @since $$next-version$$
+ * @since 11.8
  *
  * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
  */

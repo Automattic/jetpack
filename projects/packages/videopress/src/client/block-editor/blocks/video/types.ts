@@ -66,6 +66,8 @@ export type VideoControlProps = {
 	setAttributes: VideoBlockSetAttributesProps;
 
 	clientId?: string;
+
+	privateEnabledForSite?: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;
