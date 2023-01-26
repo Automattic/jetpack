@@ -44,7 +44,7 @@ function findPlugins( body ) {
  * @returns {Array} Platforms impacted by issue.
  */
 function findPlatforms( body ) {
-	const regex = /###\sPlatform\s\(Simple,\sAtomic,\sor\sboth\?\)\n\n([a-zA-Z ,-]*)\n\n/gm;
+	const regex = /###\sPlatform\s\(Simple\sand\/or Atomic\)\n\n([a-zA-Z ,-]*)\n\n/gm;
 
 	const match = regex.exec( body );
 	if ( match ) {
@@ -67,23 +67,23 @@ function findPlatforms( body ) {
  */
 function findPriority( body ) {
 	// Look for priority indicators in body.
-	const priorityRegex = /###\sSeverity\n\n(?<severity>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
+	const priorityRegex = /###\sImpact\n\n(?<impact>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
 	let match;
 	while ( ( match = priorityRegex.exec( body ) ) ) {
-		const [ , severity = '', blocking = '' ] = match;
+		const [ , impact = '', blocking = '' ] = match;
 
 		debug(
-			`triage-new-issues: Reported priority indicators for issue: "${ severity }" / "${ blocking }"`
+			`triage-new-issues: Reported priority indicators for issue: "${ impact }" / "${ blocking }"`
 		);
 
 		if ( blocking === 'No and the platform is unusable' ) {
-			return severity === 'One' ? 'High' : 'BLOCKER';
+			return impact === 'One' ? 'High' : 'BLOCKER';
 		} else if ( blocking === 'No but the platform is still usable' ) {
 			return 'High';
 		} else if ( blocking === 'Yes, difficult to implement' ) {
-			return severity === 'All' ? 'High' : 'Normal';
+			return impact === 'All' ? 'High' : 'Normal';
 		} else if ( blocking !== '' && blocking !== '_No response_' ) {
-			return severity === 'All' || severity === 'Most (> 50%)' ? 'Normal' : 'Low';
+			return impact === 'All' || impact === 'Most (> 50%)' ? 'Normal' : 'Low';
 		}
 		return null;
 	}

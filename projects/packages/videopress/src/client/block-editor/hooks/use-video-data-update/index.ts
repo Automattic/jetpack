@@ -192,7 +192,11 @@ export function useSyncMedia(
 			return;
 		}
 
-		if ( ! videoData || Object.keys( videoData ).length === 0 ) {
+		// Bail early if the video data is not available.
+		if (
+			! videoData ||
+			Object.keys( videoData ).filter( key => videoFieldsToUpdate.includes( key ) ).length === 0
+		) {
 			return;
 		}
 

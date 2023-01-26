@@ -16,6 +16,9 @@ import {
 	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
 import { VideoControlProps } from '../../types';
+/**
+ * Types
+ */
 import type React from 'react';
 
 /**
@@ -24,8 +27,19 @@ import type React from 'react';
  * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function PrivacyAndRatingPanel( { attributes, setAttributes }: VideoControlProps ) {
+export default function PrivacyAndRatingPanel( {
+	attributes,
+	setAttributes,
+	privateEnabledForSite,
+}: VideoControlProps ) {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
+
+	const privacyLabels = {
+		private: _x( 'Site Default (Private)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+		public: _x( 'Site Default (Public)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+	};
+
+	const defaultPrivacyLabel = privateEnabledForSite ? privacyLabels.private : privacyLabels.public;
 
 	return (
 		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
@@ -68,7 +82,7 @@ export default function PrivacyAndRatingPanel( { attributes, setAttributes }: Vi
 				options={ [
 					{
 						value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_SITE_DEFAULT ) ),
-						label: _x( 'Site Default', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+						label: defaultPrivacyLabel,
 					},
 					{
 						value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) ),
