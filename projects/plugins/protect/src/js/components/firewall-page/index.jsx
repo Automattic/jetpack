@@ -575,8 +575,8 @@ const FirewallPage = () => {
 										{ sprintf(
 											// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
 											_n(
-												'%s IP is being blocked. ',
-												'%s IPs are being blocked. ',
+												'%s IP is being blocked.',
+												'%s IPs are being blocked.',
 												ipBlockListCount,
 												'jetpack-protect'
 											),

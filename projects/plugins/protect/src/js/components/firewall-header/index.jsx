@@ -129,7 +129,7 @@ const FirewallSubheading = ( {
 
 	const bruteForceProtectionText = (
 		<Text className={ styles[ 'brute-force-protection-subheading' ] } weight={ 600 }>
-			{ __( 'Brute force protection is active. ', 'jetpack-protect' ) }
+			{ __( 'Brute force protection is active.', 'jetpack-protect' ) }
 		</Text>
 	);
 
