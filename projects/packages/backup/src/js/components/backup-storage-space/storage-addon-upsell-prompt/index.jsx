@@ -56,25 +56,21 @@ export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
 
 	return (
 		showUpsellPrompt && (
-			<>
-				<>
-					<Button
-						className="usage-warning__action-button has-clickable-action"
-						href={ getProductCheckoutUrl(
-							addonSlug,
-							siteSlug,
-							`${ adminUrl }admin.php?page=jetpack-backup`,
-							true
-						) }
-					>
-						<div className="action-button__copy">
-							<div className="action-button__status">{ storageStatusText }</div>
-							<div className="action-button__action-text">{ pricingText }</div>
-						</div>
-						<span className="action-button__arrow">&#8594;</span>
-					</Button>
-				</>
-			</>
+			<Button
+				className="usage-warning__action-button has-clickable-action"
+				href={ getProductCheckoutUrl(
+					addonSlug,
+					siteSlug,
+					`${ adminUrl }admin.php?page=jetpack-backup`,
+					true
+				) }
+			>
+				<div className="action-button__copy">
+					<div className="action-button__status">{ storageStatusText }</div>
+					<div className="action-button__action-text">{ pricingText }</div>
+				</div>
+				<span className="action-button__arrow">&#8594;</span>
+			</Button>
 		)
 	);
 };
