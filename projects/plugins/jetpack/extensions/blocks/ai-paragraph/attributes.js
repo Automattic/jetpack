@@ -1,7 +1,7 @@
 export default {
-	content: {
-		type: 'string',
-		source: 'html',
+	triggered: {
+		type: 'boolean',
+		default: false,
 	},
 	animationDone: {
 		type: 'boolean',
