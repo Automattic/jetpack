@@ -34,7 +34,7 @@ class Tag extends \WP_REST_Terms_Controller {
 	public function register_routes() {
 		register_rest_route(
 			JETPACK_IMPORT_REST_NAMESPACE,
-			JETPACK_IMPORT_REST_PREFIX . '/tags',
+			JETPACK_IMPORT_REST_PREFIX . 'tags',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,

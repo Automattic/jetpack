@@ -34,7 +34,7 @@ class Category extends \WP_REST_Terms_Controller {
 	public function register_routes() {
 		register_rest_route(
 			JETPACK_IMPORT_REST_NAMESPACE,
-			JETPACK_IMPORT_REST_PREFIX . '/categories',
+			JETPACK_IMPORT_REST_PREFIX . 'categories',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,

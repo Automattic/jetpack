@@ -42,12 +42,12 @@ define( 'JETPACK_IMPORT_URI', 'https://jetpack.com/jetpack-import' );
 define( 'JETPACK_IMPORT_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 if ( ! defined( 'JETPACK_IMPORT_REST_NAMESPACE' ) ) {
-	define( 'JETPACK_IMPORT_REST_NAMESPACE', 'jetpack-import/v1' );
+	define( 'JETPACK_IMPORT_REST_NAMESPACE', 'jetpack/v4' );
 }
 
 // For use in situations where you want additional namespacing.
 if ( ! defined( 'JETPACK_IMPORT_REST_PREFIX' ) ) {
-	define( 'JETPACK_IMPORT_REST_PREFIX', '' );
+	define( 'JETPACK_IMPORT_REST_PREFIX', 'import/' );
 }
 
 if ( ! defined( 'JETPACK_IMPORTE_ID_META_NAME' ) ) {

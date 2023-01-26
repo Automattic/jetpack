@@ -34,7 +34,7 @@ class Post extends \WP_REST_Posts_Controller {
 	public function register_routes() {
 		register_rest_route(
 			JETPACK_IMPORT_REST_NAMESPACE,
-			JETPACK_IMPORT_REST_PREFIX . '/posts',
+			JETPACK_IMPORT_REST_PREFIX . 'posts',
 			array(
 				array(
 					'methods'             => \WP_REST_Server::CREATABLE,
