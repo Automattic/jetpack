@@ -493,6 +493,7 @@ importers:
       '@wordpress/annotations': 2.22.0
       '@wordpress/api-fetch': 6.19.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.5.0
+      '@wordpress/block-editor': 10.5.0
       '@wordpress/blocks': 11.21.0
       '@wordpress/components': 22.1.0
       '@wordpress/compose': 5.20.0
@@ -501,6 +502,7 @@ importers:
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.22.0
       '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
       babel-jest: 29.3.1
       classnames: 2.3.1
       jest: 29.3.1
@@ -520,6 +522,7 @@ importers:
       '@automattic/social-previews': 1.1.5_luh77sprmxx7fb4pte32uo4zxu
       '@wordpress/annotations': 2.22.0_react@17.0.2
       '@wordpress/api-fetch': 6.19.0
+      '@wordpress/block-editor': 10.5.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/blocks': 11.21.0_react@17.0.2
       '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/compose': 5.20.0_react@17.0.2
@@ -528,6 +531,7 @@ importers:
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.22.0
       '@wordpress/i18n': 4.22.0
+      '@wordpress/icons': 9.13.0
       classnames: 2.3.1
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -8961,7 +8965,7 @@ packages:
       '@wordpress/dom': 3.23.0
       '@wordpress/element': 4.20.0
       '@wordpress/hooks': 3.23.0
-      '@wordpress/html-entities': 3.22.0
+      '@wordpress/html-entities': 3.24.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/is-shallow-equal': 4.23.0
@@ -9872,7 +9876,7 @@ packages:
       '@wordpress/element': 4.20.0
       '@wordpress/keycodes': 3.23.0
       react: 17.0.2
-      rememo: 4.0.1
+      rememo: 4.0.2
 
   /@wordpress/keycodes/3.22.0:
     resolution: {integrity: sha512-nWEVm1hJdcDh5EJ6IEO4chqsZxDCt5qYyaUPjzFDtEM65abcMnbE7rBT36WP17slSJlPN8Y8HldajERwvKXR6Q==}
@@ -9955,7 +9959,7 @@ packages:
       '@wordpress/element': 4.20.0
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
