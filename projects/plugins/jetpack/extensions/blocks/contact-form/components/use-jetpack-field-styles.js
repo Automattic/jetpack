@@ -3,11 +3,11 @@ import { isNumber } from 'lodash';
 export const useJetpackFieldStyles = attributes => {
 	const blockStyle = {
 		'--jetpack--contact-form--border-color': attributes.borderColor,
-		'--jetpack--contact-form--border-radius': isNumber( attributes.blockBorderRadius )
-			? `${ attributes.blockBorderRadius }px`
+		'--jetpack--contact-form--border-radius': isNumber( attributes.borderRadius )
+			? `${ attributes.borderRadius }px`
 			: null,
-		'--jetpack--contact-form--border-size': isNumber( attributes.blockBorderWidth )
-			? `${ attributes.blockBorderWidth }px`
+		'--jetpack--contact-form--border-size': isNumber( attributes.borderWidth )
+			? `${ attributes.borderWidth }px`
 			: null,
 		'--jetpack--contact-form--input-background': attributes.fieldBackgroundColor,
 		'--jetpack--contact-form--font-size': attributes.fieldFontSize,

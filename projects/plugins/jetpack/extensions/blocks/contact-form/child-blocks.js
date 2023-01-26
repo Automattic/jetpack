@@ -54,14 +54,6 @@ const FieldDefaults = {
 			type: 'number',
 			default: '',
 		},
-		blockBorderRadius: {
-			type: 'number',
-			default: '',
-		},
-		blockBorderWidth: {
-			type: 'number',
-			default: '',
-		},
 		borderWidth: {
 			type: 'number',
 			default: '',
