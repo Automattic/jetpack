@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+change redrect URL so it only requires a single entry with dynamic values
