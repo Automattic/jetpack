@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Forms;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Load the contact form module.
