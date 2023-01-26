@@ -216,7 +216,7 @@ jobs:
 
       - name: Get token
         id: get_token
-        uses: ./monorepo/.github/actions/gh-app-token
+        uses: ./trunk/.github/actions/gh-app-token
         env:
           # Work around a weird node 16/openssl 3 issue in the docker env
           OPENSSL_CONF: '/dev/null'
