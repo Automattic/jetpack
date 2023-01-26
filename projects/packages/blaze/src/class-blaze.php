@@ -21,19 +21,24 @@ class Blaze {
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
+	 *
+	 * @return void
 	 */
 	public static function init() {
-		global $pagenow;
-
 		// On the edit screen, add a row action to promote the post.
-		if (
-			is_admin()
-			&& ! wp_doing_ajax()
-			&& 'edit.php' === $pagenow
-			&& self::should_initialize()
-		) {
+		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
+		// In the post editor, add a post-publish panel to allow promoting the post.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+	}
+
+	/**
+	 * Add links under each published post in the wp-admin post list.
+	 *
+	 * @return void
+	 */
+	public static function add_post_links_actions() {
+		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		}
 	}
 
@@ -192,6 +197,11 @@ class Blaze {
 		 * See #20357 for more info.
 		 */
 		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		// Bail if criteria is not met to enable Blaze features.
+		if ( ! self::should_initialize() ) {
 			return;
 		}
 

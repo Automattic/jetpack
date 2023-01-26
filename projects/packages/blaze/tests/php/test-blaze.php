@@ -36,4 +36,25 @@ class Test_Blaze extends BaseTestCase {
 		$this->assertTrue( Blaze::should_initialize() );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
+
+	/**
+	 * As a control when testing add_filters_and_actions_for_screen() make sure it always starts clean.
+	 */
+	private function confirm_add_filters_and_actions_for_screen_starts_clean() {
+		$this->assertFalse( has_action( 'post_row_actions' ) );
+	}
+
+	/**
+	 * Tests if the post_row action is added when we force Blaze to be enabled.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::add_post_links_actions
+	 */
+	public function test_post_row_added() {
+		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
+
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		Blaze::add_post_links_actions();
+
+		$this->assertNotFalse( has_action( 'post_row_actions' ) );
+	}
 }
