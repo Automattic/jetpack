@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.10.8] - 2023-01-23
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+- Fixes the price display for products with intro offers for the first month. [#28424]
+
+## [1.10.7] - 2023-01-11
+### Added
+- Setup js tests and add some tests to existing reducers, selectors and hooks [#28130]
+
+### Changed
+- Updated package dependencies. [#28127]
+- Use `WP_Filesystem` more consistently in `Helper_Script_Manager`. [#28198]
+
+## [1.10.6] - 2022-12-19
+### Changed
+- Update Backup logo [#27802]
+
+### Fixed
+- Update for PHP 8.2 deprecations. [#27949]
+
 ## [1.10.5] - 2022-12-06
 ### Changed
 - Updated backup layout to improve consistency and remove redundancy. [#27222]
@@ -301,6 +321,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.10.8]: https://github.com/Automattic/jetpack-backup/compare/v1.10.7...v1.10.8
+[1.10.7]: https://github.com/Automattic/jetpack-backup/compare/v1.10.6...v1.10.7
+[1.10.6]: https://github.com/Automattic/jetpack-backup/compare/v1.10.5...v1.10.6
 [1.10.5]: https://github.com/Automattic/jetpack-backup/compare/v1.10.4...v1.10.5
 [1.10.4]: https://github.com/Automattic/jetpack-backup/compare/v1.10.3...v1.10.4
 [1.10.3]: https://github.com/Automattic/jetpack-backup/compare/v1.10.2...v1.10.3

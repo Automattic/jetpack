@@ -29,6 +29,10 @@
 // TrackFrom
 .video-tracks-control__track-form-container {
 	padding: 0 8px;
+
+	.components-notice {
+		margin: 0 0 8px;
+	}
 }
 
 .video-tracks-control__track-form__description {
@@ -69,7 +73,7 @@
 	align-items: center;
 
 	&:not( .track-exists ) {
-		justify-content: end;
+		justify-content: flex-end;
 	}
 
 	.video-tracks-control__track-form-toggle {

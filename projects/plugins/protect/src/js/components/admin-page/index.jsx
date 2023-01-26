@@ -5,6 +5,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import React, { useEffect } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
@@ -13,16 +14,14 @@ import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
 import useRegistrationWatcher from './use-registration-watcher';
 
-export const JETPACK_SCAN = 'jetpack_scan';
-
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
 
-	const { isSeen: wafSeen } = useWafData();
+	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {
@@ -55,17 +54,19 @@ const AdminPage = ( { children } ) => {
 			<Container horizontalSpacing={ 0 }>
 				<Tabs className={ styles.navigation }>
 					<Tab link="/" label={ __( 'Scan', 'jetpack-protect' ) } />
-					<Tab
-						link="/firewall"
-						label={
-							<>
-								{ __( 'Firewall', 'jetpack-protect' ) }
-								{ wafSeen === false && (
-									<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
-								) }
-							</>
-						}
-					/>
+					{ wafSupported && (
+						<Tab
+							link="/firewall"
+							label={
+								<>
+									{ __( 'Firewall', 'jetpack-protect' ) }
+									{ wafSeen === false && (
+										<span className={ styles.badge }>{ __( 'New', 'jetpack-protect' ) }</span>
+									) }
+								</>
+							}
+						/>
+					) }
 				</Tabs>
 			</Container>
 			{ children }

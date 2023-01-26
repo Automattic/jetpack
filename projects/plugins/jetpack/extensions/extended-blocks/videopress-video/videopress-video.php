@@ -25,9 +25,13 @@ add_action(
 		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' ) ) {
 			VideoPress_Pkg_Initializer::register_videopress_video_block();
 		}
+	}
+);
 
-		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_chapters_block' ) ) {
-			VideoPress_Pkg_Initializer::register_videopress_chapters_block();
-		}
+// Set the videopress/video block availability, depending on the site plan.
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_availability_for_plan( 'videopress/video' );
 	}
 );

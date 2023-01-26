@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	import { backOut } from 'svelte/easing';
 	import { fade, fly } from 'svelte/transition';
 	import Spinner from './Spinner.svelte';
@@ -19,16 +20,34 @@
 		y: 2,
 		easing: backOut,
 	};
+
+	let bubble: HTMLElement;
+	const dispatch = createEventDispatcher();
+	function onHover() {
+		const rect = bubble.getBoundingClientRect();
+		dispatch( 'hover', {
+			index,
+			position: {
+				top: rect.top + rect.height + 10,
+				left: rect.left,
+			},
+		} );
+	}
 </script>
 
-<div class="interaction-area {severity}" on:mouseenter transition:fly={scaleTransition}>
+<div
+	class="interaction-area {severity}"
+	bind:this={bubble}
+	on:mouseenter={onHover}
+	transition:fly={scaleTransition}
+>
 	<div class="bubble">
 		{#if false === $isLoading}
 			<div class="bubble-inner">
 				<div class="label" in:fade={{ delay: 200, duration: 300 }}>
 					{#if $oversizedRatio > 9}
 						{Math.floor( $oversizedRatio )}x
-					{:else if $oversizedRatio > 1}
+					{:else if $oversizedRatio > 0.99}
 						{#if severity === 'normal'}
 							<Checkmark />
 						{:else}
@@ -75,7 +94,8 @@
 		border-radius: 50%;
 		text-align: center;
 
-		text-shadow: 0 0 1px rgba( 0, 0, 0, 0.25 );
+		border: 1px solid hsl( 0deg 0% 100% / 0.05 );
+		text-shadow: 0 0 1px hsl( 0, 0%, 0% / 0.15 );
 		cursor: default;
 		transition: background-color 300ms ease;
 
@@ -122,9 +142,13 @@
 			margin-top: -10px;
 		}
 		.bubble {
-			width: 14px;
-			height: 14px;
+			width: 10px;
+			height: 10px;
 			font-size: 0px;
+			border: 1px solid hsl( 0deg 0% 100% / 0.3 );
+			:global( svg ) {
+				display: none;
+			}
 		}
 	}
 </style>

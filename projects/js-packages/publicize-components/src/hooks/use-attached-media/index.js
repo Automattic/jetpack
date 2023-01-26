@@ -3,9 +3,9 @@ import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 
 /**
- * @typedef {Object} AttachedMediaHook
- * @property {Array} attachedMedia - List of media IDs.
- * @property {Function} updateAttachedMedia - Callback used to update the attached media..
+ * @typedef {object} AttachedMediaHook
+ * @property {Array} attachedMedia - List of media with ID, URL, and metadata.
+ * @property {Function} updateAttachedMedia - Callback used to update the attached media.
  */
 
 /**
@@ -22,10 +22,10 @@ export default function useAttachedMedia() {
 	);
 
 	const updateAttachedMedia = useCallback(
-		ids => {
+		medias => {
 			editPost( {
 				meta: {
-					jetpack_social_options: { ...currentOptions, attached_media: ids },
+					jetpack_social_options: { ...currentOptions, attached_media: medias },
 				},
 			} );
 		},

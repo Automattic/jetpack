@@ -1,37 +1,50 @@
 import { MeasurableImageStore } from './stores/MeasurableImageStore';
 import Main from './ui/Main.svelte';
-import type { MeasurableImage } from './MeasurableImage';
 import type { ImageGuideConfig } from './types';
+import type { MeasurableImage } from '@automattic/jetpack-image-guide';
 
 /**
- * This function looks for the closest parent that is
- * able to contain the image guide component.
+ * Returns the closest parent element that is able to contain the image guide component.
  *
- * @param  node The node to start looking from
+ * This is necessary to ensure that the image guide component is positioned correctly
+ * within the DOM tree, and to prevent it from  being obscured
+ * by other elements with a higher z-index.
+ *
+ * @param node The node to start searching from
+ * @return The closest parent element that is able to contain the image guide component
  */
-function closestStableParent( node: HTMLElement ): HTMLElement | null {
-	if ( ! node.parentNode ) {
-		return null;
+function getClosestContainingAncestor( node: HTMLElement ): HTMLElement | null {
+	let current: HTMLElement | null = node.parentElement;
+
+	// Keep track of target element
+	let target: HTMLElement;
+	while ( current && current instanceof HTMLElement ) {
+		// Don't go past the body element
+		if ( current === document.body ) {
+			break;
+		}
+
+		const style = getComputedStyle( current );
+
+		// Guide can't be correctly positioned inside inline elements
+		// because they don't have dimensions.
+		const canContainBlockElements = style.display !== 'inline';
+		const isStatic = style.position === 'static';
+		const isRelative = style.position === 'relative';
+		const hasZIndex = style.zIndex !== 'auto';
+		const isRelativeWithZIndex = isRelative && hasZIndex;
+
+		if (
+			canContainBlockElements &&
+			( ( ! target && ( isStatic || isRelative ) ) || isRelativeWithZIndex )
+		) {
+			target = current;
+		}
+
+		current = current.parentElement;
 	}
 
-	if ( ! ( node.parentNode instanceof HTMLElement ) ) {
-		return null;
-	}
-
-	// Stop searching at body.
-	if ( node.parentNode.tagName === 'BODY' ) {
-		return node.parentNode;
-	}
-	if ( node.parentNode.classList.contains( 'jetpack-boost-guide' ) ) {
-		return node.parentNode;
-	}
-
-	const position = getComputedStyle( node.parentNode ).position;
-	if ( position === 'static' || position === 'relative' ) {
-		return node.parentNode;
-	}
-
-	return closestStableParent( node.parentNode );
+	return target;
 }
 
 /**
@@ -61,18 +74,18 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		return;
 	}
 
-	const parent = closestStableParent( node );
+	const ancestor = getClosestContainingAncestor( node );
 
-	if ( parent?.classList.contains( 'jetpack-boost-guide' ) ) {
-		return parent;
+	if ( ancestor?.classList.contains( 'jetpack-boost-guide' ) ) {
+		return ancestor;
 	}
 
-	if ( parent ) {
-		const parentStyle = getComputedStyle( parent );
+	if ( ancestor ) {
+		const parentStyle = getComputedStyle( ancestor );
 
 		// If this is a relative parent, see if any boost guide-elements are in here already
 		if ( parentStyle.position === 'relative' ) {
-			const existing = Array.from( parent.children ).find( child =>
+			const existing = Array.from( ancestor.children ).find( child =>
 				child.classList.contains( 'jetpack-boost-guide' )
 			);
 			if ( existing && existing instanceof HTMLElement ) {
@@ -84,13 +97,10 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
 		wrapper.classList.add( 'jetpack-boost-guide' );
 		wrapper.dataset.jetpackBoostGuideId = ( ++wrapperID ).toString();
 		if ( parentStyle.position === 'static' ) {
-			wrapper.classList.add( 'relative' );
-			Array.from( parent.children )
-				.reverse()
-				.forEach( child => wrapper.appendChild( child ) );
+			ancestor.style.position = 'relative';
 		}
 
-		parent.prepend( wrapper );
+		ancestor.prepend( wrapper );
 		return wrapper;
 	}
 
@@ -107,7 +117,7 @@ function findContainer( image: MeasurableImage ): HTMLElement | undefined {
  *
  * This function attempts to attach the Svelte Components to the DOM in a non-destructive way.
  *
- * @param  measuredImages
+ * @param measuredImages
  */
 export function attachGuides( measuredImages: MeasurableImage[] ) {
 	const componentConfiguration = measuredImages.reduce( ( acc, image ) => {
@@ -149,7 +159,7 @@ export function attachGuides( measuredImages: MeasurableImage[] ) {
 
 	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration )
-		.map( config => {
+		.map( ( config: ImageGuideConfig ) => {
 			// eslint-disable-next-line no-new
 			new Main( config );
 			return config.props.stores;

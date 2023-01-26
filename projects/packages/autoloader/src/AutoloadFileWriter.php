@@ -12,9 +12,6 @@
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
 
 namespace Automattic\Jetpack\Autoloader;
 

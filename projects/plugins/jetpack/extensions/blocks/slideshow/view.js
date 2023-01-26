@@ -2,6 +2,7 @@ import domReady from '@wordpress/dom-ready';
 import { forEach } from 'lodash';
 import ResizeObserver from 'resize-observer-polyfill';
 import createSwiper from './create-swiper';
+import { paginationCustomRender } from './slideshow';
 import {
 	swiperApplyAria,
 	swiperInit,
@@ -38,6 +39,11 @@ if ( typeof window !== 'undefined' ) {
 					keyboard: {
 						enabled: true,
 						onlyInViewport: true,
+					},
+					pagination: {
+						clickable: true,
+						type: 'custom',
+						renderCustom: paginationCustomRender,
 					},
 				},
 				{

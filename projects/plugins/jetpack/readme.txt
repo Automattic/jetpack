@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.6
+Stable tag: 11.7.1
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,16 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-a.3 - 2022-12-12
+### 11.8-a.9 - 2023-01-23
 #### Enhancements
-- Form block: update Form blocks descriptions.
-- Form block: simplify Form block sidebar to make the UI easier to use.
-- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
-- Writing prompts: add filter for whether prompts are enabled or not
+- Contact Form: improve file naming when exporting form responses.
+- Contact Form: update column names when exporting Contact Form responses to CSV for clarity.
+- VideoPress: show VideoPress block availability based on site plan.
+
+#### Improved compatibility
+- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
+- VideoPress: do not add block transform to v6 when video is not a VideoPress video.
 
 #### Bug fixes
-- Admin Page: avoid querying for WAF settings when the feature is not active.
-- VideoPress block: fix video player issue in some VideoMaker theme patterns.
+- Dashboard: fix the price display and description for products with intro offers for the first month.
+- Dashboard: show Boost in My Plans dashboard when added to a site.
+- Infinite Scroll: fix an AMP related bug.
+- Related Posts: fix Related Posts options saving.
+- Sharing: do not include the sharing buttons in REST API responses.
 
 --------
 

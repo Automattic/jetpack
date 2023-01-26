@@ -1045,6 +1045,17 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
+		$already_shared_flag_args = array(
+			'type'          => 'boolean',
+			'description'   => __( 'Whether or not the post has already been shared.', 'jetpack-publicize-pkg' ),
+			'single'        => true,
+			'default'       => false,
+			'show_in_rest'  => array(
+				'name' => 'jetpack_social_post_already_shared',
+			),
+			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
+		);
+
 		$jetpack_social_options_args = array(
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
@@ -1058,7 +1069,15 @@ abstract class Publicize_Base {
 						'attached_media' => array(
 							'type'  => 'array',
 							'items' => array(
-								'type' => 'number',
+								'type'       => 'object',
+								'properties' => array(
+									'id'  => array(
+										'type' => 'number',
+									),
+									'url' => array(
+										'type' => 'string',
+									),
+								),
 							),
 						),
 					),
@@ -1075,11 +1094,13 @@ abstract class Publicize_Base {
 			$message_args['object_subtype']                  = $post_type;
 			$tweetstorm_args['object_subtype']               = $post_type;
 			$publicize_feature_enable_args['object_subtype'] = $post_type;
+			$already_shared_flag_args['object_subtype']      = $post_type;
 			$jetpack_social_options_args['object_subtype']   = $post_type;
 
 			register_meta( 'post', $this->POST_MESS, $message_args );
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
+			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 		}
 	}
@@ -1581,6 +1602,8 @@ abstract class Publicize_Base {
 		return $has_paid_plan;
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Get Calypso URL for Publicize connections.

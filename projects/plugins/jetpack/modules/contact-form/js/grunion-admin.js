@@ -179,10 +179,50 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
-	// export to Google Drive handler
-	$( document ).on( 'click', '#jetpack-export-feedback-to-gdrive', function ( event ) {
+	function startPollingConnection( { name, value } ) {
+		let hasConnection = false;
+		let replacementHtml = null;
+		let interval = setInterval( function () {
+			if ( hasConnection ) {
+				return;
+			}
+			$.post(
+				ajaxurl,
+				{
+					action: 'grunion_gdrive_connection',
+					[ name ]: value,
+				},
+				function ( data ) {
+					if ( data && data.connection && data.html ) {
+						clearInterval( interval );
+						hasConnection = true;
+						replacementHtml = $( data.html );
+						$( '#jetpack-form-responses-connect' ).replaceWith( replacementHtml );
+					}
+				}
+			).fail( function () {
+				clearInterval( interval );
+			} );
+		}, 5000 );
+	}
+
+	$( document ).on( 'click', '#jetpack-form-responses-connect', function () {
+		const $this = $( this );
+		const name = $this.data( 'nonce-name' );
+		const value = $( '#' + name ).attr( 'value' );
+		$this.attr( 'disabled', 'disabled' );
+		$this.text(
+			( window.exportParameters && window.exportParameters.waitingConnection ) ||
+				'Waiting for connection...'
+		);
+		startPollingConnection( { name, value } );
+	} );
+
+	// Handle export to Google Drive
+	$( document ).on( 'click', '#jetpack-export-feedback-gdrive', function ( event ) {
 		event.preventDefault();
-		var nonceName = $( event.target ).data( 'nonce-name' );
+		var $btn = $( event.target );
+		var nonceName = $btn.data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
 		var post = window.location.search.match( /(\?|\&)jetpack_form_parent_id=(\d+)/ );
@@ -192,6 +232,11 @@ jQuery( function ( $ ) {
 			selected.push( parseInt( $( this ).attr( 'value' ), 10 ) );
 		} );
 
+		var errorMessage =
+			( window.exportParameters && window.exportParameters.exportError ) ||
+			'There was an error exporting your results';
+
+		$btn.attr( 'disabled', 'disabled' );
 		$.post(
 			ajaxurl,
 			{
@@ -203,22 +248,24 @@ jQuery( function ( $ ) {
 				[ nonceName ]: nonce,
 			},
 			function ( payload, status ) {
-				if ( status !== 'success' ) {
-					window.alert( 'There was an error exporting your results' );
-					return;
-				}
-				if ( payload.data && payload.data.sheet_link ) {
+				if ( status === 'success' && payload.data && payload.data.sheet_link ) {
 					window.open( payload.data.sheet_link, '_blank' );
 				}
 			}
-		);
+		)
+			.fail( function () {
+				window.alert( errorMessage );
+			} )
+			.always( function () {
+				$btn.removeAttr( 'disabled' );
+			} );
 	} );
 
-	// Handle export
-	$( document ).on( 'click', '#jetpack-export-feedback', function ( e ) {
+	// Handle export to CSV
+	$( document ).on( 'click', '#jetpack-export-feedback-csv', function ( e ) {
 		e.preventDefault();
 
-		var nonceName = $( '#jetpack-export-feedback' ).data( 'nonce-name' );
+		var nonceName = $( e.target ).data( 'nonce-name' );
 		var nonce = $( '#' + nonceName ).attr( 'value' );
 
 		var date = window.location.search.match( /(\?|\&)m=(\d+)/ );
@@ -239,12 +286,15 @@ jQuery( function ( $ ) {
 				selected: selected,
 				[ nonceName ]: nonce,
 			},
-			function ( response ) {
+			function ( response, status, xhr ) {
 				var blob = new Blob( [ response ], { type: 'application/octetstream' } );
-
 				var a = document.createElement( 'a' );
 				a.href = window.URL.createObjectURL( blob );
-				a.download = 'feedback.csv';
+
+				// Get filename from backend headers
+				var contentDispositionHeader = xhr.getResponseHeader( 'content-disposition' );
+				a.download =
+					contentDispositionHeader.split( 'filename=' )[ 1 ] || 'Jetpack Form Responses.csv';
 
 				document.body.appendChild( a );
 				a.click();
@@ -252,5 +302,12 @@ jQuery( function ( $ ) {
 				window.URL.revokeObjectURL( a.href );
 			}
 		);
+	} );
+
+	// modal opener
+	$( document ).on( 'click', '#export-modal-opener', function ( event ) {
+		const button = $( this );
+		event.preventDefault();
+		window.tb_show( button.html(), button.attr( 'href' ) );
 	} );
 } );

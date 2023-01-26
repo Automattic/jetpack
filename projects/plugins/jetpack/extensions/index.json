@@ -47,12 +47,15 @@
 	"beta": [
 		"amazon",
 		"google-docs-embed",
+		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
 		"videopress/video",
 		"videopress/video-chapters"
 	],
 	"experimental": [
+		"ai-image",
+		"ai-paragraph",
 		"anchor-fm",
 		"blogging-prompts",
 		"premium-content",

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Blocks: enqueue connection data in post editor, to be used by blocks.

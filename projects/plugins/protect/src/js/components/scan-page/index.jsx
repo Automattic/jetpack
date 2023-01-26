@@ -9,6 +9,7 @@ import useProtectData from '../../hooks/use-protect-data';
 import { STORE_ID } from '../../state/store';
 import AdminPage from '../admin-page';
 import AlertSVGIcon from '../alert-icon';
+import ProgressBar from '../progress-bar';
 import ScanFooter from '../scan-footer';
 import SeventyFiveLayout from '../seventy-five-layout';
 import Summary from '../summary';
@@ -17,8 +18,6 @@ import inProgressImage from './in-progress.png';
 import styles from './styles.module.scss';
 import useCredentials from './use-credentials';
 import useStatusPolling from './use-status-polling';
-
-export const JETPACK_SCAN = 'jetpack_scan';
 
 const ScanPage = () => {
 	const { lastChecked, currentStatus, errorCode, errorMessage, hasRequiredPlan } = useProtectData();
@@ -29,6 +28,7 @@ const ScanPage = () => {
 		scanIsUnavailable: select( STORE_ID ).getScanIsUnavailable(),
 		status: select( STORE_ID ).getStatus(),
 	} ) );
+	const { currentProgress } = status;
 	let currentScanStatus;
 	if ( 'error' === currentStatus || scanIsUnavailable ) {
 		currentScanStatus = 'error';
@@ -132,6 +132,9 @@ const ScanPage = () => {
 									</Col>
 									<Col>
 										<H3>{ __( 'Your results will be ready soon', 'jetpack-protect' ) }</H3>
+										{ currentProgress !== null && currentProgress >= 0 && (
+											<ProgressBar value={ currentProgress } />
+										) }
 										<Text>
 											{ __(
 												'We are scanning for security threats from our more than 22,000 listed vulnerabilities, powered by WPScan. This could take a minute or two.',

@@ -17,7 +17,14 @@ import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
-const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder } ) => {
+const JetpackFieldControls = ( {
+	setAttributes,
+	width,
+	id,
+	required,
+	placeholder,
+	placeholderField = 'placeholder',
+} ) => {
 	return (
 		<>
 			<BlockControls>
@@ -54,7 +61,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required, placeholder
 					<TextControl
 						label={ __( 'Placeholder text', 'jetpack' ) }
 						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 						help={ __(
 							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
 							'jetpack'

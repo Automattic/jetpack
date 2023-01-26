@@ -379,19 +379,17 @@ class Jetpack_SSO {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' === $_GET['result'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				$this->handle_login();
 				$this->display_sso_login_form();
+			} elseif ( ( new Status() )->is_staging_site() ) {
+				add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			} else {
-				if ( ( new Status() )->is_staging_site() ) {
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
-				} else {
-					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-					$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-					$sso_url = $this->get_sso_url_or_die( $reauth );
+				// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
+				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
+				$reauth  = ! empty( $_GET['force_reauth'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$sso_url = $this->get_sso_url_or_die( $reauth );
 
-					$tracking->record_user_event( 'sso_login_redirect_success' );
-					wp_safe_redirect( $sso_url );
-					exit;
-				}
+				$tracking->record_user_event( 'sso_login_redirect_success' );
+				wp_safe_redirect( $sso_url );
+				exit;
 			}
 		} elseif ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 

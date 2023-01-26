@@ -32,6 +32,21 @@ class Users extends Module {
 	protected $flags = array();
 
 	/**
+	 * Mapping between user fields to flags.
+	 *
+	 * @var array
+	 */
+	protected $user_fields_to_flags_mapping = array(
+		'user_pass'           => 'password_changed',
+		'user_email'          => 'email_changed',
+		'user_nicename'       => 'nicename_changed',
+		'user_url'            => 'url_changed',
+		'user_registered'     => 'registration_date_changed',
+		'user_activation_key' => 'activation_key_changed',
+		'display_name'        => 'display_name_changed',
+	);
+
+	/**
 	 * Sync module name.
 	 *
 	 * @access public
@@ -433,7 +448,6 @@ class Users extends Module {
 		 */
 		do_action( 'jetpack_sync_register_user', $user_id, $this->get_flags( $user_id ) );
 		$this->clear_flags( $user_id );
-
 	}
 
 	/**
@@ -488,31 +502,49 @@ class Users extends Module {
 			$old_user = $old_user_data;
 		}
 
-		if ( null !== $old_user && $user->user_pass !== $old_user->user_pass ) {
-			$this->flags[ $user_id ]['password_changed'] = true;
+		if ( ! is_object( $old_user ) ) {
+			return;
 		}
-		if ( null !== $old_user && $user->data->user_email !== $old_user->user_email ) {
-			/**
-			 * The '_new_email' user meta is deleted right after the call to wp_update_user
-			 * that got us to this point so if it's still set then this was a user confirming
-			 * their new email address.
-			 */
-			if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
-				$this->flags[ $user_id ]['email_changed'] = true;
+
+		$old_user_array = get_object_vars( $old_user );
+
+		foreach ( $old_user_array as $user_field => $field_value ) {
+			if ( false === $user->has_prop( $user_field ) ) {
+				continue;
+			}
+			if ( $user->$user_field !== $field_value ) {
+				if ( 'user_email' === $user_field ) {
+					/**
+					 * The '_new_email' user meta is deleted right after the call to wp_update_user
+					 * that got us to this point so if it's still set then this was a user confirming
+					 * their new email address.
+					 */
+					if ( 1 === (int) get_user_meta( $user->ID, '_new_email', true ) ) {
+						$this->flags[ $user_id ]['email_changed'] = true;
+					}
+					continue;
+				}
+
+				$flag = isset( $this->user_fields_to_flags_mapping[ $user_field ] ) ? $this->user_fields_to_flags_mapping[ $user_field ] : 'unknown_field_changed';
+
+				$this->flags[ $user_id ][ $flag ] = true;
 			}
 		}
 
-		/**
-		 * Fires when the client needs to sync an updated user.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 4.2.0
-		 *
-		 * @param \WP_User The WP_User object
-		 * @param array    State - New since 5.8.0
-		 */
-		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
-		$this->clear_flags( $user_id );
+		if ( isset( $this->flags[ $user_id ] ) ) {
+
+			/**
+			 * Fires when the client needs to sync an updated user.
+			 *
+			 * @since 1.6.3
+			 * @since-jetpack 4.2.0
+			 *
+			 * @param \WP_User The WP_User object
+			 * @param array    State - New since 5.8.0
+			 */
+			do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
+			$this->clear_flags( $user_id );
+		}
 	}
 
 	/**

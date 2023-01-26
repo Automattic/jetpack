@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.18] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [0.3.17] - 2022-12-27
+### Fixed
+- Base styles: Removed box-sizing which caused a style issue in the customizer-themes dashboard. [#28024]
+
 ## [0.3.16] - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27696]
@@ -135,6 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.3.18]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.17...0.3.18
+[0.3.17]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.16...0.3.17
 [0.3.16]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.15...0.3.16
 [0.3.15]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.14...0.3.15
 [0.3.14]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.13...0.3.14

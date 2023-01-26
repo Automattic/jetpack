@@ -187,6 +187,5 @@ class Jetpack_Photon_ImageSizes {
 	protected function resize( $size_data ) {
 
 		return $this->image->get_size( $size_data );
-
 	}
 }
