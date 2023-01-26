@@ -112,15 +112,7 @@ const JetpackFieldControls = ( {
 					initialOpen={ false }
 					colorSettings={ ! hasBorderControls ? colorSettings.slice( 0, 2 ) : colorSettings }
 				/>
-				<PanelBody
-					title={ __( 'Input Field Styles', 'jetpack' ) }
-					initialOpen={
-						attributes.borderWidth ||
-						attributes.borderRadius ||
-						attributes.fieldFontSize ||
-						attributes.lineHeight
-					}
-				>
+				<PanelBody title={ __( 'Input Field Styles', 'jetpack' ) } initialOpen={ false }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<FontSizePicker
 						withReset={ true }
@@ -158,10 +150,7 @@ const JetpackFieldControls = ( {
 						</>
 					) }
 				</PanelBody>
-				<PanelBody
-					title={ __( 'Label Styles', 'jetpack' ) }
-					initialOpen={ attributes.labelFontSize }
-				>
+				<PanelBody title={ __( 'Label Styles', 'jetpack' ) } initialOpen={ false }>
 					<FontSizePicker
 						withReset={ true }
 						size="__unstable-large"
