@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.11.0] - 2023-01-26
+### Added
+- Add backup storage UI on backup plugin [#28085]
+
 ## [1.10.8] - 2023-01-23
 ### Fixed
 - Clean up JavaScript eslint issues. [#28441]
@@ -321,6 +325,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.11.0]: https://github.com/Automattic/jetpack-backup/compare/v1.10.8...v1.11.0
 [1.10.8]: https://github.com/Automattic/jetpack-backup/compare/v1.10.7...v1.10.8
 [1.10.7]: https://github.com/Automattic/jetpack-backup/compare/v1.10.6...v1.10.7
 [1.10.6]: https://github.com/Automattic/jetpack-backup/compare/v1.10.5...v1.10.6
