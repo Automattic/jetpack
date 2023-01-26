@@ -196,7 +196,7 @@ class Initializer {
 		// Register and enqueue scripts used by the VideoPress block.
 		Block_Editor_Extensions::init( $videopress_video_metadata );
 
-		// Do not register is the block is already registered.
+		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
 			return;
 		}
