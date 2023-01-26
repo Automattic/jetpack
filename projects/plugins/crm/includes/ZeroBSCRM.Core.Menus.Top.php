@@ -757,17 +757,19 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 			?>
 			<div class="ui popup bottom left transition hidden" id="zbs-user-menu">
-				<div class="ui 
 				<?php
-				if ( count( $popoutMenu ) == 3 ) {
-					echo 'three';
-				} elseif ( count( $popoutMenu ) == 2 ) {
-					echo 'two';
-				} else {
-					echo 'one';
-				}
+					switch ( count( $popoutMenu ) ) {
+						case 3:
+							$menu_style = 'three';
+							break;
+						case 2:
+							$menu_style = 'two';
+							break;
+						default:
+							$menu_style = 'one';
+					}
 				?>
-				column equal height divided grid">
+				<div class="ui <?php echo $menu_style ?> column equal height divided grid">
 			<?php if ( isset( $popoutMenu['col1'] ) && count( $popoutMenu['col1'] ) > 0 ) { ?>
 				<div class="column">
 					<h4 class="ui header"><?php esc_html_e( 'CRM Admin', 'zero-bs-crm' ); ?></h4>
