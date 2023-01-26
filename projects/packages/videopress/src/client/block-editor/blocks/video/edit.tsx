@@ -19,6 +19,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
@@ -43,13 +44,8 @@ import type React from 'react';
 import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
-
-const { siteType = '', myJetpackConnectUrl } = window?.videoPressEditorState || {};
-
-// Get connection initial state from the global window object.
-const initialState = window?.JP_CONNECTION_INITIAL_STATE;
-// Set connection status based on site type and initial state, and the site type.
-const isUserConnected = siteType === 'simple' || initialState?.connectionStatus?.isUserConnected;
+const { myJetpackConnectUrl } = window?.videoPressEditorState || {};
+const isUserConnected = getIsUserConnected();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
