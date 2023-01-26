@@ -230,7 +230,7 @@ class Util {
 			$now_gmt,
 			$grunion_delete_limit
 		);
-		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		foreach ( (array) $post_ids as $post_id ) {
 			// force a full delete, skip the trash
@@ -250,7 +250,7 @@ class Util {
 			 */
 			apply_filters( 'grunion_optimize_table', false )
 		) {
-			$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
+			$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		}
 
 		// if we hit the max then schedule another run
