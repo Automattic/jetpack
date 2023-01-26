@@ -47,7 +47,7 @@ const debug = debugFactory( 'videopress:video:edit' );
 // Get site type.
 const { siteType = '', myJetpackConnectUrl } = window?.videoPressEditorState || {};
 
-// Get connection intial state from the global window object.
+// Get connection initial state from the global window object.
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
 // Set connection status based on site type and initial state, and the site type.
 const isUserConnected = siteType === 'simple' || initialState?.connectionStatus?.isUserConnected;
