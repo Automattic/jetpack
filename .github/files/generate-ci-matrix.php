@@ -81,7 +81,6 @@ $matrix[] = array(
 	'wp'                  => 'trunk',
 	'timeout'             => 20, // 2022-12-19: The WorDBless WP version bump adds up to ~30s extra per project using it, which adds up.
 	'force-package-tests' => true,
-	'experimental'        => true,
 );
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
