@@ -100,7 +100,7 @@ export const JetpackDropdownEdit = ( {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div style={ blockStyle }>
+		<div>
 			<JetpackFieldLabel
 				required={ required }
 				requiredText={ requiredText }
@@ -110,7 +110,7 @@ export const JetpackDropdownEdit = ( {
 				isSelected={ isSelected }
 			/>
 			<div className="jetpack-field-dropdown">
-				<div className="jetpack-field-dropdown__toggle">
+				<div style={ blockStyle } className="jetpack-field-dropdown__toggle">
 					<RichText
 						value={ toggleLabel }
 						onChange={ value => {
