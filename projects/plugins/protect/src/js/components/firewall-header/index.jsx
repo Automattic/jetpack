@@ -27,20 +27,6 @@ const UpgradePrompt = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
 
-	return (
-		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
-			{ ! automaticRulesAvailable
-				? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
-				: __(
-						'Upgrade to update automatic rules',
-						'jetpack-protect',
-						/* dummy arg to avoid bad minification */ 0
-				  ) }
-		</Button>
-	);
-};
-
-const FirewallSubheadingPopover = ( { children } ) => {
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	const handleEnter = useCallback( () => {
@@ -52,116 +38,54 @@ const FirewallSubheadingPopover = ( { children } ) => {
 	}, [] );
 
 	return (
-		<div
-			className={ styles[ 'icon-popover' ] }
-			onMouseLeave={ handleOut }
-			onMouseEnter={ handleEnter }
-			onClick={ handleEnter }
-			onFocus={ handleEnter }
-			onBlur={ handleOut }
-			role="presentation"
-		>
-			<Icon icon={ help } />
-			{ showPopover && (
-				<Popover noArrow={ false } offset={ 5 }>
-					<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-						{ children }
-					</Text>
-				</Popover>
-			) }
-		</div>
-	);
-};
-
-const FirewallSubheading = ( {
-	hasRequiredPlan,
-	automaticRulesAvailable,
-	jetpackWafIpList,
-	jetpackWafAutomaticRules,
-	bruteForceProtectionIsEnabled,
-} ) => {
-	const noRulesText = <Text weight={ 600 }>{ __( 'No rules applied.', 'jetpack-protect' ) }</Text>;
-
-	const automaticRulesText = (
-		<Text weight={ 600 }>{ __( 'Only automatic rules applied.', 'jetpack-protect' ) }</Text>
-	);
-
-	const HasAutomaticRulesText = ( { popover = false } ) => {
-		return (
-			<div className={ styles[ 'automatic-rules-subheading' ] }>
-				<Text weight={ 600 }>
-					{ __(
-						'Your site is not receiving the latest updates to automatic rules.',
-						'jetpack-protect'
-					) }
-				</Text>
-				{ popover && (
-					<FirewallSubheadingPopover
-						children={ __(
-							'The free version of the firewall does not receive updates to automatic firewall rules.',
-							'jetpack-protect'
-						) }
-					/>
-				) }
-			</div>
-		);
-	};
-
-	const ManualRulesText = ( { popover = false } ) => {
-		return (
-			<div className={ styles[ 'manual-rules-subheading' ] }>
-				<Text weight={ 600 }>{ __( 'Only manual rules applied.', 'jetpack-protect' ) }</Text>
-				{ popover && (
-					<FirewallSubheadingPopover
-						children={ __(
-							'The free version of the firewall only allows for use of manual rules.',
-							'jetpack-protect'
-						) }
-					/>
-				) }
-			</div>
-		);
-	};
-
-	const allRulesText = (
-		<Text weight={ 600 }>{ __( 'All rules applied.', 'jetpack-protect' ) }</Text>
-	);
-
-	const bruteForceProtectionText = (
-		<Text className={ styles[ 'brute-force-protection-subheading' ] } weight={ 600 }>
-			{ __( 'Brute force protection is active. ', 'jetpack-protect' ) }
-		</Text>
-	);
-
-	return (
 		<>
-			<div className={ styles[ 'firewall-subheading' ] }>
-				{ bruteForceProtectionIsEnabled && bruteForceProtectionText }
-				{ hasRequiredPlan ? (
-					<>
-						{ jetpackWafAutomaticRules && jetpackWafIpList && allRulesText }
-						{ jetpackWafAutomaticRules && ! jetpackWafIpList && automaticRulesText }
-						{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
-						{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
-					</>
-				) : (
-					<>
-						{ automaticRulesAvailable ? (
-							<>
-								{ jetpackWafAutomaticRules && <HasAutomaticRulesText popover={ true } /> }
-								{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
-								{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
-							</>
-						) : (
-							<>
-								{ jetpackWafIpList && <ManualRulesText popover={ true } /> }
-								{ ! jetpackWafIpList && noRulesText }
-							</>
-						) }
-					</>
-				) }
+			<div className={ styles[ 'manual-rules-notice' ] }>
+				<Text weight={ 600 }>
+					{ ! automaticRulesAvailable
+						? __( 'Only manual rules will be applied', 'jetpack-protect' )
+						: __(
+								'Your site is not receiving the latest updates to automatic rules.',
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</Text>
+				<div
+					className={ styles[ 'icon-popover' ] }
+					onMouseLeave={ handleOut }
+					onMouseEnter={ handleEnter }
+					onClick={ handleEnter }
+					onFocus={ handleEnter }
+					onBlur={ handleOut }
+					role="presentation"
+				>
+					<Icon icon={ help } />
+					{ showPopover && (
+						<Popover noArrow={ false } offset={ 5 }>
+							<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
+								{ ! automaticRulesAvailable
+									? __(
+											'The free version of the firewall only allows for use of manual rules.',
+											'jetpack-protect'
+									  )
+									: __(
+											'The free version of the firewall does not receive updates to automatic firewall rules.',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
+							</Text>
+						</Popover>
+					) }
+				</div>
 			</div>
-			{ ! hasRequiredPlan && <UpgradePrompt /> }
+			<Button onClick={ getScan }>
+				{ ! automaticRulesAvailable
+					? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+					: __(
+							'Upgrade to update automatic rules',
+							'jetpack-protect',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
+			</Button>
 		</>
 	);
 };
@@ -171,9 +95,6 @@ const FirewallHeader = ( {
 	hasRequiredPlan,
 	automaticRulesEnabled,
 	automaticRulesAvailable,
-	jetpackWafIpList,
-	jetpackWafAutomaticRules,
-	bruteForceProtectionIsEnabled,
 } ) => {
 	return (
 		<AdminSectionHero>
@@ -197,13 +118,7 @@ const FirewallHeader = ( {
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</H3>
-							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
-								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
-								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
-								automaticRulesAvailable={ automaticRulesAvailable }
-							/>
+							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'off' === status && (
@@ -220,13 +135,7 @@ const FirewallHeader = ( {
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</H3>
-							<FirewallSubheading
-								jetpackWafIpList={ jetpackWafIpList }
-								jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
-								bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
-								hasRequiredPlan={ hasRequiredPlan }
-								automaticRulesAvailable={ automaticRulesAvailable }
-							/>
+							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'loading' === status && (
@@ -253,7 +162,6 @@ const ConnectedFirewallHeader = () => {
 	const {
 		config: { jetpackWafAutomaticRules, jetpackWafIpList, automaticRulesAvailable },
 		isToggling,
-		bruteForceProtectionIsEnabled,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
 	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
@@ -264,9 +172,6 @@ const ConnectedFirewallHeader = () => {
 			hasRequiredPlan={ hasRequiredPlan }
 			automaticRulesEnabled={ jetpackWafAutomaticRules }
 			automaticRulesAvailable={ automaticRulesAvailable }
-			jetpackWafIpList={ jetpackWafIpList }
-			jetpackWafAutomaticRules={ jetpackWafAutomaticRules }
-			bruteForceProtectionIsEnabled={ bruteForceProtectionIsEnabled }
 		/>
 	);
 };
