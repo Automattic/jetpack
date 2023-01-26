@@ -22,6 +22,7 @@ class Test_Blaze extends BaseTestCase {
 	public function test_should_initialize() {
 		$this->assertFalse( has_action( 'post_row_actions', 'Blaze::jetpack_blaze_row_action' ), 'post_row_actions' );
 		$this->assertFalse( has_action( 'admin_enqueue_scripts', 'Blaze::enqueue_block_editor_assets' ), 'admin_enqueue_scripts' );
+		$this->assertFalse( has_filter( 'jetpack_blaze_enabled' ) );
 	}
 
 	/**
