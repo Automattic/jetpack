@@ -29,8 +29,16 @@ class Test_Blaze extends BaseTestCase {
 	 *
 	 * @covers Automattic\Jetpack\Blaze::init
 	 */
-	public function test_should_initialize() {
+	public function test_should_not_check_eligibility_by_defuault() {
+		/*
+		 *The post_row_actions action should not be available on init.
+		 * It only happens on a specific screen.
+		 */
 		$this->assertFalse( has_action( 'post_row_actions' ) );
+		/**
+		 * The jetpack_blaze_enabled filter should not be available on init.
+		 * It should only be available after you've made a remote request to WordPress.com.
+		 */
 		$this->assertFalse( has_filter( 'jetpack_blaze_enabled' ) );
 	}
 
