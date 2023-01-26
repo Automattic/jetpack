@@ -3,7 +3,8 @@ import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	getAllowedMediaTypes,
-	VIDEO_LENGTH_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../index';
 
 const DUMMY_CONNECTIONS = [
@@ -105,7 +106,9 @@ describe( 'useMediaRestrictions hook', () => {
 				result.current.getValidationError( video )
 			);
 
-			expect( validationErrors.every( error => error === VIDEO_LENGTH_ERROR ) ).toBe( true );
+			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_SHORT_ERROR );
+			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_LONG_ERROR );
+			expect( validationErrors ).toHaveLength( 2 );
 		} );
 
 		test( 'Valid media results in no error', () => {
