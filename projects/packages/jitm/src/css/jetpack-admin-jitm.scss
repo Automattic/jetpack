@@ -17,25 +17,27 @@
 }
 
 @mixin jitm-banner-color( $color ) {
-	border-left-color: $color;
+	&::before {
+		background-color: $color;
+	}
+
 	.jitm-banner__icon {
 		color: $color;
 	}
+
 	.jitm-banner__icon-circle {
 		background-color: $color;
 	}
 }
 
 // New JITMS - modified calypso banner styles
-$blue-grey-light:        #f6f7f7;
 $blue-medium-dark:       #2271b1;
+$jp-gray:                #dcdcde;
+$jp-gray-20:             #a7aaad;
 
 .jitm-button {
-	background: black;
-	border-color: $blue-medium-dark;
 	border-style: solid;
 	border-width: 1px;
-	color: $blue-medium-dark;
 	cursor: pointer;
 	display: inline-block;
 	margin: 0;
@@ -52,23 +54,35 @@ $blue-medium-dark:       #2271b1;
 	appearance: none;
 	text-align: center;
 	min-width: 90px;
+	font-weight: 600;
+	border-color: black;
+	background: $white;
+	color: black;
 
-	&:hover {
-		background: #f0f0f1;
-		border-color: $blue-grey-dark;
-		color: $blue-grey-dark;
+	// Primary buttons
+	&.is-primary {
+		background: black;
+		color: $white;
 	}
-	&[disabled],
-	&:disabled {
-		color: lighten( $gray, 30% );
-		background: $white;
-		border-color: lighten( $gray, 30% );
-		cursor: default;
+
+	&:hover,
+	&:focus {
+		border-color: $gray-dark;
+		background: $gray-dark;
+		color: $white;
 	}
 	&:focus {
-		background: $white;
-		border-color: $blue-medium-dark;
-		box-shadow: 0 0 0 1px $blue-medium-dark;
+		box-shadow:
+			0 0 0 1px $white,
+			0 0 0 3px $blue-medium-dark;
+	}
+
+	&[disabled],
+	&:disabled {
+		color: $jp-gray-20;
+		background: $jp-gray;
+		border-color: $jp-gray;
+		cursor: default;
 	}
 	&.is-compact {
 		padding: 12px;
@@ -76,9 +90,6 @@ $blue-medium-dark:       #2271b1;
 		line-height: 1;
 		white-space: nowrap;
 
-		&:disabled {
-			color: lighten( $gray, 30% );
-		}
 		.gridicon {
 			top: 4px;
 			margin-top: -8px;
@@ -101,36 +112,6 @@ $blue-medium-dark:       #2271b1;
 	}
 }
 
-// Primary buttons
-.jitm-button.is-primary {
-	background: black;
-	border-color: $blue-medium;
-	color: $white;
-	font-weight: 600;
-	&:hover,
-	&:focus {
-		border-color: $blue-medium-dark;
-		background: $gray-dark;
-		color: $white;
-	}
-	&:focus {
-		box-shadow:
-			0 0 0 1px $white,
-			0 0 0 3px $blue-medium-dark;
-	}
-	&[disabled],
-	&:disabled {
-		background: tint( $blue-light, 50% );
-		border-color: tint( $blue-wordpress, 55% );
-		color: $white;
-	}
-	&.is-compact {
-		color: $white;
-		white-space: nowrap;
-	}
-}
-
-
 .jitm-card {
 	display: block;
 	clear: both;
@@ -138,11 +119,13 @@ $blue-medium-dark:       #2271b1;
 	margin: rem( 48px ) rem( 20px ) 0 auto;
 	padding: 16px ;
 	box-sizing: border-box;
-	background: $white;
-	box-shadow:
-		0 0 0 1px $light-gray-700,
-		0 1px 1px 1px  rgba(0,0,0,.04);
-
+	background-color: $white;
+	background-image: url( "../images/background.png" );
+	background-repeat: no-repeat;
+	background-position: right center;
+	border: 1px solid $white;
+	border-radius: 2px;
+	box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
 
 	@include clear-fix;
 
@@ -195,10 +178,20 @@ $blue-medium-dark:       #2271b1;
  }
 
 .jitm-banner.jitm-card {
-	border-left: 4px solid;
 	display: flex;
 	position: relative;
 	z-index: 2;
+
+	&::before {
+		content: '';
+		width: 4px;
+		position: absolute;
+		top: 0;
+		left: 0;
+		height: 100%;
+		border-top-left-radius: 1px;
+		border-bottom-left-radius: 1px;
+	}
 
 	@include breakpoint( "<480px" ) {
 		display: flex;
@@ -373,7 +366,7 @@ $blue-medium-dark:       #2271b1;
 	.jitm-banner__title,
 	.jitm-banner__description,
 	.jitm-banner__description a {
-		color: $gray-dark;
+		color: black;
 	}
 
 	.jitm-banner__title {
