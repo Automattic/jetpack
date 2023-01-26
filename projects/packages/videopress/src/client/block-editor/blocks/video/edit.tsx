@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -45,7 +44,13 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
-const { myJetpackConnectUrl } = window.videoPressEditorState;
+// Get site type.
+const { siteType = '', myJetpackConnectUrl } = window?.videoPressEditorState || {};
+
+// Get connection initial state from the global window object.
+const initialState = window?.JP_CONNECTION_INITIAL_STATE;
+// Set connection status based on site type and initial state, and the site type.
+const isUserConnected = siteType === 'simple' || initialState?.connectionStatus?.isUserConnected;
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -140,7 +145,6 @@ export default function VideoPressEdit( {
 	} );
 
 	// Get the redirect URI for the connection flow.
-	const { isUserConnected } = useConnection();
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
 	/*
 	 * Request token when site is private
