@@ -113,7 +113,16 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.2.0-beta - 2022-12-05
+### 1.3.0-beta - 2023-01-25
 #### Added
-- Add web application firewall (WAF) features
+- Add ability to toggle automatic and manual firewall rules independently.
+- Add improved messaging for currently enabled firewall features.
+- Disable Jetpack Firewall on unsupported environments.
+
+#### Changed
+- Updated package dependencies.
+
+#### Fixed
+- Assorted fixes for minor bugs and grammar.
+- Updated composer.lock
 
