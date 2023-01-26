@@ -40,6 +40,7 @@ class Blaze {
 	/**
 	 * Check the WordPress.com REST API
 	 * to ensure that the site supports the Blaze feature.
+	 * Results are cached for a day.
 	 *
 	 * @param int $blog_id The blog ID to check.
 	 *
@@ -90,6 +91,7 @@ class Blaze {
 
 	/**
 	 * Determines if criteria is met to enable Blaze features.
+	 * Keep in mind that this makes remote requests, so we want to avoid calling it when unnecessary, like in the frontend.
 	 *
 	 * @return bool
 	 */
