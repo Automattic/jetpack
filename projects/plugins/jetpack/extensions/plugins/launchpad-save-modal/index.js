@@ -37,7 +37,8 @@ export const settings = {
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
 
 		const siteFragment = getSiteFragment();
-		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
+		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup`, {
+			siteIntent: siteIntentOption,
 			query: `siteSlug=${ siteFragment }`,
 		} );
 
