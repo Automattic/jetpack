@@ -2,9 +2,9 @@ import './editor.scss';
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select, dispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
@@ -66,6 +66,25 @@ export const createPrompt = (
 	return prompt.trim();
 };
 
+const updateInnerBlocks = ( clientId, content ) => {
+	// console.log( 'content changed', content );
+
+	// Check the innerBlocks
+	const aiParagraphBlock = select( 'core/block-editor' ).getBlocksByClientId( clientId );
+	const innerBlocks = aiParagraphBlock[ 0 ].innerBlocks;
+	const paragraph = innerBlocks[ 0 ];
+	// console.log( paragraph );
+
+	if ( !paragraph || !content ) {
+		return;
+	}
+
+	// Update the paragraph content
+	dispatch( 'core/block-editor' ).updateBlockAttributes( paragraph.clientId, {
+		content
+	} );
+};
+
 // This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
@@ -102,6 +121,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 }
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
+	const [ content, setContent ] = useState( '' );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
@@ -180,13 +200,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const blockName = 'jetpack/' + aiParagraphBlockName;
 		return (
 			contentBefore.filter(
-				block => block.name && block.name === blockName && ! block.attributes.content
+				block => block.name && block.name === blockName && ! block.attributes.triggered
 			).length > 0
 		);
 	};
 
 	const getSuggestionFromOpenAI = () => {
-		if ( !! attributes.content || isLoadingCompletion ) {
+		if ( !! content || isLoadingCompletion ) {
 			return;
 		}
 
@@ -209,8 +229,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.trim().replaceAll( '\n', '<br/>' );
-				setAttributes( { content: result } );
+				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				setContent( result );
+				setAttributes( { triggered: true } );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -232,9 +253,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
-	const contentIsLoaded = !! attributes.content;
+	const contentIsLoaded = !! content;
 
-	// We do nothing is we are waiting for stuff OR if the content is already loaded.
+	// We do nothing if we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
 	useSelect( () => {
@@ -276,6 +297,31 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		showRetry,
 	] );
 
+	useEffect( ( c1 ) => {
+		if ( ! content ) {
+			return;
+		}
+
+		console.log( 'contentIsLoaded', content );
+
+		// This is to animate text input. I think this will give an idea of a "better" AI.
+		// At this point this is an established pattern.
+		const tokens = content.split( ' ' );
+		for ( let i = 1; i < tokens.length; i++ ) {
+			const output = tokens.slice( 0, i ).join( ' ' );
+			setTimeout( () => updateInnerBlocks( clientId, output ), 50 * i );
+		}
+		setTimeout( () => {
+			updateInnerBlocks( clientId, content );
+		}, 50 * tokens.length );
+	}, [ content ] );
+
+	const TEMPLATE = [
+		[ 'core/paragraph', {
+			placeholder: ' ',
+		} ]
+	];
+
 	return (
 		<div { ...useBlockProps() }>
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
@@ -288,17 +334,18 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</Placeholder>
 			) }
 
-			{ contentIsLoaded && (
+			{/* { contentIsLoaded && (
 				<ShowLittleByLittle
 					showAnimation={ ! attributes.animationDone }
 					onAnimationDone={ () => {
+						updateInnerBlocks( clientId, attributes.content );
 						setAttributes( { animationDone: true } );
 					} }
 					html={ attributes.content }
 				/>
-			) }
+			) } */}
 
-			{ ! attributes.content && isWaitingState && (
+			{ ! content && isWaitingState && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {
@@ -308,6 +355,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					/>
 				</div>
 			) }
+			<InnerBlocks
+				template={ TEMPLATE }
+				templateLock="all"/>
 		</div>
 	);
 }
