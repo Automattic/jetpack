@@ -83,16 +83,14 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
-	 * Tests if the post_row action is added when the jetpack_blaze_enabled is overriding.
+	 * Tests if the post_row action is added when the package is registered.
 	 */
-	public function test_post_row_added_with_filter() {
+	public function test_post_row_added() {
 		$blaze = Blaze::get_instance();
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 
-		// This filter should override everything, even if it's not connected.
-		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 		$blaze->register();
 
-		$this->assertFalse( has_action( 'post_row_actions' ) );
+		$this->assertNotFalse( has_action( 'post_row_actions' ) );
 	}
 }
