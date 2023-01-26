@@ -15,6 +15,16 @@ use WorDBless\BaseTestCase;
  */
 class Test_Blaze extends BaseTestCase {
 	/**
+	 * Tear down after each test.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
+		wp_deregister_script( Blaze::SCRIPT_HANDLE );
+	}
+
+	/**
 	 * Test that Blaze::init() does not run everything by default.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::init
@@ -56,5 +66,69 @@ class Test_Blaze extends BaseTestCase {
 		Blaze::add_post_links_actions();
 
 		$this->assertNotFalse( has_action( 'post_row_actions' ) );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that we avoid enqueuing assets when Blaze is not enabled.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::enqueue_block_editor_assets
+	 *
+	 * @dataProvider get_enqueue_scenarios
+	 *
+	 * @param string $hook           The current admin page.
+	 * @param bool   $blaze_enabled  Whether Blaze is force-enabled or not.
+	 * @param bool   $should_enqueue Whether we should enqueue Blaze assets or not.
+	 */
+	public function test_enqueue_block_editor_assets( $hook, $blaze_enabled, $should_enqueue ) {
+		// Confirm that our script is not added by default.
+		$this->assertFalse( wp_script_is( Blaze::SCRIPT_HANDLE, 'registered' ) );
+
+		if ( $blaze_enabled ) {
+			add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		}
+
+		Blaze::enqueue_block_editor_assets( $hook );
+
+		// Assert that our style, filter, and action has been added.
+		if ( $should_enqueue ) {
+			$this->assertTrue( wp_script_is( Blaze::SCRIPT_HANDLE, 'enqueued' ) );
+		} else {
+			$this->assertFalse( wp_script_is( Blaze::SCRIPT_HANDLE, 'registered' ) );
+		}
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Different scenarios (pages, Blaze eligibility) to test if Blaze js is enqueued in the editor.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::enqueue_block_editor_assets
+	 *
+	 * @return array
+	 */
+	public function get_enqueue_scenarios() {
+		return array(
+			'In site editor, Blaze enabled'       => array(
+				'site-editor.php',
+				true,
+				false,
+			),
+			'In post editor, Blaze disabled'      => array(
+				'post.php',
+				false,
+				false,
+			),
+			'In post editor, Blaze enabled'       => array(
+				'post.php',
+				true,
+				true,
+			),
+			'In random admin page, Blaze enabled' => array(
+				'tools.php',
+				true,
+				false,
+			),
+		);
 	}
 }

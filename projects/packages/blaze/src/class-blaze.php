@@ -20,6 +20,13 @@ class Blaze {
 	const PACKAGE_VERSION = '0.5.0-alpha';
 
 	/**
+	 * Script handle for the JS file we enqueue in the post editor.
+	 *
+	 * @var string
+	 */
+	const SCRIPT_HANDLE = 'jetpack-promote-editor';
+
+	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 *
 	 * @return void
@@ -206,7 +213,7 @@ class Blaze {
 		}
 
 		Assets::register_script(
-			'jetpack-promote-editor',
+			self::SCRIPT_HANDLE,
 			'../build/editor.js',
 			__FILE__,
 			array(
@@ -217,6 +224,6 @@ class Blaze {
 		);
 
 		// Adds Connection package initial state.
-		wp_add_inline_script( 'jetpack-promote-editor', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( self::SCRIPT_HANDLE, Connection_Initial_State::render(), 'before' );
 	}
 }
