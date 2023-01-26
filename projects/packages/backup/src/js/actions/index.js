@@ -6,6 +6,7 @@ import {
 	SITE_BACKUP_POLICIES_GET,
 	SITE_BACKUP_POLICIES_GET_FAILED,
 	SITE_BACKUP_POLICIES_GET_SUCCESS,
+	SITE_BACKUP_STORAGE_SET,
 } from './types';
 
 const getSiteSize = () => ( { dispatch } ) => {
@@ -48,9 +49,17 @@ const getSitePolicies = () => ( { dispatch } ) => {
 	);
 };
 
+const setStorageUsageLevel = usageLevel => ( { dispatch } ) => {
+	dispatch( {
+		type: SITE_BACKUP_STORAGE_SET,
+		usageLevel,
+	} );
+};
+
 const actions = {
 	getSiteSize,
 	getSitePolicies,
+	setStorageUsageLevel,
 };
 
 export default actions;
