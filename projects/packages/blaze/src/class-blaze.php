@@ -23,27 +23,9 @@ class Blaze {
 	 * The configuration method that is called from the jetpack-config package.
 	 */
 	public static function init() {
-		$blaze = self::get_instance();
-		$blaze->register();
-	}
-
-	/**
-	 * Initialize Blaze UIs.
-	 *
-	 * @return Blaze Blaze instance.
-	 */
-	public static function get_instance() {
-		return new Blaze();
-	}
-
-	/**
-	 * Sets up Post List action callbacks.
-	 */
-	public function register() {
-
 		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
-			add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_block_editor_assets' ) );
+			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 
 			/**
 			 * Action called after initializing Blaze.
@@ -165,7 +147,7 @@ class Blaze {
 	 *
 	 * @return array
 	 */
-	public function jetpack_blaze_row_action( $post_actions, $post ) {
+	public static function jetpack_blaze_row_action( $post_actions, $post ) {
 		// Bail on sites that do not support Blaze.
 		if ( ! self::should_initialize() ) {
 			return $post_actions;
@@ -205,7 +187,7 @@ class Blaze {
 	 *
 	 * @param string $hook The current admin page.
 	 */
-	public function enqueue_block_editor_assets( $hook ) {
+	public static function enqueue_block_editor_assets( $hook ) {
 		/*
 		 * We do not want (nor need) Blaze in the site editor or the widget editor, only in the post editor.
 		 * Enqueueing the script in those editors would cause a fatal error.
