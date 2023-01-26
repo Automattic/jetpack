@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.11 - 2023-01-26
+### Major Enhancements
+- add support for all Launchpad flows for the on save Post Editor modal [#28555]
+
+### Enhancements
+- Add the ability to toggle automatic and manual firewall rules independantly of each other. [#27726]
+- Release Jetpack AI to WPCOM Simple and Atomic users [#28552]
+- Sanitize AI endpoints input [#28583]
+- Update Form and variations icons [#28428]
+
+### Improved compatibility
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+### Bug fixes
+- Fix openAI paragraph. Refactor most of it. Added dynamic error when content length changes. [#28483]
+- Fix when categories are empty [#28604]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: Route to new Reading Settings page (internal ATM - behind a feature flag) [#28430]
+- Common Mappings: Add a mapping for `options-reading.php` based on a `calypso_use_modernized_reading_settings` feature flag [#28549]
+- e2e tests: update encryption [#28537]
+- Mark posts using Jetpack AI features. Introducing the _jetpack_ai_calls meta field to indicate that a post has performed AI calls. [#28487]
+
 ## 11.8-a.9 - 2023-01-23
 ### Enhancements
 - Contact Form: improve file naming when exporting form responses. [#28413]
