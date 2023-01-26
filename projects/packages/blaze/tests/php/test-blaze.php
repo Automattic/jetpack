@@ -15,6 +15,15 @@ use WorDBless\BaseTestCase;
  */
 class Test_Blaze extends BaseTestCase {
 	/**
+	 * Set up before each test.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		Blaze::$script_path = 'js/editor.js';
+	}
+
+	/**
 	 * Tear down after each test.
 	 *
 	 * @after

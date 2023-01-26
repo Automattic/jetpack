@@ -27,6 +27,13 @@ class Blaze {
 	const SCRIPT_HANDLE = 'jetpack-promote-editor';
 
 	/**
+	 * Path of the JS file we enqueue in the post editor.
+	 *
+	 * @var string
+	 */
+	public static $script_path = '../build/editor.js';
+
+	/**
 	 * The configuration method that is called from the jetpack-config package.
 	 *
 	 * @return void
@@ -214,7 +221,7 @@ class Blaze {
 
 		Assets::register_script(
 			self::SCRIPT_HANDLE,
-			'../build/editor.js',
+			self::$script_path,
 			__FILE__,
 			array(
 				'enqueue'    => true,
