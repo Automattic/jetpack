@@ -7,7 +7,7 @@ const initialState = window?.JP_CONNECTION_INITIAL_STATE;
  * videoPressEditorState globals variable,
  * both exposed by the connection class-block-editor-extension.php.
  *
- * @see {@link class-block-editor-extension.php}
+ * @see {@link ../class-block-editor-extension.php}
  * @returns {boolean} True if the user is connected, false otherwise.
  */
 export function isUserConnected(): boolean {
