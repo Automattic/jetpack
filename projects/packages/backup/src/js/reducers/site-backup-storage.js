@@ -8,7 +8,7 @@ const siteBackupStorage = ( state = initialState, action ) => {
 	if ( action.type === SITE_BACKUP_STORAGE_SET ) {
 		return {
 			...state,
-			usageLevel: action.usageLevel,
+			usageLevel: action.usageLevel ?? null,
 		};
 	}
 
