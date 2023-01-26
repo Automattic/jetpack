@@ -44,7 +44,6 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 
-// Get site type.
 const { siteType = '', myJetpackConnectUrl } = window?.videoPressEditorState || {};
 
 // Get connection initial state from the global window object.
