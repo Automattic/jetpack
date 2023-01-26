@@ -100,7 +100,7 @@ export const JetpackDropdownEdit = ( {
 	const { blockStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div>
+		<div style={ blockStyle }>
 			<JetpackFieldLabel
 				required={ required }
 				requiredText={ requiredText }

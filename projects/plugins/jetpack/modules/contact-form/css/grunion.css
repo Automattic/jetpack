@@ -335,5 +335,5 @@
 	position: relative;
 	border: none;
 	color: var(--jetpack--contact-form--input-background);
-	background-color: var(--jetpack--contact-form--primary-color);
+	background-color: var(--jetpack--contact-form--text-color);
 }

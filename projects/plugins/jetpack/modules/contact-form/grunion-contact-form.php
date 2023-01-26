@@ -4817,7 +4817,10 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style  = 'style="';
+		$block_style = 'style="';
+		if ( $type === 'select' ) {
+			$block_style .= $this->field_styles;
+		}
 		$block_style .= '"';
 
 		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
