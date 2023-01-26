@@ -584,6 +584,15 @@ export default function VideoPressEdit( {
 				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
 
+			<ConnectBanner
+				isConnected={ isUserConnected }
+				isConnecting={ isRedirectingToMyJetpack }
+				onConnect={ () => {
+					setIsRedirectingToMyJetpack( true );
+					window.location.href = myJetpackConnectUrl;
+				} }
+			/>
+
 			<VideoPressPlayer
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
