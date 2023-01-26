@@ -138,7 +138,7 @@ const JetpackFieldControls = ( {
 					/>
 
 					{ hasBorderControls && (
-						<>
+						<p>
 							<RangeControl
 								label={ __( 'Border Width', 'jetpack' ) }
 								value={ attributes.borderWidth }
@@ -155,7 +155,7 @@ const JetpackFieldControls = ( {
 								min={ 0 }
 								max={ 100 }
 							/>
-						</>
+						</p>
 					) }
 				</PanelBody>
 				<PanelBody
