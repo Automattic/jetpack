@@ -113,25 +113,6 @@ const JetpackFieldControls = ( {
 					colorSettings={ ! hasBorderControls ? colorSettings.slice( 0, 2 ) : colorSettings }
 				/>
 				<PanelBody
-					title={ __( 'Label Styles', 'jetpack' ) }
-					initialOpen={ attributes.labelFontSize }
-				>
-					<FontSizePicker
-						withReset={ true }
-						size="__unstable-large"
-						__nextHasNoMarginBottom
-						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-						value={ attributes.labelFontSize }
-					/>
-					<LineHeightControl
-						__unstableInputWidth="100%"
-						__nextHasNoMarginBottom={ true }
-						value={ attributes.labelLineHeight }
-						onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
-						size="__unstable-large"
-					/>
-				</PanelBody>
-				<PanelBody
 					title={ __( 'Input Field Styles', 'jetpack' ) }
 					initialOpen={
 						attributes.borderWidth ||
@@ -176,6 +157,25 @@ const JetpackFieldControls = ( {
 							/>
 						</>
 					) }
+				</PanelBody>
+				<PanelBody
+					title={ __( 'Label Styles', 'jetpack' ) }
+					initialOpen={ attributes.labelFontSize }
+				>
+					<FontSizePicker
+						withReset={ true }
+						size="__unstable-large"
+						__nextHasNoMarginBottom
+						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+						value={ attributes.labelFontSize }
+					/>
+					<LineHeightControl
+						__unstableInputWidth="100%"
+						__nextHasNoMarginBottom={ true }
+						value={ attributes.labelLineHeight }
+						onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
+						size="__unstable-large"
+					/>
 				</PanelBody>
 			</InspectorControls>
 
