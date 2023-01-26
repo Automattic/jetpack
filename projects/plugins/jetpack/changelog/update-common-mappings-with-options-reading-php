@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Common Mappings: Add a mapping for `options-reading.php` based on a `calypso_use_modernized_reading_settings` feature flag
