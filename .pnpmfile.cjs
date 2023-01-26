@@ -156,14 +156,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependencies[ '@wordpress/data' ] = '^6.1.5 || ^7.0.0';
 	}
 
-	// Outdated peer dependency.
-	if (
-		pkg.name === 'eslint-plugin-wpcalypso' &&
-		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] === '^37.5.1'
-	) {
-		pkg.peerDependencies[ 'eslint-plugin-jsdoc' ] = '>=37.5.1';
-	}
-
 	return pkg;
 }
 
