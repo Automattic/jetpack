@@ -1,7 +1,5 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import { Text } from '@automattic/jetpack-components';
-import classNames from 'classnames';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import styles from './styles.module.scss';
 
 const VideoPreview = ( { sourceUrl, mime, duration } ) => {
@@ -9,7 +7,6 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 	const [ progress, setProgress ] = useState( 0 );
 
 	const videoRef = useRef( null );
-
 	const intervalRef = useRef( null );
 	const delayRef = useRef( null );
 
@@ -17,6 +14,7 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 	 * Resets the video to the start position, clears timers
 	 */
 	const resetVideo = useCallback( () => {
+		videoRef.current.pause();
 		videoRef.current.currentTime = 0;
 		clearInterval( intervalRef.current );
 		clearTimeout( delayRef.current );
@@ -38,47 +36,31 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 		}, 500 );
 	}, [ isPlaying ] );
 
-	const onMouseLeave = useCallback( () => {
-		resetVideo();
-
-		if ( isPlaying ) {
-			videoRef.current.pause();
-		}
-	}, [ isPlaying, resetVideo ] );
-
-	const renderProgress = () => {
+	const ProgressCounter = () => {
 		const remaining = duration - progress;
 
 		const minutes = Math.floor( remaining / 60 );
-		const seconds = Math.floor( remaining % 60 );
-		// Pad the number to always have 2 digits
-		const padNumber = num => ( '0' + num ).slice( -2 );
-		// If longer than than minutes, we need 4 digits that needs a bigger div to be consistent
-		const longerThanTenMinutes = duration >= 600;
+		const seconds = String( Math.floor( remaining % 60 ) ).padStart( 2, '0' );
 
 		return (
-			<div
-				className={ classNames(
-					{
-						[ styles[ 'four-digits' ] ]: longerThanTenMinutes,
-					},
-					styles.progress
-				) }
-			>
-				<div className={ styles.playButton }></div>
-				<Text className={ styles.duration }>{ `${
-					longerThanTenMinutes ? padNumber( minutes ) : minutes
-				}:${ padNumber( seconds ) }` }</Text>
+			<div className={ styles.progress }>
+				<svg xmlns="http://www.w3.org/2000/svg" width="6" height="8" fill="none">
+					<path
+						fill="#fff"
+						d="M5.25 3.567a.5.5 0 0 1 0 .866L.75 7.031A.5.5 0 0 1 0 6.598V1.402A.5.5 0 0 1 .75.969l4.5 2.598Z"
+					/>
+				</svg>
+				<span className={ styles.duration }>{ `${ minutes }:${ seconds }` }</span>
 			</div>
 		);
 	};
 
 	return (
-		<div onMouseEnter={ onMouseEnter } onMouseLeave={ onMouseLeave }>
-			<video ref={ videoRef } onEnded={ resetVideo }>
+		<div className={ styles.wrapper } onMouseEnter={ onMouseEnter } onMouseLeave={ resetVideo }>
+			<video ref={ videoRef } onEnded={ resetVideo } muted>
 				<source src={ sourceUrl } type={ mime }></source>
 			</video>
-			{ renderProgress() }
+			<ProgressCounter />
 		</div>
 	);
 };

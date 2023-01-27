@@ -1,31 +1,20 @@
-@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
-.playButton {
-	border-style: solid;
-	border-width: 4px 0 4px 8px;
-	border-color: transparent transparent transparent white;
-	border-radius: 0.5px;
+.wrapper {
+	position: relative;
 }
 
 .progress {
 	position: absolute;
 	bottom: 8px;
 	left: 8px;
-
-	display: grid;
-	grid-template-columns: auto 1fr;
-	align-items: center;
 	padding: 4px;
-	gap: 2px;
-
-	min-width: 40px;
-	height: 16px;
-
-	background: rgba(44, 51, 56, 0.9);
+	display: flex;
+	align-items: center;
+	background-color: rgba( 44, 51, 56, 0.9 ); // --jp-black-80
 	border-radius: 2px;
+	font-variant-numeric: tabular-nums;
 
-	.four-digits {
-		min-width: 45px;
+	svg {
+		margin-right: 2px;
 	}
 }
 
@@ -33,8 +22,5 @@
 	font-weight: 600;
 	font-size: 9px;
 	line-height: 8px;
-	color: #FFFFFF;
-
-	margin-right: auto;
-	margin-left: 0;
+	color: var( --jp-white );
 }
