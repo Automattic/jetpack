@@ -751,7 +751,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			}
 
 			// remove the col if nothing in there
-			if ( count( $popout_menu['col1'] ) == 0 ) {
+			if ( count( $popout_menu['col1'] ) === 0 ) {
 				unset( $popout_menu['col1'] );
 			}
 
