@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/media-has-caption */
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import styles from './styles.module.scss';
 
 const VideoPreview = ( { sourceUrl, mime, duration } ) => {
@@ -9,6 +9,13 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 	const videoRef = useRef( null );
 	const intervalRef = useRef( null );
 	const delayRef = useRef( null );
+
+	/**
+	 * Load the new video when the source URL changes.
+	 */
+	useEffect( () => {
+		videoRef.current?.load();
+	}, [ sourceUrl ] );
 
 	/**
 	 * Resets the video to the start position, clears timers
