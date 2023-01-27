@@ -375,6 +375,21 @@ class Admin_Menu extends Base_Admin_Menu {
 			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
 		}
 
+		if (
+			/**
+			 * Filter to enable the modernized Reading Settings in Calypso UI.
+			 *
+			 * @since 11.8
+			 * @module masterbar
+			 *
+			 * @param bool false Should the modernized Reading Settings be enabled? Default to false.
+			 */
+			apply_filters( 'calypso_use_modernized_reading_settings', false )
+			&& self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
+		) {
+			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
+		}
+
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
 			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
 		}

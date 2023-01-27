@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for the Jetpack RNA Analytics package releases.
 
+## 0.1.23 - 2023-01-25
+- Minor internal updates.
+
 ## 0.1.22 - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27688]

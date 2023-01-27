@@ -1318,18 +1318,18 @@ class Grunion_Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                  = get_post_meta( $post_id, '_feedback_extra_fields', true );
-		$md['feedback_date'] = get_the_date( DATE_RFC3339, $post_id );
-		$content_fields      = self::parse_fields_from_content( $post_id );
-		$md['feedback_ip']   = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md                                  = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md[ __( 'Date', 'jetpack' ) ]       = get_the_date( DATE_RFC3339, $post_id );
+		$content_fields                      = self::parse_fields_from_content( $post_id );
+		$md[ __( 'IP Address', 'jetpack' ) ] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
-		$md['email_marketing_consent'] = 0;
+		$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = 0;
 		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
 			$all_fields = $content_fields['_feedback_all_fields'];
 			// check if the email_marketing_consent field exists.
 			if ( isset( $all_fields['email_marketing_consent'] ) ) {
-				$md['email_marketing_consent'] = $all_fields['email_marketing_consent'];
+				$md[ _x( 'Consent', 'noun', 'jetpack' ) ] = $all_fields['email_marketing_consent'];
 			}
 		}
 
@@ -1364,12 +1364,13 @@ class Grunion_Contact_Form_Plugin {
 		$mapped_fields = array();
 
 		$field_mapping = array(
-			'_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
+			// TODO: Commented out since we'll be re-introducing this after some other changes
+			// '_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
 			'_feedback_author'       => '1_Name',
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
 			'_feedback_main_comment' => '4_Comment',
-			'_feedback_author_ip'    => '5_IP',
+			'_feedback_ip'           => __( 'IP Address', 'jetpack' ),
 		);
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
@@ -1765,13 +1766,17 @@ class Grunion_Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
+				/**
+				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				 */
+				$renamed_field = preg_replace( '/^(\d{1,2}_)/', '', $single_field_name );
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
 				) {
-					$result[ $single_field_name ][] = trim( $single_post_data[ $single_field_name ] );
+					$result[ $renamed_field ][] = trim( $single_post_data[ $single_field_name ] );
 				} else {
-					$result[ $single_field_name ][] = '';
+					$result[ $renamed_field ][] = '';
 				}
 			}
 		}
@@ -1854,22 +1859,28 @@ class Grunion_Contact_Form_Plugin {
 	 * Download exported data as CSV
 	 */
 	public function download_feedback_as_csv() {
-		$data = $this->get_feedback_entries_from_post();
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on get_feedback_entries_from_post function
+		$post_data = wp_unslash( $_POST );
+		$data      = $this->get_feedback_entries_from_post();
 
 		if ( empty( $data ) ) {
 			return;
 		}
 
-		$filename = gmdate( 'Y-m-d' ) . '-feedback-export.csv';
-
 		// Check if we want to download all the feedbacks or just a certain contact form
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
-		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check is done on get_feedback_entries_from_post
-			$filename = gmdate( 'Y-m-d' ) . '-' . str_replace( '&nbsp;', '-', get_the_title( (int) $_POST['post'] ) ) . '.csv';
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$filename = sprintf(
+				'%s - %s.csv',
+				Grunion_Admin::init()->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$filename = sprintf(
+				'%s - %s.csv',
+				Grunion_Admin::init()->get_export_filename(),
+				gmdate( 'Y-m-d H:i' )
+			);
 		}
-
-		$filename = sanitize_file_name( $filename );
 
 		/**
 		 * Extract field names from `$data` for later use.
@@ -1915,6 +1926,7 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		exit();
 	}
 
 	/**

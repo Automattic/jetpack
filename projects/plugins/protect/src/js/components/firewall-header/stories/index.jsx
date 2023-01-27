@@ -1,5 +1,5 @@
 import React from 'react';
-import FirewallHeader from '../index.jsx';
+import { FirewallHeader } from '../index.jsx';
 
 export default {
 	title: 'Plugins/Protect/Firewall Header',

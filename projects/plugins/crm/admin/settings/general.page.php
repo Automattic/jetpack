@@ -529,12 +529,7 @@ if ( ! $confirmAct ) {
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_loginlogourl"><?php esc_html_e( 'Login Logo Override', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Enter an URL here, or upload a logo to override the WordPress login logo!', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
-					<input style="width:90%;padding:10px;" name="wpzbscrm_loginlogourl" id="wpzbscrm_loginlogourl" class="form-control link" type="text" value="
-					<?php
-					if ( isset( $settings['loginlogourl'] ) && ! empty( $settings['loginlogourl'] ) ) {
-						echo esc_attr( $settings['loginlogourl'] );}
-					?>
-					" />
+					<input style="width:90%;padding:10px;" name="wpzbscrm_loginlogourl" id="wpzbscrm_loginlogourl" class="form-control link" type="text" value="<?php echo empty( $settings['loginlogourl'] ) ? '' : esc_attr( $settings['loginlogourl'] ); ?>" />
 					<button id="wpzbscrm_loginlogourlAdd" class="button" type="button"><?php esc_html_e( 'Upload Image', 'zero-bs-crm' ); ?></button>
 				</td>
 			</tr>
@@ -542,12 +537,7 @@ if ( ! $confirmAct ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_customheadertext"><?php esc_html_e( 'Custom CRM Header', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Naming your CRM with the above \'Override WordPress\' option selected will show a custom header with that name', 'zero-bs-crm' ); ?></td>
-				<td><input type="text" class="winput form-control" name="wpzbscrm_customheadertext" id="wpzbscrm_customheadertext" value="
-				<?php
-				if ( isset( $settings['customheadertext'] ) && ! empty( $settings['customheadertext'] ) ) {
-					echo esc_attr( $settings['customheadertext'] );}
-				?>
-				" placeholder="e.g. <?php esc_html_e( 'Your CRM', 'zero-bs-crm' ); ?>" /></td>
+				<td><input type="text" class="winput form-control" name="wpzbscrm_customheadertext" id="wpzbscrm_customheadertext" value="<?php echo empty( $settings['customheadertext'] ) ? '' : esc_attr( $settings['customheadertext'] ); ?>" placeholder="e.g. <?php esc_html_e( 'Your CRM', 'zero-bs-crm' ); ?>" /></td>
 			</tr>
 
 			<tr>

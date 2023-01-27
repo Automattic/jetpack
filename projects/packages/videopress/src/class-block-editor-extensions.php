@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
@@ -15,33 +15,76 @@ use Automattic\Jetpack\Status\Host;
  * VideoPress Extensions class.
  */
 class Block_Editor_Extensions {
-
 	/**
-	 * The handle used to enqueue the script
+	 * What version of the blocks we are loading.
 	 *
 	 * @var string
 	 */
-	const SCRIPT_HANDLE = 'videopress-extensions';
+	public static $blocks_variation = 'production';
+
+	/**
+	 * Script handle
+	 *
+	 * @var string
+	 */
+	public static $script_handle = '';
 
 	/**
 	 * Initializer
 	 *
-	 * This method should be called only once by the Initializer class. Do not call this method again.
+	 * This method should be called only once by the Block registrar.
+	 * Do not call this method again.
+	 *
+	 * @param array $block_metadata - The block metadata.
 	 */
-	public static function init() {
+	public static function init( $block_metadata ) {
 		if ( ! Status::is_active() ) {
 			return;
 		}
 
-		/**
-		 * Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param boolean
+		/*
+		 * Use the videopress/video editor script handle to localize enqueue scripts.
+		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
 		 */
-		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
-			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+		self::$script_handle = generate_block_asset_handle( $block_metadata->name, 'editorScript' );
+
+		/**
+		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
+		*
+		* @since 6.9.0
+		* @deprecated Jetpack 11.8.0 Use jetpack_blocks_variation filter instead.
+		*
+		* @param boolean
+		*/
+		if (
+			apply_filters_deprecated(
+				'jetpack_load_beta_blocks',
+				array( false ),
+				'jetpack-11.8.0',
+				'jetpack_blocks_variation'
+			)
+		) {
+			self::$blocks_variation = 'beta';
+		}
+
+		/*
+		 * Get block variation, from the new constant or the old one.
+		 */
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			self::$blocks_variation = 'beta';
+		}
+
+		$blocks_variation = Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' );
+		if ( ! empty( $blocks_variation ) ) {
+			/**
+			 * Allow customizing the variation of blocks in use on a site.
+			 * Overwrites any previously set values, whether by constant or filter.
+			 *
+			 * @since Jetpack 8.1.0
+			 *
+			 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+			 */
+			self::$blocks_variation = apply_filters( 'jetpack_blocks_variation', $blocks_variation );
 		}
 
 		// Register the script.
@@ -70,7 +113,7 @@ class Block_Editor_Extensions {
 				return (array) array(
 					'name'      => $extension,
 					'isBeta'    => true,
-					'isEnabled' => Constants::is_true( 'JETPACK_BETA_BLOCKS' ),
+					'isEnabled' => 'beta' === self::$blocks_variation,
 				);
 			},
 			$videopress_extensions_data['beta']
@@ -100,8 +143,6 @@ class Block_Editor_Extensions {
 	 * Enqueues the extensions script.
 	 */
 	public static function enqueue_extensions() {
-		self::enqueue_script();
-
 		$extensions_list = self::get_list();
 
 		$site_type = 'jetpack';
@@ -111,32 +152,16 @@ class Block_Editor_Extensions {
 			$site_type = 'atomic';
 		}
 
-		wp_localize_script(
-			self::SCRIPT_HANDLE,
-			'videoPressEditorState',
-			array(
-				'extensions' => $extensions_list,
-				'siteType'   => $site_type,
-			)
-		);
-	}
-
-	/**
-	 * Enqueues only the JS script
-	 *
-	 * @param string $handle The script handle to identify the script.
-	 */
-	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
-		Assets::register_script(
-			$handle,
-			'../build/block-editor/index.js',
-			__FILE__,
-			array(
-				'in_footer'  => false,
-				'textdomain' => 'jetpack-videopress-pkg',
-			)
+		$videopress_editor_state = array(
+			'extensions'          => $extensions_list,
+			'siteType'            => $site_type,
+			'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 		);
 
-		Assets::enqueue_script( $handle );
+		// Expose initital state of site connection
+		wp_add_inline_script( self::$script_handle, Connection_Initial_State::render(), 'before' );
+
+		// Expose initital state of videoPress editor
+		wp_localize_script( self::$script_handle, 'videoPressEditorState', $videopress_editor_state );
 	}
 }

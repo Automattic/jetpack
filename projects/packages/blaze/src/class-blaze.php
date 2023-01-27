@@ -7,8 +7,9 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -16,106 +17,137 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.3.4';
+	const PACKAGE_VERSION = '0.5.0';
+
+	/**
+	 * Script handle for the JS file we enqueue in the post editor.
+	 *
+	 * @var string
+	 */
+	const SCRIPT_HANDLE = 'jetpack-promote-editor';
+
+	/**
+	 * Path of the JS file we enqueue in the post editor.
+	 *
+	 * @var string
+	 */
+	public static $script_path = '../build/editor.js';
 
 	/**
 	 * The configuration method that is called from the jetpack-config package.
+	 *
+	 * @return void
 	 */
 	public static function init() {
-		$blaze = self::get_instance();
-		$blaze->register();
+		// On the edit screen, add a row action to promote the post.
+		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
+		// In the post editor, add a post-publish panel to allow promoting the post.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
-	 * Initialize Blaze UIs.
+	 * Add links under each published post in the wp-admin post list.
 	 *
-	 * @return Blaze Blaze instance.
+	 * @return void
 	 */
-	public static function get_instance() {
-		return new Blaze();
-	}
-
-	/**
-	 * Sets up Post List action callbacks.
-	 */
-	public function register() {
-
-		if ( ! did_action( 'jetpack_on_blaze_init' ) ) {
-			if ( self::should_initialize() ) {
-				add_filter( 'post_row_actions', array( $this, 'jetpack_blaze_row_action' ), 10, 2 );
-				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_block_editor_assets' ) );
-			}
-
-			/**
-			 * Action called after initializing Blaze.
-			 *
-			 * @since 0.1.0
-			 */
-			do_action( 'jetpack_on_blaze_init' );
+	public static function add_post_links_actions() {
+		if ( self::should_initialize() ) {
+			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
 	}
 
 	/**
-	 * Determines if criteria is met to enable Blaze features.
+	 * Check the WordPress.com REST API
+	 * to ensure that the site supports the Blaze feature.
+	 * Results are cached for a day.
 	 *
-	 * @todo - Get response from API if requirements are met on the wpcom-side.
+	 * @param int $blog_id The blog ID to check.
+	 *
+	 * @return bool
+	 */
+	public static function site_supports_blaze( $blog_id ) {
+		/*
+		 * On WordPress.com, we don't need to make an API request,
+		 * we can query directly.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'blaze_is_site_eligible' ) ) {
+			return blaze_is_site_eligible( $blog_id );
+		}
+
+		$cached_result = get_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id );
+		if ( false !== $cached_result ) {
+			return $cached_result;
+		}
+
+		// Make the API request.
+		$url      = sprintf( '/sites/%d/blaze/status', $blog_id );
+		$response = Client::wpcom_json_api_request_as_blog(
+			$url,
+			'2',
+			array( 'method' => 'GET' ),
+			null,
+			'wpcom'
+		);
+
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return false;
+		}
+
+		// Decode the results.
+		$result = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		// Bail if there were no results returned.
+		if ( ! is_array( $result ) || empty( $result['approved'] ) ) {
+			return false;
+		}
+
+		// Cache the result for 24 hours.
+		set_transient( 'jetpack_blaze_site_supports_blaze_' . $blog_id, (bool) $result['approved'], DAY_IN_SECONDS );
+
+		return (bool) $result['approved'];
+	}
+
+	/**
+	 * Determines if criteria is met to enable Blaze features.
+	 * Keep in mind that this makes remote requests, so we want to avoid calling it when unnecessary, like in the frontend.
 	 *
 	 * @return bool
 	 */
 	public static function should_initialize() {
 		$should_initialize = true;
 		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$user_data         = $is_wpcom
-			? array( 'user_locale' => get_user_locale() )
-			: ( new Jetpack_Connection() )->get_connected_user_data();
+		$connection        = new Jetpack_Connection();
+		$site_id           = Jetpack_Connection::get_site_id();
 
-		/*
-		 * These features currently only work on WordPress.com,
-		 * so the user should either be connected to WordPress.com for things to work,
-		 * or be on a WordPress.com site where we have direct access to user data such as user locale.
-		 */
-		if ( ! $user_data ) {
-			$should_initialize = false;
+		// On self-hosted sites, we must do some additional checks.
+		if ( ! $is_wpcom ) {
+			/*
+			* These features currently only work on WordPress.com,
+			* so the site must be connected to WordPress.com, and the user as well for things to work.
+			*/
+			if (
+				is_wp_error( $site_id )
+				|| ! $connection->is_connected()
+				|| ! $connection->is_user_connected()
+			) {
+				$should_initialize = false;
+			}
+
+			// The whole thing is powered by Sync!
+			if ( ! Sync_Settings::is_sync_enabled() ) {
+				$should_initialize = false;
+			}
+
+			// The feature relies on this module for now.
+			// See 1386-gh-dotcom-forge
+			if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
+				$should_initialize = false;
+			}
 		}
 
-		// We currently do not show the UI for non-English WordPress.com users.
-		if (
-			! empty( $user_data['user_locale'] )
-			&& ! in_array( $user_data['user_locale'], array( 'en', 'en-gb' ), true )
-		) {
-			$should_initialize = false;
-		}
-
-		// The whole thing is also powered by Sync!
-		if ( ! Sync_Settings::is_sync_enabled() ) {
-			$should_initialize = false;
-		}
-
-		// Only show the UI on WordPress.com Simple and WoA sites for now.
-		if (
-			! $is_wpcom
-			&& ! ( new Host() )->is_woa_site()
-		) {
-			$should_initialize = false;
-		}
-
-		/*
-		 * Do not show the UI on private sites
-		 * nor on sites that have not been launched yet.
-		 */
-		if (
-			'-1' === get_option( 'blog_public' )
-			|| (
-				( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
-				|| (bool) get_option( 'wpcom_public_coming_soon' )
-			)
-		) {
-			$should_initialize = false;
-		}
-
-		// The feature relies on this module for now.
-		// See 1386-gh-dotcom-forge
-		if ( ! $is_wpcom && ! ( new Modules() )->is_active( 'json-api' ) ) {
+		// Check if the site supports Blaze.
+		if ( is_numeric( $site_id ) && ! self::site_supports_blaze( $site_id ) ) {
 			$should_initialize = false;
 		}
 
@@ -137,7 +169,7 @@ class Blaze {
 	 *
 	 * @return array
 	 */
-	public function jetpack_blaze_row_action( $post_actions, $post ) {
+	public static function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
 		if ( $post->post_status !== 'publish' ) {
@@ -172,7 +204,7 @@ class Blaze {
 	 *
 	 * @param string $hook The current admin page.
 	 */
-	public function enqueue_block_editor_assets( $hook ) {
+	public static function enqueue_block_editor_assets( $hook ) {
 		/*
 		 * We do not want (nor need) Blaze in the site editor or the widget editor, only in the post editor.
 		 * Enqueueing the script in those editors would cause a fatal error.
@@ -182,9 +214,14 @@ class Blaze {
 			return;
 		}
 
+		// Bail if criteria is not met to enable Blaze features.
+		if ( ! self::should_initialize() ) {
+			return;
+		}
+
 		Assets::register_script(
-			'jetpack-promote-editor',
-			'../build/editor.js',
+			self::SCRIPT_HANDLE,
+			self::$script_path,
 			__FILE__,
 			array(
 				'enqueue'    => true,
@@ -192,5 +229,8 @@ class Blaze {
 				'textdomain' => 'jetpack-blaze',
 			)
 		);
+
+		// Adds Connection package initial state.
+		wp_add_inline_script( self::SCRIPT_HANDLE, Connection_Initial_State::render(), 'before' );
 	}
 }

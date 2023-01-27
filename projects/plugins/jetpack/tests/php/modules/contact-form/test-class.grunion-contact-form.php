@@ -1240,7 +1240,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1301,7 +1301,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1311,7 +1311,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1342,7 +1342,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( '', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1395,7 +1395,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1405,7 +1405,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1430,7 +1430,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$expected_result = array(
 			'Contact Form' => array( 'subj1', 'subj2' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1500,7 +1500,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1510,7 +1510,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1539,7 +1539,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4' ),
 			'key5'         => array( 'value5' ),
 			'key6'         => array( 'value6' ),
-			'4_Comment'    => array( 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1611,10 +1611,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
 
 		$expected_result = array(
-			'Contact Form' => 'This is my form',
-			'1_Name'       => 'John Smith',
-			'3_Website'    => 'http://example.com',
-			'4_Comment'    => 'This is my comment!',
+			'1_Name'    => 'John Smith',
+			'3_Website' => 'http://example.com',
+			'4_Comment' => 'This is my comment!',
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1666,7 +1665,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
 			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
-			$this->assertCount( 9, $data['data'], 'has total expected data keys' );
+			$this->assertCount( 8, $data['data'], 'has total expected data keys' );
 		}
 	}
 
