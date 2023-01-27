@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -9,6 +8,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 /**
  * Types
@@ -21,6 +21,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 
 const debug = debugFactory( 'videopress:video:use-video-data' );
 
+const isUserConnected = getIsUserConnected();
 /**
  * React hook to fetch the video data from the media library.
  *
@@ -34,7 +35,6 @@ export default function useVideoData( {
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
-	const { isUserConnected } = useConnection();
 
 	useEffect( () => {
 		if ( ! isUserConnected ) {
@@ -101,7 +101,7 @@ export default function useVideoData( {
 			setIsRequestingVideoData( true );
 			fetchVideoItem();
 		}
-	}, [ id, guid, isUserConnected ] );
+	}, [ id, guid ] );
 
 	return { videoData, isRequestingVideoData };
 }
