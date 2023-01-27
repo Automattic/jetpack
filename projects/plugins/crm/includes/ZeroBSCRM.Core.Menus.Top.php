@@ -721,7 +721,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<?php
 			// } Build pop-out
 
-			$popoutMenu = array(
+			$popout_menu = array(
 				'col1' => array(),
 				'col2' => array(),
 				'col3' => array(),
@@ -729,53 +729,53 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 			// if admin, settings + datatools
 			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-				$popoutMenu['col1'][] = '<a id="zbs-settings2-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '" class="item"><i class="settings icon"></i> ' . __( 'Settings', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a id="zbs-settings2-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '" class="item"><i class="settings icon"></i> ' . __( 'Settings', 'zero-bs-crm' ) . '</a>';
 				// WLREMOVE
-				$popoutMenu['col1'][] = '<a id="zbs-datatools-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['datatools'] ) . '" class="item"><i class="wrench icon"></i> ' . __( 'Data Tools', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a id="zbs-datatools-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['datatools'] ) . '" class="item"><i class="wrench icon"></i> ' . __( 'Data Tools', 'zero-bs-crm' ) . '</a>';
 				// /WLREMOVE
 			}
 			// teams page for WP Admin or Jetpack CRM Full Admin
 			if ( current_user_can( 'manage_options' ) ) {
-				$popoutMenu['col1'][] = '<a id="zbs-team-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['team'] ) . '" class="item"><i class="icon users"></i> ' . __( 'Team', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a id="zbs-team-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['team'] ) . '" class="item"><i class="icon users"></i> ' . __( 'Team', 'zero-bs-crm' ) . '</a>';
 			}
 
 			// if admin, system status + extensions
 			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-				$popoutMenu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '"><i class="server icon" aria-hidden="true"></i> ' . __( 'System Assistant', 'zero-bs-crm' ) . '</a>';
-				$popoutMenu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) . '"><i class="envelope icon" aria-hidden="true"></i> ' . __( 'Emails', 'zero-bs-crm' ) . '</a>';
-				$popoutMenu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '"><i class="icon th" aria-hidden="true"></i> ' . __( 'Core Modules', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '"><i class="server icon" aria-hidden="true"></i> ' . __( 'System Assistant', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) . '"><i class="envelope icon" aria-hidden="true"></i> ' . __( 'Emails', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '"><i class="icon th" aria-hidden="true"></i> ' . __( 'Core Modules', 'zero-bs-crm' ) . '</a>';
 				// WLREMOVE
-				$popoutMenu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['extensions'] ) . '"><i class="icon plug" aria-hidden="true"></i> ' . __( 'Extensions', 'zero-bs-crm' ) . '</a>';
+				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['extensions'] ) . '"><i class="icon plug" aria-hidden="true"></i> ' . __( 'Extensions', 'zero-bs-crm' ) . '</a>';
 				// /WLREMOVE
 
 			}
 
 			// remove the col if nothing in there
-			if ( count( $popoutMenu['col1'] ) == 0 ) {
-				unset( $popoutMenu['col1'] );
+			if ( count( $popout_menu['col1'] ) == 0 ) {
+				unset( $popout_menu['col1'] );
 			}
 
 			?>
 			<div class="ui popup bottom left transition hidden" id="zbs-user-menu">
 				<?php
-					switch ( count( $popoutMenu ) ) {
-						case 3:
-							$menu_style = 'three';
-							break;
-						case 2:
-							$menu_style = 'two';
-							break;
-						default:
-							$menu_style = 'one';
-					}
+				switch ( count( $popout_menu ) ) {
+					case 3:
+						$menu_style = 'three';
+						break;
+					case 2:
+						$menu_style = 'two';
+						break;
+					default:
+						$menu_style = 'one';
+				}
 				?>
-				<div class="ui <?php echo $menu_style ?> column equal height divided grid">
-			<?php if ( isset( $popoutMenu['col1'] ) && count( $popoutMenu['col1'] ) > 0 ) { ?>
+				<div class="ui <?php echo esc_attr( $menu_style ); ?> column equal height divided grid">
+			<?php if ( isset( $popout_menu['col1'] ) && count( $popout_menu['col1'] ) > 0 ) { ?>
 				<div class="column">
 					<h4 class="ui header"><?php esc_html_e( 'CRM Admin', 'zero-bs-crm' ); ?></h4>
 					<div class="ui link list">
 					<?php
-					foreach ( $popoutMenu['col1'] as $link ) {
+					foreach ( $popout_menu['col1'] as $link ) {
 						echo $link; }
 					?>
 					</div>
