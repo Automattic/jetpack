@@ -17,7 +17,7 @@ function getSeconds( time: string ): number {
 }
 
 /**
- *	Validates the generated chapters against UX restrictions
+ * Validates the generated chapters against UX restrictions
  *
  * @param {VideoPressChapter[]} chapters - The chapters to be validated
  * @returns {boolean} - Whether the generated chapters are valid or not
