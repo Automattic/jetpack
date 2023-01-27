@@ -260,28 +260,32 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		}
 	}, [ innerBlocks ] );
 
+	// This is to animate text input. This will give an idea of a "better" AI.
+	// At this point this is an established pattern.
 	useEffect( () => {
+		// If the content is not loaded, we do nothing.
 		if ( ! content ) {
 			return;
 		}
 
-		// This is to animate text input. I think this will give an idea of a "better" AI.
-		// At this point this is an established pattern.
+		// Break the content into words
 		const tokens = content.split( ' ' );
+
+		// For each word, update the inner block content.
 		for ( let i = 1; i < tokens.length; i++ ) {
 			const output = tokens.slice( 0, i ).join( ' ' );
 			setTimeout( () => updateInnerBlocks( output ), 50 * i );
 		}
+		// Finally set the inner block to the full content.
 		setTimeout( () => {
 			updateInnerBlocks( content );
 		}, 50 * tokens.length );
 	}, [ triggered ] );
 
-	// Sets the inner blocks to a single paragraph block.
-
-	console.log( 'clientId', clientId );
+	// Fix the inner blocks (they can only be of this type).
 	const TEMPLATE = [ [ 'jetpack/markdown', {} ] ];
 
+	// Used for styling the block in the editor.
 	const classes = classNames( {
 		triggered,
 	} );
