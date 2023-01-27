@@ -40,7 +40,12 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallSubheadingPopover = ( { children } ) => {
+const FirewallSubheadingPopover = ( {
+	children = __(
+		'The free version of the firewall does not receive updates to automatic firewall rules.',
+		'jetpack-protect'
+	),
+} ) => {
 	const [ showPopover, setShowPopover ] = useState( false );
 
 	const handleEnter = useCallback( () => {
@@ -73,60 +78,13 @@ const FirewallSubheadingPopover = ( { children } ) => {
 	);
 };
 
-const BruteForceProtectionText = () => (
-	<Text className={ styles[ 'brute-force-protection-subheading' ] } weight={ 600 }>
-		{ __( 'Brute force protection is active.', 'jetpack-protect' ) }
-	</Text>
-);
-
-const NoRulesText = () => (
-	<Text weight={ 600 }>{ __( 'There are no firewall rules applied.', 'jetpack-protect' ) }</Text>
-);
-
-const AutomaticRulesText = ( { popover = false } ) => {
+const FirewallSubheadingContent = ( { className, text = '', popover = false, children } ) => {
 	return (
-		<div className={ styles[ 'rules-subheading' ] }>
-			<Text weight={ 600 }>{ __( 'Only automatic rules apply.', 'jetpack-protect' ) }</Text>
-			{ popover && (
-				<FirewallSubheadingPopover
-					children={ __(
-						'The free version of the firewall does not receive updates to automatic firewall rules.',
-						'jetpack-protect'
-					) }
-				/>
-			) }
-		</div>
-	);
-};
-
-const ManualRulesText = ( { popover = false } ) => {
-	return (
-		<div className={ styles[ 'rules-subheading' ] }>
-			<Text weight={ 600 }>{ __( 'Only manual rules apply.', 'jetpack-protect' ) }</Text>
-			{ popover && (
-				<FirewallSubheadingPopover
-					children={ __(
-						'The free version of the firewall only allows for use of manual rules.',
-						'jetpack-protect'
-					) }
-				/>
-			) }
-		</div>
-	);
-};
-
-const AllRulesText = ( { popover = false } ) => {
-	return (
-		<div className={ styles[ 'rules-subheading' ] }>
-			<Text weight={ 600 }>{ __( 'All firewall rules apply.', 'jetpack-protect' ) }</Text>
-			{ popover && (
-				<FirewallSubheadingPopover
-					children={ __(
-						'The free version of the firewall does not receive updates to automatic firewall rules.',
-						'jetpack-protect'
-					) }
-				/>
-			) }
+		<div className={ styles[ 'firewall-subheading__content' ] }>
+			<Text className={ styles[ className ] } weight={ 600 }>
+				{ text }
+			</Text>
+			{ popover && <FirewallSubheadingPopover children={ children } /> }
 		</div>
 	);
 };
@@ -146,13 +104,39 @@ const FirewallSubheading = ( {
 	return (
 		<>
 			<div className={ styles[ 'firewall-subheading' ] }>
-				{ bruteForceProtectionIsEnabled && <BruteForceProtectionText /> }
-				{ noRules && <NoRulesText /> }
-				{ manualRules && (
-					<ManualRulesText popover={ ! hasRequiredPlan && ! automaticRulesAvailable } />
+				{ bruteForceProtectionIsEnabled && (
+					<FirewallSubheadingContent
+						className={ 'brute-force-protection-subheading' }
+						text={ __( 'Brute force protection is active.', 'jetpack-protect' ) }
+					/>
 				) }
-				{ automaticRules && <AutomaticRulesText popover={ ! hasRequiredPlan } /> }
-				{ allRules && <AllRulesText popover={ ! hasRequiredPlan } /> }
+				{ noRules && (
+					<FirewallSubheadingContent
+						text={ __( 'There are no firewall rules applied.', 'jetpack-protect' ) }
+					/>
+				) }
+				{ automaticRules && (
+					<FirewallSubheadingContent
+						text={ __( 'Only automatic rules apply.', 'jetpack-protect' ) }
+						popover={ ! hasRequiredPlan }
+					/>
+				) }
+				{ manualRules && (
+					<FirewallSubheadingContent
+						text={ __( 'Only manual rules apply.', 'jetpack-protect' ) }
+						popover={ ! hasRequiredPlan && ! automaticRulesAvailable }
+						children={ __(
+							'The free version of the firewall only allows for use of manual rules.',
+							'jetpack-protect'
+						) }
+					/>
+				) }
+				{ allRules && (
+					<FirewallSubheadingContent
+						text={ __( 'All firewall rules apply.', 'jetpack-protect' ) }
+						popover={ ! hasRequiredPlan }
+					/>
+				) }
 			</div>
 			{ ! hasRequiredPlan && <UpgradePrompt /> }
 		</>

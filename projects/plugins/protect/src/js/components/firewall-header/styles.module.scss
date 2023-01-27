@@ -36,15 +36,15 @@ svg.spinner {
     .brute-force-protection-subheading {
         margin-right: calc( var( --spacing-base ) / 2 ); // 4px
     }
-}
 
-.rules-subheading {
-    display: flex;
-
-    > .icon-popover {
+    &__content {
         display: flex;
-        margin-left: calc( var( --spacing-base ) / 2 ); // 4px
-        fill: var( --jp-gray-20 );
+    
+        > .icon-popover {
+            display: flex;
+            margin-left: calc( var( --spacing-base ) / 2 ); // 4px
+            fill: var( --jp-gray-20 );
+        }
     }
 }
 
