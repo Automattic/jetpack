@@ -10,6 +10,9 @@ const siteBackupSelectors = {
 	isFetchingBackupPolicies: state => state.siteBackupPolicies.isFetching ?? null,
 	getBackupStorageLimit: state => state.siteBackupPolicies.storageLimitBytes ?? null,
 	getActivityLogLimitDays: state => state.siteBackupPolicies.activityLogLimitDays ?? null,
+
+	// Storage
+	getStorageUsageLevel: state => state.siteBackupStorage.usageLevel ?? null,
 };
 
 export default siteBackupSelectors;

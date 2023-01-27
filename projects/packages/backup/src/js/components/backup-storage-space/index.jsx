@@ -1,5 +1,5 @@
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useEffect, useMemo } from '@wordpress/element';
+import { useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useConnection from '../../hooks/useConnection';
 import { STORE_ID } from '../../store';
@@ -22,7 +22,8 @@ const BackupStorageSpace = () => {
 	const daysOfBackupsSaved = useSelect( select => select( STORE_ID ).getDaysOfBackupsSaved() );
 	const showComponent = storageSize !== null && storageLimit > 0;
 
-	const [ usageLevel, setUsageLevel ] = useState( StorageUsageLevels.Normal );
+	const usageLevel = useSelect( select => select( STORE_ID ).getStorageUsageLevel() );
+
 	const dispatch = useDispatch( STORE_ID );
 
 	// Fetch backup policies and site size
@@ -49,7 +50,7 @@ const BackupStorageSpace = () => {
 	] );
 
 	useEffect( () => {
-		setUsageLevel(
+		dispatch.setStorageUsageLevel(
 			getUsageLevel(
 				storageSize,
 				storageLimit,
@@ -60,6 +61,7 @@ const BackupStorageSpace = () => {
 			)
 		);
 	}, [
+		dispatch,
 		storageSize,
 		storageLimit,
 		minDaysOfBackupsAllowed,
