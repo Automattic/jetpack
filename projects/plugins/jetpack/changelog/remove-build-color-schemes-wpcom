@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove Webpack config for no-longer-used `build-color-schemes-wpcom` script.

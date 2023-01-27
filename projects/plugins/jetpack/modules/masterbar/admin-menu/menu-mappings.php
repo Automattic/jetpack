@@ -23,6 +23,13 @@ $common_mappings = array(
 	'edit.php?post_type=jetpack-testimonial' => 'https://wordpress.com/types/jetpack-testimonial/',
 );
 
+if (
+	/** This filter is documented in modules/masterbar/admin-menu/class-admin-menu.php */
+	apply_filters( 'calypso_use_modernized_reading_settings', false )
+) {
+	$common_mappings['options-reading.php'] = 'https://wordpress.com/settings/reading/';
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	// WPCOM Specific mappings.
 	$common_mappings['export.php'] = 'https://wordpress.com/export/';

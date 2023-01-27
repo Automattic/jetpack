@@ -330,7 +330,7 @@ class Status {
 			/**
 			 * Filters the is_private_site check.
 			 *
-			 * @since $$next-version$$
+			 * @since 1.16.1
 			 *
 			 * @param bool $is_private_site True if the site is private.
 			 */
@@ -359,7 +359,7 @@ class Status {
 			/**
 			 * Filters the is_coming_soon check.
 			 *
-			 * @since $$next-version$$
+			 * @since 1.16.1
 			 *
 			 * @param bool $is_coming_soon True if the site is coming soon (i.e. unlaunched).
 			 */

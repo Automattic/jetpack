@@ -4,9 +4,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 /**
  * Types
@@ -17,6 +19,9 @@ import {
 } from '../../../types';
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
+const debug = debugFactory( 'videopress:video:use-video-data' );
+
+const isUserConnected = getIsUserConnected();
 /**
  * React hook to fetch the video data from the media library.
  *
@@ -32,6 +37,11 @@ export default function useVideoData( {
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
+		if ( ! isUserConnected ) {
+			debug( 'User is not connected ❌' );
+			return;
+		}
+
 		/**
 		 * Fetches the video videoData from the API.
 		 */
@@ -79,6 +89,7 @@ export default function useVideoData( {
 					filename,
 					tracks: response.tracks,
 					is_private: response.is_private,
+					private_enabled_for_site: response.private_enabled_for_site,
 				} );
 			} catch ( error ) {
 				setIsRequestingVideoData( false );
