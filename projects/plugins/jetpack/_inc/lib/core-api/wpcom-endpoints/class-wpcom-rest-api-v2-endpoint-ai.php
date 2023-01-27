@@ -56,8 +56,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'content' => array( 'required' => true ),
-					'post_id' => array( 'required' => false ),
+					'content' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
@@ -71,8 +78,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'prompt'  => array( 'required' => true ),
-					'post_id' => array( 'required' => false ),
+					'prompt'  => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
