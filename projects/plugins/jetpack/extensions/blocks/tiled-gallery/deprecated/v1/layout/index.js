@@ -106,7 +106,7 @@ function isWpcomFilesUrl( url ) {
  * is already photon-like so we can pass it the same parameters for image resizing.
  *
  * @param  {string} url - Image url
- * @param  {Object} opts - Options to pass to photon
+ * @param  {object} opts - Options to pass to photon
  * @returns {string}      Url string with options applied
  */
 function photonWpcomImage( url, opts = {} ) {

@@ -831,6 +831,10 @@ class Jetpack_Carousel {
 			}
 			$image_elements = $selected_images[ $attachment->ID ];
 
+			if ( ! is_array( $image_elements ) ) {
+				continue;
+			}
+
 			$attributes      = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach ( $attributes as $k => $v ) {
@@ -1288,7 +1292,6 @@ class Jetpack_Carousel {
 
 		add_settings_field( 'carousel_display_comments', __( 'Comments', 'jetpack' ), array( $this, 'carousel_display_comments_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_comments', array( $this, 'carousel_display_comments_sanitize' ) );
-
 	}
 
 	/**

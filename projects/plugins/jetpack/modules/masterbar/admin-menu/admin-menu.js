@@ -109,44 +109,6 @@
 				}
 			);
 		}
-
-		if ( jetpackAdminMenu.isAtomic ) {
-			document.querySelectorAll( 'li.wp-has-submenu.wp-not-current-submenu' ).forEach( function ( el ) {
-				const submenu = el.querySelector( '.wp-submenu' );
-				const linkElement = el.querySelector( 'a' );
-
-				el.addEventListener( 'mouseover', function() {
-					submenu.style.display = null;
-					submenu.style.top = '-1px';
-					if ( ! isElementInViewport( submenu ) ) {
-						// Repoisition the submenu to the top of the menu item.
-						submenu.style.top = ( linkElement.clientHeight - submenu.clientHeight ) + 'px';
-					}
-					linkElement.focus();
-				} );
-
-				el.addEventListener( 'mouseleave', function() {
-					submenu.style.display = 'none';
-					submenu.style.top = null;
-					if ( document.activeElement === linkElement ) {
-						linkElement.blur();
-					}
-				} );
-			} );
-		}
-	}
-
-	function isElementInViewport( el ) {
-		var rect = el.getBoundingClientRect();
-
-		return (
-			rect.top >= 0 &&
-			rect.left >= 0 &&
-			// Tries to primarily use the window viewport, but if that's not available, uses the documentElement.
-			// The innerWidth attribute must return the viewport width including the size of a rendered scroll bar (if any), or zero if there is no viewport.
-			rect.bottom <= ( window.innerHeight || document.documentElement.clientHeight ) &&
-			rect.right <= ( window.innerWidth || document.documentElement.clientWidth )
-		);
 	}
 
 	function makeAjaxRequest( method, url, contentType, body = null, callback = null ) {

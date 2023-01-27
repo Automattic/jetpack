@@ -194,12 +194,10 @@ class Filter_Embedded_HTML_Objects {
 			} else {
 				self::$html_strpos_filters[ $match ] = $callback;
 			}
+		} elseif ( $is_regexp ) {
+			self::$regexp_filters[ $match ] = $callback;
 		} else {
-			if ( $is_regexp ) {
-				self::$regexp_filters[ $match ] = $callback;
-			} else {
-				self::$strpos_filters[ $match ] = $callback;
-			}
+			self::$strpos_filters[ $match ] = $callback;
 		}
 	}
 

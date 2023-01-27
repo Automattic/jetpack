@@ -106,7 +106,6 @@ class Initializer {
 		}
 
 		return version_compare( JETPACK__VERSION, '11.3-a.7', '>=' );
-
 	}
 
 	/**
@@ -122,7 +121,6 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
 		XMLRPC::init();
-		Block_Editor_Extensions::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
@@ -172,8 +170,6 @@ class Initializer {
 	public static function register_videopress_blocks() {
 		// Register VideoPress Video block.
 		self::register_videopress_video_block();
-		// Register VideoPress Video block.
-		self::register_videopress_chapters_block();
 	}
 
 	/**
@@ -196,38 +192,15 @@ class Initializer {
 
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
+
+		// Register and enqueue scripts used by the VideoPress block.
+		Block_Editor_Extensions::init( $videopress_video_metadata );
+
+		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
 			return;
 		}
 
 		register_block_type( $videopress_video_metadata_file );
-	}
-
-	/**
-	 * Register the VideoPress Chapters editor block,
-	 *
-	 * @return void
-	 */
-	public static function register_videopress_chapters_block() {
-		$videopress_chapters_metadata_file        = __DIR__ . '/../build/block-editor/blocks/video-chapters/block.json';
-		$videopress_chapters_metadata_file_exists = file_exists( $videopress_chapters_metadata_file );
-
-		if ( ! $videopress_chapters_metadata_file_exists ) {
-			return;
-		}
-
-		$videopress_chapters_metadata = json_decode(
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( $videopress_chapters_metadata_file )
-		);
-
-		// Pick the block name straight from the block metadata .json file.
-		$videopress_chapters_block_name = $videopress_chapters_metadata->name;
-
-		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_chapters_block_name ) ) {
-			return;
-		}
-
-		register_block_type( $videopress_chapters_metadata_file );
 	}
 }

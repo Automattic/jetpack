@@ -51,7 +51,7 @@ const BLOCK_NAME = 'premium-content';
  * @property { string } className
  * @property { string } clientId
  * @property { Attributes } attributes
- * @property { (attributes: object<Attributes>) => void } setAttributes
+ * @property {(attributes: Object<Attributes>) => void} setAttributes
  * @typedef { OwnProps } Props
  * @param { Props } props
  */

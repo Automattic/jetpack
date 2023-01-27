@@ -13,14 +13,19 @@ import { STORE_ID } from '../../state/store';
 const useStatusPolling = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
-	const { setStatus, setStatusIsFetching, setScanIsUnavailable } = useDispatch( STORE_ID );
-
+	const { setStatus, setStatusProgress, setStatusIsFetching, setScanIsUnavailable } = useDispatch(
+		STORE_ID
+	);
 	useEffect( () => {
 		let pollTimeout;
 		const pollDuration = 10000;
 
 		const statusIsInProgress = currentStatus =>
 			[ 'scheduled', 'scanning' ].indexOf( currentStatus ) >= 0;
+
+		// if there has never been a scan, and the scan status is idle, then we must still be getting set up
+		const scanIsInitializing = ( currentStatus, lastChecked ) =>
+			! lastChecked && currentStatus === 'idle';
 
 		const pollStatus = () => {
 			return new Promise( ( resolve, reject ) => {
@@ -30,10 +35,14 @@ const useStatusPolling = () => {
 				} )
 					.then( newStatus => {
 						if ( newStatus?.error ) {
-							throw newStatus?.errorMessage;
+							throw newStatus?.error_message;
 						}
 
-						if ( statusIsInProgress( newStatus?.status ) ) {
+						if (
+							statusIsInProgress( newStatus?.status ) ||
+							scanIsInitializing( newStatus?.status, newStatus?.last_checked )
+						) {
+							setStatusProgress( newStatus?.current_progress );
 							pollTimeout = setTimeout( () => {
 								pollStatus()
 									.then( result => resolve( result ) )
@@ -55,7 +64,10 @@ const useStatusPolling = () => {
 			} );
 		};
 
-		if ( ! statusIsInProgress( status?.status ) ) {
+		if (
+			! statusIsInProgress( status?.status ) &&
+			! scanIsInitializing( status?.status, status?.lastChecked )
+		) {
 			return;
 		}
 
@@ -75,7 +87,15 @@ const useStatusPolling = () => {
 		}, pollDuration );
 
 		return () => clearTimeout( pollTimeout );
-	}, [ status.status, setScanIsUnavailable, setStatus, setStatusIsFetching, recordEvent ] );
+	}, [
+		status?.status,
+		status?.lastChecked,
+		setScanIsUnavailable,
+		setStatus,
+		setStatusProgress,
+		setStatusIsFetching,
+		recordEvent,
+	] );
 };
 
 export default useStatusPolling;

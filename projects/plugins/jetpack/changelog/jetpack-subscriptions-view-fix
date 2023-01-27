@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add appropriate fix for the $post being null

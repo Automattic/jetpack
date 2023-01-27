@@ -124,63 +124,17 @@ jobs:
           script: |
             const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run
+            \`\`\`
+            bin/jetpack-downloader test jetpack ${ BRANCH_NAME }
+            \`\`\`
+            to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody,
               comment_id: +COMMENT_ID,
             } );
-
-  upgrade_test:
-    name: Test plugin upgrades
-    runs-on: ubuntu-latest
-    needs: build
-    if: needs.build.outputs.any_plugins == 'true'
-    timeout-minutes: 10  # 2022-03-04: Successful runs seem to take about 3 minutes, but give some extra time for the downloads.
-    services:
-      db:
-        image: mariadb:latest
-        env:
-          MARIADB_ROOT_PASSWORD: wordpress
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
-    container:
-      image: ghcr.io/automattic/jetpack-wordpress-dev:latest
-      env:
-        WP_DOMAIN: localhost
-        WP_ADMIN_USER: wordpress
-        WP_ADMIN_EMAIL: wordpress@example.com
-        WP_ADMIN_PASSWORD: wordpress
-        WP_TITLE: Hello World
-        MYSQL_HOST: db:3306
-        MYSQL_DATABASE: wordpress
-        MYSQL_USER: root
-        MYSQL_PASSWORD: wordpress
-        HOST_PORT: 80
-      ports:
-        - 80:80
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: monorepo
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jetpack-build
-      - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
-
-      - name: Setup WordPress
-        run: monorepo/.github/files/test-plugin-update/setup.sh
-
-      - name: Prepare plugin zips
-        run: monorepo/.github/files/test-plugin-update/prepare-zips.sh
-
-      - name: Test upgrades
-        run: monorepo/.github/files/test-plugin-update/test.sh
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin
@@ -202,13 +156,15 @@ jobs:
 
       - name: Prepare plugin zips
         id: prepare
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir work
           mkdir zips
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          VERSUFFIX="${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)"
+          VERSUFFIX="${GITHUB_RUN_ID}-g${SHA:0:8}"
 
           # Plugin data is passed as a JSON object.
           PLUGIN_DATA="{}"
@@ -276,9 +232,10 @@ jobs:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
           PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$SHA" \
             --form-string "repo=$GITHUB_REPOSITORY" \
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \

@@ -43,6 +43,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
+			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
+			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
@@ -117,10 +119,11 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
 			'wpcom_featured_image_in_email'           => '(bool) Whether the Featured image is displayed in the New Post email template or not',
 			'wpcom_gifting_subscription'              => '(bool) Whether gifting is enabled for non auto-renew sites',
-			'jetpack_blogging_prompts_enabled'        => '(bool) Whether writing prompts are shown in the editor when starting a new post.',
 			'wpcom_subscription_emails_use_excerpt'   => '(bool) Whether site subscription emails (e.g. New Post email notification) will use post excerpts',
 			'show_on_front'                           => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 			'page_on_front'                           => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
+			'page_for_posts'                          => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
+			'subscription_options'                    => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
 		),
 
 		'response_format' => array(

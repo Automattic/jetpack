@@ -1,0 +1,40 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-forms",
+	"version": "0.2.0",
+	"description": "Jetpack Forms",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Forms"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/forms"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run build:contact-form",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:contact-form",
+		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
+		"clean": "true"
+	},
+	"dependencies": {
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/remove-asset-webpack-plugin": "workspace:*",
+		"autoprefixer": "10.4.12",
+		"postcss": "8.4.21",
+		"postcss-loader": "6.2.0",
+		"sass": "1.38.1",
+		"sass-loader": "12.4.0"
+	},
+	"engines": {
+		"node": "^18.13.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.49.1] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [1.49.0] - 2023-01-11
+### Added
+- Add new method to get a connected site's blog ID. [#28208]
+
 ## [1.48.1] - 2022-12-27
 ### Removed
 - Remove src/js files from final bundle [#27931]
@@ -745,6 +753,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.49.1]: https://github.com/Automattic/jetpack-connection/compare/v1.49.0...v1.49.1
+[1.49.0]: https://github.com/Automattic/jetpack-connection/compare/v1.48.1...v1.49.0
 [1.48.1]: https://github.com/Automattic/jetpack-connection/compare/v1.48.0...v1.48.1
 [1.48.0]: https://github.com/Automattic/jetpack-connection/compare/v1.47.1...v1.48.0
 [1.47.1]: https://github.com/Automattic/jetpack-connection/compare/v1.47.0...v1.47.1

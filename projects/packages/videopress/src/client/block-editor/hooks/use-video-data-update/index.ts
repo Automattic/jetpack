@@ -162,13 +162,17 @@ export function useSyncMedia(
 	options: UseSyncMediaOptionsProps
 ): UseSyncMediaProps {
 	const { id, guid } = attributes;
-	const { videoData, isRequestingVideoData } = useVideoData( { id, guid } );
+	const { videoData, isRequestingVideoData } = useVideoData( {
+		id,
+		guid,
+		skipRatingControl: true,
+	} );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
-	const [ initialState, setState ] = useState( {} );
+	const [ initialState, setState ] = useState< VideoDataProps >( {} );
 
 	const [ error, setError ] = useState( null );
 
@@ -188,55 +192,54 @@ export function useSyncMedia(
 			return;
 		}
 
-		if ( ! videoData || Object.keys( videoData ).length === 0 ) {
+		// Bail early if the video data is not available.
+		if (
+			! videoData ||
+			Object.keys( videoData ).filter( key => videoFieldsToUpdate.includes( key ) ).length === 0
+		) {
 			return;
 		}
 
 		const attributesToUpdate: VideoBlockAttributes = {};
 
 		// Build an object with video data to use for the initial state.
-		const initialVideoData = videoFieldsToUpdate.reduce(
-			( acc, key ) => {
-				if ( typeof videoData[ key ] === 'undefined' ) {
-					return acc;
-				}
-
-				let videoDataValue = videoData[ key ];
-
-				// Cast privacy_setting to number to match the block attribute type.
-				if ( 'privacy_setting' === key ) {
-					videoDataValue = Number( videoDataValue );
-				}
-
-				acc[ key ] = videoDataValue;
-				const attrName = mapFieldsToAttributes[ key ] || snakeToCamel( key );
-
-				if ( videoDataValue !== attributes[ attrName ] ) {
-					debug(
-						'%o is out of sync. Updating %o attr from %o to %o ',
-						key,
-						attrName,
-						attributes[ attrName ],
-						videoDataValue
-					);
-					attributesToUpdate[ attrName ] = videoDataValue;
-				}
+		const initialVideoData = videoFieldsToUpdate.reduce( ( acc, key ) => {
+			if ( typeof videoData[ key ] === 'undefined' ) {
 				return acc;
-			},
-			{
-				tracks: [],
 			}
-		);
+
+			let videoDataValue = videoData[ key ];
+
+			// Cast privacy_setting to number to match the block attribute type.
+			if ( 'privacy_setting' === key ) {
+				videoDataValue = Number( videoDataValue );
+			}
+
+			acc[ key ] = videoDataValue;
+			const attrName = mapFieldsToAttributes[ key ] || snakeToCamel( key );
+
+			if ( videoDataValue !== attributes[ attrName ] ) {
+				debug(
+					'%o is out of sync. Updating %o attr from %o to %o ',
+					key,
+					attrName,
+					attributes[ attrName ],
+					videoDataValue
+				);
+				attributesToUpdate[ attrName ] = videoDataValue;
+			}
+			return acc;
+		}, {} );
 
 		updateInitialState( initialVideoData );
+		debug( 'Initial state: ', initialVideoData );
 
 		if ( ! Object.keys( initialVideoData ).length ) {
 			return;
 		}
 
-		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
-
 		// Sync video tracks if needed.
+		const [ tracks, tracksOufOfSync ] = arrangeTracksAttributes( videoData, attributes );
 		if ( tracksOufOfSync ) {
 			attributesToUpdate.tracks = tracks;
 		}
@@ -264,10 +267,10 @@ export function useSyncMedia(
 			return;
 		}
 
-		debug( '[%o] Saving post action detected', attributes?.guid );
+		debug( '%o Saving post action detected', attributes?.guid );
 
 		if ( ! attributes?.id ) {
-			debug( '[%o] No media ID found. Impossible to sync. Bail early', attributes?.guid );
+			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
 			return;
 		}
 
@@ -362,7 +365,7 @@ export function useSyncMedia(
 				}
 			} )
 			.catch( ( updateMediaError: Error ) => {
-				debug( '[%o] Error while syncing data: %o', attributes?.guid, updateMediaError );
+				debug( '%o Error while syncing data: %o', attributes?.guid, updateMediaError );
 				setError( updateMediaError );
 			} );
 	}, [

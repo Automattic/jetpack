@@ -64,7 +64,7 @@ function get_coverage_version() {
  */
 function count_lines_before_class_keyword( $file ) {
 	// Find the line that the `class` keyword occurs on so that we can use it to calculate an offset from the header.
-	$content = file_get_contents( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+	$content = file_get_contents( $file );
 
 	// Find the class keyword and capture the number of characters in the string before this point.
 	if ( 0 === preg_match_all( '/^class /m', $content, $matches, PREG_OFFSET_CAPTURE ) ) {

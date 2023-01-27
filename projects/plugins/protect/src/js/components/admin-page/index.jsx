@@ -5,6 +5,7 @@ import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
 import React, { useEffect } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useWafData from '../../hooks/use-waf-data';
 import { STORE_ID } from '../../state/store';
 import InterstitialPage from '../interstitial-page';
@@ -12,8 +13,6 @@ import Logo from '../logo';
 import Tabs, { Tab } from '../tabs';
 import styles from './styles.module.scss';
 import useRegistrationWatcher from './use-registration-watcher';
-
-export const JETPACK_SCAN = 'jetpack_scan';
 
 const AdminPage = ( { children } ) => {
 	useRegistrationWatcher();
@@ -23,7 +22,7 @@ const AdminPage = ( { children } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { userIsConnecting } = useConnection();
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
 		siteProductAvailabilityHandler: async () =>
 			apiFetch( {

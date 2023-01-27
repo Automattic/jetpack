@@ -378,7 +378,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Disallow other external URLs.
-			return '';
+			if ( 0 !== strpos( $url, get_site_url() ) ) {
+				return '';
+			}
+			// The URL matches that of the site, treat it as an internal URL.
 		}
 
 		// Internal URLs.

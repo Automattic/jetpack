@@ -35,11 +35,8 @@ class Optimizations implements Has_Setup {
 			new $critical_css_class(),
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
+			new Image_Guide(),
 		);
-
-		if ( defined( 'JETPACK_BOOST_IMAGE_GUIDE' ) && JETPACK_BOOST_IMAGE_GUIDE ) {
-			$features[] = new Image_Guide();
-		}
 
 		foreach ( $features as $feature ) {
 			$slug                    = $feature->get_slug();
@@ -93,7 +90,6 @@ class Optimizations implements Has_Setup {
 		if ( empty( $feature->get_endpoints() ) ) {
 			return false;
 		}
-
 	}
 
 	/**

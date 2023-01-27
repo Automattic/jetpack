@@ -2,6 +2,29 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.8 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.24.7 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.24.6 - 2023-01-18
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
+## 0.24.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Connection: Metro JS is unable to build the component SCSS files. Adding a native index file to only export the modules required for the mobile editor build. [#28154]
+
+## 0.24.4 - 2023-01-02
+### Fixed
+- Connection: Fix box-sizing layout issue on Manage Connection modal [#28101]
+
 ## 0.24.3 - 2022-12-27
 ### Fixed
 - Avoid warnings when disconnecting a site from WordPress.com. [#28003]

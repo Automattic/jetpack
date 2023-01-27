@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 
 /**
@@ -84,8 +85,18 @@ class Dashboard {
 	 */
 	public function render() {
 		?>
-		<div id="wpcom" class="jp-stats-dashboard">
+		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
+			<div class="hide-if-no-js" style="height: 100%">
+				<img
+					class="jp-stats-dashboard-loading-spinner"
+					width="32"
+					height="32"
+					style="position: absolute; left: 50%; top: 50%;"
+					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
+					src="//en.wordpress.com/i/loading/loading-64.gif"
+				/>
+			</div>
 		</div>
 		<script>
 			jQuery(document).ready(function($) {
@@ -146,7 +157,6 @@ class Dashboard {
 			$this->get_config_data_js(),
 			'before'
 		);
-
 	}
 
 	/**
@@ -214,27 +224,32 @@ class Dashboard {
 			'features'                       => array(),
 			'intial_state'                   => array(
 				'currentUser' => array(
-					'id'   => 1000,
-					'user' => array(
+					'id'           => 1000,
+					'user'         => array(
 						'ID'       => 1000,
 						'username' => 'no-user',
 					),
+					'capabilities' => array(
+						"$blog_id" => self::get_current_user_capabilities(),
+					),
 				),
 				'sites'       => array(
-					'items' => array(
+					'items'    => array(
 						"$blog_id" => array(
 							'ID'           => $blog_id,
 							'URL'          => site_url(),
 							'jetpack'      => true,
 							'visible'      => true,
 							'capabilities' => $empty_object,
-							'options'      => array(
-								'admin_url' => admin_url(),
-							),
 							'products'     => array(),
 							'plan'         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'options'      => array(
+								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
+								'admin_url' => admin_url(),
+							),
 						),
 					),
+					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),
 				),
 			),
 		);
@@ -273,6 +288,37 @@ class Dashboard {
 			$locale = preg_replace( '/(_.*)$/i', '', $locale );
 		}
 		return $locale;
+	}
+
+	/**
+	 * Get the features of the current plan.
+	 */
+	protected function get_plan_features() {
+		if ( ! class_exists( 'Jetpack_Plan' ) ) {
+			return array();
+		}
+		$plan = \Jetpack_Plan::get();
+		if ( empty( $plan['features'] ) ) {
+			return array();
+		}
+		return $plan['features'];
+	}
+
+	/**
+	 * Get the capabilities of the current user.
+	 *
+	 * @return array An array of capabilities.
+	 */
+	protected function get_current_user_capabilities() {
+		// Feature lock.
+		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return array();
+		}
+		$user = wp_get_current_user();
+		if ( ! $user || is_wp_error( $user ) ) {
+			return array();
+		}
+		return $user->allcaps;
 	}
 
 }

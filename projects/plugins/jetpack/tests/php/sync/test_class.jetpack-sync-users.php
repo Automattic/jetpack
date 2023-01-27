@@ -53,7 +53,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $retrieved_user->data->allowed_mime_types );
 
 		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
-
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -209,7 +208,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertFalse( $event );
-
 	}
 
 	// Roles syncing
@@ -468,7 +466,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-
 	}
 
 	public function test_syncs_user_logout_event() {
@@ -802,6 +799,69 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			}
 			$this->assertArrayNotHasKey( 'warning', $value );
 		}
+	}
+
+	/**
+	 * Data Provider for test_update_user_field_is_synced tests.
+	 *
+	 * @return array
+	 */
+	public function get_user_fields_and_flags() {
+
+		return array(
+			array(
+				'user_nicename',
+				'dummy',
+				'nicename_changed',
+			),
+			array(
+				'user_url',
+				'http://dummy.com',
+				'url_changed',
+			),
+			array(
+				'user_registered',
+				'2022-12-12 10:10:10',
+				'registration_date_changed',
+			),
+			array(
+				'user_activation_key',
+				'dummy_key',
+				'activation_key_changed',
+			),
+			array(
+				'display_name',
+				'Dummy',
+				'display_name_changed',
+			),
+		);
+	}
+
+	/**
+	 * Test that user field updates are synced with the appropriate flags.
+	 *
+	 * @dataProvider get_user_fields_and_flags
+	 *
+	 * @param string $field_name  User field name to update.
+	 * @param mixed  $field_value User field value to set.
+	 * @param string $user_flag   The expected user flag that should be synced.
+	 */
+	public function test_update_user_field_is_synced( $field_name, $field_value, $user_flag ) {
+		wp_update_user(
+			array(
+				'ID'        => $this->user_id,
+				$field_name => $field_value,
+			)
+		);
+
+		$this->sender->do_sync();
+
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+		$this->assertEquals( $field_value, $server_user->data->$field_name );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1][ $user_flag ] );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
 	}
 
 	protected function assertUsersEqual( $user1, $user2 ) {

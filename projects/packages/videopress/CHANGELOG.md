@@ -5,6 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.7] - 2023-01-26
+### Added
+- VideoPress: show Connect banner above video player when the site is not connected [#28585]
+
+### Changed
+- Use `flex-end` instead of `end` for better browser compatibility. [#28530]
+- VideoPress: change the logic to enqueue video block scripts [#28564]
+
+## [0.10.6] - 2023-01-25
+### Changed
+- VideoPress: Refactor video data check when populating block attributes [#28566]
+- VideoPress: Show site default privacy setting in video block control [#28553]
+
+## [0.10.5] - 2023-01-23
+### Added
+- VideoPress: add connect banner when user is not connected [#28501]
+- VideoPress: do not prompt to convert embed block to VideoPress video block [#28474]
+- VideoPress: do not request video data when user is not connected [#28493]
+- VideoPress: improve buildVideoPressURL(). Add tests. [#28465]
+
+### Changed
+- Block bundling: sunset existing methods in favor of new `JETPACK_BLOCKS_VARIATION` constant [#28390]
+- VideoPress: Prevent flash of initial state when there are search params [#28528]
+- VideoPress: remove undesired border of the video player [#28484]
+- VideoPress: tweak uploader layout of the VideoPress video block [#28482]
+
+### Fixed
+- VideoPress: fix replace video by uploading a new file issue [#28451]
+
+## [0.10.4] - 2023-01-18
+### Added
+- VideoPress: check source language length of the video chapters [#28406]
+
+## [0.10.3] - 2023-01-16
+### Added
+- VideoPress: add anchor support to VideoPress video block [#28377]
+- VideoPress: add rating selector on video details edit page [#28347]
+
+### Changed
+- VideoPress: avoid requesting unneeded preview when block mounts [#28311]
+- VideoPress: fix exception when deleting last video of page [#28281]
+- VideoPress: skip rating checking when pulling video data for the block [#28374]
+- VideoPress: tweak the footer of the uploader component [#28337]
+- VideoPress: use @wordpress/html-entities to handle html entities [#28376]
+
+### Fixed
+- VideoPress: enhance behavior when deleting multiple videos [#28302]
+- VideoPress: fix render player once file uploads issue [#28296]
+- VideoPress: fix setting title when uploading video file [#28329]
+- VideoPress: render properly title and description inputs of the video block [#28341]
+
+## [0.10.2] - 2023-01-11
+### Added
+- VideoPress: add Cancel button to uploading file component when replacing file [#28188]
+- VideoPress: add Replace control to video block [#28162]
+- VideoPress: minor TS enhancement in the useSearchParams() hook [#28250]
+- VideoPress: re-implemnt useResumableUploader(). 
+  VideoPress: Iterate over resumable file uploader
+    * Re implement useResumableUploader() hook with TS
+    * Update VideoPress uploader to use this hook
+    * Update getMediaToken() to support jwt-upload one
+    * Fixes VideoPress: Editor hits the jwt endpoint unneeded #28131
+    * Move upload to resumableFileUploader()
+    * More TypeScript Changes [#28135]
+- VideoPress: re-write VideoPress block with TypeScript [#28229]
+- VideoPress: Route search query parameter so search results can be shared. [#28064]
+- VideoPress: set block video by providing a GUID value [#28233]
+- VideoPress: Support replace the video by setting an URL from the replace control [#28221]
+
+### Changed
+- Updated package dependencies. [#28127]
+- Updated package dependencies. [#28128]
+- Updated package dependencies. [#28129]
+- Updated package dependencies. [#28268]
+- Updated package dependencies. [#28278]
+- VideoPress: set video URL in the Replace control based on the privacy [#28239]
+- VideoPress: Support edit privacy on edit details page [#28240]
+- VideoPress: TS enhancements in use Video data hooks [#28143]
+- VideoPress: update libs used to upload a video in the dashboard context [#28163]
+- VideoPress: Update no video dashboard UI to have one CTA [#28236]
+
+### Removed
+- VideoPress: remove video chapters block [#28206]
+
+### Fixed
+- VideoPress: Adjust number of placeholders when loading [#28165]
+- VideoPress: change the way to detect when the media is a File instance [#28194]
+- VideoPress: clean video attributes that are not options when replacing the video file [#28249]
+- VideoPress: fix duplicating uploaded file when replacing the video [#28196]
+- VideoPress: Fix local video listed as VideoPress video [#28237]
+
+## [0.10.1] - 2023-01-02
+### Fixed
+- VideoPress: fix plugin presence check and default height. [#28083]
+
 ## [0.10.0] - 2022-12-27
 ### Added
 - VideoPress: add core/embed transform from/to video block [#27979]
@@ -568,6 +663,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.6...v0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
+[0.10.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.2...v0.10.0
 [0.9.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.0...v0.9.1

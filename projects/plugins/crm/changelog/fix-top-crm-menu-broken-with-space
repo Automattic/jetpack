@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Removed some spaces that break the CSS class selector
+
+

@@ -28,10 +28,10 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.5",
+		"@babel/core": "7.20.7",
 		"@babel/preset-env": "7.20.2",
 		"@babel/register": "7.18.9",
-		"@babel/runtime": "7.20.6",
+		"@babel/runtime": "7.20.7",
 		"@wordpress/browserslist-config": "5.5.0",
 		"concurrently": "6.0.2",
 		"sass": "1.43.3",
@@ -40,7 +40,7 @@
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

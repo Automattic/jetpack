@@ -267,6 +267,12 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			await renameClassFile( projDir, answers.name );
+			await searchReplaceInFolder(
+				projDir,
+				'Package_Name',
+				transformToReadableName( answers.name )
+			);
 			break;
 		case 'js-package':
 			break;
@@ -487,9 +493,12 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-update-cmd' ] =
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
+		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+		composerJson.config = composerJson.config || {};
+		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
+		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
 	}
 
 	try {
@@ -510,6 +519,9 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
+			composerJson.extra[ 'version-constants' ] = {
+				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
+			};
 			composerJson.type = 'jetpack-library';
 			break;
 		case 'plugin':
@@ -523,6 +535,20 @@ async function createComposerJson( composerJson, answers ) {
 				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
+}
+
+/**
+ * Renames the class-example.php file to use the new project name.
+ *
+ * @param {string} projDir - the new project directory.
+ * @param {string} name - the name of the new project.
+ */
+async function renameClassFile( projDir, name ) {
+	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
+		if ( err ) {
+			console.log( err );
+		}
+	} );
 }
 
 /**
@@ -700,7 +726,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -710,6 +736,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 

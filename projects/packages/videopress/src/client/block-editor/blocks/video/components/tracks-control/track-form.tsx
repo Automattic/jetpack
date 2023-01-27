@@ -9,15 +9,16 @@ import {
 	SelectControl,
 	MenuGroup,
 	ToggleControl,
+	Notice,
 } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 /**
- * Internal dependencies
+ * Types
  */
-import { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
-import { TrackFormProps } from './types';
+import type { TrackFormProps } from './types';
+import type { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
 import type React from 'react';
 
 const DEFAULT_KIND = 'subtitles';
@@ -45,6 +46,7 @@ export default function TrackForm( {
 }: TrackFormProps ): React.ReactElement {
 	const [ isSavingTrack, setIsSavingTrack ] = useState( false );
 	const [ trackExists, setTrackExists ] = useState( false );
+	const [ error, setError ] = useState( '' );
 	const [ replaceTrack, setReplaceTrack ] = useState( false );
 	const [ track, setTrack ] = useState< UploadTrackDataProps >( {
 		kind: DEFAULT_KIND,
@@ -75,6 +77,18 @@ export default function TrackForm( {
 		setIsSavingTrack( true );
 		onSave( track );
 	}, [ track ] );
+
+	const setSourceLanguage = useCallback( ( newSrcLang: string ) => {
+		updateTrack( 'srcLang', newSrcLang );
+
+		if ( newSrcLang?.length > 5 ) {
+			return setError(
+				__( 'Language must be five characters or less.', 'jetpack-videopress-pkg' )
+			);
+		}
+
+		setError( '' );
+	}, [] );
 
 	if ( ! mediaUpload ) {
 		return null;
@@ -136,7 +150,7 @@ export default function TrackForm( {
 						className="video-tracks-control__track-form-language-tag"
 						label={ __( 'Source language', 'jetpack-videopress-pkg' ) }
 						value={ track.srcLang }
-						onChange={ newSrcLang => updateTrack( 'srcLang', newSrcLang ) }
+						onChange={ setSourceLanguage }
 						help={ __( 'Language (en, fr, etc.)', 'jetpack-videopress-pkg' ) }
 						disabled={ isSavingTrack }
 					/>
@@ -151,12 +165,19 @@ export default function TrackForm( {
 					onChange={ newKind => updateTrack( 'kind', newKind ) }
 					disabled={ isSavingTrack }
 				/>
+
+				{ error && (
+					<Notice status="error" isDismissible={ false }>
+						{ error }
+					</Notice>
+				) }
+
 				<div
 					className={ `video-tracks-control__track-form-buttons-container ${
 						trackExists ? ' track-exists' : ''
 					}` }
 				>
-					{ trackExists && (
+					{ ! error?.length && trackExists && (
 						<ToggleControl
 							className="video-tracks-control__track-form-toggle"
 							label={ __( 'Track exists. Replace?', 'jetpack-videopress-pkg' ) }
@@ -167,7 +188,9 @@ export default function TrackForm( {
 					<Button
 						isBusy={ isSavingTrack }
 						variant="secondary"
-						disabled={ ! track.tmpFile || isSavingTrack || ( trackExists && ! replaceTrack ) }
+						disabled={
+							! track.tmpFile || isSavingTrack || ( trackExists && ! replaceTrack ) || !! error
+						}
 						onClick={ onSaveHandler }
 					>
 						{ __( 'Save', 'jetpack-videopress-pkg' ) }
