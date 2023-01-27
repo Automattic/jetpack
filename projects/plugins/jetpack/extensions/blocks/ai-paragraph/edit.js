@@ -70,7 +70,7 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 	);
 };
 
-function ShowContent( { html, showAnimation, setAttributes } ) {
+function ShowContent( { html, showAnimation, onAnimationDone, onContentChange } ) {
 	const DELAY = 50;
 	const [ content, setContent ] = useState( '' );
 
@@ -87,7 +87,7 @@ function ShowContent( { html, showAnimation, setAttributes } ) {
 				}
 				setTimeout( () => {
 					setContent( html );
-					setAttributes( { animationDone: true } );
+					onAnimationDone();
 				}, DELAY * tokens.length );
 			} else {
 				setContent( html );
@@ -99,12 +99,7 @@ function ShowContent( { html, showAnimation, setAttributes } ) {
 
 	return (
 		<div className="content">
-			<RichText
-				tagName="p"
-				value={ content }
-				identifier="content"
-				onChange={ value => setAttributes( { content: value } ) }
-			/>
+			<RichText tagName="p" value={ content } identifier="content" onChange={ onContentChange } />
 		</div>
 	);
 }
@@ -297,8 +292,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			{ contentIsLoaded && (
 				<ShowContent
 					html={ attributes.content }
-					setAttributes={ setAttributes }
 					showAnimation={ ! attributes.animationDone }
+					onContentChange={ value => setAttributes( { content: value } ) }
+					onAnimationDone={ () => setAttributes( { animationDone: true } ) }
 				/>
 			) }
 
