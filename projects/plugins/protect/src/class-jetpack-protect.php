@@ -33,6 +33,23 @@ use Automattic\Jetpack\Waf\Waf_Stats;
  */
 class Jetpack_Protect {
 
+	/**
+	 * Licenses product ID.
+	 *
+	 * @var string
+	 */
+	const JETPACK_SCAN_PRODUCT_IDS          = array(
+		2014, // JETPACK_COMPLETE.
+		2015, // JETPACK_COMPLETE_MONTHLY.
+		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
+		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
+		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
+		2020, // JETPACK_SECURITY_TIER_2_MONTHLY.
+		2106, // JETPACK_SCAN.
+		2107, // JETPACK_SCAN_MONTHLY.
+		2108, // JETPACK_SCAN_REALTIME.
+		2109, // JETPACK_SCAN_REALTIME_MONTHLY.
+	);
 	const JETPACK_WAF_MODULE_SLUG           = 'waf';
 	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
 
@@ -43,10 +60,6 @@ class Jetpack_Protect {
 		add_action( 'init', array( $this, 'init' ) );
 		add_action( '_admin_menu', array( $this, 'admin_page_init' ) );
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['redirectUserPostConnection'] ) ) {
-					add_action( 'admin_init', array( $this, 'redirect_user_conditionally' ) );
-		}
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 
@@ -95,6 +108,8 @@ class Jetpack_Protect {
 			},
 			1
 		);
+
+		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 2 );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
@@ -310,6 +325,27 @@ class Jetpack_Protect {
 	}
 
 	/**
+	 * Check for user licenses.
+	 *
+	 * @param  boolean $has_license Check if user has a license.
+	 * @param  object  $licenses List of licenses.
+	 *
+	 * @return boolean
+	 */
+	public static function jetpack_check_user_licenses( $has_license, $licenses ) {
+		if ( $has_license ) {
+			return true;
+		}
+		foreach ( $licenses as $license ) {
+			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Get WAF "Seen" Status
 	 *
 	 * @return bool Whether the current user has viewed the WAF screen.
@@ -325,17 +361,6 @@ class Jetpack_Protect {
 	 */
 	public static function set_waf_seen_status() {
 		return (bool) update_user_meta( get_current_user_id(), 'jetpack_protect_waf_seen', true );
-	}
-
-	/**
-	 * Handles conditionally redirecting users post connection when the redirectUserPostConnection query arg if found
-	 *
-	 * @return bool False if the redirect is cancelled, true otherwise
-	 */
-	public static function redirect_user_conditionally() {
-		$has_required_plan = Plan::has_required_plan();
-
-		return $has_required_plan ? wp_safe_redirect( 'admin.php?page=jetpack-protect' ) : wp_safe_redirect( 'admin.php?page=my-jetpack#/add-license' );
 	}
 
 	/**

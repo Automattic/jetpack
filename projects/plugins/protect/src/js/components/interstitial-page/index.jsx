@@ -8,7 +8,6 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
@@ -31,7 +30,7 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 		registrationError,
 		userIsConnecting,
 	} = useConnection( {
-		redirectUri: addQueryArgs( adminUrl, { redirectUserPostConnection: true } ),
+		redirectUri: adminUrl,
 	} );
 
 	// Track view for Protect WAF page.
