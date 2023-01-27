@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-source "$GITHUB_WORKSPACE/monorepo/.github/files/gh-funcs.sh"
+source "$GITHUB_WORKSPACE/trunk/.github/files/gh-funcs.sh"
 
 ZIPDIR="$GITHUB_WORKSPACE/zips"
 EXIT=0

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2] - 2023-01-26
+### Changed
+- Minor internal updates.
+
 ## [0.4.1] - 2023-01-17
 ### Fixed
 - Use `wp_get_global_styles()` and fallback to `gutenberg_get_global_styles()` since the latter was removed from Gutenberg. [#28411]
@@ -62,6 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Adds a provider for Google Fonts using the new Webfonts API in Gutenberg
 
+[0.4.2]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.3.6...v0.4.0
 [0.3.6]: https://github.com/Automattic/jetpack-google-fonts-provider/compare/v0.3.5...v0.3.6
