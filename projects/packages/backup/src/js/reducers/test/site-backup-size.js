@@ -12,16 +12,25 @@ describe( 'reducer', () => {
 			isFetching: false,
 			loaded: false,
 			size: null,
+			minDaysOfBackupsAllowed: null,
+			daysOfBackupsAllowed: null,
+			daysOfBackupsSaved: null,
 		},
 		fetchingState: {
 			isFetching: true,
 			loaded: false,
 			size: null,
+			minDaysOfBackupsAllowed: null,
+			daysOfBackupsAllowed: null,
+			daysOfBackupsSaved: null,
 		},
 		failedState: {
 			isFetching: false,
 			loaded: true,
 			size: null,
+			minDaysOfBackupsAllowed: null,
+			daysOfBackupsAllowed: null,
+			daysOfBackupsSaved: null,
 		},
 	};
 
@@ -43,12 +52,18 @@ describe( 'reducer', () => {
 					type: SITE_BACKUP_SIZE_GET_SUCCESS,
 					payload: {
 						size: 10737418240,
+						minDaysOfBackupsAllowed: 7,
+						daysOfBackupsAllowed: 30,
+						daysOfBackupsSaved: 24,
 					},
 				},
 				expected: {
 					isFetching: false,
 					loaded: true,
 					size: 10737418240,
+					minDaysOfBackupsAllowed: 7,
+					daysOfBackupsAllowed: 30,
+					daysOfBackupsSaved: 24,
 				},
 			},
 			{

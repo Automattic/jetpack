@@ -101,4 +101,35 @@ describe( 'siteBackupPoliciesSelectors', () => {
 			}
 		);
 	} );
+
+	describe( 'getActivityLogLimitDays()', () => {
+		it.each( [
+			{
+				state: fixtures.emptyObject,
+				expected: null,
+			},
+			{
+				state: fixtures.initialState,
+				expected: null,
+			},
+			{
+				state: fixtures.fetchingState,
+				expected: null,
+			},
+			{
+				state: fixtures.failedState,
+				expected: null,
+			},
+			{
+				state: fixtures.successState,
+				expected: 30,
+			},
+		] )(
+			'should return activityLogLimitDays value if passed, null otherwise',
+			( { state, expected } ) => {
+				const output = selectors.getActivityLogLimitDays( state );
+				expect( output ).toBe( expected );
+			}
+		);
+	} );
 } );
