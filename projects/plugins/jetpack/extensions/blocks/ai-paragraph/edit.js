@@ -154,8 +154,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	};
 
 	const getSuggestionFromOpenAI = () => {
-		console.log( 'triggered', triggered );
-		if ( !! content || isLoadingCompletion || triggered) {
+		if ( !! content || isLoadingCompletion || triggered ) {
 			return;
 		}
 
@@ -253,12 +252,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
-	const updateInnerBlocks = useCallback( content => {
-		const paragraph = innerBlocks[ 0 ];
-		if ( paragraph && content ) {
-			updateBlockAttributes( paragraph.clientId, { source: content } );
-		}
-	}, [ innerBlocks ] );
+	const updateInnerBlocks = useCallback(
+		source => {
+			const paragraph = innerBlocks[ 0 ];
+			if ( paragraph && source ) {
+				updateBlockAttributes( paragraph.clientId, { source } );
+			}
+		},
+		[ innerBlocks ] // eslint-disable-line react-hooks/exhaustive-deps
+	);
 
 	// This is to animate text input. This will give an idea of a "better" AI.
 	// At this point this is an established pattern.
@@ -280,7 +282,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setTimeout( () => {
 			updateInnerBlocks( content );
 		}, 50 * tokens.length );
-	}, [ triggered ] );
+	}, [ triggered ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Fix the inner blocks (they can only be of this type).
 	const TEMPLATE = [ [ 'jetpack/markdown', {} ] ];
@@ -295,9 +297,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...blockProps }>
-			<InnerBlocks
-				template={ TEMPLATE }
-				templateLock="all"/>
+			<InnerBlocks template={ TEMPLATE } templateLock="all" />
 
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
