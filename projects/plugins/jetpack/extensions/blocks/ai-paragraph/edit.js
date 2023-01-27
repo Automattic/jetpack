@@ -42,7 +42,6 @@ export const createPrompt = (
 			postTitle
 		);
 	} else {
-		/** translators: This will be the beginning of a prompt that will be sent to OpenAI when there is no post title. */
 		prompt = __( 'This is a post', 'jetpack' );
 	}
 
