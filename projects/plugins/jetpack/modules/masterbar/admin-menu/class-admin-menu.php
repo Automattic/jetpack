@@ -379,7 +379,7 @@ class Admin_Menu extends Base_Admin_Menu {
 			/**
 			 * Filter to enable the modernized Reading Settings in Calypso UI.
 			 *
-			 * @since $$next-version$$
+			 * @since 11.8
 			 * @module masterbar
 			 *
 			 * @param bool false Should the modernized Reading Settings be enabled? Default to false.

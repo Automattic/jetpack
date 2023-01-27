@@ -124,9 +124,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	let loading = false;
-	const categories = useSelect( select =>
-		select( 'core/editor' ).getEditedPostAttribute( 'categories' )
-	);
+	const categories =
+		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ) ) || [];
 
 	const categoryObjects = useSelect(
 		select => {
@@ -147,7 +146,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		[ categories ]
 	);
 
-	const tags = useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] );
+	const tags =
+		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] ) || [];
 
 	const tagObjects = useSelect(
 		select => {
