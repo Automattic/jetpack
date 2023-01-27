@@ -8,7 +8,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
@@ -24,14 +24,16 @@ import styles from './styles.module.scss';
  */
 const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const {
-		siteIsRegistering,
-		handleRegisterSite,
-		registrationError,
-		userIsConnecting,
-	} = useConnection( {
+	const { handleRegisterSite, registrationError, userIsConnecting } = useConnection( {
 		redirectUri: adminUrl,
 	} );
+
+	const [ isRegistering, setIsRegistering ] = useState( false );
+
+	const getStarted = useCallback( () => {
+		setIsRegistering( true );
+		handleRegisterSite().then( () => setIsRegistering( false ) );
+	}, [ handleRegisterSite ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
@@ -50,8 +52,8 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 							className={ styles[ 'get-started-button' ] }
 							variant={ 'link' }
 							weight={ 'regular' }
-							onClick={ handleRegisterSite }
-							isLoading={ siteIsRegistering || userIsConnecting }
+							onClick={ getStarted }
+							isLoading={ isRegistering || userIsConnecting }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
