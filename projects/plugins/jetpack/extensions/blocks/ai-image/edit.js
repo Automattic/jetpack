@@ -45,10 +45,6 @@ function getImagesFromOpenAI(
 	} )
 		.then( res => {
 			setLoadingImages( false );
-			if ( res.error && res.error.message ) {
-				setErrorMessage( res.error.message );
-				return;
-			}
 			const images = res.data.map( image => {
 				return 'data:image/png;base64,' + image.b64_json;
 			} );
