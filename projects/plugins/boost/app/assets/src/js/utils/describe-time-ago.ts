@@ -1,3 +1,4 @@
+import { readable } from 'svelte/store';
 import { _n, __, sprintf } from '@wordpress/i18n';
 
 const second = 1000;
@@ -55,3 +56,14 @@ export default function describeTimeAgo( timeAgo: Date ): string {
 		timeAgo.toLocaleDateString( navigator.language, options )
 	);
 }
+
+export const getTimeAgoStore = ( time: Date ) =>
+	readable( describeTimeAgo( time ), set => {
+		// Update label every 10 seconds.
+		const interval = setInterval( () => {
+			set( describeTimeAgo( time ) );
+		}, 10000 );
+
+		// Clear interval on store cleanup.
+		return () => clearInterval( interval );
+	} );

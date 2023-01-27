@@ -63,7 +63,7 @@
 
 	<div slot="actionButton">
 		{#if $criticalCssStatus.retried_show_stopper}
-			<a class="button button-secondary" href={supportLink} target="_blank">
+			<a class="button button-secondary" href={supportLink} target="_blank" rel="noreferrer">
 				{__( 'Contact Support', 'jetpack-boost' )}
 			</a>
 		{:else}

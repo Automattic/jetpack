@@ -2,7 +2,9 @@
 	line-height: 1.5rem;
 	color: $primary-black;
 
-	a, h5, a.action {
+	a,
+	h5,
+	a.action {
 		color: inherit;
 	}
 
@@ -34,7 +36,9 @@
 		}
 	}
 
-	p.suggestion, p.suggestion-closing, p.raw-error {
+	p.suggestion,
+	p.suggestion-closing,
+	p.raw-error {
 		color: $primary-black;
 		margin-top: 8px;
 		margin-bottom: 24px;
@@ -85,7 +89,7 @@
 	flex-direction: row;
 	align-items: flex-start;
 
-	@include breakpoint(xs) {
+	@include breakpoint( xs ) {
 		display: block;
 	}
 
@@ -94,13 +98,13 @@
 		flex-grow: 1;
 		position: relative;
 
-		.successes, .generating {
+		.successes,
+		.generating {
 			color: $gray_40;
 		}
 
 		.failures {
 			color: $gray_100;
-			max-width: 25em;
 
 			svg {
 				position: absolute;
@@ -114,6 +118,7 @@
 	button {
 		font-size: 14px;
 		color: $gray_90;
+		white-space: nowrap;
 
 		&.components-button.is-link {
 			margin-left: 8px;
@@ -122,7 +127,7 @@
 				color: $gray_90;
 			}
 
-			@include breakpoint(xs) {
+			@include breakpoint( xs ) {
 				margin-left: 0;
 			}
 		}
