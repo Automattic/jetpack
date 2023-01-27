@@ -66,7 +66,7 @@ class Waf_Constants {
 	 */
 	public static function define_mode() {
 		if ( ! defined( 'JETPACK_WAF_MODE' ) ) {
-			$mode_option = get_option( Waf_Runner::MODE_OPTION_NAME );
+			$mode_option = get_option( Waf_Manager::MODE_OPTION_NAME );
 			define( 'JETPACK_WAF_MODE', $mode_option );
 		}
 	}
@@ -78,7 +78,7 @@ class Waf_Constants {
 	 */
 	public static function define_share_data() {
 		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
-			$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+			$share_data_option = get_option( Waf_Manager::SHARE_DATA_OPTION_NAME, false );
 			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
 	}

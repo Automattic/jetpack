@@ -41,14 +41,14 @@ class Waf_Rules_Manager {
 	 */
 	public static function add_hooks() {
 		// Re-activate the WAF any time an option is added or updated.
-		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Manager::class, 'activate' ), 10, 0 );
 		// Register the cron job.
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
 	}
@@ -163,10 +163,10 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		Waf_Manager::initialize_filesystem();
 
 		$rules                = "<?php\n";
-		$entrypoint_file_path = Waf_Runner::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
+		$entrypoint_file_path = Waf_Manager::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
 
 		// Ensure that the folder exists
 		if ( ! $wp_filesystem->is_dir( dirname( $entrypoint_file_path ) ) ) {
@@ -176,7 +176,7 @@ class Waf_Rules_Manager {
 		// Ensure all potentially required rule files exist
 		$rule_files = array( self::RULES_ENTRYPOINT_FILE, self::AUTOMATIC_RULES_FILE, self::IP_ALLOW_RULES_FILE, self::IP_BLOCK_RULES_FILE );
 		foreach ( $rule_files as $rule_file ) {
-			$rule_file = Waf_Runner::get_waf_file_path( $rule_file );
+			$rule_file = Waf_Manager::get_waf_file_path( $rule_file );
 			if ( ! $wp_filesystem->is_file( $rule_file ) ) {
 				if ( ! $wp_filesystem->put_contents( $rule_file, "<?php\n" ) ) {
 					throw new \Exception( 'Failed writing rules file to: ' . $rule_file );
@@ -186,13 +186,13 @@ class Waf_Rules_Manager {
 
 		// Add manual rules
 		if ( get_option( self::IP_LISTS_ENABLED_OPTION_NAME ) ) {
-			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
-			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
+			$rules .= self::wrap_require( Waf_Manager::get_waf_file_path( self::IP_ALLOW_RULES_FILE ) ) . "\n";
+			$rules .= self::wrap_require( Waf_Manager::get_waf_file_path( self::IP_BLOCK_RULES_FILE ), "return \$waf->block( 'block', -1, 'ip block list' );" ) . "\n";
 		}
 
 		// Add automatic rules
 		if ( get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) ) {
-			$rules .= self::wrap_require( Waf_Runner::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) ) . "\n";
+			$rules .= self::wrap_require( Waf_Manager::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) ) . "\n";
 		}
 
 		// Update the rules file
@@ -215,9 +215,9 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		Waf_Manager::initialize_filesystem();
 
-		$automatic_rules_file_path = Waf_Runner::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
+		$automatic_rules_file_path = Waf_Manager::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
 
 		// Ensure that the folder exists.
 		if ( ! $wp_filesystem->is_dir( dirname( $automatic_rules_file_path ) ) ) {
@@ -282,10 +282,10 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		Waf_Manager::initialize_filesystem();
 
-		$allow_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE );
-		$block_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE );
+		$allow_ip_file_path = Waf_Manager::get_waf_file_path( self::IP_ALLOW_RULES_FILE );
+		$block_ip_file_path = Waf_Manager::get_waf_file_path( self::IP_BLOCK_RULES_FILE );
 
 		// Ensure that the folders exists.
 		if ( ! $wp_filesystem->is_dir( dirname( $allow_ip_file_path ) ) ) {
@@ -317,5 +317,42 @@ class Waf_Rules_Manager {
 		if ( ! $wp_filesystem->put_contents( $block_ip_file_path, "<?php\n$block_rules_content" ) ) {
 			throw new \Exception( 'Failed writing block list file to: ' . $block_ip_file_path );
 		}
+	}
+
+	/**
+	 * Check if an automatic rules file is available
+	 *
+	 * @return bool False if an automatic rules file is not available, true otherwise
+	 */
+	public static function automatic_rules_available() {
+		$automatic_rules_last_updated = get_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+		// If we do not have a automatic rules last updated timestamp cached, return false.
+		if ( ! $automatic_rules_last_updated ) {
+			return false;
+		}
+
+		// Validate that the automatic rules file exists and is not empty.
+		global $wp_filesystem;
+		Waf_Manager::initialize_filesystem();
+		$automatic_rules_file_contents = $wp_filesystem->get_contents( Waf_Manager::get_waf_file_path( self::AUTOMATIC_RULES_FILE ) );
+
+		// If the automatic rules file was removed or is now empty, return false.
+		if ( ! $automatic_rules_file_contents || "<?php\n" === $automatic_rules_file_contents ) {
+
+			// Delete the automatic rules last updated option.
+			delete_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME );
+
+			$automatic_rules_enabled = get_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+
+			// If automatic rules setting is enabled, disable it.
+			if ( $automatic_rules_enabled ) {
+				update_option( self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
+			}
+
+			return false;
+		}
+
+		return true;
 	}
 }

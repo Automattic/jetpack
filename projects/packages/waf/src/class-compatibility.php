@@ -56,7 +56,7 @@ class Waf_Compatibility {
 	 * @return bool The default value for automatic rules.
 	 */
 	public static function get_default_automatic_rules_option() {
-		return Waf_Runner::is_enabled();
+		return Waf_Manager::is_enabled();
 	}
 
 	/**

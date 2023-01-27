@@ -50,9 +50,9 @@ class Waf_Initializer {
 	 * On module activation set up waf mode
 	 */
 	public static function on_activation() {
-		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
+		update_option( Waf_Manager::MODE_OPTION_NAME, 'normal' );
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
-		Waf_Runner::activate();
+		Waf_Manager::activate();
 		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
@@ -60,7 +60,7 @@ class Waf_Initializer {
 	 * On module deactivation, unset waf mode
 	 */
 	public static function on_deactivation() {
-		Waf_Runner::deactivate();
+		Waf_Manager::deactivate();
 	}
 
 	/**

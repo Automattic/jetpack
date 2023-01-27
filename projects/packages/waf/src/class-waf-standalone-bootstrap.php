@@ -133,8 +133,8 @@ class Waf_Standalone_Bootstrap {
 		}
 
 		$bootstrap_file    = $this->get_bootstrap_file_path();
-		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
-		$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
+		$mode_option       = get_option( Waf_Manager::MODE_OPTION_NAME, false );
+		$share_data_option = get_option( Waf_Manager::SHARE_DATA_OPTION_NAME, false );
 
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions
 		$code = "<?php\n"

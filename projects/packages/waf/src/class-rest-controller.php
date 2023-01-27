@@ -77,7 +77,7 @@ class REST_Controller {
 	 * WAF Endpoint
 	 */
 	public static function waf() {
-		return rest_ensure_response( Waf_Runner::get_config() );
+		return rest_ensure_response( Waf_Manager::get_config() );
 	}
 
 	/**
@@ -108,11 +108,11 @@ class REST_Controller {
 		}
 
 		// Share Data
-		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
-			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+		if ( isset( $request[ Waf_Manager::SHARE_DATA_OPTION_NAME ] ) ) {
+			update_option( Waf_Manager::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Manager::SHARE_DATA_OPTION_NAME ] );
 		}
 
-		Waf_Runner::update_waf();
+		Waf_Manager::update_waf();
 
 		return self::waf();
 	}

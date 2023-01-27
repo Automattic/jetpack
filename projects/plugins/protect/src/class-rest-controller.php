@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack\Protect;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Waf\Waf_Runner;
+use Automattic\Jetpack\Waf\Waf_Manager;
 use Jetpack_Protect;
 use WP_REST_Response;
 
@@ -344,12 +344,12 @@ class REST_Controller {
 	 * @return WP_REST_Response
 	 */
 	public static function api_toggle_waf() {
-		if ( Waf_Runner::is_enabled() ) {
-			Waf_Runner::disable();
+		if ( Waf_Manager::is_enabled() ) {
+			Waf_Manager::disable();
 			return rest_ensure_response( true, 200 );
 		}
 
-		Waf_Runner::enable();
+		Waf_Manager::enable();
 		return rest_ensure_response( true, 200 );
 	}
 
@@ -365,8 +365,8 @@ class REST_Controller {
 		return new WP_REST_Response(
 			array(
 				'is_seen'    => Jetpack_Protect::get_waf_seen_status(),
-				'is_enabled' => Waf_Runner::is_enabled(),
-				'config'     => Waf_Runner::get_config(),
+				'is_enabled' => Waf_Manager::is_enabled(),
+				'config'     => Waf_Manager::get_config(),
 				'stats'      => Jetpack_Protect::get_waf_stats(),
 			)
 		);

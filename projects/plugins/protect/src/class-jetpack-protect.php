@@ -25,6 +25,7 @@ use Automattic\Jetpack\Protect\Status;
 use Automattic\Jetpack\Status as Jetpack_Status;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Waf\Waf_Manager;
 use Automattic\Jetpack\Waf\Waf_Runner;
 use Automattic\Jetpack\Waf\Waf_Stats;
 
@@ -198,10 +199,10 @@ class Jetpack_Protect {
 				'isSeen'              => self::get_waf_seen_status(),
 				'upgradeIsSeen'       => self::get_waf_upgrade_seen_status(),
 				'displayUpgradeBadge' => self::get_waf_upgrade_badge_display_status(),
-				'isEnabled'           => Waf_Runner::is_enabled(),
+				'isEnabled'           => Waf_Manager::is_enabled(),
 				'isToggling'          => false,
 				'isUpdating'          => false,
-				'config'              => Waf_Runner::get_config(),
+				'config'              => Waf_Manager::get_config(),
 				'stats'               => self::get_waf_stats(),
 			),
 		);
@@ -386,7 +387,7 @@ class Jetpack_Protect {
 	 * @return bool|array False if WAF is not enabled, otherwise an array of stats.
 	 */
 	public static function get_waf_stats() {
-		if ( ! Waf_Runner::is_enabled() ) {
+		if ( ! Waf_Manager::is_enabled() ) {
 			return false;
 		}
 
