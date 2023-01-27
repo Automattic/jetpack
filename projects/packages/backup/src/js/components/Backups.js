@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getProductCheckoutUrl, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { getDate, dateI18n } from '@wordpress/date';
@@ -10,6 +10,7 @@ import useBackupsState from '../hooks/useBackupsState.js';
 import { STORE_ID } from '../store';
 import StatBlock from './StatBlock';
 import './backups-style.scss';
+import { StorageUsageLevels } from './backup-storage-space/storage-usage-levels';
 import BackupAnim1 from './icons/backup-animation-1.svg';
 import BackupAnim2 from './icons/backup-animation-2.svg';
 import BackupAnim3 from './icons/backup-animation-3.svg';
@@ -99,6 +100,13 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 		tracks.recordEvent( 'jetpack_backup_view_recent_restore_points_click', { site: domain } );
 	}, [ tracks, domain ] );
 
+	const storageUsageLevel = useSelect( select => select( STORE_ID ).getStorageUsageLevel() );
+	const backupsStopped = storageUsageLevel === StorageUsageLevels.Full;
+
+	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
+	const siteSlug = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteData().adminUrl );
+
 	return (
 		<div className="jp-row">
 			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
@@ -110,8 +118,12 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					/>
 					<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
 				</div>
-				<h1>{ formatDateString( latestTime ) }</h1>
-				{ stats.warnings && (
+				<h1>
+					{ backupsStopped
+						? __( 'Backups stopped', 'jetpack-backup-pkg' )
+						: formatDateString( latestTime ) }
+				</h1>
+				{ stats.warnings && ! backupsStopped && (
 					<div className="backup__warning-text">
 						{ createInterpolateElement(
 							__(
@@ -131,6 +143,7 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 					</div>
 				) }
 				{ ! stats.warnings &&
+					! backupsStopped &&
 					createInterpolateElement(
 						__(
 							'<Button>See backups in the cloud</Button><br/><ExternalLink>Or view your most recent restore point</ExternalLink>',
@@ -154,6 +167,39 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 									onClick={ trackRecentRestorePointClick }
 								/>
 							),
+						}
+					) }
+				{ ! stats.warnings &&
+					backupsStopped &&
+					createInterpolateElement(
+						__(
+							'<Button>Upgrade your storage</Button><br/><a>Or view your most recent backup</a>',
+							'jetpack-backup-pkg'
+						),
+						{
+							Button: (
+								<a
+									className="button"
+									href={ getProductCheckoutUrl(
+										addonSlug,
+										siteSlug,
+										`${ adminUrl }admin.php?page=jetpack-backup`,
+										true
+									) }
+									target="_blank"
+									rel="noreferrer"
+								/>
+							),
+							a: (
+								<a
+									className="backup__restore-point-link"
+									href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
+									onClick={ trackSeeBackupsCtaClick }
+									target="_blank"
+									rel="noreferrer"
+								/>
+							),
+							br: <br />,
 						}
 					) }
 			</div>
