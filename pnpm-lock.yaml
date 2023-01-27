@@ -960,26 +960,89 @@ importers:
 
   projects/packages/forms:
     specifiers:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/remove-asset-webpack-plugin': workspace:*
+      '@babel/core': 7.20.7
+      '@babel/plugin-transform-react-jsx': 7.20.7
+      '@babel/plugin-transform-runtime': 7.19.6
+      '@babel/preset-env': 7.20.2
+      '@babel/runtime': 7.20.7
+      '@wordpress/api-fetch': 6.19.0
+      '@wordpress/block-editor': 10.5.0
+      '@wordpress/blocks': 11.21.0
+      '@wordpress/components': 22.1.0
+      '@wordpress/compose': 5.20.0
+      '@wordpress/data': 7.6.0
+      '@wordpress/element': 4.20.0
+      '@wordpress/hooks': 3.22.0
+      '@wordpress/i18n': 4.22.0
       autoprefixer: 10.4.12
+      classnames: 2.3.1
+      email-validator: 2.0.4
+      glob: 7.1.6
+      gridicons: 3.4.1
+      jquery: 3.6.0
+      lodash: 4.17.21
       postcss: 8.4.21
       postcss-loader: 6.2.0
+      react: 17.0.2
+      react-dom: 17.0.2
+      react-redux: 7.2.8
+      react-router-dom: 5.3.4
+      redux: 4.0.5
+      redux-thunk: 2.3.0
       sass: 1.38.1
       sass-loader: 12.4.0
+      semver: 7.3.5
+      typescript: 4.8.2
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@wordpress/block-editor': 10.5.0_jc4nol2pc3xxtec3jthlyk5a5a
+      '@wordpress/blocks': 11.21.0_react@17.0.2
+      '@wordpress/compose': 5.20.0_react@17.0.2
+      '@wordpress/data': 7.6.0_react@17.0.2
+      '@wordpress/element': 4.20.0
+      '@wordpress/hooks': 3.22.0
+      '@wordpress/i18n': 4.22.0
+      classnames: 2.3.1
+      email-validator: 2.0.4
+      gridicons: 3.4.1_react@17.0.2
+      react-redux: 7.2.8_sfoxds7t5ydpegc3knd667wn6m
+      react-router-dom: 5.3.4_react@17.0.2
+      redux: 4.0.5
+      redux-thunk: 2.3.0_redux@4.0.5
+      sass: 1.38.1
+      semver: 7.3.5
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
+    optionalDependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     devDependencies:
+      '@automattic/color-studio': 2.5.0
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@automattic/remove-asset-webpack-plugin': link:../../js-packages/remove-asset-webpack-plugin
+      '@babel/core': 7.20.7
+      '@babel/plugin-transform-react-jsx': 7.20.7_@babel+core@7.20.7
+      '@babel/plugin-transform-runtime': 7.19.6_@babel+core@7.20.7
+      '@babel/preset-env': 7.20.2_@babel+core@7.20.7
+      '@babel/runtime': 7.20.7
+      '@wordpress/api-fetch': 6.19.0
+      '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
       autoprefixer: 10.4.12_postcss@8.4.21
+      glob: 7.1.6
+      jquery: 3.6.0
+      lodash: 4.17.21
       postcss: 8.4.21
       postcss-loader: 6.2.0_4y4aznponuaovazqx4t4g76j4i
-      sass: 1.38.1
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
+      typescript: 4.8.2
 
   projects/packages/google-fonts-provider:
     specifiers: {}
@@ -8412,7 +8475,7 @@ packages:
       '@types/hoist-non-react-statics': 3.3.1
       '@types/react': 17.0.52
       hoist-non-react-statics: 3.3.2
-      redux: 4.1.1
+      redux: 4.2.0
     dev: false
 
   /@types/react-test-renderer/17.0.2:
@@ -9569,7 +9632,7 @@ packages:
       '@wordpress/url': 3.23.0
       '@wordpress/viewport': 4.20.0_shv7e6lqreyu6ryu5t57plxoua
       '@wordpress/warning': 2.22.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       lodash: 4.17.21
       memize: 1.1.0
       react: 17.0.2
@@ -9853,7 +9916,7 @@ packages:
       '@wordpress/plugins': 4.20.0_react@17.0.2
       '@wordpress/preferences': 2.14.0_xctxof7wwey6l2wvww5ck72pke
       '@wordpress/viewport': 4.20.0_shv7e6lqreyu6ryu5t57plxoua
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
@@ -10217,7 +10280,7 @@ packages:
       '@wordpress/i18n': 4.23.0
       '@wordpress/icons': 9.13.0
       '@wordpress/notices': 3.22.0_react@17.0.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     transitivePeerDependencies:
@@ -15166,7 +15229,7 @@ packages:
       array-union: 2.1.0
       dir-glob: 3.0.1
       fast-glob: 3.2.12
-      glob: 7.1.6
+      glob: 7.2.3
       ignore: 5.2.4
       merge2: 1.4.1
       slash: 3.0.0
@@ -20059,7 +20122,7 @@ packages:
       '@types/react-redux': 7.1.25
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
-      prop-types: 15.7.2
+      prop-types: 15.8.1
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       react-is: 17.0.2
