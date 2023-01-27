@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Extracted generic logic from Waf_Runner into a new Waf_Manager class. No functional changes.
+
+
