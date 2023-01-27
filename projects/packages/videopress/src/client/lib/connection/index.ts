@@ -25,13 +25,11 @@ export function isUserConnected(): boolean {
 		return true;
 	}
 
-	const isConnected = initialState?.connectionStatus?.isUserConnected;
-	if ( isConnected ) {
+	if ( initialState?.connectionStatus?.isUserConnected ) {
 		debug( 'Jetpack user is connected ✅' );
 		return true;
 	}
 
 	debug( 'User is not connected ❌' );
-
 	return false;
 }
