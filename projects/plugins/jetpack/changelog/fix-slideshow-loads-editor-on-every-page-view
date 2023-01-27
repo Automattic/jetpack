@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix slideshow loading excess dependencies on every page view
