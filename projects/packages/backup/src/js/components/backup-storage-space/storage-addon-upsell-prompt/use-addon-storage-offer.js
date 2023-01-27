@@ -1,15 +1,15 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { STORE_ID } from '../../../store';
 
 const useAddonStorageOffer = () => {
-	const [ addonSlug, setAddonSlug ] = useState( null );
+	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
 	const [ addonSizeText, setAddonSizeText ] = useState( null );
 	const [ addonPricing, setAddonPricing ] = useState( null );
 	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
 	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
-
+	const dispatch = useDispatch( STORE_ID );
 	const [ addOnLoaded, setAddonLoaded ] = useState( false );
 
 	const fetchAddOnOffer = () =>
@@ -18,7 +18,7 @@ const useAddonStorageOffer = () => {
 		} ).then(
 			res => {
 				if ( res.slug && res.pricing && res.size_text ) {
-					setAddonSlug( res.slug );
+					dispatch.setAddonStorageOfferSlug( res.slug );
 					setAddonSizeText( res.size_text );
 					setAddonPricing( res.pricing );
 					setAddonLoaded( true );
