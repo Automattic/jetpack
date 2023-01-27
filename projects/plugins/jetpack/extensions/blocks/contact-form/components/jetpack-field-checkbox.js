@@ -78,7 +78,7 @@ function JetpackFieldCheckbox( props ) {
 						{
 							value: attributes.labelColor,
 							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label text', 'jetpack' ),
+							label: __( 'Label Text', 'jetpack' ),
 						},
 					] }
 				></PanelColorSettings>

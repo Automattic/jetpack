@@ -7,6 +7,7 @@ import {
 	PanelColorSettings,
 } from '@wordpress/block-editor';
 import {
+	BaseControl,
 	PanelBody,
 	TextControl,
 	ToggleControl,
@@ -45,12 +46,12 @@ const JetpackFieldControls = ( {
 		{
 			value: attributes.labelColor,
 			onChange: value => setAttributes( { labelColor: value } ),
-			label: __( 'Label text', 'jetpack' ),
+			label: __( 'Label Text', 'jetpack' ),
 		},
 		{
 			value: attributes.inputColor,
 			onChange: value => setAttributes( { inputColor: value } ),
-			label: __( 'Field text', 'jetpack' ),
+			label: __( 'Field Text', 'jetpack' ),
 		},
 		{
 			value: attributes.fieldBackgroundColor,
@@ -114,21 +115,24 @@ const JetpackFieldControls = ( {
 				/>
 				<PanelBody title={ __( 'Input Field Styles', 'jetpack' ) } initialOpen={ false }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-					<FontSizePicker
-						withReset={ true }
-						size="__unstable-large"
-						__nextHasNoMarginBottom
-						onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
-						value={ attributes.fieldFontSize }
-					/>
-					<LineHeightControl
-						__nextHasNoMarginBottom={ true }
-						__unstableInputWidth="100%"
-						value={ attributes.lineHeight }
-						onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
-						size="__unstable-large"
-					/>
-
+					<BaseControl>
+						<FontSizePicker
+							withReset={ true }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
+							onChange={ fieldFontSize => setAttributes( { fieldFontSize } ) }
+							value={ attributes.fieldFontSize }
+						/>
+					</BaseControl>
+					<BaseControl>
+						<LineHeightControl
+							__nextHasNoMarginBottom={ true }
+							__unstableInputWidth="100%"
+							value={ attributes.lineHeight }
+							onChange={ setNumberAttribute( 'lineHeight', parseFloat ) }
+							size="__unstable-large"
+						/>
+					</BaseControl>
 					{ hasBorderControls && (
 						<>
 							<RangeControl
@@ -151,20 +155,24 @@ const JetpackFieldControls = ( {
 					) }
 				</PanelBody>
 				<PanelBody title={ __( 'Label Styles', 'jetpack' ) } initialOpen={ false }>
-					<FontSizePicker
-						withReset={ true }
-						size="__unstable-large"
-						__nextHasNoMarginBottom
-						onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
-						value={ attributes.labelFontSize }
-					/>
-					<LineHeightControl
-						__unstableInputWidth="100%"
-						__nextHasNoMarginBottom={ true }
-						value={ attributes.labelLineHeight }
-						onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
-						size="__unstable-large"
-					/>
+					<BaseControl>
+						<FontSizePicker
+							withReset={ true }
+							size="__unstable-large"
+							__nextHasNoMarginBottom
+							onChange={ labelFontSize => setAttributes( { labelFontSize } ) }
+							value={ attributes.labelFontSize }
+						/>
+					</BaseControl>
+					<BaseControl>
+						<LineHeightControl
+							__unstableInputWidth="100%"
+							__nextHasNoMarginBottom={ true }
+							value={ attributes.labelLineHeight }
+							onChange={ setNumberAttribute( 'labelLineHeight', parseFloat ) }
+							size="__unstable-large"
+						/>
+					</BaseControl>
 				</PanelBody>
 			</InspectorControls>
 
