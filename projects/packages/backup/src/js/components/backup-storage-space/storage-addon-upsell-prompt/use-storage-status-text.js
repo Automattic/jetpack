@@ -19,7 +19,7 @@ const useStorageStatusText = ( usageLevel, daysOfBackupsSaved, minDaysOfBackupsA
 				return sprintf(
 					/* translators: %s is a number greather than 0 that means a number of days. */
 					__(
-						'You have reached your storage limit with %s days of backups saved. Backups have been stopped. Please upgrade your storage to resume backups.',
+						'You have reached your storage limit with %s day(s) of backups saved. Backups have been stopped. Please upgrade your storage to resume backups.',
 						'jetpack-backup-pkg'
 					),
 					daysOfBackupsSaved

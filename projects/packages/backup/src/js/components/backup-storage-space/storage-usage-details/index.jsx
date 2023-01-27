@@ -11,17 +11,20 @@ const StorageUsageDetails = ( { storageUsed, storageLimit } ) => {
 	const usageText = useStorageUsageText( storageUsed, storageLimit );
 	const daysOfBackupsSaved = useSelect( select => select( STORE_ID ).getDaysOfBackupsSaved() );
 
+	const singularDaysOfBackupLabel = __( '<a>1 day of backups saved</a>', 'jetpack-backup-pkg' );
+	const pluralDaysOfBackupLabel = sprintf(
+		/* translators: %s: Number of days of backups saved. */
+		__( '<a>%s days of backups saved</a>', 'jetpack-backup-pkg' ),
+		daysOfBackupsSaved
+	);
+
 	return (
 		<>
 			<div className="backup-storage-space__meta">
 				<div className="backup-storage-space__usage-text">{ usageText }</div>
 				<div className="backup-storage-space__retention">
 					{ createInterpolateElement(
-						sprintf(
-							/* translators: %s: Number of days of backups saved. */
-							__( '<a>%s days of backups saved</a>', 'jetpack-backup-pkg' ),
-							daysOfBackupsSaved
-						),
+						daysOfBackupsSaved === 1 ? singularDaysOfBackupLabel : pluralDaysOfBackupLabel,
 						{
 							a: (
 								<a
