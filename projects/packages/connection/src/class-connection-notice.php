@@ -20,14 +20,15 @@ class Connection_Notice {
 	 *
 	 * @var bool
 	 */
-	private $is_initialized = false;
+	private static $is_initialized = false;
 
 	/**
 	 * The constructor.
 	 */
 	public function __construct() {
-		if ( ! $this->is_initialized ) {
+		if ( ! static::$is_initialized ) {
 			add_action( 'current_screen', array( $this, 'initialize_notices' ) );
+			static::$is_initialized = true;
 		}
 	}
 
