@@ -6,6 +6,8 @@ import debugFactory from 'debug';
 // Get connection initial state from the global window object.
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
 
+const { siteType = '' } = window?.videoPressEditorState || {};
+
 const debug = debugFactory( 'videopress:connection' );
 
 /**
@@ -18,9 +20,6 @@ const debug = debugFactory( 'videopress:connection' );
  * @returns {boolean} True if the user is connected, false otherwise.
  */
 export function isUserConnected(): boolean {
-	// Get site type.
-	const { siteType = '' } = window?.videoPressEditorState || {};
-
 	if ( siteType === 'simple' ) {
 		debug( 'Simple site connected ✅' );
 		return true;
