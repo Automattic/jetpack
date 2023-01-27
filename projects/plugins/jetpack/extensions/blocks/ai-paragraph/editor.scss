@@ -16,3 +16,11 @@
 .wp-block-ai-generate-suggestion .components-button.is-primary {
 	margin: 10px;
 }
+
+/* Hide the inner blocks until the AI paragraph is triggered */
+.wp-block-jetpack-ai-paragraph:not(.triggered) .block-editor-inner-blocks {
+	display: none;
+}
+.triggered .block-editor-inner-blocks {
+	display: block;
+}
