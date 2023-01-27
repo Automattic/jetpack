@@ -1,7 +1,14 @@
+@import '@automattic/jetpack-base-styles/style';
+
 .backup-storage-space__meta {
 	display: flex;
 	justify-content: space-between;
-	
+
+	@include for-phone-down {
+		flex-direction: column;
+		gap: 4px;
+	}
+
 	div, a {
 		color: var(--jp-gray-80);
 		font-weight: 400;
