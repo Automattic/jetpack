@@ -10,13 +10,11 @@ import {
 	PricingTableItem,
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import React /*, { useCallback }*/ from 'react';
+import React from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
-import { STORE_ID } from '../../state/store';
 
 /**
  * Product Detail component.
@@ -30,15 +28,6 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
-
-	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
-
-	// const onClickHandler = useCallback( () => {
-	// 	return handleRegisterSite().then( () => {
-	// 		refreshPlan();
-	// 		refreshStatus( true );
-	// 	} );
-	// }, [ handleRegisterSite, refreshPlan, refreshStatus ] );
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
@@ -59,11 +48,7 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 		onScanAdd
 	);
 	const getProtectFree = recordEventHandler( 'jetpack_protect_connected_product_activated', () =>
-		handleRegisterSite().then( () => {
-			refreshWaf();
-			refreshPlan();
-			refreshStatus( true );
-		} )
+		handleRegisterSite().then( refreshWaf )
 	);
 
 	const args = {
