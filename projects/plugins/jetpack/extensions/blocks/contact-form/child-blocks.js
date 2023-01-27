@@ -50,6 +50,38 @@ const FieldDefaults = {
 			type: 'number',
 			default: 100,
 		},
+		borderRadius: {
+			type: 'number',
+			default: '',
+		},
+		borderWidth: {
+			type: 'number',
+			default: '',
+		},
+		labelFontSize: {
+			type: 'string',
+		},
+		fieldFontSize: {
+			type: 'string',
+		},
+		lineHeight: {
+			type: 'number',
+		},
+		labelLineHeight: {
+			type: 'number',
+		},
+		inputColor: {
+			type: 'string',
+		},
+		labelColor: {
+			type: 'string',
+		},
+		fieldBackgroundColor: {
+			type: 'string',
+		},
+		borderColor: {
+			type: 'string',
+		},
 	},
 	transforms: {
 		to: [
@@ -134,9 +166,9 @@ const editField = type => props => {
 
 	return (
 		<JetpackField
+			clientId={ props.clientId }
 			type={ type }
 			label={ getFieldLabel( props ) }
-			clientId={ props.clientId }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			setAttributes={ props.setAttributes }
@@ -145,6 +177,7 @@ const editField = type => props => {
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -154,8 +187,8 @@ const editMultiField = type => props => {
 
 	return (
 		<JetpackFieldMultiple
-			label={ getFieldLabel( props ) }
 			clientId={ props.clientId }
+			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
 			options={ props.attributes.options }
@@ -164,6 +197,7 @@ const editMultiField = type => props => {
 			isSelected={ props.isSelected }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -177,6 +211,7 @@ const EditTextarea = props => {
 			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
+			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
@@ -200,6 +235,7 @@ const EditCheckbox = props => {
 			defaultValue={ props.attributes.defaultValue }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -217,6 +253,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 			implicitConsentMessage={ implicitConsentMessage }
 			explicitConsentMessage={ explicitConsentMessage }
 			setAttributes={ setAttributes }
+			attributes={ attributes }
 		/>
 	);
 };

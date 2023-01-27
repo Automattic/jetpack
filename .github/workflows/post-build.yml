@@ -208,11 +208,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: monorepo
+          path: trunk
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.workflow_run.head_commit.id }}
+          path: commit
 
       - name: Get token
         id: get_token
-        uses: ./monorepo/.github/actions/gh-app-token
+        uses: ./trunk/.github/actions/gh-app-token
         env:
           # Work around a weird node 16/openssl 3 issue in the docker env
           OPENSSL_CONF: '/dev/null'
@@ -221,7 +225,7 @@ jobs:
           private_key: ${{ secrets.JP_LAUNCH_CONTROL_KEY }}
 
       - name: Notify check in progress
-        uses: ./monorepo/.github/actions/check-run
+        uses: ./trunk/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           status: in_progress
@@ -255,19 +259,19 @@ jobs:
           tar --xz -xvvf build.tar.xz
 
       - name: Setup WordPress
-        run: monorepo/.github/files/test-plugin-update/setup.sh
+        run: trunk/.github/files/test-plugin-update/setup.sh
 
       - name: Prepare plugin zips
         id: zips
-        run: monorepo/.github/files/test-plugin-update/prepare-zips.sh
+        run: trunk/.github/files/test-plugin-update/prepare-zips.sh
 
       - name: Test upgrades
         id: tests
-        run: monorepo/.github/files/test-plugin-update/test.sh
+        run: trunk/.github/files/test-plugin-update/test.sh
 
       - name: Notify final status
         if: always()
-        uses: ./monorepo/.github/actions/check-run
+        uses: ./trunk/.github/actions/check-run
         with:
           id: ${{ needs.setup.outputs.upgrade_check }}
           conclusion: ${{ job.status }}

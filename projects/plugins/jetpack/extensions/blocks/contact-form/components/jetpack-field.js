@@ -5,9 +5,11 @@ import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackField( props ) {
 	const {
+		attributes,
 		clientId,
 		id,
 		isSelected,
@@ -18,6 +20,8 @@ export default function JetpackField( props ) {
 		placeholder,
 		width,
 	} = props;
+
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 	const formStyle = useFormStyle( clientId );
 
 	const classes = classnames( 'jetpack-field', {
@@ -27,8 +31,9 @@ export default function JetpackField( props ) {
 
 	return (
 		<>
-			<div className={ classes }>
+			<div className={ classes } style={ blockStyle }>
 				<JetpackFieldLabel
+					attributes={ attributes }
 					label={ label }
 					required={ required }
 					requiredText={ requiredText }
@@ -36,10 +41,11 @@ export default function JetpackField( props ) {
 					style={ formStyle }
 				/>
 				<input
-					type="text"
 					className="jetpack-field__input"
-					value={ placeholder }
 					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
+					style={ fieldStyle }
+					type="text"
+					value={ placeholder }
 				/>
 			</div>
 
@@ -49,6 +55,7 @@ export default function JetpackField( props ) {
 				width={ width }
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
+				attributes={ attributes }
 			/>
 		</>
 	);

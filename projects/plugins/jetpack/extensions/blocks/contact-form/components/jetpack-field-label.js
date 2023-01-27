@@ -4,8 +4,10 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isNil } from 'lodash';
 import { FORM_STYLE } from '../util/form';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 const FieldLabel = ( {
+	attributes,
 	className,
 	label,
 	labelFieldName,
@@ -15,8 +17,10 @@ const FieldLabel = ( {
 	requiredText,
 	setAttributes,
 } ) => {
+	const { labelStyle } = useJetpackFieldStyles( attributes );
+
 	return (
-		<div className={ classnames( className, 'jetpack-field-label' ) }>
+		<div className={ classnames( className, 'jetpack-field-label' ) } style={ labelStyle }>
 			<RichText
 				tagName="label"
 				value={ label }

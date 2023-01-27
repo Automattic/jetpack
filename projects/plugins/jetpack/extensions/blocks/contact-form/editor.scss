@@ -506,6 +506,9 @@
 
 	&__toggle {
 		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -544,6 +547,9 @@
 
 	&__popover {
 		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -766,4 +772,8 @@
 
 .contact-form-styles-loaded .wp-block[data-type="jetpack/contact-form"] {
 	filter: blur(0px);
+}
+
+.block-editor-block-inspector .components-base-control .components-base-control:last-child {
+	margin-bottom: 0;
 }

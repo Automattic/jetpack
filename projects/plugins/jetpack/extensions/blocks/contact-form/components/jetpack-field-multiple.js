@@ -7,6 +7,7 @@ import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldMultiple( props ) {
 	const {
@@ -21,6 +22,7 @@ function JetpackFieldMultiple( props ) {
 		isSelected,
 		width,
 		options,
+		attributes,
 	} = props;
 	const formStyle = useFormStyle( clientId );
 
@@ -64,9 +66,15 @@ function JetpackFieldMultiple( props ) {
 		setAttributes( { options: newOptions } );
 	};
 
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+
 	return (
 		<>
-			<div id={ `jetpack-field-multiple-${ instanceId }` } className={ classes }>
+			<div
+				id={ `jetpack-field-multiple-${ instanceId }` }
+				className={ classes }
+				style={ blockStyle }
+			>
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
@@ -74,6 +82,7 @@ function JetpackFieldMultiple( props ) {
 					setAttributes={ setAttributes }
 					isSelected={ isSelected }
 					resetFocus={ () => setInFocus( null ) }
+					attributes={ attributes }
 					style={ formStyle }
 				/>
 				<ol
@@ -90,6 +99,7 @@ function JetpackFieldMultiple( props ) {
 							onAddOption={ addNewOption }
 							isInFocus={ index === inFocus && isSelected }
 							isSelected={ isSelected }
+							style={ type !== 'select' ? fieldStyle : {} }
 						/>
 					) ) }
 				</ol>
@@ -108,7 +118,9 @@ function JetpackFieldMultiple( props ) {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
+				attributes={ attributes }
 				setAttributes={ setAttributes }
+				type={ type }
 				width={ width }
 			/>
 		</>
