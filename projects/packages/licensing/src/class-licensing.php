@@ -283,4 +283,32 @@ class Licensing {
 
 		return $default;
 	}
+
+	/**
+	 * Load current user's licenses.
+	 *
+	 * @param bool $unattached_only Only return unattached licenses.
+	 *
+	 * @return array
+	 */
+	public function get_user_licenses( $unattached_only = false ) {
+		$licenses = Endpoints::get_user_licenses();
+
+		if ( empty( $licenses->items ) ) {
+			return array();
+		}
+
+		$items = $licenses->items;
+
+		if ( $unattached_only ) {
+			$items = array_filter(
+				$items,
+				static function ( $item ) {
+					return $item->attached_at === null;
+				}
+			);
+		}
+
+		return $items;
+	}
 }

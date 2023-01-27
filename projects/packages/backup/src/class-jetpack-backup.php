@@ -54,6 +54,24 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PROMOTED_PRODUCT = 'jetpack_backup_t1_yearly';
 
 	/**
+	 * Licenses product ID.
+	 *
+	 * @var string
+	 */
+	const JETPACK_BACKUP_PRODUCT_IDS = array(
+		2014, // JETPACK_COMPLETE.
+		2015, // JETPACK_COMPLETE_MONTHLY.
+		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
+		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
+		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
+		2020, // JETPACK_SECURITY_TIER_2_MONTHLY.
+		2112, // JETPACK_BACKUP_TIER_1_YEARLY.
+		2113, // JETPACK_BACKUP_TIER_1_MONTHLY.
+		2114, // JETPACK_BACKUP_TIER_2_YEARLY.
+		2115, // JETPACK_BACKUP_TIER_2_MONTHLY.
+	);
+
+	/**
 	 * Jetpack Backup DB version.
 	 *
 	 * @var string
@@ -107,6 +125,8 @@ class Jetpack_Backup {
 		);
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
+
+		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 2 );
 
 		/**
 		 * Runs right after the Jetpack Backup package is initialized.
@@ -479,6 +499,26 @@ class Jetpack_Backup {
 		}
 	}
 
+	/**
+	 * Check for user licenses.
+	 *
+	 * @param  boolean $has_license Check if user has a license.
+	 * @param  object  $licenses List of licenses.
+	 *
+	 * @return boolean
+	 */
+	public static function jetpack_check_user_licenses( $has_license, $licenses ) {
+		if ( $has_license ) {
+			return true;
+		}
+		foreach ( $licenses as $license ) {
+			if ( in_array( $license->product_id, self::JETPACK_BACKUP_PRODUCT_IDS, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 	/**
 	 * Returns the result of `/sites/%d/purchases` endpoint call.
 	 *
