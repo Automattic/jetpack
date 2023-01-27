@@ -73,6 +73,16 @@ const FirewallSubheadingPopover = ( { children } ) => {
 	);
 };
 
+const BruteForceProtectionText = () => (
+	<Text className={ styles[ 'brute-force-protection-subheading' ] } weight={ 600 }>
+		{ __( 'Brute force protection is active.', 'jetpack-protect' ) }
+	</Text>
+);
+
+const NoRulesText = () => (
+	<Text weight={ 600 }>{ __( 'There are no firewall rules applied.', 'jetpack-protect' ) }</Text>
+);
+
 const AutomaticRulesText = ( { popover = false } ) => {
 	return (
 		<div className={ styles[ 'rules-subheading' ] }>
@@ -108,7 +118,7 @@ const ManualRulesText = ( { popover = false } ) => {
 const AllRulesText = ( { popover = false } ) => {
 	return (
 		<div className={ styles[ 'rules-subheading' ] }>
-			<Text weight={ 600 }>{ __( 'All rules apply.', 'jetpack-protect' ) }</Text>
+			<Text weight={ 600 }>{ __( 'All firewall rules apply.', 'jetpack-protect' ) }</Text>
 			{ popover && (
 				<FirewallSubheadingPopover
 					children={ __(
@@ -128,48 +138,21 @@ const FirewallSubheading = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 } ) => {
-	const noRulesText = (
-		<Text weight={ 600 }>{ __( 'There are no firewall rules applied.', 'jetpack-protect' ) }</Text>
-	);
-
-	const bruteForceProtectionText = (
-		<Text className={ styles[ 'brute-force-protection-subheading' ] } weight={ 600 }>
-			{ __( 'Brute force protection is active.', 'jetpack-protect' ) }
-		</Text>
-	);
+	const allRules = jetpackWafAutomaticRules && jetpackWafIpList;
+	const automaticRules = jetpackWafAutomaticRules && ! jetpackWafIpList;
+	const manualRules = ! jetpackWafAutomaticRules && jetpackWafIpList;
+	const noRules = ! jetpackWafAutomaticRules && ! jetpackWafIpList;
 
 	return (
 		<>
 			<div className={ styles[ 'firewall-subheading' ] }>
-				{ bruteForceProtectionIsEnabled && bruteForceProtectionText }
-				{ hasRequiredPlan ? (
-					<>
-						{ jetpackWafAutomaticRules && jetpackWafIpList && <AllRulesText /> }
-						{ jetpackWafAutomaticRules && ! jetpackWafIpList && <AutomaticRulesText /> }
-						{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
-						{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
-					</>
-				) : (
-					<>
-						{ automaticRulesAvailable ? (
-							<>
-								{ jetpackWafAutomaticRules && jetpackWafIpList && (
-									<AllRulesText popover={ true } />
-								) }
-								{ jetpackWafAutomaticRules && ! jetpackWafIpList && (
-									<AutomaticRulesText popover={ true } />
-								) }
-								{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
-								{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
-							</>
-						) : (
-							<>
-								{ jetpackWafIpList && <ManualRulesText popover={ true } /> }
-								{ ! jetpackWafIpList && noRulesText }
-							</>
-						) }
-					</>
+				{ bruteForceProtectionIsEnabled && <BruteForceProtectionText /> }
+				{ noRules && <NoRulesText /> }
+				{ manualRules && (
+					<ManualRulesText popover={ ! hasRequiredPlan && ! automaticRulesAvailable } />
 				) }
+				{ automaticRules && <AutomaticRulesText popover={ ! hasRequiredPlan } /> }
+				{ allRules && <AllRulesText popover={ ! hasRequiredPlan } /> }
 			</div>
 			{ ! hasRequiredPlan && <UpgradePrompt /> }
 		</>
