@@ -73,7 +73,7 @@ export const settings = {
 	edit,
 	save: attrs => {
 		const blockProps = useBlockProps.save();
-		return <RichText.Content { ...blockProps } value={ attrs.attributes.content } />;
+		return <p {...blockProps}><RichText.Content value={ attrs.attributes.content } /></p>;
 	},
 	attributes,
 	transforms: {
