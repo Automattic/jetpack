@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 
 // Internal Dependencies
+// import VideoPressPlayer from '../../../block-editor/blocks/video/components/videopress-player';
 import './style.css';
 
 const REGEX = /^(?:https?:\/\/)?((?:video|video\.word)press\.com\/(?:v|embed)\/)?(?<guid>[a-zA-Z\d]{7,})(?:.*)?/;
@@ -27,7 +28,12 @@ class VideoPress extends Component {
 		const url = 'https://videopress.com/embed/' + guid + '?hd=0&autoPlay=0&permalink=0&loop=0';
 		const iframeTitle = `VideoPress video ${ guid }`;
 
-		return <iframe title={ iframeTitle } src={ url }></iframe>;
+		return (
+			<div className="vidi-videopress-wrapper">
+				<iframe title={ iframeTitle } src={ url } width="100%" height="100%"></iframe>
+				<script src="https://en.wordpress.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js?m=1658739239"></script>
+			</div>
+		);
 	}
 }
 

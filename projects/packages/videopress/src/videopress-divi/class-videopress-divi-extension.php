@@ -55,7 +55,6 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	public function __construct( $name = 'videopress-divi', $args = array() ) {
 		$this->plugin_dir     = plugin_dir_path( __FILE__ );
 		$this->plugin_dir_url = plugin_dir_url( $this->plugin_dir );
-		/* print_r( $this ); die; */
 
 		parent::__construct( $name, $args );
 	}
@@ -75,12 +74,13 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	 * @override
 	 */
 	public function hook_et_builder_ready() {
-		/* echo 'hook_et_builder_modules_loaded'; die; */
 		require_once plugin_dir_path( __FILE__ ) . 'class-videopress-divi-module.php';
 	}
 
 	/**
 	 * Performs initialization tasks.
+	 *
+	 * @Override
 	 */
 	protected function _initialize() {
 		DiviExtensions::add( $this );
@@ -107,11 +107,20 @@ class VideoPress_Divi_Extension extends DiviExtension {
 			__FILE__,
 			array(
 				'in_footer'  => true,
+				'css_path'   => '../../build/divi-editor/index.css',
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
 
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_DIVI_PKG_NAMESPACE );
+	}
+
+	/**
+	 * Enqueue frontend stuff.
+	 *
+	 * @override
+	 */
+	public function wp_hook_enqueue_scripts() {
 	}
 }
 

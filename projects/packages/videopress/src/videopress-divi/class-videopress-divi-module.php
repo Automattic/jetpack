@@ -76,16 +76,34 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	 * @return string
 	 */
 	public function render( $attrs, $content = null, $render_slug = null ) {
+		$regex   = '/^(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/([a-zA-Z\d]{8,})(.+)?/i';
+		$matches = array();
+		if ( ! preg_match( $regex, $this->props['guid'], $matches ) ) {
+			return '';
+		}
+
+		if ( ! isset( $matches[1] ) ) {
+			return '';
+		}
+		$guid         = $matches[1];
 		$iframe_title = sprintf(
 			/* translators: %s: Video title. */
 			esc_html__( 'Video player for %s', 'jetpack-videopress-pkg' ),
-			esc_html( $this->props['guid'] )
+			esc_html( $guid )
 		);
 		$iframe_src = sprintf(
 			'https://videopress.com/embed/%s?hd=0&autoPlay=0&permalink=0&loop=0',
-			esc_attr( $this->props['guid'] )
+			esc_attr( $guid )
 		);
-		return sprintf( '<iframe title="%1$s" src="%2$s"></iframe>', esc_attr( $iframe_title ), esc_attr( $iframe_src ) );
+
+		$format_string = '<div class="vidi-videopress-wrapper"><iframe title="' .
+			esc_attr( $iframe_title ) .
+			'" src="' .
+			$iframe_src .
+			'" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>' .
+			'<script src="https://en.wordpress.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js?m=1658739239"></script></div>'; // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+
+		return $format_string;
 	}
 }
 
