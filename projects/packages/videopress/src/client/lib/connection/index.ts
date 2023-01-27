@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+
 // Get connection initial state from the global window object.
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
+
+const debug = debugFactory( 'videopress:connection' );
 
 /**
  * Return the initial connection status.
@@ -15,8 +22,17 @@ export function isUserConnected(): boolean {
 	const { siteType = '' } = window?.videoPressEditorState || {};
 
 	if ( siteType === 'simple' ) {
+		debug( 'Simple site connected ✅' );
 		return true;
 	}
 
-	return initialState?.connectionStatus?.isUserConnected;
+	const isConnected = initialState?.connectionStatus?.isUserConnected;
+	if ( isConnected ) {
+		debug( 'Jetpack user is connected ✅' );
+		return true;
+	}
+
+	debug( 'User is not connected ❌' );
+
+	return false;
 }
