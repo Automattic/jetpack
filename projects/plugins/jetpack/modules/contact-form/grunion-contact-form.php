@@ -4042,6 +4042,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @var string
 	 */
+	public $block_styles = '';
+
+	/**
+	 * Styles to be applied to the field
+	 *
+	 * @var string
+	 */
 	public $field_styles = '';
 
 	/**
@@ -4266,39 +4273,32 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
 		if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;'
-				: 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+			$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
+			$this->field_styles .= 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
 		}
 		if ( is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;'
-				: 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+			$this->block_styles .= '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;';
+			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
 		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';'
-				: 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->block_styles .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';'
-				: 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';'
-				: 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->block_styles .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';'
-				: 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->field_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';'
-				: 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->block_styles .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
 		}
 
 		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
@@ -4308,9 +4308,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
 		}
 		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
-			$this->label_styles .= $this->get_attribute( 'type' ) === 'select'
-				? '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'labellineheight' ) ) . ';'
-				: 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
+			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
 		}
 
 		if ( ! empty( $field_width ) ) {
@@ -4575,17 +4573,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
 
-		$field_style = 'style="';
-		if ( $this->get_attribute( 'fieldbackgroundcolor' ) ) {
-			$field_style .= 'border-width: ' . $this->get_attribute( 'borderwidth' ) . '; background-color: ' . $this->get_attribute( 'fieldbackgroundcolor' );
-		}
-		$field_style .= '"';
+		$field_style = 'style="' . $this->field_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
-				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<span {$field_style}>";
+				$field .= "\t\t<label {$field_style} class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input
 									type='radio'
 									name='" . esc_attr( $id ) . "'
@@ -4594,7 +4587,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-				$field .= esc_html( $option ) . "</span></label>\n";
+				$field .= esc_html( $option ) . "</label>\n";
 			}
 		}
 		$field .= '</div>';
@@ -4661,18 +4654,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
 
-		$field_style = 'style="';
-		if ( $this->get_attribute( 'fieldbackgroundcolor' ) ) {
-			$field_style .= 'background-color: ' . $this->get_attribute( 'fieldbackgroundcolor' );
-		}
-		$field_style .= '"';
+		$field_style = 'style="' . $this->field_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
-				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-				$field .= "<span {$field_style}><input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
-				$field .= esc_html( $option ) . "</span></label>\n";
+				$field .= "\t\t<label {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
+				$field .= esc_html( $option ) . "</label>\n";
 			}
 		}
 		$field .= '</div>';
@@ -4694,7 +4683,6 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	public function render_select_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( 'select', $id, $label, $required, $required_field_text );
-		$field .= '<div style="' . $this->field_styles . '">';
 		$field .= "\t<select name='" . esc_attr( $id ) . "' id='" . esc_attr( $id ) . "' " . $class . ( $required ? "required aria-required='true'" : '' ) . ">\n";
 
 		if ( $this->get_attribute( 'togglelabel' ) ) {
@@ -4711,7 +4699,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 								. "</option>\n";
 			}
 		}
-		$field .= "\t</select></div>\n";
+		$field .= "\t</select>\n";
 
 		wp_enqueue_style(
 			'jquery-ui-selectmenu',
@@ -4816,6 +4804,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 					<label
 						for="' . esc_attr( $id ) . '"
 						class="notched-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+						style="' . $this->label_styles . '"
 					>'
 						. esc_html( $label )
 						. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
@@ -4840,6 +4829,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			<label
 				for="' . esc_attr( $id ) . '"
 				class="animated-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+				style="' . $this->label_styles . '"
 			>'
 				. esc_html( $label )
 				. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
@@ -4923,8 +4913,8 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
 		$block_style = 'style="';
-		if ( $type === 'select' ) {
-			$block_style .= $this->field_styles;
+		if ( $type === 'select' || in_array( $form_style, array( 'outlined', 'animated' ), true ) ) {
+			$block_style .= $this->block_styles;
 		}
 		$block_style .= '"';
 

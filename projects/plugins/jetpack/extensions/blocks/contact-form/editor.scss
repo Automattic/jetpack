@@ -300,6 +300,9 @@
 
 	.jetpack-field__textarea {
 		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
 	}
 
 	.components-base-control__field {
@@ -607,6 +610,9 @@
 			.notched-label__leading {
 				width: calc(var(--jetpack--contact-form--input-padding-left, 16px) - 4px);
 				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 				border-right: none;
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border-top-right-radius: unset;
@@ -616,6 +622,9 @@
 			.notched-label__notch {
 				border-radius: unset;
 				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 				border-left: none;
 				border-right: none;
 				padding: 0 4px;
@@ -638,6 +647,9 @@
 			.notched-label__trailing {
 				flex-grow: 1;
 				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 				border-left: none;
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border-top-left-radius: unset;
@@ -680,6 +692,9 @@
 				background-color: var(--jetpack--contact-form--input-background);
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 				padding: var(--jetpack--contact-form--input-padding, 16px);
 				padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
 				border-top: none;
@@ -697,7 +712,7 @@
 
 			.jetpack-field__input, .jetpack-field__textarea {
 				display: flex;
-				border-color: transparent;
+				border-color: transparent !important; //Need to override styles coming from the style attribute
 				outline: none;
 			}
 		}
@@ -728,6 +743,9 @@
 				padding-top: 1.7em;
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border: var(--jetpack--contact-form--border);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
 			}
 
 			.animated-label__label {
