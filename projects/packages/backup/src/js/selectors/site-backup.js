@@ -13,6 +13,7 @@ const siteBackupSelectors = {
 
 	// Storage
 	getStorageUsageLevel: state => state.siteBackupStorage.usageLevel ?? null,
+	getStorageAddonOfferSlug: state => state.siteBackupStorage.addonOfferSlug ?? null,
 };
 
 export default siteBackupSelectors;

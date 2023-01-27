@@ -10,7 +10,8 @@ import useAddonStorageOffer from './use-addon-storage-offer';
 import useStorageStatusText from './use-storage-status-text';
 
 export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
-	const { addonSlug, addonSizeText, addonPricing, addOnLoaded } = useAddonStorageOffer();
+	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
+	const { addonSizeText, addonPricing, addOnLoaded } = useAddonStorageOffer();
 	const siteSlug = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteData().adminUrl );
 	const minDaysOfBackupsAllowed = useSelect( select =>
