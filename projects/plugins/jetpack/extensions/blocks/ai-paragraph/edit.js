@@ -72,7 +72,7 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 
 function ShowContent( { html, showAnimation, setAttributes } ) {
 	const DELAY = 50;
-	const [ content, setContent ] = useState( html );
+	const [ content, setContent ] = useState( '' );
 
 	useEffect(
 		() => {
@@ -89,10 +89,12 @@ function ShowContent( { html, showAnimation, setAttributes } ) {
 					setContent( html );
 					setAttributes( { animationDone: true } );
 				}, DELAY * tokens.length );
+			} else {
+				setContent( html );
 			}
 		},
 		// eslint-disable-next-line
-		[ showAnimation ]
+		[]
 	);
 
 	return (
