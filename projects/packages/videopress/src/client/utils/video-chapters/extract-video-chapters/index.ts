@@ -1,7 +1,4 @@
-export type VideoPressChapter = {
-	startAt: string;
-	title: string;
-};
+import type { VideoPressChapter } from '../types';
 
 /**
  * Extracts chapter information from a single text line
