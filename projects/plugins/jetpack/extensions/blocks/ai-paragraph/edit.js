@@ -178,7 +178,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				const result = res.prompts[ 0 ].text.trim();
 				setContent( result );
 				setAttributes( { triggered: true } );
 				setIsLoadingCompletion( false );
@@ -256,7 +256,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const updateInnerBlocks = useCallback( content => {
 		const paragraph = innerBlocks[ 0 ];
 		if ( paragraph && content ) {
-			updateBlockAttributes( paragraph.clientId, { content } );
+			updateBlockAttributes( paragraph.clientId, { source: content } );
 		}
 	}, [ innerBlocks ] );
 
@@ -280,7 +280,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Sets the inner blocks to a single paragraph block.
 
 	console.log( 'clientId', clientId );
-	const TEMPLATE = [ [ 'core/paragraph', {} ] ];
+	const TEMPLATE = [ [ 'jetpack/markdown', {} ] ];
 
 	const classes = classNames( {
 		triggered,
