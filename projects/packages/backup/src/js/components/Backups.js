@@ -133,9 +133,8 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 						<div className="backup__latest">
 							<img src={ WarningIcon } alt="" className="warning-icon" />
 							<h2>
-								{ storageOverlimit
-									? __( 'Over storage space', 'jetpack-backup-pkg' )
-									: __( 'Out of storage space', 'jetpack-backup-pkg' ) }
+								{ storageOverlimit && __( 'Over storage space', 'jetpack-backup-pkg' ) }
+								{ ! storageOverlimit && __( 'Out of storage space', 'jetpack-backup-pkg' ) }
 							</h2>
 						</div>
 						<h1>{ __( 'Backups stopped', 'jetpack-backup-pkg' ) }</h1>
