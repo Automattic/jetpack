@@ -14,6 +14,6 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.1.1';
 
 }
