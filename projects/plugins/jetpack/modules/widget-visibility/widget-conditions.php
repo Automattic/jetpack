@@ -713,7 +713,7 @@ class Jetpack_Widget_Conditions {
 		$settings = array();
 
 		if ( ! is_array( $widget_areas ) ) {
-			return;
+			return $widget_areas;
 		}
 
 		foreach ( $widget_areas as $widget_area => $widgets ) {
