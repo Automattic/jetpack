@@ -17,9 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-
 /* ======================================================
 	MIGRATION FUNCS
    ====================================================== */
@@ -975,6 +972,8 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
  */
 function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	jpcrm_migration_load_wp_filesystem_direct();
+
 	// Skip if this is not a custom file for a contact
 	// (the only type that should exist, but we are being extra careful here).
 	if ( $meta_row->zbsm_objtype !== ZBS_TYPE_CONTACT ) {
@@ -1042,6 +1041,7 @@ function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // p
  */
 function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	jpcrm_migration_load_wp_filesystem_direct();
 
 	// Before we move the files from the array we must discover its type and
 	// update its dir_info information (contains information for several
@@ -1263,6 +1263,16 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 		   $column_name ) );
 	   return empty( $column ) ? false : $column->Type;
    }
+
+/**
+ * Loads everything needed to use the WP_Filesystem_Direct class.
+ *
+ * @return void
+ */
+function jpcrm_migration_load_wp_filesystem_direct() {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+}
 
 /* ======================================================
    / MIGRATION Helpers
