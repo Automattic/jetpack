@@ -73,6 +73,54 @@ const FirewallSubheadingPopover = ( { children } ) => {
 	);
 };
 
+const AutomaticRulesText = ( { popover = false } ) => {
+	return (
+		<div className={ styles[ 'rules-subheading' ] }>
+			<Text weight={ 600 }>{ __( 'Only automatic rules apply.', 'jetpack-protect' ) }</Text>
+			{ popover && (
+				<FirewallSubheadingPopover
+					children={ __(
+						'The free version of the firewall does not receive updates to automatic firewall rules.',
+						'jetpack-protect'
+					) }
+				/>
+			) }
+		</div>
+	);
+};
+
+const ManualRulesText = ( { popover = false } ) => {
+	return (
+		<div className={ styles[ 'rules-subheading' ] }>
+			<Text weight={ 600 }>{ __( 'Only manual rules apply.', 'jetpack-protect' ) }</Text>
+			{ popover && (
+				<FirewallSubheadingPopover
+					children={ __(
+						'The free version of the firewall only allows for use of manual rules.',
+						'jetpack-protect'
+					) }
+				/>
+			) }
+		</div>
+	);
+};
+
+const AllRulesText = ( { popover = false } ) => {
+	return (
+		<div className={ styles[ 'rules-subheading' ] }>
+			<Text weight={ 600 }>{ __( 'All rules apply.', 'jetpack-protect' ) }</Text>
+			{ popover && (
+				<FirewallSubheadingPopover
+					children={ __(
+						'The free version of the firewall does not receive updates to automatic firewall rules.',
+						'jetpack-protect'
+					) }
+				/>
+			) }
+		</div>
+	);
+};
+
 const FirewallSubheading = ( {
 	hasRequiredPlan,
 	automaticRulesAvailable,
@@ -80,51 +128,8 @@ const FirewallSubheading = ( {
 	jetpackWafAutomaticRules,
 	bruteForceProtectionIsEnabled,
 } ) => {
-	const noRulesText = <Text weight={ 600 }>{ __( 'No rules applied.', 'jetpack-protect' ) }</Text>;
-
-	const automaticRulesText = (
-		<Text weight={ 600 }>{ __( 'Only automatic rules applied.', 'jetpack-protect' ) }</Text>
-	);
-
-	const HasAutomaticRulesText = ( { popover = false } ) => {
-		return (
-			<div className={ styles[ 'automatic-rules-subheading' ] }>
-				<Text weight={ 600 }>
-					{ __(
-						'Your site is not receiving the latest updates to automatic rules.',
-						'jetpack-protect'
-					) }
-				</Text>
-				{ popover && (
-					<FirewallSubheadingPopover
-						children={ __(
-							'The free version of the firewall does not receive updates to automatic firewall rules.',
-							'jetpack-protect'
-						) }
-					/>
-				) }
-			</div>
-		);
-	};
-
-	const ManualRulesText = ( { popover = false } ) => {
-		return (
-			<div className={ styles[ 'manual-rules-subheading' ] }>
-				<Text weight={ 600 }>{ __( 'Only manual rules applied.', 'jetpack-protect' ) }</Text>
-				{ popover && (
-					<FirewallSubheadingPopover
-						children={ __(
-							'The free version of the firewall only allows for use of manual rules.',
-							'jetpack-protect'
-						) }
-					/>
-				) }
-			</div>
-		);
-	};
-
-	const allRulesText = (
-		<Text weight={ 600 }>{ __( 'All rules applied.', 'jetpack-protect' ) }</Text>
+	const noRulesText = (
+		<Text weight={ 600 }>{ __( 'There are no firewall rules applied.', 'jetpack-protect' ) }</Text>
 	);
 
 	const bruteForceProtectionText = (
@@ -139,8 +144,8 @@ const FirewallSubheading = ( {
 				{ bruteForceProtectionIsEnabled && bruteForceProtectionText }
 				{ hasRequiredPlan ? (
 					<>
-						{ jetpackWafAutomaticRules && jetpackWafIpList && allRulesText }
-						{ jetpackWafAutomaticRules && ! jetpackWafIpList && automaticRulesText }
+						{ jetpackWafAutomaticRules && jetpackWafIpList && <AllRulesText /> }
+						{ jetpackWafAutomaticRules && ! jetpackWafIpList && <AutomaticRulesText /> }
 						{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
 						{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
 					</>
@@ -148,7 +153,12 @@ const FirewallSubheading = ( {
 					<>
 						{ automaticRulesAvailable ? (
 							<>
-								{ jetpackWafAutomaticRules && <HasAutomaticRulesText popover={ true } /> }
+								{ jetpackWafAutomaticRules && jetpackWafIpList && (
+									<AllRulesText popover={ true } />
+								) }
+								{ jetpackWafAutomaticRules && ! jetpackWafIpList && (
+									<AutomaticRulesText popover={ true } />
+								) }
 								{ ! jetpackWafAutomaticRules && jetpackWafIpList && <ManualRulesText /> }
 								{ ! jetpackWafAutomaticRules && ! jetpackWafIpList && noRulesText }
 							</>
