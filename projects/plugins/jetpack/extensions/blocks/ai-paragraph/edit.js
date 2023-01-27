@@ -218,8 +218,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
-				if ( e.data?.user_message ) {
-					setErrorMessage( e.data.user_message ); // Message was already translated by the backend
+				if ( e.message ) {
+					setErrorMessage( e.message ); // Message was already translated by the backend
 				} else {
 					setErrorMessage(
 						__(
