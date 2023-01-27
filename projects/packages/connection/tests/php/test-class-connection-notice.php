@@ -161,5 +161,8 @@ class Test_Connection_Notice extends TestCase {
 		foreach ( $this->fake_users as $user_id ) {
 			wp_delete_user( $user_id );
 		}
+
+		$admin_role = get_role( 'administrator' );
+		$admin_role->remove_cap( 'jetpack_disconnect' );
 	}
 }
