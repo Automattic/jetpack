@@ -401,7 +401,7 @@ class REST_Controller {
 	public function get_wordads_earnings( $req ) {
 		return $this->request_as_blog_cached(
 			sprintf(
-				'/sites/%d/wordads/earnings',
+				'/sites/%d/wordads/earnings?%s',
 				Jetpack_Options::get_option( 'id' ),
 				http_build_query(
 					$req->get_params()
@@ -421,7 +421,7 @@ class REST_Controller {
 	public function get_wordads_stats( $req ) {
 		return $this->request_as_blog_cached(
 			sprintf(
-				'/sites/%d/wordads/stats',
+				'/sites/%d/wordads/stats?%s',
 				Jetpack_Options::get_option( 'id' ),
 				http_build_query(
 					$req->get_params()

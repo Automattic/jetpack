@@ -2570,9 +2570,9 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 				prune_super_cache( $entry, $force, $rename );
 				// If entry is a directory, AND it's not a protected one, AND we're either forcing the delete, OR the file is out of date,
 				if ( is_dir( $entry ) && ! in_array( $entry, $protected_directories ) && ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
+					$donotdelete = false;
 					// if the directory isn't empty can't delete it
 					if ( $handle = @opendir( $entry ) ) {
-						$donotdelete = false;
 						while ( ! $donotdelete && ( $file = @readdir( $handle ) ) !== false ) {
 							if ( $file == '.' || $file == '..' ) {
 								continue;
@@ -3093,6 +3093,11 @@ function wp_cache_post_edit( $post_id ) {
 
 	$post = get_post( $post_id );
 	if ( ! is_object( $post ) || 'auto-draft' === $post->post_status ) {
+		return $post_id;
+	}
+
+	// Allow plugins to reject cache clears for specific posts.
+	if ( ! apply_filters( 'wp_super_cache_clear_post_cache', true, $post ) ) {
 		return $post_id;
 	}
 

@@ -19,7 +19,7 @@
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

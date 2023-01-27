@@ -572,7 +572,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "b9e79c1ff43c6842537fe832d912b267ea5daa8b"
+                "reference": "d49bbc0fba9e8a2964264a83da308a72223dee92"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -624,6 +624,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -1348,7 +1352,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "086d92553c659877fb31988a7119b48843d518a7"
+                "reference": "6e38e0e44373497b441f60ca21806f217d70248e"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -1367,7 +1371,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 }
             },
             "autoload": {

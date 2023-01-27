@@ -572,7 +572,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "b9e79c1ff43c6842537fe832d912b267ea5daa8b"
+                "reference": "d49bbc0fba9e8a2964264a83da308a72223dee92"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -624,6 +624,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
