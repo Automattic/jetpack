@@ -4,9 +4,10 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
-import { useSelect, select, dispatch } from '@wordpress/data';
-import { useState, RawHTML, useEffect } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
@@ -66,60 +67,6 @@ export const createPrompt = (
 	return prompt.trim();
 };
 
-const updateInnerBlocks = ( clientId, content ) => {
-	// console.log( 'content changed', content );
-
-	// Check the innerBlocks
-	const aiParagraphBlock = select( 'core/block-editor' ).getBlocksByClientId( clientId );
-	const innerBlocks = aiParagraphBlock[ 0 ].innerBlocks;
-	const paragraph = innerBlocks[ 0 ];
-	// console.log( paragraph );
-
-	if ( !paragraph || !content ) {
-		return;
-	}
-
-	// Update the paragraph content
-	dispatch( 'core/block-editor' ).updateBlockAttributes( paragraph.clientId, {
-		content
-	} );
-};
-
-// This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
-	// This is the HTML to be displayed.
-	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-
-	useEffect(
-		() => {
-			// That will only happen once
-			if ( showAnimation ) {
-				// This is to animate text input. I think this will give an idea of a "better" AI.
-				// At this point this is an established pattern.
-				const tokens = html.split( ' ' );
-				for ( let i = 1; i < tokens.length; i++ ) {
-					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
-				}
-				setTimeout( () => {
-					setDisplayedRawHTML( html );
-					onAnimationDone();
-				}, 50 * tokens.length );
-			} else {
-				setDisplayedRawHTML( html );
-			}
-		},
-		// eslint-disable-next-line
-		[]
-	);
-
-	return (
-		<div className="content">
-			<RawHTML>{ displayedRawHTML }</RawHTML>
-		</div>
-	);
-}
-
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ content, setContent ] = useState( '' );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
@@ -128,6 +75,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
+	const { triggered } = attributes;
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -206,7 +154,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	};
 
 	const getSuggestionFromOpenAI = () => {
-		if ( !! content || isLoadingCompletion ) {
+		console.log( 'triggered', triggered );
+		if ( !! content || isLoadingCompletion || triggered) {
 			return;
 		}
 
@@ -253,7 +202,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
-	const contentIsLoaded = !! content;
+	const contentIsLoaded = triggered || !! content;
 
 	// We do nothing if we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
@@ -297,33 +246,55 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		showRetry,
 	] );
 
-	useEffect( ( c1 ) => {
+	const innerBlocks = useSelect( select => {
+		const aiParagraphBlock = select( 'core/block-editor' ).getBlocksByClientId( clientId );
+		return aiParagraphBlock[ 0 ].innerBlocks;
+	} );
+
+	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+
+	const updateInnerBlocks = useCallback( content => {
+		const paragraph = innerBlocks[ 0 ];
+		if ( paragraph && content ) {
+			updateBlockAttributes( paragraph.clientId, { content } );
+		}
+	}, [ innerBlocks ] );
+
+	useEffect( () => {
 		if ( ! content ) {
 			return;
 		}
-
-		console.log( 'contentIsLoaded', content );
 
 		// This is to animate text input. I think this will give an idea of a "better" AI.
 		// At this point this is an established pattern.
 		const tokens = content.split( ' ' );
 		for ( let i = 1; i < tokens.length; i++ ) {
 			const output = tokens.slice( 0, i ).join( ' ' );
-			setTimeout( () => updateInnerBlocks( clientId, output ), 50 * i );
+			setTimeout( () => updateInnerBlocks( output ), 50 * i );
 		}
 		setTimeout( () => {
-			updateInnerBlocks( clientId, content );
+			updateInnerBlocks( content );
 		}, 50 * tokens.length );
-	}, [ content ] );
+	}, [ triggered ] );
 
-	const TEMPLATE = [
-		[ 'core/paragraph', {
-			placeholder: ' ',
-		} ]
-	];
+	// Sets the inner blocks to a single paragraph block.
+
+	console.log( 'clientId', clientId );
+	const TEMPLATE = [ [ 'core/paragraph', {} ] ];
+
+	const classes = classNames( {
+		triggered,
+	} );
+	const blockProps = useBlockProps( {
+		className: classes,
+	} );
 
 	return (
-		<div { ...useBlockProps() }>
+		<div { ...blockProps }>
+			<InnerBlocks
+				template={ TEMPLATE }
+				templateLock="all"/>
+
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
@@ -333,17 +304,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					) }
 				</Placeholder>
 			) }
-
-			{/* { contentIsLoaded && (
-				<ShowLittleByLittle
-					showAnimation={ ! attributes.animationDone }
-					onAnimationDone={ () => {
-						updateInnerBlocks( clientId, attributes.content );
-						setAttributes( { animationDone: true } );
-					} }
-					html={ attributes.content }
-				/>
-			) } */}
 
 			{ ! content && isWaitingState && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
@@ -355,9 +315,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					/>
 				</div>
 			) }
-			<InnerBlocks
-				template={ TEMPLATE }
-				templateLock="all"/>
 		</div>
 	);
 }
