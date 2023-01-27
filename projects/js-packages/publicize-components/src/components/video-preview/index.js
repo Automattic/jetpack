@@ -3,7 +3,6 @@ import { useCallback, useRef, useState, useEffect } from '@wordpress/element';
 import styles from './styles.module.scss';
 
 const VideoPreview = ( { sourceUrl, mime, duration } ) => {
-	const [ isPlaying, setIsPlaying ] = useState( false );
 	const [ progress, setProgress ] = useState( 0 );
 
 	const videoRef = useRef( null );
@@ -18,30 +17,27 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 	}, [ sourceUrl ] );
 
 	/**
-	 * Resets the video to the start position, clears timers
+	 * Pause the video as the mouse leaves, clears timers
 	 */
-	const resetVideo = useCallback( () => {
+	const onMouseLeave = useCallback( () => {
 		videoRef.current.pause();
-		videoRef.current.currentTime = 0;
+		setProgress( videoRef.current.currentTime );
 		clearInterval( intervalRef.current );
 		clearTimeout( delayRef.current );
-		setProgress( 0 );
-		setIsPlaying( false );
 	}, [] );
 
 	const onMouseEnter = useCallback( () => {
 		// 500 ms delay to make UX better on hover
 		delayRef.current = setTimeout( () => {
-			if ( ! isPlaying ) {
+			if ( videoRef.current.paused ) {
 				videoRef.current.play();
-				setIsPlaying( true );
 				// Count progress each second
 				intervalRef.current = setInterval( () => {
-					setProgress( oldProgress => oldProgress + 1 );
+					setProgress( videoRef.current.currentTime );
 				}, 1000 );
 			}
 		}, 500 );
-	}, [ isPlaying ] );
+	}, [] );
 
 	const ProgressCounter = () => {
 		const remaining = duration - progress;
@@ -63,8 +59,8 @@ const VideoPreview = ( { sourceUrl, mime, duration } ) => {
 	};
 
 	return (
-		<div className={ styles.wrapper } onMouseEnter={ onMouseEnter } onMouseLeave={ resetVideo }>
-			<video ref={ videoRef } onEnded={ resetVideo } muted>
+		<div className={ styles.wrapper } onMouseEnter={ onMouseEnter } onMouseLeave={ onMouseLeave }>
+			<video ref={ videoRef } muted loop>
 				<source src={ sourceUrl } type={ mime }></source>
 			</video>
 			<ProgressCounter />
