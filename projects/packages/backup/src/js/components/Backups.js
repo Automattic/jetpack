@@ -20,6 +20,7 @@ import PluginsIcon from './icons/plugins.svg';
 import PostsIcon from './icons/posts.svg';
 import ThemesIcon from './icons/themes.svg';
 import UploadsIcon from './icons/uploads.svg';
+import WarningIcon from './icons/warning.svg';
 
 /* eslint react/react-in-jsx-scope: 0 */
 const Backups = () => {
@@ -101,6 +102,9 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 	}, [ tracks, domain ] );
 
 	const storageUsageLevel = useSelect( select => select( STORE_ID ).getStorageUsageLevel() );
+	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() ) ?? 0;
+	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() ) ?? 0;
+	const storageOverlimit = storageSize > storageLimit;
 	const backupsStopped = storageUsageLevel === StorageUsageLevels.Full;
 
 	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
@@ -110,19 +114,34 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 	return (
 		<div className="jp-row">
 			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
-				<div className="backup__latest">
-					<img
-						src={ CloudIcon }
-						alt=""
-						className={ stats.warnings ? 'backup__warning-color' : '' }
-					/>
-					<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
-				</div>
-				<h1>
-					{ backupsStopped
-						? __( 'Backups stopped', 'jetpack-backup-pkg' )
-						: formatDateString( latestTime ) }
-				</h1>
+				{ ! backupsStopped && (
+					<>
+						<div className="backup__latest">
+							<img
+								src={ CloudIcon }
+								alt=""
+								className={ stats.warnings ? 'backup__warning-color' : '' }
+							/>
+							<h2>{ __( 'Latest Backup', 'jetpack-backup-pkg' ) }</h2>
+						</div>
+						<h1>{ formatDateString( latestTime ) }</h1>
+					</>
+				) }
+
+				{ backupsStopped && (
+					<>
+						<div className="backup__latest">
+							<img src={ WarningIcon } alt="" className="warning-icon" />
+							<h2>
+								{ storageOverlimit
+									? __( 'Over storage space', 'jetpack-backup-pkg' )
+									: __( 'Out of storage space', 'jetpack-backup-pkg' ) }
+							</h2>
+						</div>
+						<h1>{ __( 'Backups stopped', 'jetpack-backup-pkg' ) }</h1>
+					</>
+				) }
+
 				{ stats.warnings && ! backupsStopped && (
 					<div className="backup__warning-text">
 						{ createInterpolateElement(
