@@ -258,6 +258,9 @@
 	flex-direction: row-reverse;
 	justify-content: space-between;
 	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--input-background);
 	color: var(--jetpack--contact-form--text-color);
@@ -305,6 +308,9 @@
 
 .contact-form .contact-form-dropdown__menu ul.ui-menu {
 	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
 	border-radius: var(--jetpack--contact-form--border-radius);
 	background-color: var(--jetpack--contact-form--input-background);
 	color: var(--jetpack--contact-form--text-color);
@@ -329,5 +335,5 @@
 	position: relative;
 	border: none;
 	color: var(--jetpack--contact-form--input-background);
-	background-color: var(--jetpack--contact-form--primary-color);
+	background-color: var(--jetpack--contact-form--text-color);
 }
