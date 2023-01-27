@@ -21,6 +21,8 @@ const SET_MODAL = 'SET_MODAL';
 const SET_NOTICE = 'SET_NOTICE';
 const CLEAR_NOTICE = 'CLEAR_NOTICE';
 const SET_HAS_REQUIRED_PLAN = 'SET_HAS_REQUIRED_PLAN';
+const ONBOARDING_STEP_COMPLETED = 'ONBOARDING_STEP_COMPLETED';
+const SET_ONBOARDING_PROGRESS = 'SET_ONBOARDING_PROGRESS';
 
 const SET_WAF_IS_SEEN = 'SET_WAF_IS_SEEN';
 const SET_WAF_UPGRADE_IS_SEEN = 'SET_WAF_UPGRADE_IS_SEEN';
@@ -395,6 +397,14 @@ const setWafStats = stats => {
 	return { type: SET_WAF_STATS, stats };
 };
 
+const onboardingStepsCompleted = stepIds => {
+	return { type: ONBOARDING_STEP_COMPLETED, stepIds };
+};
+
+const setOnboardingProgress = progress => {
+	return { type: SET_ONBOARDING_PROGRESS, progress };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -426,6 +436,8 @@ const actions = {
 	setWafIsToggling,
 	setWafConfig,
 	setWafStats,
+	onboardingStepsCompleted,
+	setOnboardingProgress,
 };
 
 export {
@@ -455,5 +467,7 @@ export {
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 	SET_WAF_STATS,
+	ONBOARDING_STEP_COMPLETED,
+	SET_ONBOARDING_PROGRESS,
 	actions as default,
 };

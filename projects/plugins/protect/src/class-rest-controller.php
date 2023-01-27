@@ -205,6 +205,30 @@ class REST_Controller {
 				},
 			)
 		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'onboarding-progress',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::api_get_onboarding_progress',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
+
+		register_rest_route(
+			'jetpack-protect/v1',
+			'onboarding-progress',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::api_complete_onboarding_step',
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -406,5 +430,36 @@ class REST_Controller {
 	 */
 	public static function api_set_waf_upgrade_seen_status() {
 		return Jetpack_Protect::set_waf_upgrade_seen_status();
+	}
+
+	/**
+	 * Gets the current user's onboarding progress for the API endpoint
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_get_onboarding_progress() {
+		$progress = Onboarding::get_current_user_progress();
+		return rest_ensure_response( $progress, 200 );
+	}
+
+	/**
+	 * Set an onboarding step as completed for the API endpoint
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public static function api_complete_onboarding_step( $request ) {
+		if ( empty( $request['step_id'] ) ) {
+			return new WP_REST_RESPONSE( 'Missing onboarding step ID.', 400 );
+		}
+
+		$completed = Onboarding::complete_step( $request['step_id'] );
+
+		if ( ! $completed ) {
+			return new WP_REST_Response( 'An error occured while attempting to complete the onboarding step', 500 );
+		}
+
+		return new WP_REST_Response( 'Onboarding step set as completed.' );
 	}
 }

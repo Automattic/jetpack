@@ -12,6 +12,7 @@ import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
+import OnboardingStep from '../onboarding-item';
 
 const ThreatsNavigation = ( { selected, onSelect } ) => {
 	const {
@@ -56,6 +57,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 			onSelect={ onSelect }
 			mode={ isSmallOrLarge ? 'dropdown' : 'list' }
 		>
+			<OnboardingStep id="your-scan-results" />
 			<NavigationItem
 				initial
 				id="all"

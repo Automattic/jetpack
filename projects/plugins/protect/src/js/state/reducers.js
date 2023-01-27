@@ -25,6 +25,7 @@ import {
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
 	SET_WAF_STATS,
+	SET_ONBOARDING_PROGRESS,
 } from './actions';
 
 const credentials = ( state = null, action ) => {
@@ -153,6 +154,14 @@ const hasRequiredPlan = ( state = false, action ) => {
 	return state;
 };
 
+const onboardingProgress = ( state = 0, action ) => {
+	switch ( action.type ) {
+		case SET_ONBOARDING_PROGRESS:
+			return action.progress;
+	}
+	return state;
+};
+
 const defaultWaf = {
 	isSupported: null,
 	isSeen: false,
@@ -199,6 +208,7 @@ const reducers = combineReducers( {
 	notice,
 	setThreatsFixing,
 	hasRequiredPlan,
+	onboardingProgress,
 	waf,
 } );
 

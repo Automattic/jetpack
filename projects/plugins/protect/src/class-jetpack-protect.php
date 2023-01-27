@@ -18,6 +18,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\My_Jetpack\Products as My_Jetpack_Products;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Protect\Onboarding;
 use Automattic\Jetpack\Protect\Plan;
 use Automattic\Jetpack\Protect\REST_Controller;
 use Automattic\Jetpack\Protect\Site_Health;
@@ -193,6 +194,7 @@ class Jetpack_Protect {
 			'siteSuffix'        => ( new Jetpack_Status() )->get_site_suffix(),
 			'jetpackScan'       => My_Jetpack_Products::get_product( 'scan' ),
 			'hasRequiredPlan'   => Plan::has_required_plan(),
+			'onboarding'        => Onboarding::get_current_user_progress(),
 			'waf'               => array(
 				'isSupported'         => Waf_Runner::is_supported_environment(),
 				'isSeen'              => self::get_waf_seen_status(),
