@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2023-01-25
+### Changed
+- Change the web application firewall to run automatic and manual rules independently. [#27726]
+
 ## [0.8.3] - 2023-01-11
 ### Fixed
 - Fixed the WAF package's PHP tests and Composer requirements [#28185]
@@ -139,6 +143,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.9.0]: https://github.com/Automattic/jetpack-waf/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/Automattic/jetpack-waf/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/Automattic/jetpack-waf/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-waf/compare/v0.8.0...v0.8.1

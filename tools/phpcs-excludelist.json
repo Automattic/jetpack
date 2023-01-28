@@ -22,7 +22,6 @@
 	"projects/packages/waf/src/class-brute-force-protection.php",
 	"projects/plugins/beta/src/class-utils.php",
 	"projects/plugins/boost/app/class-jetpack-boost.php",
-	"projects/plugins/boost/app/lib/class-storage-post-type.php",
 	"projects/plugins/boost/app/lib/class-transient.php",
 	"projects/plugins/crm/ZeroBSCRM.php",
 	"projects/plugins/crm/admin/activation/before-you-go.php",
