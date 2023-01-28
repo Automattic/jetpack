@@ -7,6 +7,8 @@ import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { pasteHandler } from '@wordpress/blocks';
+import MarkdownIt from 'markdown-it';
 import classNames from 'classnames';
 import { name as aiParagraphBlockName } from './index';
 
@@ -250,14 +252,18 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return aiParagraphBlock[ 0 ].innerBlocks;
 	} );
 
-	const { updateBlockAttributes } = useDispatch( 'core/block-editor' );
+	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 
 	const updateInnerBlocks = useCallback(
 		source => {
-			const paragraph = innerBlocks[ 0 ];
-			if ( paragraph && source ) {
-				updateBlockAttributes( paragraph.clientId, { source } );
-			}
+			const md = new MarkdownIt();
+			// Get a list of inner blocks
+			const newInnerBlocks = pasteHandler( {
+				HTML: md.render( source ),
+				mode: 'BLOCKS',
+				plainText: source,
+			} );
+			replaceInnerBlocks( clientId, newInnerBlocks );
 		},
 		[ innerBlocks ] // eslint-disable-line react-hooks/exhaustive-deps
 	);
@@ -297,7 +303,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...blockProps }>
-			<InnerBlocks template={ TEMPLATE } templateLock="all" />
+			<InnerBlocks templateLock="all" />
 
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
