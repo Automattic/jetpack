@@ -8,7 +8,6 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { pasteHandler } from '@wordpress/blocks';
-import MarkdownIt from 'markdown-it';
 import classNames from 'classnames';
 import { name as aiParagraphBlockName } from './index';
 
@@ -256,10 +255,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	const updateInnerBlocks = useCallback(
 		source => {
-			const md = new MarkdownIt();
 			// Get a list of inner blocks
 			const newInnerBlocks = pasteHandler( {
-				HTML: md.render( source ),
+				HTML: '',
 				mode: 'BLOCKS',
 				plainText: source,
 			} );
