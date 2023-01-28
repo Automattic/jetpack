@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Increased Jetpack Search filters caching from one hour to four hours
