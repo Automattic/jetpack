@@ -24,6 +24,7 @@ class Waf_Compatibility {
 	public static function add_compatibility_hooks() {
 		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
+		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::merge_brute_force_allow_list', 10, 2 );
 	}
 
 	/**
@@ -79,6 +80,47 @@ class Waf_Compatibility {
 
 		// If the option hasn't been added yet, the WAF needs to be updated.
 		return true;
+	}
+
+	/**
+	 * Migrate the brute force protection IP allow list option to the WAF option.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $waf_allow_list The current value of the WAF IP allow list option.
+	 *
+	 * @return string The merged IP allow list.
+	 */
+	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list ) {
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', array() );
+		if ( false !== $brute_force_allow_list ) {
+			$delete_option = true;
+
+			if ( ! empty( $brute_force_allow_list ) ) {
+				"$waf_allow_list\n" . explode( '\n', $brute_force_allow_list );
+				$delete_option = update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $waf_allow_list );
+			}
+
+			if ( $delete_option ) {
+				delete_option( 'jetpack_protect_whitelist' );
+			}
+		}
+
+		return $waf_allow_list;
+	}
+
+	/**
+	 * Merge the deprecated IP allow list from the brute force protection module with the existing option value.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array  $value  The current value of the option.
+	 * @param string $option The option name.
+	 *
+	 * @return array The merged IP allow list.
+	 */
+	public static function merge_brute_force_allow_list( $value, $option ) {
+		return self::migrate_brute_force_protection_ip_allow_list( $value );
 	}
 
 }
