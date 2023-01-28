@@ -5,6 +5,8 @@
  * @package automattic/jetpack-waf
  */
 
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+
 /**
  * Returns an array of IP objects that will never be blocked by the Protect module
  *
@@ -53,7 +55,7 @@ function jetpack_protect_format_whitelist() {
  * @return array A list of IP Address objects or an empty array
  */
 function jetpack_protect_get_local_whitelist() {
-	$whitelist = Jetpack_Options::get_option( 'protect_whitelist' );
+	$whitelist = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
 	if ( false === $whitelist ) {
 		// The local whitelist has never been set.
 		if ( is_multisite() ) {
@@ -64,7 +66,7 @@ function jetpack_protect_get_local_whitelist() {
 			$whitelist = array();
 		}
 	}
-	return $whitelist;
+	return Waf_Rules_Manager::ip_option_to_array( $whitelist );
 }
 
 /**
@@ -150,7 +152,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 		// Once a user has saved their global whitelist, we can permanently remove the legacy option.
 		delete_site_option( 'jetpack_protect_whitelist' );
 	} else {
-		Jetpack_Options::update_option( 'protect_whitelist', $new_items );
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, implode( '\n', $new_items ) );
 	}
 	return true;
 }
