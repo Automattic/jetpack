@@ -65,8 +65,16 @@ function jetpack_protect_get_local_whitelist() {
 			// On a single site, we can just use an empty array.
 			$whitelist = array();
 		}
+	} else {
+		$whitelist = Waf_Rules_Manager::ip_option_to_array( $whitelist );
+		$whitelist = array_map(
+			function ( $ip_address ) {
+				return jetpack_protect_create_ip_object( $ip_address );
+			},
+			$whitelist
+		);
 	}
-	return Waf_Rules_Manager::ip_option_to_array( $whitelist );
+	return $whitelist;
 }
 
 /**
@@ -83,6 +91,29 @@ function jetpack_protect_get_global_whitelist() {
 		$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 	}
 	return $whitelist;
+}
+
+/**
+ * Convert a string into an IP Address object.
+ *
+ * @param string $ip_address The IP Address to convert.
+ * @return object An IP Address object.
+ */
+function jetpack_protect_create_ip_object( $ip_address ) {
+	$range = false;
+	if ( strpos( $ip_address, '-' ) ) {
+		$ip_address = explode( '-', $ip_address );
+		$range      = true;
+	}
+	$new_item        = new stdClass();
+	$new_item->range = $range;
+	if ( ! empty( $range ) ) {
+		$new_item->range_low  = trim( $ip_address[0] );
+		$new_item->range_high = trim( $ip_address[1] );
+	} else {
+		$new_item->ip_address = $ip_address;
+	}
+	return $new_item;
 }
 
 /**
@@ -111,36 +142,25 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 		if ( empty( $item ) ) {
 			continue;
 		}
-		$range = false;
-		if ( strpos( $item, '-' ) ) {
-			$item  = explode( '-', $item );
-			$range = true;
-		}
-		$new_item        = new stdClass();
-		$new_item->range = $range;
-		if ( ! empty( $range ) ) {
-			$low  = trim( $item[0] );
-			$high = trim( $item[1] );
-			if ( ! filter_var( $low, FILTER_VALIDATE_IP ) || ! filter_var( $high, FILTER_VALIDATE_IP ) ) {
+		$new_item = jetpack_protect_create_ip_object( $item );
+		if ( $new_item->range ) {
+			if ( ! filter_var( $new_item->range_low, FILTER_VALIDATE_IP ) || ! filter_var( $new_item->range_high, FILTER_VALIDATE_IP ) ) {
 				$whitelist_error = true;
 				break;
 			}
-			if ( ! jetpack_convert_ip_address( $low ) || ! jetpack_convert_ip_address( $high ) ) {
+			if ( ! jetpack_convert_ip_address( $new_item->range_low ) || ! jetpack_convert_ip_address( $new_item->range_high ) ) {
 				$whitelist_error = true;
 				break;
 			}
-			$new_item->range_low  = $low;
-			$new_item->range_high = $high;
 		} else {
-			if ( ! filter_var( $item, FILTER_VALIDATE_IP ) ) {
+			if ( ! filter_var( $new_item->ip_address, FILTER_VALIDATE_IP ) ) {
 				$whitelist_error = true;
 				break;
 			}
-			if ( ! jetpack_convert_ip_address( $item ) ) {
+			if ( ! jetpack_convert_ip_address( $new_item->ip_address ) ) {
 				$whitelist_error = true;
 				break;
 			}
-			$new_item->ip_address = $item;
 		}
 		$new_items[] = $new_item;
 	} // End item loop.

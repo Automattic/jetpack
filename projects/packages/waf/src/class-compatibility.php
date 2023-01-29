@@ -94,7 +94,17 @@ class Waf_Compatibility {
 	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list ) {
 		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', array() );
 		if ( false !== $brute_force_allow_list ) {
-			$delete_option = true;
+			$brute_force_allow_list = array_map(
+				function ( $ip_object ) {
+					if ( $ip_object->range ) {
+							return $ip_object->range_low . '-' . $ip_object->range_high;
+					}
+
+					return $ip_object->ip_address;
+				},
+				$brute_force_allow_list
+			);
+			$delete_option          = true;
 
 			if ( ! empty( $brute_force_allow_list ) ) {
 				"$waf_allow_list\n" . explode( '\n', $brute_force_allow_list );
