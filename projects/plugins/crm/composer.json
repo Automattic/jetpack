@@ -16,7 +16,7 @@
 			"pnpm run build"
 		],
 		"build-production": [
-			"pnpm run build"
+			"pnpm run build-production-concurrently"
 		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
@@ -33,7 +33,7 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_6_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

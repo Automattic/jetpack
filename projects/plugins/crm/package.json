@@ -1,14 +1,16 @@
 {
 	"name": "@automattic/jetpack-crm",
-	"version": "5.5.2-alpha",
+	"version": "5.6.0-alpha",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
 	"license": "GPL-2.0",
 	"scripts": {
-		"build": "webpack",
-		"start": "npx wp-env start",
-		"stop": "npx wp-env stop",
-		"clean": "npx wp-env clean all"
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
 	"repository": {
 		"type": "git",
@@ -16,14 +18,17 @@
 		"directory": "projects/plugins/crm"
 	},
 	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@automattic/remove-asset-webpack-plugin": "workspace:*",
+		"@babel/core": "7.20.7",
+		"@babel/preset-env": "7.20.2",
+		"@babel/register": "7.18.9",
+		"@babel/runtime": "7.20.7",
 		"glob": "8.1.0",
 		"sass": "1.43.4",
 		"sass-loader": "12.4.0",
-		"file-loader": "6.2.0",
 		"webpack": "5.72.1",
-		"webpack-cli": "4.9.1",
-		"remove-files-webpack-plugin": "1.5.0",
-		"terser-webpack-plugin": "5.3.6"
+		"webpack-cli": "4.9.1"
 	},
 	"engines": {
 		"node": "^18.13.0",

@@ -1,10 +1,10 @@
 const path = require( 'path' );
+const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
+const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
-const RemovePlugin = require( 'remove-files-webpack-plugin' );
-const TerserPlugin = require( 'terser-webpack-plugin' );
-
 const sassPattern = '**/sass/**/*.scss';
 const jsPattern = '**/js/**/*.js';
+
 const alwaysIgnoredFiles = [
 	'**/js/**/*.min.js',
 	'**/sass/**/_*.scss',
@@ -45,63 +45,91 @@ function getSassEntries() {
 	return entries;
 }
 
-const crmJsConfig = {
-	entry: getJsEntries(),
+const crmWebpackConfig = {
+	mode: jetpackWebpackConfig.mode,
+	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	output: {
+		...jetpackWebpackConfig.output,
+		path: path.resolve( __dirname, '.' ),
+	},
 	optimization: {
-		minimize: true,
-		minimizer: [
-			new TerserPlugin( {
-				extractComments: false,
-				terserOptions: {
-					format: {
-						comments: false,
-					},
-				},
+		...jetpackWebpackConfig.optimization,
+	},
+	resolve: {
+		...jetpackWebpackConfig.resolve,
+	},
+	node: false,
+	plugins: [
+		...jetpackWebpackConfig.StandardPlugins( {
+			DependencyExtractionPlugin: false,
+		} ),
+	],
+	module: {
+		strictExportPresence: true,
+		rules: [
+			// Transpile JavaScript.
+			jetpackWebpackConfig.TranspileRule( {
+				exclude: [ /node_modules\//, /vendor\//, /tests\//, /lib\//, /sass\//, /min.js/ ],
+			} ),
+
+			// Transpile @automattic/jetpack-* in node_modules too.
+			jetpackWebpackConfig.TranspileRule( {
+				includeNodeModules: [ '@automattic/jetpack-' ],
 			} ),
 		],
 	},
-	output: {
-		path: path.resolve( '.' ),
-		filename: '[name].min.js',
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'zero-bs-crm',
+		} ),
+		'@wordpress/i18n': 'global wpI18n',
+		'@wordpress/jp-i18n-loader': 'global jpI18nLoader',
 	},
 };
 
-const crmSassConfig = {
-	entry: getSassEntries(),
-
-	output: {
-		filename: './delete-me/[name].js',
-		path: path.resolve( __dirname, '.' ),
-		assetModuleFilename: '[path]/../css/[name].min.css',
+module.exports = [
+	{
+		...crmWebpackConfig,
+		entry: getJsEntries(),
+		output: {
+			...crmWebpackConfig.output,
+			filename: '[name].min.js',
+		},
 	},
-
-	module: {
-		rules: [
-			{
-				type: 'asset/resource',
-				use: [
-					{
-						loader: 'sass-loader',
-						options: {
-							sassOptions: {
-								outputStyle: 'compressed',
+	{
+		...crmWebpackConfig,
+		entry: getSassEntries(),
+		output: {
+			...crmWebpackConfig.output,
+			assetModuleFilename: '[path]/../css/[name].min.css',
+		},
+		module: {
+			...crmWebpackConfig.module,
+			rules: [
+				...crmWebpackConfig.module.rules,
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [
+						{
+							loader: 'sass-loader',
+							options: {
+								sassOptions: {
+									outputStyle: 'compressed',
+								},
 							},
 						},
-					},
-				],
-			},
+					],
+				} ),
+			],
+		},
+		plugins: [
+			...crmWebpackConfig.plugins,
+			// Delete the dummy JS files Webpack would otherwise create.
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.js(\.map)?$/,
+			} ),
 		],
 	},
-	plugins: [
-		new RemovePlugin( {
-			/**
-			 * After compilation permanently remove JS files created from our CSS entries.
-			 */
-			after: {
-				include: [ './delete-me' ],
-			},
-		} ),
-	],
-};
-
-module.exports = [ crmJsConfig, crmSassConfig ];
+];
