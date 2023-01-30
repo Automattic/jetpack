@@ -109,7 +109,7 @@ class Editor_View {
 			'grunionEditorView',
 			array(
 				'inline_editing_style'     => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
-				'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),
+				'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style.rtl.css', __FILE__ ),
 				'dashicons_css_url'        => includes_url( 'css/dashicons.css' ),
 				'default_form'             => '[contact-field label="' . __( 'Name', 'jetpack-forms' ) . '" type="name"  required="true" /]' .
 									'[contact-field label="' . __( 'Email', 'jetpack-forms' ) . '" type="email" required="true" /]' .
