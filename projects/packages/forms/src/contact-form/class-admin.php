@@ -538,7 +538,7 @@ class Admin {
 
 		// Slip in a success message
 		if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' === $_REQUEST['message'] ) {
-			add_action( 'admin_notices', 'grunion_message_bulk_spam' );
+			add_action( 'admin_notices', array( $this, 'grunion_message_bulk_spam' ) );
 		}
 
 		if ( ( empty( $_REQUEST['action'] ) || 'spam' !== $_REQUEST['action'] ) && ( empty( $_REQUEST['action2'] ) || 'spam' !== $_REQUEST['action2'] ) ) {
@@ -770,16 +770,16 @@ class Admin {
 
 		switch ( $col ) {
 			case 'feedback_date':
-				grunion_manage_post_column_date();
+				$this->grunion_manage_post_column_date();
 				return;
 			case 'feedback_from':
-				grunion_manage_post_column_from( $post );
+				$this->grunion_manage_post_column_from( $post );
 				return;
 			case 'feedback_response':
-				grunion_manage_post_column_response( $post );
+				$this->grunion_manage_post_column_response( $post );
 				return;
 			case 'feedback_source':
-				grunion_manage_post_column_source( $post );
+				$this->grunion_manage_post_column_source( $post );
 				return;
 		}
 	}
@@ -1203,7 +1203,7 @@ class Admin {
 		}
 
 		// Add the actual "Check for Spam" button.
-		add_action( 'admin_head', 'grunion_check_for_spam_button' );
+		add_action( 'admin_head', array( $this, 'grunion_check_for_spam_button' ) );
 	}
 
 	/**
