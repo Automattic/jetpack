@@ -11,9 +11,10 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
+import useWafData from '../../hooks/use-waf-data';
 
 /**
  * Product Detail component.
@@ -24,12 +25,15 @@ import useProtectData from '../../hooks/use-protect-data';
  * @returns {object}                ConnectedPricingTable react component.
  */
 const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
-	const { siteIsRegistering, handleRegisterSite, registrationError } = useConnection( {
+	const { handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
+	const [ protectFreeIsRegistering, setProtectFreeIsRegistering ] = useState( false );
+
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
+	const { refreshWaf } = useWafData();
 	const { pricingForUi } = jetpackScan;
 	const { introductoryOffer, currencyCode: currency = 'USD' } = pricingForUi;
 
@@ -40,15 +44,19 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 		: null;
 
 	// Track free and paid click events
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEvent, recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler(
 		'jetpack_protect_pricing_table_get_scan_link_click',
 		onScanAdd
 	);
-	const getProtectFree = recordEventHandler(
-		'jetpack_protect_connected_product_activated',
-		handleRegisterSite
-	);
+
+	const getProtectFree = useCallback( () => {
+		recordEvent( 'jetpack_protect_connected_product_activated' );
+		setProtectFreeIsRegistering( true );
+		handleRegisterSite()
+			.then( () => setProtectFreeIsRegistering( false ) )
+			.then( refreshWaf );
+	}, [ handleRegisterSite, recordEvent, refreshWaf ] );
 
 	const args = {
 		title: __( 'Stay one step ahead of threats', 'jetpack-protect' ),
@@ -86,7 +94,12 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 							currency={ currency }
 							hideDiscountLabel={ false }
 						/>
-						<Button fullWidth onClick={ getScan } isLoading={ scanJustAdded }>
+						<Button
+							fullWidth
+							onClick={ getScan }
+							isLoading={ scanJustAdded }
+							disabled={ protectFreeIsRegistering || scanJustAdded }
+						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
 					</PricingTableHeader>
@@ -115,7 +128,8 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ siteIsRegistering }
+							isLoading={ protectFreeIsRegistering }
+							disabled={ protectFreeIsRegistering || scanJustAdded }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )

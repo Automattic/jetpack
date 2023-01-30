@@ -70,7 +70,7 @@ export const pickGUIDFromUrl = url => {
 	}
 
 	const urlParts = url.match(
-		/^https?:\/\/(?<host>video(?:\.word)?press\.com)\/(?:v|embed)\/(?<guid>[a-zA-Z\d]{8})/
+		/^https?:\/\/(?<host>video(?:\.word|s\.files\.word)?press\.com)(?:\/v|\/embed)?\/(?<guid>[a-zA-Z\d]{8})/
 	);
 
 	if ( ! urlParts?.groups?.guid ) {

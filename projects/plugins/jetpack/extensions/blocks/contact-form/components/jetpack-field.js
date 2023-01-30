@@ -4,18 +4,32 @@ import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
+import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackField( props ) {
-	const { id, type, required, requiredText, label, setAttributes, placeholder, width } = props;
+	const {
+		id,
+		type,
+		required,
+		requiredText,
+		label,
+		setAttributes,
+		placeholder,
+		width,
+		attributes,
+	} = props;
+
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
 		<>
-			<div className="jetpack-field">
+			<div className="jetpack-field" style={ blockStyle }>
 				<JetpackFieldLabel
 					required={ required }
 					requiredText={ requiredText }
 					label={ label }
 					setAttributes={ setAttributes }
+					attributes={ attributes }
 				/>
 				<Disabled>
 					<TextControl
@@ -24,6 +38,7 @@ export default function JetpackField( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
+						style={ fieldStyle }
 					/>
 				</Disabled>
 			</div>
@@ -34,6 +49,7 @@ export default function JetpackField( props ) {
 				width={ width }
 				setAttributes={ setAttributes }
 				placeholder={ placeholder }
+				attributes={ attributes }
 			/>
 		</>
 	);

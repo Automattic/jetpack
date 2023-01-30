@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Making sure array is passed to sidebars_widgets

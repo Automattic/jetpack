@@ -190,7 +190,7 @@ info "Tagging $SVNTAG"
 svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$SVNTAG -m "Creating the $SVNTAG tag"
 success "Done!"
 if [[ "$SVNTAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-	info "Updating stable tag in readme.txt in SVN tags/$SVNTAG"
+	info "Updating stable tag in readme.txt in SVN tags/$SVNTAG (this does not make $SVNTAG the live version, the stable tag in trunk/readme.txt is what is changed when ready, later)"
 	svn up tags/$SVNTAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
 	printf "\r\e[K"
 	sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVNTAG/" "tags/$SVNTAG/readme.txt"

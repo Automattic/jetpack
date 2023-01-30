@@ -210,6 +210,7 @@ class Test_Wpcom_Products extends TestCase {
 			'full_price'            => 4.9,
 			'discount_price'        => 2.45,
 			'is_introductory_offer' => false,
+			'introductory_offer'    => null,
 			'coupon_discount'       => 50,
 		);
 

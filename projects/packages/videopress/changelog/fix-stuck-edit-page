@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: change how we detect search parameters on the home page to prevent the stuck edit video details page

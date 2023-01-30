@@ -242,9 +242,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-a.7 - 2023-01-17
-#### Changed
-- Updated package dependencies.
+### 11.8-a.13 - 2023-01-27
+#### Bug fixes
+- Subscriptions: add a null check to a $post reference.
 
 --------
 

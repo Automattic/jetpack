@@ -19,9 +19,9 @@ import {
 	WPComV2VideopressGetMetaEndpointResponseProps,
 	WPComV2VideopressPostMetaEndpointBodyProps,
 } from '../../../types';
-import extractVideoChapters from '../../../utils/extract-video-chapters';
-import generateChaptersFile from '../../../utils/generate-chapters-file';
 import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import extractVideoChapters from '../../../utils/video-chapters/extract-video-chapters';
+import generateChaptersFile from '../../../utils/video-chapters/generate-chapters-file';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
@@ -192,7 +192,11 @@ export function useSyncMedia(
 			return;
 		}
 
-		if ( ! videoData || Object.keys( videoData ).length === 0 ) {
+		// Bail early if the video data is not available.
+		if (
+			! videoData ||
+			Object.keys( videoData ).filter( key => videoFieldsToUpdate.includes( key ) ).length === 0
+		) {
 			return;
 		}
 
