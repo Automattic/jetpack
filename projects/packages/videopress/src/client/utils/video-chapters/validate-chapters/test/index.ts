@@ -1,4 +1,4 @@
-import { validateChapters } from '..';
+import validateChapters from '..';
 /**
  * Types
  */

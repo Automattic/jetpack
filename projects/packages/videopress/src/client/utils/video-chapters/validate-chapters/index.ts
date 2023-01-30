@@ -22,7 +22,7 @@ function getSeconds( time: string ): number {
  * @param {VideoPressChapter[]} chapters - The chapters to be validated
  * @returns {boolean} - Whether the generated chapters are valid or not
  */
-export default function validateChapters( chapters: VideoPressChapter[] ) {
+export default function validateChapters( chapters: VideoPressChapter[] ): boolean {
 	if ( ! chapters || chapters.length === 0 ) {
 		return false;
 	}
@@ -49,5 +49,3 @@ export default function validateChapters( chapters: VideoPressChapter[] ) {
 
 	return true;
 }
-
-export { validateChapters };
