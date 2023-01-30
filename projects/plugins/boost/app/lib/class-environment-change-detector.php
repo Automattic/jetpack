@@ -18,21 +18,41 @@ class Environment_Change_Detector {
 	 * Initialize the change detection hooks.
 	 */
 	public static function init() {
-		add_action(
-			'after_switch_theme',
-			function () {
-				self::handle_environment_change( 'switched_theme' );
-			}
-		);
-		// Add more action here handle changes that will require action by the plugin.
+		$object = new self();
+		$object->register_hooks();
+	}
+
+	public function register_hooks() {
+		add_action( 'after_switch_theme', array( $this, 'handle_theme_change' ) );
+		add_action( 'save_post', array( $this, 'handle_post_change' ), 10, 2 );
+		add_action( 'activated_plugin', array( $this, 'handle_plugin_change' ) );
+		add_action( 'deactivated_plugin', array( $this, 'handle_plugin_change' ) );
+	}
+
+	public function handle_post_change( $post_id, $post ) {
+		$post_types = get_post_types( array( 'name' => $post->post_type ), 'objects' );
+		if ( empty( $post_types ) || $post_types[0]->public !== true ) {
+			return;
+		}
+
+		$this->do_action( false, 'post_saved' );
+	}
+
+	public function handle_theme_change() {
+		$this->do_action( true, 'switched_theme' );
+	}
+
+	public function handle_plugin_change() {
+		$this->do_action( true, 'plugin_change' );
 	}
 
 	/**
-	 * Fire action when the theme is changed.
+	 * Fire the environment change action.
 	 *
 	 * @param string $change_type The change type.
+	 * @param bool   $is_major_change Whether the change is major.
 	 */
-	public static function handle_environment_change( $change_type ) {
-		do_action( 'handle_environment_change', $change_type );
+	public function do_action( $is_major_change, $change_type ) {
+		do_action( 'handle_environment_change', $is_major_change, $change_type );
 	}
 }
