@@ -22,6 +22,22 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	private $plugin;
 
 	/**
+	 * Fallback for missing assertStringContainsString in lower PHPUnit versions.
+	 *
+	 * @param  string $expected_value
+	 * @param  string $value
+	 * @param  string $message
+	 * @return boolean
+	 */
+	public static function assertStringContains( $expected_value, $value, $message = '' ) {
+		if ( method_exists( get_parent_class( self::class ), 'assertStringContainsString' ) ) {
+			return parent::assertStringContainsString( $expected_value, $value, $message );
+		}
+
+		return parent::assertContains( $expected_value, $value, $message );
+	}
+
+	/**
 	 * Sets up the test environment before the class tests begin.
 	 *
 	 * @beforeClass
@@ -128,7 +144,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		// Default metadata should be saved.
 		$email = get_post_meta( $submission->ID, '_feedback_email', true );
 		$this->assertEquals( 'john <john@example.com>', $email['to'][0] );
-		$this->assertStringContainsString( 'IP Address: 127.0.0.1', $email['message'] );
+		$this->assertStringContains( 'IP Address: 127.0.0.1', $email['message'] );
 	}
 
 	/**
@@ -194,7 +210,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
 		// Default metadata should be saved.
-		$this->assertStringContainsString( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContains( 'SUBJECT: I\\\'m sorry, but the party\\\'s over', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -222,7 +238,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -249,7 +265,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -276,7 +292,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+		$this->assertStringContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
 	}
 
 	/**
@@ -307,10 +323,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContainsString( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContains( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContains( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContains( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContains( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
@@ -518,7 +534,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 	 *                    subject, message, headers, and attachments values.
 	 */
 	public function pre_test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam( $args ) {
-		$this->assertStringContainsString( '***SPAM***', $args['subject'] );
+		$this->assertStringContains( '***SPAM***', $args['subject'] );
 	}
 
 	/**
