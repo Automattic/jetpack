@@ -3,11 +3,10 @@
 	"description": "Jetpack Forms",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "^0.4.1"
 	},
 	"autoload": {
 		"classmap": [
@@ -62,5 +61,9 @@
 		"allow-plugins": {
 			"roots/wordpress-core-installer": true
 		}
+	},
+	"require": {
+		"automattic/jetpack-blocks": "1.4.x-dev",
+		"automattic/jetpack-assets": "1.17.x-dev"
 	}
 }
