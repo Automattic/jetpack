@@ -30,7 +30,7 @@ export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
 
 	const { tracks } = useAnalytics();
 	const trackUpgradeStorageClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_upgrade_storage_upsell_prompt', { site: siteSlug } );
+		tracks.recordEvent( 'jetpack_backup_upgrade_storage_prompt_cta', { site: siteSlug } );
 	}, [ tracks, siteSlug ] );
 
 	useEffect( () => {
