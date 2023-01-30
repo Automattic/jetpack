@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: replace the usage of useContext() by local helper function

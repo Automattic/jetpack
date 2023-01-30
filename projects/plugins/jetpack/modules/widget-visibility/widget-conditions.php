@@ -712,6 +712,10 @@ class Jetpack_Widget_Conditions {
 	public static function sidebars_widgets( $widget_areas ) {
 		$settings = array();
 
+		if ( ! is_array( $widget_areas ) ) {
+			return $widget_areas;
+		}
+
 		foreach ( $widget_areas as $widget_area => $widgets ) {
 			if ( empty( $widgets ) ) {
 				continue;

@@ -361,7 +361,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "3186b3f3ab55a859ad09c5439abb3609d114bc68"
+                "reference": "17a1ae562cf963aa86c453beca4b6fa1f708a885"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -391,7 +391,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.11.x-dev"
+                    "dev-trunk": "1.12.x-dev"
                 }
             },
             "autoload": {
@@ -446,7 +446,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/blaze",
-                "reference": "fe763a3537f4a36cecda89a019600116ad551a4d"
+                "reference": "1c22a742cbab3a4d93b36924128c400685325bd5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -466,7 +466,7 @@
                     "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-blaze",
                 "version-constants": {
@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "306f844ea57b3f1002b232e86fed6360131c1b41"
+                "reference": "50e44082ed1951cfc2f86a66c53ec1533ed3bc61"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -934,7 +934,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -957,10 +957,10 @@
                     "@composer phpunit"
                 ],
                 "build-production": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build-production"
                 ],
                 "build-development": [
-                    "echo 'Add your build step to composer.json, please!'"
+                    "pnpm run build"
                 ],
                 "post-install-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
@@ -1107,7 +1107,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "1eb301733370d234b6be83c888f3652c1da4bd4c"
+                "reference": "708bdf617a6e483c8c0ec81bade35db47c354440"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1159,6 +1159,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

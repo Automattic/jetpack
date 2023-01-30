@@ -185,12 +185,12 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<>
+							{ isEnhancedPublishingEnabled && <MediaSection /> }
 							<MessageBoxControl
 								maxLength={ maxLength }
 								onChange={ updateMessage }
 								message={ message }
 							/>
-							{ isEnhancedPublishingEnabled && <MediaSection /> }
 						</>
 					) }
 				</Fragment>
