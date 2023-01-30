@@ -430,8 +430,11 @@ function render_block( $attributes ) {
  * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
  */
 function get_post_access_level() {
-	global $post;
-	$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	$post_id = get_the_ID();
+	if ( ! $post_id ) {
+		return 'everybody';
+	}
+	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 	if ( empty( $meta ) ) {
 		$meta = 'everybody';
 	}
