@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Migrated to new Web Fonts API from Gutenberg
