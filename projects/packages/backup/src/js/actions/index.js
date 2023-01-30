@@ -7,6 +7,7 @@ import {
 	SITE_BACKUP_POLICIES_GET_FAILED,
 	SITE_BACKUP_POLICIES_GET_SUCCESS,
 	SITE_BACKUP_STORAGE_SET,
+	SITE_BACKUP_STORAGE_ADDON_OFFER_SET,
 } from './types';
 
 const getSiteSize = () => ( { dispatch } ) => {
@@ -21,6 +22,9 @@ const getSiteSize = () => ( { dispatch } ) => {
 
 			const payload = {
 				size: res.size,
+				minDaysOfBackupsAllowed: res.min_days_of_backups_allowed,
+				daysOfBackupsAllowed: res.days_of_backups_allowed,
+				daysOfBackupsSaved: res.days_of_backups_saved,
 			};
 
 			dispatch( { type: SITE_BACKUP_SIZE_GET_SUCCESS, payload } );
@@ -56,10 +60,18 @@ const setStorageUsageLevel = usageLevel => ( { dispatch } ) => {
 	} );
 };
 
+const setAddonStorageOfferSlug = addonSlug => ( { dispatch } ) => {
+	dispatch( {
+		type: SITE_BACKUP_STORAGE_ADDON_OFFER_SET,
+		addonOfferSlug: addonSlug,
+	} );
+};
+
 const actions = {
 	getSiteSize,
 	getSitePolicies,
 	setStorageUsageLevel,
+	setAddonStorageOfferSlug,
 };
 
 export default actions;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix warnings from the global reading of $post

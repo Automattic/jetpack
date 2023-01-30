@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
 import { ReactElement } from 'react';
@@ -22,23 +22,20 @@ jest.mock( '../../../hooks/use-social-media-connections', () => {
 } );
 
 jest.mock( '../../../hooks/use-media-restrictions', () => ( {
+	...jest.requireActual( '../../../hooks/use-media-restrictions' ),
 	__esModule: true,
 	default: () => ( {
 		maxImageSize: 3,
 		getValidationError: jest.fn(),
 		allowedMediaTypes: [],
 	} ),
-	isVideo: () => false,
 } ) );
 
-jest.mock( '@wordpress/block-editor', () => {
-	const lib = jest.requireActual( '@wordpress/block-editor' );
-	return {
-		...lib,
-		MediaUpload: ( { render: onRender } ) => <div>{ onRender( 'open' ) }</div>,
-		MediaUploadCheck: ( { children } ) => children,
-	};
-} );
+jest.mock( '@wordpress/block-editor', () => ( {
+	...jest.requireActual( '@wordpress/block-editor' ),
+	MediaUpload: ( { render: onRender } ) => <div>{ onRender( 'open' ) }</div>,
+	MediaUploadCheck: ( { children } ) => children,
+} ) );
 
 jest.mock( '@wordpress/components', () => {
 	const actualModule = jest.requireActual( '@wordpress/components' );
@@ -56,6 +53,17 @@ jest.mock( '@wordpress/components', () => {
 		},
 	} );
 } );
+
+// Fix a bug throwing a React warning when muted property is present.
+// @see: https://github.com/testing-library/react-testing-library/issues/470
+Object.defineProperty( HTMLMediaElement.prototype, 'muted', {
+	set: () => {},
+} );
+
+// Mock video methods
+jest.spyOn( window.HTMLMediaElement.prototype, 'load' ).mockImplementation( () => {} );
+jest.spyOn( window.HTMLMediaElement.prototype, 'play' ).mockImplementation( () => {} );
+jest.spyOn( window.HTMLMediaElement.prototype, 'pause' ).mockImplementation( () => {} );
 
 /**
  * Helper method to set up the user event.
@@ -82,6 +90,21 @@ const dummyImageData = {
 	},
 };
 
+const dummyVideoData = {
+	mime_type: 'video/mp4',
+	media_details: {
+		filesize: 1000,
+		length: 15,
+		sizes: {
+			large: {
+				source_url: 'https://example.com/video.mp4',
+				width: 1280,
+				height: 720,
+			},
+		},
+	},
+};
+
 describe( 'MediaSection', () => {
 	it( 'should define the component', () => {
 		expect( 'MediaSection' ).toBeDefined();
@@ -96,7 +119,7 @@ describe( 'MediaSection', () => {
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'should render a preview if media is selected', () => {
+	it( 'should render a preview if an image is selected', () => {
 		useSelect.mockImplementation( () => dummyImageData );
 		render( <MediaSection /> );
 		expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
@@ -118,5 +141,33 @@ describe( 'MediaSection', () => {
 		const removeButton = screen.getByText( /Remove media/i );
 		await user.click( removeButton );
 		expect( updateAttachedMedia ).toHaveBeenCalledWith( [] );
+	} );
+
+	it( 'should render a video preview if a video is selected', () => {
+		useSelect.mockImplementation( () => dummyVideoData );
+		render( <MediaSection /> );
+		expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
+		expect( screen.getByText( /Remove media/i ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( ( _, element ) => element.tagName.toLowerCase() === 'video' )
+		).toBeInTheDocument();
+		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
+		expect( window.HTMLMediaElement.prototype.load ).toHaveBeenCalled();
+	} );
+
+	it( 'should play and pause the video when it is hovered and unhovered', async () => {
+		useSelect.mockImplementation( () => dummyVideoData );
+		const { user } = setup( <MediaSection /> );
+		const video = screen.getByText( ( _, element ) => element.tagName.toLowerCase() === 'video' );
+
+		await user.hover( video );
+		await waitFor( () =>
+			expect( window.HTMLMediaElement.prototype.play ).toHaveBeenCalledTimes( 1 )
+		);
+		await user.unhover( video );
+		await waitFor( () =>
+			expect( window.HTMLMediaElement.prototype.pause ).toHaveBeenCalledTimes( 1 )
+		);
 	} );
 } );

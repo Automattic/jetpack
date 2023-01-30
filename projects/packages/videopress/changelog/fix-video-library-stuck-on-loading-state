@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: fix loading state bug on VideoPress video library when the query string parameters are `page=1`
