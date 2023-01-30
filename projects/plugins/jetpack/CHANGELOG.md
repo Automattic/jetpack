@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-a.13 - 2023-01-27
+### Bug fixes
+- Subscriptions: add a null check to a $post reference. [#28621]
+
 ## 11.8-a.11 - 2023-01-26
 ### Enhancements
 - Form block: update form block variation icons. [#28428]
