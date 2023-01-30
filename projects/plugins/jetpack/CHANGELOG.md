@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.8-a.15 - 2023-01-30
+## 11.8-beta - 2023-01-30
 ### Enhancements
 - Form Block: add styling of input fields [#27837]
 - Reading settings: Add link to the menu in Calypso [#28616]
