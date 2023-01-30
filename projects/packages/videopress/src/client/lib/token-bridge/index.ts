@@ -1,0 +1,134 @@
+/**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+/**
+ * Types
+ */
+import getMediaToken from '../get-media-token';
+import type { VideoGUID } from '../../block-editor/blocks/video/types';
+
+const debug = debugFactory( 'videopress:token-bridge' );
+
+type videopressAjaxPostMessageEvenProps = {
+	event: 'videopress_token_request_ack' | 'videopress_token_received' | 'videopress_token_error';
+	guid: VideoGUID;
+	requestId: string;
+	jwt?: string;
+};
+
+type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
+
+const { videopressAjax } = window;
+
+type TokenBrigeEventProps = {
+	event: 'videopress_token_request';
+	guid: VideoGUID;
+	requestId: string;
+	origin: Origin;
+};
+
+/**
+ * Function handler to dialog with the client
+ * (toquen requester) and the app
+ * to provide a JWT on demand.
+ *
+ * @param {object} event - The event object
+ */
+export async function tokenBrigeHandler(
+	event: MessageEvent< TokenBrigeEventProps >
+): Promise< void > {
+	if ( event.data?.event !== 'videopress_token_request' ) {
+		return;
+	}
+
+	if ( ! videopressAjax ) {
+		debug( '(%s) videopressAjax is not accesible' );
+		return;
+	}
+
+	const { context = 'limbo' } = videopressAjax;
+
+	const { guid, requestId } = event.data;
+	if ( ! guid || ! requestId ) {
+		debug( '(%s) Invalid request', context );
+		return;
+	}
+
+	const postId = window?.videopressAjax.post_id || 0;
+
+	const allowed_origins: Array< Origin > = [
+		'https://videopress.com',
+		'https://video.wordpress.com',
+	];
+	if ( -1 === allowed_origins.indexOf( event.origin as Origin ) ) {
+		debug( '(%s) Invalid origin', context );
+		return;
+	}
+
+	const { source: tokenRequester } = event;
+	// Check the source of the message
+	if ( tokenRequester instanceof MessagePort || tokenRequester instanceof ServiceWorker ) {
+		debug( '(%s) Invalid source', context );
+		return;
+	}
+
+	debug( '(%s) Token request accepted: %o | %o | %o', context, guid, postId, requestId );
+
+	/*
+	 * Acknowledge receipt of message so player knows
+	 * if it can expect a response or if it should try again later.
+	 * Important for situations where the iframe
+	 * loads prior to the bridge being ready.
+	 */
+	debug( '(%s) Send acknowledge receipt requested', context );
+	tokenRequester.postMessage(
+		{
+			event: 'videopress_token_request_ack',
+			guid,
+			requestId,
+		},
+		'*'
+	);
+
+	const tokenData = await getMediaToken( 'playback', {
+		id: Number( postId ),
+		guid,
+		adminAjaxAPI: videopressAjax.ajaxUrl,
+	} );
+
+	if ( ! tokenData?.token ) {
+		debug( '(%s) Error getting token', context );
+		tokenRequester.postMessage(
+			{
+				event: 'videopress_token_error',
+				guid: event.data.guid,
+				requestId,
+			} as videopressAjaxPostMessageEvenProps,
+			'*'
+		);
+		return;
+	}
+
+	debug( '(%s) sending token', context );
+	tokenRequester.postMessage(
+		{
+			event: 'videopress_token_received',
+			guid: guid,
+			jwt: tokenData.token,
+			requestId,
+		} as videopressAjaxPostMessageEvenProps,
+		'*'
+	);
+}
+
+( function () {
+	if ( ! videopressAjax ) {
+		debug( '(%s) videopressAjax is not accesible' );
+		return;
+	}
+
+	// Listen the token request from the videopress client
+	debug( '(%s) 👂 Listen token requester', videopressAjax?.context || 'limbo' );
+	window.addEventListener( 'message', tokenBrigeHandler );
+} )();
