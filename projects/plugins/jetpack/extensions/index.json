@@ -45,8 +45,6 @@
 		"payment-buttons"
 	],
 	"beta": [
-		"ai-image",
-		"ai-paragraph",
 		"amazon",
 		"google-docs-embed",
 		"launchpad-save-modal",
@@ -56,6 +54,8 @@
 		"videopress/video-chapters"
 	],
 	"experimental": [
+		"ai-image",
+		"ai-paragraph",
 		"anchor-fm",
 		"blogging-prompts",
 		"premium-content",

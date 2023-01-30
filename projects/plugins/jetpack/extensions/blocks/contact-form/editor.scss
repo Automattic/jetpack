@@ -3,31 +3,39 @@
 .wp-block-jetpack-contact-form {
 	box-sizing: border-box;
 
-	.block-editor-block-variation-picker__variations {
-		max-width: 560px;
-		justify-content: center;
-		gap: 20px 10px;
-		margin: 16px auto;
-
-		> li {
-			width: unset;
-			max-width: none;
+	.block-editor-block-variation-picker.has-many-variations {
+		.components-placeholder__fieldset {
+			max-width: unset;
 			margin: 0;
-			flex: 0;
-		}
 
-		.block-editor-block-variation-picker__variation {
-			padding: 16px;
-			margin-right: 0;
+			.block-editor-block-variation-picker__variations {
+				max-width: 560px;
+				justify-content: center;
+				gap: 20px 0;
+				margin: 16px auto;
 
-			svg {
-				width: 36px;
-				height: auto;
+				> li {
+					width: unset;
+					max-width: none;
+					margin: 0;
+					flex: 0;
+				}
+
+				.block-editor-block-variation-picker__variation {
+					padding: 22px;
+					margin-right: 4px;
+					margin-left: 4px;
+
+					svg {
+						width: 24px;
+						height: auto;
+					}
+				}
+
+				.block-editor-block-variation-picker__variation-label {
+					margin-right: 0;
+				}
 			}
-		}
-
-		.block-editor-block-variation-picker__variation-label {
-			margin-right: 0;
 		}
 	}
 
@@ -490,6 +498,9 @@ input.components-text-control__input {
 
 	&__toggle {
 		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -528,6 +539,9 @@ input.components-text-control__input {
 
 	&__popover {
 		border: var(--jetpack--contact-form--border);
+		border-color: var(--jetpack--contact-form--border-color);
+		border-style: var(--jetpack--contact-form--border-style);
+		border-width: var(--jetpack--contact-form--border-size);
 		border-radius: var(--jetpack--contact-form--border-radius);
 		background-color: var(--jetpack--contact-form--input-background);
 		color: var(--jetpack--contact-form--text-color);
@@ -543,4 +557,8 @@ input.components-text-control__input {
 			padding: var(--jetpack--contact-form--input-padding);
 		}
 	}
+}
+
+.block-editor-block-inspector .components-base-control .components-base-control:last-child {
+	margin-bottom: 0;
 }
