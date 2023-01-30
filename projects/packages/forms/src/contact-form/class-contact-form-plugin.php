@@ -247,7 +247,7 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'css/grunion.css', array(), JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		self::enqueue_contact_forms_style_script();
@@ -262,7 +262,7 @@ class Contact_Form_Plugin {
 			'contact-form-styles',
 			plugins_url( 'js/form-styles.js', __FILE__ ),
 			array(),
-			JETPACK__VERSION,
+			\JETPACK__VERSION,
 			true
 		);
 	}
@@ -1036,9 +1036,8 @@ class Contact_Form_Plugin {
 			} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
 				// All three of these are relevant indicators and should be passed along.
 				$form[ $key ] = $value;
-			} elseif ( wp_startswith( $key, 'HTTP_' ) ) {
+			} elseif ( substr( $key, 0, 5 ) === 'HTTP_' ) {
 				// Any other HTTP header indicators.
-				// `wp_startswith()` is a wpcom helper function and is included in Jetpack via `functions.compat.php`
 				$form[ $key ] = $value;
 			}
 		}

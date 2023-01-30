@@ -617,7 +617,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			'contact-form-dropdown',
 			plugins_url( 'js/dropdown.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-selectmenu' ),
-			JETPACK__VERSION,
+			\JETPACK__VERSION,
 			true
 		);
 
@@ -659,7 +659,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'modules/contact-form/js/grunion-frontend.js'
 			),
 			array( 'jquery', 'jquery-ui-datepicker' ),
-			JETPACK__VERSION,
+			\JETPACK__VERSION,
 			false
 		);
 		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );

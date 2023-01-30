@@ -7,21 +7,24 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use \WorDBless\BaseTestCase;
+
 /**
  * Test class for Contact_Form
  *
  * @covers Contact_Form
  */
-class WP_Test_Contact_Form extends WP_UnitTestCase {
+class WP_Test_Contact_Form extends BaseTestCase {
 
 	private $post;
 	private $plugin;
 
 	/**
 	 * Sets up the test environment before the class tests begin.
+	 *
+	 * @beforeClass
 	 */
-	public static function set_up_before_class() {
-		parent::set_up_before_class();
+	public static function set_up_class() {
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission.
 
 		// Remove any relevant filters that might exist before running the tests.
@@ -41,23 +44,28 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * Sets up the test environment before each unit test.
+	 *
+	 * @before
 	 */
-	public function set_up() {
-		parent::set_up();
-
+	public function set_up_test_case() {
 		$this->set_globals();
 
-		$author_id = self::factory()->user->create(
+		$author_id = wp_insert_user(
 			array(
 				'user_email' => 'john@example.com',
+				'user_login' => 'test_user',
+				'user_pass'  => 'abc123',
 			)
 		);
 
-		$post_id = self::factory()->post->create(
+		$post_id = wp_insert_post(
 			array(
-				'post_status' => 'draft',
-				'post_author' => (string) $author_id,
-			)
+				'post_title'   => 'abc',
+				'post_content' => 'def',
+				'post_status'  => 'draft',
+				'post_author'  => $author_id,
+			),
+			true
 		);
 
 		global $post;
@@ -469,7 +477,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * This method is hooked to the jetpack_contact_form_is_spam filter.
 	 */
 	public function pre_test_process_submission_fails_if_spam_marked_with_WP_Error() {
-		return new WP_Error( 'spam', 'Message is spam' );
+		return new \WP_Error( 'spam', 'Message is spam' );
 	}
 
 	/**
@@ -528,7 +536,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		$post_id = self::factory()->post->create(
+		$post_id = wp_insert_post(
 			array(
 				'post_type'     => 'feedback',
 				'post_status'   => 'spam',
@@ -536,7 +544,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 			)
 		);
 
-		grunion_delete_old_spam();
+		Util::grunion_delete_old_spam();
 		$this->assertNull( get_post( $post_id ), 'An old spam feedback should be deleted' );
 	}
 
@@ -547,14 +555,16 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
-		$post_id = self::factory()->post->create(
+		$post_id = wp_insert_post(
 			array(
+				'post_title'  => 'testing',
+				'post_contnt' => 'testing',
 				'post_type'   => 'feedback',
 				'post_status' => 'spam',
 			)
 		);
 
-		grunion_delete_old_spam();
+		Util::grunion_delete_old_spam();
 		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
 	}
 
@@ -562,7 +572,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token is left intact when there is not matching field.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_left_intact_when_no_matching_field() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -578,7 +588,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token is replaced with an empty string when there is not value in field.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_replaced_with_empty_string_when_no_value_in_field() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -594,7 +604,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token in curly brackets is replaced with the value when the name has whitespace.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -610,7 +620,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests that token with curly brackets is replaced with value.
 	 *
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 */
 	public function test_token_with_curly_brackets_can_be_replaced() {
 		$plugin       = Contact_Form_Plugin::init();
@@ -628,7 +638,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_parse_contact_field_keeps_string_unchanged_when_no_escaping_necesssary() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-field', array( Contact_Form::class, 'parse_contact_field' ) );
 
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
 		$shortcode = "[contact-field label=\"Name\" type=\"name\" required=\"1\"/][contact-field label=\"Email\" type=\"email\" required=\"1\"/][contact-field label=\"asdasd\" type=\"text\"/][contact-field id=\"1\" required derp herp asd lkj]adsasd[/contact-field]";
@@ -641,7 +651,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests that the default label is added when no label is present.
 	 */
 	public function test_make_sure_that_we_add_default_label_when_non_is_present() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-field', array( Contact_Form::class, 'parse_contact_field' ) );
 		$shortcode = "[contact-field type='name' required='1' /]";
 		$html      = do_shortcode( $shortcode );
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
@@ -652,7 +662,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests the empty options are removed from form fields.
 	 */
 	public function test_make_sure_that_we_remove_empty_options_from_form_field() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-field', array( Contact_Form::class, 'parse_contact_field' ) );
 		$shortcode = "[contact-field type='select' required='1' options='fun,,run' label='fun times' values='go,,have some fun'/]";
 		$html      = do_shortcode( $shortcode );
 		// @phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired
@@ -662,10 +672,10 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Tests shortcode with commas and brackets.
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-field', array( Contact_Form::class, 'parse_contact_field' ) );
 		$shortcode = "[contact-field type='radio' options='\"foo\",bar&#044; baz,&#091;b&#092;rackets&#093;' label='fun &#093;&#091; times'/]";
 		$html      = do_shortcode( $shortcode );
 		$this->assertEquals( '[contact-field type="radio" options="&quot;foo&quot;,bar&#044; baz,&#091;b&#092;rackets&#093;" label="fun &#093;&#091; times"/]', $html );
@@ -674,7 +684,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Tests Gutenblock input with commas and brackets.
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_array_values_with_commas_and_brackets_from_gutenblock() {
 		$attr = array(
@@ -689,7 +699,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for text field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_text_field_renders_as_expected() {
 		$attributes = array(
@@ -708,7 +718,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for email field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_email_field_renders_as_expected() {
 		$attributes = array(
@@ -727,7 +737,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for url field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_url_field_renders_as_expected() {
 		$attributes = array(
@@ -746,7 +756,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for telephone field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_telephone_field_renders_as_expected() {
 		$attributes = array(
@@ -765,7 +775,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for date field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_date_field_renders_as_expected() {
 		$attributes = array(
@@ -784,7 +794,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for textarea field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_textarea_field_renders_as_expected() {
 		$attributes = array(
@@ -803,7 +813,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for checkbox field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_field_renders_as_expected() {
 		$attributes = array(
@@ -822,7 +832,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Multiple fields
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_checkbox_multiple_field_renders_as_expected() {
 		$attributes = array(
@@ -842,7 +852,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for radio field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_radio_field_renders_as_expected() {
 		$attributes = array(
@@ -862,7 +872,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test for select field_renders
 	 *
-	 * @covers Grunion_Contact_Form_Field
+	 * @covers Contact_Form_Field
 	 */
 	public function test_make_sure_select_field_renders_as_expected() {
 		$attributes = array(
@@ -880,7 +890,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Renders a Grunion_Contact_Form_Field.
+	 * Renders a Contact_Form_Field.
 	 *
 	 * @param array $attributes An associative array of shortcode attributes.
 	 *
@@ -900,7 +910,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @return DOMElement The first div element.
 	 */
 	public function getCommonDiv( $html ) {
-		$doc = new DOMDocument();
+		$doc = new \DOMDocument();
 		$doc->loadHTML( $html );
 		return $this->getFirstElement( $doc, 'div' );
 	}
@@ -1123,7 +1133,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
-		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+		add_shortcode( 'contact-field', array( Contact_Form::class, 'parse_contact_field' ) );
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
 		$html      = do_shortcode( $shortcode );
@@ -1147,7 +1157,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 		 *
 		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( '\Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1249,7 +1259,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with single invalid entry for post meta
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_invalid_single_entry_meta() {
@@ -1258,7 +1268,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 		 *
 		 * @var Contact_Form_Plugin $mock
 		 * */
-		$mock = $this->getMockBuilder( '\Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1356,11 +1366,11 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 */
 	public function test_get_export_data_for_posts_invalid_all_entries_meta() {
 		/**
-		 * Grunion_Contact_Form_Plugin mock object.
+		 * Contact_Form_Plugin mock object.
 		 *
 		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( '\Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1448,7 +1458,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 		 *
 		 * @var Contact_Form_Plugin $mock
 		 * */
-		$mock = $this->getMockBuilder( '\Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1548,7 +1558,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	/**
 	 * Test get_export_data_for_posts with all entries for parsed fields invalid.
 	 *
-	 * @covers Grunion_Contact_Form_Plugin
+	 * @covers Contact_Form_Plugin
 	 * @group csvexport
 	 */
 	public function test_get_export_data_for_posts_all_entries_for_parse_fields_invalid() {
@@ -1557,7 +1567,7 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 		 *
 		 * @var Contact_Form_Plugin $mock
 		 */
-		$mock = $this->getMockBuilder( '\Automattic\Jetpack\Forms\Contact_Form\Contact_Form_Plugin' )
+		$mock = $this->getMockBuilder( Contact_Form_Plugin::class )
 			->setMethods(
 				array(
 					'get_post_meta_for_csv_export',
@@ -1675,6 +1685,8 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * @author jaswrks
 	 */
 	public function test_personal_data_eraser() {
+		Contact_Form_Plugin::init();
+
 		$this->add_field_values(
 			array(
 				'name'  => 'John Doe',
@@ -1712,6 +1724,8 @@ class WP_Test_Contact_Form extends WP_UnitTestCase {
 	 * Tests the functionality of 'Contact_Form_Plugin::personal_data_eraser' with pagination.
 	 */
 	public function test_personal_data_eraser_pagination() {
+		Contact_Form_Plugin::init();
+
 		$this->add_field_values(
 			array(
 				'name'  => 'Jane Doe',

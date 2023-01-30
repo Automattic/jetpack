@@ -37,7 +37,7 @@ class Form_View {
 				'modules/contact-form/js/grunion.js'
 			),
 			array( 'jquery-ui-sortable', 'jquery-ui-draggable' ),
-			JETPACK__VERSION,
+			\JETPACK__VERSION,
 			false
 		);
 

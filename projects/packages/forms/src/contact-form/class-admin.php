@@ -460,7 +460,7 @@ class Admin {
 
 		wp_enqueue_script( 'wp-lists' );
 
-		wp_register_style( 'grunion-admin.css', plugin_dir_url( __FILE__ ) . 'css/grunion-admin.css', array(), JETPACK__VERSION );
+		wp_register_style( 'grunion-admin.css', plugin_dir_url( __FILE__ ) . 'css/grunion-admin.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion-admin.css', 'rtl', 'replace' );
 
 		wp_enqueue_style( 'grunion-admin.css' );
@@ -1224,7 +1224,7 @@ class Admin {
 				'modules/contact-form/js/grunion-admin.js'
 			),
 			array( 'jquery' ),
-			JETPACK__VERSION,
+			\JETPACK__VERSION,
 			true
 		);
 
