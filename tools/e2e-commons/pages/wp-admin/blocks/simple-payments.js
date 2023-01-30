@@ -1,4 +1,5 @@
 import EditorCanvas from './editor-canvas.js';
+import { expect } from '@playwright/test';
 
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
