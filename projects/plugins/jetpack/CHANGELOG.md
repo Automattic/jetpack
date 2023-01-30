@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.8-a.15 - 2023-01-30
+## 11.8-beta - 2023-01-30
 ### Enhancements
 - Form block: add styling of input fields. [#27837]
 

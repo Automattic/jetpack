@@ -251,7 +251,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Revue block: add a direct link to the WordPress.com subscriber import page.
 
 #### Bug fixes
-- Slidedhow: fix slideshow loading excessive dependencies on every page view.
+- Slideshow: fix slideshow loading excessive dependencies on every page view.
 - Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
 
