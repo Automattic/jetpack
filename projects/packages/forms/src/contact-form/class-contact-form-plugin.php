@@ -247,7 +247,7 @@ class Contact_Form_Plugin {
 		 *  }
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'css/grunion.css', array(), \JETPACK__VERSION );
+		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		self::enqueue_contact_forms_style_script();
