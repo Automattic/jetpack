@@ -172,7 +172,16 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 		// Once a user has saved their global whitelist, we can permanently remove the legacy option.
 		delete_site_option( 'jetpack_protect_whitelist' );
 	} else {
-		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, implode( '\n', $new_items ) );
+		$new_items = array_map(
+			function ( $item ) {
+				if ( $item->range ) {
+						return $item->range_low . '-' . $item->range_high;
+				}
+				return $item->ip_address;
+			},
+			$new_items
+		);
+		update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, implode( ' ', $new_items ) );
 	}
 	return true;
 }
