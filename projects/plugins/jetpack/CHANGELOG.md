@@ -11,7 +11,7 @@
 - Revue block: add a direct link to the WordPress.com subscriber import page. [#28538]
 
 ### Bug fixes
-- Slidedhow: fix slideshow loading excessive dependencies on every page view. [#28562]
+- Slideshow: fix slideshow loading excessive dependencies on every page view. [#28562]
 - Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages. [#28643]
 
