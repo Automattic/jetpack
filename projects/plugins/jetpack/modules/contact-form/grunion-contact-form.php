@@ -2460,7 +2460,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		} elseif ( $post ) {
 			$attributes['id'] = $post->ID;
 			$post_author      = get_userdata( $post->post_author );
-			$default_to      .= $post_author->user_email;
+			$default_to      .= $post_author->user_email ? $post_author->user_email : '';
 		}
 
 		// Keep reference to $this for parsing form fields.
