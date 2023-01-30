@@ -333,12 +333,16 @@ class Jetpack_Protect {
 	 * @return boolean
 	 */
 	public static function jetpack_check_user_licenses( $has_license, $licenses ) {
-		if ( $has_license ) {
-			return true;
-		}
-		foreach ( $licenses as $license ) {
-			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
+		$has_plan = Plan::has_required_plan();
+
+		if ( ! $has_plan ) {
+			if ( $has_license ) {
 				return true;
+			}
+			foreach ( $licenses as $license ) {
+				if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
+					return true;
+				}
 			}
 		}
 

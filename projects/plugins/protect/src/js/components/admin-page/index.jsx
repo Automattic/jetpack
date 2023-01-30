@@ -1,5 +1,5 @@
 import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -20,7 +20,6 @@ const AdminPage = ( { children } ) => {
 	const { isSupported: wafSupported, isSeen: wafSeen } = useWafData();
 	const { refreshPlan, startScanOptimistically, refreshStatus } = useDispatch( STORE_ID );
 	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { userIsConnecting } = useConnection();
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
@@ -44,10 +43,9 @@ const AdminPage = ( { children } ) => {
 	/*
 	 * Show interstital page when
 	 * - Site is not registered
-	 * - User is connecting
 	 * - Checkout workflow has started
 	 */
-	if ( ! isRegistered || userIsConnecting || hasCheckoutStarted ) {
+	if ( ! isRegistered || hasCheckoutStarted ) {
 		return <InterstitialPage onScanAdd={ run } scanJustAdded={ hasCheckoutStarted } />;
 	}
 

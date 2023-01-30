@@ -6,16 +6,18 @@ import {
 	Text,
 	Button,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
+import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
+import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
 import styles from './styles.module.scss';
 
 /**
- * Intersitial Page
+ * Interstitial Page
  *
  * @param {object} props                 - Component props
  * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
@@ -23,17 +25,18 @@ import styles from './styles.module.scss';
  * @returns {React.Component}              Interstitial react component.
  */
 const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
+	const { siteIsRegistering } = useConnection();
 	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { handleRegisterSite, registrationError, userIsConnecting } = useConnection( {
-		redirectUri: adminUrl,
+	const { run } = useProductCheckoutWorkflow( {
+		productSlug: JETPACK_SCAN_SLUG,
+		redirectUrl: adminUrl,
+		siteProductAvailabilityHandler: async () => {
+			apiFetch( {
+				path: 'jetpack-protect/v1/check-plan',
+				method: 'GET',
+			} ).then( hasRequiredPlan => hasRequiredPlan );
+		},
 	} );
-
-	const [ isRegistering, setIsRegistering ] = useState( false );
-
-	const getStarted = useCallback( () => {
-		setIsRegistering( true );
-		handleRegisterSite().then( () => setIsRegistering( false ) );
-	}, [ handleRegisterSite ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
@@ -52,13 +55,8 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 							className={ styles[ 'get-started-button' ] }
 							variant={ 'link' }
 							weight={ 'regular' }
-							onClick={ getStarted }
-							isLoading={ isRegistering || userIsConnecting }
-							error={
-								registrationError
-									? __( 'An error occurred. Please try again.', 'jetpack-protect' )
-									: null
-							}
+							onClick={ run }
+							isLoading={ siteIsRegistering }
 						>
 							{ __( 'Click here to get started', 'jetpack-protect' ) }
 						</Button>
