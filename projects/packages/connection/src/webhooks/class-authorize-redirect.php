@@ -57,30 +57,11 @@ class Authorize_Redirect {
 			exit;
 		}
 
+		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			// The user is either already connected, or finished the connection process.
-			if ( class_exists( '\Automattic\Jetpack\Licensing' )
-				&& preg_match( '#^https://[^/]+/checkout/#i', $dest_url )
-			) {
-				// If the destination URL is checkout page,
-				// see if there are unattached licenses they could use instead of getting a new one.
-
-				$licenses = Licensing::instance()->get_user_licenses( true );
-
-				/**
-				 * Filter the list of options that are manageable via the JSON API.
-				 *
-				 * @since 3.8.2
-				 *
-				 * @param bool Whether a license was already found.
-				 * @param array Unattached licenses the user has purchased.
-				 */
-				if ( count( $licenses )
-					&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses )
-				) {
-					wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
-					exit;
-				}
+			if ( $this->user_has_unattached_license( $dest_url ) ) {
+				wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
+				exit;
 			}
 
 			wp_safe_redirect( $dest_url );
@@ -106,6 +87,51 @@ class Authorize_Redirect {
 
 		wp_safe_redirect( $this->build_authorize_url( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) ) );
 		exit;
+	}
+
+	/**
+	 * If the destination URL is checkout page,
+	 * see if there are unattached licenses they could use instead of getting a new one.
+	 *
+	 * @param string $dest_url User's destination URL.
+	 *
+	 * @return bool
+	 */
+	public function user_has_unattached_license( $dest_url ) {
+		if ( class_exists( '\Automattic\Jetpack\Licensing' )
+			&& preg_match( '#^https://[^/]+/checkout/#i', $dest_url )
+		) {
+			$licenses    = Licensing::instance()->get_user_licenses( true );
+			$plugin_slug = null;
+
+			$query_string = parse_url( $dest_url, PHP_URL_QUERY );
+			if ( $query_string ) {
+				parse_str( $query_string, $query_args );
+
+				if ( $query_args['redirect_to']
+					&& preg_match( '/^admin\.php\?page=(jetpack-\w+)/i', $query_args['redirect_to'], $matches )
+				) {
+					$plugin_slug = $matches[1];
+				}
+			}
+
+			/**
+			 * Filter the list of options that are manageable via the JSON API.
+			 *
+			 * @since 3.8.2
+			 *
+			 * @param bool   $has_license Whether a license was already found.
+			 * @param array  $licenses Unattached licenses the user has purchased.
+			 * @param string $plugin_slug Slug of the plugin that initiated the flow.
+			 */
+			if ( $plugin_slug && count( $licenses )
+				&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses, $plugin_slug )
+			) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

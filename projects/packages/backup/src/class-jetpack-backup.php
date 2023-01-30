@@ -126,7 +126,7 @@ class Jetpack_Backup {
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
-		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 2 );
+		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
 
 		/**
 		 * Runs right after the Jetpack Backup package is initialized.
@@ -502,17 +502,19 @@ class Jetpack_Backup {
 	/**
 	 * Check for user licenses.
 	 *
-	 * @param  boolean $has_license Check if user has a license.
-	 * @param  object  $licenses List of licenses.
+	 * @param boolean $has_license Check if user has a license.
+	 * @param array   $licenses List of licenses.
+	 * @param string  $plugin_slug The plugin that initiated the flow.
 	 *
 	 * @return boolean
 	 */
-	public static function jetpack_check_user_licenses( $has_license, $licenses ) {
-		if ( $has_license ) {
+	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
+		if ( $plugin_slug !== static::JETPACK_BACKUP_SLUG || $has_license ) {
 			return true;
 		}
+
 		foreach ( $licenses as $license ) {
-			if ( in_array( $license->product_id, self::JETPACK_BACKUP_PRODUCT_IDS, true ) ) {
+			if ( in_array( $license->product_id, static::JETPACK_BACKUP_PRODUCT_IDS, true ) ) {
 				return true;
 			}
 		}
