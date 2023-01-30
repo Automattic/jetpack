@@ -74,7 +74,7 @@ class Admin_Sidebar_Link {
 			$menu_label = __( 'Scan', 'jetpack' );
 			$url        = Redirect::get_url( 'calypso-scanner' );
 		} elseif ( ! $has_scan && $show_backup ) {
-			$menu_label = __( 'Backup', 'jetpack' );
+			$menu_label = __( 'VaultPress Backup', 'jetpack' );
 		} else {
 			// Will be both, as the code won't get this far if neither is true (see should_show_link()).
 			$menu_label = __( 'Backup & Scan', 'jetpack' );
