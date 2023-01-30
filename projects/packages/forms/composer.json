@@ -64,6 +64,8 @@
 	},
 	"require": {
 		"automattic/jetpack-blocks": "1.4.x-dev",
-		"automattic/jetpack-assets": "1.17.x-dev"
+		"automattic/jetpack-assets": "1.17.x-dev",
+		"automattic/jetpack-connection": "1.49.x-dev",
+		"automattic/jetpack-status": "1.16.x-dev"
 	}
 }

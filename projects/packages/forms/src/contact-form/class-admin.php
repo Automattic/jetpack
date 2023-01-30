@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -220,8 +221,7 @@ class Admin {
 			$spreadsheet_title = sprintf( '%s - %s', $this->get_export_filename(), gmdate( 'Y-m-d H:i' ) );
 		}
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
-		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
+		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
 		wp_send_json(
 			array(
@@ -279,8 +279,7 @@ class Admin {
 
 		$user_id = (int) get_current_user_id();
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
-		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
 
 		if ( $has_valid_connection ) {
 			$button_html = $this->get_gdrive_export_button_markup();
@@ -355,10 +354,7 @@ class Admin {
 			return;
 		}
 
-		if ( ! class_exists( 'Jetpack_Google_Drive_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
-		}
-		$has_valid_connection = Jetpack_Google_Drive_Helper::has_valid_connection( $user_id );
+		$has_valid_connection = Google_Drive::has_valid_connection( $user_id );
 
 		$replacement_html = $has_valid_connection
 			? $this->get_gdrive_export_button_markup()
