@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Core_Json_Api_Endpoints;
 
@@ -194,7 +195,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function has_backup_plugin() {
-		return class_exists( 'Jetpack_Backup' );
+		return Backup::is_active();
 	}
 
 	/**
