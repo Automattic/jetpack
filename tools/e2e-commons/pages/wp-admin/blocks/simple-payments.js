@@ -1,4 +1,5 @@
 import EditorCanvas from './editor-canvas.js';
+
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
@@ -34,9 +35,10 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	}
 
 	async waitForResponse() {
-		await this.page.waitForResponse(
-			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.status() === 200
+		const response = await this.page.waitForResponse( r =>
+			decodeURIComponent( r.url() ).match( /jp_pay_product/ )
 		);
+		expect( [ 200, 201 ], 'Response status should be 200' ).toContain( response.status() );
 	}
 
 	getSelector( selector ) {
