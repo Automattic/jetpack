@@ -56,7 +56,7 @@ Chapter 1
 Chapter 2 - Reloaded
 
 3
-00:04:44.001 --> 99:59:59.000
+00:04:44.001 --> 999:59:59.000
 Chapter 3 - Revolutions
 `;
 			const result = generateChaptersFileContent( description );
