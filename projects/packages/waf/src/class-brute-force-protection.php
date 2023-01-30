@@ -617,7 +617,7 @@ class Brute_Force_Protection {
 		$ip = jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP.
-		if ( ! $ip && class_exists( 'Jetpack' ) ) {
+		if ( ! $ip ) {
 			( new Modules() )->deactivate( 'protect' );
 			ob_start();
 			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
