@@ -12,8 +12,6 @@ use Jetpack;
 use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
 
-require_once __DIR__ . '/brute-force-protection/shared-functions.php';
-
 /**
  * Brute Force Protection class.
  */
@@ -513,7 +511,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		$whitelist = jetpack_protect_get_local_whitelist();
+		$whitelist = Shared_Functions::jetpack_protect_get_local_whitelist();
 
 		if ( is_multisite() ) {
 			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
@@ -527,7 +525,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( Shared_Functions::jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -588,7 +586,7 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = jetpack_protect_get_ip();
+		$ip = Shared_Functions::jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip && class_exists( 'Jetpack' ) ) {
@@ -616,7 +614,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( jetpack_protect_ip_is_private( $ip ) ) {
+		if ( Shared_Functions::jetpack_protect_ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -703,7 +701,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = jetpack_protect_get_ip();
+		$ip = Shared_Functions::jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -819,7 +817,7 @@ class Brute_Force_Protection {
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 
 		$request['action']            = $action;
-		$request['ip']                = jetpack_protect_get_ip();
+		$request['ip']                = Shared_Functions::jetpack_protect_get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );

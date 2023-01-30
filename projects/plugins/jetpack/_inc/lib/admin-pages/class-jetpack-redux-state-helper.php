@@ -20,6 +20,7 @@ use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
 
 /**
  * Responsible for populating the initial Redux state.
@@ -199,7 +200,7 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'currentIp'                   => Shared_Functions::jetpack_protect_get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),

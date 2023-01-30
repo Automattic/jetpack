@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
 
 /**
  * Used to manage Jetpack installation on Multisite Network installs
@@ -62,7 +63,6 @@ class Jetpack_Network {
 	 */
 	private function __construct() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php'; // For the is_plugin... check.
-		require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php'; // For managing the global whitelist.
 
 		/**
 		 * Sanity check to ensure the install is Multisite and we
@@ -613,7 +613,7 @@ class Jetpack_Network {
 		$whitelist = isset( $_POST['global-whitelist'] ) ? filter_var( wp_unslash( $_POST['global-whitelist'] ) ) : '';
 		$whitelist = str_replace( ' ', '', $whitelist );
 		$whitelist = explode( PHP_EOL, $whitelist );
-		$result    = jetpack_protect_save_whitelist( $whitelist, true );
+		$result    = Shared_Functions::jetpack_protect_save_whitelist( $whitelist, true );
 		if ( is_wp_error( $result ) ) {
 			wp_safe_redirect(
 				add_query_arg(
@@ -692,7 +692,7 @@ class Jetpack_Network {
 		$data = array(
 			'modules'                   => $modules,
 			'options'                   => $options,
-			'jetpack_protect_whitelist' => jetpack_protect_format_whitelist(),
+			'jetpack_protect_whitelist' => Shared_Functions::jetpack_protect_format_whitelist(),
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
