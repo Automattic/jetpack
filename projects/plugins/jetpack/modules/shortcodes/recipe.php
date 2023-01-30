@@ -91,6 +91,9 @@ class Jetpack_Recipes {
 		}
 
 		foreach ( $GLOBALS['posts'] as $p ) {
+			if ( ! $p ) {
+				continue;
+			}
 			if ( has_shortcode( $p->post_content, 'recipe' ) ) {
 				$this->scripts_and_style_included = true;
 				break;
