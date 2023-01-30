@@ -31,6 +31,7 @@ test.describe( 'Free blocks', () => {
 			await test.step( 'Visit block editor page', async () => {
 				blockEditor = await BlockEditorPage.visit( page );
 				await blockEditor.resolveWelcomeGuide( false );
+				await blockEditor.waitForEditor();
 			} );
 		} );
 
