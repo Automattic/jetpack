@@ -22,6 +22,7 @@ import useMediaRestrictions, {
 	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
 /**
@@ -138,28 +139,33 @@ export default function MediaSection() {
 
 	const renderPreview = useCallback(
 		open => {
-			if ( isVideo( metaData.mime ) ) {
-				// TBD
-				return <div>Video Preview</div>;
-			}
-
 			const { width, height, sourceUrl } = mediaData;
 
-			if ( width && height && sourceUrl ) {
-				return (
-					<div className={ styles[ 'preview-wrapper' ] }>
-						<button className={ styles.remove } onClick={ onRemoveMedia }>
-							<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
-							<Icon icon={ closeSmall } />
-						</button>
-						<button className={ styles.preview } onClick={ open }>
+			if ( ! sourceUrl || ! width || ! height ) {
+				return null;
+			}
+
+			return (
+				<div className={ styles[ 'preview-wrapper' ] }>
+					<button className={ styles.remove } onClick={ onRemoveMedia }>
+						<VisuallyHidden>{ __( 'Remove media', 'jetpack' ) }</VisuallyHidden>
+						<Icon icon={ closeSmall } />
+					</button>
+					<button className={ styles.preview } onClick={ open }>
+						{ isVideo( metaData.mime ) ? (
+							<VideoPreview
+								sourceUrl={ sourceUrl }
+								mime={ metaData.mime }
+								duration={ metaData.length }
+							></VideoPreview>
+						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
 								<img src={ sourceUrl } alt="" />
 							</ResponsiveWrapper>
-						</button>
-					</div>
-				);
-			}
+						) }
+					</button>
+				</div>
+			);
 		},
 		[ mediaData, metaData, onRemoveMedia ]
 	);

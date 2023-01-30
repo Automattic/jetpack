@@ -4,6 +4,7 @@ use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	public function test_never_queues_if_development() {
@@ -154,7 +155,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
-			'ip'               => jetpack_protect_get_ip(),
+			'ip'               => Shared_Functions::jetpack_protect_get_ip(),
 			'user_agent'       => 'Jetpack Unit Tests',
 			'is_cli'           => defined( 'WP_CLI' ) ? WP_CLI : false,
 			'from_url'         => $this->get_page_url(),
