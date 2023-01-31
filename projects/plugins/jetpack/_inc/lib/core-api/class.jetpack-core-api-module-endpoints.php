@@ -10,7 +10,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
@@ -749,7 +749,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
-					$updated = Shared_Functions::jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
+					$updated = Brute_Force_Protection_Shared_Functions::jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
 
 					if ( is_wp_error( $updated ) ) {
 						$error = $updated->get_error_message();
