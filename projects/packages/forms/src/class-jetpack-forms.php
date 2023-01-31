@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\ContactForm\Util;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0-alpha';
 
 	/**
 	 * Load the contact form module.

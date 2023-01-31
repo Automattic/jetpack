@@ -50,7 +50,7 @@
 			"link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.2.x-dev"
+			"dev-trunk": "0.3.x-dev"
 		},
 		"textdomain": "jetpack-forms",
 		"version-constants": {
@@ -63,9 +63,9 @@
 		}
 	},
 	"require": {
-		"automattic/jetpack-blocks": "1.4.x-dev",
-		"automattic/jetpack-assets": "1.17.x-dev",
-		"automattic/jetpack-connection": "1.49.x-dev",
-		"automattic/jetpack-status": "1.16.x-dev"
+		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-status": "@dev"
 	}
 }
