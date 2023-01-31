@@ -18,6 +18,7 @@
 	"projects/packages/sync/src/replicastore/class-table-checksum-usermeta.php",
 	"projects/packages/sync/src/replicastore/class-table-checksum-users.php",
 	"projects/packages/sync/src/replicastore/class-table-checksum.php",
+	"projects/packages/waf/src/brute-force-protection.php/class-transient-cleanup.php",
 	"projects/packages/waf/src/class-brute-force-protection.php",
 	"projects/plugins/beta/src/class-utils.php",
 	"projects/plugins/boost/app/class-jetpack-boost.php",

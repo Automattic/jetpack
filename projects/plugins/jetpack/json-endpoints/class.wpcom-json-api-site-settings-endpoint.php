@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
@@ -495,7 +495,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ]['sharing_open_links']   = (string) $sharing['open_links'];
 					}
 
-					$response[ $key ]['jetpack_protect_whitelist'] = Shared_Functions::jetpack_protect_format_whitelist();
+					$response[ $key ]['jetpack_protect_whitelist'] = Brute_Force_Protection_Shared_Functions::jetpack_protect_format_whitelist();
 
 					if ( ! current_user_can( 'edit_posts' ) ) {
 						unset( $response[ $key ] );
@@ -628,12 +628,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( class_exists( 'Shared_Functions' ) ) {
-						$result = Shared_Functions::jetpack_protect_save_whitelist( $value );
+					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
+						$result = Brute_Force_Protection_Shared_Functions::jetpack_protect_save_whitelist( $value );
 						if ( is_wp_error( $result ) ) {
 							return $result;
 						}
-						$updated[ $key ] = Shared_Functions::jetpack_protect_format_whitelist();
+						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::jetpack_protect_format_whitelist();
 					}
 					break;
 				case 'jetpack_sync_non_public_post_stati':

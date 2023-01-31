@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Shared_Functions;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * This class monitors actions and logs them to the queue to be sent.
@@ -429,7 +429,7 @@ class Listener {
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
 			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				$ip = Shared_Functions::jetpack_protect_get_ip();
+				$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
 			}
 
 			$actor['ip']         = $ip;

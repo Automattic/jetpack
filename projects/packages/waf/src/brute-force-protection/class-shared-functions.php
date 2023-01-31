@@ -12,7 +12,7 @@ use Jetpack_Options;
 /**
  * Shared Functions class.
  */
-class Shared_Functions {
+class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Returns an array of IP objects that will never be blocked by the Protect module
 	 *
