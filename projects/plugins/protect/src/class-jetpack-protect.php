@@ -334,6 +334,10 @@ class Jetpack_Protect {
 	 * @return boolean
 	 */
 	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
+		if ( Plan::has_required_plan() ) {
+			wp_safe_redirect( '/wp-admin/admin.php?page=jetpack-protect' );
+			exit;
+		}
 
 		if ( $plugin_slug !== JETPACK_PROTECT_SLUG || $has_license ) {
 			return $has_license;
@@ -348,8 +352,7 @@ class Jetpack_Protect {
 			}
 		}
 
-		// Checking for existing backup plan is costly, so only check if there's an appropriate license.
-		return $license_found && ! Plan::has_required_plan();
+		return $license_found;
 	}
 
 	/**

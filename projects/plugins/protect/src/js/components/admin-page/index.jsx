@@ -1,6 +1,5 @@
 import { AdminPage as JetpackAdminPage, Container } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs, getQueryArg } from '@wordpress/url';
@@ -23,11 +22,6 @@ const AdminPage = ( { children } ) => {
 	const { run, isRegistered, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: addQueryArgs( adminUrl, { checkPlan: true } ),
-		siteProductAvailabilityHandler: async () =>
-			apiFetch( {
-				path: 'jetpack-protect/v1/check-plan',
-				method: 'GET',
-			} ).then( hasRequiredPlan => hasRequiredPlan ),
 	} );
 
 	useEffect( () => {
