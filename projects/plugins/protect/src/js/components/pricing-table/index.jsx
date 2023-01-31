@@ -23,16 +23,17 @@ import { STORE_ID } from '../../state/store';
  *
  * @param {object} props                 - Component props
  * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @param {Function} props.scanJustAdded - Callback when adding paid protect product was recently added
  * @returns {object}                ConnectedPricingTable react component.
  */
-const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
+const ConnectedPricingTable = ( { onScanAdd } ) => {
 	const { handleRegisterSite, registrationError } = useConnection( {
 		skipUserConnection: true,
 	} );
 
 	const { refreshPlan, refreshStatus } = useDispatch( STORE_ID );
-	const [ protectFreeIsRegistering, setProtectFreeIsRegistering ] = useState( false );
+
+	const [ getProtectFreeButtonIsLoading, setGetProtectFreeButtonIsLoading ] = useState( false );
+	const [ getScanButtonIsLoading, setGetScanButtonIsLoading ] = useState( false );
 
 	// Access paid protect product data
 	const { jetpackScan } = useProtectData();
@@ -48,16 +49,16 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 
 	// Track free and paid click events
 	const { recordEvent, recordEventHandler } = useAnalyticsTracks();
-	const getScan = recordEventHandler(
-		'jetpack_protect_pricing_table_get_scan_link_click',
-		onScanAdd
-	);
+	const getScan = recordEventHandler( 'jetpack_protect_pricing_table_get_scan_link_click', () => {
+		setGetScanButtonIsLoading( true );
+		onScanAdd();
+	} );
 
 	const getProtectFree = useCallback( () => {
 		recordEvent( 'jetpack_protect_connected_product_activated' );
-		setProtectFreeIsRegistering( true );
+		setGetProtectFreeButtonIsLoading( true );
 		handleRegisterSite()
-			.then( () => setProtectFreeIsRegistering( false ) )
+			.then( () => setGetProtectFreeButtonIsLoading( false ) )
 			.then( () => {
 				refreshPlan();
 				refreshWaf();
@@ -104,8 +105,8 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 						<Button
 							fullWidth
 							onClick={ getScan }
-							isLoading={ scanJustAdded }
-							disabled={ protectFreeIsRegistering || scanJustAdded }
+							isLoading={ getScanButtonIsLoading }
+							disabled={ getProtectFreeButtonIsLoading || getScanButtonIsLoading }
 						>
 							{ __( 'Get Jetpack Protect', 'jetpack-protect' ) }
 						</Button>
@@ -135,8 +136,8 @@ const ConnectedPricingTable = ( { onScanAdd, scanJustAdded } ) => {
 							fullWidth
 							variant="secondary"
 							onClick={ getProtectFree }
-							isLoading={ protectFreeIsRegistering }
-							disabled={ protectFreeIsRegistering || scanJustAdded }
+							isLoading={ getProtectFreeButtonIsLoading }
+							disabled={ getProtectFreeButtonIsLoading || getScanButtonIsLoading }
 							error={
 								registrationError
 									? __( 'An error occurred. Please try again.', 'jetpack-protect' )

@@ -6,11 +6,8 @@ import {
 	Text,
 	Button,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow, useConnection } from '@automattic/jetpack-connection';
-import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { JETPACK_SCAN_SLUG } from '../../constants';
+import React, { useState, useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import Logo from '../logo';
 import ConnectedPricingTable from '../pricing-table';
@@ -21,22 +18,15 @@ import styles from './styles.module.scss';
  *
  * @param {object} props                 - Component props
  * @param {Function} props.onScanAdd     - Callback when adding paid protect product successfully
- * @param {Function} props.scanJustAdded - Callback when adding paid protect product was recently added
  * @returns {React.Component}              Interstitial react component.
  */
-const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
-	const { siteIsRegistering } = useConnection();
-	const { adminUrl } = window.jetpackProtectInitialState || {};
-	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN_SLUG,
-		redirectUrl: adminUrl,
-		siteProductAvailabilityHandler: async () => {
-			apiFetch( {
-				path: 'jetpack-protect/v1/check-plan',
-				method: 'GET',
-			} ).then( hasRequiredPlan => hasRequiredPlan );
-		},
-	} );
+const InterstitialPage = ( { onScanAdd } ) => {
+	const [ getStartedButtonIsLoading, setGetStartedButtonIsLoading ] = useState( false );
+
+	const getStarted = useCallback( () => {
+		setGetStartedButtonIsLoading( true );
+		onScanAdd();
+	}, [ onScanAdd ] );
 
 	// Track view for Protect WAF page.
 	useAnalyticsTracks( {
@@ -55,8 +45,8 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 							className={ styles[ 'get-started-button' ] }
 							variant={ 'link' }
 							weight={ 'regular' }
-							onClick={ run }
-							isLoading={ siteIsRegistering }
+							onClick={ getStarted }
+							isLoading={ getStartedButtonIsLoading }
 						>
 							{ __( 'Click here to get started', 'jetpack-protect' ) }
 						</Button>
@@ -67,7 +57,7 @@ const InterstitialPage = ( { onScanAdd, scanJustAdded } ) => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						<ConnectedPricingTable onScanAdd={ onScanAdd } scanJustAdded={ scanJustAdded } />
+						<ConnectedPricingTable onScanAdd={ onScanAdd } />
 					</Col>
 				</Container>
 			</AdminSectionHero>
