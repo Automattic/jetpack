@@ -7,8 +7,6 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
-		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client' 'pnpm:build-php'",
-		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client'",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
@@ -25,7 +23,6 @@
 		"@babel/register": "7.18.9",
 		"@babel/runtime": "7.20.7",
 		"css-loader": "6.5.1",
-		"concurrently": "6.0.2",
 		"glob": "8.1.0",
 		"sass": "1.43.4",
 		"sass-loader": "12.4.0",

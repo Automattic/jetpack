@@ -40,7 +40,8 @@ function getJsEntries() {
 function getSassEntries() {
 	const entries = {};
 	glob.sync( sassPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
-		entries[ './' + file.substring( 0, file.length - '.scss'.length ) ] = './' + file;
+		const newPath = file.replace( 'sass', 'css' );
+		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] = './' + file;
 	} );
 	return entries;
 }
@@ -102,7 +103,6 @@ module.exports = [
 		entry: getSassEntries(),
 		output: {
 			...crmWebpackConfig.output,
-			assetModuleFilename: '[path]/../css/[name].min.css',
 		},
 		module: {
 			...crmWebpackConfig.module,
