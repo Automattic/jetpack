@@ -1,5 +1,5 @@
-import PageActions from '../../page-actions.js';
-export default class SubscribeBlock extends PageActions {
+import EditorCanvas from './editor-canvas.js';
+export default class SubscribeBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Subscribe' );
 		this.blockTitle = SubscribeBlock.title();
@@ -24,10 +24,15 @@ export default class SubscribeBlock extends PageActions {
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {Object} frontendPage PageActions page instance
 	 */
-	static async isRendered( page ) {
-		await page.waitForSelector( '.wp-block-jetpack-subscriptions__container #subscribe-field-1' );
-		await page.waitForSelector( '.wp-block-jetpack-subscriptions__container button' );
+	async isRenderedInFrontend( frontendPage ) {
+		await frontendPage.waitForElementToBeVisible(
+			".wp-block-jetpack-subscriptions__container input[name='email']"
+		);
+		await frontendPage.waitForElementToBeVisible(
+			'.wp-block-jetpack-subscriptions__container button'
+		);
+		return true;
 	}
 }
