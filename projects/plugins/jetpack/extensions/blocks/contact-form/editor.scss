@@ -631,10 +631,15 @@
 				border-color: var(--jetpack--contact-form--border-color);
 				border-style: var(--jetpack--contact-form--border-style);
 				border-width: var(--jetpack--contact-form--border-size);
-				border-left: none;
-				border-right: none;
 				padding: 0 4px;
 				transition: border 150ms linear;
+			}
+
+			// For some reason, when keeping the rule below together with the above selector,
+			// on production builds, the attributes are being reordered, causing side-effects
+			.notched-label__notch {
+				border-left: none;
+				border-right: none;
 			}
 
 			.notched-label__label {
