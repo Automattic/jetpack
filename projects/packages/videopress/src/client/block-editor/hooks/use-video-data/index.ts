@@ -44,15 +44,16 @@ export default function useVideoData( {
 
 		/**
 		 * Fetches the video videoData from the API.
+		 *
+		 * @param {string} token - The token to use in the request.
 		 */
-		async function fetchVideoItem() {
+		async function fetchVideoItem( token = null ) {
 			try {
-				const tokenData = await getMediaToken( 'playback', { id, guid } );
 				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
 
 				// Add the token to the request if it exists.
-				if ( tokenData?.token ) {
-					params.metadata_token = tokenData.token;
+				if ( token ) {
+					params.metadata_token = token;
 				}
 
 				// Add the birthdate to skip the rating check if it's required.
@@ -91,9 +92,25 @@ export default function useVideoData( {
 					is_private: response.is_private,
 					private_enabled_for_site: response.private_enabled_for_site,
 				} );
-			} catch ( error ) {
+			} catch ( errorData ) {
+				if ( errorData?.error === 'auth' ) {
+					debug( 'Authenticating error.' );
+					if ( token ) {
+						debug( 'Token is invalid.' );
+					} else {
+						debug( 'Token is missing. Attempting to get one.' );
+						const tokenData = await getMediaToken( 'playback', { id, guid } );
+						if ( ! tokenData?.token ) {
+							debug( 'Token is missing. Aborting.' );
+							setIsRequestingVideoData( false );
+							return;
+						}
+						fetchVideoItem( tokenData.token );
+					}
+				}
+
 				setIsRequestingVideoData( false );
-				throw new Error( error?.message ?? error );
+				// throw new Error( error?.message ?? error );
 			}
 		}
 
