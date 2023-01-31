@@ -19,9 +19,9 @@ import {
 	WPComV2VideopressGetMetaEndpointResponseProps,
 	WPComV2VideopressPostMetaEndpointBodyProps,
 } from '../../../types';
-import extractVideoChapters from '../../../utils/extract-video-chapters';
-import generateChaptersFile from '../../../utils/generate-chapters-file';
 import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import extractVideoChapters from '../../../utils/video-chapters/extract-video-chapters';
+import generateChaptersFile from '../../../utils/video-chapters/generate-chapters-file';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,

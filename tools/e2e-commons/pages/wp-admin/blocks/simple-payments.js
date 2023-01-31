@@ -1,6 +1,7 @@
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
+import { expect } from '@playwright/test';
 
-export default class SimplePaymentBlock extends BlockEditorCanvas {
+export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
@@ -35,9 +36,11 @@ export default class SimplePaymentBlock extends BlockEditorCanvas {
 	}
 
 	async waitForResponse() {
-		await this.page.waitForResponse(
-			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.status() === 200
+		const response = await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ),
+			{ timeout: 30000 }
 		);
+		expect( [ 200, 201 ], 'Response status should be 200 or 201' ).toContain( response.status() );
 	}
 
 	getSelector( selector ) {
