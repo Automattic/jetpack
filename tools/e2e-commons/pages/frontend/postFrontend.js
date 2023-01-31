@@ -1,5 +1,5 @@
-import WpPage from './wp-page.js';
-import { resolveSiteUrl } from '../helpers/utils-helper.cjs';
+import WpPage from '../wp-page.js';
+import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
 
 export default class PostFrontendPage extends WpPage {
 	constructor( page ) {
