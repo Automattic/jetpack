@@ -84,9 +84,9 @@ describe( 'useMediaRestrictions hook', () => {
 		const allAllowedMediaTypes = getAllowedMediaTypes( DUMMY_CONNECTIONS );
 		const allAllowedMediaTypesTumblr = getAllowedMediaTypes( [ { service_name: 'tumblr' } ] );
 
-		expect( allAllowedMediaTypes ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL );
-		expect( allAllowedMediaTypesTumblr ).toStrictEqual(
-			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] )
+		expect( allAllowedMediaTypes.sort() ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL.sort() );
+		expect( allAllowedMediaTypesTumblr.sort() ).toStrictEqual(
+			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
 		);
 	} );
 
