@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { useConnection } from '@automattic/jetpack-connection';
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BlockIcon,
@@ -20,10 +19,11 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
-import Banner from './components/banner';
+import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
@@ -44,8 +44,8 @@ import type React from 'react';
 import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
-
-const { myJetpackConnectUrl } = window.videoPressEditorState;
+const { myJetpackConnectUrl } = window?.videoPressEditorState || {};
+const isUserConnected = getIsUserConnected();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -140,7 +140,6 @@ export default function VideoPressEdit( {
 	} );
 
 	// Get the redirect URI for the connection flow.
-	const { isUserConnected } = useConnection();
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
 	/*
 	 * Request token when site is private
@@ -423,36 +422,18 @@ export default function VideoPressEdit( {
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
 		};
 
-		let connectButtonText = __( 'Connect', 'jetpack-videopress-pkg' );
-		if ( isRedirectingToMyJetpack ) {
-			connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
-		}
-
 		return (
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
-					{ ! isUserConnected && (
-						<Banner
-							action={
-								<Button
-									variant="primary"
-									onClick={ () => {
-										setIsRedirectingToMyJetpack( true );
-										window.location.href = myJetpackConnectUrl;
-									} }
-									disabled={ isRedirectingToMyJetpack }
-									isBusy={ isRedirectingToMyJetpack }
-								>
-									{ connectButtonText }
-								</Button>
-							}
-						>
-							{ __(
-								'Connect your account to continue using VideoPress',
-								'jetpack-videopress-pkg'
-							) }
-						</Banner>
-					) }
+					<ConnectBanner
+						isConnected={ isUserConnected }
+						isConnecting={ isRedirectingToMyJetpack }
+						onConnect={ () => {
+							setIsRedirectingToMyJetpack( true );
+							window.location.href = myJetpackConnectUrl;
+						} }
+					/>
+
 					<VideoPressUploader
 						setAttributes={ setAttributes }
 						attributes={ attributes }
@@ -597,6 +578,15 @@ export default function VideoPressEdit( {
 				/>
 				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 			</InspectorControls>
+
+			<ConnectBanner
+				isConnected={ isUserConnected }
+				isConnecting={ isRedirectingToMyJetpack }
+				onConnect={ () => {
+					setIsRedirectingToMyJetpack( true );
+					window.location.href = myJetpackConnectUrl;
+				} }
+			/>
 
 			<VideoPressPlayer
 				html={ html }

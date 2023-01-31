@@ -14,8 +14,6 @@ use Jetpack;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 
-require_once __DIR__ . '/brute-force-protection/shared-functions.php';
-
 /**
  * Brute force protection class.
  */
@@ -131,15 +129,16 @@ class Brute_Force_Protection {
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
+		// Runs a script every day to clean up expired transients so they don't
+		// clog up our users' databases.
+		add_action( 'admin_init', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients_activation' ) );
+		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
+
 		// Load math fallback after math page form submission.
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 
 			new Brute_Force_Protection_Math_Authenticate();
 		}
-
-		// Runs a script every day to clean up expired transients so they don't
-		// clog up our users' databases.
-		require_once __DIR__ . '/brute-force-protection/transient-cleanup.php';
 	}
 
 	/**
@@ -539,7 +538,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		$whitelist = jetpack_protect_get_local_whitelist();
+		$whitelist = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_local_whitelist();
 
 		if ( is_multisite() ) {
 			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
@@ -553,7 +552,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -614,10 +613,10 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP.
-		if ( ! $ip && class_exists( 'Jetpack' ) ) {
+		if ( ! $ip ) {
 			( new Modules() )->deactivate( 'protect' );
 			ob_start();
 			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
@@ -642,7 +641,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( jetpack_protect_ip_is_private( $ip ) ) {
+		if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -729,7 +728,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -847,7 +846,7 @@ class Brute_Force_Protection {
 		$user_agent = "WordPress/{$wp_version} | " . $plugin_and_version;
 
 		$request['action']             = $action;
-		$request['ip']                 = jetpack_protect_get_ip();
+		$request['ip']                 = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
 		$request['host']               = $this->get_local_host();
 		$request['headers']            = wp_json_encode( $this->get_headers() );
 		$request['plugin_and_version'] = $plugin_and_version;

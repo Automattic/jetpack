@@ -2,6 +2,48 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8-beta - 2023-01-30
+### Enhancements
+- Form Block: add styling of input fields [#27837]
+- Reading settings: Add link to the menu in Calypso [#28616]
+- Revue block: add a direct link to the WordPress.com subscriber import page. [#28538]
+
+### Improved compatibility
+- Migrated to new Web Fonts API from Gutenberg [#28054]
+
+### Bug fixes
+- Fix slideshow loading excess dependencies on every page view [#28562]
+- Masterbar: Avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
+- Twitter timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages [#28643]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fix warnings from the global reading of $post [#28639]
+- Json API: Fix the response format for the "/sites/$site/dropdown-pages/". The endpoint is not used in production yet. [#28586]
+- Making sure array is passed to sidebars_widgets [#28624]
+- PHP error warning fix [#28640]
+- Remove Webpack config for no-longer-used `build-color-schemes-wpcom` script. [#28601]
+- Shortcodes: fix php warning [#28644]
+
+## 11.8-a.13 - 2023-01-27
+### Bug fixes
+- Subscriptions: add a null check to a $post reference. [#28621]
+
+## 11.8-a.11 - 2023-01-26
+### Enhancements
+- Form block: update form block variation icons. [#28428]
+- WAF: various updates to the WAF package. [#27726]
+
+### Improved compatibility
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Menu: route to new Reading Settings page (internal ATM - behind a feature flag). [#28430]
+- Common Mappings: add a mapping for `options-reading.php` based on a `calypso_use_modernized_reading_settings` feature flag. [#28549]
+- E2E tests: update encryption. [#28537]
+- WPcom: add support for all Launchpad flows for the on save post editor modal. [#28555]
+- WPcom: make available Jetpack AI to WPcom Simple and Atomic users. [#28552]
+- WPcom: various updates for the Jetpack AI blocks (beta). [#28583, #28483, #28604, #28487]
+
 ## 11.8-a.9 - 2023-01-23
 ### Enhancements
 - Contact Form: improve file naming when exporting form responses. [#28413]

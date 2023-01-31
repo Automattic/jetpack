@@ -17,10 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-
-
-
 /* ======================================================
 	MIGRATION FUNCS
    ====================================================== */
@@ -39,6 +35,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'55', // 5.5 Deletes orphaned rows linked to invoices in the objlinks table
 	'55a', // 5.5a Recompiles segments after wp_loaded
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
+	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-stora
 	/*
 	'123','127',
 	'216','22',
@@ -963,6 +960,216 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 
 	}
 
+/**
+ * Migration 5.6.0
+ * Moves files from the old file structure (zbscrm-store) to the new
+ * one (jpcrm-storage) for rows from the meta table that have their object type
+ * equals to ZBS_TYPE_CONTACT and a file in the zbsm_val column.
+ *
+ * @param object $meta_row Row from the meta table that needs to be updated.
+ *
+ * @return void
+ */
+function zeroBSCRM_migration_560_move_custom_file_upload_box( $meta_row ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	jpcrm_migration_load_wp_filesystem_direct();
+
+	// Skip if this is not a custom file for a contact
+	// (the only type that should exist, but we are being extra careful here).
+	if ( $meta_row->zbsm_objtype !== ZBS_TYPE_CONTACT ) {
+		return;
+	}
+	$file_path = $meta_row->zbsm_val;
+	// Skip if this file doesn't exist (user may have deleted using the filesystem).
+	if ( ! file_exists( $file_path ) ) {
+		error_log( sprintf( 'JPCRM migration error while searching for upload box file %s', $file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return;
+	}
+	$new_dir = jpcrm_storage_dir_info_for_contact( $meta_row->zbsm_objid );
+	// Skip if there is no information for the files subfolder.
+	if ( $new_dir === false || ! isset( $new_dir['files'] ) ) {
+		error_log( sprintf( 'JPCRM migration error missing subfolder files for contact ID %s', $meta_row->zbsm_objid ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return;
+	}
+	$new_dir_info         = $new_dir['files'];
+	$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
+	if ( $upload_folder_exists === false ) {
+		// We shouldn't have any errors here, but if we do we log it and skip this one.
+		error_log( sprintf( 'JPCRM migration error while creating upload box folder %s ', $new_dir_info['path'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return;
+	}
+	$file_name            = basename( $file_path );
+	$new_file_path        = $new_dir_info['path'] . '/' . $file_name;
+	$wp_filesystem_direct = new WP_Filesystem_Direct( false );
+	// Moving the file.
+	if ( ! $wp_filesystem_direct->move( $file_path, $new_file_path, true ) ) {
+		// We shouldn't have any errors here, but if we do we log it and skip this one.
+		error_log( sprintf( 'JPCRM migration error while moving upload box %s to %s', $file_path, $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		return;
+	}
+
+	// Updates the database.
+	$update_result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ZBSCRM_t['meta'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		array(
+			'zbsm_val'         => $new_file_path,
+			'zbsm_lastupdated' => time(),
+		),
+		array( 'ID' => $meta_row->ID ),
+		array( // Field data types.
+			'%s',
+			'%d',
+		),
+		array( // Where data types.
+			'%d',
+		)
+	);
+
+	if ( $update_result === false ) {
+		error_log( sprintf( 'JPCRM migration error while updating upload box meta %s to %s', $meta_row->ID ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	}
+}
+
+/**
+ * Migration 5.6.0
+ * Moves files from the old file structure (zbscrm-store) to the new
+ * one (jpcrm-storage) for rows from the meta table that have the key 'files'.
+ *
+ * @param object $meta_row Row from the meta table that needs to be updated.
+ *
+ * @return void
+ */
+function zeroBSCRM_migration_560_move_file_array( $meta_row ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	jpcrm_migration_load_wp_filesystem_direct();
+
+	// Before we move the files from the array we must discover its type and
+	// update its dir_info information (contains information for several
+	// subfolders, we will use the 'files' subfolder).
+	$new_dir = false;
+	switch ( $meta_row->zbsm_objtype ) {
+		case ZBS_TYPE_CONTACT:
+			$new_dir = jpcrm_storage_dir_info_for_contact( $meta_row->zbsm_objid );
+			break;
+
+		case ZBS_TYPE_COMPANY:
+			$new_dir = jpcrm_storage_dir_info_for_company( $meta_row->zbsm_objid );
+			break;
+
+		case ZBS_TYPE_QUOTE:
+			$new_dir = jpcrm_storage_dir_info_for_quotes( $meta_row->zbsm_objid );
+			break;
+
+		case ZBS_TYPE_INVOICE:
+			$new_dir = jpcrm_storage_dir_info_for_invoices( $meta_row->zbsm_objid );
+			break;
+	}
+
+	// Skip if any other type (we are only moving these four types).
+	if ( $new_dir === false || ! isset( $new_dir['files'] ) ) {
+		return;
+	}
+
+	$new_dir_info        = $new_dir['files'];
+	$outdated_file_array = json_decode( $meta_row->zbsm_val, true );
+	// If we can't decode it neither the CRM can when it shows files, so
+	// we can skip it.
+	if ( $outdated_file_array === null ) {
+		return;
+	}
+
+	// This was the hard-coded value in JPCRM < 5.4.x.
+	$previous_folder = 'zbscrm-store';
+	$new_file_array  = array();
+	foreach ( $outdated_file_array as $outdated_file_meta ) {
+		// Skip if this has an unknown format.
+		// Skip if this isn't an outdate file.
+		// Skip if this file doesn`t exist (user may have deleted using the filesystem).
+		if (
+			! isset( $outdated_file_meta['file'] )
+			|| strpos( $outdated_file_meta['file'], "/$previous_folder/" ) === false
+			|| ! file_exists( $outdated_file_meta['file'] )
+		) {
+			$new_file_array[] = $outdated_file_meta;
+			continue;
+		}
+
+		$upload_folder_exists = jpcrm_create_and_secure_dir_from_external_access( $new_dir_info['path'], false );
+		if ( $upload_folder_exists === false ) {
+			// We shouldn't have any errors here, but if we do we log it and skip this one.
+			error_log( sprintf( 'JPCRM migration error while creating folder %s ', $new_dir_info['path'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			$new_file_array[] = $outdated_file_meta;
+			return;
+		}
+
+		$file_name            = basename( $outdated_file_meta['file'] );
+		$new_file_path        = $new_dir_info['path'] . '/' . $file_name;
+		$wp_filesystem_direct = new WP_Filesystem_Direct( false );
+		// Moving the file.
+		if ( ! $wp_filesystem_direct->move( $outdated_file_meta['file'], $new_file_path, true ) ) {
+			// We shouldn't have any errors here, but if we do we log it and skip this one.
+			error_log( sprintf( 'JPCRM migration error while moving %s to %s', $outdated_file_meta['file'], $new_file_path ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			$new_file_array[] = $outdated_file_meta;
+			continue;
+		}
+
+		// Updating references to save in the database.
+		$outdated_file_meta['file'] = $new_file_path;
+		$outdated_file_meta['url']  = $new_dir_info['url'] . '/' . $file_name;
+		$new_file_array[]           = $outdated_file_meta;
+	}
+	// Updates the database.
+	$update_result = $wpdb->update( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$ZBSCRM_t['meta'], // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		array(
+			'zbsm_val'         => wp_json_encode( $new_file_array ),
+			'zbsm_lastupdated' => time(),
+		),
+		array( 'ID' => $meta_row->ID ),
+		array( // Field data types.
+			'%s',
+			'%d',
+		),
+		array( // Where data types.
+			'%d',
+		)
+	);
+
+	if ( $update_result === false ) {
+		error_log( sprintf( 'JPCRM migration error while updating file array meta %s to %s', $meta_row->ID ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+	}
+}
+
+/**
+ * Migration 5.6.0
+ * Moves the old folder structure (zbscrm-store) to the new one (jpcrm-storage).
+ *
+ * @return void
+ */
+function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// This was the hard-coded value in JPCRM < 5.4.x.
+	$previous_folder = 'zbscrm-store';
+	// We only store files in the meta table.
+	$query         = sprintf( "SELECT * FROM `%s` WHERE `zbsm_val` LIKE '%s'", $ZBSCRM_t['meta'], '%%%s%%' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$outdated_rows = $wpdb->get_results( $wpdb->prepare( $query, $previous_folder ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+	if ( is_array( $outdated_rows ) ) {
+		foreach ( $outdated_rows as $outdated_row ) {
+			// The first type of row we have to migrate has they key 'files' and
+			// has an array of files attached to an object of type `zbsm_objtype`.
+			if ( $outdated_row->zbsm_key === 'files' ) {
+				zeroBSCRM_migration_560_move_file_array( $outdated_row );
+			} else {
+				zeroBSCRM_migration_560_move_custom_file_upload_box( $outdated_row );
+			}
+		}
+	}
+
+	// Mark as complete.
+	zeroBSCRM_migrations_markComplete( '560', array( 'updated' => 1 ) );
+}
 
 /* ======================================================
 	/ MIGRATIONS
@@ -1056,6 +1263,16 @@ function zeroBSCRM_adminNotices_majorMigrationError(){
 		   $column_name ) );
 	   return empty( $column ) ? false : $column->Type;
    }
+
+/**
+ * Loads everything needed to use the WP_Filesystem_Direct class.
+ *
+ * @return void
+ */
+function jpcrm_migration_load_wp_filesystem_direct() {
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+	require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+}
 
 /* ======================================================
    / MIGRATION Helpers

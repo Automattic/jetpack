@@ -14,6 +14,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 
 /**
@@ -3570,11 +3571,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'protect':
 				// Protect.
-				$options['jetpack_protect_key']['current_value'] = get_site_option( 'jetpack_protect_key', false );
-				if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
-					include_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php';
-				}
-				$options['jetpack_protect_global_whitelist']['current_value'] = jetpack_protect_format_whitelist();
+				$options['jetpack_protect_key']['current_value']              = get_site_option( 'jetpack_protect_key', false );
+				$options['jetpack_protect_global_whitelist']['current_value'] = Brute_Force_Protection_Shared_Functions::jetpack_protect_format_whitelist();
 				break;
 
 			case 'related-posts':

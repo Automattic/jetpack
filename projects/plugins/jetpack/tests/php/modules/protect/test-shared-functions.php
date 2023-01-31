@@ -5,8 +5,7 @@
  * @package automattic/jetpack
  */
 
-// Require the functions.
-require_once JETPACK__PLUGIN_DIR . 'jetpack_vendor/automattic/jetpack-waf/src/brute-force-protection/shared-functions.php';
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * Tests for modules/protect/shared_functions.php
@@ -34,7 +33,7 @@ class WP_Test_Jetpack_Protect_Shared_Functions extends WP_UnitTestCase {
 		$old_server = $_SERVER;
 		$_SERVER    = $server;
 		try {
-			$this->assertSame( $expect, jetpack_protect_get_ip() );
+			$this->assertSame( $expect, Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip() );
 		} finally {
 			$_SERVER = $old_server;
 		}
