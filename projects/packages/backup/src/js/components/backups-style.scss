@@ -69,6 +69,11 @@
 		min-height: 32px;
 	}
 
+	svg.warning-icon, img.warning-icon { 
+		min-width: 24px;
+		min-height: 24px;
+	}
+
 	h2 {
 		color: var( --jp-gray-80 );
 		font-size: var( --font-body );

@@ -6,6 +6,7 @@ describe( 'reducer', () => {
 	const fixtures = {
 		initialState: {
 			usageLevel: null,
+			addonOfferSlug: null,
 		},
 	};
 
@@ -31,11 +32,13 @@ describe( 'reducer', () => {
 				},
 				expected: {
 					usageLevel: 'Full',
+					addonOfferSlug: null,
 				},
 			},
 			{
 				state: {
 					usageLevel: 'Full',
+					addonOfferSlug: 'jetpack_backup_product_t1',
 				},
 				action: {
 					type: SITE_BACKUP_STORAGE_SET,
@@ -43,6 +46,7 @@ describe( 'reducer', () => {
 				},
 				expected: {
 					usageLevel: 'Normal',
+					addonOfferSlug: 'jetpack_backup_product_t1',
 				},
 			},
 		] )( 'should return expected state', ( { state, action, expected } ) => {
