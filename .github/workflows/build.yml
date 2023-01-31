@@ -19,7 +19,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2022-02-10: We've gotten the build down to ~9-15 minutes now! p9dueE-4dJ-p2
+    timeout-minutes: 25  # 2023-01-30: Build times have crept back up to ~15–20+ minutes as we've added more projects, bump to 25.
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
