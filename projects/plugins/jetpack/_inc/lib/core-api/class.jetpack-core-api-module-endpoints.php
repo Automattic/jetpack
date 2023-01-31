@@ -734,9 +734,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_key':
-					$protect = Brute_Force_Protection::instance();
+					$brute_force_protection = Brute_Force_Protection::instance();
 					if ( 'create' === $value ) {
-						$result = $protect->get_protect_key();
+						$result = $brute_force_protection->get_protect_key();
 					} else {
 						$result = false;
 					}
