@@ -24,7 +24,7 @@ const getMediaToken = function (
 ): Promise< MediaTokenProps > {
 	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument } = args;
 	return new Promise( function ( resolve, reject ) {
-		const adminAjaxAPI = adminAjaxAPIArggument || window.videopressAjax?.ajaxUrl;
+		const adminAjaxAPI = adminAjaxAPIArgument || window.videopressAjax?.ajaxUrl;
 		if ( ! adminAjaxAPI ) {
 			return reject( 'adminAjaxAPI is not accesible' );
 		}
