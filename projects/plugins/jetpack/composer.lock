@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "04640ed39fed4d779db0404f11059abb",
+    "content-hash": "c94056c50cc3d2a5e76cf5648f3bfd88",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -304,16 +304,16 @@
         },
         {
             "name": "automattic/jetpack-backup",
-            "version": "v1.12.0",
+            "version": "v1.12.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-backup.git",
-                "reference": "162b569b3ea91fc2801517fb435e7cdea6f60786"
+                "reference": "592c632b5f8e9c0fa602ad3dd160705a626232e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/162b569b3ea91fc2801517fb435e7cdea6f60786",
-                "reference": "162b569b3ea91fc2801517fb435e7cdea6f60786",
+                "url": "https://api.github.com/repos/Automattic/jetpack-backup/zipball/592c632b5f8e9c0fa602ad3dd160705a626232e7",
+                "reference": "592c632b5f8e9c0fa602ad3dd160705a626232e7",
                 "shasum": ""
             },
             "require": {
@@ -361,9 +361,9 @@
             ],
             "description": "Tools to assist with backing up Jetpack sites.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-backup/tree/v1.12.0"
+                "source": "https://github.com/Automattic/jetpack-backup/tree/v1.12.1"
             },
-            "time": "2023-01-30T21:02:28+00:00"
+            "time": "2023-01-31T14:17:34+00:00"
         },
         {
             "name": "automattic/jetpack-blaze",
