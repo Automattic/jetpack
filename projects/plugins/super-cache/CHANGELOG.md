@@ -5,13 +5,16 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.9.3-beta] - 2023-01-23
+## [1.9.3-beta] - 2023-01-31
 ### Added
+- Added a filter to control cache clearing on post updates. [#28556]
 - Added new filters to set mod_expires rules and HTTP headers in the cache htaccess file. [#28031]
 
 ### Fixed
 - Fixed an issue that caused wp-config.php file permissions to change. [#28164]
 - Fixed missing missing action 'wp_cache_cleared' when clearing the cache on post update. [#28481]
+- Fixed an undefined PHP variable warning when cleaning up cache folders. [#28524]
+- Fixed an issue with cron-jobs for preloading not getting initialized correctly. [#28545]
 
 ## [1.9.2-beta] - 2022-12-09
 ### Added

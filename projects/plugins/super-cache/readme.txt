@@ -268,13 +268,16 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9.3-beta - 2023-01-23
+### 1.9.3-beta - 2023-01-31
 #### Added
+- Added a filter to control cache clearing on post updates.
 - Added new filters to set mod_expires rules and HTTP headers in the cache htaccess file.
 
 #### Fixed
 - Fixed an issue that caused wp-config.php file permissions to change.
 - Fixed missing missing action 'wp_cache_cleared' when clearing the cache on post update.
+- Fixed an undefined PHP variable warning when cleaning up cache folders.
+- Fixed an issue with cron-jobs for preloading not getting initialized correctly.
 
 --------
 
