@@ -129,7 +129,7 @@ class Brute_Force_Protection {
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
-				// Runs a script every day to clean up expired transients so they don't
+		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases.
 		add_action( 'admin_init', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients_activation' ) );
 		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
