@@ -14,6 +14,12 @@ const BackupStorageSpace = () => {
 	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingBackupSize() );
 	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
 	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
+	const planRetentionDays = useSelect( select => select( STORE_ID ).getActivityLogLimitDays() );
+	const minDaysOfBackupsAllowed = useSelect( select =>
+		select( STORE_ID ).getMinDaysOfBackupsAllowed()
+	);
+	const daysOfBackupsAllowed = useSelect( select => select( STORE_ID ).getDaysOfBackupsAllowed() );
+	const daysOfBackupsSaved = useSelect( select => select( STORE_ID ).getDaysOfBackupsSaved() );
 	const showComponent = storageSize !== null && storageLimit > 0;
 
 	const usageLevel = useSelect( select => select( STORE_ID ).getStorageUsageLevel() );
@@ -44,8 +50,25 @@ const BackupStorageSpace = () => {
 	] );
 
 	useEffect( () => {
-		dispatch.setStorageUsageLevel( getUsageLevel( storageSize, storageLimit ) );
-	}, [ dispatch, storageSize, storageLimit ] );
+		dispatch.setStorageUsageLevel(
+			getUsageLevel(
+				storageSize,
+				storageLimit,
+				minDaysOfBackupsAllowed,
+				daysOfBackupsAllowed,
+				planRetentionDays,
+				daysOfBackupsSaved
+			)
+		);
+	}, [
+		dispatch,
+		storageSize,
+		storageLimit,
+		minDaysOfBackupsAllowed,
+		daysOfBackupsAllowed,
+		planRetentionDays,
+		daysOfBackupsSaved,
+	] );
 
 	const sectionHeader = useMemo( () => {
 		if ( usageLevel === StorageUsageLevels.Full ) {

@@ -57,30 +57,10 @@ class Authorize_Redirect {
 			exit;
 		}
 
+		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			// The user is either already connected, or finished the connection process.
-			if ( class_exists( '\Automattic\Jetpack\Licensing' )
-				&& preg_match( '#^https://[^/]+/checkout/#i', $dest_url )
-			) {
-				// If the destination URL is checkout page,
-				// see if there are unattached licenses they could use instead of getting a new one.
-
-				$licenses = Licensing::instance()->get_user_licenses( true );
-
-				/**
-				 * Filter the list of options that are manageable via the JSON API.
-				 *
-				 * @since 3.8.2
-				 *
-				 * @param bool Whether a license was already found.
-				 * @param array Unattached licenses the user has purchased.
-				 */
-				if ( count( $licenses )
-					&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses )
-				) {
-					wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
-					exit;
-				}
+			if ( class_exists( '\Automattic\Jetpack\Licensing' ) ) {
+				Licensing::instance()->handle_user_connected_redirect( $dest_url );
 			}
 
 			wp_safe_redirect( $dest_url );

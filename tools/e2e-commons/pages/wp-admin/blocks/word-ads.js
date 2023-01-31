@@ -1,5 +1,5 @@
-import BlockEditorCanvas from './editor-canvas.js';
-export default class WordAdsBlock extends BlockEditorCanvas {
+import EditorCanvas from './editor-canvas.js';
+export default class WordAdsBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Ad block' );
 		this.blockTitle = WordAdsBlock.title();
