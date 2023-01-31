@@ -307,6 +307,13 @@ export function useSyncMedia(
 				// Update local state with fresh video data.
 				updateInitialState( dataToUpdate );
 
+				// Privacy settings attribute update
+				if ( dataToUpdate?.privacy_setting !== 2 ) {
+					setAttributes( {
+						isPrivate: dataToUpdate.privacy_setting === 1,
+					} );
+				}
+
 				// | Video Chapters feature |
 				const chapters = extractVideoChapters( dataToUpdate?.description );
 
