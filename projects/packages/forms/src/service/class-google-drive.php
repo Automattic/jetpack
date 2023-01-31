@@ -51,7 +51,7 @@ class Google_Drive {
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-forms' ),
 				array( 'status' => $response_code )
@@ -117,7 +117,7 @@ class Google_Drive {
 		);
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
 		if ( 200 !== $response_code ) {
-			return new WP_Error(
+			return new \WP_Error(
 				'failed_to_fetch_data',
 				esc_html__( 'Unable to fetch the requested data.', 'jetpack-forms' ),
 				array( 'status' => $response_code )

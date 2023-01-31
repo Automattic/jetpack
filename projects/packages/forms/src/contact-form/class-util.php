@@ -305,7 +305,7 @@ class Util {
 		} else {
 			// If the form was sent by a logged out visitor, record event with Jetpack master user.
 			if ( empty( $event_user->ID ) ) {
-				$master_user_id = Jetpack_Options::get_option( 'master_user' );
+				$master_user_id = \Jetpack_Options::get_option( 'master_user' );
 				if ( ! empty( $master_user_id ) ) {
 					$event_user = get_userdata( $master_user_id );
 				}

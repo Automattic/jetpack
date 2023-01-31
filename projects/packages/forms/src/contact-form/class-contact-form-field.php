@@ -140,7 +140,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$this->is_error = true;
 
 		if ( ! is_wp_error( $this->form->errors ) ) {
-			$this->form->errors = new WP_Error();
+			$this->form->errors = new \WP_Error();
 		}
 
 		$this->form->errors->add( $this->get_attribute( 'id' ), $message );
@@ -643,7 +643,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field .= $this->render_input_field( 'text', $id, $value, $class, $placeholder, $required );
 
 		/* For AMP requests, use amp-date-picker element: https://amp.dev/documentation/components/amp-date-picker */
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
 			return sprintf(
 				'<%1$s mode="overlay" layout="container" type="single" input-selector="[name=%2$s]">%3$s</%1$s>',
 				'amp-date-picker',

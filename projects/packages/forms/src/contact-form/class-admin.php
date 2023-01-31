@@ -1446,7 +1446,7 @@ class Admin {
 			'posts_per_page' => $delete_limit,
 		);
 
-		$query          = new WP_Query( $query_args );
+		$query          = new \WP_Query( $query_args );
 		$spam_feedbacks = $query->get_posts();
 
 		foreach ( $spam_feedbacks as $feedback ) {
