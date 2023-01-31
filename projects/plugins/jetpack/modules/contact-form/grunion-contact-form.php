@@ -1770,6 +1770,7 @@ class Grunion_Contact_Form_Plugin {
 		 */
 		sort( $field_names, SORT_NUMERIC );
 
+		$well_known_column_names = $this->get_well_known_column_names();
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
@@ -1783,10 +1784,14 @@ class Grunion_Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
-				/**
+				$renamed_field = isset( $well_known_column_names[ $single_field_name ] )
+					? $well_known_column_names[ $single_field_name ]
+					: $single_field_name;
+
+					/**
 				 * Remove the numeral prefix 1_, 2_, etc, only for export results
 				 */
-				$renamed_field = preg_replace( '/^(\d{1,2}_)/', '', $single_field_name );
+				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -2078,6 +2083,7 @@ class Grunion_Contact_Form_Plugin {
 			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
+			// TODO: some explanation on this regex could help
 			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 			if ( count( $matches ) > 1 ) {
