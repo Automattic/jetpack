@@ -1638,6 +1638,7 @@ importers:
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
       '@babel/runtime': 7.20.7
+      concurrently: 6.0.2
       css-loader: 6.5.1
       glob: 8.1.0
       sass: 1.43.4
@@ -1651,6 +1652,7 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.7
       '@babel/register': 7.18.9_@babel+core@7.20.7
       '@babel/runtime': 7.20.7
+      concurrently: 6.0.2
       css-loader: 6.5.1_webpack@5.72.1
       glob: 8.1.0
       sass: 1.43.4

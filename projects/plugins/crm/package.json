@@ -25,6 +25,7 @@
 		"@babel/register": "7.18.9",
 		"@babel/runtime": "7.20.7",
 		"css-loader": "6.5.1",
+		"concurrently": "6.0.2",
 		"glob": "8.1.0",
 		"sass": "1.43.4",
 		"sass-loader": "12.4.0",
