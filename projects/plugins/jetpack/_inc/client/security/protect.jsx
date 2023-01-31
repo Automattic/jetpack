@@ -14,7 +14,7 @@ import { includes } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getSetting } from '../state/settings';
-import { getWafIpallowListInputState, updateWafIpAllowList } from '../state/waf';
+import { getWafIpAllowListInputState, updateWafIpAllowList } from '../state/waf';
 
 const ProtectComponent = class extends Component {
 	/**
@@ -176,7 +176,7 @@ const ProtectComponent = class extends Component {
 
 export const Protect = connect(
 	state => {
-		const allowListInputState = getWafIpallowListInputState( state );
+		const allowListInputState = getWafIpAllowListInputState( state );
 
 		return {
 			allowListInputState:

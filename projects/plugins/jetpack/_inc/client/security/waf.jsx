@@ -26,7 +26,7 @@ import { updateWafIpAllowList } from '../state/waf';
 import {
 	getAutomaticRulesAvailable,
 	getWafBootstrapPath,
-	getWafIpallowListInputState,
+	getWafIpAllowListInputState,
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
 
@@ -370,7 +370,7 @@ export const Waf = class extends Component {
 export default connect(
 	state => {
 		const sitePlan = getSitePlan( state );
-		const allowListInputState = getWafIpallowListInputState( state );
+		const allowListInputState = getWafIpAllowListInputState( state );
 
 		return {
 			hasScan: siteHasFeature( state, 'scan' ),
