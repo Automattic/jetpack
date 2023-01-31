@@ -111,6 +111,10 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 	const siteSlug = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteData().adminUrl );
 
+	const trackUpgradeStorageClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_upgrade_storage_header_cta', { site: domain } );
+	}, [ tracks, domain ] );
+
 	return (
 		<div className="jp-row">
 			<div className="lg-col-span-4 md-col-span-4 sm-col-span-4">
@@ -204,6 +208,7 @@ const CompleteBackup = ( { latestTime, stats } ) => {
 										`${ adminUrl }admin.php?page=jetpack-backup`,
 										true
 									) }
+									onClick={ trackUpgradeStorageClick }
 									target="_blank"
 									rel="noreferrer"
 								/>
