@@ -1,4 +1,5 @@
 import EditorCanvas from './editor-canvas.js';
+import { expect } from '@playwright/test';
 export default class SubscribeBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Subscribe' );
@@ -14,11 +15,11 @@ export default class SubscribeBlock extends EditorCanvas {
 		return 'Subscribe';
 	}
 	async checkBlock() {
-		await this.page.waitForResponse(
-			r =>
-				decodeURIComponent( r.url() ).match( /wpcom\/v2\/subscribers\/counts/ ) &&
-				r.status() === 200
+		const response = await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /wpcom\/v2\/subscribers\/counts/ ),
+			{ timeout: 30000 }
 		);
+		expect( response.status(), 'Response status should be 200' ).toBe( 200 );
 	}
 
 	/**

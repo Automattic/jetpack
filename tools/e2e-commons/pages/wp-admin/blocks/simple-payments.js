@@ -36,10 +36,11 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	}
 
 	async waitForResponse() {
-		const response = await this.page.waitForResponse( r =>
-			decodeURIComponent( r.url() ).match( /jp_pay_product/ )
+		const response = await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ),
+			{ timeout: 30000 }
 		);
-		expect( [ 200, 201 ], 'Response status should be 200' ).toContain( response.status() );
+		expect( [ 200, 201 ], 'Response status should be 200 or 201' ).toContain( response.status() );
 	}
 
 	getSelector( selector ) {
