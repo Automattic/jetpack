@@ -129,16 +129,16 @@ class Brute_Force_Protection {
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
+				// Runs a script every day to clean up expired transients so they don't
+		// clog up our users' databases.
+		add_action( 'admin_init', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients_activation' ) );
+		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
+
 		// Load math fallback after math page form submission.
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 
 			new Brute_Force_Protection_Math_Authenticate();
 		}
-
-		// Runs a script every day to clean up expired transients so they don't
-		// clog up our users' databases.
-		add_action( 'admin_init', array( 'Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients_activation' ) );
-		add_action( 'jp_purge_transients_cron', array( 'Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
 	}
 
 	/**
