@@ -2,9 +2,9 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
+
 const sassPattern = '**/sass/**/*.scss';
 const jsPattern = '**/js/**/*.js';
-
 const alwaysIgnoredFiles = [
 	'**/js/**/*.min.js',
 	'**/sass/**/_*.scss',
@@ -40,7 +40,7 @@ function getJsEntries() {
 function getSassEntries() {
 	const entries = {};
 	glob.sync( sassPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
-		entries[ './' + file.substring( 0, file.length - '*.scss'.length ) ] = './' + file;
+		entries[ './' + file.substring( 0, file.length - '.scss'.length ) ] = './' + file;
 	} );
 	return entries;
 }
@@ -111,16 +111,10 @@ module.exports = [
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [
-						{
-							loader: 'sass-loader',
-							options: {
-								sassOptions: {
-									outputStyle: 'compressed',
-								},
-							},
-						},
-					],
+					extraLoaders: [ 'sass-loader' ],
+					CssLoader: {
+						url: false,
+					},
 				} ),
 			],
 		},
