@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "35d561b4e523eefa8fc26c9745381269eddb301d"
+                "reference": "5bc363dc834a70b786d88552ceb1e3f6684ac80e"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -929,6 +929,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/wordbless": "^0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
