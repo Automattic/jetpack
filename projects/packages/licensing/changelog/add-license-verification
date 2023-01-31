@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a function to load unattached licenses.
+After connection flow, load unattached licenses. If any of them match the product that's being connected, redirect users to the license activation page.
