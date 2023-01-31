@@ -42,12 +42,14 @@ export default function useVideoData( {
 			return;
 		}
 
+		let gettingTokenAttempt = 0;
+
 		/**
 		 * Fetches the video videoData from the API.
 		 *
 		 * @param {string} token - The token to use in the request.
 		 */
-		async function fetchVideoItem( token = null ) {
+		async function fetchVideoItem( token: string | null = null ) {
 			try {
 				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
 
@@ -94,23 +96,25 @@ export default function useVideoData( {
 				} );
 			} catch ( errorData ) {
 				if ( errorData?.error === 'auth' ) {
-					debug( 'Authenticating error.' );
-					if ( token ) {
-						debug( 'Token is invalid.' );
-					} else {
-						debug( 'Token is missing. Attempting to get one.' );
-						const tokenData = await getMediaToken( 'playback', { id, guid } );
-						if ( ! tokenData?.token ) {
-							debug( 'Token is missing. Aborting.' );
-							setIsRequestingVideoData( false );
-							return;
-						}
-						fetchVideoItem( tokenData.token );
+					gettingTokenAttempt++;
+					debug( 'Authenticating error. Trying again: %o', gettingTokenAttempt + '/3' );
+					if ( gettingTokenAttempt > 3 ) {
+						debug( 'Too many attempts to get token. Aborting.' );
+						setIsRequestingVideoData( false );
+						throw new Error( errorData?.message ?? errorData );
 					}
+
+					const tokenData = await getMediaToken( 'playback', { id, guid } );
+					if ( ! tokenData?.token ) {
+						debug( 'Token is missing. Aborting.' );
+						setIsRequestingVideoData( false );
+						return;
+					}
+					return fetchVideoItem( tokenData.token );
 				}
 
 				setIsRequestingVideoData( false );
-				// throw new Error( error?.message ?? error );
+				throw new Error( errorData?.message ?? errorData );
 			}
 		}
 
