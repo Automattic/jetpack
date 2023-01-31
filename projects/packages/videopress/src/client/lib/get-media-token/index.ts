@@ -22,7 +22,7 @@ const getMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id, guid, adminAjaxAPI: adminAjaxAPIArggument } = args;
+	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument } = args;
 	return new Promise( function ( resolve, reject ) {
 		const adminAjaxAPI = adminAjaxAPIArggument || window.videopressAjax?.ajaxUrl;
 		if ( ! adminAjaxAPI ) {
