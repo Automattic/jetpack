@@ -109,7 +109,7 @@ class Jetpack_Protect {
 			1
 		);
 
-		add_filter( 'jetpack_connection_user_has_license', array( $this, 'jetpack_check_user_licenses' ), 10, 2 );
+		add_filter( 'jetpack_connection_user_has_license', array( $this, 'jetpack_check_user_licenses' ), 10, 3 );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
@@ -329,24 +329,27 @@ class Jetpack_Protect {
 	 *
 	 * @param  boolean $has_license Check if user has a license.
 	 * @param  object  $licenses List of licenses.
+	 * @param string  $plugin_slug The plugin that initiated the flow.
 	 *
 	 * @return boolean
 	 */
-	public static function jetpack_check_user_licenses( $has_license, $licenses ) {
-		$has_plan = Plan::has_required_plan();
+	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
 
-		if ( ! $has_plan ) {
-			if ( $has_license ) {
-				return true;
-			}
-			foreach ( $licenses as $license ) {
-				if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
-					return true;
-				}
+		if ( $plugin_slug !== JETPACK_PROTECT_SLUG || $has_license ) {
+			return $has_license;
+		}
+
+		$license_found = false;
+
+		foreach ( $licenses as $license ) {
+			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
+				$license_found = true;
+				break;
 			}
 		}
 
-		return false;
+		// Checking for existing backup plan is costly, so only check if there's an appropriate license.
+		return $license_found && ! Plan::has_required_plan();
 	}
 
 	/**
