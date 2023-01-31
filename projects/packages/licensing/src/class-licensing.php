@@ -329,7 +329,7 @@ class Licensing {
 		$licenses    = $this->get_user_licenses( true );
 		$plugin_slug = null;
 
-		$query_string = parse_url( $dest_url, PHP_URL_QUERY );
+		$query_string = wp_parse_url( $dest_url, PHP_URL_QUERY );
 		if ( $query_string ) {
 			parse_str( $query_string, $query_args );
 
