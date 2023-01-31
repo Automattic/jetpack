@@ -510,7 +510,7 @@ class Jetpack_Backup {
 	 */
 	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
 		if ( $plugin_slug !== static::JETPACK_BACKUP_SLUG || $has_license ) {
-			return true;
+			return $has_license;
 		}
 
 		foreach ( $licenses as $license ) {
