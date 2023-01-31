@@ -10,6 +10,7 @@ import debugFactory from 'debug';
  */
 import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
+import { MediaTokenProps } from '../../../lib/get-media-token/types';
 /**
  * Types
  */
@@ -32,6 +33,7 @@ export default function useVideoData( {
 	id,
 	guid,
 	skipRatingControl = false,
+	maybeIsPrivate = false,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
@@ -53,9 +55,15 @@ export default function useVideoData( {
 			try {
 				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
 
+				// Try to anticipate the private requestin
+				let tokenData: MediaTokenProps;
+				if ( maybeIsPrivate ) {
+					tokenData = await getMediaToken( 'playback', { id, guid } );
+				}
+
 				// Add the token to the request if it exists.
-				if ( token ) {
-					params.metadata_token = token;
+				if ( token || tokenData?.token ) {
+					params.metadata_token = token || tokenData.token;
 				}
 
 				// Add the birthdate to skip the rating check if it's required.
