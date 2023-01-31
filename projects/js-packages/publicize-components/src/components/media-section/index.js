@@ -26,6 +26,24 @@ import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
 /**
+ * Get meta data from a VideoPress video.
+ *
+ * @param {object} video - VideoPress media object.
+ * @returns {{mime: string, fileSize: number, length: number}} - Metadata
+ */
+const getVideoPressMetadata = video => {
+	if ( ! video.source_url || ! video?.media_details?.videopress?.duration ) {
+		return {};
+	}
+
+	return {
+		mime: `video/${ video.source_url.split( '.' ).pop() }`,
+		fileSize: 1000000, // 1 MB - TODO: calculate actual file size somehow
+		length: Math.round( video.media_details.videopress.duration / 1000 ),
+	};
+};
+
+/**
  * Get relevant details from a WordPress media object.
  *
  * @param {object} media - WordPress media object.
@@ -39,11 +57,15 @@ const getMediaDetails = media => {
 		return {};
 	}
 
-	const metaData = {
+	let metaData = {
 		mime: media.mime_type,
 		fileSize: media.media_details.filesize,
 		length: media.media_details?.length,
 	};
+
+	if ( media.mime_type === 'video/videopress' ) {
+		metaData = getVideoPressMetadata( media );
+	}
 
 	const sizes = media?.media_details?.sizes ?? {};
 
