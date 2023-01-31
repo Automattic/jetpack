@@ -258,6 +258,7 @@ class SiteStatsComponent extends React.Component {
 										{ /* This toggle enables Odyssey Stats. */ }
 										{ __( 'Enable a new Jetpack Stats experience (Experimental)', 'jetpack' ) }
 									</span>
+									<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
 								</CompactFormToggle>
 							</FormFieldset>
 						) }
