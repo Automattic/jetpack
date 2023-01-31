@@ -348,37 +348,32 @@ function zeroBS_searchCustomers($args=array(),$withMoneyData=false){
 	global $zbs; return $zbs->DAL->contacts->getContacts($args);
 }
 
-/*
- * Enables or disables the client portal access for a contact, by ID
+/**
+ * Enables or disables the client portal access for a contact, by ID.
+ *
+ * @param int    $contact_id The id of the CRM Contact to be enabled or disabled.
+ * @param string $enable_or_disable String indicating if the selected contact should be enabled or disabled. Use 'disable' to disable, otherwise the contact will be enabled.
+ *
+ * @return bool True in case of success, false otherwise.
  */
-function zeroBSCRM_customerPortalDisableEnable( $contact_id=-1, $enableOrDisable='disable' ) {
-
+function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && !empty( $contact_id ) ) {
-
-			// Verify this user can be changed
-			// (Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm)
+	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
+		// Verify this user can be changed.
+		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
 		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
 		$user_object = get_userdata( $wp_user_id );
-			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
-
-				if ( $enableOrDisable == 'disable' ) {
-
-					return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true );
-
-				} else {
-
-					return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', false );
-
-				}
-
+		if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+			if ( $enable_or_disable === 'disable' ) {
+				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			} else {
+				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
-
+		}
 	}
 
 	return false;
-
 }
 
 
