@@ -121,7 +121,7 @@ class Authorize_Redirect {
 			 * @since 3.8.2
 			 *
 			 * @param bool   $has_license Whether a license was already found.
-			 * @param array  $licenses Unattached licenses the user has purchased.
+			 * @param array  $licenses Unattached licenses belonging to the user.
 			 * @param string $plugin_slug Slug of the plugin that initiated the flow.
 			 */
 			if ( $plugin_slug && count( $licenses )

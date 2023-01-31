@@ -502,8 +502,8 @@ class Jetpack_Backup {
 	/**
 	 * Check for user licenses.
 	 *
-	 * @param boolean $has_license Check if user has a license.
-	 * @param array   $licenses List of licenses.
+	 * @param boolean $has_license If the user already has a license found.
+	 * @param array   $licenses List of unattached licenses belonging to the user.
 	 * @param string  $plugin_slug The plugin that initiated the flow.
 	 *
 	 * @return boolean
@@ -513,14 +513,19 @@ class Jetpack_Backup {
 			return $has_license;
 		}
 
+		$license_found = false;
+
 		foreach ( $licenses as $license ) {
 			if ( in_array( $license->product_id, static::JETPACK_BACKUP_PRODUCT_IDS, true ) ) {
-				return true;
+				$license_found = true;
+				break;
 			}
 		}
 
-		return false;
+		// Checking for existing backup plan is costly, so only check if there's an appropriate license.
+		return $license_found && static::has_backup_plan();
 	}
+
 	/**
 	 * Returns the result of `/sites/%d/purchases` endpoint call.
 	 *
