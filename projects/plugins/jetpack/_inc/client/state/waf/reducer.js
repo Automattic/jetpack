@@ -4,6 +4,7 @@ import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,
 	WAF_SETTINGS_FETCH_FAIL,
+	WAF_IP_ALLOW_LIST_UPDATED,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
@@ -12,6 +13,10 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, {
 				bootstrapPath: action.settings?.bootstrap_path,
 				automaticRulesAvailable: action.settings?.automatic_rules_available,
+			} );
+		case WAF_IP_ALLOW_LIST_UPDATED:
+			return assign( {}, state, {
+				allowListState: action.allowList,
 			} );
 		default:
 			return state;
@@ -71,4 +76,14 @@ export function getWafBootstrapPath( state ) {
  */
 export function getAutomaticRulesAvailable( state ) {
 	return get( state.jetpack.waf, [ 'data', 'automaticRulesAvailable' ], false );
+}
+
+/**
+ * Returns the current contents of the allow list text box.
+ *
+ * @param {object} state - Global state tree
+ * @returns {string|null} IP allow list, or null when not set.
+ */
+export function getWafIpAllowListState( state ) {
+	return get( state.jetpack.waf, [ 'data', 'allowListState' ], null );
 }

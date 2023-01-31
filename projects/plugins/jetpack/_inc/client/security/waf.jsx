@@ -21,9 +21,12 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
+import { getSetting } from '../state/settings/reducer';
+import { updateWafIpAllowList } from '../state/waf';
 import {
 	getAutomaticRulesAvailable,
 	getWafBootstrapPath,
+	getWafIpAllowListState,
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
 
@@ -36,10 +39,25 @@ export const Waf = class extends Component {
 	state = {
 		jetpack_waf_automatic_rules: this.props.getOptionValue( 'jetpack_waf_automatic_rules' ),
 		jetpack_waf_ip_list: this.props.getOptionValue( 'jetpack_waf_ip_list' ),
-		jetpack_waf_ip_allow_list: this.props.getOptionValue( 'jetpack_waf_ip_allow_list' ),
 		jetpack_waf_ip_block_list: this.props.getOptionValue( 'jetpack_waf_ip_block_list' ),
 		jetpack_waf_share_data: this.props.getOptionValue( 'jetpack_waf_share_data' ),
 	};
+
+	/**
+	 * Component Did Update
+	 *
+	 * @param {object} prevProps - Previous component properties.
+	 * @returns {void}
+	 */
+	componentDidUpdate( prevProps ) {
+		// Sync the redux IP allow list with the component's settings state.
+		if ( prevProps.allowListState !== this.props.allowListState ) {
+			this.props.updateFormStateOptionValue(
+				'jetpack_waf_ip_allow_list',
+				this.props.allowListState
+			);
+		}
+	}
 
 	handleAutomaticRulesToggleChange = () => {
 		this.updateOptions( 'jetpack_waf_automatic_rules' );
@@ -63,6 +81,10 @@ export const Waf = class extends Component {
 		} );
 
 		this.props.onOptionChange( event );
+	};
+
+	handleIpAllowListChange = event => {
+		this.props.updateWafIpAllowList( event.target.value );
 	};
 
 	/**
@@ -177,8 +199,8 @@ export const Waf = class extends Component {
 								}
 								name="jetpack_waf_ip_allow_list"
 								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.state.jetpack_waf_ip_allow_list }
-								onChange={ this.handleIpListChange }
+								value={ this.props.allowListState }
+								onChange={ this.handleIpAllowListChange }
 							/>
 						</div>
 					</>
@@ -345,15 +367,25 @@ export const Waf = class extends Component {
 	}
 };
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
+		const allowListState = getWafIpAllowListState( state );
 
-	return {
-		hasScan: siteHasFeature( state, 'scan' ),
-		bootstrapPath: getWafBootstrapPath( state ),
-		automaticRulesAvailable: getAutomaticRulesAvailable( state ),
-		isFetchingWafSettings: isFetchingWafSettings( state ),
-		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-		sitePlan,
-	};
-} )( withModuleSettingsFormHelpers( Waf ) );
+		return {
+			hasScan: siteHasFeature( state, 'scan' ),
+			bootstrapPath: getWafBootstrapPath( state ),
+			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
+			isFetchingWafSettings: isFetchingWafSettings( state ),
+			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			allowListState:
+				allowListState !== null ? allowListState : getSetting( state, 'jetpack_waf_ip_allow_list' ),
+			sitePlan,
+		};
+	},
+	dispatch => {
+		return {
+			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
+		};
+	}
+)( withModuleSettingsFormHelpers( Waf ) );
