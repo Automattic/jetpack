@@ -31,14 +31,25 @@ import styles from './styles.module.scss';
  * @param {object} video - VideoPress media object.
  * @returns {{mime: string, fileSize: number, length: number}} - Metadata
  */
-const getVideoPressMetadata = video => {
-	if ( ! video.source_url || ! video?.media_details?.videopress?.duration ) {
+const getVideoPressMetadata = async video => {
+	if (
+		! video?.media_details?.videopress?.original ||
+		! video?.media_details?.videopress?.duration
+	) {
+		return {};
+	}
+
+	const response = await fetch( video?.media_details?.videopress?.original, { method: 'HEAD' } );
+	const contentLength = response.headers.get( 'content-length' );
+	const contentType = response.headers.get( 'content-type' );
+
+	if ( ! contentLength || ! contentType ) {
 		return {};
 	}
 
 	return {
-		mime: `video/${ video.source_url.split( '.' ).pop() }`,
-		fileSize: 1000000, // 1 MB - TODO: calculate actual file size somehow
+		mime: contentType,
+		fileSize: contentLength,
 		length: Math.round( video.media_details.videopress.duration / 1000 ),
 	};
 };
@@ -52,7 +63,7 @@ const getVideoPressMetadata = video => {
  * metaData: {mime: string, fileSize: number, length: number}
  * }} - Media details.
  */
-const getMediaDetails = media => {
+const getMediaDetails = async media => {
 	if ( ! media ) {
 		return {};
 	}
@@ -64,7 +75,7 @@ const getMediaDetails = media => {
 	};
 
 	if ( media.mime_type === 'video/videopress' ) {
-		metaData = getVideoPressMetadata( media );
+		metaData = await getVideoPressMetadata( media );
 	}
 
 	const sizes = media?.media_details?.sizes ?? {};
@@ -103,6 +114,8 @@ export default function MediaSection() {
 	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
+	const [ mediaData, setMediaData ] = useState( {} );
+	const [ metaData, setMetaData ] = useState( {} );
 
 	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
@@ -133,11 +146,27 @@ export default function MediaSection() {
 		[ attachedMedia[ 0 ] ]
 	);
 
-	const { mediaData, metaData } = getMediaDetails( mediaObject );
+	useEffect( () => {
+		try {
+			const setMediaDetails = async () => {
+				const mediaDetails = await getMediaDetails( mediaObject );
+
+				if ( mediaDetails.mediaData && mediaDetails.metaData ) {
+					setMediaData( mediaDetails.mediaData );
+					setMetaData( mediaDetails.metaData );
+				}
+			};
+
+			setMediaDetails();
+		} catch {
+			setMediaData( {} );
+			setMetaData( {} );
+		}
+	}, [ mediaObject ] );
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! metaData ) {
+		if ( ! Object.keys( metaData ).length ) {
 			return;
 		}
 
@@ -145,6 +174,8 @@ export default function MediaSection() {
 		if ( error ) {
 			setValidationError( error );
 			updateAttachedMedia( [] );
+			setMediaData( {} );
+			setMetaData( {} );
 		}
 	}, [ updateAttachedMedia, getValidationError, metaData ] );
 
@@ -161,6 +192,10 @@ export default function MediaSection() {
 
 	const renderPreview = useCallback(
 		open => {
+			if ( ! Object.keys( mediaData ).length || ! Object.keys( metaData ).length ) {
+				return null;
+			}
+
 			const { width, height, sourceUrl } = mediaData;
 
 			if ( ! sourceUrl || ! width || ! height ) {
