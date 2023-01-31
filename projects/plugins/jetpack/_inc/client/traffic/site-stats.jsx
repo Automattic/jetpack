@@ -256,7 +256,7 @@ class SiteStatsComponent extends React.Component {
 								>
 									<span className="jp-form-toggle-explanation">
 										{ /* This toggle enables Odyssey Stats. */ }
-										{ __( 'Enable a new Jetpack Stats experience (Experimental)', 'jetpack' ) }
+										{ __( 'Enable the new Jetpack Stats experience', 'jetpack' ) }
 									</span>
 									<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
 								</CompactFormToggle>
