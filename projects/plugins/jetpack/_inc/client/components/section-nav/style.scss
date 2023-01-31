@@ -294,6 +294,10 @@
 	}
 
 	.is-external & {
+		svg {
+			color: currentColor;
+		}
+
 		&:after {
 			// @include noticon('\f442');
 			font-size: 18px;
@@ -367,9 +371,7 @@
 	}
 }
 
-.dops-section-nav-tab__icon {
-	fill: currentColor;
-}
+
 
 .dops-section-nav-tab__text {
 	display: block;

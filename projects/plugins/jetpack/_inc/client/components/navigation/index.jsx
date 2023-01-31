@@ -110,7 +110,7 @@ export class Navigation extends React.Component {
 					) }
 					{ ! this.props.isOfflineMode && (
 						<NavItem
-							externalLinkIcon={ true }
+							isExternalLink={ true }
 							path={ jetpackPlansPath }
 							onClick={ this.trackPlansClick }
 							selected={ this.props.location.pathname === '/plans' }
