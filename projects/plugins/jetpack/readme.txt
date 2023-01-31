@@ -244,16 +244,40 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 11.8-beta - 2023-01-30
 #### Enhancements
+- Contact Form: improve file naming when exporting form responses.
+- Contact form: UI improvements for the dropdown field.
+- Contact Form: update column names when exporting Contact Form responses to CSV for clarity.
+- Form block: add relevant keywords to the 'Newsletter Sign-up' block variation.
 - Form block: add styling of input fields.
+- Form block: update form block variation icons.
+- VideoPress: show VideoPress block availability based on site plan.
+- WAF: various updates to the WAF package.
+- Widgets: add Mastodon to Social Icons Widget and Social Menu.
 
 #### Improved compatibility
+- Blaze: update logic for showing the Advertising menu on Jetpack sites.
+- Connection: add support for 'connection_disabled' error code.
 - General: migrated to new Web Fonts API from Gutenberg.
+- oEmbeds: add new URL scheme for iCloud Keynote embeds.
 - Revue block: add a direct link to the WordPress.com subscriber import page.
+- Use `flex-start` instead of `start` for better browser compatibility.
+- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
+- VideoPress: do not add block transform to v6 when video is not a VideoPress video.
 
 #### Bug fixes
-- Slideshow: fix slideshow loading excessive dependencies on every page view.
+- Dashboard: fix the price display and description for products with intro offers for the first month.
+- Dashboard: show Boost in My Plans dashboard when added to a site.
+- Infinite Scroll: fix an AMP related bug.
 - Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
+- Modules: allow for deactivating multiple plugins when activating a module.
+- Related Posts: fix Related Posts options saving.
+- Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
+- Sharing: do not include the sharing buttons in REST API responses.
+- Slideshow: fix slideshow loading excessive dependencies on every page view.
+- Subscriptions: add a null check to a $post reference.
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
+- VideoPress: fix the fullscreen control when using VideoPress shortcodes.
+- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on a site.
 
 --------
 
