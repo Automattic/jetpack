@@ -26,7 +26,7 @@ import { updateWafIpAllowList } from '../state/waf';
 import {
 	getAutomaticRulesAvailable,
 	getWafBootstrapPath,
-	getWafIpAllowListState,
+	getWafIpallowListInputState,
 	isFetchingWafSettings,
 } from '../state/waf/reducer';
 
@@ -51,10 +51,10 @@ export const Waf = class extends Component {
 	 */
 	componentDidUpdate( prevProps ) {
 		// Sync the redux IP allow list with the component's settings state.
-		if ( prevProps.allowListState !== this.props.allowListState ) {
+		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
 			this.props.updateFormStateOptionValue(
 				'jetpack_waf_ip_allow_list',
-				this.props.allowListState
+				this.props.allowListInputState
 			);
 		}
 	}
@@ -199,7 +199,7 @@ export const Waf = class extends Component {
 								}
 								name="jetpack_waf_ip_allow_list"
 								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.props.allowListState }
+								value={ this.props.allowListInputState }
 								onChange={ this.handleIpAllowListChange }
 							/>
 						</div>
@@ -370,7 +370,7 @@ export const Waf = class extends Component {
 export default connect(
 	state => {
 		const sitePlan = getSitePlan( state );
-		const allowListState = getWafIpAllowListState( state );
+		const allowListInputState = getWafIpallowListInputState( state );
 
 		return {
 			hasScan: siteHasFeature( state, 'scan' ),
@@ -378,8 +378,10 @@ export default connect(
 			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 			isFetchingWafSettings: isFetchingWafSettings( state ),
 			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-			allowListState:
-				allowListState !== null ? allowListState : getSetting( state, 'jetpack_waf_ip_allow_list' ),
+			allowListInputState:
+				allowListInputState !== null
+					? allowListInputState
+					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			sitePlan,
 		};
 	},

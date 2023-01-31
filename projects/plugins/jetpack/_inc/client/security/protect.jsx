@@ -14,7 +14,7 @@ import { includes } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getSetting } from '../state/settings';
-import { getWafIpAllowListState, updateWafIpAllowList } from '../state/waf';
+import { getWafIpallowListInputState, updateWafIpAllowList } from '../state/waf';
 
 const ProtectComponent = class extends Component {
 	/**
@@ -23,18 +23,18 @@ const ProtectComponent = class extends Component {
 	 * @param {object} prevProps - Previous component properties.
 	 */
 	componentDidUpdate( prevProps ) {
-		// Sync the redux IP allow list with the component's settings state.
-		if ( prevProps.allowListState !== this.props.allowListState ) {
+		// Sync the redux IP allow list input state with the component's settings state.
+		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
 			this.props.updateFormStateOptionValue(
 				'jetpack_waf_ip_allow_list',
-				this.props.allowListState
+				this.props.allowListInputState
 			);
 		}
 	}
 
 	currentIpIsSafelisted = () => {
-		// get current IP allow list in textarea from this.props.allowListState;
-		return !! includes( this.props.allowListState, this.props.currentIp );
+		// get current IP allow list in textarea from this.props.allowListInputState;
+		return !! includes( this.props.allowListInputState, this.props.currentIp );
 	};
 
 	updateIPAllowList = event => {
@@ -46,8 +46,8 @@ const ProtectComponent = class extends Component {
 
 	addToSafelist = () => {
 		const newSafelist =
-			this.props.allowListState +
-			( 0 >= this.props.allowListState.length ? '' : '\n' ) +
+			this.props.allowListInputState +
+			( 0 >= this.props.allowListInputState.length ? '' : '\n' ) +
 			this.props.currentIp;
 
 		// Update the allow list
@@ -148,7 +148,7 @@ const ProtectComponent = class extends Component {
 										name={ 'jetpack_waf_ip_allow_list' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateIPAllowList }
-										value={ this.props.allowListState }
+										value={ this.props.allowListInputState }
 									/>
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
@@ -176,11 +176,13 @@ const ProtectComponent = class extends Component {
 
 export const Protect = connect(
 	state => {
-		const allowListState = getWafIpAllowListState( state );
+		const allowListInputState = getWafIpallowListInputState( state );
 
 		return {
-			allowListState:
-				null !== allowListState ? allowListState : getSetting( state, 'jetpack_waf_ip_allow_list' ),
+			allowListInputState:
+				null !== allowListInputState
+					? allowListInputState
+					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 		};
 	},
 	dispatch => {

@@ -16,7 +16,7 @@ export const data = ( state = {}, action ) => {
 			} );
 		case WAF_IP_ALLOW_LIST_UPDATED:
 			return assign( {}, state, {
-				allowListState: action.allowList,
+				allowListInputState: action.allowList,
 			} );
 		default:
 			return state;
@@ -84,6 +84,6 @@ export function getAutomaticRulesAvailable( state ) {
  * @param {object} state - Global state tree
  * @returns {string|null} IP allow list, or null when not set.
  */
-export function getWafIpAllowListState( state ) {
-	return get( state.jetpack.waf, [ 'data', 'allowListState' ], null );
+export function getWafIpAllowListInputState( state ) {
+	return get( state.jetpack.waf, [ 'data', 'allowListInputState' ], null );
 }
