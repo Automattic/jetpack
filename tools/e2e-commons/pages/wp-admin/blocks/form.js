@@ -1,6 +1,6 @@
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
 import logger from '../../../logger.cjs';
-export default class FormBlock extends BlockEditorCanvas {
+export default class FormBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Form block' );
 		this.blockTitle = FormBlock.title();
