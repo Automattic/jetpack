@@ -37,7 +37,13 @@ const VALID_MEDIA = [
 	{ mime: 'image/png', fileSize: 3000000 },
 	{ mime: 'video/mp4', fileSize: 1000000, length: 20 },
 ];
-const ALLOWED_MEDIA_TYPES_ALL = [ 'image/jpeg', 'image/jpg', 'image/png', 'video/mp4' ];
+const ALLOWED_MEDIA_TYPES_ALL = [
+	'image/jpeg',
+	'image/jpg',
+	'image/png',
+	'video/mp4',
+	'video/videopress',
+];
 
 describe( 'useMediaRestrictions hook', () => {
 	const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
