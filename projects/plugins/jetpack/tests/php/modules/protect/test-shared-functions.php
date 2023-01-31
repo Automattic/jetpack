@@ -229,4 +229,30 @@ class WP_Test_Jetpack_Protect_Shared_Functions extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test jetpack_protect_create_ip_object()
+	 */
+	public function testCreateIPObject() {
+		// Test a single IP address (1.1.1.1)
+		$single_ip_address = jetpack_protect_create_ip_object( '1.2.3.4' );
+		$this->assertSame(
+			$single_ip_address,
+			(object) array(
+				'range'      => false,
+				'ip_address' => '1.2.3.4',
+			)
+		);
+
+		// Test a range of IP addresses (1.1.1.1-2.2.2.2)
+		$range_ip_address = jetpack_protect_create_ip_object( '1.1.1.1-2.2.2.2' );
+		$this->assertSame(
+			$range_ip_address,
+			(object) array(
+				'range'      => true,
+				'range_low'  => '1.1.1.1',
+				'range_high' => '2.2.2.2',
+			)
+		);
+	}
+
 }
