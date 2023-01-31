@@ -16,7 +16,7 @@
 			"pnpm run build"
 		],
 		"build-production": [
-			"pnpm run build-production-concurrently"
+			"pnpm run build"
 		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
