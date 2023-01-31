@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { VideoGUID, VideoId } from '../../block-editor/blocks/video/types';
+import { VideoGUID } from '../../block-editor/blocks/video/types';
 import {
 	MediaTokenScopeProps,
 	MediaTokenScopeAdminAjaxResponseBodyProps,
@@ -22,53 +22,67 @@ const getMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id, guid } = args;
+	const { id, guid, adminAjaxAPI: adminAjaxAPIArggument } = args;
 	return new Promise( function ( resolve, reject ) {
+		const adminAjaxAPI = adminAjaxAPIArggument || window.videopressAjax?.ajaxUrl;
+		if ( ! adminAjaxAPI ) {
+			return reject( 'adminAjaxAPI is not accesible' );
+		}
+
 		if ( ! MEDIA_TOKEN_SCOPES.includes( scope ) ) {
 			return reject( 'Invalid scope' );
 		}
 
-		let adminAjaxAction: AdminAjaxTokenProps;
-
-		const data: {
+		const fetchData: {
+			action: AdminAjaxTokenProps;
 			guid?: VideoGUID;
-			id?: VideoId;
-		} = {};
+			post_id?: string;
+		} = { action: 'videopress-get-playback-jwt' };
 
 		switch ( scope ) {
 			case 'upload':
-				adminAjaxAction = 'videopress-get-upload-token';
+				fetchData.action = 'videopress-get-upload-token';
 				break;
 
 			case 'upload-jwt':
-				adminAjaxAction = 'videopress-get-upload-jwt';
+				fetchData.action = 'videopress-get-upload-jwt';
 				break;
 
 			case 'playback':
-				adminAjaxAction = 'videopress-get-playback-jwt';
-				data.id = id;
-				data.guid = guid;
+				fetchData.action = 'videopress-get-playback-jwt';
+				fetchData.guid = guid;
+				fetchData.post_id = String( id );
 				break;
 		}
 
-		window.wp.media
-			.ajax( adminAjaxAction, {
-				async: true,
-				data,
+		fetch( adminAjaxAPI, {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: new URLSearchParams( fetchData ),
+		} )
+			.then( response => {
+				if ( ! response.ok ) {
+					throw new Error( 'Network response was not ok' );
+				}
+				return response.json();
 			} )
 			.then( ( response: MediaTokenScopeAdminAjaxResponseBodyProps ) => {
+				if ( ! response.success ) {
+					throw new Error( 'Token is not achievable' );
+				}
+
 				switch ( scope ) {
 					case 'upload':
 					case 'upload-jwt':
 						resolve( {
-							token: response.upload_token,
-							blogId: response.upload_blog_id,
-							url: response.upload_action_url,
+							token: response.data.upload_token,
+							blogId: response.data.upload_blog_id,
+							url: response.data.upload_action_url,
 						} );
 						break;
 
 					case 'playback':
-						resolve( { token: response.jwt } );
+						resolve( { token: response.data.jwt } );
 						break;
 				}
 			} )
