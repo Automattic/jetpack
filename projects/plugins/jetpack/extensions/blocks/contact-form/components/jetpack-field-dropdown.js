@@ -108,17 +108,17 @@ export const JetpackDropdownEdit = ( {
 
 	return (
 		<div className={ classes } style={ blockStyle }>
-			<JetpackFieldLabel
-				required={ required }
-				requiredText={ requiredText }
-				label={ label }
-				attributes={ attributes }
-				setAttributes={ setAttributes }
-				isSelected={ isSelected }
-				style={ formStyle }
-			/>
-			<div>
-				<div style={ blockStyle } className="jetpack-field-dropdown__toggle">
+			<div className="jetpack-field-dropdown__wrapper">
+				<JetpackFieldLabel
+					required={ required }
+					requiredText={ requiredText }
+					label={ label }
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
+					style={ formStyle }
+				/>
+				<div className="jetpack-field-dropdown__toggle">
 					<RichText
 						value={ toggleLabel }
 						onChange={ value => {
@@ -129,24 +129,24 @@ export const JetpackDropdownEdit = ( {
 					/>
 					<span className="jetpack-field-dropdown__icon" />
 				</div>
-
-				{ isSelected && (
-					<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
-						{ options.map( ( option, index ) => (
-							<RichText
-								key={ index }
-								value={ option }
-								onChange={ handleChangeOption( index ) }
-								onSplit={ handleSplitOption( index ) }
-								onRemove={ handleDeleteOption( index ) }
-								onReplace={ noop }
-								placeholder={ __( 'Add option…', 'jetpack' ) }
-								__unstableDisableFormats
-							/>
-						) ) }
-					</div>
-				) }
 			</div>
+
+			{ isSelected && (
+				<div className="jetpack-field-dropdown__popover" ref={ optionsWrapper }>
+					{ options.map( ( option, index ) => (
+						<RichText
+							key={ index }
+							value={ option }
+							onChange={ handleChangeOption( index ) }
+							onSplit={ handleSplitOption( index ) }
+							onRemove={ handleDeleteOption( index ) }
+							onReplace={ noop }
+							placeholder={ __( 'Add option…', 'jetpack' ) }
+							__unstableDisableFormats
+						/>
+					) ) }
+				</div>
+			) }
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
