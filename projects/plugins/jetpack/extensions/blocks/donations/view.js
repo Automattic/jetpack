@@ -1,11 +1,13 @@
 import formatCurrency from '@automattic/format-currency';
 import domReady from '@wordpress/dom-ready';
-import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
 
 import './view.scss';
+
+// Enter keycode.
+const ENTER = 13;
 
 class JetpackDonations {
 	constructor( block ) {

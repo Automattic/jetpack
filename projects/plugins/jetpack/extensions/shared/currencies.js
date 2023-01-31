@@ -1,5 +1,10 @@
 import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
-import { trimEnd } from 'lodash';
+
+// Removes all dots (`.`) from the end of a string.
+function removeTrailingDots( string ) {
+	const split = String( string || '' ).split( '.' );
+	return split.slice( 0, split.findLastIndex( i => i !== '' ) + 1 ).join( '.' );
+}
 
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
@@ -41,7 +46,7 @@ export const SUPPORTED_CURRENCIES = {
  */
 export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
 	const { symbol } = getCurrencyDefaults( value );
-	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
+	const label = symbol === value ? value : `${ value } ${ removeTrailingDots( symbol ) }`;
 	return { value, label };
 } );
 
