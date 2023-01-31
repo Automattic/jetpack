@@ -1086,7 +1086,7 @@ class Contact_Form_Plugin {
 		$query_string = http_build_query( $form );
 
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-			$response = Akismet::http_post( $query_string, 'comment-check' );
+			$response = \Akismet::http_post( $query_string, 'comment-check' );
 		} else {
 			$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 		}
@@ -1094,7 +1094,7 @@ class Contact_Form_Plugin {
 		$result = false;
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' ) {
-			$result = new WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
+			$result = new \WP_Error( 'feedback-discarded', __( 'Feedback discarded.', 'jetpack-forms' ) );
 		} elseif ( isset( $response[1] ) && 'true' === trim( $response[1] ) ) { // 'true' is spam
 			$result = true;
 		}
@@ -1132,7 +1132,7 @@ class Contact_Form_Plugin {
 			$query_string = http_build_query( $form );
 		}
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-			$response = Akismet::http_post( $query_string, "submit-{$as}" );
+			$response = \Akismet::http_post( $query_string, "submit-{$as}" );
 		} else {
 			$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
