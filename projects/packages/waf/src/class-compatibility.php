@@ -24,7 +24,7 @@ class Waf_Compatibility {
 	public static function add_compatibility_hooks() {
 		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
-		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::merge_brute_force_allow_list', 10, 1 );
+		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
 	}
 
 	/**
@@ -83,6 +83,38 @@ class Waf_Compatibility {
 	}
 
 	/**
+	 * Merge the WAF and Brute Force Protection IP allow lists.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $waf_allow_list        The WAF IP allow list.
+	 * @param array  $brute_force_allow_list The Brute Force Protection IP allow list. Array of IP objects.
+	 *
+	 * @return string The merged IP allow list.
+	 */
+	public static function merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list ) {
+
+		if ( empty( $brute_force_allow_list ) ) {
+			return $waf_allow_list;
+		}
+
+		// Convert the IP objects to strings.
+		$brute_force_allow_list = array_map(
+			function ( $ip_object ) {
+				if ( isset( $ip_object->range ) && $ip_object->range ) {
+					return $ip_object->range_low . '-' . $ip_object->range_high;
+				}
+
+				return $ip_object->ip_address;
+			},
+			$brute_force_allow_list
+		);
+
+		// Return the lists merged into a single string.
+		return "$waf_allow_list\n" . implode( "\n", $brute_force_allow_list );
+	}
+
+	/**
 	 * Migrate the brute force protection IP allow list option to the WAF option.
 	 *
 	 * @since $$next-version$$
@@ -93,25 +125,10 @@ class Waf_Compatibility {
 	 */
 	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list ) {
 		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', array() );
+
 		if ( false !== $brute_force_allow_list ) {
-			$brute_force_allow_list = array_map(
-				function ( $ip_object ) {
-					if ( $ip_object->range ) {
-							return $ip_object->range_low . '-' . $ip_object->range_high;
-					}
-
-					return $ip_object->ip_address;
-				},
-				$brute_force_allow_list
-			);
-			$delete_option          = true;
-
-			if ( ! empty( $brute_force_allow_list ) ) {
-				"$waf_allow_list\n" . explode( '\n', $brute_force_allow_list );
-				$delete_option = update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $waf_allow_list );
-			}
-
-			if ( $delete_option ) {
+			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+			if ( update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $waf_allow_list ) ) {
 				delete_option( 'jetpack_protect_whitelist' );
 			}
 		}
@@ -120,7 +137,9 @@ class Waf_Compatibility {
 	}
 
 	/**
-	 * Merge the deprecated IP allow list from the brute force protection module with the existing option value.
+	 * Filter for Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME's option value.
+	 * Merges the deprecated IP allow list from the brute force protection module
+	 * with the existing option value.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -128,7 +147,7 @@ class Waf_Compatibility {
 	 *
 	 * @return array The merged IP allow list.
 	 */
-	public static function merge_brute_force_allow_list( $value ) {
+	public static function filter_option_waf_ip_allow_list( $value ) {
 		return self::migrate_brute_force_protection_ip_allow_list( $value );
 	}
 
