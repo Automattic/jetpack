@@ -359,8 +359,8 @@ function zeroBSCRM_customerPortalDisableEnable( $contact_id=-1, $enableOrDisable
 
 			// Verify this user can be changed
 			// (Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm)
-    	$contact_email = $zbs->DAL->contacts->getContactEmail( $contact_id );  
-      $user_object = get_userdata( $contact_email );
+		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
+		$user_object = get_userdata( $wp_user_id );
 			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
 
 				if ( $enableOrDisable == 'disable' ) {
