@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "11.8.0-a.10",
+	"version": "11.9.0-a.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -19,7 +19,6 @@
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"//": "# We set NODE_PATH here (and in other 'build-' scripts) so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" concurrently --names js,css,masterbar,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'webpack --config ./tools/webpack.config.masterbar.js' 'php tools/build-module-headings-translations.php'",
-		"build-color-schemes-wpcom": "NODE_ENV=production MASTERBAR_ENV=wpcom webpack --config ./tools/webpack.config.masterbar.js",
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-extensions": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.extensions.js",
 		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
