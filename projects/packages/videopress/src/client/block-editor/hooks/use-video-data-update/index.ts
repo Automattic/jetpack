@@ -161,11 +161,12 @@ export function useSyncMedia(
 	setAttributes: VideoBlockSetAttributesProps,
 	options: UseSyncMediaOptionsProps
 ): UseSyncMediaProps {
-	const { id, guid } = attributes;
+	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
 		id,
 		guid,
 		skipRatingControl: true,
+		maybeIsPrivate: isPrivate,
 	} );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
