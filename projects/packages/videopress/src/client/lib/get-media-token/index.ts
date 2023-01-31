@@ -22,12 +22,13 @@ const getMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument } = args;
+	const { id, guid, adminAjaxAPI: adminAjaxAPIArggument } = args;
 	return new Promise( function ( resolve, reject ) {
-		const adminAjaxAPI = adminAjaxAPIArgument || window.videopressAjax?.ajaxUrl;
-		if ( ! adminAjaxAPI ) {
-			return reject( 'adminAjaxAPI is not accesible' );
-		}
+		const adminAjaxAPI =
+			adminAjaxAPIArggument ||
+			window.videopressAjax?.ajaxUrl ||
+			window?.ajaxurl ||
+			'/wp-admin/admin-ajax.php';
 
 		if ( ! MEDIA_TOKEN_SCOPES.includes( scope ) ) {
 			return reject( 'Invalid scope' );

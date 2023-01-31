@@ -43,5 +43,6 @@ declare global {
 		videopressAjax: {
 			ajaxUrl: string;
 		};
+		ajaxurl?: string;
 	}
 }
