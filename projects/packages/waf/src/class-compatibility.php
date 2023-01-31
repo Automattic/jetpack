@@ -24,7 +24,7 @@ class Waf_Compatibility {
 	public static function add_compatibility_hooks() {
 		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
-		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::merge_brute_force_allow_list', 10, 2 );
+		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::merge_brute_force_allow_list', 10, 1 );
 	}
 
 	/**
@@ -124,12 +124,11 @@ class Waf_Compatibility {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array  $value  The current value of the option.
-	 * @param string $option The option name.
+	 * @param array $value  The current value of the option.
 	 *
 	 * @return array The merged IP allow list.
 	 */
-	public static function merge_brute_force_allow_list( $value, $option ) {
+	public static function merge_brute_force_allow_list( $value ) {
 		return self::migrate_brute_force_protection_ip_allow_list( $value );
 	}
 
