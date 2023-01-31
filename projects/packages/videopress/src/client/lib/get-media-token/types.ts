@@ -18,15 +18,19 @@ type AdminAjaxTokensProps = typeof TOKEN_ADMIN_AJAX_TYPES;
 export type GetMediaTokenArgsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
+	adminAjaxAPI?: string;
 };
 
 export type AdminAjaxTokenProps = AdminAjaxTokensProps[ number ];
 
 export type MediaTokenScopeAdminAjaxResponseBodyProps = {
-	upload_token: string;
-	upload_blog_id: string;
-	upload_action_url: string;
-	jwt: string;
+	success: boolean;
+	data: {
+		upload_token: string;
+		upload_blog_id: string;
+		upload_action_url: string;
+		jwt: string;
+	};
 };
 
 export type MediaTokenProps = {
@@ -34,3 +38,11 @@ export type MediaTokenProps = {
 	blogId?: string;
 	url?: string;
 };
+declare global {
+	interface Window {
+		videopressAjax: {
+			ajaxUrl: string;
+		};
+		ajaxurl?: string;
+	}
+}

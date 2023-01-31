@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
