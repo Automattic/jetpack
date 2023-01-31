@@ -47,6 +47,15 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	public $version = '1.0.0';
 
 	/**
+	 * The VideoPress_Divi_Module.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @var VideoPress_Divi_Module
+	 */
+	private $videopress_divi_module;
+
+	/**
 	 * The constructor.
 	 *
 	 * @param string $name The name.
@@ -75,6 +84,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	 */
 	public function hook_et_builder_ready() {
 		require_once plugin_dir_path( __FILE__ ) . 'class-videopress-divi-module.php';
+		$this->videopress_divi_module = new VideoPress_Divi_Module();
 	}
 
 	/**

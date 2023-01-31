@@ -18,18 +18,18 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	public $slug = 'vidi_videopress';
 
 	/**
+	 * For matching VideoPress urls or guids.
+	 *
+	 * @var string
+	 */
+	const VIDEOPRESS_REGEX = '/^(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/([a-zA-Z\d]{8,})(.+)?/i';
+
+	/**
 	 * Vd support.
 	 *
 	 * @var string
 	 */
 	public $vb_support = 'on';
-
-	/**
-	 * The regex that extracts a video guid.
-	 *
-	 * @var string
-	 */
-	const VIDEOPRESS_REGEX = '/^(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/([a-zA-Z\d]{8,})(.+)?/';
 
 	/**
 	 * Credits.
@@ -76,23 +76,25 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	 * @return string
 	 */
 	public function render( $attrs, $content = null, $render_slug = null ) {
-		$regex   = '/^(?:http(?:s)?:\/\/)?(?:www\.)?video(?:\.word)?press\.com\/(?:v|embed)\/([a-zA-Z\d]{8,})(.+)?/i';
 		$matches = array();
-		if ( ! preg_match( $regex, $this->props['guid'], $matches ) ) {
+
+		if ( ! preg_match( self::VIDEOPRESS_REGEX, $this->props['guid'], $matches ) ) {
 			return '';
 		}
 
 		if ( ! isset( $matches[1] ) ) {
 			return '';
 		}
+
 		$guid         = $matches[1];
 		$iframe_title = sprintf(
 			/* translators: %s: Video title. */
 			esc_html__( 'Video player for %s', 'jetpack-videopress-pkg' ),
 			esc_html( $guid )
 		);
+
 		$iframe_src = sprintf(
-			'https://videopress.com/embed/%s?hd=0&autoPlay=0&permalink=0&loop=0',
+			'https://videopress.com/embed/%s?autoPlay=0&permalink=0&loop=0&embedder=divi-builder',
 			esc_attr( $guid )
 		);
 
@@ -107,4 +109,3 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	}
 }
 
-new VideoPress_Divi_Module();
