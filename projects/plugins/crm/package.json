@@ -7,7 +7,8 @@
 	"scripts": {
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
-		"clean": "rm -rf build/",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
+		"clean": "rm -rf **/css/**/*.css.map **/css/**/*.rtl.css **/css/*.min.css **/js/**/*.min.js.map .cache/",
 		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
 	"repository": {
