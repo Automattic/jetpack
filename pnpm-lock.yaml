@@ -1755,7 +1755,7 @@ importers:
       sass: 1.38.1
       sass-loader: 12.4.0
       semver: 7.3.5
-      social-logos: 2.5.1
+      social-logos: 2.5.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1819,7 +1819,7 @@ importers:
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
       semver: 7.3.5
-      social-logos: 2.5.1_react@17.0.2
+      social-logos: 2.5.2_react@17.0.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1942,6 +1942,9 @@ importers:
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
+  projects/plugins/mu-wpcom-plugin:
+    specifiers: {}
 
   projects/plugins/protect:
     specifiers:
@@ -2269,8 +2272,8 @@ importers:
 
   tools/cli:
     specifiers:
-      '@octokit/auth-token': 3.0.2
-      '@octokit/rest': 19.0.5
+      '@octokit/auth-token': 3.0.3
+      '@octokit/rest': 19.0.7
       chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
@@ -2294,8 +2297,8 @@ importers:
       tmp: 0.2.1
       yargs: 16.2.0
     dependencies:
-      '@octokit/auth-token': 3.0.2
-      '@octokit/rest': 19.0.5
+      '@octokit/auth-token': 3.0.3
+      '@octokit/rest': 19.0.7
       chalk: 4.1.2
       configstore: 5.0.1
       envfile: 6.17.0
@@ -2358,8 +2361,8 @@ importers:
       '@babel/eslint-parser': 7.19.1
       '@babel/preset-react': 7.18.6
       '@babel/preset-typescript': 7.18.6
-      '@octokit/auth-token': 3.0.2
-      '@octokit/rest': 19.0.5
+      '@octokit/auth-token': 3.0.3
+      '@octokit/rest': 19.0.7
       '@rushstack/eslint-patch': 1.1.4
       '@testing-library/jest-dom': 5.16.5
       '@typescript-eslint/eslint-plugin': 5.36.1
@@ -2406,8 +2409,8 @@ importers:
       '@babel/eslint-parser': 7.19.1_y4xl45oe4kbvvue2oxn5mbsb3y
       '@babel/preset-react': 7.18.6_@babel+core@7.20.7
       '@babel/preset-typescript': 7.18.6_@babel+core@7.20.7
-      '@octokit/auth-token': 3.0.2
-      '@octokit/rest': 19.0.5
+      '@octokit/auth-token': 3.0.3
+      '@octokit/rest': 19.0.7
       '@rushstack/eslint-patch': 1.1.4
       '@testing-library/jest-dom': 5.16.5
       '@typescript-eslint/eslint-plugin': 5.36.1_hpcuhaqv2bdqyqmafmpqxz4x7y
@@ -5933,11 +5936,11 @@ packages:
       '@octokit/types': 6.41.0
     dev: false
 
-  /@octokit/auth-token/3.0.2:
-    resolution: {integrity: sha512-pq7CwIMV1kmzkFTimdwjAINCXKTajZErLB4wMLYapR2nuB/Jpr66+05wOTZMSCBXP6n4DdDWT2W19Bm17vU69Q==}
+  /@octokit/auth-token/3.0.3:
+    resolution: {integrity: sha512-/aFM2M4HVDBT/jjDBa84sJniv1t9Gm/rLkalaz9htOm+L+8JMj1k9w0CkUdcxNyNxZPlTxKPVko+m1VlM58ZVA==}
     engines: {node: '>= 14'}
     dependencies:
-      '@octokit/types': 8.0.0
+      '@octokit/types': 9.0.0
 
   /@octokit/core/3.6.0:
     resolution: {integrity: sha512-7RKRKuA4xTjMhY+eG3jthb3hlZCsOwg3rztWh75Xc+ShDWOfDDATWbeZpAHBNRpm4Tv9WgBMOy1zEJYXG6NJ7Q==}
@@ -5957,7 +5960,7 @@ packages:
     resolution: {integrity: sha512-Czz/59VefU+kKDy+ZfDwtOIYIkFjExOKf+HA92aiTZJ6EfWpFzYQWw0l54ji8bVmyhc+mGaLUbSUmXazG7z5OQ==}
     engines: {node: '>= 14'}
     dependencies:
-      '@octokit/auth-token': 3.0.2
+      '@octokit/auth-token': 3.0.3
       '@octokit/graphql': 5.0.4
       '@octokit/request': 6.2.2
       '@octokit/request-error': 3.0.2
@@ -6010,6 +6013,9 @@ packages:
   /@octokit/openapi-types/14.0.0:
     resolution: {integrity: sha512-HNWisMYlR8VCnNurDU6os2ikx0s0VyEjDYHNS/h4cgb8DeOxQ0n72HyinUtdDVxJhFy3FWLGl0DJhfEWk3P5Iw==}
 
+  /@octokit/openapi-types/16.0.0:
+    resolution: {integrity: sha512-JbFWOqTJVLHZSUUoF4FzAZKYtqdxWu9Z5m2QQnOyEa04fOFljvyh7D3GYKbfuaSWisqehImiVIMG4eyJeP5VEA==}
+
   /@octokit/plugin-paginate-rest/2.21.3_@octokit+core@3.6.0:
     resolution: {integrity: sha512-aCZTEf0y2h3OLbrgKkrfFdjRL6eSOo8komneVQJnYecAxIej7Bafor2xhuDJOIFau4pk0i/P28/XgtbyPF0ZHw==}
     peerDependencies:
@@ -6019,14 +6025,14 @@ packages:
       '@octokit/types': 6.41.0
     dev: false
 
-  /@octokit/plugin-paginate-rest/5.0.1_@octokit+core@4.1.0:
-    resolution: {integrity: sha512-7A+rEkS70pH36Z6JivSlR7Zqepz3KVucEFVDnSrgHXzG7WLAzYwcHZbKdfTXHwuTHbkT1vKvz7dHl1+HNf6Qyw==}
+  /@octokit/plugin-paginate-rest/6.0.0_@octokit+core@4.1.0:
+    resolution: {integrity: sha512-Sq5VU1PfT6/JyuXPyt04KZNVsFOSBaYOAq2QRZUwzVlI10KFvcbUo8lR258AAQL1Et60b0WuVik+zOWKLuDZxw==}
     engines: {node: '>= 14'}
     peerDependencies:
       '@octokit/core': '>=4'
     dependencies:
       '@octokit/core': 4.1.0
-      '@octokit/types': 8.0.0
+      '@octokit/types': 9.0.0
 
   /@octokit/plugin-request-log/1.0.4_@octokit+core@4.1.0:
     resolution: {integrity: sha512-mLUsMkgP7K/cnFEw07kWqXGF5LKrOkD+lhCrKvPHXWDywAwuDUeDwWBpc69XK3pNX0uKiVt8g5z96PJ6z9xCFA==}
@@ -6045,14 +6051,14 @@ packages:
       deprecation: 2.3.1
     dev: false
 
-  /@octokit/plugin-rest-endpoint-methods/6.7.0_@octokit+core@4.1.0:
-    resolution: {integrity: sha512-orxQ0fAHA7IpYhG2flD2AygztPlGYNAdlzYz8yrD8NDgelPfOYoRPROfEyIe035PlxvbYrgkfUZIhSBKju/Cvw==}
+  /@octokit/plugin-rest-endpoint-methods/7.0.1_@octokit+core@4.1.0:
+    resolution: {integrity: sha512-pnCaLwZBudK5xCdrR823xHGNgqOzRnJ/mpC/76YPpNP7DybdsJtP7mdOwh+wYZxK5jqeQuhu59ogMI4NRlBUvA==}
     engines: {node: '>= 14'}
     peerDependencies:
       '@octokit/core': '>=3'
     dependencies:
       '@octokit/core': 4.1.0
-      '@octokit/types': 8.0.0
+      '@octokit/types': 9.0.0
       deprecation: 2.3.1
 
   /@octokit/request-error/2.1.0:
@@ -6097,14 +6103,14 @@ packages:
     transitivePeerDependencies:
       - encoding
 
-  /@octokit/rest/19.0.5:
-    resolution: {integrity: sha512-+4qdrUFq2lk7Va+Qff3ofREQWGBeoTKNqlJO+FGjFP35ZahP+nBenhZiGdu8USSgmq4Ky3IJ/i4u0xbLqHaeow==}
+  /@octokit/rest/19.0.7:
+    resolution: {integrity: sha512-HRtSfjrWmWVNp2uAkEpQnuGMJsu/+dBr47dRc5QVgsCbnIc1+GFEaoKBWkYG+zjrsHpSqcAElMio+n10c0b5JA==}
     engines: {node: '>= 14'}
     dependencies:
       '@octokit/core': 4.1.0
-      '@octokit/plugin-paginate-rest': 5.0.1_@octokit+core@4.1.0
+      '@octokit/plugin-paginate-rest': 6.0.0_@octokit+core@4.1.0
       '@octokit/plugin-request-log': 1.0.4_@octokit+core@4.1.0
-      '@octokit/plugin-rest-endpoint-methods': 6.7.0_@octokit+core@4.1.0
+      '@octokit/plugin-rest-endpoint-methods': 7.0.1_@octokit+core@4.1.0
     transitivePeerDependencies:
       - encoding
 
@@ -6118,6 +6124,11 @@ packages:
     resolution: {integrity: sha512-65/TPpOJP1i3K4lBJMnWqPUJ6zuOtzhtagDvydAWbEXpbFYA0oMKKyLb95NFZZP0lSh/4b6K+DQlzvYQJQQePg==}
     dependencies:
       '@octokit/openapi-types': 14.0.0
+
+  /@octokit/types/9.0.0:
+    resolution: {integrity: sha512-LUewfj94xCMH2rbD5YJ+6AQ4AVjFYTgpp6rboWM5T7N3IsIF65SBEOVcYMGAEzO/kKNiNaW4LoWtoThOhH06gw==}
+    dependencies:
+      '@octokit/openapi-types': 16.0.0
 
   /@opencensus/core/0.0.8:
     resolution: {integrity: sha512-yUFT59SFhGMYQgX0PhoTR0LBff2BEhPrD9io1jWfF/VDbakRfs6Pq60rjv0Z7iaTav5gQlttJCX2+VPxFWCuoQ==}
@@ -21516,8 +21527,8 @@ packages:
       - supports-color
     dev: true
 
-  /social-logos/2.5.1_react@17.0.2:
-    resolution: {integrity: sha512-d3iCMJHqFOLHae+KqgW/sH2w1QKIL0hHLjnNpIIAURdi27olMVdG79x7Vu8gfkT2QPFOWRtUkO8rXeqF4ZaxMw==}
+  /social-logos/2.5.2_react@17.0.2:
+    resolution: {integrity: sha512-cEucM1RY+dnILiU+vpce7AIMJ4L3e06rfYKVq8FQlNRZsG+MI4nMbXkIyuULoqO8mciNQ3kfQm47R+DsKzzeLA==}
     peerDependencies:
       react: 15 - 18
     dependencies:
