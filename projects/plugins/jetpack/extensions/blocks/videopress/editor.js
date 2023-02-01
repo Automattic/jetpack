@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -15,6 +18,9 @@ import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -22,7 +28,7 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import { pickGUIDFromUrl } from './utils';
+import { pickGUIDFromUrl, isVideoPressBlockBasedOnAttributes } from './utils';
 import addV6TransformSupport from './v6-transform';
 import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
@@ -482,35 +488,6 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 
 	return attrs;
 }
-
-/**
- * Check whether the block is a VideoPress block instance,
- * based on the passed attributes.
- *
- * @param {object} attributes - Block attributes.
- * @returns {boolean} 	        Whether the block is a VideoPress block instance.
- */
-const isVideoPressBlockBasedOnAttributes = attributes => {
-	const { guid, videoPressTracks, isVideoPressExample } = attributes;
-
-	// VideoPress block should have a guid attribute.
-	if ( ! guid?.length ) {
-		return false;
-	}
-
-	// VideoPress block should have a videoPressTracks array attribute.
-	if ( ! Array.isArray( videoPressTracks ) ) {
-		return false;
-	}
-
-	// VideoPress block should have a isVideoPressExample boolean attribute.
-	const attrNames = Object.keys( attributes );
-	if ( ! attrNames.includes( 'isVideoPressExample' ) || typeof isVideoPressExample !== 'boolean' ) {
-		return false;
-	}
-
-	return true;
-};
 
 /**
  * Convert some video blocks to VideoPress video blocks,
