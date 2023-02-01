@@ -1755,7 +1755,7 @@ importers:
       sass: 1.38.1
       sass-loader: 12.4.0
       semver: 7.3.5
-      social-logos: 2.5.1
+      social-logos: 2.5.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1819,7 +1819,7 @@ importers:
       resize-observer-polyfill: 1.5.1
       sass: 1.38.1
       semver: 7.3.5
-      social-logos: 2.5.1_react@17.0.2
+      social-logos: 2.5.2_react@17.0.2
       swiper: 6.7.0
       tinycolor2: 1.4.2
       tus-js-client: 2.3.0
@@ -1942,6 +1942,9 @@ importers:
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
+  projects/plugins/mu-wpcom-plugin:
+    specifiers: {}
 
   projects/plugins/protect:
     specifiers:
@@ -21516,8 +21519,8 @@ packages:
       - supports-color
     dev: true
 
-  /social-logos/2.5.1_react@17.0.2:
-    resolution: {integrity: sha512-d3iCMJHqFOLHae+KqgW/sH2w1QKIL0hHLjnNpIIAURdi27olMVdG79x7Vu8gfkT2QPFOWRtUkO8rXeqF4ZaxMw==}
+  /social-logos/2.5.2_react@17.0.2:
+    resolution: {integrity: sha512-cEucM1RY+dnILiU+vpce7AIMJ4L3e06rfYKVq8FQlNRZsG+MI4nMbXkIyuULoqO8mciNQ3kfQm47R+DsKzzeLA==}
     peerDependencies:
       react: 15 - 18
     dependencies:
