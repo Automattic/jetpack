@@ -30,7 +30,7 @@ type TokenBrigeEventProps = {
 
 /**
  * Function handler to dialog with the client
- * (toquen requester) and the app
+ * (token requester) and the app
  * to provide a JWT on demand.
  *
  * @param {object} event - The event object
