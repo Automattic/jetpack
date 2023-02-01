@@ -29,7 +29,7 @@ import styles from './styles.module.scss';
  * Get meta data from a VideoPress video.
  *
  * @param {object} video - VideoPress media object.
- * @returns {{mime: string, fileSize: number, length: number}} - Metadata
+ * @returns {Promise} A promise containing {mime: string, fileSize: number, length: number}}
  */
 const getVideoPressMetadata = async video => {
 	if (
@@ -58,10 +58,7 @@ const getVideoPressMetadata = async video => {
  * Get relevant details from a WordPress media object.
  *
  * @param {object} media - WordPress media object.
- * @returns {{
- * mediaData: {width: number, height: number, sourceUrl: string},
- * metaData: {mime: string, fileSize: number, length: number}
- * }} - Media details.
+ * @returns {Promise} An object containing mediaData and metaData.
  */
 const getMediaDetails = async media => {
 	if ( ! media ) {
@@ -114,8 +111,7 @@ export default function MediaSection() {
 	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
-	const [ mediaData, setMediaData ] = useState( {} );
-	const [ metaData, setMetaData ] = useState( {} );
+	const [ mediaDetails, setMediaDetails ] = useState( {} );
 
 	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
@@ -148,36 +144,31 @@ export default function MediaSection() {
 
 	useEffect( () => {
 		try {
-			const setMediaDetails = async () => {
-				const mediaDetails = await getMediaDetails( mediaObject );
+			( async () => {
+				const details = await getMediaDetails( mediaObject );
 
-				if ( mediaDetails.mediaData && mediaDetails.metaData ) {
-					setMediaData( mediaDetails.mediaData );
-					setMetaData( mediaDetails.metaData );
+				if ( details && Object.keys( details ).length ) {
+					setMediaDetails( details );
 				}
-			};
-
-			setMediaDetails();
+			} )();
 		} catch {
-			setMediaData( {} );
-			setMetaData( {} );
+			setMediaDetails( {} );
 		}
 	}, [ mediaObject ] );
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! Object.keys( metaData ).length ) {
+		if ( ! mediaDetails.metaData ) {
 			return;
 		}
 
-		const error = getValidationError( metaData );
+		const error = getValidationError( mediaDetails.metaData );
 		if ( error ) {
 			setValidationError( error );
 			updateAttachedMedia( [] );
-			setMediaData( {} );
-			setMetaData( {} );
+			setMediaDetails( {} );
 		}
-	}, [ updateAttachedMedia, getValidationError, metaData ] );
+	}, [ updateAttachedMedia, getValidationError, mediaDetails ] );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
@@ -192,13 +183,12 @@ export default function MediaSection() {
 
 	const renderPreview = useCallback(
 		open => {
-			if ( ! Object.keys( mediaData ).length || ! Object.keys( metaData ).length ) {
-				return null;
-			}
+			const {
+				mediaData: { width, height, sourceUrl } = {},
+				metaData: { mime, length } = {},
+			} = mediaDetails;
 
-			const { width, height, sourceUrl } = mediaData;
-
-			if ( ! sourceUrl || ! width || ! height ) {
+			if ( ! sourceUrl || ! width || ! height || ! mime || ! length ) {
 				return null;
 			}
 
@@ -209,11 +199,11 @@ export default function MediaSection() {
 						<Icon icon={ closeSmall } />
 					</button>
 					<button className={ styles.preview } onClick={ open }>
-						{ isVideo( metaData.mime ) ? (
+						{ isVideo( mime ) ? (
 							<VideoPreview
 								sourceUrl={ sourceUrl }
-								mime={ metaData.mime }
-								duration={ metaData.length }
+								mime={ mime }
+								duration={ length }
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
@@ -224,7 +214,7 @@ export default function MediaSection() {
 				</div>
 			);
 		},
-		[ mediaData, metaData, onRemoveMedia ]
+		[ mediaDetails, onRemoveMedia ]
 	);
 
 	const renderPicker = useCallback(
