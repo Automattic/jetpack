@@ -1341,7 +1341,7 @@ class Grunion_Contact_Form_Plugin {
 			if ( isset( $all_fields['entry_permalink'] ) && ! empty( $all_fields['entry_permalink'] ) ) {
 				$parsed          = wp_parse_url( $all_fields['entry_permalink'] );
 				$md['-6_source'] = '';
-				if ( $parsed && ! empty( $parsed['path'] ) && str_starts_with( $parsed['path'], '/' ) ) {
+				if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
 					$md['-6_source'] .= $parsed['path'];
 				}
 				if ( $parsed && ! empty( $parsed['query'] ) ) {
