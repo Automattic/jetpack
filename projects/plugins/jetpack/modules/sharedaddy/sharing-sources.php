@@ -3107,9 +3107,27 @@ class Share_Mastodon extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link  = $this->get_share_url( $post->ID );
-		$share_url  = sprintf(
+
+		/**
+		 * Allow filtering the default message that gets posted to Mastodon.
+		 *
+		 * @module sharedaddy
+		 * @since $$next-version$$
+		 *
+		 * @param string  $share_url The default message that gets posted to Mastodon. This will get rawurlencoded.
+		 * @param WP_Post $post      The post object.
+		 * @param array   $post_data Array of information about the post we're sharing.
+		 */
+		$shared_message = apply_filters(
+			'jetpack_sharing_mastodon_default_message',
+			$post_title . ' ' . $post_link,
+			$post,
+			$post_data
+		);
+
+		$share_url = sprintf(
 			'https://mas.to/share?text=%s',
-			rawurlencode( $post_title . ' ' . $post_link )
+			rawurlencode( $shared_message )
 		);
 
 		// Record stats
