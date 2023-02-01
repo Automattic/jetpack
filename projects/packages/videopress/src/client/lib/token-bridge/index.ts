@@ -130,5 +130,5 @@ export async function tokenBridgeHandler(
 
 	// Listen the token request from the videopress client
 	debug( '(%s) 👂 Listen token requester', videopressAjax?.context || 'main' );
-	window.addEventListener( 'message', tokenBrigeHandler );
+	window.addEventListener( 'message', tokenBridgeHandler );
 } )();
