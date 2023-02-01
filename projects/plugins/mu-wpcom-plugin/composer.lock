@@ -12,11 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "e639dcf72ef0c2d1017b0c684c1b2ac2a7404653"
+                "reference": "445dfef6aaf9011ac49815c54720ba4cf0a259eb"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "dev-master",
+                "automattic/wordbless": "0.4.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
