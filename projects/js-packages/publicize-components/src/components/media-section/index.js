@@ -190,6 +190,12 @@ export default function MediaSection() {
 				return null;
 			}
 
+			const renderVideoPreview = isVideo( mime );
+
+			if ( renderVideoPreview && ! length ) {
+				return;
+			}
+
 			return (
 				<div className={ styles[ 'preview-wrapper' ] }>
 					<button className={ styles.remove } onClick={ onRemoveMedia }>
@@ -197,7 +203,7 @@ export default function MediaSection() {
 						<Icon icon={ closeSmall } />
 					</button>
 					<button className={ styles.preview } onClick={ open }>
-						{ isVideo( mime ) ? (
+						{ renderVideoPreview ? (
 							<VideoPreview
 								sourceUrl={ sourceUrl }
 								mime={ mime }
