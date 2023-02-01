@@ -3,7 +3,7 @@
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -74,7 +74,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <MyJetpack />, container );
+	ReactDOM.createRoot( container ).render( <MyJetpack /> );
 }
 
 render();

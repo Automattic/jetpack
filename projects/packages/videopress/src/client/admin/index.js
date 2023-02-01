@@ -4,7 +4,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -73,7 +73,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <VideoPress />, container );
+	ReactDOM.createRoot( container ).render( <VideoPress /> );
 }
 
 render();

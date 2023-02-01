@@ -1,5 +1,5 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import store from 'state/redux-store-minimal';
 import PluginDeactivation from './portals/plugin-deactivation';
@@ -10,11 +10,10 @@ import PluginDeactivation from './portals/plugin-deactivation';
 function initPluginsPageApp() {
 	const container = document.getElementById( 'jetpack-plugin-portal-app' );
 
-	ReactDOM.render(
+	ReactDOM.createRoot( container ).render(
 		<Provider store={ store }>
 			<PluginDeactivation />
-		</Provider>,
-		container
+		</Provider>
 	);
 }
 

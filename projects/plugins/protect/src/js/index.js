@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
@@ -33,7 +33,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
+	ReactDOM.createRoot( container ).render(
 		<ThemeProvider>
 			<HashRouter>
 				<ScrollToTop />
@@ -43,8 +43,7 @@ function render() {
 				</Routes>
 			</HashRouter>
 			<Modal />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
 }
 

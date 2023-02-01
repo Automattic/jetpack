@@ -1,6 +1,6 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 
 import './admin-bar.scss';
 import './style.scss';
@@ -30,7 +30,7 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		ReactDOM.render(
+		ReactDOM.createRoot( container ).render(
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
 				currentUrl={ currentUrl }
@@ -45,8 +45,7 @@ function render() {
 				isAdmin={ isAdmin }
 				logo={ consumerData.hasOwnProperty( 'logo' ) ? consumerData.logo : undefined }
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
-			/>,
-			container
+			/>
 		);
 	}
 }

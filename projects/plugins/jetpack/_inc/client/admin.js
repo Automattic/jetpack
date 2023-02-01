@@ -3,7 +3,7 @@ import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
 import Main from 'main';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import * as actionTypes from 'state/action-types';
@@ -32,7 +32,7 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
+	ReactDOM.createRoot( container ).render(
 		<div>
 			<Provider store={ store }>
 				<HashRouter>
@@ -91,8 +91,7 @@ function render() {
 					</Switch>
 				</HashRouter>
 			</Provider>
-		</div>,
-		container
+		</div>
 	);
 }
 

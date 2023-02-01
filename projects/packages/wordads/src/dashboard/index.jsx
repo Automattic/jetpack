@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import ReactDOM from 'react-dom/client';
 import WordAdsDashboard from './components/dashboard';
 import { STORE_ID, storeConfig } from './store';
 
@@ -18,11 +18,10 @@ function init() {
 		return;
 	}
 
-	ReactDOM.render(
+	ReactDOM.createRoot( container ).render(
 		<ThemeProvider>
 			<WordAdsDashboard />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
 }
 
