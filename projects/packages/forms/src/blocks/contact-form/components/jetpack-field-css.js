@@ -1,12 +1,6 @@
 import { TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-/**
- *
- * @param root0
- * @param root0.setAttributes
- * @param root0.id
- */
 export default function JetpackFieldCss( { setAttributes, id } ) {
 	return (
 		<TextControl

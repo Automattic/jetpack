@@ -1,12 +1,6 @@
 import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-/**
- *
- * @param root0
- * @param root0.setAttributes
- * @param root0.width
- */
 export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
 		<BaseControl

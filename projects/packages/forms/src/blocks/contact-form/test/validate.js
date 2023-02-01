@@ -1,6 +1,5 @@
 import { name, settings } from '../';
-//FIXME
-//import runBlockFixtureTests from '../../util/test/block-fixtures';
+import runBlockFixtureTests from '../util/block-fixtures';
 
 /**
  * 👀 Update this array of blocks to contain the name and settings for all blocks
@@ -15,5 +14,4 @@ import { name, settings } from '../';
  * ```
  */
 const blocks = [ { name: `jetpack/${ name }`, settings } ];
-//FIXME
-//runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );
+runBlockFixtureTests( `jetpack/${ name }`, blocks, __dirname );

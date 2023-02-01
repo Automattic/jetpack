@@ -1,8 +1,8 @@
 import { BaseControl, PanelBody, TextControl, ExternalLink, Path } from '@wordpress/components';
 import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import HelpMessage from '../../components/help-message';
 import { getIconColor } from '../../util/block-icons';
+import HelpMessage from '../../components/help-message';
 import renderMaterialIcon from '../../util/render-material-icon';
 
 export const salesforceLeadFormVariation = {

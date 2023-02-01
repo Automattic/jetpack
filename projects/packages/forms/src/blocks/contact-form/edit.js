@@ -22,8 +22,8 @@ import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { filter, get, map } from 'lodash';
-import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
+import { childBlocks } from './child-blocks';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
 import JetpackEmailConnectionSettings from './components/jetpack-email-connection-settings';
 import JetpackManageResponsesSettings from './components/jetpack-manage-responses-settings';
@@ -53,25 +53,6 @@ const ALLOWED_BLOCKS = [
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
-/**
- *
- * @param root0
- * @param root0.attributes
- * @param root0.setAttributes
- * @param root0.siteTitle
- * @param root0.postTitle
- * @param root0.postAuthorEmail
- * @param root0.hasInnerBlocks
- * @param root0.replaceInnerBlocks
- * @param root0.selectBlock
- * @param root0.clientId
- * @param root0.instanceId
- * @param root0.className
- * @param root0.blockType
- * @param root0.variations
- * @param root0.defaultVariation
- * @param root0.canUserInstallPlugins
- */
 export function JetpackContactFormEdit( {
 	attributes,
 	setAttributes,

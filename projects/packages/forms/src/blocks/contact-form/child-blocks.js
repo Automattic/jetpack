@@ -2,15 +2,15 @@ import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from './util/block-icons';
+import renderMaterialIcon from './util/render-material-icon';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
-import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
-import renderMaterialIcon from './util/render-material-icon';
 
 const FieldDefaults = {
 	category: 'contact-form',
@@ -49,6 +49,38 @@ const FieldDefaults = {
 		width: {
 			type: 'number',
 			default: 100,
+		},
+		borderRadius: {
+			type: 'number',
+			default: '',
+		},
+		borderWidth: {
+			type: 'number',
+			default: '',
+		},
+		labelFontSize: {
+			type: 'string',
+		},
+		fieldFontSize: {
+			type: 'string',
+		},
+		lineHeight: {
+			type: 'number',
+		},
+		labelLineHeight: {
+			type: 'number',
+		},
+		inputColor: {
+			type: 'string',
+		},
+		labelColor: {
+			type: 'string',
+		},
+		fieldBackgroundColor: {
+			type: 'string',
+		},
+		borderColor: {
+			type: 'string',
 		},
 	},
 	transforms: {
@@ -134,6 +166,7 @@ const editField = type => props => {
 
 	return (
 		<JetpackField
+			clientId={ props.clientId }
 			type={ type }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
@@ -144,6 +177,7 @@ const editField = type => props => {
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -153,6 +187,7 @@ const editMultiField = type => props => {
 
 	return (
 		<JetpackFieldMultiple
+			clientId={ props.clientId }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
@@ -162,6 +197,7 @@ const editMultiField = type => props => {
 			isSelected={ props.isSelected }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -174,6 +210,7 @@ const EditTextarea = props => {
 			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
+			attributes={ props.attributes }
 			setAttributes={ props.setAttributes }
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
@@ -197,6 +234,7 @@ const EditCheckbox = props => {
 			defaultValue={ props.attributes.defaultValue }
 			id={ props.attributes.id }
 			width={ props.attributes.width }
+			attributes={ props.attributes }
 		/>
 	);
 };
@@ -214,6 +252,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 			implicitConsentMessage={ implicitConsentMessage }
 			explicitConsentMessage={ explicitConsentMessage }
 			setAttributes={ setAttributes }
+			attributes={ attributes }
 		/>
 	);
 };
