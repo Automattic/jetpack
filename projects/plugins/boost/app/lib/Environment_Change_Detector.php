@@ -31,7 +31,7 @@ class Environment_Change_Detector {
 
 	public function handle_post_change( $post_id, $post ) {
 		$post_types = get_post_types( array( 'name' => $post->post_type ), 'objects' );
-		if ( empty( $post_types ) || $post_types[0]->public !== true ) {
+		if ( empty( $post_types ) || $post_types['post']->public !== true ) {
 			return;
 		}
 

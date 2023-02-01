@@ -191,8 +191,12 @@ class Jetpack_Boost {
 	 * This is done here so even if the Critical CSS module is switched off we can
 	 * still capture the change of environment event and flag Critical CSS for a rebuild.
 	 */
-	public function handle_environment_change() {
-		Regenerate_Admin_Notice::enable();
+	public function handle_environment_change( $is_major_change ) {
+		if ( $is_major_change ) {
+			Regenerate_Admin_Notice::enable();
+		} else {
+			Regenerate_Admin_Notice::enable_suggestion();
+		}
 	}
 
 	/**

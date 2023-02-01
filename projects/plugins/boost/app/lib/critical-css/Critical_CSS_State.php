@@ -386,6 +386,14 @@ class Critical_CSS_State {
 		return self::FAIL === $this->state;
 	}
 
+	public static function is_fresh() {
+		return Transient::get( 'ccss_is_fresh', false );
+	}
+
+	public static function set_fresh( $is_fresh = true ) {
+		Transient::set( 'ccss_is_fresh', $is_fresh, WEEK_IN_SECONDS );
+	}
+
 	/**
 	 * Given a column, collate all provider sources returning the specified
 	 * column for each one.
