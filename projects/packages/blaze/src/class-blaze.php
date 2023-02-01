@@ -138,12 +138,6 @@ class Blaze {
 			if ( ! Sync_Settings::is_sync_enabled() ) {
 				$should_initialize = false;
 			}
-
-			// The feature relies on this module for now.
-			// See 1386-gh-dotcom-forge
-			if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
-				$should_initialize = false;
-			}
 		}
 
 		// Check if the site supports Blaze.
