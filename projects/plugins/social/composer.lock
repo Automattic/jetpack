@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5043cd885627f71f43998b37df4cbadc",
+    "content-hash": "3870fba0a0a82a649a90e144b71a9423",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -572,7 +572,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "1eb301733370d234b6be83c888f3652c1da4bd4c"
+                "reference": "708bdf617a6e483c8c0ec81bade35db47c354440"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -624,6 +624,10 @@
                 ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

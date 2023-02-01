@@ -79,11 +79,14 @@ export default class PageActions {
 	/**
 	 * Waits for the given timeout in milliseconds.
 	 *
+	 * TODO: Deprecate and remove this, see https://github.com/playwright-community/eslint-plugin-playwright/blob/main/docs/rules/no-wait-for-timeout.md
+	 *
 	 * @param {number} timeout A timeout to wait for in milliseconds
 	 * @return {Promise<void>}
 	 */
 	async waitForTimeout( timeout ) {
 		logger.action( chalk.redBright( `Waiting for ${ timeout } ms` ) );
+		// eslint-disable-next-line playwright/no-wait-for-timeout
 		await this.page.waitForTimeout( timeout );
 	}
 

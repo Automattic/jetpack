@@ -8,6 +8,7 @@ export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
 	skipRatingControl: boolean;
+	maybeIsPrivate: boolean;
 };
 
 export type VideoDataProps = {
@@ -19,6 +20,7 @@ export type VideoDataProps = {
 	is_private?: boolean;
 	post_id?: number;
 	privacy_setting?: PrivacySettingProp;
+	private_enabled_for_site?: boolean;
 	rating?: RatingProp;
 	title?: string;
 	tracks?: VideoTracksResponseBodyProps;

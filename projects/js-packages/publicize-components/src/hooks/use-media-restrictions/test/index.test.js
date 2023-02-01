@@ -3,7 +3,8 @@ import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
 	getAllowedMediaTypes,
-	VIDEO_LENGTH_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
 } from '../index';
 
 const DUMMY_CONNECTIONS = [
@@ -36,7 +37,13 @@ const VALID_MEDIA = [
 	{ mime: 'image/png', fileSize: 3000000 },
 	{ mime: 'video/mp4', fileSize: 1000000, length: 20 },
 ];
-const ALLOWED_MEDIA_TYPES_ALL = [ 'image/jpeg', 'image/jpg', 'image/png', 'video/mp4' ];
+const ALLOWED_MEDIA_TYPES_ALL = [
+	'image/jpeg',
+	'image/jpg',
+	'image/png',
+	'video/mp4',
+	'video/videopress',
+];
 
 describe( 'useMediaRestrictions hook', () => {
 	const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
@@ -77,9 +84,9 @@ describe( 'useMediaRestrictions hook', () => {
 		const allAllowedMediaTypes = getAllowedMediaTypes( DUMMY_CONNECTIONS );
 		const allAllowedMediaTypesTumblr = getAllowedMediaTypes( [ { service_name: 'tumblr' } ] );
 
-		expect( allAllowedMediaTypes ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL );
-		expect( allAllowedMediaTypesTumblr ).toStrictEqual(
-			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] )
+		expect( allAllowedMediaTypes.sort() ).toStrictEqual( ALLOWED_MEDIA_TYPES_ALL.sort() );
+		expect( allAllowedMediaTypesTumblr.sort() ).toStrictEqual(
+			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
 		);
 	} );
 
@@ -105,7 +112,9 @@ describe( 'useMediaRestrictions hook', () => {
 				result.current.getValidationError( video )
 			);
 
-			expect( validationErrors.every( error => error === VIDEO_LENGTH_ERROR ) ).toBe( true );
+			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_SHORT_ERROR );
+			expect( validationErrors ).toContain( VIDEO_LENGTH_TOO_LONG_ERROR );
+			expect( validationErrors ).toHaveLength( 2 );
 		} );
 
 		test( 'Valid media results in no error', () => {

@@ -22,7 +22,7 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
-	const numCoreThreats = useMemo( () => status.core?.threat?.length || 0, [ status.core ] );
+	const numCoreThreats = useMemo( () => status.core?.threats?.length || 0, [ status.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>
