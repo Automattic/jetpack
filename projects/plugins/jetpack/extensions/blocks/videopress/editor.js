@@ -23,6 +23,7 @@ import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import { pickGUIDFromUrl } from './utils';
+import addV6TransformSupport from './v6-transform';
 import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
@@ -395,6 +396,12 @@ addFilter(
 	'blocks.registerBlockType',
 	'videopress/add-wp-chapters-support',
 	addVideoPressVideoChaptersSupport
+);
+
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-v6-transform-support',
+	addV6TransformSupport
 );
 
 /**
