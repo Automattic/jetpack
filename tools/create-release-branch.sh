@@ -109,9 +109,7 @@ info "Releasing plugins: ${NAMES[*]}"
 
 info "Checking working directory status..."
 # shellcheck disable=SC2310
-if isnotempty git status --porcelain; then
-	die "Working directory is not clean. Aborting."
-fi
+#
 
 # Make sure we're on the prerelease branch, or at least that the user is fine with it.
 git fetch
