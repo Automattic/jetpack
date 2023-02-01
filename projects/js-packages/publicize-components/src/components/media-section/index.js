@@ -147,9 +147,7 @@ export default function MediaSection() {
 			( async () => {
 				const details = await getMediaDetails( mediaObject );
 
-				if ( details && Object.keys( details ).length ) {
-					setMediaDetails( details );
-				}
+				setMediaDetails( details ?? {} );
 			} )();
 		} catch {
 			setMediaDetails( {} );
@@ -185,10 +183,10 @@ export default function MediaSection() {
 		open => {
 			const {
 				mediaData: { width, height, sourceUrl } = {},
-				metaData: { mime, length } = {},
+				metaData: { mime, length = null } = {},
 			} = mediaDetails;
 
-			if ( ! sourceUrl || ! width || ! height || ! mime || ! length ) {
+			if ( ! sourceUrl || ! width || ! height || ! mime ) {
 				return null;
 			}
 
