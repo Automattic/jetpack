@@ -36,7 +36,7 @@ function MediaButtonMenu( props ) {
 	return (
 		<>
 			<Dropdown
-				position="bottom right"
+				placement="bottom-start"
 				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => {
 					// override original button only when it's a simple button with text, or a featured image
