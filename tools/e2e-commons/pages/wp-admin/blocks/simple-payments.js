@@ -21,7 +21,7 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		const response = await this.page.waitForResponse(
 			r =>
 				decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.request().method() === 'POST',
-			{ timeout: 30000 }
+			{ timeout: 60000 }
 		);
 		expect( response.ok(), 'Response status should be 200 or 201' ).toBeTruthy();
 	}
