@@ -73,7 +73,7 @@ function page_optimize_deactivate() {
 
 	wp_clear_scheduled_hook( PAGE_OPTIMIZE_CRON_CACHE_CLEANUP_JOB, [ $cache_folder ] );
 }
-register_deactivation_hook( __FILE__, 'page_optimize_deactivate' );
+register_deactivation_hook( JETPACK_BOOST_PATH, 'page_optimize_deactivate' );
 
 function page_optimize_uninstall() {
 	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
@@ -88,7 +88,7 @@ function page_optimize_uninstall() {
 	delete_option( 'page_optimize-css-exclude' );
 
 }
-register_uninstall_hook( __FILE__, 'page_optimize_uninstall' );
+register_uninstall_hook( JETPACK_BOOST_PATH, 'page_optimize_uninstall' );
 
 function page_optimize_get_text_domain() {
 	return 'page-optimize';
@@ -293,10 +293,12 @@ function page_optimize_init() {
 	page_optimize_schedule_cache_cleanup();
 
 	require_once __DIR__ . '/settings.php';
-	require_once __DIR__ . '/concat-css.php';
-	require_once __DIR__ . '/concat-js.php';
+	if ( ! is_admin() ) {
+		require_once __DIR__ . '/concat-css.php';
+		require_once __DIR__ . '/concat-js.php';
+	}
 
 	// Disable Jetpack photon-cdn for static JS/CSS
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
-add_action( 'plugins_loaded', 'page_optimize_init' );
+add_action( 'plugins_loaded', 'page_optimize_init', 15 );

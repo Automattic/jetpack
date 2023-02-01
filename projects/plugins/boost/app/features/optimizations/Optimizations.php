@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
@@ -36,6 +37,7 @@ class Optimizations implements Has_Setup {
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 			new Image_Guide(),
+			new Minify(),
 		);
 
 		foreach ( $features as $feature ) {

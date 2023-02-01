@@ -123,6 +123,13 @@
 		</Module>
 	</div>
 
+	<Module slug={'minify'}>
+		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+		<p slot="description">
+			{__( `Minify CSS and JS.`, 'jetpack-boost' )}
+		</p>
+	</Module>
+
 	<SuperCacheInfo />
 </div>
 
