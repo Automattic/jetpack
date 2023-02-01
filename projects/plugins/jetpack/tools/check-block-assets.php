@@ -82,9 +82,6 @@ $allowed = array(
 		'wp-data',
 		'wp-element',
 	),
-	'slideshow'      => array(
-		'lodash',
-	),
 	'story'          => array(
 		'lodash',
 		'react',
