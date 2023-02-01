@@ -43,7 +43,7 @@ class Environment_Change_Detector {
 	}
 
 	public function handle_plugin_change() {
-		$this->do_action( true, 'plugin_change' );
+		$this->do_action( false, 'plugin_change' );
 	}
 
 	/**
