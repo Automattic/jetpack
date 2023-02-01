@@ -117,7 +117,7 @@ export async function tokenBridgeHandler(
 			guid: guid,
 			jwt: tokenData.token,
 			requestId,
-		} as videopressAjaxPostMessageEvenProps,
+		} as VideopressAjaxPostMessageEventProps,
 		'*'
 	);
 }
