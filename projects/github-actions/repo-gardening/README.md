@@ -28,7 +28,7 @@ Some of the tasks are may not satisfy your needs. If that's the case, you can us
 In the example below, we'll set up the action to run 2 tasks (`cleanLabels` and `notifyDesign`):
 
 ```yml
-name: Repo Gardening
+name: Gardening
 
 on:
   # We need to listen to all these events to catch all scenarios
@@ -36,6 +36,11 @@ on:
   # Refer to src/index.js to see a list of all events each task needs to be listen to.
   pull_request_target:
     types: ['closed', 'labeled']
+concurrency:
+  # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "closed", "labeled") and branch.
+  # Don't cancel any for other events, accomplished by grouping on the unique run_id.
+  group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   repo-gardening:
@@ -52,11 +57,6 @@ jobs:
        uses: actions/setup-node@v3
         with:
           node-version: lts/*
-
-     - name: Wait for prior instances of the workflow to finish
-       uses: softprops/turnstyle@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
      - name: 'Run gardening action'
        uses: automattic/action-repo-gardening@v3
