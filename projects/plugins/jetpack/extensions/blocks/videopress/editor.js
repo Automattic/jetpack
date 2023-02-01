@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -15,6 +18,9 @@ import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -22,7 +28,8 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import { pickGUIDFromUrl } from './utils';
+import { pickGUIDFromUrl, isVideoPressBlockBasedOnAttributes } from './utils';
+import addV6TransformSupport from './v6-transform';
 import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
@@ -397,6 +404,12 @@ addFilter(
 	addVideoPressVideoChaptersSupport
 );
 
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-v6-transform-support',
+	addV6TransformSupport
+);
+
 /**
  * Extend videopress/video transform to/from core/video block.
  *
@@ -477,35 +490,6 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 }
 
 /**
- * Check whether the block is a VideoPress block instance,
- * based on the passed attributes.
- *
- * @param {object} attributes - Block attributes.
- * @returns {boolean} 	        Whether the block is a VideoPress block instance.
- */
-const isVideoPressBlockBasedOnAttributes = attributes => {
-	const { guid, videoPressTracks, isVideoPressExample } = attributes;
-
-	// VideoPress block should have a guid attribute.
-	if ( ! guid?.length ) {
-		return false;
-	}
-
-	// VideoPress block should have a videoPressTracks array attribute.
-	if ( ! Array.isArray( videoPressTracks ) ) {
-		return false;
-	}
-
-	// VideoPress block should have a isVideoPressExample boolean attribute.
-	const attrNames = Object.keys( attributes );
-	if ( ! attrNames.includes( 'isVideoPressExample' ) || typeof isVideoPressExample !== 'boolean' ) {
-		return false;
-	}
-
-	return true;
-};
-
-/**
  * Convert some video blocks to VideoPress video blocks,
  * when the app detects that the block is a VideoPress block instance.
  *
@@ -547,16 +531,18 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 
 		const isSimple = isSimpleSite();
 
+		// Note: conversion disabled for now.
 		const shouldConvertCoreVideoToVideoPressVideoBlock = !! (
 			isCoreVideoBlock && // Only auto-convert if the block is a core/video block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
 			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
-			// Only auto-convert if the site is Simple
-			isSimple
+			isSimple && // Only auto-convert if the site is Simple
+			// Disable auto-conversion for now.
+			false
 		);
 
-		// Note: it does not convert
+		// Note: conversion disabled for now.
 		const shouldConvertCoreEmbedToVideoPressVideoBlock = !! (
 			isCoreEmbedBlock && // Only auto-convert if the block is a core/embed block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
