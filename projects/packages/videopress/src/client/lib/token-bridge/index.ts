@@ -35,7 +35,7 @@ type TokenBrigeEventProps = {
  *
  * @param {object} event - The event object
  */
-export async function tokenBrigeHandler(
+export async function tokenBridgeHandler(
 	event: MessageEvent< TokenBrigeEventProps >
 ): Promise< void > {
 	if ( event.data?.event !== 'videopress_token_request' ) {
