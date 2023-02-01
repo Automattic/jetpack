@@ -2295,7 +2295,7 @@ importers:
       semver: 7.3.5
       sprintf-js: 1.1.2
       tmp: 0.2.1
-      yargs: 16.2.0
+      yargs: 17.6.2
     dependencies:
       '@octokit/auth-token': 3.0.3
       '@octokit/rest': 19.0.7
@@ -2318,7 +2318,7 @@ importers:
       semver: 7.3.5
       sprintf-js: 1.1.2
       tmp: 0.2.1
-      yargs: 16.2.0
+      yargs: 17.6.2
     devDependencies:
       jest: 29.3.1
       jest-extended: 2.0.0_jest@29.3.1
@@ -2337,7 +2337,7 @@ importers:
       pm2: 5.2.0
       shell-escape: 0.2.0
       winston: 3.8.1
-      yargs: 17.5.1
+      yargs: 17.6.2
     devDependencies:
       '@playwright/test': 1.29.1
       '@slack/web-api': 6.7.2
@@ -2351,7 +2351,7 @@ importers:
       pm2: 5.2.0
       shell-escape: 0.2.0
       winston: 3.8.1
-      yargs: 17.5.1
+      yargs: 17.6.2
 
   tools/js-tools:
     specifiers:
@@ -10727,6 +10727,7 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
+    dev: true
 
   /cliui/8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -10735,7 +10736,6 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
-    dev: true
 
   /clone-buffer/1.0.0:
     resolution: {integrity: sha512-KLLTJWrvwIP+OPfMn0x2PheDEP20RPUcGXj/ERegTgdmPEZylALQldygiqrPPu8P45uNuPs7ckmReLY6v/iA5g==}
@@ -16289,7 +16289,7 @@ packages:
       axios: 0.21.4_debug@4.3.4
       debug: 4.3.4
       openurl: 1.1.1
-      yargs: 17.5.1
+      yargs: 17.6.2
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -22500,11 +22500,11 @@ packages:
   /yargs-parser/20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
+    dev: true
 
   /yargs-parser/21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
-    dev: true
 
   /yargs-parser/5.0.1:
     resolution: {integrity: sha512-wpav5XYiddjXxirPoCTUPbqM0PXvJ9hiBMvuJgInvo4/lAOTZzUprArw17q2O1P2+GHhbBr18/iQwjL5Z9BqfA==}
@@ -22539,18 +22539,6 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 20.2.9
-
-  /yargs/17.5.1:
-    resolution: {integrity: sha512-t6YAJcxDkNX7NFYiVtKvWUz8l+PaKTLiL63mJYWR2GnHq2gjEWISzsLp9wg3aY36dY1j+gfIEL3pIF+XlJJfbA==}
-    engines: {node: '>=12'}
-    dependencies:
-      cliui: 7.0.4
-      escalade: 3.1.1
-      get-caller-file: 2.0.5
-      require-directory: 2.1.1
-      string-width: 4.2.3
-      y18n: 5.0.8
-      yargs-parser: 21.1.1
     dev: true
 
   /yargs/17.6.2:
@@ -22564,7 +22552,6 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 21.1.1
-    dev: true
 
   /yargs/7.1.2:
     resolution: {integrity: sha512-ZEjj/dQYQy0Zx0lgLMLR8QuaqTihnxirir7EwUHp1Axq4e3+k8jXU5K0VLbNvedv1f4EWtBonDIZm0NUr+jCcA==}
