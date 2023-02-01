@@ -14,7 +14,9 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
-const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
+const cssGenPath = path.dirname(
+	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
+);
 
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
