@@ -70,11 +70,15 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction={ 'column' }>
-						<FlexBlock>
-							{ <span>{ __( 'Access', 'jetpack' ) }</span> }
-							{ ! canEdit && <span>{ accessLabel }</span> }
-							{ withModal && canEdit && (
+					<Flex direction={ withModal ? 'row' : 'column' }>
+						{
+							<FlexBlock>
+								<span>{ __( 'Access', 'jetpack' ) }</span>
+							</FlexBlock>
+						}
+						{ ! canEdit && <span>{ accessLabel }</span> }
+						{ withModal && canEdit && (
+							<FlexBlock>
 								<Dropdown
 									placement="bottom-end"
 									contentClassName="edit-post-post-visibility__dialog"
@@ -104,8 +108,8 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 										</div>
 									) }
 								/>
-							) }
-						</FlexBlock>
+							</FlexBlock>
+						) }
 
 						{ ! withModal && canEdit && (
 							<FlexBlock>
