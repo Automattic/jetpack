@@ -5,12 +5,12 @@ importers:
   .:
     specifiers:
       eslint: 8.33.0
-      husky: 7.0.4
+      husky: 8.0.3
       jetpack-cli: workspace:1.0.0
       jetpack-js-tools: workspace:*
     devDependencies:
       eslint: 8.33.0
-      husky: 7.0.4
+      husky: 8.0.3
       jetpack-cli: link:tools/cli
       jetpack-js-tools: link:tools/js-tools
 
@@ -14562,9 +14562,9 @@ packages:
     resolution: {integrity: sha512-E0eIbrFWUhwfXJmsbdjRQFQPrl5pTEoKlz163j1mTqqUnU9PgR4AgB8AIITzuB3vLBdxZXyZ9TDIrwB2OASz4g==}
     dev: true
 
-  /husky/7.0.4:
-    resolution: {integrity: sha512-vbaCKN2QLtP/vD4yvs6iz6hBEo6wkSzs8HpRah1Z6aGmF2KW5PdYuAd7uX5a+OyBZHBhd+TFLqgjUgytQr4RvQ==}
-    engines: {node: '>=12'}
+  /husky/8.0.3:
+    resolution: {integrity: sha512-+dQSyqPh4x1hlO1swXBiNb2HzTDN1I2IGLQx1GrBuiqFJfoMrnZWwVmatvSiO+Iz8fBUnf+lekwNo4c2LlXItg==}
+    engines: {node: '>=14'}
     hasBin: true
     dev: true
 
