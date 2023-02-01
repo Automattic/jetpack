@@ -10,7 +10,7 @@ import type { VideoGUID } from '../../block-editor/blocks/video/types';
 
 const debug = debugFactory( 'videopress:token-bridge' );
 
-type videopressAjaxPostMessageEvenProps = {
+type VideopressAjaxPostMessageEventProps = {
 	event: 'videopress_token_request_ack' | 'videopress_token_received' | 'videopress_token_error';
 	guid: VideoGUID;
 	requestId: string;
