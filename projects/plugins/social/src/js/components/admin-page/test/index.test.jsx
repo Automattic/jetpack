@@ -1,5 +1,4 @@
-import { render, screen } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect, createReduxStore, register } from '@wordpress/data';
 import React from 'react';
 import { STORE_ID, storeConfig } from '../../../store';

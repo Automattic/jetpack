@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { act, renderHook } from '@testing-library/react';
 import useFetchGiphyData from '../hooks/use-fetch-giphy-data';
 
 const originalFetch = window.fetch;

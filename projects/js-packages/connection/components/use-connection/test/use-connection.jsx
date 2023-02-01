@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { jest } from '@jest/globals';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 import useConnection from '../';
 import { STORE_ID } from '../../../state/store';

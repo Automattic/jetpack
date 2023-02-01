@@ -1,5 +1,5 @@
 import { JETPACK_DATA_PATH } from '@automattic/jetpack-shared-extension-utils';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import { registerBlocks } from '../../../shared/test/block-fixtures';
 import { settings } from '../../button';
 import MailchimpSubscribeEdit from '../edit';
@@ -42,10 +42,6 @@ describe( 'Mailchimp block edit component', () => {
 		// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 		window.fetch = jest.fn();
 		window.fetch.mockReturnValue( DEFAULT_FETCH_MOCK_RETURN );
-	} );
-
-	afterEach( async () => {
-		await act( () => NOT_CONNECTED_RESOLVED_FETCH_PROMISE );
 	} );
 
 	afterAll( () => {

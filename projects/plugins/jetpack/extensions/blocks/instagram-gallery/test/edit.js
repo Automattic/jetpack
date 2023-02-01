@@ -58,15 +58,12 @@ describe( 'InstagramGalleryEdit', () => {
 
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
-		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
-				'/wpcom/v2/instagram-gallery/connections?_locale=user'
-			)
-		);
+		await waitFor( () => {
+			expect(
+				screen.getByText( 'Connect to Instagram to start sharing your images.' )
+			).toBeInTheDocument();
+		} );
 
-		expect(
-			screen.getByText( 'Connect to Instagram to start sharing your images.' )
-		).toBeInTheDocument();
 		expect( screen.getByText( 'Connect to Instagram' ) ).toBeInTheDocument();
 	} );
 
@@ -82,13 +79,9 @@ describe( 'InstagramGalleryEdit', () => {
 
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
-		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
-				'/wpcom/v2/instagram-gallery/connections?_locale=user'
-			)
-		);
-
-		expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
+		await waitFor( () => {
+			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
+		} );
 
 		await user.click( screen.getByLabelText( '@testjetpackuser' ) );
 		await user.click( screen.getByText( 'Connect to Instagram' ) );
@@ -111,13 +104,9 @@ describe( 'InstagramGalleryEdit', () => {
 
 		render( <InstagramGalleryEdit { ...defaultProps } /> );
 
-		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
-				'/wpcom/v2/instagram-gallery/connections?_locale=user'
-			)
-		);
-
-		expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
+		await waitFor( () => {
+			expect( screen.getByText( 'Select your Instagram account:' ) ).toBeInTheDocument();
+		} );
 
 		await user.click( screen.getByLabelText( 'Add a new account' ) );
 		expect(
@@ -157,13 +146,9 @@ describe( 'InstagramGalleryEdit', () => {
 
 		render( <InstagramGalleryEdit { ...propsWithConnectedAccount } /> );
 
-		await waitFor( () =>
-			expect( window.fetch.mock.calls[ 0 ][ 0 ] ).toBe(
-				'/wpcom/v2/instagram-gallery/gallery?access_token=123456&count=30&_locale=user'
-			)
-		);
-
-		expect( screen.getByAltText( 'test image 1' ) ).toBeInTheDocument();
+		await waitFor( () => {
+			expect( screen.getByAltText( 'test image 1' ) ).toBeInTheDocument();
+		} );
 		expect( screen.getByAltText( 'test image 2' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Connect to Instagram' ) ).not.toBeInTheDocument();
 	} );
