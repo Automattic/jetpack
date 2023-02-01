@@ -5,6 +5,7 @@ import './style.scss';
 
 type Props = {
 	header: React.ReactNode;
+	children: React.ReactNode;
 	illustrationPath?: string;
 	compact?: boolean;
 	className?: string;
