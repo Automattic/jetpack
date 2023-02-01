@@ -23,10 +23,10 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
-		"@babel/core": "7.20.7",
+		"@babel/core": "7.20.12",
 		"@babel/plugin-syntax-jsx": "7.18.6",
 		"@babel/preset-react": "7.18.6",
-		"@babel/runtime": "7.20.7",
+		"@babel/runtime": "7.20.13",
 		"@emotion/babel-plugin": "11.3.0",
 		"@emotion/react": "11.4.1",
 		"@emotion/styled": "11.3.0",
