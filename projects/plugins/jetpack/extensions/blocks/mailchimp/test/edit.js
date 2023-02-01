@@ -78,7 +78,16 @@ describe( 'Mailchimp block edit component', () => {
 				is_current_user_connected: false,
 			},
 		};
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			expect.stringContaining( '/jetpack/v4/connection/url?from=jetpack-block-editor&redirect=' ),
 			expect.anything()
@@ -86,7 +95,16 @@ describe( 'Mailchimp block edit component', () => {
 	} );
 
 	test( 'fetches mailchimp connect url on mount if current user is connected', async () => {
-		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+		const { container } = render( <MailchimpSubscribeEdit { ...defaultProps } /> );
+
+		// Wait for API call to "finish".
+		await waitFor( () => {
+			expect(
+				// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+				container.querySelector( '.wp-block-jetpack-mailchimp .components-spinner' )
+			).not.toBeInTheDocument();
+		} );
+
 		expect( window.fetch ).toHaveBeenCalledWith(
 			'/wpcom/v2/mailchimp?_locale=user',
 			expect.anything()
@@ -104,5 +122,9 @@ describe( 'Mailchimp block edit component', () => {
 		const connectedProps = { ...defaultProps, attributes: { ...attributes, preview: true } };
 		render( <MailchimpSubscribeEdit { ...connectedProps } /> );
 		await expect( screen.findByLabelText( 'Enter your email' ) ).resolves.toBeInTheDocument();
+
+		// Wait for the API call to happen. It makes no differnce to the component, so there's nothing to waitFor for.
+		// eslint-disable-next-line testing-library/no-unnecessary-act
+		await act( () => {} );
 	} );
 } );
