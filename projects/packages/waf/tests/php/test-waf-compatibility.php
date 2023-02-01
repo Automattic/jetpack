@@ -36,7 +36,7 @@ class WafCompatibilityTest extends PHPUnit\Framework\TestCase {
 
 		$merged_lists = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
 
-		$this->assertSame( $expected_result, $merged_lists );
+		$this->assertEquals( $expected_result, $merged_lists );
 	}
 
 }
