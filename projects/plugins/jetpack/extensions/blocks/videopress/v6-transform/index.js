@@ -15,8 +15,10 @@ export default function addV6TransformSupport( settings, name ) {
 		return settings;
 	}
 
+	const { available } = getJetpackExtensionAvailability( VIDEOPRESS_VIDEO_FEATURE );
+
 	// Only apply if VideoPress video block is available.
-	if ( ! getJetpackExtensionAvailability( VIDEOPRESS_VIDEO_FEATURE ) ) {
+	if ( ! available ) {
 		return settings;
 	}
 
