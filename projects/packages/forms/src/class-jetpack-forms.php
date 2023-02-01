@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Forms\ContactForm\Util;
-
+use Automattic\Jetpack\Forms\Dashboard\Dashboard;
 /**
  * Understands the Jetpack Forms package.
  */
@@ -21,6 +21,11 @@ class Jetpack_Forms {
 	 */
 	public static function load_contact_form() {
 		Util::init();
+
+		if ( is_admin() && apply_filters( 'jetpack_forms_dashboard_enable', false ) ) {
+			$dashboard = new Dashboard();
+			$dashboard->init();
+		}
 
 		if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
