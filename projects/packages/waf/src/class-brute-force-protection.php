@@ -11,6 +11,7 @@ use Automattic\Jetpack\Constants;
 use Jetpack;
 use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
+use WP_Error;
 
 require_once __DIR__ . '/brute-force-protection/shared-functions.php';
 

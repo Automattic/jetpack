@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
 use Jetpack;
+use WP_Error;
 
 /**
  * Class Brute_Force_Protection_Blocked_Login_Page
