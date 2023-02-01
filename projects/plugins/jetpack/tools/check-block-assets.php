@@ -62,10 +62,6 @@ $allowed = array(
 	'dialogue'       => array(
 		'wp-data',
 	),
-	'donations'      => array(
-		'lodash',
-		'wp-keycodes',
-	),
 	'map'            => array(
 		'lodash',
 		'react',
