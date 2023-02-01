@@ -153,7 +153,9 @@ describe( 'MediaSection', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
-		expect( window.HTMLMediaElement.prototype.load ).toHaveBeenCalled();
+		await waitFor( () => {
+			expect( window.HTMLMediaElement.prototype.load ).toHaveBeenCalled();
+		} );
 	} );
 
 	it( 'should play and pause the video when it is hovered and unhovered', async () => {
