@@ -13,7 +13,7 @@ import { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
-import { isVideoPressBlockBasedOnAttributes } from '../utils';
+import { isVideoPressBlockBasedOnAttributes } from '../../../utils';
 import styles from './styles.module.scss';
 
 /**
