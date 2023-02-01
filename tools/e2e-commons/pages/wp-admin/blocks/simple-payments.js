@@ -17,6 +17,15 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		return 'Pay with PayPal';
 	}
 
+	async checkBlock() {
+		const response = await this.page.waitForResponse(
+			r =>
+				decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.request().method() === 'POST',
+			{ timeout: 30000 }
+		);
+		expect( response.ok(), 'Response status should be 200 or 201' ).toBeTruthy();
+	}
+
 	async fillDetails( {
 		title = `SP test ${ new Date() }`,
 		description = 'random product description',
@@ -32,15 +41,6 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		await this.canvas().fill( descriptionSelector, description );
 		await this.canvas().fill( priceSelector, price );
 		await this.canvas().fill( emailSelector, email );
-		await this.waitForResponse();
-	}
-
-	async waitForResponse() {
-		const response = await this.page.waitForResponse(
-			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ),
-			{ timeout: 30000 }
-		);
-		expect( [ 200, 201 ], 'Response status should be 200 or 201' ).toContain( response.status() );
 	}
 
 	getSelector( selector ) {
