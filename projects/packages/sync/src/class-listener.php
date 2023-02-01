@@ -429,7 +429,7 @@ class Listener {
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
 			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+				$ip = Brute_Force_Protection_Shared_Functions::get_ip();
 			}
 
 			$actor['ip']         = $ip;

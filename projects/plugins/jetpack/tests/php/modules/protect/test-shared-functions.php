@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Protect_Shared_Functions extends WP_UnitTestCase {
 		$old_server = $_SERVER;
 		$_SERVER    = $server;
 		try {
-			$this->assertSame( $expect, Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip() );
+			$this->assertSame( $expect, Brute_Force_Protection_Shared_Functions::get_ip() );
 		} finally {
 			$_SERVER = $old_server;
 		}

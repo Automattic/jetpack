@@ -38,12 +38,12 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 				<td>
 					<p><strong>
 					<?php
-					$protect_ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
-					if ( ! empty( $protect_ip ) ) {
+					$brute_force_protection_ip = Brute_Force_Protection_Shared_Functions::get_ip();
+					if ( ! empty( $brute_force_protection_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */
 							esc_html__( 'Your current IP: %1$s', 'jetpack' ),
-							esc_html( $protect_ip )
+							esc_html( $brute_force_protection_ip )
 						);
 					}
 					?>

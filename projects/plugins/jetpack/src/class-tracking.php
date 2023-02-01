@@ -164,7 +164,7 @@ class Tracking {
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip(),
+				'origin_ip' => Brute_Force_Protection_Shared_Functions::get_ip(),
 				'login'     => $login,
 			)
 		);

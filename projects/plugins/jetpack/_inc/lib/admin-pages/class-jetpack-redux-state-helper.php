@@ -200,7 +200,7 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip(),
+			'currentIp'                   => Brute_Force_Protection_Shared_Functions::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
