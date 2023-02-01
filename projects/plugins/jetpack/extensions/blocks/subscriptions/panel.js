@@ -87,20 +87,33 @@ export default function SubscribePanels() {
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
-								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
-								),
-								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
+							followerCount !== 0
+								? sprintf(
+										/* translators: 1$s will be subscribers, %2$s will be social followers */
+										__(
+											'This post will reach <span>%1$s</span> and <span>%2$s</span>.',
+											'jetpack'
+										),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										),
+										sprintf(
+											/* translators: %s will be a number of social followers */
+											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+											numberFormat( followerCount )
+										)
+								  )
+								: sprintf(
+										/* translators: 1$s will be subscribers */
+										__( 'This post will reach <span>%1$s</span>.', 'jetpack' ),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										)
+								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
 					</InspectorNotice>
@@ -118,20 +131,33 @@ export default function SubscribePanels() {
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
-								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
-								),
-								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
+							followerCount !== 0
+								? sprintf(
+										/* translators: 1$s will be subscribers, %2$s will be social followers */
+										__(
+											'This post was shared to <span>%1$s</span> and <span>%2$s</span>.',
+											'jetpack'
+										),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										),
+										sprintf(
+											/* translators: %s will be a number of social followers */
+											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+											numberFormat( followerCount )
+										)
+								  )
+								: sprintf(
+										/* translators: 1$s will be subscribers */
+										__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										)
+								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
 					</InspectorNotice>
