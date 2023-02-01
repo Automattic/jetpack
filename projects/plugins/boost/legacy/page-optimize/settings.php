@@ -6,7 +6,7 @@ function jetpack_boost_page_optimize_settings_page() {
 		<h1><?php _e( 'Performance Settings', jetpack_boost_page_optimize_get_text_domain() ); ?></h1>
 		<form method="post" action="options.php">
 			<?php
-			settings_fields( 'performance' );
+			settings_fields( 'jetpack-boost-performance' );
 			do_settings_sections( 'jetpack-boost-page-optimize' );
 			submit_button();
 			?>
@@ -31,18 +31,18 @@ function jetpack_boost_page_optimize_settings_field_js( $args ) {
 	?>
 	<fieldset>
 		<label>
-			<input type="checkbox" id="page_optimize-js" name="page_optimize-js" value="1" <?php checked( get_option( 'page_optimize-js' ) ); ?>>
+			<input type="checkbox" id="jetpack_boost_page_optimize-js" name="jetpack_boost_page_optimize-js" value="1" <?php checked( get_option( 'jetpack_boost_page_optimize-js' ) ); ?>>
 			<?php _e( 'Concatenate scripts', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<br>
-		<label for="page_optimize-js-exclude">
+		<label for="jetpack_boost_page_optimize-js-exclude">
 			<?php _e( 'Comma separated list of strings to exclude from JS concatenating:', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<br>
 		<input type="text"
-			id="page_optimize-js-exclude"
-			name="page_optimize-js-exclude"
-			value="<?php echo esc_html( get_option( 'page_optimize-js-exclude' ) ); ?>"
+			id="jetpack_boost_page_optimize-js-exclude"
+			name="jetpack_boost_page_optimize-js-exclude"
+			value="<?php echo esc_html( get_option( 'jetpack_boost_page_optimize-js-exclude' ) ); ?>"
 			class="regular-text ltr">
 	</fieldset>
 	<?php
@@ -52,15 +52,15 @@ function jetpack_boost_page_optimize_settings_field_js_load_mode( $args ) {
 	?>
 	<fieldset>
 		<label>
-			<input type="radio" name="page_optimize-load-mode" value="" <?php checked( '', get_option( 'page_optimize-load-mode' ), true ); ?>>
+			<input type="radio" name="jetpack_boost_page_optimize-load-mode" value="" <?php checked( '', get_option( 'jetpack_boost_page_optimize-load-mode' ), true ); ?>>
 			<?php _e( 'None', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<label>
-			<input type="radio" name="page_optimize-load-mode" value="async" <?php checked( 'async', get_option( 'page_optimize-load-mode' ), true ); ?>>
+			<input type="radio" name="jetpack_boost_page_optimize-load-mode" value="async" <?php checked( 'async', get_option( 'jetpack_boost_page_optimize-load-mode' ), true ); ?>>
 			<?php _e( 'Async', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<label>
-			<input type="radio" name="page_optimize-load-mode" value="defer" <?php checked( 'defer', get_option( 'page_optimize-load-mode' ), true ); ?>>
+			<input type="radio" name="jetpack_boost_page_optimize-load-mode" value="defer" <?php checked( 'defer', get_option( 'jetpack_boost_page_optimize-load-mode' ), true ); ?>>
 			<?php _e( 'Defer', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 
@@ -75,18 +75,18 @@ function jetpack_boost_page_optimize_settings_field_css( $args ) {
 	?>
 	<fieldset>
 		<label>
-			<input type="checkbox" id="page_optimize-css" name="page_optimize-css" value="1" <?php checked( get_option( 'page_optimize-css' ) ); ?>>
+			<input type="checkbox" id="jetpack_boost_page_optimize-css" name="jetpack_boost_page_optimize-css" value="1" <?php checked( get_option( 'jetpack_boost_page_optimize-css' ) ); ?>>
 			<?php _e( 'Concatenate styles', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<br>
-		<label for="page_optimize-css-exclude">
+		<label for="jetpack_boost_page_optimize-css-exclude">
 			<?php _e( 'Comma separated list of strings to exclude from CSS concatenating:', jetpack_boost_page_optimize_get_text_domain() ); ?>
 		</label>
 		<br>
 		<input type="text"
-			id="page_optimize-css-exclude"
-			name="page_optimize-css-exclude"
-			value="<?php echo esc_html( get_option( 'page_optimize-css-exclude' ) ); ?>"
+			id="jetpack_boost_page_optimize-css-exclude"
+			name="jetpack_boost_page_optimize-css-exclude"
+			value="<?php echo esc_html( get_option( 'jetpack_boost_page_optimize-css-exclude' ) ); ?>"
 			class="regular-text ltr">
 	</fieldset>
 	<?php
@@ -106,8 +106,8 @@ add_action( 'admin_menu', 'jetpack_boost_page_optimize_settings_add_menu' );
 
 function jetpack_boost_page_optimize_settings_init() {
 	register_setting(
-		'performance',
-		'page_optimize-js',
+		'jetpack-boost-performance',
+		'jetpack_boost_page_optimize-js',
 		array(
 			'description' => __( 'JavaScript concatenation', jetpack_boost_page_optimize_get_text_domain() ),
 			'type' => 'boolean',
@@ -115,8 +115,8 @@ function jetpack_boost_page_optimize_settings_init() {
 		)
 	);
 	register_setting(
-		'performance',
-		'page_optimize-load-mode',
+		'jetpack-boost-performance',
+		'jetpack_boost_page_optimize-load-mode',
 		array(
 			'description' => __( 'Non-critical script execution mode', jetpack_boost_page_optimize_get_text_domain() ),
 			'type' => 'string',
@@ -125,8 +125,8 @@ function jetpack_boost_page_optimize_settings_init() {
 		)
 	);
 	register_setting(
-		'performance',
-		'page_optimize-js-exclude',
+		'jetpack-boost-performance',
+		'jetpack_boost_page_optimize-js-exclude',
 		array(
 			'description' => __( 'Comma separated list of strings to exclude from JS concatenating', jetpack_boost_page_optimize_get_text_domain() ),
 			'type' => 'string',
@@ -135,8 +135,8 @@ function jetpack_boost_page_optimize_settings_init() {
 		)
 	);
 	register_setting(
-		'performance',
-		'page_optimize-css',
+		'jetpack-boost-performance',
+		'jetpack_boost_page_optimize-css',
 		array(
 			'description' => __( 'CSS concatenation', jetpack_boost_page_optimize_get_text_domain() ),
 			'type' => 'boolean',
@@ -144,8 +144,8 @@ function jetpack_boost_page_optimize_settings_init() {
 		)
 	);
 	register_setting(
-		'performance',
-		'page_optimize-css-exclude',
+		'jetpack-boost-performance',
+		'jetpack_boost_page_optimize-css-exclude',
 		array(
 			'description' => __( 'Comma separated list of strings to exclude from CSS concating', jetpack_boost_page_optimize_get_text_domain() ),
 			'type' => 'string',
