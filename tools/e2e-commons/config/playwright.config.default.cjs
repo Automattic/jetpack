@@ -9,10 +9,6 @@ const reporter = [
 	[ `${ path.resolve( __dirname, '../', config.get( 'dirs.reporters' ) ) }/reporter.cjs` ],
 ];
 
-if ( process.env.CI ) {
-	reporter.push( [ 'github' ] );
-}
-
 // Fail early if the required test site config is not defined
 // Let config lib throw by using get function on an undefined property
 if ( process.env.TEST_SITE ) {
