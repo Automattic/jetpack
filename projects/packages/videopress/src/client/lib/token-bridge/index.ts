@@ -47,7 +47,7 @@ export async function tokenBrigeHandler(
 		return;
 	}
 
-	const { context = 'limbo' } = videopressAjax;
+	const { context = 'main' } = videopressAjax;
 
 	const { guid, requestId } = event.data;
 	if ( ! guid || ! requestId ) {
@@ -129,6 +129,6 @@ export async function tokenBrigeHandler(
 	}
 
 	// Listen the token request from the videopress client
-	debug( '(%s) 👂 Listen token requester', videopressAjax?.context || 'limbo' );
+	debug( '(%s) 👂 Listen token requester', videopressAjax?.context || 'main' );
 	window.addEventListener( 'message', tokenBrigeHandler );
 } )();

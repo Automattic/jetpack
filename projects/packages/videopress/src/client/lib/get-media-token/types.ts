@@ -41,7 +41,7 @@ export type MediaTokenProps = {
 declare global {
 	interface Window {
 		videopressAjax: {
-			context?: 'block-editor' | 'front-end' | 'sandbox' | 'limbo';
+			context?: 'main' | 'sandbox';
 			ajaxUrl: string;
 			bridgeUrl: string;
 			post_id: string;
