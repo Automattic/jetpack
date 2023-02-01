@@ -104,7 +104,7 @@ export async function tokenBridgeHandler(
 				event: 'videopress_token_error',
 				guid: event.data.guid,
 				requestId,
-			} as videopressAjaxPostMessageEvenProps,
+			} as VideopressAjaxPostMessageEventProps,
 			'*'
 		);
 		return;
