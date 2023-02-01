@@ -16,7 +16,6 @@ import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
-
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
@@ -75,7 +74,14 @@ export default function SubscribePanels() {
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
-				title={ __( 'Newsletter', 'jetpack' ) }
+				title={
+					<>
+						{ __( 'Newsletter:', 'jetpack' ) }
+						<span className={ 'editor-post-publish-panel__link' }>
+							{ accessOptions[ accessLevel ].label }
+						</span>
+					</>
+				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				{ showNotices && (
