@@ -179,6 +179,7 @@ test.describe( 'Free blocks', () => {
 			await test.step( 'Visit site editor page', async () => {
 				siteEditor = await SiteEditorPage.visit( page );
 				await siteEditor.edit();
+				await siteEditor.closeWelcomeGuide();
 				await siteEditor.clearCustomizations();
 			} );
 		} );

@@ -32,6 +32,15 @@ export default class SiteEditorPage extends WpPage {
 		}
 	}
 
+	async closeWelcomeGuide() {
+		logger.step( 'Handling the welcome guide modal' );
+		const welcomeModal = "div[aria-label='Welcome to the site editor']";
+		if ( await this.isElementVisible( welcomeModal, 1000 ) ) {
+			logger.info( 'Closing the modal' );
+			await this.click( "button[aria-label='Close dialog']" );
+		}
+	}
+
 	async searchForBlock( searchTerm ) {
 		logger.step( `Search block: '${ searchTerm }'` );
 		await this.click( "button[aria-label='Toggle block inserter']" );
