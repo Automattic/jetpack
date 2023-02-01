@@ -7,7 +7,7 @@ if ( ! defined( 'ALLOW_GZIP_COMPRESSION' ) ) {
 	define( 'ALLOW_GZIP_COMPRESSION', true );
 }
 
-class Page_Optimize_CSS_Concat extends WP_Styles {
+class Jetpack_Boost_Page_Optimize_CSS_Concat extends WP_Styles {
 	private $dependency_path_mapping;
 	private $old_styles;
 
@@ -30,7 +30,7 @@ class Page_Optimize_CSS_Concat extends WP_Styles {
 			unset( $this->$key );
 		}
 
-		$this->dependency_path_mapping = new Page_Optimize_Dependency_Path_Mapping(
+		$this->dependency_path_mapping = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping(
 			apply_filters( 'page_optimize_site_url', $this->base_url )
 		);
 	}
@@ -112,7 +112,7 @@ class Page_Optimize_CSS_Concat extends WP_Styles {
 			}
 
 			// Skip concating CSS from exclusion list
-			$exclude_list = page_optimize_css_exclude_list();
+			$exclude_list = jetpack_boost_page_optimize_css_exclude_list();
 			foreach ( $exclude_list as $exclude ) {
 				if ( $do_concat && $handle === $exclude ) {
 					$do_concat = false;
@@ -162,8 +162,8 @@ class Page_Optimize_CSS_Concat extends WP_Styles {
 					}
 
 					$mtime = max( array_map( 'filemtime', $fs_paths ) );
-					if ( page_optimize_use_concat_base_dir() ) {
-						$path_str = implode( ',', array_map( 'page_optimize_remove_concat_base_prefix', $fs_paths ) );
+					if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
+						$path_str = implode( ',', array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths ) );
 					} else {
 						$path_str = implode( ',', $css );
 					}
@@ -178,7 +178,7 @@ class Page_Optimize_CSS_Concat extends WP_Styles {
 
 					$href = $siteurl . "/_static/??" . $path_str;
 				} else {
-					$href = Page_Optimize_Utils::cache_bust_mtime( current( $css ), $siteurl );
+					$href = Jetpack_Boost_Page_Optimize_Utils::cache_bust_mtime( current( $css ), $siteurl );
 				}
 
 				$handles = array_keys( $css );
@@ -212,13 +212,13 @@ class Page_Optimize_CSS_Concat extends WP_Styles {
 	}
 }
 
-function page_optimize_css_concat_init() {
+function jetpack_boost_page_optimize_css_concat_init() {
 	global $wp_styles;
 
-	$wp_styles = new Page_Optimize_CSS_Concat( $wp_styles );
+	$wp_styles = new Jetpack_Boost_Page_Optimize_CSS_Concat( $wp_styles );
 	$wp_styles->allow_gzip_compression = ALLOW_GZIP_COMPRESSION;
 }
 
-if ( page_optimize_should_concat_css() ) {
-	add_action( 'init', 'page_optimize_css_concat_init' );
+if ( jetpack_boost_page_optimize_should_concat_css() ) {
+	add_action( 'init', 'jetpack_boost_page_optimize_css_concat_init' );
 }

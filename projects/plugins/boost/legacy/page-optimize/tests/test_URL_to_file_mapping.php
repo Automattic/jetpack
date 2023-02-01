@@ -22,7 +22,7 @@ class Test_URL_To_File_Mapping extends PHPUnit\Framework\TestCase {
 		$plugin_url = 'https://example.com/site/wp-content/plugins';
 		$plugin_dir = "$content_dir/plugin";
 
-		$dpm = new Page_Optimize_Dependency_Path_Mapping(
+		$dpm = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping(
 			$site_url,
 			$site_dir,
 			$content_url,
@@ -66,7 +66,7 @@ class Test_URI_Path_To_File_Mapping extends PHPUnit\Framework\TestCase {
 		$content_dir = "{$root}{$content_dir}";
 		$plugin_dir = "{$root}{$plugin_dir}";
 
-		$dpm = new Page_Optimize_Dependency_Path_Mapping(
+		$dpm = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping(
 			$site_url,
 			$site_dir,
 			$content_url,

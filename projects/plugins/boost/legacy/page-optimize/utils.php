@@ -1,6 +1,6 @@
 <?php
 
-class Page_Optimize_Utils {
+class Jetpack_Boost_Page_Optimize_Utils {
 	public static function cache_bust_mtime( $path, $siteurl ) {
 		static $dependency_path_mapping;
 
@@ -16,7 +16,7 @@ class Page_Optimize_Utils {
 		}
 
 		if ( empty( $dependency_path_mapping ) ) {
-			$dependency_path_mapping = new Page_Optimize_Dependency_Path_Mapping();
+			$dependency_path_mapping = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping();
 		}
 
 		$file = $dependency_path_mapping->dependency_src_to_fs_path( $url );

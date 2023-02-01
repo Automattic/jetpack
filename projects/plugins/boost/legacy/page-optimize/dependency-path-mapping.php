@@ -5,7 +5,7 @@
  * This is necessary when we are deciding what we can concatenate and when
  * actually building the concatenation.
  */
-class Page_Optimize_Dependency_Path_Mapping {
+class Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping {
 	// Save entire site URL so we can check whether other URLs are based on it (internal URLs)
 	public $site_url;
 
@@ -111,7 +111,7 @@ class Page_Optimize_Dependency_Path_Mapping {
 	 * This method helps ensure we only resolve to local FS paths.
 	 */
 	function is_internal_uri( $uri ) {
-		if ( page_optimize_starts_with( '/', $uri ) && ! page_optimize_starts_with( '//', $uri ) ) {
+		if ( jetpack_boost_page_optimize_starts_with( '/', $uri ) && ! jetpack_boost_page_optimize_starts_with( '//', $uri ) ) {
 			// Absolute paths are internal because they are based on the site dir (typically ABSPATH),
 			// and this looks like an absolute path.
 			return true;
@@ -132,6 +132,6 @@ class Page_Optimize_Dependency_Path_Mapping {
 		// "/wp-content/resource" being judged a descendant of "/wp".
 		$dir_path = trailingslashit( $dir_path );
 
-		return page_optimize_starts_with( $dir_path, $candidate );
+		return jetpack_boost_page_optimize_starts_with( $dir_path, $candidate );
 	}
 }

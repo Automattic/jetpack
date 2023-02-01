@@ -7,7 +7,7 @@ if ( ! defined( 'ALLOW_GZIP_COMPRESSION' ) ) {
 	define( 'ALLOW_GZIP_COMPRESSION', true );
 }
 
-class Page_Optimize_JS_Concat extends WP_Scripts {
+class Jetpack_Boost_Page_Optimize_JS_Concat extends WP_Scripts {
 	private $dependency_path_mapping;
 	private $old_scripts;
 
@@ -30,7 +30,7 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 			unset( $this->$key );
 		}
 
-		$this->dependency_path_mapping = new Page_Optimize_Dependency_Path_Mapping(
+		$this->dependency_path_mapping = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping(
 			apply_filters( 'page_optimize_site_url', $this->base_url )
 		);
 	}
@@ -95,7 +95,7 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 
 			// Only try to concat static js files
 			if ( false !== strpos( $js_url_parsed['path'], '.js' ) ) {
-				$do_concat = page_optimize_should_concat_js();
+				$do_concat = jetpack_boost_page_optimize_should_concat_js();
 			} else {
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
@@ -148,7 +148,7 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 			}
 
 			// Skip concating scripts from exclusion list
-			$exclude_list = page_optimize_js_exclude_list();
+			$exclude_list = jetpack_boost_page_optimize_js_exclude_list();
 			foreach ( $exclude_list as $exclude ) {
 				if ( $do_concat && $handle === $exclude ) {
 					$do_concat = false;
@@ -215,8 +215,8 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 					}
 
 					$mtime = max( array_map( 'filemtime', $fs_paths ) );
-					if ( page_optimize_use_concat_base_dir() ) {
-						$path_str = implode( ',', array_map( 'page_optimize_remove_concat_base_prefix', $fs_paths ) );
+					if ( jetpack_boost_page_optimize_use_concat_base_dir() ) {
+						$path_str = implode( ',', array_map( 'jetpack_boost_page_optimize_remove_concat_base_prefix', $fs_paths ) );
 					} else {
 						$path_str = implode( ',', $js_array['paths'] );
 					}
@@ -231,7 +231,7 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 
 					$href = $siteurl . "/_static/??" . $path_str;
 				} elseif ( isset( $js_array['paths'] ) && is_array( $js_array['paths'] ) ) {
-					$href = Page_Optimize_Utils::cache_bust_mtime( $js_array['paths'][0], $siteurl );
+					$href = Jetpack_Boost_Page_Optimize_Utils::cache_bust_mtime( $js_array['paths'][0], $siteurl );
 				}
 
 				$this->done = array_merge( $this->done, $js_array['handles'] );
@@ -246,7 +246,7 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 				if ( isset( $href ) ) {
 					$handles = implode( ',', $js_array['handles'] );
 
-					$load_mode = page_optimize_load_mode_js();
+					$load_mode = jetpack_boost_page_optimize_load_mode_js();
 
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 						$tag = "<script data-handles='" . esc_attr( $handles ) . "' $load_mode type='text/javascript' src='$href'></script>\n";
@@ -295,13 +295,13 @@ class Page_Optimize_JS_Concat extends WP_Scripts {
 	}
 }
 
-function page_optimize_js_concat_init() {
+function jetpack_boost_page_optimize_js_concat_init() {
 	global $wp_scripts;
 
-	$wp_scripts = new Page_Optimize_JS_Concat( $wp_scripts );
+	$wp_scripts = new Jetpack_Boost_Page_Optimize_JS_Concat( $wp_scripts );
 	$wp_scripts->allow_gzip_compression = ALLOW_GZIP_COMPRESSION;
 }
 
-if ( ! is_admin() && ( page_optimize_should_concat_js() || page_optimize_load_mode_js() ) ) {
-	add_action( 'init', 'page_optimize_js_concat_init' );
+if ( ! is_admin() && ( jetpack_boost_page_optimize_should_concat_js() || jetpack_boost_page_optimize_load_mode_js() ) ) {
+	add_action( 'init', 'jetpack_boost_page_optimize_js_concat_init' );
 }
