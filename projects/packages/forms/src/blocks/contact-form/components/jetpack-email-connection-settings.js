@@ -2,8 +2,8 @@ import { TextControl } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import emailValidator from 'email-validator';
-import InspectorHint from '../components/inspector-hint';
 import HelpMessage from '../components/help-message';
+import InspectorHint from '../components/inspector-hint';
 
 const JetpackEmailConnectionSettings = ( {
 	emailAddress = '',

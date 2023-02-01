@@ -2,15 +2,15 @@ import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
+import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
+import renderMaterialIcon from './util/render-material-icon';
 
 const FieldDefaults = {
 	category: 'contact-form',

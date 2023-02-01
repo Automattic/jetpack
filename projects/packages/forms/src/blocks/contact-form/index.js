@@ -2,12 +2,12 @@ import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { Path } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
-import { getIconColor } from './util/block-icons';
-import renderMaterialIcon from './util/render-material-icon';
 import defaultAttributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import transforms from './transforms';
+import { getIconColor } from './util/block-icons';
+import renderMaterialIcon from './util/render-material-icon';
 import variations from './variations';
 
 export const name = 'contact-form';
