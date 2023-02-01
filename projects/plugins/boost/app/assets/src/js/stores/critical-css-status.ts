@@ -46,7 +46,7 @@ const resetState = {
 	status: 'not_generated',
 };
 
-const initialState = Jetpack_Boost.criticalCssStatus || resetState;
+const initialState = Jetpack_Boost.criticalCSS?.status || resetState;
 
 const store = writable< CriticalCssStatus >( initialState );
 const { subscribe, update } = store;

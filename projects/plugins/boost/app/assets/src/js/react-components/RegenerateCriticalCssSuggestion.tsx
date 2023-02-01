@@ -1,11 +1,9 @@
 import { Notice } from '@automattic/jetpack-components';
-import { useState } from 'react';
 import { __ } from '@wordpress/i18n';
+import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
 
-export const RegenerateCriticalCssNotice = () => {
-	const [ isDismissed, setIsDismissed ] = useState( false );
-
-	if ( isDismissed ) {
+export const RegenerateCriticalCssSuggestion = ( { show } ) => {
+	if ( ! show ) {
 		return null;
 	}
 
@@ -14,7 +12,7 @@ export const RegenerateCriticalCssNotice = () => {
 			level="info"
 			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
 			onClose={ () => {
-				setIsDismissed( true );
+				hideRegenerateCriticalCssSuggestion();
 			} }
 		>
 			<p>

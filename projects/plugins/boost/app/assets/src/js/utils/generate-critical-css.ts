@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
+import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
 	requestGeneration,
@@ -74,6 +75,7 @@ export default async function generateCriticalCss(
 		if ( reset ) {
 			await clearDismissedRecommendations();
 			updateGenerateStatus( { status: 'requesting', progress: 0 } );
+			hideRegenerateCriticalCssSuggestion();
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.

@@ -3,7 +3,8 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { RegenerateCriticalCssNotice } from '../../../react-components/RegenerateCriticalCssNotice';
+	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
 	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
@@ -57,7 +58,10 @@
 		</div>
 
 		<div slot="notice">
-			<ReactComponent this={RegenerateCriticalCssNotice} />
+			<ReactComponent
+				this={RegenerateCriticalCssSuggestion}
+				show={$config.criticalCSS.suggestRegenerate}
+			/>
 		</div>
 	</Module>
 

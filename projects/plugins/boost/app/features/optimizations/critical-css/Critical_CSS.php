@@ -143,8 +143,11 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 */
 	public function add_critical_css_constants( $constants ) {
 		// Information about the current status of Critical CSS / generation.
-		$generator                      = new Generator();
-		$constants['criticalCssStatus'] = $generator->get_local_critical_css_generation_info();
+		$generator                = new Generator();
+		$constants['criticalCSS'] = array(
+			'status'            => $generator->get_local_critical_css_generation_info(),
+			'suggestRegenerate' => Regenerate_Admin_Notice::is_suggestion_enabled(),
+		);
 
 		return $constants;
 	}

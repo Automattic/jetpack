@@ -39,6 +39,16 @@ export const markGetStartedComplete = () => {
 	} ) );
 };
 
+export const hideRegenerateCriticalCssSuggestion = () => {
+	update( store => ( {
+		...store,
+		criticalCSS: {
+			...store.criticalCSS,
+			suggestRegenerate: false,
+		},
+	} ) );
+};
+
 export default {
 	subscribe,
 	refresh,
