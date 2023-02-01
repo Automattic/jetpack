@@ -41,6 +41,18 @@ const projects = [
 		suite: '',
 	},
 	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
+	{
+		project: 'PayPal block on WoA',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ '-g paypal', '--repeat-each=50' ],
+		suite: 'atomic-paypal-block',
+	},
+	{
+		project: 'Blocks with latest Gutenberg',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'blocks', '--retries=1' ],
+		suite: 'gutenberg',
+	},
 ];
 
 const matrix = [];
