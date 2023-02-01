@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Twitter timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages
