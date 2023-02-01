@@ -11,8 +11,20 @@ jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
 	);
 	const settings = {
 		'typography.customFontSize': true,
+		'color.defaultGradients': true,
+		'color.defaultPalette': true,
 	};
-	return path => ( settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path ) );
+	const aliases = {
+		'color.palette.default': 'color.palette',
+		'color.gradients.default': 'color.gradients',
+	};
+	return path => {
+		let ret = settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path );
+		if ( ret === undefined && aliases.hasOwnProperty( path ) ) {
+			ret = useSetting( aliases[ path ] );
+		}
+		return ret;
+	};
 } );
 
 const setButtonBackgroundColor = jest.fn();
