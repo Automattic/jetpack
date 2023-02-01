@@ -42,6 +42,7 @@ export default class SocialLogos extends PureComponent {
 				<SocialLogo icon="link" size={ 48 } onClick={ this.handleClick.bind( this, 'link' ) } />
 				<SocialLogo icon="linkedin" size={ 48 } onClick={ this.handleClick.bind( this, 'linkedin' ) } />
 				<SocialLogo icon="mail" size={ 48 } onClick={ this.handleClick.bind( this, 'mail' ) } />
+				<SocialLogo icon="mastodon" size={ 48 } onClick={ this.handleClick.bind( this, 'mastodon' ) } />
 				<SocialLogo icon="medium-alt" size={ 48 } onClick={ this.handleClick.bind( this, 'medium-alt' ) } />
 				<SocialLogo icon="medium" size={ 48 } onClick={ this.handleClick.bind( this, 'medium' ) } />
 				<SocialLogo icon="patreon" size={ 48 } onClick={ this.handleClick.bind( this, 'patreon' ) } />

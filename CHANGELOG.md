@@ -1,5 +1,8 @@
 _The versioning refers to the React component build._
 
+#### v2.5.2 (2023-02-01)
+* Added Mastodon icon.
+
 #### v2.5.1 (2023-01-13)
 * React 18 support
 
