@@ -193,7 +193,7 @@ export default function MediaSection() {
 			const renderVideoPreview = isVideo( mime );
 
 			if ( renderVideoPreview && ! length ) {
-				return;
+				return null;
 			}
 
 			return (
