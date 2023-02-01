@@ -2151,7 +2151,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "c558b54d0365cf2d4dbe04ce0884afd1cf20d7a1"
+                "reference": "4ac539aae8fcf17b90ee1d63432afeae88cb3f58"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -2169,7 +2169,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
+                    "dev-trunk": "1.17.x-dev"
                 }
             },
             "autoload": {
@@ -2202,7 +2202,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "bf9eb3491de43cfa22638ce03c02d1a4e60ee11e"
+                "reference": "92359abfacab4d10e63e874152b416083b3bbaab"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2229,7 +2229,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.47.x-dev"
+                    "dev-trunk": "1.48.x-dev"
                 }
             },
             "autoload": {
@@ -2346,7 +2346,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "6e38e0e44373497b441f60ca21806f217d70248e"
+                "reference": "3d189d69c9e9c9440ff18c944e685c9fb2ce1e16"
             },
             "require": {
                 "automattic/jetpack-status": "@dev",
@@ -2365,7 +2365,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.9.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 }
             },
             "autoload": {
