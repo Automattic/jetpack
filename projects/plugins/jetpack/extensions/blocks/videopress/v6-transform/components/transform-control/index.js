@@ -13,6 +13,7 @@ import { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
+import { isVideoPressBlockBasedOnAttributes } from '../utils';
 import styles from './styles.module.scss';
 
 /**
@@ -30,7 +31,7 @@ export default function TransformControl() {
 		blocks.forEach( block => {
 			const { clientId, name, attributes } = block;
 
-			if ( name === 'core/video' && attributes.guid ) {
+			if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
 				replaceBlock( clientId, createBlock( 'videopress/video', attributes ) );
 			}
 		} );
