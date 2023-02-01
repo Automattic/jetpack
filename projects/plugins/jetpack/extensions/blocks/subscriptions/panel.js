@@ -101,7 +101,11 @@ export default function SubscribePanels() {
 				) }
 
 				{ isNewsletterFeatureEnabled() && (
-					<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+					<NewsletterAccess
+						setPostMeta={ setPostMeta }
+						accessLevel={ accessLevel }
+						withModal={ false }
+					/>
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
