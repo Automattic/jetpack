@@ -5,6 +5,8 @@ const glob = require( 'glob' );
 
 const sassPattern = '**/sass/**/*.scss';
 const jsPattern = '**/js/**/*.js';
+const welcomeZBSCSSPattern = '**/css/welcome-to-zbs/*.css';
+
 const alwaysIgnoredFiles = [
 	'**/js/**/*.min.js',
 	'**/sass/**/_*.scss',
@@ -12,6 +14,7 @@ const alwaysIgnoredFiles = [
 	'**/vendor/**',
 	'**/tests/**',
 	'**/lib/**',
+	'**/welcome-to-zbs/*.min.css',
 ];
 
 /**
@@ -42,6 +45,21 @@ function getSassEntries() {
 	glob.sync( sassPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
 		const newPath = file.replace( 'sass', 'css' );
 		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] = './' + file;
+	} );
+	return entries;
+}
+
+/**
+ * Returns an array the full list of our 'css' files from the 'welcome-to-zbs' directory in the form:
+ * [ './full/path/file' => './full/path/file.css'].
+ * This list is generated using the above defined welcomeZBSCSSPattern and alwaysIgnoredFiles.
+ *
+ * @returns {Array} The list of css files that must be minified.
+ */
+function getWelcomeZBSCSSEntries() {
+	const entries = {};
+	glob.sync( welcomeZBSCSSPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
+		entries[ './' + file.substring( 0, file.length - '.css'.length ) ] = './' + file;
 	} );
 	return entries;
 }
@@ -101,6 +119,31 @@ module.exports = [
 	{
 		...crmWebpackConfig,
 		entry: getSassEntries(),
+		module: {
+			...crmWebpackConfig.module,
+			rules: [
+				...crmWebpackConfig.module.rules,
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+					CssLoader: {
+						url: false,
+					},
+				} ),
+			],
+		},
+		plugins: [
+			...crmWebpackConfig.plugins,
+			// Delete the dummy JS files Webpack would otherwise create.
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.js(\.map)?$/,
+			} ),
+		],
+	},
+	{
+		...crmWebpackConfig,
+		entry: getWelcomeZBSCSSEntries(),
 		output: {
 			...crmWebpackConfig.output,
 		},
@@ -110,8 +153,7 @@ module.exports = [
 				...crmWebpackConfig.module.rules,
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
-					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ 'sass-loader' ],
+					extensions: [ 'css' ],
 					CssLoader: {
 						url: false,
 					},
