@@ -960,6 +960,7 @@ importers:
 
   projects/packages/forms:
     specifiers:
+      '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/remove-asset-webpack-plugin': workspace:*
       autoprefixer: 10.4.12
@@ -970,6 +971,7 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/jetpack-components': link:../../js-packages/components
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
     devDependencies:
@@ -1942,6 +1944,9 @@ importers:
       allure-playwright: 2.0.0-beta.19
       config: 3.3.7
       jetpack-e2e-commons: link:../../../../../tools/e2e-commons
+
+  projects/plugins/mu-wpcom-plugin:
+    specifiers: {}
 
   projects/plugins/protect:
     specifiers:
