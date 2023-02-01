@@ -3143,8 +3143,8 @@ class Share_Mastodon extends Sharing_Source {
 		$this->js_dialog(
 			$this->shortname,
 			array(
-				'width'  => 580,
-				'height' => 450,
+				'width'  => 460,
+				'height' => 400,
 			)
 		);
 	}
