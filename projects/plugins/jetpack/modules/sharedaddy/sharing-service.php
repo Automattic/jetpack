@@ -107,6 +107,7 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+			'mastodon'         => 'Share_Mastodon',
 		);
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {

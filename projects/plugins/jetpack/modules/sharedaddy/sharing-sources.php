@@ -3041,3 +3041,93 @@ class Share_Skype extends Sharing_Source {
 		endif;
 	}
 }
+
+/**
+ * Mastodon sharing service.
+ */
+class Share_Mastodon extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'mastodon';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10a';
+
+	/**
+	 * Constructor.
+	 *
+	 * @param int   $id       Sharing source ID.
+	 * @param array $settings Sharing settings.
+	 */
+	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
+		parent::__construct( $id, $settings );
+	}
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Mastodon', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Mastodon', 'share to', 'jetpack' ),
+			__( 'Click to share on Mastodon', 'jetpack' ),
+			'share=mastodon',
+			'sharing-mastodon-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		$post_title = $this->get_share_title( $post->ID );
+		$post_link  = $this->get_share_url( $post->ID );
+		$share_url  = sprintf(
+			'https://mas.to/share?text=%s',
+			rawurlencode( $post_title . ' ' . $post_link )
+		);
+
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		parent::redirect_request( $share_url );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		$this->js_dialog(
+			$this->shortname,
+			array(
+				'width'  => 580,
+				'height' => 450,
+			)
+		);
+	}
+}
