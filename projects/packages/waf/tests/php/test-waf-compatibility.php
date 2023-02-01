@@ -32,10 +32,22 @@ class WafCompatibilityTest extends PHPUnit\Framework\TestCase {
 			),
 		);
 
+		$waf_empty_allow_list         = '';
+		$brute_force_empty_allow_list = array();
+
+		// Test merging both lists.
 		$expected_result = "1.1.1.1,2.2.2.2\n3.3.3.3-4.4.4.4\n5.5.5.5\n6.6.6.6-7.7.7.7\n8.8.8.8";
+		$merged_lists    = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+		$this->assertEquals( $expected_result, $merged_lists );
 
-		$merged_lists = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+		// Test empty WAF allow list.
+		$expected_result = "5.5.5.5\n6.6.6.6-7.7.7.7\n8.8.8.8";
+		$merged_lists    = Waf_Compatibility::merge_ip_allow_lists( $waf_empty_allow_list, $brute_force_allow_list );
+		$this->assertEquals( $expected_result, $merged_lists );
 
+		// Test empty Brute Force allow list.
+		$expected_result = "1.1.1.1,2.2.2.2\n3.3.3.3-4.4.4.4";
+		$merged_lists    = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_empty_allow_list );
 		$this->assertEquals( $expected_result, $merged_lists );
 	}
 

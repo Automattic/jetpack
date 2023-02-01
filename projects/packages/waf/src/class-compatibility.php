@@ -24,6 +24,7 @@ class Waf_Compatibility {
 	public static function add_compatibility_hooks() {
 		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
+		add_filter( 'default_option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::default_option_waf_ip_allow_list', 10, 1 );
 		add_filter( 'option_' . Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, __CLASS__ . '::filter_option_waf_ip_allow_list', 10, 1 );
 	}
 
@@ -110,8 +111,14 @@ class Waf_Compatibility {
 			$brute_force_allow_list
 		);
 
+		$brute_force_allow_list_string = implode( "\n", $brute_force_allow_list );
+
+		if ( empty( $waf_allow_list ) ) {
+			return $brute_force_allow_list_string;
+		}
+
 		// Return the lists merged into a single string.
-		return "$waf_allow_list\n" . implode( "\n", $brute_force_allow_list );
+		return "$waf_allow_list\n$brute_force_allow_list_string";
 	}
 
 	/**
@@ -123,7 +130,7 @@ class Waf_Compatibility {
 	 *
 	 * @return string The merged IP allow list.
 	 */
-	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list ) {
+	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list = '' ) {
 		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', array() );
 
 		if ( false !== $brute_force_allow_list ) {
@@ -149,6 +156,24 @@ class Waf_Compatibility {
 	 */
 	public static function filter_option_waf_ip_allow_list( $value ) {
 		return self::migrate_brute_force_protection_ip_allow_list( $value );
+	}
+
+	/**
+	 * Default option for when the Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME option is not set.
+	 *
+	 * @param mixed  $default         The default value to return if the option does not exist in the database.
+	 * @param string $option          Option name.
+	 * @param bool   $passed_default  Was get_option() passed a default value.
+	 *
+	 * @return mixed The default value to return if the option does not exist in the database.
+	 */
+	public static function default_option_waf_ip_allow_list( $default, $option, $passed_default ) {
+		// Allow get_option() to override this default value
+		if ( $passed_default ) {
+			return $default;
+		}
+
+		return self::migrate_brute_force_protection_ip_allow_list();
 	}
 
 }
