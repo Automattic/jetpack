@@ -71,7 +71,7 @@
 			"v": false
 		},
 		"mirror-repo": "Automattic/jetpack-social-plugin",
-		"release-branch-prefix": "jetpack",
+		"release-branch-prefix": "social",
 		"wp-plugin-slug": "jetpack-social",
 		"wp-svn-autopublish": true
 	},
