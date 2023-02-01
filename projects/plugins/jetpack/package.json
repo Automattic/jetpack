@@ -1,6 +1,6 @@
 {
 	"name": "Jetpack",
-	"version": "11.8.0-a.8",
+	"version": "11.9.0-a.0",
 	"private": true,
 	"description": "[Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
 	"homepage": "https://jetpack.com",
@@ -19,9 +19,8 @@
 		"build-asset-cdn-json": "php tools/build-asset-cdn-json.php",
 		"//": "# We set NODE_PATH here (and in other 'build-' scripts) so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" concurrently --names js,css,masterbar,module-headings 'webpack --config ./tools/webpack.config.js' 'webpack --config ./tools/webpack.config.css.js' 'webpack --config ./tools/webpack.config.masterbar.js' 'php tools/build-module-headings-translations.php'",
-		"build-color-schemes-wpcom": "NODE_ENV=production MASTERBAR_ENV=wpcom webpack --config ./tools/webpack.config.masterbar.js",
 		"build-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-client' 'pnpm:build-extensions' 'pnpm:build-widget-visibility' && pnpm run build-asset-cdn-json",
-		"build-extensions": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.extensions.js",
+		"build-extensions": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.extensions.js && tools/check-block-assets.php",
 		"build-production": "pnpm run clean && pnpm run build-production-client && pnpm run build-production-extensions && pnpm run build-production-widget-visibility && pnpm run build-asset-cdn-json",
 		"build-production-concurrently": "pnpm run clean && concurrently 'pnpm:compile-ts' 'pnpm:build-production-client' 'pnpm:build-production-extensions' 'pnpm:build-production-widget-visibility' && pnpm run build-asset-cdn-json",
 		"build-production-client": "NODE_ENV=production BABEL_ENV=production pnpm run build-client && pnpm exec validate-es ./_inc/build/",
@@ -101,7 +100,7 @@
 		"resize-observer-polyfill": "1.5.1",
 		"sass": "1.38.1",
 		"semver": "7.3.5",
-		"social-logos": "2.5.1",
+		"social-logos": "2.5.2",
 		"swiper": "6.7.0",
 		"tinycolor2": "1.4.2",
 		"tus-js-client": "2.3.0",
@@ -113,12 +112,12 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
-		"@babel/core": "7.20.7",
+		"@babel/core": "7.20.12",
 		"@babel/plugin-proposal-nullish-coalescing-operator": "7.18.6",
-		"@babel/plugin-transform-react-jsx": "7.20.7",
+		"@babel/plugin-transform-react-jsx": "7.20.13",
 		"@babel/plugin-transform-runtime": "7.19.6",
 		"@babel/preset-env": "7.20.2",
-		"@babel/runtime": "7.20.7",
+		"@babel/runtime": "7.20.13",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/react-hooks": "8.0.1",
@@ -159,7 +158,7 @@
 		"react-dom": "17.0.2"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }
