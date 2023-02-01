@@ -44,7 +44,7 @@ const projects = [
 	{
 		project: 'PayPal block on WoA',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '-g paypal', '--repeat-each=20', '--trace=retain-on-failure' ],
+		testArgs: [ '-g paypal', '--repeat-each=50', '--trace=retain-on-failure' ],
 		suite: 'atomic-paypal-block',
 	},
 ];
