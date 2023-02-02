@@ -15,7 +15,7 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build:contact-form && pnpm run build:dashboard",
+		"build": "pnpm run clean && pnpm run build:blocks && build:contact-form && pnpm run build:dashboard",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build:blocks": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.blocks.js",
 		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",

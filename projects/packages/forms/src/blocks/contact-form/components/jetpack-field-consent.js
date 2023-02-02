@@ -38,15 +38,15 @@ const JetpackFieldConsent = ( {
 				labelFieldName={ `${ consentType }ConsentMessage` }
 				placeholder={ sprintf(
 					/* translators: placeholder is a type of consent: implicit or explicit */
-					__( 'Add %s consent message…', 'jetpack' ),
+					__( 'Add %s consent message…', 'jetpack-forms' ),
 					consentType
 				) }
 			/>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
 			</InspectorControls>
@@ -54,14 +54,14 @@ const JetpackFieldConsent = ( {
 				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
 			</InspectorAdvancedControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Consent Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
 					<BaseControl>
 						<SelectControl
-							label={ __( 'Permission to email', 'jetpack' ) }
+							label={ __( 'Permission to email', 'jetpack-forms' ) }
 							value={ consentType }
 							options={ [
-								{ label: __( 'Mention that you can email', 'jetpack' ), value: 'implicit' },
-								{ label: __( 'Add a privacy checkbox', 'jetpack' ), value: 'explicit' },
+								{ label: __( 'Mention that you can email', 'jetpack-forms' ), value: 'implicit' },
+								{ label: __( 'Add a privacy checkbox', 'jetpack-forms' ), value: 'explicit' },
 							] }
 							onChange={ value => setAttributes( { consentType: value } ) }
 						/>

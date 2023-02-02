@@ -33,7 +33,7 @@ const sharedWebpackConfig = {
 	externals: {
 		...jetpackWebpackConfig.externals,
 		jetpackConfig: JSON.stringify( {
-			consumer_slug: 'jetpack',
+			consumer_slug: 'jetpack-forms',
 		} ),
 	},
 	module: {

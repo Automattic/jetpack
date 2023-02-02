@@ -48,42 +48,42 @@ function JetpackFieldCheckbox( props ) {
 				attributes={ attributes }
 			/>
 			<InspectorControls>
-				<PanelBody title={ __( 'Checkbox Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Checkbox Settings', 'jetpack-forms' ) }>
 					<ToggleControl
-						label={ __( 'Checked by default', 'jetpack' ) }
+						label={ __( 'Checked by default', 'jetpack-forms' ) }
 						checked={ defaultValue }
 						onChange={ value => setAttributes( { defaultValue: value ? 'true' : '' } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<ToggleControl
-						label={ __( 'Field is required', 'jetpack' ) }
+						label={ __( 'Field is required', 'jetpack-forms' ) }
 						className="jetpack-field-label__required"
 						checked={ required }
 						onChange={ value => setAttributes( { required: value } ) }
-						help={ __( 'You can edit the "required" label in the editor', 'jetpack' ) }
+						help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 					/>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
 
 				<PanelColorSettings
-					title={ __( 'Color', 'jetpack' ) }
+					title={ __( 'Color', 'jetpack-forms' ) }
 					initialOpen={ false }
 					colorSettings={ [
 						{
 							value: attributes.labelColor,
 							onChange: value => setAttributes( { labelColor: value } ),
-							label: __( 'Label Text', 'jetpack' ),
+							label: __( 'Label Text', 'jetpack-forms' ),
 						},
 					] }
 				></PanelColorSettings>
 				<PanelBody
-					title={ __( 'Label Styles', 'jetpack' ) }
+					title={ __( 'Label Styles', 'jetpack-forms' ) }
 					initialOpen={ attributes.labelFontSize }
 				>
 					<FontSizePicker

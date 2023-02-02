@@ -30,7 +30,7 @@ const v1 = {
 	attributes: {
 		submit_button_text: {
 			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
+			default: __( 'Submit', 'jetpack-forms' ),
 		},
 		has_form_settings_set: {
 			type: 'string',
@@ -38,7 +38,7 @@ const v1 = {
 		},
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
+			default: __( 'Submit', 'jetpack-forms' ),
 		},
 		backgroundButtonColor: {
 			type: 'string',
@@ -62,7 +62,9 @@ const v1 = {
 
 		const buttonAttributes = {
 			text:
-				attributes.submitButtonText || attributes.submit_button_text || __( 'Submit', 'jetpack' ),
+				attributes.submitButtonText ||
+				attributes.submit_button_text ||
+				__( 'Submit', 'jetpack-forms' ),
 			backgroundColor: attributes.backgroundButtonColor,
 			textColor: attributes.textButtonColor,
 			customBackgroundColor: attributes.customBackgroundButtonColor,

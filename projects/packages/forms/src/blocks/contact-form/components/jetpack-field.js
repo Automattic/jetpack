@@ -37,7 +37,7 @@ export default function JetpackField( props ) {
 						placeholder={ placeholder }
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
-						title={ __( 'Set the placeholder text', 'jetpack' ) }
+						title={ __( 'Set the placeholder text', 'jetpack-forms' ) }
 						style={ fieldStyle }
 					/>
 				</Disabled>

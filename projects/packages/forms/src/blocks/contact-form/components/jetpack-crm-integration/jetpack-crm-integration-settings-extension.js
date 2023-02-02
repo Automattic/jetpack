@@ -60,7 +60,7 @@ const CRMJetpackFormsExtensionActivation = ( {
 
 	return (
 		<Button variant="secondary" onClick={ onExtensionActivationClick }>
-			{ __( 'Enable Jetpack Forms Extension', 'jetpack' ) }
+			{ __( 'Enable Jetpack Forms Extension', 'jetpack-forms' ) }
 		</Button>
 	);
 };
@@ -68,7 +68,7 @@ const CRMJetpackFormsExtensionActivation = ( {
 const CRMJetpackFormsExtensionNonAdminUser = () => {
 	return (
 		<p className="jetpack-contact-form__crm_text">
-			{ __( 'A site administrator must enable the CRM Jetpack Forms extension.', 'jetpack' ) }
+			{ __( 'A site administrator must enable the CRM Jetpack Forms extension.', 'jetpack-forms' ) }
 		</p>
 	);
 };
@@ -78,7 +78,7 @@ const CRMJetpackFormsExtensionActivateText = () => {
 		<p className="jetpack-contact-form__crm_text">
 			{ __(
 				"You can integrate this contact form with Jetpack CRM by enabling Jetpack CRM's Jetpack Forms extension.",
-				'jetpack'
+				'jetpack-forms'
 			) }
 		</p>
 	);

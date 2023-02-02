@@ -31,11 +31,11 @@ const NoConsentBlockSettings = () => {
 			<p>
 				{ __(
 					'You’re already collecting email contacts. Why not make sure you have permission to email them too?',
-					'jetpack'
+					'jetpack-forms'
 				) }
 			</p>
 			<Button variant="secondary" onClick={ insertConsentBlock } style={ { marginBottom: '1em' } }>
-				{ __( 'Add email permission request', 'jetpack' ) }
+				{ __( 'Add email permission request', 'jetpack-forms' ) }
 			</Button>
 			<br />
 		</>

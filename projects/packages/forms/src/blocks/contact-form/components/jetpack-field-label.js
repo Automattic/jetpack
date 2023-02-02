@@ -16,7 +16,7 @@ const JetpackFieldLabel = ( {
 } ) => {
 	useEffect( () => {
 		if ( isNil( requiredText ) ) {
-			setAttributes( { requiredText: __( '(required)', 'jetpack' ) } );
+			setAttributes( { requiredText: __( '(required)', 'jetpack-forms' ) } );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
@@ -38,7 +38,7 @@ const JetpackFieldLabel = ( {
 						}
 						setAttributes( { label: value } );
 					} }
-					placeholder={ placeholder ?? __( 'Add label…', 'jetpack' ) }
+					placeholder={ placeholder ?? __( 'Add label…', 'jetpack-forms' ) }
 					withoutInteractiveFormatting
 					allowedFormats={ [ 'core/bold', 'core/italic' ] }
 				/>

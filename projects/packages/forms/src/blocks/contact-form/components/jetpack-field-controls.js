@@ -46,22 +46,22 @@ const JetpackFieldControls = ( {
 		{
 			value: attributes.labelColor,
 			onChange: value => setAttributes( { labelColor: value } ),
-			label: __( 'Label Text', 'jetpack' ),
+			label: __( 'Label Text', 'jetpack-forms' ),
 		},
 		{
 			value: attributes.inputColor,
 			onChange: value => setAttributes( { inputColor: value } ),
-			label: __( 'Field Text', 'jetpack' ),
+			label: __( 'Field Text', 'jetpack-forms' ),
 		},
 		{
 			value: attributes.fieldBackgroundColor,
 			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-			label: __( 'Field Background', 'jetpack' ),
+			label: __( 'Field Background', 'jetpack-forms' ),
 		},
 		{
 			value: attributes.borderColor,
 			onChange: value => setAttributes( { borderColor: value } ),
-			label: __( 'Border', 'jetpack' ),
+			label: __( 'Border', 'jetpack-forms' ),
 		},
 	];
 
@@ -70,7 +70,7 @@ const JetpackFieldControls = ( {
 			<BlockControls>
 				<ToolbarGroup>
 					<ToolbarButton
-						title={ __( 'Required', 'jetpack' ) }
+						title={ __( 'Required', 'jetpack-forms' ) }
 						icon={ renderMaterialIcon(
 							<Path
 								d="M8.23118 8L16 16M8 16L15.7688 8 M6.5054 11.893L17.6567 11.9415M12.0585 17.6563L12 6.5"
@@ -86,34 +86,34 @@ const JetpackFieldControls = ( {
 			</BlockControls>
 
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings isChildBlock />
 				</PanelBody>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Field Settings', 'jetpack-forms' ) }>
 					<ToggleControl
-						label={ __( 'Field is required', 'jetpack' ) }
+						label={ __( 'Field is required', 'jetpack-forms' ) }
 						className="jetpack-field-label__required"
 						checked={ required }
 						onChange={ value => setAttributes( { required: value } ) }
-						help={ __( 'You can edit the "required" label in the editor', 'jetpack' ) }
+						help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 					/>
 
 					<TextControl
-						label={ __( 'Placeholder text', 'jetpack' ) }
+						label={ __( 'Placeholder text', 'jetpack-forms' ) }
 						value={ placeholder }
 						onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 						help={ __(
 							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
-							'jetpack'
+							'jetpack-forms'
 						) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
-					title={ __( 'Color', 'jetpack' ) }
+					title={ __( 'Color', 'jetpack-forms' ) }
 					initialOpen={ false }
 					colorSettings={ ! hasBorderControls ? colorSettings.slice( 0, 2 ) : colorSettings }
 				/>
-				<PanelBody title={ __( 'Input Field Styles', 'jetpack' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Input Field Styles', 'jetpack-forms' ) } initialOpen={ false }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<BaseControl>
 						<FontSizePicker
@@ -136,7 +136,7 @@ const JetpackFieldControls = ( {
 					{ hasBorderControls && (
 						<>
 							<RangeControl
-								label={ __( 'Border Width', 'jetpack' ) }
+								label={ __( 'Border Width', 'jetpack-forms' ) }
 								value={ attributes.borderWidth }
 								initialPosition={ 1 }
 								onChange={ setNumberAttribute( 'borderWidth' ) }
@@ -144,7 +144,7 @@ const JetpackFieldControls = ( {
 								max={ 100 }
 							/>
 							<RangeControl
-								label={ __( 'Border Radius', 'jetpack' ) }
+								label={ __( 'Border Radius', 'jetpack-forms' ) }
 								value={ attributes.borderRadius }
 								initialPosition={ 0 }
 								onChange={ setNumberAttribute( 'borderRadius' ) }
@@ -154,7 +154,7 @@ const JetpackFieldControls = ( {
 						</>
 					) }
 				</PanelBody>
-				<PanelBody title={ __( 'Label Styles', 'jetpack' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
 					<BaseControl>
 						<FontSizePicker
 							withReset={ true }

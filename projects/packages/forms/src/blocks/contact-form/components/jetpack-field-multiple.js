@@ -96,10 +96,10 @@ function JetpackFieldMultiple( props ) {
 					<Button
 						className="jetpack-field-multiple__add-option"
 						icon="insert"
-						label={ __( 'Insert option', 'jetpack' ) }
+						label={ __( 'Insert option', 'jetpack-forms' ) }
 						onClick={ addNewOption }
 					>
-						{ __( 'Add option', 'jetpack' ) }
+						{ __( 'Add option', 'jetpack-forms' ) }
 					</Button>
 				) }
 			</div>

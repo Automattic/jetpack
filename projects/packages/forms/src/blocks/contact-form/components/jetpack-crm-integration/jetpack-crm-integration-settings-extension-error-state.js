@@ -8,7 +8,7 @@ const ExtensionActivationErrorState = ( { error } ) => {
 			{ createInterpolateElement(
 				__(
 					'The CRM Jetpack Form extension failed to activate. The error message was "<error />".',
-					'jetpack'
+					'jetpack-forms'
 				),
 				{
 					error: <span>{ error }</span>,

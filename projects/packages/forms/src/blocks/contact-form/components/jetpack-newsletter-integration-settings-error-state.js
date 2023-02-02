@@ -8,7 +8,7 @@ const CreativeMailPluginErrorState = ( { error } ) => {
 			{ createInterpolateElement(
 				__(
 					'The plugin failed to install. <b /> Please check the <a>plugin information</a> for detailed requirements.',
-					'jetpack'
+					'jetpack-forms'
 				),
 				{
 					a: (

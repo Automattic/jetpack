@@ -38,7 +38,7 @@ const JetpackEmailConnectionSettings = ( {
 				if ( emailErrors[ 0 ] && emailErrors[ 0 ].email ) {
 					return sprintf(
 						/* translators: placeholder is an email address. */
-						__( '%s is not a valid email address.', 'jetpack' ),
+						__( '%s is not a valid email address.', 'jetpack-forms' ),
 						emailErrors[ 0 ].email
 					);
 				}
@@ -48,7 +48,7 @@ const JetpackEmailConnectionSettings = ( {
 			if ( emailErrors.length === 2 ) {
 				return sprintf(
 					/* translators: placeholders are email addresses. */
-					__( '%1$s and %2$s are not a valid email address.', 'jetpack' ),
+					__( '%1$s and %2$s are not a valid email address.', 'jetpack-forms' ),
 					emailErrors[ 0 ].email,
 					emailErrors[ 1 ].email
 				);
@@ -58,7 +58,7 @@ const JetpackEmailConnectionSettings = ( {
 
 			return sprintf(
 				/* translators: placeholder is a list of email addresses. */
-				__( '%s are not a valid email address.', 'jetpack' ),
+				__( '%s are not a valid email address.', 'jetpack-forms' ),
 				inValidEmails.join( ', ' )
 			);
 		}
@@ -88,14 +88,14 @@ const JetpackEmailConnectionSettings = ( {
 	return (
 		<>
 			<InspectorHint>
-				{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack' ) }
+				{ __( 'Get incoming form responses sent to your email inbox:', 'jetpack-forms' ) }
 			</InspectorHint>
 			<TextControl
 				aria-describedby={ `contact-form-${ instanceId }-email-${
 					hasEmailErrors() ? 'error' : 'help'
 				}` }
-				label={ __( 'Email address to send to', 'jetpack' ) }
-				placeholder={ __( 'name@example.com', 'jetpack' ) }
+				label={ __( 'Email address to send to', 'jetpack-forms' ) }
+				placeholder={ __( 'name@example.com', 'jetpack-forms' ) }
 				onKeyDown={ e => {
 					if ( event.key === 'Enter' ) {
 						e.preventDefault();
@@ -105,7 +105,10 @@ const JetpackEmailConnectionSettings = ( {
 				value={ emailAddress }
 				onBlur={ onBlurEmailField }
 				onChange={ onChangeEmailField }
-				help={ __( 'You can enter multiple email addresses separated by commas.', 'jetpack' ) }
+				help={ __(
+					'You can enter multiple email addresses separated by commas.',
+					'jetpack-forms'
+				) }
 			/>
 
 			<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
@@ -113,9 +116,9 @@ const JetpackEmailConnectionSettings = ( {
 			</HelpMessage>
 
 			<TextControl
-				label={ __( 'Email subject line', 'jetpack' ) }
+				label={ __( 'Email subject line', 'jetpack-forms' ) }
 				value={ emailSubject }
-				placeholder={ __( 'Enter a subject', 'jetpack' ) }
+				placeholder={ __( 'Enter a subject', 'jetpack-forms' ) }
 				onChange={ newSubject => setAttributes( { subject: newSubject } ) }
 			/>
 		</>

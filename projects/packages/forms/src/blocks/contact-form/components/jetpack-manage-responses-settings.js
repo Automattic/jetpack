@@ -15,19 +15,21 @@ const JetpackManageResponsesSettings = ( {
 	return (
 		<>
 			<InspectorHint>
-				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack' ) }
+				{ __( 'Manage and export your form responses in WPAdmin:', 'jetpack-forms' ) }
 			</InspectorHint>
 			<Button variant="secondary" href={ RESPONSES_PATH } target="_blank">
-				{ __( 'View Form Responses', 'jetpack' ) }
-				<span className="screen-reader-text">{ __( '(opens in a new tab)', 'jetpack' ) }</span>
+				{ __( 'View Form Responses', 'jetpack-forms' ) }
+				<span className="screen-reader-text">
+					{ __( '(opens in a new tab)', 'jetpack-forms' ) }
+				</span>
 			</Button>
 			{ /* Temporarily hiding the Form Title */ }
 			{ false && ! isChildBlock && (
 				<TextControl
-					label={ __( 'Title of the Form', 'jetpack' ) }
+					label={ __( 'Title of the Form', 'jetpack-forms' ) }
 					value={ formTitle }
 					onChange={ value => setAttributes( { formTitle: value } ) }
-					help={ __( 'Optional - not visible to viewers', 'jetpack' ) }
+					help={ __( 'Optional - not visible to viewers', 'jetpack-forms' ) }
 				/>
 			) }
 		</>

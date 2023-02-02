@@ -17,7 +17,7 @@ export const pluginStateEnum = Object.freeze( {
 const CRMPluginNoVersion = () => {
 	return (
 		<p className="jetpack-contact-form__crm_text">
-			{ __( 'The Jetpack CRM plugin is installed but has an invalid version.', 'jetpack' ) }
+			{ __( 'The Jetpack CRM plugin is installed but has an invalid version.', 'jetpack-forms' ) }
 		</p>
 	);
 };
@@ -27,7 +27,7 @@ const CRMPluginUpdate = () => {
 		<p className="jetpack-contact-form__crm_text">
 			{ __(
 				'Please update to the latest version of the Jetpack CRM plugin to integrate your contact form with your CRM.',
-				'jetpack'
+				'jetpack-forms'
 			) }
 		</p>
 	);
@@ -35,8 +35,8 @@ const CRMPluginUpdate = () => {
 
 const CRMPluginIsInstalling = ( { isActivating } ) => {
 	const btnTxt = isActivating
-		? __( 'Activating…', 'jetpack' )
-		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+		? __( 'Activating…', 'jetpack-forms' )
+		: __( 'Installing…', 'jetpack-forms', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
 			variant="secondary"
@@ -52,7 +52,7 @@ const CRMPluginIsInstalling = ( { isActivating } ) => {
 const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } ) => {
 	let button = (
 		<Button variant="secondary" onClick={ installAndActivateCRMPlugin }>
-			{ __( 'Install Jetpack CRM', 'jetpack' ) }
+			{ __( 'Install Jetpack CRM', 'jetpack-forms' ) }
 		</Button>
 	);
 
@@ -63,7 +63,10 @@ const CRMPluginIsNotInstalled = ( { installAndActivateCRMPlugin, isInstalling } 
 	return (
 		<p className="jetpack-contact-form__crm_text jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
-				{ __( 'You can save contacts from Jetpack contact forms in Jetpack CRM.', 'jetpack' ) }
+				{ __(
+					'You can save contacts from Jetpack contact forms in Jetpack CRM.',
+					'jetpack-forms'
+				) }
 				<br />
 				{ button }
 			</em>
@@ -77,14 +80,14 @@ const CRMPluginIsInstalled = ( { activateCRMPlugin, isInstalling } ) => {
 			<em>
 				{ __(
 					'You already have the Jetpack CRM plugin installed, but it’s not activated.',
-					'jetpack'
+					'jetpack-forms'
 				) }
 			</em>
 			<br />
 			{ isInstalling && <CRMPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
 				<Button variant="secondary" onClick={ activateCRMPlugin }>
-					{ __( 'Activate the Jetpack CRM plugin', 'jetpack' ) }
+					{ __( 'Activate the Jetpack CRM plugin', 'jetpack-forms' ) }
 				</Button>
 			) }
 		</p>
@@ -111,7 +114,7 @@ const CRMPluginIsActive = ( { crmData, setCRMData, jetpackCRM, setAttributes } )
 	if ( semver.satisfies( semver.coerce( crmData.crm_version ), '3.0.19 - 4.0.0' ) ) {
 		return (
 			<p className="jetpack-contact-form__crm_text">
-				{ __( 'Contacts from this form will be stored in Jetpack CRM.', 'jetpack' ) }
+				{ __( 'Contacts from this form will be stored in Jetpack CRM.', 'jetpack-forms' ) }
 			</p>
 		);
 	}
@@ -119,10 +122,10 @@ const CRMPluginIsActive = ( { crmData, setCRMData, jetpackCRM, setAttributes } )
 	return (
 		<ToggleControl
 			className="jetpack-contact-form__crm_toggle"
-			label={ __( 'Jetpack CRM', 'jetpack' ) }
+			label={ __( 'Jetpack CRM', 'jetpack-forms' ) }
 			checked={ jetpackCRM }
 			onChange={ value => setAttributes( { jetpackCRM: value } ) }
-			help={ __( 'Store contact form submissions in your CRM.', 'jetpack' ) }
+			help={ __( 'Store contact form submissions in your CRM.', 'jetpack-forms' ) }
 		/>
 	);
 };

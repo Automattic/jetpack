@@ -8,7 +8,7 @@ export const useFormWrapper = ( { attributes, clientId, name } ) => {
 	const FORM_BLOCK_NAME = 'jetpack/contact-form';
 	const BUTTON_BLOCK_NAME = 'jetpack/button';
 	const SUBMIT_BUTTON_ATTR = {
-		text: __( 'Submit', 'jetpack' ),
+		text: __( 'Submit', 'jetpack-forms' ),
 		element: 'button',
 		lock: { remove: true },
 	};

@@ -56,7 +56,7 @@ class JetpackOption extends Component {
 					type="text"
 					className="jetpack-option__input"
 					value={ option }
-					placeholder={ __( 'Write option…', 'jetpack' ) }
+					placeholder={ __( 'Write option…', 'jetpack-forms' ) }
 					onChange={ this.onChangeOption }
 					onKeyDown={ this.onKeyPress }
 					ref={ this.textInput }
@@ -66,7 +66,7 @@ class JetpackOption extends Component {
 					<Button
 						className="jetpack-option__remove"
 						icon="trash"
-						label={ __( 'Remove option', 'jetpack' ) }
+						label={ __( 'Remove option', 'jetpack-forms' ) }
 						onClick={ this.onDeleteOption }
 					/>
 				) }

@@ -13,7 +13,7 @@ export default {
 	},
 	customThankyouHeading: {
 		type: 'string',
-		default: __( 'Your message has been sent', 'jetpack' ),
+		default: __( 'Your message has been sent', 'jetpack-forms' ),
 	},
 	customThankyouMessage: {
 		type: 'string',

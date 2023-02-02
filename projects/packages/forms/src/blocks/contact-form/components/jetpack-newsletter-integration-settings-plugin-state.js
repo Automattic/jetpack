@@ -15,8 +15,8 @@ export const pluginStateEnum = Object.freeze( {
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
 	const btnTxt = isActivating
-		? __( 'Activating…', 'jetpack' )
-		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+		? __( 'Activating…', 'jetpack-forms' )
+		: __( 'Installing…', 'jetpack-forms', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
 			variant="secondary"
@@ -38,13 +38,13 @@ const CreativeMailPluginIsNotInstalled = ( {
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __(
 					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
-					'jetpack'
+					'jetpack-forms'
 				) }
 				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
 					<Button variant="secondary" onClick={ installAndActivateCreativeMailPlugin }>
-						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
+						{ __( 'Install Creative Mail plugin', 'jetpack-forms' ) }
 					</Button>
 				) }
 			</em>
@@ -58,14 +58,14 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			<em>
 				{ __(
 					'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
-					'jetpack'
+					'jetpack-forms'
 				) }
 			</em>
 			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
 				<Button variant="secondary" onClick={ activateCreativeMailPlugin }>
-					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
+					{ __( 'Activate Creative Mail Plugin', 'jetpack-forms' ) }
 				</Button>
 			) }
 		</p>
@@ -81,10 +81,10 @@ const CreativeMailPluginIsActive = () => {
 	return (
 		<p>
 			<em>
-				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack' ) }
+				{ __( 'You’re all setup for email marketing with Creative Mail.', 'jetpack-forms' ) }
 				<br />
 				<ExternalLink href={ getCreativeMailPluginUrl() }>
-					{ __( 'Open Creative Mail settings', 'jetpack' ) }
+					{ __( 'Open Creative Mail settings', 'jetpack-forms' ) }
 				</ExternalLink>
 			</em>
 		</p>

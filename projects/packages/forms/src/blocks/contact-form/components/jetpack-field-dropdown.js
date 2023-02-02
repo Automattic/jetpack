@@ -92,7 +92,7 @@ export const JetpackDropdownEdit = ( {
 		}
 
 		if ( isNil( toggleLabel ) ) {
-			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack' ) } );
+			setAttributes( { toggleLabel: __( 'Select one option', 'jetpack-forms' ) } );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
@@ -132,7 +132,7 @@ export const JetpackDropdownEdit = ( {
 								onSplit={ handleSplitOption( index ) }
 								onRemove={ handleDeleteOption( index ) }
 								onReplace={ noop }
-								placeholder={ __( 'Add option…', 'jetpack' ) }
+								placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 								__unstableDisableFormats
 							/>
 						) ) }

@@ -43,16 +43,16 @@ const icon = renderMaterialIcon(
 );
 
 export const settings = {
-	title: __( 'Form', 'jetpack' ),
+	title: __( 'Form', 'jetpack-forms' ),
 	description: __(
 		'Create forms to collect data from site visitors and manage their responses.',
-		'jetpack'
+		'jetpack-forms'
 	),
 	icon,
 	keywords: [
-		_x( 'email', 'block search term', 'jetpack' ),
-		_x( 'feedback', 'block search term', 'jetpack' ),
-		_x( 'contact form', 'block search term', 'jetpack' ),
+		_x( 'email', 'block search term', 'jetpack-forms' ),
+		_x( 'feedback', 'block search term', 'jetpack-forms' ),
+		_x( 'contact form', 'block search term', 'jetpack-forms' ),
 	],
 	supports: {
 		color: {

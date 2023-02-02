@@ -41,7 +41,7 @@ module.exports = {
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack',
+				allowedTextDomain: 'jetpack-forms',
 			},
 		],
 	},
