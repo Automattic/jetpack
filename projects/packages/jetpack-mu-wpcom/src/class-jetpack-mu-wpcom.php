@@ -22,7 +22,7 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * @var boolean
 	 */
-	private static $initialized = false;
+	public static $initialized = false;
 
 	/**
 	 * Initialize the class.
@@ -34,7 +34,22 @@ class Jetpack_Mu_Wpcom {
 			self::$initialized = true;
 			// Shared code for src/features
 			require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-			// Todo: load the Coming Soon feature.
+			// Todo: once coming-soon is removed from ETK, we can remove the has_action check.
+			if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
+				add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
+			}
+		}
+	}
+
+	/**
+	 * Load the Coming Soon feature.
+	 */
+	public static function load_coming_soon() {
+		if (
+			( defined( 'WPCOM_PUBLIC_COMING_SOON' ) && WPCOM_PUBLIC_COMING_SOON ) ||
+			apply_filters( 'a8c_enable_public_coming_soon', false )
+		) {
+			require_once __DIR__ . '/features/coming-soon/coming-soon.php';
 		}
 	}
 }

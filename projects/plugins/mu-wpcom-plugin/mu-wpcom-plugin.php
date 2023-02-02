@@ -17,5 +17,11 @@
 require_once __DIR__ . '/vendor/autoload.php';
 
 /**
- * Todo: init/config for the package class Jetpack_Mu_Wpcom
+ * Jetpack_Mu_Wpcom initialization.
  */
+if (
+	class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) &&
+	Automattic\Jetpack\Jetpack_Mu_Wpcom::$initialized === false
+) {
+	Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
+}
