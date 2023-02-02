@@ -7,8 +7,12 @@
 /node_modules/
 /vendor/
 codeception.yml
+**/css/*.min.rtl.css
+**/css/**/*.min.rtl.css
 **/css/*.min.css
 **/js/*.min.js
+**/js/*.min.js.LICENSE.txt
+.cache/
 phpcs.xml
 phpcs.security.xml
 templates/.htaccess

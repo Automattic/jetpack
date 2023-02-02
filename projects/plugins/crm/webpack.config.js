@@ -44,7 +44,8 @@ function getSassEntries() {
 	const entries = {};
 	glob.sync( sassPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
 		const newPath = file.replace( 'sass', 'css' );
-		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] = './' + file;
+		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) + '.min' ] =
+			'./' + file;
 	} );
 	return entries;
 }
@@ -59,7 +60,7 @@ function getSassEntries() {
 function getWelcomeZBSCSSEntries() {
 	const entries = {};
 	glob.sync( welcomeZBSCSSPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
-		entries[ './' + file.substring( 0, file.length - '.css'.length ) ] = './' + file;
+		entries[ './' + file.substring( 0, file.length - '.css'.length ) + '.min' ] = './' + file;
 	} );
 	return entries;
 }
