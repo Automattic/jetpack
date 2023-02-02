@@ -54,8 +54,6 @@ class Regenerate_Admin_Notice {
 	}
 
 	public static function maybe_handle_dismissal() {
-		// We're okay dismissing the notice without nonce verification.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if ( ! is_admin()
 			|| ! current_user_can( 'manage_options' )
 			|| ! isset( $_GET[ self::$dismissal_key ], $_GET['nonce'] )
