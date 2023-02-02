@@ -2,8 +2,7 @@ import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
 
 // Removes all dots (`.`) from the end of a string.
 function removeTrailingDots( string ) {
-	const split = String( string || '' ).split( '.' );
-	return split.slice( 0, split.findLastIndex( i => i !== '' ) + 1 ).join( '.' );
+	return String( string || '' ).replace( /\.+$/, '' );
 }
 
 /**
