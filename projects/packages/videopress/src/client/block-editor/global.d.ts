@@ -8,6 +8,8 @@ declare global {
 			extensions: VideoPressExtensionsProps;
 			siteType: 'simple' | 'atomic' | 'jetpack';
 			myJetpackConnectUrl: string;
+			isVideoPressModuleActive: '' | '1';
+			jetpackVideoPressSettingUrl: string;
 		};
 
 		JP_CONNECTION_INITIAL_STATE: {

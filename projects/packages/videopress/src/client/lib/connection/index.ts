@@ -33,3 +33,12 @@ export function isUserConnected(): boolean {
 	debug( 'User is not connected ❌' );
 	return false;
 }
+
+/**
+ * Check whether the Jetpack VideoPress module is active.
+ *
+ * @returns {boolean} True if the module is active, false otherwise.
+ */
+export function isVideoPressModuleActive(): boolean {
+	return window?.videoPressEditorState?.isVideoPressModuleActive === '1';
+}
