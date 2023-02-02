@@ -43,9 +43,9 @@ class Dashboard {
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jp-forms-dashboard' );
 	}
 
 	/**
