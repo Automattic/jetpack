@@ -37,12 +37,5 @@ module.exports = {
 		'jsdoc/require-property-description': 0,
 		'jsdoc/require-param-description': 0,
 		'jsdoc/require-param-type': 0,
-		// Enforce the use of the Jetpack textdomain.
-		'@wordpress/i18n-text-domain': [
-			'error',
-			{
-				allowedTextDomain: 'jetpack-forms',
-			},
-		],
 	},
 };
