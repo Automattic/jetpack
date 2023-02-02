@@ -15,13 +15,16 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run build:contact-form",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:contact-form",
+		"build": "pnpm run clean && pnpm run build:contact-form && pnpm run build:dashboard",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
-		"clean": "true",
-		"watch": "NODE_PATH=\"$PWD/node_modules\" webpack watch --config ./tools/webpack.config.contact-form.js"
+		"build:dashboard": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.dashboard.js",
+		"clean": "rm -rf dist/ .cache/",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
+		"watch": "concurrently 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch'"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"
 	},
@@ -29,6 +32,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@automattic/remove-asset-webpack-plugin": "workspace:*",
 		"autoprefixer": "10.4.12",
+		"concurrently": "6.4.0",
 		"postcss": "8.4.21",
 		"postcss-loader": "6.2.0",
 		"sass": "1.38.1",
