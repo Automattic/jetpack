@@ -19,7 +19,8 @@
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:contact-form",
 		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
 		"build:dashboard": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.dashboard.js",
-		"clean": "true"
+		"clean": "true",
+		"watch": "NODE_PATH=\"$PWD/node_modules\" webpack watch --config ./tools/webpack.config.contact-form.js"
 	},
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
