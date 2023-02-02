@@ -87,6 +87,9 @@ class Jetpack_Social {
 						'force_refresh' => true,
 					)
 				);
+
+				// Blaze feature.
+				$config->ensure( 'blaze' );
 			},
 			1
 		);
