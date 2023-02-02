@@ -7,7 +7,6 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
 		this.page = page;
-		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -21,7 +20,7 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	async insertBlock() {
 		const blockEditor = new BlockEditorPage( this.page );
 
-		const response = await this.page.waitForResponse(
+		const responsePromise = this.page.waitForResponse(
 			r =>
 				decodeURIComponent( decodeURIComponent( r.url() ) ).match( /jp_pay_product/ ) &&
 				r.request().method() === 'POST'
@@ -30,8 +29,11 @@ export default class SimplePaymentBlock extends EditorCanvas {
 			SimplePaymentBlock.name(),
 			SimplePaymentBlock.title()
 		);
+		const response = await responsePromise;
 
 		expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
+
+		this.blockId = blockId;
 		return blockId;
 	}
 
@@ -53,7 +55,7 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	}
 
 	getSelector( selector ) {
-		return `${ this.blockSelector } ${ selector }`;
+		return `${ '#block-' + this.blockId } ${ selector }`;
 	}
 
 	/**
