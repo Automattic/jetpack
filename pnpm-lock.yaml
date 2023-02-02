@@ -964,6 +964,7 @@ importers:
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/remove-asset-webpack-plugin': workspace:*
       autoprefixer: 10.4.12
+      concurrently: 6.4.0
       postcss: 8.4.21
       postcss-loader: 6.2.0
       sass: 1.38.1
@@ -978,6 +979,7 @@ importers:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@automattic/remove-asset-webpack-plugin': link:../../js-packages/remove-asset-webpack-plugin
       autoprefixer: 10.4.12_postcss@8.4.21
+      concurrently: 6.4.0
       postcss: 8.4.21
       postcss-loader: 6.2.0_4y4aznponuaovazqx4t4g76j4i
       sass: 1.38.1
