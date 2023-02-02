@@ -94,7 +94,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 					'preload',
 					preload === 'metadata' ? 'none' : 'metadata'
 				) }
-				checked={ preload === 'metadata' ? true : false }
+				checked={ preload === 'metadata' }
 				help={ __(
 					'Preload the video metadata when the page is loaded.',
 					'jetpack-videopress-pkg'
