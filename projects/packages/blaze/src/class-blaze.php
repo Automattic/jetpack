@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.0';
+	const PACKAGE_VERSION = '0.5.1-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
@@ -138,12 +138,6 @@ class Blaze {
 			if ( ! Sync_Settings::is_sync_enabled() ) {
 				$should_initialize = false;
 			}
-
-			// The feature relies on this module for now.
-			// See 1386-gh-dotcom-forge
-			if ( ! ( new Modules() )->is_active( 'json-api' ) ) {
-				$should_initialize = false;
-			}
 		}
 
 		// Check if the site supports Blaze.
@@ -172,6 +166,12 @@ class Blaze {
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
+		// Bail if we are not looking at one of the supported post types (post, page, or product).
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+			return $post_actions;
+		}
+
+		// Bail if the post is not published.
 		if ( $post->post_status !== 'publish' ) {
 			return $post_actions;
 		}

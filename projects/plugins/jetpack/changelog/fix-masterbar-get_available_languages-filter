@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Masterbar: Avoid PHP fatal on WoA sites due to a bad filter return.
