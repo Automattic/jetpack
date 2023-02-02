@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
+import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import FirewallPage from './components/firewall-page';
 import Modal from './components/modal';
@@ -33,7 +33,8 @@ function render() {
 		return;
 	}
 
-	ReactDOM.createRoot( container ).render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<ThemeProvider>
 			<HashRouter>
 				<ScrollToTop />
@@ -45,6 +46,11 @@ function render() {
 			<Modal />
 		</ThemeProvider>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 render();

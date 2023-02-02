@@ -1,9 +1,9 @@
+import * as WPElement from '@wordpress/element';
 import { _x } from '@wordpress/i18n';
 import accessibleFocus from 'lib/accessible-focus';
 import { assign } from 'lodash';
 import Main from 'main';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import * as actionTypes from 'state/action-types';
@@ -32,7 +32,8 @@ function render() {
 		return;
 	}
 
-	ReactDOM.createRoot( container ).render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<div>
 			<Provider store={ store }>
 				<HashRouter>
@@ -93,6 +94,11 @@ function render() {
 			</Provider>
 		</div>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 /**

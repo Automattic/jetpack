@@ -1,6 +1,6 @@
 import { IDCScreen } from '@automattic/jetpack-idc';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom/client';
 
 import './admin-bar.scss';
 import './style.scss';
@@ -30,7 +30,8 @@ function render() {
 	} = window.JP_IDENTITY_CRISIS__INITIAL_STATE;
 
 	if ( ! isSafeModeConfirmed ) {
-		ReactDOM.createRoot( container ).render(
+		// @todo: Remove fallback when we drop support for WP 6.1
+		const component = (
 			<IDCScreen
 				wpcomHomeUrl={ wpcomHomeUrl }
 				currentUrl={ currentUrl }
@@ -47,6 +48,11 @@ function render() {
 				possibleDynamicSiteUrlDetected={ possibleDynamicSiteUrlDetected }
 			/>
 		);
+		if ( WPElement.createRoot ) {
+			WPElement.createRoot( container ).render( component );
+		} else {
+			WPElement.render( component, container );
+		}
 	}
 }
 

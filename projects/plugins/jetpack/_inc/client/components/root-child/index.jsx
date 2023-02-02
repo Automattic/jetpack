@@ -1,8 +1,8 @@
 /** @ssr-ready **/
 
+import * as WPElement from '@wordpress/element';
 import PropTypes from 'prop-types';
 import React from 'react';
-import ReactDom from 'react-dom/client';
 import { Provider as ReduxProvider } from 'react-redux';
 
 export default class RootChild extends React.Component {
@@ -19,7 +19,16 @@ export default class RootChild extends React.Component {
 	componentDidMount() {
 		this.container = document.createElement( 'div' );
 		document.body.appendChild( this.container );
-		this.containerRoot = ReactDom.createRoot( this.container );
+		// @todo: Remove fallback when we drop support for WP 6.1
+		if ( WPElement.createRoot ) {
+			this.containerRoot = WPElement.createRoot( this.container );
+		} else {
+			const theContainer = this.container;
+			this.containerRoot = {
+				render: component => WPElement.render( component, theContainer ),
+				unmount: () => WPElement.unmountComponentAtNode( theContainer ),
+			};
+		}
 		this.renderChildren();
 	}
 
