@@ -109,7 +109,7 @@ if [[ -n "$ALPHABETA" ]]; then
 		die "$ALPHABETA passed to script, but version number $VERSION does not contain the corresponding flag."
 	fi
 elif [[ -n "$VERSION_AB" && -z "$ALPHABETA" ]]; then
-	die "$VERSION contains alpha or beta flag, but corrosponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
+	die "$VERSION contains alpha or beta flag, but corresponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
 fi
 
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
