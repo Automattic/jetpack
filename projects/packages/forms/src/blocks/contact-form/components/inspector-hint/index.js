@@ -1,8 +1,3 @@
-/**
- *
- * @param root0
- * @param root0.children
- */
 export default function InspectorHint( { children } ) {
 	return (
 		<p
