@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c94056c50cc3d2a5e76cf5648f3bfd88",
+    "content-hash": "463b1889d4574115acfc3cfeac177029",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -367,16 +367,16 @@
         },
         {
             "name": "automattic/jetpack-blaze",
-            "version": "v0.5.0",
+            "version": "v0.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blaze.git",
-                "reference": "3be8e62b42a2fcff3697536e1ccd36d93cc0502d"
+                "reference": "45e8421459ba37326f969161f8cca68277db8380"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blaze/zipball/3be8e62b42a2fcff3697536e1ccd36d93cc0502d",
-                "reference": "3be8e62b42a2fcff3697536e1ccd36d93cc0502d",
+                "url": "https://api.github.com/repos/Automattic/jetpack-blaze/zipball/45e8421459ba37326f969161f8cca68277db8380",
+                "reference": "45e8421459ba37326f969161f8cca68277db8380",
                 "shasum": ""
             },
             "require": {
@@ -415,9 +415,9 @@
             ],
             "description": "Attract high-quality traffic to your site using Blaze.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-blaze/tree/v0.5.0"
+                "source": "https://github.com/Automattic/jetpack-blaze/tree/v0.5.1"
             },
-            "time": "2023-01-26T20:36:27+00:00"
+            "time": "2023-02-02T17:00:11+00:00"
         },
         {
             "name": "automattic/jetpack-blocks",
