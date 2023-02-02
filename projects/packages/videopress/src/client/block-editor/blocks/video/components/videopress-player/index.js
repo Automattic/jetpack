@@ -17,7 +17,12 @@ const globalScripts = [];
 // Populate scripts array with videopresAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
 	const videopresAjaxURLBlob = new Blob(
-		[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+		[
+			`var videopressAjax = ${ JSON.stringify( {
+				...window.videopressAjax,
+				context: 'sandbox',
+			} ) };`,
+		],
 		{
 			type: 'text/javascript',
 		}
