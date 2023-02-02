@@ -232,7 +232,7 @@ class SiteStatsComponent extends React.Component {
 					>
 						{ ! this.props.isWoASite && (
 							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
-							<FormFieldset>
+							<FormFieldset className="jp-stats-odyssey-toggle">
 								<CompactFormToggle
 									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
 									disabled={ ! isStatsActive || unavailableInOfflineMode }
