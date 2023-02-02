@@ -37,8 +37,13 @@ export default function validateChapters( chapters: VideoPressChapter[] ): boole
 		return false;
 	}
 
+	// All chapters should have a title
+	if ( chapters.some( chapter => ! chapter.title ) ) {
+		return false;
+	}
+
 	// Chapters should have at least 10 seconds between them
-	for ( let i = 0; i < chapters.length - 2; i++ ) {
+	for ( let i = 0; i < chapters.length - 1; i++ ) {
 		const currentChapter = chapters[ i ];
 		const nextChapter = chapters[ i + 1 ];
 

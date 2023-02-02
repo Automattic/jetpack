@@ -28,11 +28,21 @@ describe( 'validateChapters', () => {
 		expect( validateChapters( chapters ) ).toBe( false );
 	} );
 
+	it( 'should return false if there is a chapter without a title', () => {
+		const chapters: VideoPressChapter[] = [
+			{ startAt: '00:00:00', title: 'Chapter 1' },
+			{ startAt: '00:00:10', title: '' },
+			{ startAt: '00:00:20', title: 'Chapter 3' },
+		];
+
+		expect( validateChapters( chapters ) ).toBe( false );
+	} );
+
 	it( 'should return false if there are less than 10 seconds between chapters', () => {
 		const chapters: VideoPressChapter[] = [
 			{ startAt: '00:00:00', title: 'Chapter 1' },
-			{ startAt: '00:00:02', title: 'Chapter 2' },
-			{ startAt: '00:00:03', title: 'Chapter 3' },
+			{ startAt: '00:00:12', title: 'Chapter 2' },
+			{ startAt: '00:00:13', title: 'Chapter 3' },
 		];
 
 		expect( validateChapters( chapters ) ).toBe( false );
