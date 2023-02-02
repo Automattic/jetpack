@@ -141,7 +141,7 @@ class Waf_Compatibility {
 	 */
 	public static function migrate_brute_force_protection_ip_allow_list() {
 		$waf_allow_list         = get_option( 'jetpack_waf_ip_allow_list', false );
-		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', false );
 
 		if ( false === $waf_allow_list ) {
 			$waf_allow_list = '';
@@ -167,7 +167,7 @@ class Waf_Compatibility {
 	 * @return array The merged IP allow list.
 	 */
 	public static function filter_option_waf_ip_allow_list( $waf_allow_list ) {
-		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', false );
 		if ( false !== $brute_force_allow_list ) {
 			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
 			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
@@ -194,7 +194,7 @@ class Waf_Compatibility {
 		$waf_allow_list = '';
 
 		// If the brute force option exists, use that and flag that the WAF needs to be updated.
-		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', false );
 		if ( false !== $brute_force_allow_list ) {
 			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
 			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
