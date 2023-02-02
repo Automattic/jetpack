@@ -1179,10 +1179,10 @@ class Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                  = get_post_meta( $post_id, '_feedback_extra_fields', true );
-		$md['-3_date']       = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$content_fields      = self::parse_fields_from_content( $post_id );
-		$md['93_ip_address'] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md                     = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
+		$content_fields         = self::parse_fields_from_content( $post_id );
+		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
 		$md['90_consent'] = 0;
@@ -1678,11 +1678,11 @@ class Contact_Form_Plugin {
 	 */
 	public function get_well_known_column_names() {
 		return array(
-			'-9_title'      => __( 'Title', 'jetpack-forms' ),
-			'-6_source'     => __( 'Source', 'jetpack-forms' ),
-			'-3_date'       => __( 'Date', 'jetpack-forms' ),
-			'90_consent'    => _x( 'Consent', 'noun', 'jetpack-forms' ),
-			'93_ip_address' => __( 'IP Address', 'jetpack-forms' ),
+			'-9_title'         => __( 'Title', 'jetpack-forms' ),
+			'-6_source'        => __( 'Source', 'jetpack-forms' ),
+			'-3_response_date' => __( 'Response Date', 'jetpack-forms' ),
+			'90_consent'       => _x( 'Consent', 'noun', 'jetpack-forms' ),
+			'93_ip_address'    => __( 'IP Address', 'jetpack-forms' ),
 		);
 	}
 
