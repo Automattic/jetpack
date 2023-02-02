@@ -2,6 +2,7 @@ import { JetpackLogo, SocialIcon, getRedirectUrl } from '@automattic/jetpack-com
 import {
 	SocialPreviewsModal,
 	SocialPreviewsPanel,
+	SocialImageGeneratorPanel,
 	usePublicizeConfig,
 	useSocialMediaConnections,
 	PublicizePanel,
@@ -105,6 +106,7 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
+				<SocialImageGeneratorPanel />
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
@@ -118,6 +120,14 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel prePublish={ true }>
 					<PanelDescription />
 				</PublicizePanel>
+			</PluginPrePublishPanel>
+
+			<PluginPrePublishPanel
+				initialOpen
+				title={ __( 'Social Image Generator', 'jetpack-social' ) }
+				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+			>
+				<SocialImageGeneratorPanel prePublish={ true } />
 			</PluginPrePublishPanel>
 
 			<PluginPrePublishPanel
