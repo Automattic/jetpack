@@ -21,7 +21,7 @@ require_once __DIR__ . '/vendor/autoload.php';
  */
 if (
 	class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) &&
-	Automattic\Jetpack\Jetpack_Mu_Wpcom::$initialized === false
+	! did_action( 'jetpack_mu_wpcom_initialized' )
 ) {
 	Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 }

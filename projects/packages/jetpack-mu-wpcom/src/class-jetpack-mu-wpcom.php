@@ -18,27 +18,28 @@ class Jetpack_Mu_Wpcom {
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
-	 * Whether this class has been initialized.
-	 *
-	 * @var boolean
-	 */
-	public static $initialized = false;
-
-	/**
 	 * Initialize the class.
 	 *
 	 * @return void
 	 */
 	public static function init() {
-		if ( ! self::$initialized ) {
-			self::$initialized = true;
-			// Shared code for src/features
-			require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-			// Todo: once coming-soon is removed from ETK, we can remove the has_action check.
-			if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
-				add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
-			}
+		if ( did_action( 'jetpack_mu_wpcom_initialized' ) ) {
+			return;
 		}
+
+		// Shared code for src/features
+		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		// Todo: once coming-soon is removed from ETK, we can remove the has_action check.
+		if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
+		}
+
+		/**
+		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_mu_wpcom_initialized' );
 	}
 
 	/**
