@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Modules;
-use Jetpack;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 
@@ -436,14 +435,10 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Set up the Protect configuration page
-	 *
-	 * @uses Jetpack::enable_module_configurable
+	 * Set up the Protect configuration page in the Jetpack Settings screen
 	 */
 	public function modules_loaded() {
-		if ( class_exists( 'Jetpack' ) ) {
-			Jetpack::enable_module_configurable( __FILE__ );
-		}
+		add_filter( 'jetpack_module_configurable_protect', '__return_true' );
 	}
 
 	/**
