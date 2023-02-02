@@ -140,7 +140,7 @@ class Waf_Compatibility {
 	 * @return void
 	 */
 	public static function migrate_brute_force_protection_ip_allow_list() {
-		$waf_allow_list         = get_option( 'jetpack_waf_ip_allow_list' );
+		$waf_allow_list         = get_option( 'jetpack_waf_ip_allow_list', false );
 		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
 
 		if ( false === $waf_allow_list ) {
