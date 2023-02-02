@@ -310,10 +310,6 @@ class Dashboard {
 	 * @return array An array of capabilities.
 	 */
 	protected function get_current_user_capabilities() {
-		// Feature lock.
-		if ( ! isset( $_GET['flags'] ) || $_GET['flags'] !== 'stats/ads-page' ) {// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			return array();
-		}
 		$user = wp_get_current_user();
 		if ( ! $user || is_wp_error( $user ) ) {
 			return array();
