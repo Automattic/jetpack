@@ -2,57 +2,45 @@ const { execSync } = require( 'child_process' );
 const fs = require( 'fs' );
 
 const projects = [
-	// {
-	// 	project: 'Jetpack connection',
-	// 	path: 'projects/plugins/jetpack/tests/e2e',
-	// 	testArgs: [ 'specs/connection', '--retries=1' ],
-	// 	suite: '',
-	// },
-	// {
-	// 	project: 'Jetpack pre-connection',
-	// 	path: 'projects/plugins/jetpack/tests/e2e',
-	// 	testArgs: [ 'specs/pre-connection', '--retries=1' ],
-	// 	suite: '',
-	// },
-	// {
-	// 	project: 'Jetpack post-connection',
-	// 	path: 'projects/plugins/jetpack/tests/e2e',
-	// 	testArgs: [ 'specs/post-connection', '--retries=1' ],
-	// 	suite: '',
-	// },
-	// {
-	// 	project: 'Jetpack sync',
-	// 	path: 'projects/plugins/jetpack/tests/e2e',
-	// 	testArgs: [ 'specs/sync', '--retries=1' ],
-	// 	suite: '',
-	// },
+	{
+		project: 'Jetpack connection',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/connection', '--retries=1' ],
+		suite: '',
+	},
+	{
+		project: 'Jetpack pre-connection',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/pre-connection', '--retries=1' ],
+		suite: '',
+	},
+	{
+		project: 'Jetpack post-connection',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/post-connection', '--retries=1' ],
+		suite: '',
+	},
+	{
+		project: 'Jetpack sync',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/sync', '--retries=1' ],
+		suite: '',
+	},
 	{
 		project: 'Jetpack blocks',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/blocks', '--retries=1' ],
 		suite: '',
 	},
-	// { project: 'Boost', path: 'projects/plugins/boost/tests/e2e', testArgs: [], suite: '' },
-	// { project: 'Search', path: 'projects/plugins/search/tests/e2e', testArgs: [], suite: '' },
-	// {
-	// 	project: 'VideoPress',
-	// 	path: 'projects/plugins/videopress/tests/e2e',
-	// 	testArgs: [],
-	// 	suite: '',
-	// },
-	// { project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
+	{ project: 'Boost', path: 'projects/plugins/boost/tests/e2e', testArgs: [], suite: '' },
+	{ project: 'Search', path: 'projects/plugins/search/tests/e2e', testArgs: [], suite: '' },
 	{
-		project: 'PayPal block on WoA',
-		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '-g paypal', '--repeat-each=50', '--trace=retain-on-failure' ],
-		suite: 'atomic-paypal-block',
+		project: 'VideoPress',
+		path: 'projects/plugins/videopress/tests/e2e',
+		testArgs: [],
+		suite: '',
 	},
-	{
-		project: 'Blocks with latest Gutenberg',
-		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ 'blocks', '--retries=1' ],
-		suite: 'gutenberg-28703',
-	},
+	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
 ];
 
 const matrix = [];
