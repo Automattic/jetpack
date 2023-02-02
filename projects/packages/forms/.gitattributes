@@ -12,11 +12,13 @@ dist/**           production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
-.gitignore        production-exclude
-changelog/**      production-exclude
-phpunit.xml.dist  production-exclude
-.phpcs.dir.xml    production-exclude
-tests/**          production-exclude
-tools/**          production-exclude
-.phpcsignore      production-exclude
-.eslintrc.js      production-exclude
+.gitignore               production-exclude
+changelog/**             production-exclude
+phpunit.xml.dist         production-exclude
+.phpcs.dir.xml           production-exclude
+tests/**                 production-exclude
+tools/**                 production-exclude
+.phpcsignore             production-exclude
+.eslintrc.js             production-exclude
+/src/dashboard/**/*.js   production-exclude
+/src/dashboard/**/*.scss production-exclude
