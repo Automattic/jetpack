@@ -1,5 +1,6 @@
 import EditorCanvas from './editor-canvas.js';
 import { expect } from '@playwright/test';
+import { BlockEditorPage } from '../index.js';
 
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
@@ -17,13 +18,48 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		return 'Pay with PayPal';
 	}
 
-	async checkBlock() {
-		const response = await this.page.waitForResponse(
+	async insertBlock() {
+		const blockEditor = new BlockEditorPage( this.page );
+
+		const responsePromise = this.page.waitForResponse(
 			r =>
-				decodeURIComponent( r.url() ).match( /jp_pay_product/ ) && r.request().method() === 'POST',
-			{ timeout: 60000 }
+				decodeURIComponent( decodeURIComponent( r.url() ) ).match( /jp_pay_product/ ) &&
+				r.request().method() === 'POST'
 		);
-		expect( response.ok(), 'Response status should be 200 or 201' ).toBeTruthy();
+		const blockId = await blockEditor.insertBlock(
+			SimplePaymentBlock.name(),
+			SimplePaymentBlock.title()
+		);
+		const response = await responsePromise;
+		expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
+		return blockId;
+	}
+
+	async checkBlock() {
+		await this.page.waitForRequest( request => {
+			// eslint-disable-next-line no-unused-expressions
+			console.log( `Waiting for request: ${ decodeURIComponent( request.url() ) }` );
+			return (
+				decodeURIComponent( request.url() ).match( /jp_pay_product/ ) && request.method() === 'POST'
+			);
+		} );
+
+		// let response;
+		// try {
+		// 	response = await this.page.waitForResponse(
+		// 		r => {
+		// 			// eslint-disable-next-line no-unused-expressions
+		// 			console.log( r.status() + ' ' +  r.request().method()+': ' + decodeURIComponent(r.url()) ),
+		// 			decodeURIComponent( r.url() ).match( /jp_pay_product/ ) &&
+		// 				r.request().method() === 'POST',
+		// 				{ timeout: 10 };
+		// 		}
+		// 	);
+		// } catch (e) {
+		// 	console.log( `Timeout waiting for ${response}` );
+		// 	throw e;
+		// }
+		// expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
 	}
 
 	async fillDetails( {

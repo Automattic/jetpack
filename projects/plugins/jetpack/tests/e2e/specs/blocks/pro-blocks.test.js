@@ -60,12 +60,13 @@ test.describe( 'Paid blocks', () => {
 		let block;
 
 		await test.step( 'Add a Pay with PayPal block', async () => {
-			blockId = await blockEditor.insertBlock(
-				SimplePaymentBlock.name(),
-				SimplePaymentBlock.title()
-			);
+			// blockId = await blockEditor.insertBlock(
+			// 	SimplePaymentBlock.name(),
+			// 	SimplePaymentBlock.title()
+			// );
 			block = new SimplePaymentBlock( blockId, page );
-			await block.checkBlock();
+			blockId = await block.insertBlock();
+			// await block.checkBlock();
 		} );
 
 		await test.step( 'Fill details of Pay with PayPal block', async () => {
