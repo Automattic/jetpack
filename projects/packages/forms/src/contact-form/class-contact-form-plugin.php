@@ -268,9 +268,9 @@ class Contact_Form_Plugin {
 			array(
 				'in_footer'  => true,
 				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
 			)
 		);
-		Assets::enqueue_script( 'jp-forms-blocks' );
 	}
 
 	/**
