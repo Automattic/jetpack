@@ -51,7 +51,7 @@ const projects = [
 		project: 'Blocks with latest Gutenberg',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'blocks', '--retries=1' ],
-		suite: 'gutenberg',
+		suite: 'gutenberg-28703',
 	},
 ];
 
