@@ -137,40 +137,40 @@ export function JetpackContactFormEdit( {
 		return (
 			<>
 				<InspectorHint>
-					{ __( 'Customize the view after form submission:', 'jetpack' ) }
+					{ __( 'Customize the view after form submission:', 'jetpack-forms' ) }
 				</InspectorHint>
 				<SelectControl
-					label={ __( 'On Submission', 'jetpack' ) }
+					label={ __( 'On Submission', 'jetpack-forms' ) }
 					value={ customThankyou }
 					options={ [
-						{ label: __( 'Show a summary of submitted fields', 'jetpack' ), value: '' },
-						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
-						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
+						{ label: __( 'Show a summary of submitted fields', 'jetpack-forms' ), value: '' },
+						{ label: __( 'Show a custom text message', 'jetpack-forms' ), value: 'message' },
+						{ label: __( 'Redirect to another webpage', 'jetpack-forms' ), value: 'redirect' },
 					] }
 					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
 				/>
 
 				{ 'redirect' !== customThankyou && (
 					<TextControl
-						label={ __( 'Message Heading', 'jetpack' ) }
+						label={ __( 'Message Heading', 'jetpack-forms' ) }
 						value={ customThankyouHeading }
-						placeholder={ __( 'Your message has been sent', 'jetpack' ) }
+						placeholder={ __( 'Your message has been sent', 'jetpack-forms' ) }
 						onChange={ newHeading => setAttributes( { customThankyouHeading: newHeading } ) }
 					/>
 				) }
 
 				{ 'message' === customThankyou && (
 					<TextareaControl
-						label={ __( 'Message Text', 'jetpack' ) }
+						label={ __( 'Message Text', 'jetpack-forms' ) }
 						value={ customThankyouMessage }
-						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
+						placeholder={ __( 'Thank you for your submission!', 'jetpack-forms' ) }
 						onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
 					/>
 				) }
 
 				{ 'redirect' === customThankyou && (
 					<BaseControl
-						label={ __( 'Redirect Address', 'jetpack' ) }
+						label={ __( 'Redirect Address', 'jetpack-forms' ) }
 						id={ `contact-form-${ instanceId }-thankyou-url` }
 					>
 						<URLInput
@@ -193,7 +193,7 @@ export function JetpackContactFormEdit( {
 					label={ get( blockType, [ 'title' ] ) }
 					instructions={ __(
 						'Start building a form by selecting one of these form templates, or search in the patterns library for more forms:',
-						'jetpack'
+						'jetpack-forms'
 					) }
 					variations={ filter( variations, v => ! v.hiddenFromPicker ) }
 					onSelect={ ( nextVariation = defaultVariation ) => {
@@ -202,7 +202,7 @@ export function JetpackContactFormEdit( {
 				/>
 				<div className="form-placeholder__footer">
 					<Button variant="secondary" onClick={ () => setIsPatternsModalOpen( true ) }>
-						{ __( 'Explore Form Patterns', 'jetpack' ) }
+						{ __( 'Explore Form Patterns', 'jetpack-forms' ) }
 					</Button>
 					<div className="form-placeholder__footer-links">
 						<Button
@@ -211,7 +211,7 @@ export function JetpackContactFormEdit( {
 							href={ CUSTOMIZING_FORMS_URL }
 							target="_blank"
 						>
-							{ __( 'Learn more about customizing forms', 'jetpack' ) }
+							{ __( 'Learn more about customizing forms', 'jetpack-forms' ) }
 						</Button>
 						<Button
 							variant="link"
@@ -219,15 +219,15 @@ export function JetpackContactFormEdit( {
 							href={ RESPONSES_PATH }
 							target="_blank"
 						>
-							{ __( 'View and export your form responses here', 'jetpack' ) }
+							{ __( 'View and export your form responses here', 'jetpack-forms' ) }
 						</Button>
 					</div>
 				</div>
 				{ isPatternsModalOpen && (
 					<Modal
 						className="form-placeholder__patterns-modal"
-						title={ __( 'Choose a pattern', 'jetpack' ) }
-						closeLabel={ __( 'Cancel', 'jetpack' ) }
+						title={ __( 'Choose a pattern', 'jetpack-forms' ) }
+						closeLabel={ __( 'Cancel', 'jetpack-forms' ) }
 						onRequestClose={ () => setIsPatternsModalOpen( false ) }
 					>
 						<BlockPatternSetup
@@ -249,13 +249,13 @@ export function JetpackContactFormEdit( {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Manage Responses', 'jetpack' ) }>
+				<PanelBody title={ __( 'Manage Responses', 'jetpack-forms' ) }>
 					<JetpackManageResponsesSettings formTitle={ formTitle } setAttributes={ setAttributes } />
 				</PanelBody>
-				<PanelBody title={ __( 'Submission Settings', 'jetpack' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Submission Settings', 'jetpack-forms' ) } initialOpen={ false }>
 					{ renderSubmissionSettings() }
 				</PanelBody>
-				<PanelBody title={ __( 'Email Connection', 'jetpack' ) }>
+				<PanelBody title={ __( 'Email Connection', 'jetpack-forms' ) }>
 					<JetpackEmailConnectionSettings
 						emailAddress={ to }
 						emailSubject={ subject }
@@ -275,11 +275,14 @@ export function JetpackContactFormEdit( {
 				{ ! isSimpleSite() && (
 					<Fragment>
 						{ canUserInstallPlugins && (
-							<PanelBody title={ __( 'CRM Connection', 'jetpack' ) } initialOpen={ false }>
+							<PanelBody title={ __( 'CRM Connection', 'jetpack-forms' ) } initialOpen={ false }>
 								<CRMIntegrationSettings jetpackCRM={ jetpackCRM } setAttributes={ setAttributes } />
 							</PanelBody>
 						) }
-						<PanelBody title={ __( 'Newsletter Connection', 'jetpack' ) } initialOpen={ false }>
+						<PanelBody
+							title={ __( 'Newsletter Connection', 'jetpack-forms' ) }
+							initialOpen={ false }
+						>
 							<NewsletterIntegrationSettings />
 						</PanelBody>
 					</Fragment>

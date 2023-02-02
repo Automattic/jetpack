@@ -262,8 +262,8 @@ export const childBlocks = [
 		name: 'field-text',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Text Input Field', 'jetpack' ),
-			description: __( 'Collect short text responses from site visitors.', 'jetpack' ),
+			title: __( 'Text Input Field', 'jetpack-forms' ),
+			description: __( 'Collect short text responses from site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -284,8 +284,8 @@ export const childBlocks = [
 		name: 'field-name',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Name Field', 'jetpack' ),
-			description: __( 'Collect the site visitor’s name.', 'jetpack' ),
+			title: __( 'Name Field', 'jetpack-forms' ),
+			description: __( 'Collect the site visitor’s name.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -306,9 +306,9 @@ export const childBlocks = [
 		name: 'field-email',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Email Field', 'jetpack' ),
-			keywords: [ __( 'e-mail', 'jetpack' ), __( 'mail', 'jetpack' ), 'email' ],
-			description: __( 'Collect email addresses from your visitors.', 'jetpack' ),
+			title: __( 'Email Field', 'jetpack-forms' ),
+			keywords: [ __( 'e-mail', 'jetpack-forms' ), __( 'mail', 'jetpack-forms' ), 'email' ],
+			description: __( 'Collect email addresses from your visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -330,9 +330,9 @@ export const childBlocks = [
 		name: 'field-url',
 		settings: {
 			...FieldDefaults,
-			title: __( 'URL Field', 'jetpack' ),
-			keywords: [ 'url', __( 'internet page', 'jetpack' ), 'link' ],
-			description: __( 'Collect a website address from your site visitors.', 'jetpack' ),
+			title: __( 'URL Field', 'jetpack-forms' ),
+			keywords: [ 'url', __( 'internet page', 'jetpack-forms' ), 'link' ],
+			description: __( 'Collect a website address from your site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<>
 					<Path
@@ -360,12 +360,12 @@ export const childBlocks = [
 		name: 'field-date',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Date Picker', 'jetpack' ),
+			title: __( 'Date Picker', 'jetpack-forms' ),
 			keywords: [
-				__( 'Calendar', 'jetpack' ),
-				_x( 'day month year', 'block search term', 'jetpack' ),
+				__( 'Calendar', 'jetpack-forms' ),
+				_x( 'day month year', 'block search term', 'jetpack-forms' ),
 			],
-			description: __( 'Capture date information with a date picker.', 'jetpack' ),
+			description: __( 'Capture date information with a date picker.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -387,13 +387,13 @@ export const childBlocks = [
 		name: 'field-telephone',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Phone Number Field', 'jetpack' ),
+			title: __( 'Phone Number Field', 'jetpack-forms' ),
 			keywords: [
-				__( 'Phone', 'jetpack' ),
-				__( 'Cellular phone', 'jetpack' ),
-				__( 'Mobile', 'jetpack' ),
+				__( 'Phone', 'jetpack-forms' ),
+				__( 'Cellular phone', 'jetpack-forms' ),
+				__( 'Mobile', 'jetpack-forms' ),
 			],
-			description: __( 'Collect phone numbers from site visitors.', 'jetpack' ),
+			description: __( 'Collect phone numbers from site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -415,9 +415,13 @@ export const childBlocks = [
 		name: 'field-textarea',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Multi-line Text Field', 'jetpack' ),
-			keywords: [ __( 'Textarea', 'jetpack' ), 'textarea', __( 'Multiline text', 'jetpack' ) ],
-			description: __( 'Capture longform text responses from site visitors.', 'jetpack' ),
+			title: __( 'Multi-line Text Field', 'jetpack-forms' ),
+			keywords: [
+				__( 'Textarea', 'jetpack-forms' ),
+				'textarea',
+				__( 'Multiline text', 'jetpack-forms' ),
+			],
+			description: __( 'Capture longform text responses from site visitors.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -434,9 +438,9 @@ export const childBlocks = [
 		name: 'field-checkbox',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Checkbox', 'jetpack' ),
-			keywords: [ __( 'Confirm', 'jetpack' ), __( 'Accept', 'jetpack' ) ],
-			description: __( 'Confirm or select information with a single checkbox.', 'jetpack' ),
+			title: __( 'Checkbox', 'jetpack-forms' ),
+			keywords: [ __( 'Confirm', 'jetpack-forms' ), __( 'Accept', 'jetpack-forms' ) ],
+			description: __( 'Confirm or select information with a single checkbox.', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
 					fill={ getIconColor() }
@@ -458,11 +462,11 @@ export const childBlocks = [
 		name: 'field-consent',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Terms Consent', 'jetpack' ),
-			keywords: [ __( 'Consent', 'jetpack' ) ],
+			title: __( 'Terms Consent', 'jetpack-forms' ),
+			keywords: [ __( 'Consent', 'jetpack-forms' ) ],
 			description: __(
 				'Communicate site terms and offer visitors consent to those terms.',
-				'jetpack'
+				'jetpack-forms'
 			),
 			icon: renderMaterialIcon(
 				<>
@@ -480,7 +484,7 @@ export const childBlocks = [
 				...FieldDefaults.attributes,
 				label: {
 					type: 'string',
-					default: __( 'Consent', 'jetpack' ),
+					default: __( 'Consent', 'jetpack-forms' ),
 				},
 				consentType: {
 					type: 'string',
@@ -490,12 +494,12 @@ export const childBlocks = [
 					type: 'string',
 					default: __(
 						"By submitting your information, you're giving us permission to email you. You may unsubscribe at any time.",
-						'jetpack'
+						'jetpack-forms'
 					),
 				},
 				explicitConsentMessage: {
 					type: 'string',
-					default: __( 'Can we send you an email from time to time?', 'jetpack' ),
+					default: __( 'Can we send you an email from time to time?', 'jetpack-forms' ),
 				},
 			},
 			edit: EditConsent,
@@ -505,11 +509,11 @@ export const childBlocks = [
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Multiple Choice (Checkbox)', 'jetpack' ),
-			keywords: [ __( 'Choose Multiple', 'jetpack' ), __( 'Option', 'jetpack' ) ],
+			title: __( 'Multiple Choice (Checkbox)', 'jetpack-forms' ),
+			keywords: [ __( 'Choose Multiple', 'jetpack-forms' ), __( 'Option', 'jetpack-forms' ) ],
 			description: __(
 				'Offer users a list of choices, and allow them to select multiple options.',
-				'jetpack'
+				'jetpack-forms'
 			),
 			icon: renderMaterialIcon(
 				<Path
@@ -531,11 +535,15 @@ export const childBlocks = [
 		name: 'field-radio',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Single Choice (Radio)', 'jetpack' ),
-			keywords: [ __( 'Choose', 'jetpack' ), __( 'Select', 'jetpack' ), __( 'Option', 'jetpack' ) ],
+			title: __( 'Single Choice (Radio)', 'jetpack-forms' ),
+			keywords: [
+				__( 'Choose', 'jetpack-forms' ),
+				__( 'Select', 'jetpack-forms' ),
+				__( 'Option', 'jetpack-forms' ),
+			],
 			description: __(
 				'Offer users a list of choices, and allow them to select a single option.',
-				'jetpack'
+				'jetpack-forms'
 			),
 			icon: renderMaterialIcon(
 				<Fragment>
@@ -559,15 +567,15 @@ export const childBlocks = [
 		name: 'field-select',
 		settings: {
 			...FieldDefaults,
-			title: __( 'Dropdown Field', 'jetpack' ),
+			title: __( 'Dropdown Field', 'jetpack-forms' ),
 			keywords: [
-				__( 'Choose', 'jetpack' ),
-				__( 'Dropdown', 'jetpack' ),
-				__( 'Option', 'jetpack' ),
+				__( 'Choose', 'jetpack-forms' ),
+				__( 'Dropdown', 'jetpack-forms' ),
+				__( 'Option', 'jetpack-forms' ),
 			],
 			description: __(
 				'Add a compact select box, that when expanded, allows visitors to choose one value from the list.',
-				'jetpack'
+				'jetpack-forms'
 			),
 			icon: renderMaterialIcon(
 				<Path

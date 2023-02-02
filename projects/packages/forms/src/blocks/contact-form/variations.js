@@ -21,8 +21,8 @@ const defaultBlockStyling = {
 const variations = compact( [
 	{
 		name: 'contact-form',
-		title: __( 'Contact Form', 'jetpack' ),
-		description: __( 'Add a contact form to your page.', 'jetpack' ),
+		title: __( 'Contact Form', 'jetpack-forms' ),
+		description: __( 'Add a contact form to your page.', 'jetpack-forms' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -43,13 +43,13 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
-			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Message', 'jetpack-forms' ) } ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Contact Us', 'jetpack' ),
+					text: __( 'Contact Us', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -61,12 +61,16 @@ const variations = compact( [
 	},
 	! isSimpleSite() && {
 		name: 'newsletter-form',
-		title: __( 'Newsletter Sign-up', 'jetpack' ),
+		title: __( 'Newsletter Sign-up', 'jetpack-forms' ),
 		description: __(
 			'A simple way to collect information from folks visiting your site.',
-			'jetpack'
+			'jetpack-forms'
 		),
-		keywords: [ __( 'subscribe', 'jetpack' ), __( 'email', 'jetpack' ), __( 'signup', 'jetpack' ) ],
+		keywords: [
+			__( 'subscribe', 'jetpack-forms' ),
+			__( 'email', 'jetpack-forms' ),
+			__( 'signup', 'jetpack-forms' ),
+		],
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -105,13 +109,13 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
 			[ 'jetpack/field-consent', {} ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Subscribe', 'jetpack' ),
+					text: __( 'Subscribe', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -123,8 +127,8 @@ const variations = compact( [
 	},
 	{
 		name: 'rsvp-form',
-		title: __( 'RSVP Form', 'jetpack' ),
-		description: __( 'Add an RSVP form to your page', 'jetpack' ),
+		title: __( 'RSVP Form', 'jetpack-forms' ),
+		description: __( 'Add an RSVP form to your page', 'jetpack-forms' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -145,21 +149,21 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
 			[
 				'jetpack/field-radio',
 				{
-					label: __( 'Attending?', 'jetpack' ),
+					label: __( 'Attending?', 'jetpack-forms' ),
 					required: true,
-					options: [ __( 'Yes', 'jetpack' ), __( 'No', 'jetpack' ) ],
+					options: [ __( 'Yes', 'jetpack-forms' ), __( 'No', 'jetpack-forms' ) ],
 				},
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack-forms' ) } ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Send RSVP', 'jetpack' ),
+					text: __( 'Send RSVP', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -167,13 +171,13 @@ const variations = compact( [
 		],
 		attributes: {
 			...defaultBlockStyling,
-			subject: __( 'A new RSVP from your website', 'jetpack' ),
+			subject: __( 'A new RSVP from your website', 'jetpack-forms' ),
 		},
 	},
 	{
 		name: 'registration-form',
-		title: __( 'Registration Form', 'jetpack' ),
-		description: __( 'Add a Registration form to your page', 'jetpack' ),
+		title: __( 'Registration Form', 'jetpack-forms' ),
+		description: __( 'Add a Registration form to your page', 'jetpack-forms' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -198,27 +202,27 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
-			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-telephone', { label: __( 'Phone', 'jetpack-forms' ) } ],
 			[
 				'jetpack/field-select',
 				{
-					label: __( 'How did you hear about us?', 'jetpack' ),
+					label: __( 'How did you hear about us?', 'jetpack-forms' ),
 					options: [
-						__( 'Search Engine', 'jetpack' ),
-						__( 'Social Media', 'jetpack' ),
-						__( 'TV', 'jetpack' ),
-						__( 'Radio', 'jetpack' ),
-						__( 'Friend or Family', 'jetpack' ),
+						__( 'Search Engine', 'jetpack-forms' ),
+						__( 'Social Media', 'jetpack-forms' ),
+						__( 'TV', 'jetpack-forms' ),
+						__( 'Radio', 'jetpack-forms' ),
+						__( 'Friend or Family', 'jetpack-forms' ),
 					],
 				},
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack-forms' ) } ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Send', 'jetpack' ),
+					text: __( 'Send', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -226,13 +230,13 @@ const variations = compact( [
 		],
 		attributes: {
 			...defaultBlockStyling,
-			subject: __( 'A new registration from your website', 'jetpack' ),
+			subject: __( 'A new registration from your website', 'jetpack-forms' ),
 		},
 	},
 	{
 		name: 'appointment-form',
-		title: __( 'Appointment Form', 'jetpack' ),
-		description: __( 'Add an Appointment booking form to your page', 'jetpack' ),
+		title: __( 'Appointment Form', 'jetpack-forms' ),
+		description: __( 'Add an Appointment booking form to your page', 'jetpack-forms' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -264,23 +268,23 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
-			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack' ) } ],
-			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack' ), required: true } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-telephone', { required: true, label: __( 'Phone', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-date', { label: __( 'Date', 'jetpack-forms' ), required: true } ],
 			[
 				'jetpack/field-radio',
 				{
-					label: __( 'Time', 'jetpack' ),
+					label: __( 'Time', 'jetpack-forms' ),
 					required: true,
-					options: [ __( 'Morning', 'jetpack' ), __( 'Afternoon', 'jetpack' ) ],
+					options: [ __( 'Morning', 'jetpack-forms' ), __( 'Afternoon', 'jetpack-forms' ) ],
 				},
 			],
-			[ 'jetpack/field-textarea', { label: __( 'Notes', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'Notes', 'jetpack-forms' ) } ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Book Appointment', 'jetpack' ),
+					text: __( 'Book Appointment', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -288,13 +292,13 @@ const variations = compact( [
 		],
 		attributes: {
 			...defaultBlockStyling,
-			subject: __( 'A new appointment booked from your website', 'jetpack' ),
+			subject: __( 'A new appointment booked from your website', 'jetpack-forms' ),
 		},
 	},
 	{
 		name: 'feedback-form',
-		title: __( 'Feedback Form', 'jetpack' ),
-		description: __( 'Add a Feedback form to your page', 'jetpack' ),
+		title: __( 'Feedback Form', 'jetpack-forms' ),
+		description: __( 'Add a Feedback form to your page', 'jetpack-forms' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -331,27 +335,27 @@ const variations = compact( [
 			'0 0 24 24'
 		),
 		innerBlocks: [
-			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack' ) } ],
-			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack' ) } ],
+			[ 'jetpack/field-name', { required: true, label: __( 'Name', 'jetpack-forms' ) } ],
+			[ 'jetpack/field-email', { required: true, label: __( 'Email', 'jetpack-forms' ) } ],
 			[
 				'jetpack/field-radio',
 				{
-					label: __( 'Please rate our website', 'jetpack' ),
+					label: __( 'Please rate our website', 'jetpack-forms' ),
 					required: true,
 					options: [
-						__( '1 - Very Bad', 'jetpack' ),
-						__( '2 - Poor', 'jetpack' ),
-						__( '3 - Average', 'jetpack' ),
-						__( '4 - Good', 'jetpack' ),
-						__( '5 - Excellent', 'jetpack' ),
+						__( '1 - Very Bad', 'jetpack-forms' ),
+						__( '2 - Poor', 'jetpack-forms' ),
+						__( '3 - Average', 'jetpack-forms' ),
+						__( '4 - Good', 'jetpack-forms' ),
+						__( '5 - Excellent', 'jetpack-forms' ),
 					],
 				},
 			],
-			[ 'jetpack/field-textarea', { label: __( 'How could we improve?', 'jetpack' ) } ],
+			[ 'jetpack/field-textarea', { label: __( 'How could we improve?', 'jetpack-forms' ) } ],
 			[
 				'jetpack/button',
 				{
-					text: __( 'Send Feedback', 'jetpack' ),
+					text: __( 'Send Feedback', 'jetpack-forms' ),
 					element: 'button',
 					lock: { remove: true },
 				},
@@ -359,7 +363,7 @@ const variations = compact( [
 		],
 		attributes: {
 			...defaultBlockStyling,
-			subject: __( 'New feedback received from your website', 'jetpack' ),
+			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 		},
 	},
 ] );
