@@ -100,7 +100,7 @@ VERSION="$2"
 
 # Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
 VERSION_AB=
-if VERSION_AB="$(grep -o '\-a\|\-beta' <<< "$VERSION")"; then
+if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
 	VERSION_AB="-${VERSION_AB:1:1}"
 fi
 
