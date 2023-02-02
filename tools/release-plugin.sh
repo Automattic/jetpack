@@ -98,6 +98,20 @@ if ! check_ver "$2"; then
 fi
 VERSION="$2"
 
+# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
+VERSION_AB=
+if VERSION_AB="$(grep -o '\-a\|\-beta' <<< "$VERSION")"; then
+	VERSION_AB="-${VERSION_AB:1:1}"
+fi
+
+if [[ -n "$ALPHABETA" ]]; then
+	if [[ "$VERSION_AB" != "$ALPHABETA" || ! "$VERSION_AB" ]]; then
+		die "$ALPHABETA passed to script, but version number $VERSION does not contain the corresponding flag."
+	fi
+elif [[ -n "$VERSION_AB" && -z "$ALPHABETA" ]]; then
+	die "$VERSION contains alpha or beta flag, but corrosponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
+fi
+
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Make sure we're standing on trunk and working directory is clean
