@@ -34,8 +34,14 @@ class Dashboard {
 
 	/**
 	 * Load JavaScript for the dashboard.
+	 *
+	 * @param string $hook The current admin page.
 	 */
-	public function load_admin_scripts() {
+	public function load_admin_scripts( $hook ) {
+		if ( 'jetpack_page_jetpack-forms' !== $hook ) {
+			return;
+		}
+
 		Assets::register_script(
 			'jp-forms-dashboard',
 			'../../dist/dashboard/jetpack-forms-dashboard.js',
