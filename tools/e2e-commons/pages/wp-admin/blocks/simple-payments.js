@@ -1,12 +1,12 @@
 import EditorCanvas from './editor-canvas.js';
 import { expect } from '@playwright/test';
+import { BlockEditorPage } from '../index.js';
 
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
 		this.page = page;
-		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -15,6 +15,26 @@ export default class SimplePaymentBlock extends EditorCanvas {
 
 	static title() {
 		return 'Pay with PayPal';
+	}
+
+	async insertBlock() {
+		const blockEditor = new BlockEditorPage( this.page );
+
+		const responsePromise = this.page.waitForResponse(
+			r =>
+				decodeURIComponent( decodeURIComponent( r.url() ) ).match( /jp_pay_product/ ) &&
+				r.request().method() === 'POST'
+		);
+		const blockId = await blockEditor.insertBlock(
+			SimplePaymentBlock.name(),
+			SimplePaymentBlock.title()
+		);
+		const response = await responsePromise;
+
+		expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
+
+		this.blockId = blockId;
+		return blockId;
 	}
 
 	async fillDetails( {
@@ -32,19 +52,10 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		await this.canvas().fill( descriptionSelector, description );
 		await this.canvas().fill( priceSelector, price );
 		await this.canvas().fill( emailSelector, email );
-		await this.waitForResponse();
-	}
-
-	async waitForResponse() {
-		const response = await this.page.waitForResponse(
-			r => decodeURIComponent( r.url() ).match( /jp_pay_product/ ),
-			{ timeout: 30000 }
-		);
-		expect( [ 200, 201 ], 'Response status should be 200 or 201' ).toContain( response.status() );
 	}
 
 	getSelector( selector ) {
-		return `${ this.blockSelector } ${ selector }`;
+		return `${ '#block-' + this.blockId } ${ selector }`;
 	}
 
 	/**
