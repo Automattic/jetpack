@@ -98,6 +98,21 @@ if ! check_ver "$2"; then
 fi
 VERSION="$2"
 
+# Check if a remote branch for the release branch exits and delete it.
+PREFIX=$(jq -r '.extra["release-branch-prefix"] // empty' "$BASE"/projects/"$PROJECT"/composer.json)
+RELEASE_BRANCH=
+if [[ -n "$PREFIX" ]]; then
+	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
+else
+	die "No release branch prefix found for $PROJECT, aborting."
+fi
+
+REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
+if [[ -n "$REMOTE_BRANCH" ]]; then
+	proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
+	git push origin --delete "$RELEASE_BRANCH"
+fi
+
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Make sure we're standing on trunk and working directory is clean
