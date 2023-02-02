@@ -58,8 +58,13 @@ class Regenerate_Admin_Notice {
 		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ! isset( $_GET[ self::$dismissal_key ] ) ) {
 			return;
 		}
+
+		// Mark the critical CSS as fresh so we don't show the suggestion again in a period of time.
+		Critical_CSS_State::set_fresh( true );
+
+		// Dismiss the notice that shows up for major changes.
 		static::dismiss();
-		static::dismiss_suggestion();
+
 		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
 	}
 
