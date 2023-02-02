@@ -1,5 +1,6 @@
 <?php
 
+global $jetpack_boost_page_optimize_types;
 $jetpack_boost_page_optimize_types = array(
 	'css' => 'text/css',
 	'js' => 'application/javascript'
