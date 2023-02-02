@@ -28,7 +28,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Online_Subscription_Servi
 
 	/**
 	 * Check if the subscriber can receive the newsletter.
-	 * This is the only method where is user does not need to be logged in.
+	 * This is the only method where user does not need to be logged in.
 	 *
 	 * @param int $user_id User id.
 	 * @param int $post_id Post id.
@@ -37,24 +37,21 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Online_Subscription_Servi
 	 * @throws \Exception Throws an exception when used outside of WPCOM.
 	 */
 	public function subscriber_can_receive_post_by_mail( $user_id, $post_id ) {
+		$is_blog_subscriber = true; // it is a subscriber as this is used in async job looping through subscribers...
+		$access_level       = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
+		if ( in_array( $access_level, [ Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS, Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY ], true ) ) {
+			return true;
+		}
 
+		// All paid subscribers are users.
 		if ( 0 === $user_id || empty( $user_id ) ) {
-			// Email cannot be sent to non-users
 			return false;
 		}
 
 		$previous_user = wp_get_current_user();
 		wp_set_current_user( $user_id );
 
-		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
-
-		if ( ! $access_level || self::POST_ACCESS_LEVEL_EVERYBODY === $access_level ) {
-			// The post is not gated, we return early
-			return true;
-		}
-
 		$valid_plan_ids     = \Jetpack_Memberships::get_all_plans_id_jetpack_recurring_payments();
-		$is_blog_subscriber = true; // it is a subscriber as this is used in async when lopping through subscribers...
 		$allowed            = $this->user_can_view_content( $valid_plan_ids, $access_level, $is_blog_subscriber, $post_id );
 
 		wp_set_current_user( $previous_user->ID );
