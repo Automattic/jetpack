@@ -184,10 +184,16 @@ class Jetpack_Boost_Page_Optimize_CSS_Concat extends WP_Styles {
 				$handles = array_keys( $css );
 				$css_id = "$media-css-" . md5( $href );
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-					echo apply_filters( 'page_optimize_style_loader_tag', "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />\n", $handles, $href, $media );
+					$style_tag = "<link data-handles='" . esc_attr( implode( ',', $handles ) ) . "' rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
 				} else {
-					echo apply_filters( 'page_optimize_style_loader_tag', "<link rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />\n", $handles, $href, $media );
+					$style_tag = "<link rel='stylesheet' id='$css_id' href='$href' type='text/css' media='$media' />";
 				}
+
+				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
+				$style_tag = apply_filters( 'style_loader_tag', $style_tag, $handles, $href, $media );
+
+				echo $style_tag . "\n";
+
 				array_map( array( $this, 'print_inline_style' ), array_keys( $css ) );
 			}
 		}
