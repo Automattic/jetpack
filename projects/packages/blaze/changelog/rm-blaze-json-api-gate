@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Do not require Jetpack's JSON API module to use feature.
