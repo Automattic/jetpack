@@ -22,7 +22,18 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if ( is_admin() && apply_filters( 'jetpack_forms_dashboard_enable', false ) ) {
+		if (
+			is_admin()
+			/**
+			 * Enable the new Jetpack Forms dashboard.
+			 *
+			 * @module contact-form
+			 * @since $$next-version$$
+			 *
+			 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
+			 */
+			&& apply_filters( 'jetpack_forms_dashboard_enable', false )
+		) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
