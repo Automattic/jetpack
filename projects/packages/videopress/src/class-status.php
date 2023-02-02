@@ -21,7 +21,7 @@ class Status {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return self::is_jetpack_plugin_and_videooress_module_active() || self::is_standalone_plugin_active();
+		return self::is_jetpack_plugin_and_videopress_module_active() || self::is_standalone_plugin_active();
 	}
 
 	/**
