@@ -7,9 +7,13 @@
 /node_modules/
 /vendor/
 codeception.yml
-**/css/*.min.rtl.css
-**/css/**/*.min.rtl.css
+**/css/*.min.css.map
+**/css/**/*.min.css.map
+**/css/*.min.rtl.*
+**/css/**/*.min.rtl.*
 **/css/*.min.css
+**/js/*.min.js.map
+**/js/**/*.min.js.map
 **/js/*.min.js
 **/js/*.min.js.LICENSE.txt
 .cache/
