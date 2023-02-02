@@ -37,7 +37,7 @@ class Status {
 	 *
 	 * @return boolean
 	 */
-	public static function is_jetpack_plugin_and_videooress_module_active() {
+	public static function is_jetpack_plugin_and_videopress_module_active() {
 		return class_exists( 'Jetpack' ) && Jetpack::is_module_active( 'videopress' );
 	}
 
