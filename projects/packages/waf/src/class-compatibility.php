@@ -29,6 +29,17 @@ class Waf_Compatibility {
 	}
 
 	/**
+	 * Run compatibility migrations.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function run_compatibility_migrations() {
+		self::migrate_brute_force_protection_ip_allow_list();
+	}
+
+	/**
 	 * Provides a default value for sites that installed the WAF
 	 * before the automatic rules option was introduced.
 	 *
@@ -126,36 +137,43 @@ class Waf_Compatibility {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param string $waf_allow_list The current value of the WAF IP allow list option.
-	 *
-	 * @return string The merged IP allow list.
+	 * @return void
 	 */
-	private static function migrate_brute_force_protection_ip_allow_list( $waf_allow_list = '' ) {
-		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist', array() );
+	public static function migrate_brute_force_protection_ip_allow_list() {
+		$waf_allow_list         = get_option( 'jetpack_waf_ip_allow_list' );
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+
+		if ( false === $waf_allow_list ) {
+			$waf_allow_list = '';
+		}
 
 		if ( false !== $brute_force_allow_list ) {
-			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
-			if ( update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $waf_allow_list ) ) {
+			$merged_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+			if ( update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $merged_allow_list ) ) {
 				delete_option( 'jetpack_protect_whitelist' );
 			}
 		}
-
-		return $waf_allow_list;
 	}
 
 	/**
 	 * Filter for Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME's option value.
 	 * Merges the deprecated IP allow list from the brute force protection module
-	 * with the existing option value.
+	 * with the existing option value, and flags that the WAF needs to be updated.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param array $value  The current value of the option.
+	 * @param array $waf_allow_list The current value of the option.
 	 *
 	 * @return array The merged IP allow list.
 	 */
-	public static function filter_option_waf_ip_allow_list( $value ) {
-		return self::migrate_brute_force_protection_ip_allow_list( $value );
+	public static function filter_option_waf_ip_allow_list( $waf_allow_list ) {
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+		if ( false !== $brute_force_allow_list ) {
+			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
+		}
+
+		return $waf_allow_list;
 	}
 
 	/**
@@ -173,7 +191,16 @@ class Waf_Compatibility {
 			return $default;
 		}
 
-		return self::migrate_brute_force_protection_ip_allow_list();
+		$waf_allow_list = '';
+
+		// If the brute force option exists, use that and flag that the WAF needs to be updated.
+		$brute_force_allow_list = get_option( 'jetpack_protect_whitelist' );
+		if ( false !== $brute_force_allow_list ) {
+			$waf_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
+			update_option( Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, 1 );
+		}
+
+		return $waf_allow_list;
 	}
 
 }
