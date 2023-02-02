@@ -48,6 +48,7 @@ class Regenerate_Admin_Notice {
 		return add_query_arg(
 			array(
 				self::$dismissal_key => '',
+				'nonce'              => wp_create_nonce( 'jb_dismiss_notice' ),
 			)
 		);
 	}
@@ -55,7 +56,7 @@ class Regenerate_Admin_Notice {
 	public static function maybe_handle_dismissal() {
 		// We're okay dismissing the notice without nonce verification.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ! isset( $_GET[ self::$dismissal_key ] ) ) {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ! isset( $_GET[ self::$dismissal_key ], $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'jb_dismiss_notice' ) ) {
 			return;
 		}
 
@@ -65,7 +66,7 @@ class Regenerate_Admin_Notice {
 		// Dismiss the notice that shows up for major changes.
 		static::dismiss();
 
-		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
+		wp_safe_redirect( remove_query_arg( array( self::$dismissal_key, 'nonce' ) ) );
 	}
 
 	public static function init() {
