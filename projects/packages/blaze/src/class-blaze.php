@@ -53,6 +53,7 @@ class Blaze {
 	public static function add_post_links_actions() {
 		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
 	}
 
