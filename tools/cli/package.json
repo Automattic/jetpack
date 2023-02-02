@@ -42,7 +42,7 @@
 		"process": "0.11.10",
 		"semver": "7.3.5",
 		"sprintf-js": "1.1.2",
-		"yargs": "16.2.0"
+		"yargs": "17.6.2"
 	},
 	"devDependencies": {
 		"jest": "29.3.1",

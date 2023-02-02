@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add "watch" entries for both composer and package .json files. This allows us to run `jetpack watch packages/forms` while working on JS things
