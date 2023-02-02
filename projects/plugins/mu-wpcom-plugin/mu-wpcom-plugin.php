@@ -19,9 +19,6 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * Jetpack_Mu_Wpcom initialization.
  */
-if (
-	class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) &&
-	! did_action( 'jetpack_mu_wpcom_initialized' )
-) {
+if ( class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
 	Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 }
