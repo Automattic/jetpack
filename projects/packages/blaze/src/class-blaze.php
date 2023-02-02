@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.1-alpha';
+	const PACKAGE_VERSION = '0.5.2-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
@@ -53,6 +53,7 @@ class Blaze {
 	public static function add_post_links_actions() {
 		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
 	}
 
