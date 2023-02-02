@@ -166,6 +166,12 @@ class Blaze {
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
 
+		// Bail if we are not looking at one of the supported post types (post, page, or product).
+		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
+			return $post_actions;
+		}
+
+		// Bail if the post is not published.
 		if ( $post->post_status !== 'publish' ) {
 			return $post_actions;
 		}

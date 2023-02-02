@@ -38,7 +38,7 @@ class Block_Editor_Extensions {
 	 * @param array $block_metadata - The block metadata.
 	 */
 	public static function init( $block_metadata ) {
-		if ( ! Status::is_active() ) {
+		if ( ! Status::is_registrant_plugin_active() ) {
 			return;
 		}
 

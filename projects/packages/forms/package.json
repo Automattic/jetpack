@@ -15,14 +15,17 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm run build:contact-form",
-		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build:contact-form",
-		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
+		"build": "pnpm run clean && pnpm run build:contact-form && pnpm run build:dashboard",
+		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build && pnpm run validate",
 		"build:blocks": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.blocks.js",
-		"watch:blocks": "NODE_PATH=\"$PWD/node_modules\" webpack watch --config ./tools/webpack.config.blocks.js",
-		"clean": "true"
+		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
+		"build:dashboard": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.dashboard.js",
+		"clean": "rm -rf dist/ .cache/",
+		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
+		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch'"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/block-editor": "10.5.0",
 		"@wordpress/blocks": "11.21.0",
@@ -58,6 +61,7 @@
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.5.0",
 		"@wordpress/components": "22.1.0",
 		"autoprefixer": "10.4.12",
+		"concurrently": "6.4.0",
 		"glob": "7.1.6",
 		"jquery": "3.6.0",
 		"lodash": "4.17.21",

@@ -1,7 +1,8 @@
+.cache/
+dist/
+node_modules/
 vendor/
 wordpress/
-node_modules/
-dist/
 
 /src/**/*.css.map
 /src/**/*.min.css
