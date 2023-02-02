@@ -38,7 +38,7 @@ class Dashboard {
 	public function load_admin_scripts() {
 		Assets::register_script(
 			'jp-forms-dashboard',
-			'dist/jetpack-forms-dashboard.js',
+			'../../dist/dashboard/jetpack-forms-dashboard.js',
 			__FILE__,
 			array(
 				'in_footer'  => true,

@@ -12,7 +12,7 @@ module.exports = {
 	},
 	output: {
 		...jetpackWebpackConfig.output,
-		path: path.join( __dirname, '..', 'src/dashboard/dist' ),
+		path: path.join( __dirname, '..', 'dist/dashboard' ),
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
