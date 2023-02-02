@@ -230,21 +230,6 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
-						<FormFieldset>
-							<CompactFormToggle
-								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __(
-										'Include a small chart in your admin bar with a 48-hour traffic snapshot',
-										'jetpack'
-									) }
-								</span>
-							</CompactFormToggle>
-						</FormFieldset>
 						{ ! this.props.isWoASite && (
 							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
 							<FormFieldset>
@@ -262,6 +247,21 @@ class SiteStatsComponent extends React.Component {
 								</CompactFormToggle>
 							</FormFieldset>
 						) }
+						<FormFieldset>
+							<CompactFormToggle
+								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
+								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __(
+										'Include a small chart in your admin bar with a 48-hour traffic snapshot',
+										'jetpack'
+									) }
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
