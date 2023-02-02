@@ -6,9 +6,6 @@ import { initializeMembershipButtons } from '../../shared/memberships';
 
 import './view.scss';
 
-// Enter keycode.
-const ENTER = 13;
-
 class JetpackDonations {
 	constructor( block ) {
 		this.block = block;
@@ -161,7 +158,7 @@ class JetpackDonations {
 
 		// Prevent new lines.
 		input.addEventListener( 'keydown', event => {
-			if ( event.keyCode === ENTER ) {
+			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 			}
 		} );
