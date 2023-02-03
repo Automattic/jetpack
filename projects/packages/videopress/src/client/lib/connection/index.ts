@@ -67,5 +67,5 @@ export function isVideoPressActive(): boolean {
  * @returns {boolean} True if the feature is active, false otherwise.
  */
 export function isStandaloneActive(): boolean {
-	return window?.videoPressEditorState?.isStandAloneActive === '1';
+	return window?.videoPressEditorState?.isStandaloneActive === '1';
 }
