@@ -23,16 +23,11 @@ export const settings = {
 	title: __( 'Subscribe', 'jetpack' ),
 	description: (
 		<>
-			<p>
-				{ __(
-					'Allow readers to receive a newsletter with future posts in their inbox.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( "Let readers subscribe to this blog's posts as a newsletter.", 'jetpack' ) }</p>
 			<p>
 				{ createInterpolateElement(
 					__(
-						'Subscribers can get notifications through email or <ExternalLink>the Reader app</ExternalLink>.',
+						'Subscribers can read the posts in their email inbox or <ExternalLink>the Reader app</ExternalLink>.',
 						'jetpack'
 					),
 					{ ExternalLink: <ExternalLink href={ 'https://wordpress.com/read' } /> }
