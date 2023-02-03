@@ -268,10 +268,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$post = get_post( $post_id );
 			if ( ! $post || is_wp_error( $post ) ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
-			} else {
-				$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
-				$post_type  = get_post_type_object( $_post_type );
 			}
+
+			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
+			$post_type  = get_post_type_object( $_post_type );
 
 			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
