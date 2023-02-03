@@ -50,10 +50,18 @@ export default class RecommendationsPage extends WpPage {
 	}
 
 	get enableSiteAcceleratorButtonSel() {
-		return 'a[href*="recommendations/summary"] >> text="Enable Site Accelerator"';
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Enable Site Accelerator"';
 	}
 
 	get skipSiteAcceleratorButtonSel() {
+		return 'a[href*="recommendations/vaultpress-backup"] >> text="Not now"';
+	}
+
+	get tryVaultPressBackup() {
+		return 'a[href*="jetpack-recommendations-product-checkout"] >> text=Try for';
+	}
+
+	get skipVaultPressBackup() {
 		return 'a[href*="recommendations/summary"] >> text="Not now"';
 	}
 
@@ -150,6 +158,14 @@ export default class RecommendationsPage extends WpPage {
 
 	async skipSiteAcceleratorAndContinue() {
 		return await this.click( this.skipSiteAcceleratorButtonSel );
+	}
+
+	async isTryVaultPressBackupButtonVisible() {
+		return await this.isElementVisible( this.tryVaultPressBackup );
+	}
+
+	async skipVaultPressBackupAndContinue() {
+		return await this.click( this.skipVaultPressBackup );
 	}
 
 	async isSummaryContentVisible() {
