@@ -570,3 +570,12 @@ export function getJetpackSocialPostAlreadyShared() {
 export function getAttachedMedia() {
 	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
 }
+
+/**
+ * Get a list of all image generator settings for a post.
+ *
+ * @returns {Array} An array of image generator settings.
+ */
+export function getImageGeneratorPostSettings() {
+	return get( getJetpackSocialOptions(), [ 'image_generator_settings' ], [] );
+}
