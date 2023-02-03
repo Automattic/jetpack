@@ -26,24 +26,54 @@ import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
 /**
+ * Get meta data from a VideoPress video.
+ *
+ * @param {object} video - VideoPress media object.
+ * @returns {Promise} A promise containing {mime: string, fileSize: number, length: number}}
+ */
+const getVideoPressMetadata = async video => {
+	if (
+		! video?.media_details?.videopress?.original ||
+		! video?.media_details?.videopress?.duration
+	) {
+		return {};
+	}
+
+	const response = await fetch( video?.media_details?.videopress?.original, { method: 'HEAD' } );
+	const contentLength = response.headers.get( 'content-length' );
+	const contentType = response.headers.get( 'content-type' );
+
+	if ( ! contentLength || ! contentType ) {
+		return {};
+	}
+
+	return {
+		mime: contentType,
+		fileSize: contentLength,
+		length: Math.round( video.media_details.videopress.duration / 1000 ),
+	};
+};
+
+/**
  * Get relevant details from a WordPress media object.
  *
  * @param {object} media - WordPress media object.
- * @returns {{
- * mediaData: {width: number, height: number, sourceUrl: string},
- * metaData: {mime: string, fileSize: number, length: number}
- * }} - Media details.
+ * @returns {Promise} An object containing mediaData and metaData.
  */
-const getMediaDetails = media => {
+const getMediaDetails = async media => {
 	if ( ! media ) {
 		return {};
 	}
 
-	const metaData = {
+	let metaData = {
 		mime: media.mime_type,
 		fileSize: media.media_details.filesize,
 		length: media.media_details?.length,
 	};
+
+	if ( media.mime_type === 'video/videopress' ) {
+		metaData = await getVideoPressMetadata( media );
+	}
 
 	const sizes = media?.media_details?.sizes ?? {};
 
@@ -81,6 +111,7 @@ export default function MediaSection() {
 	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
+	const [ mediaDetails, setMediaDetails ] = useState( {} );
 
 	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
 		enabledConnections
@@ -111,20 +142,31 @@ export default function MediaSection() {
 		[ attachedMedia[ 0 ] ]
 	);
 
-	const { mediaData, metaData } = getMediaDetails( mediaObject );
+	useEffect( () => {
+		try {
+			( async () => {
+				const details = await getMediaDetails( mediaObject );
+
+				setMediaDetails( details ?? {} );
+			} )();
+		} catch {
+			setMediaDetails( {} );
+		}
+	}, [ mediaObject ] );
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! metaData ) {
+		if ( ! mediaDetails.metaData ) {
 			return;
 		}
 
-		const error = getValidationError( metaData );
+		const error = getValidationError( mediaDetails.metaData );
 		if ( error ) {
 			setValidationError( error );
 			updateAttachedMedia( [] );
+			setMediaDetails( {} );
 		}
-	}, [ updateAttachedMedia, getValidationError, metaData ] );
+	}, [ updateAttachedMedia, getValidationError, mediaDetails ] );
 
 	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
 	const onUpdateMedia = useCallback(
@@ -139,9 +181,18 @@ export default function MediaSection() {
 
 	const renderPreview = useCallback(
 		open => {
-			const { width, height, sourceUrl } = mediaData;
+			const {
+				mediaData: { width, height, sourceUrl } = {},
+				metaData: { mime, length = null } = {},
+			} = mediaDetails;
 
-			if ( ! sourceUrl || ! width || ! height ) {
+			if ( ! sourceUrl || ! width || ! height || ! mime ) {
+				return null;
+			}
+
+			const renderVideoPreview = isVideo( mime );
+
+			if ( renderVideoPreview && ! length ) {
 				return null;
 			}
 
@@ -152,11 +203,11 @@ export default function MediaSection() {
 						<Icon icon={ closeSmall } />
 					</button>
 					<button className={ styles.preview } onClick={ open }>
-						{ isVideo( metaData.mime ) ? (
+						{ renderVideoPreview ? (
 							<VideoPreview
 								sourceUrl={ sourceUrl }
-								mime={ metaData.mime }
-								duration={ metaData.length }
+								mime={ mime }
+								duration={ length }
 							></VideoPreview>
 						) : (
 							<ResponsiveWrapper naturalWidth={ width } naturalHeight={ height } isInline>
@@ -167,7 +218,7 @@ export default function MediaSection() {
 				</div>
 			);
 		},
-		[ mediaData, metaData, onRemoveMedia ]
+		[ mediaDetails, onRemoveMedia ]
 	);
 
 	const renderPicker = useCallback(
