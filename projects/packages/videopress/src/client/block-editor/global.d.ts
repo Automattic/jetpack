@@ -9,7 +9,7 @@ declare global {
 			siteType: 'simple' | 'atomic' | 'jetpack';
 			myJetpackConnectUrl: string;
 			isVideoPressModuleActive: '' | '1';
-			isStandAloneActive: '' | '1';
+			isStandaloneActive: '' | '1';
 			jetpackVideoPressSettingUrl: string;
 		};
 
