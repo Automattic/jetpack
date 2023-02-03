@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	getPlanClass,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
@@ -50,6 +51,7 @@ import {
 	getNewRecommendations,
 	getInitialRecommendationsStep,
 	getNewRecommendationsCount,
+	isWooCommerceActive,
 } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
@@ -335,7 +337,9 @@ const stepToNextStepByPath = {
 		'related-posts': 'creative-mail',
 		'creative-mail': 'site-accelerator',
 		'site-accelerator': 'publicize',
-		publicize: 'summary',
+		publicize: 'vaultpress-for-woocommerce',
+		'vaultpress-for-woocommerce': 'vaultpress-backup', // falls back to vaultpress-backup so it only shows one of them
+		'vaultpress-backup': 'summary',
 		protect: 'summary',
 		'anti-spam': 'summary',
 		videopress: 'summary',
@@ -549,6 +553,13 @@ export const getProductSlugForStep = ( state, step ) => {
 	return false;
 };
 
+const shouldRecommendVaultPress = ( state, isWooCommerceRequired = false ) => {
+	const sitePlan = getSitePlan( state ).product_slug;
+	const isFree = 'is-free-plan' === getPlanClass( sitePlan );
+
+	return isFree && isWooCommerceActive( state ) === isWooCommerceRequired;
+};
+
 const isConditionalRecommendationEnabled = ( state, step ) => {
 	const conditionalRecommendations = getConditionalRecommendations( state );
 	return (
@@ -567,6 +578,10 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'product-suggestions':
 			return isProductSuggestionsAvailable( state );
+		case 'vaultpress-backup':
+			return shouldRecommendVaultPress( state );
+		case 'vaultpress-for-woocommerce':
+			return shouldRecommendVaultPress( state, true );
 		case 'agency':
 			return !! getDataByKey( state, 'site-type-agency' );
 		case 'woocommerce':
