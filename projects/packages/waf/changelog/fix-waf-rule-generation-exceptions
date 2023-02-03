@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed uncaught exceptions in the WAF package.
+
+
