@@ -73,10 +73,10 @@ $allowed = array(
 		'lodash',
 		'react',
 		'react-dom',
-		'wp-components',
 		'wp-compose',
 		'wp-data',
 		'wp-element',
+		'wp-primitives',
 	),
 	'story'          => array(
 		'lodash',
