@@ -816,14 +816,6 @@
 	}
 }
 
-.wp-block[data-type="jetpack/contact-form"] {
-	filter: blur(10px);
-}
-
-.contact-form-styles-loaded .wp-block[data-type="jetpack/contact-form"] {
-	filter: blur(0px);
-}
-
 .block-editor-block-inspector .components-base-control .components-base-control:last-child {
 	margin-bottom: 0;
 }
