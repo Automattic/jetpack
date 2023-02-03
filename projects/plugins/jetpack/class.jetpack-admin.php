@@ -102,7 +102,9 @@ class Jetpack_Admin {
 		}
 
 		// Ensure an Additional CSS menu item is added to the Appearance menu whenever Jetpack is connected.
-		add_action( 'admin_menu', array( $this, 'additional_css_menu' ) );
+		if ( Jetpack::is_connection_ready() ) {
+			add_action( 'admin_menu', array( $this, 'additional_css_menu' ) );
+		}
 
 		add_filter( 'jetpack_display_jitms_on_screen', array( $this, 'should_display_jitms_on_screen' ), 10, 2 );
 
