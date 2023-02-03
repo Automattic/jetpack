@@ -14,7 +14,6 @@ use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
  * Initializes the module
  */
 class Waf_Initializer {
-
 	/**
 	 * Option for storing whether or not the WAF files are potentially out of date.
 	 *

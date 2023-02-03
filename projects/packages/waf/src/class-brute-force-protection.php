@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to define the Protect module.
+ * Class used to define the Brute force protection feature.
  *
  * @package automattic/jetpack-waf
  */
@@ -435,7 +435,7 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Set up the Protect configuration page in the Jetpack Settings screen
+	 * Set up the Brute force protection configuration page in the Jetpack Settings screen
 	 */
 	public function modules_loaded() {
 		add_filter( 'jetpack_module_configurable_protect', '__return_true' );

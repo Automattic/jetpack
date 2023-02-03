@@ -122,4 +122,3 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Protect', 'plugin_deactiva
 
 // Main plugin class.
 new Jetpack_Protect();
-
