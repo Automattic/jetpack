@@ -19,13 +19,20 @@ node_modules         export-ignore
 # Files to include in the mirror repo, but excluded via gitignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
-build/**                                        production-include
 jetpack_vendor/**                               production-include
 vendor/autoload.php                             production-include
 vendor/autoload_packages.php                    production-include
 vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
+**/css/*.min.rtl.*                              production-include
+**/css/**/*.min.rtl.*                           production-include
+**/css/*.min.css                                production-include
+**/css/welcome-to-zbs/*.min.css                 production-include
+**/css/integrations/*                           production-include
+**/js/*.min.js                                  production-include
+**/js/welcome-to-zbs/*.min.js                   production-include
+
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
@@ -35,15 +42,19 @@ vendor/jetpack-autoloader/**                    production-include
 .gitignore                                      production-exclude
 .phpcs.dir.xml                                  production-exclude
 babel.config.js                                 production-exclude
-build/**/*.js.map                               production-exclude
 changelog/**                                    production-exclude
 composer.lock                                   production-exclude
 package.json                                    production-exclude
 phpunit.xml.dist                                production-exclude
 README.md                                       production-exclude
-src/js/**                                       production-exclude
+/sass/**                                        production-exclude
 tests/**                                        production-exclude
 /vendor/automattic/jetpack-autoloader/**        production-exclude
 /vendor/automattic/jetpack-changelogger/**      production-exclude
 /vendor/automattic/jetpack-composer-plugin/**   production-exclude
 webpack.config.js                               production-exclude
+**/css/*.min.css.map                            production-exclude
+**/css/**/*.min.css.map                         production-exclude
+**/js/*.min.js.map                              production-exclude
+**/js/**/*.min.js.map                           production-exclude
+**/js/*.min.js.LICENSE.txt                      production-exclude
