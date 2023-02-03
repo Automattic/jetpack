@@ -116,7 +116,7 @@ class Jetpack_Stats_Dashboard_Widget {
 			</div>
 
 			<div class="akismet">
-				<h3><?php esc_html_e( 'Anti-spam', 'jetpack' ); ?></h3>
+				<h3><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h3>
 				<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
 					<p class="blocked-count">
 						<?php echo esc_html( number_format_i18n( get_option( 'akismet_spam_count', 0 ) ) ); ?>
