@@ -134,9 +134,12 @@ if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
 	 * Get VideoPress ID from wpvideo shortcode attributes.
 	 *
 	 * @param array $atts Shortcode attributes.
-	 * @return int  $id   VideoPress ID.
+	 *
+	 * @return mixed $id VideoPress ID.
 	 */
 	function jetpack_shortcode_get_wpvideo_id( $atts ) {
+		// This is not used anywhere in Jetpack nor on WordPress.com anymore.
+		_deprecated_function( __FUNCTION__, 'jetpack-11.9' );
 		if ( isset( $atts[0] ) ) {
 			return $atts[0];
 		} else {
