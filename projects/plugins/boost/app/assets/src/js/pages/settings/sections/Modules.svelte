@@ -60,7 +60,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$config.criticalCSS.suggestRegenerate}
+				show={$config.criticalCSS?.suggestRegenerate}
 			/>
 		</div>
 	</Module>
