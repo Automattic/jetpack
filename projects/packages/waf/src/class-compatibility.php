@@ -142,6 +142,7 @@ class Waf_Compatibility {
 	 * @return void
 	 */
 	public static function migrate_brute_force_protection_ip_allow_list() {
+		// Get the allow list values directly from the database to avoid filters.
 		$brute_force_allow_list = Jetpack_Options::get_raw_option( 'jetpack_protect_whitelist' );
 		$waf_allow_list         = Jetpack_Options::get_raw_option( 'jetpack_waf_ip_allow_list' );
 
@@ -151,11 +152,14 @@ class Waf_Compatibility {
 				$waf_allow_list = '';
 			}
 
+			// Merge the two allow lists.
 			$merged_allow_list = self::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list );
 
+			// Update the WAF IP allow list with the merged list.
 			Jetpack_Options::update_raw_option( 'jetpack_waf_ip_allow_list', $merged_allow_list );
 
 			// Delete the old option if the update was successful.
+			// Check the values directly as `update_raw_option()` returns false if the value hasn't changed.
 			if ( Jetpack_Options::get_raw_option( 'jetpack_protect_whitelist' ) === $merged_allow_list ) {
 				delete_option( 'jetpack_protect_whitelist' );
 			}
