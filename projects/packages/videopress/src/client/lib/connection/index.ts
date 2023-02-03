@@ -58,7 +58,7 @@ export function isVideoPressActive(): boolean {
 		return false;
 	}
 
-	return isVideoPressModuleActive();
+	return isVideoPressModuleActive() || isStandaloneActive();
 }
 
 /**
