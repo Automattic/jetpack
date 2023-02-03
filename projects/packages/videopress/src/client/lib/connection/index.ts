@@ -42,3 +42,21 @@ export function isUserConnected(): boolean {
 export function isVideoPressModuleActive(): boolean {
 	return window?.videoPressEditorState?.isVideoPressModuleActive === '1';
 }
+
+/**
+ * Chek whether the VideoPress feature is active,
+ * considering the user connection status
+ * and also the module status.
+ *
+ * Note: It's possible to have the module active,
+ * but the user not connected.
+ *
+ * @returns {boolean} True if the feature is active, false otherwise.
+ */
+export function isVideoPressActive(): boolean {
+	if ( ! isUserConnected() ) {
+		return false;
+	}
+
+	return isVideoPressModuleActive();
+}

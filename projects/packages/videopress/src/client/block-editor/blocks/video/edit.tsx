@@ -19,10 +19,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import {
-	isUserConnected as getIsUserConnected,
-	isVideoPressModuleActive,
-} from '../../../lib/connection';
+import { isVideoPressActive, isVideoPressModuleActive } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
@@ -48,14 +45,13 @@ import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
 const { myJetpackConnectUrl, jetpackVideoPressSettingUrl } = window?.videoPressEditorState || {};
-const isUserConnected = getIsUserConnected();
 
 /**
  * It considers VideoPress active
  * if the user is connected and the module is active.
  */
 const isModuleActive = isVideoPressModuleActive();
-const isVideoPressActive = isUserConnected && isModuleActive;
+const isActive = isVideoPressActive();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -436,7 +432,7 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ isVideoPressActive }
+						isConnected={ isActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
@@ -593,7 +589,7 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
-				isConnected={ isVideoPressActive }
+				isConnected={ isActive }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
