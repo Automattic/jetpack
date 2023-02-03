@@ -121,6 +121,11 @@ class Blaze {
 		$connection        = new Jetpack_Connection();
 		$site_id           = Jetpack_Connection::get_site_id();
 
+		// Only admins should be able to Blaze posts on a site.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
+
 		// On self-hosted sites, we must do some additional checks.
 		if ( ! $is_wpcom ) {
 			/*
