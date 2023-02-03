@@ -1198,7 +1198,7 @@ class Contact_Form_Plugin {
 			}
 
 			// check if the feedback entry has a permalink we can use.
-			if ( isset( $all_fields['entry_permalink'] ) && ! empty( $all_fields['entry_permalink'] ) ) {
+			if ( ! empty( $all_fields['entry_permalink'] ) ) {
 				$parsed          = wp_parse_url( $all_fields['entry_permalink'] );
 				$md['-6_source'] = '';
 				if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
