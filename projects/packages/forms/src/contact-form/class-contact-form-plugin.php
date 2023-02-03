@@ -1650,7 +1650,8 @@ class Contact_Form_Plugin {
 					: $single_field_name;
 
 				/**
-				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
+				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
 				 */
 				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				if (
