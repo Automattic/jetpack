@@ -1,1 +1,1 @@
-import './blocks/video/edit';
+import './blocks/video/index';
