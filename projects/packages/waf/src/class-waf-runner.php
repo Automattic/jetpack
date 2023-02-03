@@ -279,10 +279,8 @@ class Waf_Runner {
 
 		self::initialize_filesystem();
 		self::create_waf_directory();
-		Waf_Rules_Manager::generate_automatic_rules();
-		Waf_Rules_Manager::generate_ip_rules();
 		self::create_blocklog_table();
-		Waf_Rules_Manager::generate_rules();
+		Waf_Rules_Manager::generate_rule_files();
 	}
 
 	/**

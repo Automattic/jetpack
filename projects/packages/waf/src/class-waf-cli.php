@@ -143,7 +143,7 @@ class CLI extends WP_CLI_Command {
 	public function generate_rules() {
 		try {
 			Waf_Rules_Manager::generate_automatic_rules();
-			Waf_Rules_Manager::generate_rules();
+			Waf_Rules_Manager::generate_rules_entrypoint();
 		} catch ( \Exception $e ) {
 
 			return WP_CLI::error(

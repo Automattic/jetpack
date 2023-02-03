@@ -117,7 +117,7 @@ class Waf_Initializer {
 			}
 
 			Waf_Rules_Manager::generate_ip_rules();
-			Waf_Rules_Manager::generate_rules();
+			Waf_Rules_Manager::generate_rules_entrypoint();
 			( new Waf_Standalone_Bootstrap() )->generate();
 
 			update_option( self::NEEDS_UPDATE_OPTION_NAME, 0 );

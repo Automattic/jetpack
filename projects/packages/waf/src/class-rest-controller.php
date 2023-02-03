@@ -59,7 +59,7 @@ class REST_Controller {
 
 		try {
 			Waf_Rules_Manager::generate_automatic_rules();
-			Waf_Rules_Manager::generate_rules();
+			Waf_Rules_Manager::generate_rules_entrypoint();
 		} catch ( \Exception $e ) {
 			$success = false;
 			$message = $e->getMessage();

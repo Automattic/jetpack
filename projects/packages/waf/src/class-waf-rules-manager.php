@@ -75,10 +75,10 @@ class Waf_Rules_Manager {
 			return;
 		}
 
-		self::generate_automatic_rules();
-		self::generate_ip_rules();
-		self::generate_rules();
-		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
+		$rules_updated = self::generate_rule_files();
+		if ( $rules_updated ) {
+			update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
+		}
 	}
 
 	/**
@@ -94,9 +94,7 @@ class Waf_Rules_Manager {
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::RULES_VERSION );
-			self::generate_automatic_rules();
-			self::generate_ip_rules();
-			self::generate_rules();
+			self::generate_rule_files();
 		}
 	}
 
@@ -150,12 +148,29 @@ class Waf_Rules_Manager {
 	}
 
 	/**
+	 * Generate the WAF rule files.
+	 *
+	 * @return bool True if all rule files generated sucessfully, false on error.
+	 */
+	public static function generate_rule_files() {
+		try {
+			self::generate_automatic_rules();
+			self::generate_ip_rules();
+			self::generate_rules_entrypoint();
+		} catch ( \Exception $e ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Generates the rules.php script
 	 *
 	 * @throws \Exception If file writing fails.
 	 * @return void
 	 */
-	public static function generate_rules() {
+	public static function generate_rules_entrypoint() {
 		/**
 		 * WordPress filesystem abstraction.
 		 *
