@@ -14,6 +14,7 @@ export const RegenerateCriticalCssSuggestion = ( { show } ) => {
 			onClose={ () => {
 				hideRegenerateCriticalCssSuggestion();
 			} }
+			hideCloseButton={ true }
 		>
 			<p>
 				{ __(
