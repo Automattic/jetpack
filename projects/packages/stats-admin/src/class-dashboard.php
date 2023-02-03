@@ -238,18 +238,18 @@ class Dashboard {
 				'sites'       => array(
 					'items'    => array(
 						"$blog_id" => array(
-							'ID'                           => $blog_id,
-							'URL'                          => site_url(),
-							'jetpack'                      => true,
-							'visible'                      => true,
-							'capabilities'                 => $empty_object,
-							'products'                     => array(),
-							'plan'                         => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
-							'options'                      => array(
+							'ID'            => $blog_id,
+							'URL'           => site_url(),
+							'jetpack'       => true,
+							'visible'       => true,
+							'capabilities'  => $empty_object,
+							'products'      => array(),
+							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'options'       => array(
 								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url' => admin_url(),
 							),
-							'has_opt_out_new_stats_notice' => self::has_opt_out_new_stats_notice(),
+							'stats_notices' => array( 'opt_out_new_stats' => self::has_opt_out_new_stats_notice() ),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),
