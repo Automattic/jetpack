@@ -1,6 +1,6 @@
 <?php
 /**
- * Class for functions shared by the Brute force protection module and its related json-endpoints
+ * Class for functions shared by the Brute force protection feature and its related json-endpoints
  *
  * @package automattic/jetpack-waf
  */
@@ -14,15 +14,15 @@ use Jetpack_Options;
  */
 class Brute_Force_Protection_Shared_Functions {
 	/**
-	 * Returns an array of IP objects that will never be blocked by the Protect module
+	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
 	 *
 	 * The array is segmented into a local whitelist which applies only to the current site
 	 * and a global whitelist which, for multisite installs, applies to the entire networko
 	 *
 	 * @return array
 	 */
-	public static function jetpack_protect_format_whitelist() {
-		$local_whitelist = self::jetpack_protect_get_local_whitelist();
+	public static function format_whitelist() {
+		$local_whitelist = self::get_local_whitelist();
 		$formatted       = array(
 			'local' => array(),
 		);
@@ -35,7 +35,7 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			$formatted['global'] = array();
-			$global_whitelist    = self::jetpack_protect_get_global_whitelist();
+			$global_whitelist    = self::get_global_whitelist();
 			if ( false === $global_whitelist ) {
 				// If the global whitelist has never been set, check for a legacy option set prior to 3.6.
 				$global_whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
@@ -51,7 +51,7 @@ class Brute_Force_Protection_Shared_Functions {
 		return $formatted;
 	}
 	/**
-	 * Gets the local Protect whitelist
+	 * Gets the local Brute force protection whitelist
 	 *
 	 * The 'local' part of the whitelist only really applies to multisite installs,
 	 * which can have a network wide whitelist, as well as a local list that applies
@@ -60,7 +60,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 *
 	 * @return array A list of IP Address objects or an empty array
 	 */
-	public static function jetpack_protect_get_local_whitelist() {
+	public static function get_local_whitelist() {
 		$whitelist = Jetpack_Options::get_option( 'protect_whitelist' );
 		if ( false === $whitelist ) {
 			// The local whitelist has never been set.
@@ -82,7 +82,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 *
 	 * @return array
 	 */
-	public static function jetpack_protect_get_global_whitelist() {
+	public static function get_global_whitelist() {
 		$whitelist = get_site_option( 'jetpack_protect_global_whitelist' );
 		if ( false === $whitelist ) {
 			// The global whitelist has never been set. Check for legacy site_option, or default to an empty array.
@@ -92,14 +92,14 @@ class Brute_Force_Protection_Shared_Functions {
 	}
 
 	/**
-	 * Jetpack Protect Save Whitelist.
+	 * Save Whitelist.
 	 *
 	 * @access public
 	 * @param mixed $whitelist Whitelist.
 	 * @param bool  $global (default: false) Global.
 	 * @return Bool.
 	 */
-	public static function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
+	public static function save_whitelist( $whitelist, $global = false ) {
 		$whitelist_error = false;
 		$new_items       = array();
 		if ( ! is_array( $whitelist ) ) {
@@ -131,7 +131,7 @@ class Brute_Force_Protection_Shared_Functions {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! self::jetpack_convert_ip_address( $low ) || ! self::jetpack_convert_ip_address( $high ) ) {
+				if ( ! self::convert_ip_address( $low ) || ! self::convert_ip_address( $high ) ) {
 					$whitelist_error = true;
 					break;
 				}
@@ -142,7 +142,7 @@ class Brute_Force_Protection_Shared_Functions {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! self::jetpack_convert_ip_address( $item ) ) {
+				if ( ! self::convert_ip_address( $item ) ) {
 					$whitelist_error = true;
 					break;
 				}
@@ -164,12 +164,12 @@ class Brute_Force_Protection_Shared_Functions {
 	}
 
 	/**
-	 * Jetpack Protect Get IP.
+	 * Get IP.
 	 *
 	 * @access public
 	 * @return string|false IP.
 	 */
-	public static function jetpack_protect_get_ip() {
+	public static function get_ip() {
 		$trusted_header_data = get_site_option( 'trusted_ip_header' );
 		if ( isset( $trusted_header_data->trusted_header ) && isset( $_SERVER[ $trusted_header_data->trusted_header ] ) ) {
 			$ip            = wp_unslash( $_SERVER[ $trusted_header_data->trusted_header ] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it below.
@@ -192,23 +192,23 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		$ip_count = count( $ips );
 		if ( 1 === $ip_count ) {
-			return self::jetpack_clean_ip( $ips[0] );
+			return self::clean_ip( $ips[0] );
 		} elseif ( $ip_count >= $segments ) {
 			$the_one = $ip_count - $segments;
-			return self::jetpack_clean_ip( $ips[ $the_one ] );
+			return self::clean_ip( $ips[ $the_one ] );
 		} else {
-			return self::jetpack_clean_ip( isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it.
+			return self::clean_ip( isset( $_SERVER['REMOTE_ADDR'] ) ? wp_unslash( $_SERVER['REMOTE_ADDR'] ) : null ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- jetpack_clean_ip does it.
 		}
 	}
 
 	/**
-	 * Jetpack Clean IP.
+	 * Clean IP.
 	 *
 	 * @access public
 	 * @param string $ip IP.
 	 * @return string|false IP.
 	 */
-	public static function jetpack_clean_ip( $ip ) {
+	public static function clean_ip( $ip ) {
 
 		// Some misconfigured servers give back extra info, which comes after "unless".
 		$ips = explode( ' unless ', $ip );
@@ -241,7 +241,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @param int $ip IP.
 	 * @return bool
 	 */
-	public static function jetpack_protect_ip_is_private( $ip ) {
+	public static function ip_is_private( $ip ) {
 		// We are dealing with ipv6, so we can simply rely on filter_var.
 		if ( false === strpos( $ip, '.' ) ) {
 			return ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE );
@@ -278,7 +278,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @param mixed $ip IP.
 	 * @return int|string|bool
 	 */
-	public static function jetpack_convert_ip_address( $ip ) {
+	public static function convert_ip_address( $ip ) {
 		if ( function_exists( 'inet_pton' ) ) {
 			return inet_pton( $ip );
 		}
@@ -298,7 +298,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @param mixed $range_high Range High.
 	 * @return Bool.
 	 */
-	public static function jetpack_protect_ip_address_is_in_range( $ip, $range_low, $range_high ) {
+	public static function ip_address_is_in_range( $ip, $range_low, $range_high ) {
 		// The inet_pton will give us binary string of an ipv4 or ipv6.
 		// We can then use strcmp to see if the address is in range.
 		if ( function_exists( 'inet_pton' ) ) {

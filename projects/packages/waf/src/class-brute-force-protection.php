@@ -207,7 +207,7 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Handle discplaying a security warning.
+	 * Handle displaying a security warning.
 	 */
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
@@ -533,7 +533,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		$whitelist = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_local_whitelist();
+		$whitelist = Brute_Force_Protection_Shared_Functions::get_local_whitelist();
 
 		if ( is_multisite() ) {
 			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
@@ -547,7 +547,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( Brute_Force_Protection_Shared_Functions::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -608,7 +608,7 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip ) {
@@ -636,7 +636,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_is_private( $ip ) ) {
+		if ( Brute_Force_Protection_Shared_Functions::ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -723,7 +723,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -851,7 +851,7 @@ class Brute_Force_Protection {
 		}
 
 		$request['action']            = $action;
-		$request['ip']                = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+		$request['ip']                = Brute_Force_Protection_Shared_Functions::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['wordpress_version'] = (string) $wp_version;

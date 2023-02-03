@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup  plugin is not active.
