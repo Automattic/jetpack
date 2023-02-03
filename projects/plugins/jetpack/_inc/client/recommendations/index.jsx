@@ -90,6 +90,12 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SITE_ACCELERATOR:
 			redirectPath = '/site-accelerator';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_BACKUP:
+			redirectPath = '/vaultpress-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_FOR_WOOCOMMERCE:
+			redirectPath = '/vaultpress-for-woocommerce';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
@@ -208,6 +214,12 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/site-accelerator">
 						<FeaturePrompt stepSlug="site-accelerator" />
+					</Route>
+					<Route path="/recommendations/vaultpress-backup">
+						<ResourcePrompt stepSlug="vaultpress-backup" />
+					</Route>
+					<Route path="/recommendations/vaultpress-for-woocommerce">
+						<ResourcePrompt stepSlug="vaultpress-for-woocommerce" />
 					</Route>
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />

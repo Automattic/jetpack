@@ -410,6 +410,7 @@ export const stepToRoute = {
 	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
+	'vaultpress-backup': '#/recommendations/vaultpress-backup',
 	// new steps (September 2022)
 	welcome__backup: '#/recommendations/welcome-backup',
 	welcome__complete: '#/recommendations/welcome-complete',

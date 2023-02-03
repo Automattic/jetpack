@@ -115,6 +115,11 @@ export const getSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLabel: __( 'Add', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'settings' ),
 			};
+		case 'vaultpress-backup':
+		case 'vaultpress-for-woocommerce':
+			return {
+				displayName: __( 'VaultPress Backup', 'jetpack' ),
+			};
 		default:
 			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
@@ -547,6 +552,68 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getJetpackCloudUrl( state, 'settings' ),
 				illustration: 'assistant-server-credentials',
 			};
+		case 'vaultpress-backup': {
+			const siteRawUrl = getSiteRawUrl( state );
+			return {
+				progressValue: 100,
+				question: __(
+					'Never lose your site, even if your host goes down (along with your backups)',
+					'jetpack'
+				),
+				description: '',
+				descriptionList: [
+					__(
+						'VaultPress Backup is built specifically for WordPress and has done over 270 million backups to date.',
+						'jetpack'
+					),
+					__(
+						'We store copies of your backups in our secure cloud, so your content will never be lost.',
+						'jetpack'
+					),
+					__(
+						'If your site goes down, you can restore it with one click from desktop or the Jetpack mobile app.',
+						'jetpack'
+					),
+					__( 'VaultPress Backup is so easy to use; no developer required.', 'jetpack' ),
+				],
+				ctaText: __( 'Try for $1 for 30 days', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
+				} ),
+				illustration: 'assistant-backup-welcome',
+			};
+		}
+		case 'vaultpress-for-woocommerce': {
+			const siteRawUrl = getSiteRawUrl( state );
+			return {
+				progressValue: 100,
+				question: __(
+					'Store downtime means lost sales. Do you have a cloud-based store backup solution?',
+					'jetpack'
+				),
+				description: __(
+					'VaultPress Backup saves your store in the cloud, so even if your host goes down, you’ll never lose a thing.',
+					'jetpack'
+				),
+				descriptionList: [
+					__(
+						'Restore your site to any past state in one click while keeping all orders and products current.',
+						'jetpack'
+					),
+					__( 'Backups are encrypted, keeping your store data secure.', 'jetpack' ),
+					__( 'Protect your customer data and stay GDPR compliant.', 'jetpack' ),
+					__( 'Custom WooCommerce table backups.', 'jetpack' ),
+					__( 'Easy to use; no developer required.', 'jetpack' ),
+				],
+				ctaText: __( 'Try for $1 for 30 days', 'jetpack' ),
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
+				} ),
+				illustration: 'assistant-backup-welcome',
+			};
+		}
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}
