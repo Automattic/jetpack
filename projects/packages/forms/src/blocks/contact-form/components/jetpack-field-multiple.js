@@ -2,6 +2,8 @@ import { Button } from '@wordpress/components';
 import { withInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
@@ -9,6 +11,7 @@ import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 function JetpackFieldMultiple( props ) {
 	const {
+		clientId,
 		id,
 		type,
 		instanceId,
@@ -21,6 +24,12 @@ function JetpackFieldMultiple( props ) {
 		options,
 		attributes,
 	} = props;
+	const formStyle = useFormStyle( clientId );
+
+	const classes = classnames( 'jetpack-field jetpack-field-multiple', {
+		'is-selected': isSelected,
+		'has-placeholder': options.length,
+	} );
 
 	const [ inFocus, setInFocus ] = useState( null );
 
@@ -60,10 +69,11 @@ function JetpackFieldMultiple( props ) {
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
 
 	return (
-		<div style={ blockStyle }>
+		<>
 			<div
 				id={ `jetpack-field-multiple-${ instanceId }` }
-				className="jetpack-field jetpack-field-multiple"
+				className={ classes }
+				style={ blockStyle }
 			>
 				<JetpackFieldLabel
 					required={ required }
@@ -73,6 +83,7 @@ function JetpackFieldMultiple( props ) {
 					isSelected={ isSelected }
 					resetFocus={ () => setInFocus( null ) }
 					attributes={ attributes }
+					style={ formStyle }
 				/>
 				<ol
 					className="jetpack-field-multiple__list"
@@ -112,7 +123,7 @@ function JetpackFieldMultiple( props ) {
 				type={ type }
 				width={ width }
 			/>
-		</div>
+		</>
 	);
 }
 

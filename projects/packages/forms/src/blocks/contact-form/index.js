@@ -76,6 +76,14 @@ export const settings = {
 			</div>
 		);
 	},
+	example: {},
+	styles: [
+		{ name: 'default', label: 'Default', isDefault: true },
+		{ name: 'animated', label: 'Animated' },
+		{ name: 'outlined', label: 'Outlined' },
+		// Need to figure out some details. Putting on hold for now
+		// { name: 'below', label: 'Below' },
+	],
 	variations,
 	category: 'contact-form',
 	transforms,
