@@ -834,10 +834,6 @@ class Brute_Force_Protection {
 	public function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version;
 
-		error_log( var_export( Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip(), true ) );
-		error_log( var_export( wp_json_encode( $this->get_headers() ), true ) );
-		error_log( var_export( $action, true ) );
-
 		$api_key = $this->maybe_get_protect_key();
 
 		$user_agent = '';
