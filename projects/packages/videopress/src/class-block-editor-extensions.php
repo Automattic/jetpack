@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\VideoPress;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
-use Jetpack;
 
 /**
  * VideoPress Extensions class.
@@ -158,7 +157,7 @@ class Block_Editor_Extensions {
 			'siteType'                    => $site_type,
 			'myJetpackConnectUrl'         => admin_url( 'admin.php?page=my-jetpack#/connection' ),
 			'jetpackVideoPressSettingUrl' => admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ),
-			'isVideoPressModuleActive'    => Jetpack::is_module_active( 'videopress' ),
+			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
 		);
 
 		// Expose initital state of site connection
