@@ -62,7 +62,7 @@ export function isVideoPressActive(): boolean {
 }
 
 /**
- * Return whether the standalong plugin is active.
+ * Return whether the standalone plugin is active.
  *
  * @returns {boolean} True if the feature is active, false otherwise.
  */
