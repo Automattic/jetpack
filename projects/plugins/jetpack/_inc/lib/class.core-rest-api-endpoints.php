@@ -3572,7 +3572,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			case 'protect':
 				// Protect.
 				$options['jetpack_protect_key']['current_value']              = get_site_option( 'jetpack_protect_key', false );
-				$options['jetpack_protect_global_whitelist']['current_value'] = Brute_Force_Protection_Shared_Functions::jetpack_protect_format_whitelist();
+				$options['jetpack_protect_global_whitelist']['current_value'] = Brute_Force_Protection_Shared_Functions::format_whitelist();
 				break;
 
 			case 'related-posts':

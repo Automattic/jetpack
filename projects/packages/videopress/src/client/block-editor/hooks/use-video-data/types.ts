@@ -8,6 +8,7 @@ export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
 	skipRatingControl: boolean;
+	maybeIsPrivate: boolean;
 };
 
 export type VideoDataProps = {

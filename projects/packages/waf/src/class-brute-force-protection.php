@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\Modules;
-use Jetpack;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 
@@ -208,7 +207,7 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Handle discplaying a security warning.
+	 * Handle displaying a security warning.
 	 */
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
@@ -436,14 +435,10 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Set up the Protect configuration page
-	 *
-	 * @uses Jetpack::enable_module_configurable
+	 * Set up the Protect configuration page in the Jetpack Settings screen
 	 */
 	public function modules_loaded() {
-		if ( class_exists( 'Jetpack' ) ) {
-			Jetpack::enable_module_configurable( __FILE__ );
-		}
+		add_filter( 'jetpack_module_configurable_protect', '__return_true' );
 	}
 
 	/**
@@ -538,7 +533,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		$whitelist = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_local_whitelist();
+		$whitelist = Brute_Force_Protection_Shared_Functions::get_local_whitelist();
 
 		if ( is_multisite() ) {
 			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
@@ -552,7 +547,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( Brute_Force_Protection_Shared_Functions::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -613,7 +608,7 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip ) {
@@ -641,7 +636,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( Brute_Force_Protection_Shared_Functions::jetpack_protect_ip_is_private( $ip ) ) {
+		if ( Brute_Force_Protection_Shared_Functions::ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -728,7 +723,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
+		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -839,20 +834,29 @@ class Brute_Force_Protection {
 	public function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version;
 
+		error_log( var_export( Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip(), true ) );
+		error_log( var_export( wp_json_encode( $this->get_headers() ), true ) );
+		error_log( var_export( $action, true ) );
+
 		$api_key = $this->maybe_get_protect_key();
 
-		$plugin_and_version = class_exists( 'Jetpack' ) ? 'Jetpack/' . constant( 'JETPACK__VERSION' ) : 'JetpackProtect/' . constant( 'JETPACK_PROTECT_VERSION' );
+		$user_agent = '';
 
-		$user_agent = "WordPress/{$wp_version} | " . $plugin_and_version;
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$user_agent                 = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
+			$request['jetpack_version'] = constant( 'JETPACK__VERSION' );
+		} else {
+			$user_agent                 = "WordPress/{$wp_version} | JetpackProtect/" . constant( 'JETPACK_PROTECT_VERSION' );
+			$request['protect_version'] = constant( 'JETPACK_PROTECT_VERSION' );
+		}
 
-		$request['action']             = $action;
-		$request['ip']                 = Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip();
-		$request['host']               = $this->get_local_host();
-		$request['headers']            = wp_json_encode( $this->get_headers() );
-		$request['plugin_and_version'] = $plugin_and_version;
-		$request['wordpress_version']  = (string) $wp_version;
-		$request['api_key']            = $api_key;
-		$request['multisite']          = '0';
+		$request['action']            = $action;
+		$request['ip']                = Brute_Force_Protection_Shared_Functions::get_ip();
+		$request['host']              = $this->get_local_host();
+		$request['headers']           = wp_json_encode( $this->get_headers() );
+		$request['wordpress_version'] = (string) $wp_version;
+		$request['api_key']           = $api_key;
+		$request['multisite']         = '0';
 
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
