@@ -981,7 +981,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 		// Input.
 		$input = (
-		'textarea' === $attributes['type']
+			'textarea' === $attributes['type']
 			? $this->getFirstElement( $wrapper_div, 'textarea' )
 			: $this->getFirstElement( $wrapper_div, 'input' )
 		);
