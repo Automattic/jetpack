@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { Spinner, withNotices, Button, ExternalLink } from '@wordpress/components';
