@@ -411,6 +411,7 @@ export const stepToRoute = {
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
 	'vaultpress-backup': '#/recommendations/vaultpress-backup',
+	'vaultpress-for-woocommerce': '#/recommendations/vaultpress-for-woocommerce',
 	// new steps (September 2022)
 	welcome__backup: '#/recommendations/welcome-backup',
 	welcome__complete: '#/recommendations/welcome-complete',

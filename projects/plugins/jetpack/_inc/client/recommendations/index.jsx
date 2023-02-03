@@ -23,6 +23,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
+import QuerySiteProducts from '../components/data/query-site-products';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ProductPurchased } from './product-purchased';
 import { FeaturePrompt } from './prompts/feature-prompt';
@@ -179,6 +180,7 @@ const RecommendationsComponent = props => {
 			<QuerySite />
 			<QuerySitePlugins />
 			<QuerySiteDiscount />
+			<QuerySiteProducts />
 			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">

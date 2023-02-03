@@ -1,6 +1,7 @@
+import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
@@ -16,6 +17,11 @@ import {
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 import { isFeatureActive } from '../state/recommendations';
+import {
+	getSiteProduct,
+	getSiteProductMonthlyCost,
+	isFetchingSiteProducts,
+} from '../state/site-products';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -554,6 +560,17 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'vaultpress-backup': {
 			const siteRawUrl = getSiteRawUrl( state );
+			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const price = formatCurrency( monthlyPrice, product?.currency_code );
+			const ctaText = isFetchingSiteProducts( state )
+				? __( 'Try for 30 days', 'jetpack' )
+				: sprintf(
+						/* translators: %s: is a formatted currency. e.g. $1 */
+						__( 'Try for %s for 30 days', 'jetpack' ),
+						price
+				  );
+
 			return {
 				progressValue: 100,
 				question: __(
@@ -576,7 +593,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					),
 					__( 'VaultPress Backup is so easy to use; no developer required.', 'jetpack' ),
 				],
-				ctaText: __( 'Try for $1 for 30 days', 'jetpack' ),
+				ctaText: ctaText,
 				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
@@ -586,6 +603,17 @@ export const getStepContent = ( state, stepSlug ) => {
 		}
 		case 'vaultpress-for-woocommerce': {
 			const siteRawUrl = getSiteRawUrl( state );
+			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const price = formatCurrency( monthlyPrice, product?.currency_code );
+			const ctaText = isFetchingSiteProducts( state )
+				? __( 'Try for 30 days', 'jetpack' )
+				: sprintf(
+						/* translators: %s: is a formatted currency. e.g. $1 */
+						__( 'Try for %s for 30 days', 'jetpack' ),
+						price
+				  );
+
 			return {
 				progressValue: 100,
 				question: __(
@@ -606,7 +634,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					__( 'Custom WooCommerce table backups.', 'jetpack' ),
 					__( 'Easy to use; no developer required.', 'jetpack' ),
 				],
-				ctaText: __( 'Try for $1 for 30 days', 'jetpack' ),
+				ctaText: ctaText,
 				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
