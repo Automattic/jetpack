@@ -1179,18 +1179,34 @@ class Contact_Form_Plugin {
 	 * @return mixed
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                                        = get_post_meta( $post_id, '_feedback_extra_fields', true );
-		$md[ __( 'Date', 'jetpack-forms' ) ]       = get_the_date( DATE_RFC3339, $post_id );
-		$content_fields                            = self::parse_fields_from_content( $post_id );
-		$md[ __( 'IP Address', 'jetpack-forms' ) ] = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		$md                     = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
+		$content_fields         = self::parse_fields_from_content( $post_id );
+		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
-		$md[ _x( 'Consent', 'noun', 'jetpack-forms' ) ] = 0;
+		$md['90_consent'] = 0;
 		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
 			$all_fields = $content_fields['_feedback_all_fields'];
 			// check if the email_marketing_consent field exists.
 			if ( isset( $all_fields['email_marketing_consent'] ) ) {
-				$md[ _x( 'Consent', 'noun', 'jetpack-forms' ) ] = $all_fields['email_marketing_consent'];
+				$md['90_consent'] = $all_fields['email_marketing_consent'];
+			}
+			// check if the feedback entry has a title.
+			if ( isset( $all_fields['entry_title'] ) ) {
+				$md['-9_title'] = $all_fields['entry_title'];
+			}
+
+			// check if the feedback entry has a permalink we can use.
+			if ( ! empty( $all_fields['entry_permalink'] ) ) {
+				$parsed          = wp_parse_url( $all_fields['entry_permalink'] );
+				$md['-6_source'] = '';
+				if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
+					$md['-6_source'] .= $parsed['path'];
+				}
+				if ( $parsed && ! empty( $parsed['query'] ) ) {
+					$md['-6_source'] .= '?' . $parsed['query'];
+				}
 			}
 		}
 
@@ -1231,7 +1247,7 @@ class Contact_Form_Plugin {
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
 			'_feedback_main_comment' => '4_Comment',
-			'_feedback_ip'           => __( 'IP Address', 'jetpack-forms' ),
+			'_feedback_ip'           => '93_ip_address',
 		);
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
@@ -1614,6 +1630,8 @@ class Contact_Form_Plugin {
 		 */
 		sort( $field_names, SORT_NUMERIC );
 
+		$well_known_column_names = $this->get_well_known_column_names();
+
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
@@ -1627,10 +1645,15 @@ class Contact_Form_Plugin {
 			 * If it is not - add an empty string, which is just a placeholder in the CSV.
 			 */
 			foreach ( $field_names as $single_field_name ) {
+				$renamed_field = isset( $well_known_column_names[ $single_field_name ] )
+					? $well_known_column_names[ $single_field_name ]
+					: $single_field_name;
+
 				/**
-				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
+				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
 				 */
-				$renamed_field = preg_replace( '/^(\d{1,2}_)/', '', $single_field_name );
+				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -1643,6 +1666,25 @@ class Contact_Form_Plugin {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Returns an array of [prefixed column name] => [translated column name], used on export.
+	 * Prefix indicates the position in which the column will be rendered:
+	 * - Negative numbers render BEFORE any form field/value column: -5, -3, -1...
+	 * - Positive values render AFTER any form field/value column: 1, 30, 93...
+	 *   Mind using high numbering on these ones as the prefix is used on regular inputs: 1_Name, 2_Email, etc
+	 *
+	 * @return array
+	 */
+	public function get_well_known_column_names() {
+		return array(
+			'-9_title'         => __( 'Title', 'jetpack-forms' ),
+			'-6_source'        => __( 'Source', 'jetpack-forms' ),
+			'-3_response_date' => __( 'Response Date', 'jetpack-forms' ),
+			'90_consent'       => _x( 'Consent', 'noun', 'jetpack-forms' ),
+			'93_ip_address'    => __( 'IP Address', 'jetpack-forms' ),
+		);
 	}
 
 	/**
@@ -1903,6 +1945,7 @@ class Contact_Form_Plugin {
 			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
+			// TODO: some explanation on this regex could help
 			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
 			if ( count( $matches ) > 1 ) {
