@@ -44,7 +44,7 @@ export function isVideoPressModuleActive(): boolean {
 }
 
 /**
- * Chek whether the VideoPress feature is active,
+ * Return whether the VideoPress feature is active,
  * considering the user connection status
  * and also the module status.
  *
@@ -59,4 +59,13 @@ export function isVideoPressActive(): boolean {
 	}
 
 	return isVideoPressModuleActive();
+}
+
+/**
+ * Return whether the standalong plugin is active.
+ *
+ * @returns {boolean} True if the feature is active, false otherwise.
+ */
+export function isStandaloneActive(): boolean {
+	return window?.videoPressEditorState?.isStandAloneActive === '1';
 }

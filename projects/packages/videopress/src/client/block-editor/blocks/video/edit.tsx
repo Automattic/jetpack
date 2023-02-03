@@ -19,7 +19,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { isVideoPressActive, isVideoPressModuleActive } from '../../../lib/connection';
+import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
@@ -50,7 +50,7 @@ const { myJetpackConnectUrl, jetpackVideoPressSettingUrl } = window?.videoPressE
  * It considers VideoPress active
  * if the user is connected and the module is active.
  */
-const isModuleActive = isVideoPressModuleActive();
+const isStandalonePluginActive = isStandaloneActive();
 const isActive = isVideoPressActive();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
@@ -436,7 +436,7 @@ export default function VideoPressEdit( {
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
-							if ( ! isModuleActive ) {
+							if ( ! isStandalonePluginActive ) {
 								return ( window.location.href = jetpackVideoPressSettingUrl );
 							}
 							window.location.href = myJetpackConnectUrl;
@@ -593,7 +593,7 @@ export default function VideoPressEdit( {
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
-					if ( ! isModuleActive ) {
+					if ( ! isStandalonePluginActive ) {
 						return ( window.location.href = jetpackVideoPressSettingUrl );
 					}
 
