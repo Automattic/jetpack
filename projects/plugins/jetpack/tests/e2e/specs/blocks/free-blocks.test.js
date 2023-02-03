@@ -146,15 +146,10 @@ test.describe( 'Free blocks', () => {
 
 		test( 'Subscribe block', async ( { page } ) => {
 			await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
-			let block;
+			const block = new SubscribeBlock( null, page );
 
-			await test.step( 'Can visit the block editor and add a Subscribe block', async () => {
-				const blockId = await blockEditor.insertBlock(
-					SubscribeBlock.name(),
-					SubscribeBlock.title()
-				);
-				block = new SubscribeBlock( blockId, page );
-				await block.checkBlock();
+			await test.step( 'Insert a Subscribe block', async () => {
+				await block.insertBlock( new BlockEditorPage( page ) );
 			} );
 
 			await test.step( 'Can publish a post with a Subscribe block', async () => {
@@ -192,15 +187,10 @@ test.describe( 'Free blocks', () => {
 
 		test( 'Subscribe block', async ( { page } ) => {
 			await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
-			let block;
+			const block = new SubscribeBlock( null, page );
 
 			await test.step( 'Can insert a Subscribe block', async () => {
-				const blockId = await siteEditor.insertBlock(
-					SubscribeBlock.name(),
-					SubscribeBlock.title()
-				);
-				block = new SubscribeBlock( blockId, page );
-				await block.checkBlock();
+				await block.insertBlock( new SiteEditorPage( page ) );
 			} );
 
 			let newTab;
