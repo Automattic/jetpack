@@ -25,6 +25,10 @@ vendor/autoload_packages.php                    production-include
 vendor/automattic/**                            production-include
 vendor/composer/**                              production-include
 vendor/jetpack-autoloader/**                    production-include
+vendor/dompdf/**                                production-include
+vendor/phenx/**                                 production-include
+vendor/masterminds/html5/**                     production-include
+vendor/sabberworm/php-css-parser/**             production-include
 **/css/*.min.rtl.*                              production-include
 **/css/**/*.min.rtl.*                           production-include
 **/css/*.min.css                                production-include
@@ -32,6 +36,7 @@ vendor/jetpack-autoloader/**                    production-include
 **/css/integrations/*                           production-include
 **/js/*.min.js                                  production-include
 **/js/welcome-to-zbs/*.min.js                   production-include
+**/js/*.min.js.LICENSE.txt                      production-include
 
 
 # Files to exclude from the mirror repo, but included in the monorepo.
@@ -57,4 +62,3 @@ webpack.config.js                               production-exclude
 **/css/**/*.min.css.map                         production-exclude
 **/js/*.min.js.map                              production-exclude
 **/js/**/*.min.js.map                           production-exclude
-**/js/*.min.js.LICENSE.txt                      production-exclude
