@@ -24,7 +24,7 @@ export class MapMarker extends Component {
 		return [ point.coordinates.longitude, point.coordinates.latitude ];
 	};
 	renderMarker() {
-		const { map, point, mapboxgl, markerColor, mapRef } = this.props;
+		const { map, point, maplibregl, markerColor, mapRef } = this.props;
 		const { handleClick } = this;
 		const mapboxPoint = [ point.coordinates.longitude, point.coordinates.latitude ];
 		const { currentDoc } = getLoadContext( mapRef.current );
@@ -33,7 +33,7 @@ export class MapMarker extends Component {
 			this.marker.setLngLat( mapboxPoint );
 		} else {
 			el.className = 'wp-block-jetpack-map-marker';
-			this.marker = new mapboxgl.Marker( el )
+			this.marker = new maplibregl.Marker( el )
 				.setLngLat( mapboxPoint )
 				.setOffset( [ 0, -19 ] )
 				.addTo( map );
@@ -54,7 +54,7 @@ MapMarker.defaultProps = {
 	point: {},
 	map: null,
 	markerColor: '#000000',
-	mapboxgl: null,
+	maplibregl: null,
 	onClick: () => {},
 };
 

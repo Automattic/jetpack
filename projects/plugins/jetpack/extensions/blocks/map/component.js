@@ -20,7 +20,7 @@ export class Map extends Component {
 			map: null,
 			fit_to_bounds: false,
 			loaded: false,
-			mapboxgl: null,
+			maplibregl: null,
 		};
 
 		// Refs
@@ -31,7 +31,7 @@ export class Map extends Component {
 	}
 	render() {
 		const { points, admin, children, markerColor } = this.props;
-		const { map, activeMarker, mapboxgl } = this.state;
+		const { map, activeMarker, maplibregl } = this.state;
 		const { onMarkerClick, deleteActiveMarker, updateActiveMarker } = this;
 		const currentPoint = get( activeMarker, 'props.point' ) || {};
 		const { title, caption } = currentPoint;
@@ -43,7 +43,7 @@ export class Map extends Component {
 		} );
 		const mapMarkers =
 			map &&
-			mapboxgl &&
+			maplibregl &&
 			points.map( ( point, index ) => {
 				return (
 					<MapMarker
@@ -52,17 +52,17 @@ export class Map extends Component {
 						point={ point }
 						index={ index }
 						map={ map }
-						mapboxgl={ mapboxgl }
+						maplibregl={ maplibregl }
 						markerColor={ markerColor }
 						onClick={ onMarkerClick }
 					/>
 				);
 			} );
-		const infoWindow = mapboxgl && (
+		const infoWindow = maplibregl && (
 			<InfoWindow
 				activeMarker={ activeMarker }
 				map={ map }
-				mapboxgl={ mapboxgl }
+				maplibregl={ maplibregl }
 				unsetActiveMarker={ () => this.setState( { activeMarker: null } ) }
 			>
 				{ activeMarker && admin && (
@@ -222,7 +222,7 @@ export class Map extends Component {
 	};
 	setBoundsByMarkers = () => {
 		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
-		const { map, activeMarker, mapboxgl, zoomControl, boundsSetProgrammatically } = this.state;
+		const { map, activeMarker, maplibregl, zoomControl, boundsSetProgrammatically } = this.state;
 		if ( ! map ) {
 			return;
 		}
@@ -240,7 +240,7 @@ export class Map extends Component {
 		if ( activeMarker ) {
 			return;
 		}
-		const bounds = new mapboxgl.LngLatBounds();
+		const bounds = new maplibregl.LngLatBounds();
 		points.forEach( point => {
 			bounds.extend( [ point.coordinates.longitude, point.coordinates.latitude ] );
 		} );
@@ -310,10 +310,10 @@ export class Map extends Component {
 		const { apiKey } = this.props;
 		const { currentWindow } = getLoadContext( this.mapRef.current );
 		const callbacks = {
-			'mapbox-gl-js': () => {
-				waitForObject( currentWindow, 'mapboxgl' ).then( mapboxgl => {
-					mapboxgl.accessToken = apiKey;
-					this.setState( { mapboxgl: mapboxgl }, this.scriptsLoaded );
+			'maplibre-gl-js': () => {
+				waitForObject( currentWindow, 'maplibregl' ).then( maplibregl => {
+					maplibregl.accessToken = apiKey;
+					this.setState( { maplibregl: maplibregl }, this.scriptsLoaded );
 				} );
 			},
 		};
@@ -322,12 +322,11 @@ export class Map extends Component {
 	}
 
 	initMap( mapCenter ) {
-		const { mapboxgl } = this.state;
+		const { maplibregl } = this.state;
 		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
-
 		try {
-			map = new mapboxgl.Map( {
+			map = new maplibregl.Map( {
 				container: this.mapRef.current,
 				style: this.getMapStyle(),
 				center: this.googlePoint2Mapbox( mapCenter ),
@@ -347,12 +346,12 @@ export class Map extends Component {
 			map.scrollZoom.disable();
 		}
 
-		const fullscreenControl = new mapboxgl.FullscreenControl();
+		const fullscreenControl = new maplibregl.FullscreenControl();
 
 		map.on( 'error', e => {
 			onError( 'mapbox_error', e.error.message );
 		} );
-		const zoomControl = new mapboxgl.NavigationControl( {
+		const zoomControl = new maplibregl.NavigationControl( {
 			showCompass: false,
 			showZoom: true,
 		} );
