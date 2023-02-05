@@ -108,9 +108,9 @@ class Status {
 	 * @param array $status The new status to be cached.
 	 * @return void
 	 */
-	public static function update_option( $status ) {
+	public static function update_status_option( $status ) {
 		// TODO: Sanitize $status.
-		update_option( static::OPTION_NAME, $status );
+		update_option( static::OPTION_NAME, maybe_serialize( $status ) );
 		$end_date = self::get_cache_end_date_by_status( $status );
 		update_option( static::OPTION_TIMESTAMP_NAME, $end_date );
 	}
