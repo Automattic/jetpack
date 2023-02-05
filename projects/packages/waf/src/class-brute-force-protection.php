@@ -393,10 +393,17 @@ class Brute_Force_Protection {
 		 *
 		 * @param array Information about failed login attempt
 		 *   [
-		 *     'login' => (string) Username or email used in failed login attempt
+		 *     'login'             => (string) Username or email used in failed login attempt
+		 *     'has_login_ability' => (bool) Whether the user has the ability to login based on their IP address
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
+		do_action(
+			'jpp_log_failed_attempt',
+			array(
+				'login'             => $login_user,
+				'has_login_ability' => $this->has_login_ability(),
+			)
+		);
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
