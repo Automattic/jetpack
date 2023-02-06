@@ -308,7 +308,7 @@ export function useSyncMedia(
 				updateInitialState( dataToUpdate );
 
 				// Privacy settings attribute update
-				if ( dataToUpdate?.privacy_setting !== 2 ) {
+				if ( dataToUpdate.privacy_setting && dataToUpdate.privacy_setting !== 2 ) {
 					setAttributes( {
 						isPrivate: dataToUpdate.privacy_setting === 1,
 					} );
