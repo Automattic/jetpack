@@ -19,6 +19,7 @@ export type GetMediaTokenArgsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
 	adminAjaxAPI?: string;
+	filename?: string;
 };
 
 export type AdminAjaxTokenProps = AdminAjaxTokensProps[ number ];
