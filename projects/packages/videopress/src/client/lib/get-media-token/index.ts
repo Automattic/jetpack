@@ -22,7 +22,7 @@ const getMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument } = args;
+	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument, filename } = args;
 	return new Promise( function ( resolve, reject ) {
 		const adminAjaxAPI =
 			adminAjaxAPIArgument ||
@@ -38,11 +38,15 @@ const getMediaToken = function (
 			action: AdminAjaxTokenProps;
 			guid?: VideoGUID;
 			post_id?: string;
+			filename?: string;
 		} = { action: 'videopress-get-playback-jwt' };
 
 		switch ( scope ) {
 			case 'upload':
 				fetchData.action = 'videopress-get-upload-token';
+				if ( filename ) {
+					fetchData.filename = filename;
+				}
 				break;
 
 			case 'upload-jwt':
