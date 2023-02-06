@@ -23,7 +23,7 @@ const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: stri
 	return new Promise( function ( resolve, reject ) {
 		const { kind, srcLang, label, tmpFile: vttFile } = track;
 
-		getMediaToken( 'upload' ).then( ( { token, blogId } ) => {
+		getMediaToken( 'upload', { filename: vttFile.name } ).then( ( { token, blogId } ) => {
 			const body = new FormData();
 			body.append( 'kind', kind );
 			body.append( 'srclang', srcLang );
