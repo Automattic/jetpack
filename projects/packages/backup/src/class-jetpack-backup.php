@@ -523,7 +523,7 @@ class Jetpack_Backup {
 		}
 
 		// Checking for existing backup plan is costly, so only check if there's an appropriate license.
-		return $license_found && static::has_backup_plan();
+		return $license_found && ! static::has_backup_plan();
 	}
 
 	/**
