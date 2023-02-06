@@ -15,13 +15,11 @@ use WorDBless\BaseTestCase;
  */
 class Test_Blaze extends BaseTestCase {
 	/**
-	 * Set up before each test.
-	 *
-	 * @before
+	 * Set up before the class.
+	 * This is run once before all tests.
 	 */
-	public function set_up() {
-		// I don't like putting this here, but we can't use setUpBeforeClass with WorDBless at this time.
-		// https://github.com/Automattic/wordbless/issues/52
+	public static function set_up_before_class() {
+		// Create a test admin user and set it as the current user.
 		$admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user',
@@ -30,6 +28,14 @@ class Test_Blaze extends BaseTestCase {
 			)
 		);
 		wp_set_current_user( $admin_id );
+	}
+
+	/**
+	 * Set up before each test.
+	 *
+	 * @before
+	 */
+	public function set_up() {
 		Blaze::$script_path = 'js/editor.js';
 	}
 
