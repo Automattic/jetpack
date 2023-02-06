@@ -152,6 +152,28 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		</p><?php
 	}
 
+	/**
+	 * Renders the HTML of a numeric field identified by $field_key with value $value.
+	 *
+	 * @param string $field_key The key associated with this field, used (for example) in the input name.
+	 * @param object $field_settings Row from the meta table that needs to be updated.
+	 * @param object $value Row from the meta table that needs to be updated.
+	 *
+	 * @return void
+	 */
+	private function render_numeric_field( $field_key, $field_settings, $value ) {
+		$extra_attributes = '';
+		if ( isset( $field_settings['read_only'] ) && $field_settings['read_only'] ) {
+			$extra_attributes .= ' readonly disabled ';
+		}
+		?>
+		<p>
+			<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo esc_html( $field_settings[1] ); ?>:</label>
+			<input <?php echo esc_attr( $extra_attributes ); ?> style="width: 130px;display: inline-block;;" type="text" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control  numbersOnly" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" value="<?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>" />
+		</p>
+		<?php
+	}
+
 	function render_date_field( $field_key, $field_value, $value ) {
 		$extra_attributes = "";
 		if ( isset( $field_value[ 'read_only' ] ) && $field_value[ 'read_only' ] ) {
@@ -468,6 +490,12 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 			case 'checkbox':
 				$this->render_checkbox_field( $fieldK, $fieldV, $value, $postPrefix );
 				break;
+
+			case 'numberint':
+			case 'numberfloat':
+				$this->render_numeric_field( $fieldK, $fieldV, $value ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				break;
+
 			default:
 				do_action( 'jpcrm_client_portal_detail_render_field_by_type', $type, $fieldK, $fieldV, $value, $postPrefix, $showCountryFields, $zbsCustomer );
 				break;
