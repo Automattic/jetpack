@@ -29,7 +29,7 @@ class Jetpack_Comments_Settings {
 	/**
 	 * The default comment form color scheme - an empty array to start with
 	 *
-	 * @var string
+	 * @var array
 	 */
 	public $color_schemes = array();
 
