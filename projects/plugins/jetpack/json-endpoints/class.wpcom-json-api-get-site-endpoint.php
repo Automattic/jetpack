@@ -793,6 +793,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$options[ $key ] = $site_creation_flow;
 					}
 					break;
+				case 'site_source_slug':
+					$site_source_slug = $site->get_site_source_slug();
+					if ( $site_source_slug ) {
+						$options[ $key ] = $site_source_slug;
+					}
+					break;
 				case 'is_cloud_eligible':
 					$options[ $key ] = $site->is_cloud_eligible();
 					break;
