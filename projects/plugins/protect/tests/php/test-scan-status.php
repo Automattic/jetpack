@@ -42,6 +42,15 @@ class Test_Scan_Status extends BaseTestCase {
 	}
 
 	/**
+	 * Get a sample invalid response
+	 *
+	 * @return string
+	 */
+	public function get_sample_invalid_response() {
+		return 'Invalid response';
+	}
+
+	/**
 	 * Get a sample response
 	 *
 	 * @return object
@@ -444,15 +453,19 @@ class Test_Scan_Status extends BaseTestCase {
 	 */
 	public function get_cache_end_date_by_status_data() {
 		return array(
-			'null'  => array(
+			'null'    => array(
 				'initial',
 				null,
 			),
-			'empty' => array(
+			'invalid' => array(
+				'initial',
+				$this->get_sample_invalid_response(),
+			),
+			'empty'   => array(
 				'initial',
 				$this->get_sample_empty_response(),
 			),
-			'full'  => array(
+			'full'    => array(
 				'full',
 				$this->get_sample_status(),
 			),
@@ -469,6 +482,9 @@ class Test_Scan_Status extends BaseTestCase {
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
 		$timestamp = Scan_Status::get_cache_end_date_by_status( $status );
 
+		if ( ! is_object( $status ) ) {
+			$this->assertSame( time() + Scan_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
+		}
 		if ( 'initial' === $check_type ) {
 			$this->assertSame( time() + Scan_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
