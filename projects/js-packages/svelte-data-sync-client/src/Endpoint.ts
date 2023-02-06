@@ -1,0 +1,37 @@
+import { z } from 'zod';
+import { API, RequestMethods, RequestParams } from './API';
+
+/**
+ * Every SyncedStore option has its own API Endpoint.
+ */
+export class API_Endpoint< T extends RequestParams > {
+	public nonce = '';
+
+	private endpoint: string;
+
+	constructor( private api: API, private name: string, private schema: z.ZodSchema ) {
+		/*
+		 * Convert `widget_name` to `widget-name` to match the endpoint.
+		 */
+		this.endpoint = this.name.replace( '_', '-' );
+	}
+
+	public async validatedRequest( method: RequestMethods = 'GET', params?: T ): Promise< T > {
+		const request = this.api.request( this.endpoint, method, this.nonce, params );
+		return await request.then( data => {
+			return this.schema.parse( data );
+		} );
+	}
+
+	public async GET(): Promise< T > {
+		return await this.validatedRequest( 'GET' );
+	}
+
+	public POST = async ( params: T ): Promise< T > => {
+		return await this.validatedRequest( 'POST', params );
+	};
+
+	public DELETE = async () => {
+		return await this.validatedRequest( 'DELETE' );
+	};
+}
