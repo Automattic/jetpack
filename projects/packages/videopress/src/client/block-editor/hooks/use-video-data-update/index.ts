@@ -307,11 +307,21 @@ export function useSyncMedia(
 				// Update local state with fresh video data.
 				updateInitialState( dataToUpdate );
 
-				// Privacy settings attribute update
-				if ( dataToUpdate.privacy_setting && dataToUpdate.privacy_setting !== 2 ) {
-					setAttributes( {
-						isPrivate: dataToUpdate.privacy_setting === 1,
-					} );
+				/*
+				 * Update isPrivate attribute:
+				 * `is_private` is a read-only metadata field.
+				 * The VideoPress API provides its value
+				 * and depends on the `privacy_setting`
+				 * and `private_enabled_for_site` fields.
+				 */
+				if ( dataToUpdate.privacy_setting ) {
+					const isPrivateVideo =
+						dataToUpdate.privacy_setting !== 2
+							? dataToUpdate.privacy_setting === 1
+							: videoData.private_enabled_for_site;
+
+					debug( 'Updating isPrivate attribute: %o', isPrivateVideo );
+					setAttributes( { isPrivate: isPrivateVideo } );
 				}
 
 				// | Video Chapters feature |
