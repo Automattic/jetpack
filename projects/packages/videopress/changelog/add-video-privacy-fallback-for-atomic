@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: use the site privacy setting as the default VideoPress video privacy setting when the site lives in WPCOM.
