@@ -31,7 +31,8 @@ class Data {
 	 */
 	public static function get_videopress_videos_private_for_site() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', false ) );
+			$blog_is_private = ( intval( get_blog_option( get_current_blog_id(), 'blog_public', '' ) ) === -1 );
+			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', $blog_is_private ) );
 		} else {
 			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
 		}
