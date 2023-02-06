@@ -841,3 +841,9 @@
 .block-editor-block-inspector .components-base-control .components-base-control:last-child {
 	margin-bottom: 0;
 }
+
+.jetpack-contact-form__hidden-fields-panel {
+	& .components-base-control {
+		margin-bottom: 0;
+	}
+}

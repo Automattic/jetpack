@@ -19,7 +19,7 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  * Feature: Writing
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
-
+// add_filter( 'jetpack_contact_form_use_package', '__return_true' );
 /**
  * Whether to load the newer Jetpack Forms package.
  *

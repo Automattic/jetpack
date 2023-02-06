@@ -40,4 +40,8 @@ export default {
 			sendToSalesforce: false,
 		},
 	},
+	hiddenFields: {
+		type: 'array',
+		default: [],
+	},
 };

@@ -1376,7 +1376,7 @@ class Grunion_Contact_Form_Plugin {
 			}
 
 			// check if the feedback entry has a permalink we can use.
-			if ( isset( $all_fields['entry_permalink'] ) && ! empty( $all_fields['entry_permalink'] ) ) {
+			if ( ! empty( $all_fields['entry_permalink'] ) ) {
 				$parsed          = wp_parse_url( $all_fields['entry_permalink'] );
 				$md['-6_source'] = '';
 				if ( $parsed && ! empty( $parsed['path'] ) && strpos( $parsed['path'], '/' ) === 0 ) {
@@ -1386,7 +1386,22 @@ class Grunion_Contact_Form_Plugin {
 					$md['-6_source'] .= '?' . $parsed['query'];
 				}
 			}
+
+			// add any hidden (not private) field to the array
+			$non_exportable_fields = array( 'email_marketing_consent', 'entry_title', 'entry_permalink', 'feedback_id' );
+			foreach ( $all_fields as $field_name => $field_value ) {
+				if ( in_array( $field_name, $non_exportable_fields, true ) ) {
+					continue;
+				}
+
+				if ( ! preg_match( '/^(\d{1,2}_)/', $field_name ) ) {
+					$md[ '85_' . $field_name ] = $field_value;
+				} else {
+					$md[ $field_name ] = $field_value;
+				}
+			}
 		}
+
 
 		return $md;
 	}
@@ -1421,10 +1436,10 @@ class Grunion_Contact_Form_Plugin {
 		$field_mapping = array(
 			// TODO: Commented out since we'll be re-introducing this after some other changes
 			// '_feedback_subject'      => __( 'Contact Form', 'jetpack' ),
-			'_feedback_author'       => '1_Name',
-			'_feedback_author_email' => '2_Email',
-			'_feedback_author_url'   => '3_Website',
-			'_feedback_main_comment' => '4_Comment',
+			// '_feedback_author'       => '1_Name',
+			// '_feedback_author_email' => '2_Email',
+			// '_feedback_author_url'   => '3_Website',
+			// '_feedback_main_comment' => '4_Comment',
 			'_feedback_ip'           => '93_ip_address',
 		);
 
@@ -1744,7 +1759,7 @@ class Grunion_Contact_Form_Plugin {
 			 * Fetch post main data, because we need the subject and author data for the feedback form.
 			 */
 			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
-
+			error_log( 'post_real_data ' . print_r( $post_real_data, true ) );
 			/**
 			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
 			 * then something must be wrong with the feedback post. Skip it.
@@ -1766,12 +1781,12 @@ class Grunion_Contact_Form_Plugin {
 			 * Map parsed fields to proper field names
 			 */
 			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data );
-
+			error_log( 'mapped_fields ' . print_r( $mapped_fields, true ) );
 			/**
 			 * Fetch post meta data.
 			 */
 			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id );
-
+			error_log( 'post_meta_data ' . print_r( $post_meta_data, true ) );
 			/**
 			 * If `$post_meta_data` is not an array or if it is empty, then there is no
 			 * extra feedback to work with. Create an empty array.
@@ -1798,7 +1813,7 @@ class Grunion_Contact_Form_Plugin {
 			 */
 			$field_names = array_merge( $field_names, array_keys( $post_meta_data ) );
 		}
-
+		error_log( 'field_names ' . print_r( $field_names, true ) );
 		/**
 		 * Make sure the field names are unique, because we don't want duplicate data.
 		 */
@@ -1808,7 +1823,7 @@ class Grunion_Contact_Form_Plugin {
 		 * Sort the field names by the field id number
 		 */
 		sort( $field_names, SORT_NUMERIC );
-
+		error_log( 'field_names AFTER UNIQUE AND SORT ' . print_r( $field_names, true ) );
 		$well_known_column_names = $this->get_well_known_column_names();
 		$result                  = array();
 
@@ -2740,6 +2755,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Grunion_Contact_Form_Plugin::$using_contact_form_field = false;
+
+		// this filter is only to be used on submit, so the values can be extracted and saved on the feedback
+		add_filter( 'jetpack_contact_form_hidden_fields', array( $this, 'hidden_fields_filter' ) );
 	}
 
 	/**
@@ -3899,6 +3917,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$extra_values[ $ev_key ] = Grunion_Contact_Form_Plugin::strip_tags( $ev_value );
 		}
 
+		/**
+		 * HIDDEN FIELDS
+		 * Use jetpack_contact_form_hidden_fields filter
+		 */
+		$all_values = apply_filters( 'jetpack_contact_form_hidden_fields', $all_values );
+
 		/*
 		 * We need to make sure that the post author is always zero for contact
 		 * form submissions.  This prevents export/import from trying to create
@@ -4327,6 +4351,62 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '';
 		}
 		return $align_to_class_map[ $attributes['align'] ];
+	}
+
+	/**
+	 * Extract hidden fields from contact-form blocks
+	 */
+	public function hidden_fields_filter( $fields ) {
+		$content = get_the_content();
+		if ( ! has_block( 'jetpack/contact-form', $content ) ) {
+			return $fields;
+		}
+
+		$form_blocks = $this->get_jetpack_form_blocks_with_hidden_fields( parse_blocks( $content ) );
+
+		// If there's more than one form block on the page we can't tell
+		// which one is being submitted, abort.
+		// TODO: solve it or inform the user about this limitation!
+		if ( count( $form_blocks ) !== 1 ) {
+			return $fields;
+		}
+
+		$hidden_fields = array();
+
+		foreach( $form_blocks[0]['attrs']['hiddenFields'] as $hidden_field ) {
+			if ( empty( $hidden_field['name'] ) ) {
+				continue;
+			}
+
+			// we could even be more strict here, like a preg_replace for non [a-zA-Z0-9]_- characters on field names
+			$hidden_fields[
+				Grunion_Contact_Form_Plugin::strip_tags( $hidden_field['name'] )
+			] = Grunion_Contact_Form_Plugin::strip_tags( $hidden_field['value'] );
+		}
+
+		// Original/non-hidden fields have priority, shouldn't overwrite with hidden fields.
+		return $fields + $hidden_fields;
+	}
+
+	/**
+	 * Filter a blocks array in search of jetpack/contact-form blocks.
+	 */
+	public function get_jetpack_form_blocks_with_hidden_fields( $block_array ) {
+		$form_blocks = array();
+
+		foreach ( $block_array as $block ) {
+			if (
+				$block['blockName'] === 'jetpack/contact-form' &&
+				isset( $block['attrs']['hiddenFields'] ) &&
+				! empty( $block['attrs']['hiddenFields'] )
+			) {
+				$form_blocks[] = $block;
+			} elseif ( isset( $block['innerBlocks'] ) ) {
+				$form_blocks = array_merge( $form_blocks, $this->get_jetpack_form_blocks_with_hidden_fields( $block['innerBlocks'] ) );
+			}
+		}
+
+		return $form_blocks;
 	}
 } // end class Grunion_Contact_Form
 
