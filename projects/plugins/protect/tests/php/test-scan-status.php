@@ -457,13 +457,13 @@ class Test_Scan_Status extends BaseTestCase {
 				'initial',
 				null,
 			),
-			'invalid' => array(
-				'initial',
-				$this->get_sample_invalid_response(),
-			),
 			'empty'   => array(
 				'initial',
 				$this->get_sample_empty_response(),
+			),
+			'invalid' => array(
+				'initial',
+				$this->get_sample_invalid_response(),
 			),
 			'full'    => array(
 				'full',
@@ -481,14 +481,10 @@ class Test_Scan_Status extends BaseTestCase {
 	 */
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
 		$timestamp = Scan_Status::get_cache_end_date_by_status( $status );
-
-		if ( ! is_object( $status ) ) {
+		if ( ! is_object( $status ) || 'initial' === $check_type ) {
 			$this->assertSame( time() + Scan_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
-		if ( 'initial' === $check_type ) {
-			$this->assertSame( time() + Scan_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
-		}
-		if ( 'full' === $check_type ) {
+		if ( is_object( $status ) && 'full' === $check_type ) {
 			$this->assertSame( time() + Scan_Status::OPTION_EXPIRES_AFTER, $timestamp );
 		}
 	}
