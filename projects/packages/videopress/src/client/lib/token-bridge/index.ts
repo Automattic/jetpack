@@ -91,7 +91,7 @@ export async function tokenBridgeHandler(
 			guid,
 			requestId,
 		},
-		'*'
+		{ targetOrigin: '*' }
 	);
 
 	const tokenData = await getMediaToken( 'playback', {
@@ -108,7 +108,7 @@ export async function tokenBridgeHandler(
 				guid: event.data.guid,
 				requestId,
 			} as VideopressAjaxPostMessageEventProps,
-			'*'
+			{ targetOrigin: '*' }
 		);
 		return;
 	}
@@ -121,7 +121,7 @@ export async function tokenBridgeHandler(
 			jwt: tokenData.token,
 			requestId,
 		} as VideopressAjaxPostMessageEventProps,
-		'*'
+		{ targetOrigin: '*' }
 	);
 }
 
