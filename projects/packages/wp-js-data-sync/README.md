@@ -90,8 +90,8 @@ const response = await req.json();
 The response will look like this:
 ```json
 {
-	status: "success",
-	JSON: "This is a title",
+	"status": "success",
+	"JSON": "This is a title",
 }
 ```
 
@@ -140,6 +140,8 @@ class Favorite_Posts_Status extends Data_Sync_Entry_Handler {
 #### A more complex example:
 
 Here's an example that's going to handle an entry called `favorite_posts`.
+
+This is going to store a list of post IDs in the database, but the REST API will receive and return a list of post objects.
 
 ```php
 class Favorite_Posts extends Data_Sync_Entry_Handler {
