@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use contact form implementation from automattic/jetpack-forms by default
