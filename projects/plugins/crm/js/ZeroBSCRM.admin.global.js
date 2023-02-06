@@ -2771,3 +2771,19 @@ const jpcrm = {
 		return this.esc_attr( str );
 	},
 };
+
+if ( module ) {
+    module.exports = { zbscrmjs_prettifyLongInts, zbscrm_JS_DAL, jpcrm_dismiss_woo_notice, jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_compatClasses, 
+		zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn, zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_dirtyCatch, 
+		jpcrm_js_bind_datepicker, jpcrm_js_bind_daterangepicker, jpcrm_js_bind_datetimerangepicker, jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, 
+		zbscrm_JS_bindFieldValidators, zbscrm_JS_infoBoxInit, zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, 
+		jpcrm_bind_typeaheads_placeholders, zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, zbscrmjs_replaceAll, 
+		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telLinkFromNo, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, 
+		zeroBSCRMJS_ucwords, jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_number_format_i18n, zeroBSCRMJS_htmlEncode, zeroBSCRMJS_htmlDecode, 
+		zeroBSCRMJS_newWindow, zeroBSCRMJS_newWindowCenter, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, zeroBSCRMJS_retrieveEmails, parseDate, daydiff, 
+		zbsJS_semanticPercBar,  zbsJS_uts, jpcrm_strip_scripts, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zeroBSCRMJS_bindScreenOptions, 
+		zbsJS_updateScreenOptions, zeroBSCRMJS_buildScreenOptionsTableColumns, zeroBSCRMJS_buildScreenOptionsGenerics, zeroBSCRMJS_rest_retrieveCompany, 
+		zeroBSCRMJS_bindGlobalObjFuncs, zeroBSCRMJS_bindGlobalContactFuncs, zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, zeroBSCRMJS_bindGlobalDismiss, 
+		zbscrm_JS_bindCloseLogs, jpcrm_bind_licensing_modals, jpcrm_bind_customfield_csv_builders, jpcrm_bind_generic_window_opening, zbscrm_JS_isCalypso, 
+		jpcrm_set_jpcrm_transient };
+}

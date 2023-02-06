@@ -115,6 +115,23 @@ module.exports = [
 		output: {
 			...crmWebpackConfig.output,
 			filename: '[name].min.js',
+			library: {
+				name: 'window',
+				type: 'assign-properties',
+			},
+		},
+		optimization: {
+			...crmWebpackConfig.optimization,
+			minimizer: [
+				jetpackWebpackConfig.TerserPlugin( {
+					terserOptions: {
+						mangle: {
+							keep_fnames: true,
+							keep_classnames: true,
+						},
+					},
+				} ),
+			],
 		},
 	},
 	{
