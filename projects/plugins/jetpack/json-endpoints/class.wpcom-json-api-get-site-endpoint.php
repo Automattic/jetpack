@@ -177,6 +177,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'design_type',
 		'site_goals',
 		'site_segment',
+		'site_source_slug',
 		'import_engine',
 		'is_pending_plan',
 		'is_wpforteams_site',
