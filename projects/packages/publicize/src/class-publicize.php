@@ -178,6 +178,8 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Get a list of all connections.
 	 *
+	 * Google Plus is no longer a functional service, so we remove it from the list.
+	 *
 	 * @return array
 	 */
 	public function get_all_connections() {
