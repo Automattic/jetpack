@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '0.1.2-alpha';
+	const PACKAGE_VERSION = '0.1.2';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -37,7 +37,7 @@ class Jetpack_Mu_Wpcom {
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
 	}
