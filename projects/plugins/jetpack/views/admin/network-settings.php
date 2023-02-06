@@ -36,12 +36,12 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 				<td>
 					<p><strong>
 					<?php
-					$protect_ip = jetpack_protect_get_ip();
-					if ( ! empty( $protect_ip ) ) {
+					$current_ip = IP::get_ip();
+					if ( ! empty( $current_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */
 							esc_html__( 'Your current IP: %1$s', 'jetpack' ),
-							esc_html( $protect_ip )
+							esc_html( $current_ip )
 						);
 					}
 					?>

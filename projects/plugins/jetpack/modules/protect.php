@@ -14,6 +14,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\IP\IP;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -530,7 +531,7 @@ class Jetpack_Protect_Module {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( jetpack_protect_ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( IP::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -592,7 +593,7 @@ class Jetpack_Protect_Module {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = jetpack_protect_get_ip();
+		$ip = IP::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip && class_exists( 'Jetpack' ) ) {
@@ -620,7 +621,7 @@ class Jetpack_Protect_Module {
 			return true;
 		}
 
-		if ( jetpack_protect_ip_is_private( $ip ) ) {
+		if ( IP::ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -707,7 +708,7 @@ class Jetpack_Protect_Module {
 			return;
 		}
 
-		$ip = jetpack_protect_get_ip();
+		$ip = IP::get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -825,7 +826,7 @@ class Jetpack_Protect_Module {
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 
 		$request['action']            = $action;
-		$request['ip']                = jetpack_protect_get_ip();
+		$request['ip']                = IP::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
