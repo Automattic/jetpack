@@ -207,6 +207,7 @@ const EditTextarea = props => {
 
 	return (
 		<JetpackFieldTextarea
+			clientId={ props.clientId }
 			label={ props.attributes.label }
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }

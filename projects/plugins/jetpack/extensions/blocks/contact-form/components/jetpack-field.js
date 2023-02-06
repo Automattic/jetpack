@@ -1,46 +1,52 @@
-import { TextControl, Disabled } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { isEmpty } from 'lodash';
+import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackField( props ) {
 	const {
+		attributes,
+		clientId,
 		id,
-		type,
+		isSelected,
 		required,
 		requiredText,
 		label,
 		setAttributes,
 		placeholder,
 		width,
-		attributes,
 	} = props;
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+	const formStyle = useFormStyle( clientId );
+
+	const classes = classnames( 'jetpack-field', {
+		'is-selected': isSelected,
+		'has-placeholder': ! isEmpty( placeholder ),
+	} );
 
 	return (
 		<>
-			<div className="jetpack-field" style={ blockStyle }>
+			<div className={ classes } style={ blockStyle }>
 				<JetpackFieldLabel
+					attributes={ attributes }
+					label={ label }
 					required={ required }
 					requiredText={ requiredText }
-					label={ label }
 					setAttributes={ setAttributes }
-					attributes={ attributes }
+					style={ formStyle }
 				/>
-				<Disabled>
-					<TextControl
-						type={ type }
-						placeholder={ placeholder }
-						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
-						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ fieldStyle }
-					/>
-				</Disabled>
+				<input
+					className="jetpack-field__input"
+					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
+					style={ fieldStyle }
+					type="text"
+					value={ placeholder }
+				/>
 			</div>
 
 			<JetpackFieldControls
