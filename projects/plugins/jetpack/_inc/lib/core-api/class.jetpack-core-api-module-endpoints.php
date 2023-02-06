@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 
@@ -863,21 +864,26 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'admin_bar':
-				case 'enable_calypso_stats':
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
 				case 'do_not_track':
 				case 'version':
 				case 'collapse_nudges':
-					$grouped_options_current    = (array) get_option( 'stats_options' );
-					$grouped_options            = $grouped_options_current;
-					$grouped_options[ $option ] = $value;
+					$updated = Stats_Options::set_option( $option, $value );
+					break;
 
-					// If option value was the same, consider it done.
-					$updated = $grouped_options_current !== $grouped_options
-						? update_option( 'stats_options', $grouped_options )
-						: true;
+				case 'enable_calypso_stats':
+					$value         = (bool) $value;
+					$stats_options = array(
+						'enable_calypso_stats' => $value,
+					);
+					if ( $value ) {
+						$stats_options['calypso_stats_last_enabled_at'] = time();
+					} else {
+						$stats_options['calypso_stats_last_disabled_at'] = time();
+					}
+					$updated = Stats_Options::set_options( $stats_options );
 					break;
 
 				case 'akismet_show_user_comments_approved':
