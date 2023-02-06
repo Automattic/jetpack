@@ -23,3 +23,5 @@ tools/**                 production-exclude
 .eslintrc.js             production-exclude
 /src/dashboard/**/*.js   production-exclude
 /src/dashboard/**/*.scss production-exclude
+/src/blocks/**/*.js      production-exclude
+/src/blocks/**/*.scss    production-exclude

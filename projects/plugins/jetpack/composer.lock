@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "b89d5f6b19f265502387c25f4f4885c051ffe87f"
+                "reference": "a73f0123ceeebdd35b48b9b4df8dafbe971619cd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",

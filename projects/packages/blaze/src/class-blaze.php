@@ -177,6 +177,11 @@ class Blaze {
 			return $post_actions;
 		}
 
+		// Bail if the post has a password.
+		if ( '' !== $post->post_password ) {
+			return $post_actions;
+		}
+
 		// Might be useful to wrap in a method call for general use without post_id.
 		$blaze_url = Redirect::get_url(
 			'jetpack-blaze',

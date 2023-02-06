@@ -23,7 +23,8 @@ export default class SimplePaymentBlock extends EditorCanvas {
 		const responsePromise = this.page.waitForResponse(
 			r =>
 				decodeURIComponent( decodeURIComponent( r.url() ) ).match( /jp_pay_product/ ) &&
-				r.request().method() === 'POST'
+				r.request().method() === 'POST',
+			{ timeout: 30000 }
 		);
 		const blockId = await blockEditor.insertBlock(
 			SimplePaymentBlock.name(),
