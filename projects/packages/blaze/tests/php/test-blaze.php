@@ -20,6 +20,16 @@ class Test_Blaze extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
+		// I don't like putting this here, but we can't use setUpBeforeClass with WorDBless at this time.
+		// https://github.com/Automattic/wordbless/issues/52
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_user',
+				'user_pass'  => 'dummy_pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $admin_id );
 		Blaze::$script_path = 'js/editor.js';
 	}
 
