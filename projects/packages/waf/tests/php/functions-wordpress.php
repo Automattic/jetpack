@@ -39,6 +39,17 @@ if ( ! function_exists( 'get_option' ) ) {
 	}
 
 	/**
+	 * A drop-in for a WordPress core function.
+	 *
+	 * @param string $option  Name of the option to retrieve. Expected to not be SQL-escaped.
+	 * @param mixed  $default Default value to return if the option does not exist.
+	 * @return mixed Value set for the option.
+	 */
+	function get_site_option( $option, $default = false ) {
+		return get_option( $option, $default );
+	}
+
+	/**
 	 * Adds an option to be used in tests.
 	 *
 	 * @param string $option The option to set.
