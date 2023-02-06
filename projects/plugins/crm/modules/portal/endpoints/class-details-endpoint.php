@@ -267,14 +267,23 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		</p><?php
 	}
 
-	function render_text_area_field($fieldK, $fieldV, $value) {
+	/**
+	 * Renders the HTML of a textarea identified by $field_key with value $value.
+	 *
+	 * @param string $field_key The key associated with this field, used (for example) in the input name.
+	 * @param object $field_settings Row from the meta table that needs to be updated.
+	 * @param object $value Row from the meta table that needs to be updated.
+	 *
+	 * @return void
+	 */
+	private function render_text_area_field( $field_key, $field_settings, $value ) {
 		$extra_attributes = "";
-		if ( isset( $fieldV[ 'read_only' ] ) && $fieldV[ 'read_only' ] ) {
+		if ( isset( $field_settings['read_only'] ) && $field_settings['read_only'] ) {
 			$extra_attributes .= ' readonly disabled ';
 		}
 		?><p>
-		<label for="<?php echo esc_attr( $fieldK ); ?>"><?php esc_html_e($fieldV[1],"zero-bs-crm"); ?>:</label>
-		<textarea <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $fieldK ); ?>" id="<?php echo esc_attr( $fieldK ); ?>" class="form-control" placeholder="<?php if (isset($fieldV[2])) echo esc_attr( $fieldV[2] ); ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldK ); ?>"><?php echo !empty( $value ) ? esc_textarea( $value ) : ''; ?></textarea>
+		<label for="<?php echo esc_attr( $field_key ); ?>"><?php echo esc_html( $field_settings[1] ); ?>:</label>
+		<textarea <?php echo esc_attr( $extra_attributes ); ?> name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="<?php echo esc_attr( $field_key ); ?>" class="form-control" placeholder="<?php echo isset( $field_settings[2] ) ? esc_attr( $field_settings[2] ) : ''; ?>" autocomplete="zbscontact-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>"><?php echo ! empty( $value ) ? esc_attr( $value ) : ''; ?></textarea>
 		</p><?php
 	}
 
