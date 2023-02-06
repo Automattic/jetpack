@@ -141,6 +141,15 @@ class Test_Status extends BaseTestCase {
 	}
 
 	/**
+	 * Get a sample invalid response
+	 *
+	 * @return string
+	 */
+	public function get_sample_invalid_response() {
+		return 'Invalid response';
+	}
+
+	/**
 	 * Get a sample response
 	 *
 	 * @return object
@@ -409,15 +418,19 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function get_cache_end_date_by_status_data() {
 		return array(
-			'null'  => array(
+			'null'    => array(
 				'initial',
 				null,
 			),
-			'empty' => array(
+			'invalid' => array(
+				'initial',
+				$this->get_sample_invalid_response(),
+			),
+			'empty'   => array(
 				'initial',
 				$this->get_sample_empty_response(),
 			),
-			'full'  => array(
+			'full'    => array(
 				'full',
 				$this->get_sample_response(),
 			),
@@ -433,6 +446,9 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
 		$timestamp = Protect_Status::get_cache_end_date_by_status( $status );
+		if ( ! is_object( $status ) ) {
+			$this->assertSame( time() + Protect_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
+		}
 		if ( 'initial' === $check_type ) {
 			$this->assertSame( time() + Protect_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
