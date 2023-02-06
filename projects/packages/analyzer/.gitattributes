@@ -1,0 +1,6 @@
+# Files not needed to be distributed.
+.gitattributes   export-ignore
+.github/         export-ignore
+
+# Files not needed in the production build.
+/changelog/**    production-exclude

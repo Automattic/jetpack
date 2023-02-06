@@ -1,0 +1,31 @@
+.toggle {
+	// Specific, "ugly" selector is required to overwrite the default styling
+	:global {
+		.components-base-control__field {
+			--wp-admin-theme-color: var( --jp-green-40 );
+			margin-bottom: 0;
+
+			.components-form-toggle {
+				margin-right: 0;
+			}
+		}
+
+		.components-form-toggle__track {
+			width: 48px;
+			height: 24px;
+			border-radius: 12px;
+			border-width: 1.5px;
+		}
+
+		.components-form-toggle__thumb {
+			width: 14px;
+			height: 14px;
+			top: 5px;
+			left: 5px;
+		}
+
+		.components-form-toggle.is-checked .components-form-toggle__thumb {
+			transform: translateX( 24px );
+		}
+	}
+}

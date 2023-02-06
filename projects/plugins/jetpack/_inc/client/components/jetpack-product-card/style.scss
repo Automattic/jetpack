@@ -1,0 +1,236 @@
+@import '../../scss/calypso-colors';
+@import '../../scss/functions/rem';
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/typography';
+@import '../../scss/variables/colors';
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
+.jp-product-card {
+	position: relative;
+	box-sizing: border-box;
+	padding: 30px 24px 45px;
+	width: 100%;
+	background: $white;
+	box-shadow: 0 2px 6px rgba( 0, 0, 0, 0.03 ), 0 1px 2px rgba( 0, 0, 0, 0.03 );
+	border: 1px solid $gray-lighten-20;
+	border-radius: 4px;
+
+	@include breakpoint( '>660px' ) {
+		padding: 40px 48px 60px;
+	}
+
+	@include breakpoint( '>960px' ) {
+		padding-top: 60px;
+	}
+}
+
+.jp-product-card__inner {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	max-width: 400px;
+}
+
+.jp-product-card__icon {
+	height: 16px;
+	margin-bottom: 24px;
+	display: none;
+
+	@include breakpoint( '>960px' ) {
+		display: block;
+	}
+}
+
+.jp-product-card__icon svg {
+	width: auto;
+	height: 100%;
+}
+
+.jp-product-card__title {
+	color: $black;
+	font-size: $font-title-large;
+	font-weight: $bold;
+	margin: 0 0 18px;
+}
+
+.jp-product-card__description {
+	color: $black;
+	font-size: rem( 15px );
+	line-height: 1.5;
+	margin: 0 0 22px;
+}
+
+.jp-product-card__features {
+	margin: 0 0 30px;
+}
+
+.jp-product-card__feature {
+	color: $black;
+	display: flex;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.jp-product-card__feature svg {
+	margin-right: 10px;
+	fill: $color-plan;
+}
+
+.jp-product-card__price {
+	// Price item
+	.product-price_price {
+		margin-inline-end: 0.75rem !important;
+
+		font-size: 48px; // var(--font-headline-medium);
+		font-weight: 700;
+		line-height: 52px;
+
+		// Currency symbol
+		sup:first-of-type {
+			font-weight: 400;
+			font-size: 24px; // var(--font-title-medium);
+    		line-height: 32px;
+		}
+
+		// Fraction
+		sup:last-of-type {
+			font-size: 14px; // var(--font-body-small);
+			font-weight: 400;
+			line-height: 24px;
+		}
+	}
+
+	// Final price
+	.product-price_legend {
+		color: var( --jp-gray-40 );
+		font-size: 14px; // --font-body-small
+		line-height: 20px;
+		font-weight: 400;
+		margin-bottom: 24px;
+
+		&::after {
+			content: "\200B"; // Pseudo element to keep height
+		}
+	}
+
+	// Billing timeframe
+	> p {
+		margin-top: 0.5rem;
+
+		font-size: 0.875rem;
+	}
+}
+
+.jp-product-card__disclaimer {
+	margin-bottom: 0;
+}
+
+.jp-product-card__checkout {
+	align-self: flex-start;
+	font-size: rem( 16px );
+	margin-top: 2rem;
+	padding-left: 60px;
+	padding-right: 60px;
+	text-align: center;
+
+	&--primary {
+		background: $black;
+		border-color: $black;
+		color: $white;
+
+		&:hover,
+		&:focus {
+			border-color: $black;
+			background: $black;
+			color: $white;
+		}
+		&:focus {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
+		}
+	}
+
+	&--secondary {
+		background: transparent;
+		border: 2px solid $black;
+		color: $black;
+		transition: all 150ms ease-in-out;
+
+		&:hover,
+		&:focus {
+			border-color: $black;
+			background: $black;
+			color: $white;
+		}
+		&:focus {
+			box-shadow: 0 0 0 1px $white, 0 0 0 3px $black;
+		}
+	}
+}
+
+.jp-product-card__cta {
+	display: flex;
+	align-items: center;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	padding: 9px 10px;
+	background: $black;
+	color: $white;
+	font-size: rem( 13px );
+	font-weight: 600;
+	letter-spacing: 0.3px;
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+}
+
+.jp-product-card__cta .gridicon {
+	width: 16px;
+	height: 16px;
+	margin-right: 5px;
+}
+
+.jp-product-card--has-cta {
+	padding-top: 60px;
+}
+
+.jp-product-card__media {
+	display: none;
+	max-width: 100%;
+	align-self: center;
+	width: auto;
+	height: auto;
+	margin-top: 36px;
+
+	@include breakpoint( '>480px' ) {
+		display: block;
+	}
+
+	@include breakpoint( '>660px' ) {
+		min-width: 240px;
+	}
+
+	@include breakpoint( '>960px' ) {
+		margin-top: 0;
+	}
+}
+
+.jp-product-card--has-media {
+	@include breakpoint( '>480px' ) {
+		display: block;
+	}
+
+	@include breakpoint( '>960px' ) {
+		display: grid;
+		grid-template-columns: 55% 45%;
+		column-gap: 26px;
+	}
+
+	@include breakpoint( '>1040px' ) {
+		grid-template-columns: auto auto;
+	}
+
+	.jp-product-card__price {
+		margin-top: 0;
+	}
+}

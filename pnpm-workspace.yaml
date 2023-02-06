@@ -1,0 +1,6 @@
+packages:
+  - 'projects/*/*'
+  - 'projects/plugins/*/tests/e2e'
+  - 'tools/cli'
+  - 'tools/e2e-commons'
+  - 'tools/js-tools'

@@ -1,0 +1,52 @@
+.jetpack-publicize-gutenberg-social-icon {
+	margin-right: 10px;
+}
+
+.jetpack-publicize-connection-label {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	margin-right: 5px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+
+	// Icon and picture.
+	.components-connection-icon__picture {
+		display: grid;
+
+		img,
+		.placeholder {
+			border-radius: 2px;
+			width: 24px;
+			height: 24px;
+			grid-area: 1 / 1 / 2 / 2;
+		}
+
+		.placeholder {
+			display: block;
+			background-color: #a8bece;
+		}
+
+		.jetpack-publicize-gutenberg-social-icon {
+			width: 15px;
+			height: 15px;
+			grid-area: 1 / 1 / 2 / 2;
+			margin-top: 14px;
+			margin-left: 14px;
+			margin-right: 5px;
+			border-radius: 2px;
+			background-color: white;
+
+			&.is-facebook {
+				border-radius: 50%;
+			}
+		}
+	}
+
+	.jetpack-publicize-gutenberg-social-icon,
+	.jetpack-publicize-connection-label-copy {
+		display: inline-block;
+		vertical-align: middle;
+	}
+}

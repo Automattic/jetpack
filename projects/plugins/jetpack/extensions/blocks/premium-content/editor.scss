@@ -1,0 +1,77 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.wp-block-premium-content-container .premium-content-tabs {
+	align-items: center;
+	background: $white;
+	color: $gray-700;
+	display: flex;
+	flex-wrap: wrap;
+	font-family: $default-font;
+	font-size: $default-font-size;
+	position: relative;
+	margin: 0 0 0 -1px;
+	padding: 8px 14px;
+	border: 1px solid $gray-900;
+	border-radius: 2px;
+}
+
+.wp-block-premium-content-container--tab {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	border: none;
+	background: transparent;
+	padding: 5px;
+	margin-right: 5px;
+	text-decoration: none;
+}
+
+.premium-content-tabs > button.edit {
+	margin-left: auto;
+}
+
+.premium-content-wrapper {
+	margin: 0;
+}
+
+.membership-button__disclaimer {
+	color: var( --color-gray-200 );
+	flex-basis: 100%;
+	margin: 0;
+	font-style: italic;
+}
+
+.membership-button__disclaimer a {
+	color: var( --color-gray-400 );
+	line-height: 36px;
+}
+
+/* Subscribe/Login buttons */
+
+.wp-block-buttons .wp-block[data-type='jetpack/recurring-payments'] {
+	display: inline-block;
+	margin: 0 0.5em 0 0;
+}
+
+.editor-styles-wrapper
+	.wp-block-buttons
+	.wp-block[data-type='jetpack/recurring-payments']
+	.wp-block-button:not( .alignleft ):not( .alignright ) {
+	margin: 0;
+}
+
+/* Hide Stripe nudge from Jetpack payments block */
+/* https://github.com/Automattic/wp-calypso/issues/44332 */
+.wp-block-premium-content-container .premium-content-wrapper .jetpack-block-nudge {
+	display: none;
+}
+
+.wp-block-premium-content-login-button {
+	display: inline-block;
+}
+
+.wp-block[data-align='center'] > .wp-block-premium-content-login-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

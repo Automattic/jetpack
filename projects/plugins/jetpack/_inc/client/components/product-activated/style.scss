@@ -1,0 +1,17 @@
+@import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/variables/_colors.scss';
+
+.jp-product-activated-label {
+	display: flex;
+	font-weight: 600;
+	color: $green-primary;
+	padding: 0 0 8px 0;
+
+	@include breakpoint( '>960px' ) {
+		justify-content: flex-end;
+	}
+
+	.gridicons-checkmark {
+		margin-right: 8px;
+	}
+}

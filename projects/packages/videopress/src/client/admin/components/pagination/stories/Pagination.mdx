@@ -1,0 +1,56 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import Pagination from '../index';
+
+<Meta
+  title="Packages/VideoPress/Pagination"
+  component={Pagination}
+/>
+
+# Pagination
+Component to manage navigation between pages of a list of records.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-pagination--default" />
+</Canvas>
+
+## API
+
+### currentPage
+
+- type: `number`
+- default: `1`
+
+The currently selected page. A positive integer.
+
+### perPage
+
+- type: `number`
+
+The number of records shown per page.
+
+### total
+
+- type: `number`
+
+The total number of records from the paginated list.
+
+### minColumns
+
+- type: `number`
+- default: `7`
+
+The minimum number of columns to display pages and ellipses.
+Will be rounded to the next odd number if it is even.
+Will round up to 7 if less than 7.
+
+### disabled
+
+- type: `boolean`
+
+Whether or not the pagination is disabled.
+
+### onChangePage
+
+- type: `function`
+
+Callback to be invoked when the user changes the current page.

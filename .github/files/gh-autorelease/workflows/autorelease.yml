@@ -1,0 +1,19 @@
+name: Auto-release
+
+on:
+  push:
+    tags:
+      - 'v?[0-9]+.[0-9]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  publish:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Create release
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+        run: ./.github/files/autorelease.sh

@@ -1,0 +1,71 @@
+{
+	"name": "automattic/jetpack-publicize",
+	"description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-redirect": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "0.4.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-publicize",
+		"textdomain": "jetpack-publicize-pkg",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-trunk": "0.19.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
+	}
+}

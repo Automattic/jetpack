@@ -1,0 +1,15 @@
+@import 'node_modules/@automattic/jetpack-base-styles/style';
+@import '../../scss/typography';
+
+.jp-recommendations-discount-badge {
+	padding: 0.375rem 0.75rem;
+
+	background-color: var( --jp-yellow-10 );
+	border-radius: var( --jp-border-radius );
+	color: var( --jp-gray-100 );
+
+	font-size: $font-body-small;
+	font-weight: $bold;
+	line-height: 1;
+	text-align: center;
+}

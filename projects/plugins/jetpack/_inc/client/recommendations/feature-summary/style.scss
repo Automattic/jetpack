@@ -1,0 +1,116 @@
+@import '../../scss/variables/colors';
+@import '../../scss/typography';
+
+.jp-recommendations-feature-summary {
+	display: flex;
+	min-width: 275px;
+
+	border-bottom: 1px solid #e1e1e1;
+
+	.gridicons-checkmark-circle {
+		fill: $green-primary;
+	}
+
+	&:last-child {
+		border-bottom: none;
+	}
+
+	&.is-primary {
+		$spacing: 0.5rem;
+
+		padding-top: $spacing;
+		padding-bottom: $spacing;
+
+		&:first-child {
+			padding-top: 0;
+		}
+	}
+}
+
+.jp-summary-text-link {
+	display: flex;
+	align-items: center;
+	color: var( --jp-gray-50 );
+
+	&.is-hidden {
+		visibility: hidden;
+	}
+
+	&__icon {
+		$size: 12px;
+
+		width: $size;
+		height: $size;
+		margin-left: 0.25rem;
+		font-size: $size;
+		transform: translateY( 1px );
+	}
+}
+
+.jp-recommendations-feature-summary__checkmark {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	margin-right: 8px;
+}
+
+.jp-recommendations-feature-summary__display-name {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	flex-grow: 1;
+	background: none;
+	font-size: $font-body;
+
+	// These names are managed as borderless buttons that link back to the respective steps
+	&.is-borderless {
+		color: #000;
+
+		&:hover,
+		&:focus {
+			background: none;
+
+			.jp-recommendations-feature-summary__display-name-text {
+				box-shadow: 0 3px 0 0 currentColor
+			}
+		}
+	}
+
+	.jp-recommendations__new-badge {
+		margin-left: 1rem;
+	}
+}
+
+.jp-recommendations-summary .jp-recommendations-feature-summary__display-name {
+	color: var( --jp-gray-100 );
+}
+
+.jp-recommendations-feature-summary__display-name-text {
+	box-shadow: 0 1px 0 0 currentColor
+}
+
+.jp-recommendations-feature-summary__cta {
+	button {
+		width: 100%;
+	}
+
+	a {
+		width: 100%;
+		text-align: center;
+	}
+
+	.components-external-link {
+		display: flex;
+		align-items: center;
+
+		&__icon {
+			margin-left: 4px;
+		}
+	}
+}
+
+.jp-recommendations-feature-summary__actions {
+	margin-inline-start: auto;
+	padding: 8px 0 8px 8px;
+}
+

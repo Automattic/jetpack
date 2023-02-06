@@ -1,39 +1,49 @@
 <?xml version="1.0"?>
-<ruleset name="Jetpack">
-	<config name="minimum_supported_wp_version" value="5.1" />
-	<config name="testVersion" value="5.3-"/>
+<ruleset>
 
-	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
-	<rule ref="VariableAnalysis" />
+	<!-- Load configuration. -->
+	<rule ref="./.phpcs.config.xml" />
+
+	<!-- Default ruleset. -->
+	<rule ref="Jetpack" />
 
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" type="array" value="jetpack" />
+			<property name="text_domain" type="array">
+				<!-- Dummy entry, projects should override this in .phpcs.dir.xml. -->
+				<element value="no text domain is set in this in this project's .phpcs.dir.xml"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="no text domain is set in this in this project's .phpcs.dir.xml" />
 		</properties>
 	</rule>
 
-	<!-- Temporarily disable some sniffs that conflict with PSR-4. -->
-	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
-		<exclude-pattern>packages/*</exclude-pattern>
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="jetpack_activate_modules" />
+				<element value="jetpack_admin_page" />
+				<element value="jetpack_configure_modules" />
+				<element value="jetpack_connect" />
+				<element value="jetpack_connect_user" />
+				<element value="jetpack_deactivate_modules" />
+				<element value="jetpack_disconnect" />
+				<element value="jetpack_manage_modules" />
+				<element value="jetpack_network_admin_page" />
+				<element value="jetpack_network_settings_page" />
+				<element value="jetpack_network_sites_page" />
+				<element value="jetpack_reconnect" />
+				<element value="view_stats" />
+			</property>
+		</properties>
 	</rule>
-	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
-		<exclude-pattern>packages/*</exclude-pattern>
+
+	<!-- WordPress-Extra pulls this in. But PHP linting can be run more efficiently via bin/parallel-lint.sh than by having phpcs shell out to `php -l`. -->
+	<rule ref="Generic.PHP.Syntax">
+		<exclude name="Generic.PHP.Syntax" />
 	</rule>
 
-	<!-- Check all PHP files in directory tree by default. -->
-	<arg name="extensions" value="php"/>
-	<file>.</file>
-
-	<!-- Show sniff codes in all reports -->
-	<arg value="s"/>
-
-	<arg name="colors"/>
-
-	<exclude-pattern>/docker/*</exclude-pattern>
-	<exclude-pattern>/node_modules/*</exclude-pattern>
-	<exclude-pattern>/tests/*</exclude-pattern>
-	<exclude-pattern>/vendor/*</exclude-pattern>
 </ruleset>

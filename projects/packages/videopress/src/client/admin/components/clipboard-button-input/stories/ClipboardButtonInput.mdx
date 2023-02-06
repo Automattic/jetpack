@@ -1,0 +1,44 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import ClipboardButtonInput from '../index';
+
+<Meta
+  title="Packages/VideoPress/Video Details Card"
+  component={ClipboardButtonInput}
+/>
+
+# ClipboardButtonInput
+
+ClipboardButtonInput is a React component used to display a text input field containing a button for copying the value of the input to a user's clipboard.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-clipboard-button-input--default" />
+</Canvas>
+
+## API
+
+### text
+
+- type: `string`
+
+The text to show in the input element.
+And, in case the value property is not defined, it represents the value be copied when clicking the copy button,
+
+### value
+
+- type: `string`
+
+The value to be copied when clicking the copy button. Optional.
+
+### onCopy
+
+- type: `function`
+- default: `noop`
+
+Callback to be invoked when the text is successfully copied.
+
+### resetTime
+
+- type: `number`
+- default: `3000`
+
+Timer in miliseconds to reset the copy button to its initial state.

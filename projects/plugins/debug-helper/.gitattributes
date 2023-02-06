@@ -1,0 +1,2 @@
+# Files not needed in the production build.
+/changelog/**    production-exclude

@@ -1,0 +1,30 @@
+[
+    {
+        "blockName": "jetpack/contact-info",
+        "attrs": {},
+        "innerBlocks": [
+            {
+                "blockName": "jetpack/address",
+                "attrs": {
+                    "address": "987  Photon Drive",
+                    "addressLine2": "Apartment 5",
+                    "city": "Speedyville",
+                    "region": "CA",
+                    "postal": "12345",
+                    "country": "USA"
+                },
+                "innerBlocks": [],
+                "innerHTML": "\n\t<div class=\"wp-block-jetpack-address\"><div class=\"jetpack-address__address jetpack-address__address1\">987  Photon Drive</div><div class=\"jetpack-address__address jetpack-address__address2\">Apartment 5</div><div><span class=\"jetpack-address__city\">Speedyville</span>, <span class=\"jetpack-address__region\">CA</span> <span class=\"jetpack-address__postal\">12345</span></div><div class=\"jetpack-address__country\">USA</div></div>\n\t",
+                "innerContent": [
+                    "\n\t<div class=\"wp-block-jetpack-address\"><div class=\"jetpack-address__address jetpack-address__address1\">987  Photon Drive</div><div class=\"jetpack-address__address jetpack-address__address2\">Apartment 5</div><div><span class=\"jetpack-address__city\">Speedyville</span>, <span class=\"jetpack-address__region\">CA</span> <span class=\"jetpack-address__postal\">12345</span></div><div class=\"jetpack-address__country\">USA</div></div>\n\t"
+                ]
+            }
+        ],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-contact-info\"></div>\n\t",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-contact-info\">",
+            null,
+            "</div>\n\t"
+        ]
+    }
+]

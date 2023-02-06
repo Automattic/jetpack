@@ -12,6 +12,6 @@ Once you've installed and activated the Beta plugin, head over to **Jetpack > Be
 
 ## Found a bug?
 
-If you find an issue or have remarks about a Jetpack feature, you can [send us an email](https://jetpack.com/contact-support/beta-group/), or [create an issue on GitHub.](https://github.com/Automattic/Jetpack/issues/new)
+If you find an issue or have remarks about a Jetpack feature, you can [send us an email](https://jetpack.com/contact-support/beta-group/), or [create an issue on GitHub.](https://github.com/Automattic/Jetpack/issues/new?assignees=&labels=%5BType%5D+Bug&template=bug-report.yml)
 
 If you’re filing a bug, specific steps to reproduce are helpful. Please include the URL of the page that has the bug, along with what you expected to see and what happened instead. You can [check our recommendations to create great bug reports here](/docs/guides/report-bugs.md).

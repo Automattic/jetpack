@@ -1,0 +1,14 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-clipboard-input {
+	display: flex;
+
+	.components-text-control__input,
+	.components-clipboard-button {
+		min-height: $button-size;
+	}
+
+	.components-clipboard-button {
+		margin-left: 6px;
+	}
+}

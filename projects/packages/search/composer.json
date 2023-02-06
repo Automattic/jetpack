@@ -1,0 +1,84 @@
+{
+	"name": "automattic/jetpack-search",
+	"description": "Tools to assist with enabling cloud search for Jetpack sites.",
+	"type": "jetpack-library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/wordbless": "0.4.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"build": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run build"
+		],
+		"build-development": [
+			"pnpm run build-development"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-search",
+		"textdomain": "jetpack-search-pkg",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
+		},
+		"branch-alias": {
+			"dev-trunk": "0.31.x-dev"
+		},
+		"version-constants": {
+			"::VERSION": "src/class-package.php"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
+		}
+	}
+}

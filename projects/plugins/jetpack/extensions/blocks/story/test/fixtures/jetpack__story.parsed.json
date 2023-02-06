@@ -1,0 +1,11 @@
+[
+    {
+        "blockName": "jetpack/story",
+        "attrs": {},
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-story wp-story\"></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-story wp-story\"></div>\n"
+        ]
+    }
+]

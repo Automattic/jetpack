@@ -1,0 +1,86 @@
+{
+	"name": "automattic/jetpack-social",
+	"description": "Social plugin",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-admin-ui": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-publicize": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-plans": "@dev"
+	},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev",
+		"automattic/wordbless": "0.4.1",
+		"yoast/phpunit-polyfills": "1.0.4",
+		"brain/monkey": "2.6.1"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		],
+		"test-coverage": [
+			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+		],
+		"test-php": [
+			"@composer phpunit"
+		],
+		"test-js": [
+			"pnpm run test"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		],
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
+		"mirror-repo": "Automattic/jetpack-social-plugin",
+		"release-branch-prefix": "jetpack",
+		"wp-plugin-slug": "jetpack-social",
+		"wp-svn-autopublish": true
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_7_1_alpha"
+	}
+}

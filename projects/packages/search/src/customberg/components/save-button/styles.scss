@@ -1,0 +1,21 @@
+@import '../../lib/base-styles';
+
+// Used in header and the sidebar.
+.jp-search-configure-save-button {
+	margin-right: $grid-unit-05;
+
+	&:first-of-type {
+		margin-left: auto;
+	}
+
+	@include break-small() {
+		margin-right: $grid-unit-10;
+	}
+
+	// Only hide the save button when being shown in sidebar in mobile breakpoints.
+	.jp-search-configure-sidebar & {
+		@include break-medium() {
+			display: none;
+		}
+	}
+}

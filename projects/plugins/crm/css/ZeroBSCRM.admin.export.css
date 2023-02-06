@@ -1,0 +1,23 @@
+/*!
+ * Jetpack CRM
+ * https://jetpackcrm.com
+ * V3.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/05/2019
+ */
+#zbs-export-wrap {
+  margin-top: 1em;
+  margin-right: 1em;
+}
+#zbs-export-wrap #zbs-export-fields-wrap, #zbs-export-wrap #zbs-export-filetype-wrap {
+  max-width: 300px;
+}
+#zbs-export-wrap #zbs-export-fields-wrap #zbs-export-fields input, #zbs-export-wrap #zbs-export-fields-wrap #zbs-export-fields label {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+#zbs-export-wrap #zbs-export-fields-wrap #zbs-export-fields input {
+  margin-right: 0.5em;
+}

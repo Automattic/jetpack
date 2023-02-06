@@ -1,0 +1,33 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/calendly",
+        "isValid": true,
+        "attributes": {
+            "backgroundColor": "ffffff",
+            "hideEventTypeDetails": true,
+            "primaryColor": "19ff00",
+            "textColor": "4D5055",
+            "style": "link",
+            "url": "https://calendly.com/username"
+        },
+        "innerBlocks": [
+            {
+                "clientId": "_clientId_0",
+                "name": "jetpack/button",
+                "isValid": true,
+                "attributes": {
+                    "element": "a",
+                    "saveInPostContent": false,
+                    "uniqueId": "calendly-widget-id",
+                    "text": "Schedule time with me",
+                    "url": "https://calendly.com/username",
+                    "textColor": "801249",
+                    "backgroundColor": "212020"
+                },
+                "innerBlocks": []
+            }
+        ],
+        "originalContent": "<a href=\"https://calendly.com/username\" class=\"wp-block-jetpack-calendly\">https://calendly.com/username</a>"
+    }
+]

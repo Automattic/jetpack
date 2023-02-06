@@ -1,0 +1,218 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.jp-connection__disconnect-dialog {
+	h1 {
+		margin-top: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-small );
+		font-weight: 600;
+	}
+
+	h2 {
+		margin: 0;
+		line-height: 1.2;
+		font-size: var( --font-title-small );
+		font-weight: 400;
+	}
+
+	p {
+		margin-top: 0;
+		font-size: var( --font-body );
+	}
+
+	&__large-text,
+	p.jp-connection__disconnect-dialog__large-text {
+		font-size: 1.25rem;
+	}
+
+	&__link,
+	.jp-connection__disconnect-dialog__link {
+		font-size: var( --font-body );
+		color: var( --jp-black );
+		text-decoration: underline;
+		height: auto;
+		font: inherit;
+		padding: 0;
+
+		&:hover {
+			color: var( --jp-black );
+			text-decoration-thickness: var( --jp-underline-thickness );
+		}
+
+		&:focus {
+			color: var( --jp-black );
+			box-shadow: none !important;
+		}
+
+		&--bold {
+		  font-weight: bold;
+		}
+	}
+
+	.components-button{
+		height: 40px;
+		font-size: var( --font-body-small );
+		border-radius: 4px;
+	}
+
+	.components-modal{
+		&__content{
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			flex-grow: 1;
+			margin: 0;
+
+			&::before {
+				display: none;
+			}
+		}
+
+		&__header{
+			display: none;
+		}
+	}
+
+	.jp-row {
+		align-items: center;
+		width: calc(100% - 48px); // Help with the margin on the row.
+	}
+
+	&__content{
+		background: var( --jp-white-off );
+		margin: 0;
+		padding: 2rem 1rem;
+		border-radius: 4px;
+		text-align: center;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	&__actions{
+		background: var( --jp-white );
+		padding: 2rem 0;
+		position: sticky;
+		bottom: 0;
+		border-top: 1px solid var( --jp-gray );
+
+		p {
+			margin-bottom: 0;
+		}
+
+		&::before {
+			content: '';
+			display: block;
+			width: 100%;
+			position: absolute;
+			height: 80px;
+			background: linear-gradient(to bottom, rgba( 0,0,0,0 ), var( --jp-white-off ));
+			bottom: calc( 100% + 1px );
+			left: 0;
+		}
+	}
+
+	&__btn-dismiss,
+	&__btn-dismiss.components-button{ // override the components-button class
+		background: var( --jp-black ) !important;
+		margin-right: 10px;
+	}
+
+	&__btn-disconnect{
+		background: var( --jp-red ) !important;
+	}
+
+	&__btn-back-to-wp{
+		background: var( --jp-black ) !important;
+	}
+
+	&__button-wrap{
+		text-align: left;
+
+		@media (min-width: 960px) {
+			text-align: center;
+		}
+	}
+
+	&__error{
+		color: var( --jp-red );
+	}
+
+	&__survey {
+		margin-bottom: 1.5rem;
+		max-width: 100%;
+	}
+
+	// Limit the copy width on the steps.
+	&__step-copy {
+		max-width: 800px;
+		margin: 0 auto;
+
+		&--narrow {
+			max-width: 600px;
+		}
+	}
+}
+
+// When the screen height is shorter, hide the decorative cards to show the text and controls without scrolling.
+.jp-connection__disconnect-dialog__content {
+	@media (max-height: 900px) {
+		.jp-components__decorative-card {
+			display: none;
+		}
+	}
+}
+
+@media (min-width: 600px){
+	.jp-connection__disconnect-dialog,
+	.jp-connection__disconnect-dialog.components-modal__frame {
+		width: 100%;
+		max-width: calc( 100% - 32px );
+	}
+
+	.jp-connection__disconnect-dialog {
+		&__content {
+			padding: 2rem;
+		}
+
+		&__actions {
+			padding: 2rem;
+		}
+	}
+}
+
+
+@media (min-width: 960px){
+	.jp-connection__disconnect-dialog,
+	.jp-connection__disconnect-dialog.components-modal__frame {
+		width: 1200px;
+		height: 900px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jp-connection__disconnect-dialog {
+		h1 {
+			font-size: var( --font-title-large );
+		}
+
+		&__large-text,
+		p.jp-connection__disconnect-dialog__large-text {
+			font-size: 1.5rem;
+		}
+
+		&__content {
+			padding: 80px;
+		}
+
+		&__actions {
+			padding: 2rem 3rem;
+		}
+	}
+
+	.jp-row {
+		margin-left: 0px;
+	}
+}

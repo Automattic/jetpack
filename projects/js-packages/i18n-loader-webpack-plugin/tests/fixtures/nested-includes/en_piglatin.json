@@ -1,0 +1,13 @@
+{
+	"domain": "messages",
+	"locale_data": {
+		"messages": {
+			"": {
+				"domain": "messages",
+				"lang": "en",
+				"plural-forms": "nplurals=2; plural=(n != 1);"
+			},
+			"This is translated": [ "is-Thay is-way anslated-tray" ]
+		}
+	}
+}

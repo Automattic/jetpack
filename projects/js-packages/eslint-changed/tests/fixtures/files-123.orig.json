@@ -1,0 +1,32 @@
+[
+	{
+		"filePath": "/tmp/x/t/1.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"usedDeprecatedRules": []
+	},
+	{
+		"filePath": "/tmp/x/t/2.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"usedDeprecatedRules": []
+	},
+	{
+		"filePath": "/tmp/x/t/3.js",
+		"messages": [],
+		"errorCount": 0,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"usedDeprecatedRules": []
+	}
+]

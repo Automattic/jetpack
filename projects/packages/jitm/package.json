@@ -1,0 +1,37 @@
+{
+	"private": true,
+	"description": "Display Just In Time Messages (JITMs) on admin pages.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/jitm/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Jitm"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/jitm"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack --config ./webpack.config.js",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "true",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": "extends @wordpress/browserslist-config",
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "5.5.0",
+		"sass": "1.43.3",
+		"sass-loader": "12.4.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
+	"engines": {
+		"node": "^18.13.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

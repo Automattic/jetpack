@@ -1,0 +1,51 @@
+// make use of color studio variables for consistency across products
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+@import 'node_modules/@automattic/color-studio/dist/color-variables-rgb.scss';
+
+// core variables (core _variables.scss)
+$base-color: #101517; // Calypso --color-masterbar-background
+$icon-color: #a2aab2; // Calypso --color-sidebar-gridicon-fill
+$highlight-color: $studio-pink-50;// Calypso --color-accent
+$notification-color: $highlight-color;
+
+// global (core _variables.scss)
+$body-background: $studio-gray-0; // Calypso --color-surface-backdrop
+
+// admin menu & admin-bar (core _variables.scss)
+$menu-text: #eeeeee; // Calypso --color-sidebar-text
+$menu-background: #23282d; // Calypso --color-sidebar-background
+$menu-highlight-text: #00b9eb; // Calypso --color-sidebar-menu-hover-text
+$menu-highlight-icon: $menu-highlight-text;
+$menu-highlight-background: #1a1e23; // Calypso --color-sidebar-menu-hover-background
+$menu-current-text: #ffffff; // Calypso --color-sidebar-menu-selected-text
+$menu-current-icon: $menu-current-text;
+$menu-current-background: #0073aa; // Calypso --color-sidebar-menu-selected-background
+$menu-submenu-text: #b4b9be; // Calypso --color-sidebar-submenu-text
+$menu-submenu-background: #32373c; // Calypso --color-sidebar-submenu-background
+$menu-submenu-focus-text: #00b9eb; // Calypso --color-sidebar-submenu-hover-text
+$menu-submenu-current-text: $studio-white; // Calypso --color-sidebar-submenu-selected-text
+
+// masterbar overrides
+$masterbar-background: $base-color; // Calypso --color-masterbar-background
+$masterbar-highlight-background: #333; // Calypso --color-masterbar-item-hover-background
+$masterbar-active-background: #23282d; // Calypso --color-masterbar-item-active-background
+
+// nav unification overrides
+$nav-unification-sidebar-border: #333333; // Calypso --color-sidebar-border
+$nav-unification-sidebar-text-alternative: #a2aab2; // Calypso --color-sidebar-text-alternative
+
+// Calypso color variables used in e.g. inline help
+$color-primary: $studio-gray-90; // Calypso --color-primary
+$color-primary-dark: $studio-gray-70; // Calypso --color-primary-dark
+$color-primary-light: $studio-gray-30; // Calypso --color-primary-light
+$color-surface: $studio-white; // Calypso --color-surface
+$color-neutral-100-rgb: $studio-gray-100-rgb; // Calypso --color-neutral-100-rgb
+
+// Sidebar Nudges
+$menu-nudge-background: $studio-white;
+$menu-nudge-text-color: $studio-black;
+$menu-nudge-cta-background: $highlight-color;
+$menu-nudge-cta-color: $studio-white;
+$menu-nudge-cta-background-hover: $studio-pink-60;
+
+@import "../admin";

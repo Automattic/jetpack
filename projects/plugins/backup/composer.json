@@ -1,0 +1,56 @@
+{
+	"name": "automattic/jetpack-backup-plugin",
+	"description": "Easily restore or download a backup of your site from a specific moment in time.",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-backup": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-plugins-installer": "@dev",
+		"automattic/jetpack-my-jetpack": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "1.0.4",
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"watch": "echo 'This script is actually watching the Jetpack Backup package, not the plugin' && jetpack watch packages/backup"
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"config": {
+		"autoloader-suffix": "9559eef123208b7d1b9c15b978567267_backupⓥ1_4_5_alpha",
+		"allow-plugins": {
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		}
+	},
+	"extra": {
+		"mirror-repo": "Automattic/jetpack-backup-plugin",
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
+		"release-branch-prefix": "jetpack",
+		"wp-plugin-slug": "jetpack-backup",
+		"wp-svn-autopublish": true
+	},
+	"changelogger": {
+		"versioning": "wordpress"
+	}
+}

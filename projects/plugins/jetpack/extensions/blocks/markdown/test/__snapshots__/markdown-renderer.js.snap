@@ -1,0 +1,253 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MarkdownRenderer renders markdown to HTML as expected: source 1`] = `
+<div>
+  <div
+    class="markdown"
+  >
+    <h1>
+      Heading
+    </h1>
+    
+
+    <h2>
+      2nd Heading
+    </h2>
+    
+
+    <ul>
+      
+
+      <li>
+        List 1
+      </li>
+      
+
+      <li>
+        List 1
+      </li>
+      
+
+    </ul>
+    
+
+    <ul>
+      
+
+      <li>
+        List 2
+      </li>
+      
+
+      <li>
+        List 2
+      </li>
+      
+
+    </ul>
+    
+
+    <ul>
+      
+
+      <li>
+        List 3
+      </li>
+      
+
+      <li>
+        List 3
+      </li>
+      
+
+    </ul>
+    
+
+    <ol>
+      
+
+      <li>
+        Red
+      </li>
+      
+
+      <li>
+        Green
+      </li>
+      
+
+      <li>
+        Blue
+      </li>
+      
+
+    </ol>
+    
+
+    <ul>
+      
+
+      <li>
+        
+
+        <p>
+          A list item.
+        </p>
+        
+
+        <p>
+          With multiple paragraphs.
+        </p>
+        
+
+      </li>
+      
+
+      <li>
+        
+
+        <p>
+          Another item in the list.
+        </p>
+        
+
+      </li>
+      
+
+    </ul>
+    
+
+    <p>
+      <em>
+        em
+      </em>
+      
+
+      <em>
+        em
+      </em>
+      
+
+      <strong>
+        strong
+      </strong>
+      
+
+      <strong>
+        strong
+      </strong>
+      
+
+      <em>
+        <strong>
+          em strong
+        </strong>
+      </em>
+    </p>
+    
+
+    <p>
+      *Literal asterisks*
+    </p>
+    
+
+    <p>
+      Link to 
+      <a
+        href="https://wordpress.com"
+      >
+        WordPress
+      </a>
+       and 
+      <a
+        href="https://jetpack.com/"
+      >
+        https://jetpack.com/
+      </a>
+    </p>
+    
+
+    <p>
+      email me: 
+      <a
+        href="mailto:address@example.com"
+      >
+        address@example.com
+      </a>
+    </p>
+    
+
+    <p>
+      Inline 
+      <code>
+        code
+      </code>
+       here.
+    </p>
+    
+
+    <pre>
+      <code>
+        Block of code with backticks.
+
+      </code>
+    </pre>
+    
+
+    <pre>
+      <code>
+        Block of code prefixed by four spaces
+
+      </code>
+    </pre>
+    
+
+    <blockquote>
+      
+
+      <p>
+        a blockquote.
+      </p>
+      
+
+      <p>
+        2nd paragraph in the blockquote.
+      </p>
+      
+
+      <h2>
+        H2 in a blockquote
+      </h2>
+      
+
+    </blockquote>
+    
+
+    <p>
+      A bunch of horizontal rules:
+    </p>
+    
+
+    <hr />
+    
+
+    <hr />
+    
+
+    <hr />
+    
+
+    <hr />
+    
+
+    <hr />
+    
+
+    <p>
+      👋
+    </p>
+    
+
+  </div>
+</div>
+`;

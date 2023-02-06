@@ -1,0 +1,171 @@
+/**
+ * Modal styles for Social Previews
+ */
+
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+// Styles shared between modals
+.jetpack-social-previews__modal {
+	.components-modal__header {
+		margin: 0;
+	}
+
+	.components-modal__content {
+		padding: 0;
+	}
+}
+
+// Main modal containing the social previews
+.jetpack-social-previews__modal-previews {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	.components-tab-panel__tabs {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		padding: 12px;
+		max-width: none;
+
+		.components-button {
+			outline: 0;
+			margin: 3px 0;
+			font-size: 0;
+			white-space: nowrap;
+
+			svg {
+				display: block;
+				fill: currentColor;
+			}
+
+			&.is-active {
+				box-shadow: 0px 0px 0px 2px var(--wp-admin-theme-color);
+			}
+
+			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover {
+				box-shadow: 0px 0px 0px 2px var(--wp-admin-theme-color);
+			}
+		}
+	}
+
+	.components-tab-panel__tab-content {
+		padding: 10px;
+		background-color: $white;
+		flex: 1;
+
+		> div {
+			display: flex;
+			justify-content: center;
+		}
+	}
+
+	.twitter-preview__summary {
+		max-width: 100%;
+	}
+
+	@media ( min-width: $break-small ) {
+		width: calc( 100vw - 40px );
+	}
+
+	@media ( min-width: $break-large ) {
+		flex-direction: row;
+		width: calc( #{$break-large} - 40px );
+		min-height: 500px;
+
+		.components-tab-panel__tabs {
+			flex-direction: column;
+			justify-content: flex-start;
+			padding: 24px;
+
+			.components-button {
+				font-size: 13px;
+
+				> svg {
+					margin-right: 8px;
+				}
+			}
+		}
+
+		.components-tab-panel__tab-content {
+			padding: 40px;
+		}
+	}
+}
+
+// Modal containing the upgrade nudge
+.jetpack-social-previews__modal-upgrade {
+	padding: 2em;
+
+	.jetpack-social-previews__upgrade-illustration {
+		width: 100%;
+		max-width: 351px;
+		height: auto;
+	}
+
+	.jetpack-social-previews__upgrade-description {
+		margin-bottom: 1em;
+	}
+
+	.jetpack-social-previews__upgrade-heading {
+		font-size: 2em;
+		line-height: 1.15;
+	}
+
+	.jetpack-social-previews__upgrade-feature-list {
+		list-style: none;
+		margin-bottom: 2em;
+		padding-left: 1em;
+		font-size: 1.1em;
+		line-height: 1.4;
+
+		li {
+			position: relative;
+			margin-bottom: 12px;
+
+			&:before {
+				content: '\2713 ';
+				position: absolute;
+				left: -20px;
+				color: $alert-green;
+			}
+		}
+	}
+
+	@media ( min-width: $break-small ) {
+		width: 80vw;
+		max-width: 870px;
+		display: grid;
+		grid-gap: 3em;
+		grid-template-columns: 1fr 1fr;
+		padding-top: 4em;
+
+		.jetpack-social-previews__upgrade-illustration {
+			grid-column: 2;
+			grid-row: 1;
+			max-width: 100%;
+			padding-right: 2em;
+		}
+
+		.jetpack-social-previews__upgrade-description {
+			grid-column: 1;
+			grid-row: 1;
+			margin-bottom: 0;
+			padding: 0 1em 1em;
+		}
+
+		.jetpack-social-previews__upgrade-heading {
+			margin-top: 0;
+		}
+
+		.jetpack-social-previews__upgrade-feature-list {
+			padding-left: 0;
+		}
+	}
+
+	@media ( min-width: $break-medium ) {
+		.jetpack-social-previews__upgrade-description {
+			padding: 0 2em 2em;
+		}
+	}
+}

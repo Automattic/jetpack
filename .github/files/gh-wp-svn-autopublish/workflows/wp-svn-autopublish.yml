@@ -1,0 +1,42 @@
+name: WordPress SVN auto-publisher
+
+on:
+  push:
+    tags:
+      - 'v?[0-9]+.[0-9]+'
+      - 'v?[0-9]+.[0-9]+-*'
+      - 'v?[0-9]+.[0-9]+.[0-9]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+-*'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9]+'
+      - 'v?[0-9]+.[0-9]+.[0-9]+.[0-9]+-*'
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check that the secret is set
+        env:
+          WPSVN_USERNAME: ${{ secrets.WPSVN_USERNAME }}
+          WPSVN_PASSWORD: ${{ secrets.WPSVN_PASSWORD }}
+        run: |
+          EXIT=0
+          if [[ -z "$WPSVN_USERNAME" ]]; then
+            echo '::error::The secret WPSVN_USERNAME must be set.'
+            EXIT=1
+          fi
+          if [[ -z "$WPSVN_PASSWORD" ]]; then
+            echo '::error::The secret WPSVN_PASSWORD must be set.'
+            EXIT=1
+          fi
+          exit $EXIT
+
+      - uses: actions/checkout@v3
+        with:
+          path: src
+
+      - name: Publish
+        env:
+          WPSVN_USERNAME: ${{ secrets.WPSVN_USERNAME }}
+          WPSVN_PASSWORD: ${{ secrets.WPSVN_PASSWORD }}
+        run: ./src/.github/files/wp-svn-autopublish.sh

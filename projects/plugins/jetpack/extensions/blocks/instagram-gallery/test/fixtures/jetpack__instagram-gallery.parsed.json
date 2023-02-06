@@ -1,0 +1,14 @@
+[
+    {
+        "blockName": "jetpack/instagram-gallery",
+        "attrs": {
+            "accessToken": "abcd",
+            "instagramUser": "testjetpackuser"
+        },
+        "innerBlocks": [],
+        "innerHTML": "\n<div class=\"wp-block-jetpack-instagram-gallery\"><a href=\"https://www.instagram.com/testjetpackuser/\" rel=\"noopener noreferrer\" target=\"_blank\">https://www.instagram.com/testjetpackuser/</a></div>\n",
+        "innerContent": [
+            "\n<div class=\"wp-block-jetpack-instagram-gallery\"><a href=\"https://www.instagram.com/testjetpackuser/\" rel=\"noopener noreferrer\" target=\"_blank\">https://www.instagram.com/testjetpackuser/</a></div>\n"
+        ]
+    }
+]

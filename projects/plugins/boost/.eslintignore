@@ -1,0 +1,8 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to munge it in.
+
+/tests/e2e/config/**
+!/app/assets/src/js/**/*.d.ts
+jetpack_vendor/
+vendor/
+wordpress/
+tests/e2e/output/

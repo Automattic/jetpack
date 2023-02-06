@@ -1,0 +1,34 @@
+.actions {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: var( --spacing-base ); // 8px
+
+	.popover {
+		padding: var( --spacing-base ); // 8px
+		text-align: center;
+		white-space: nowrap;
+	}
+}
+
+.trash {
+	svg {
+		fill: var(--jp-red-60);
+	}
+}
+
+.dropdown-content {
+	display: flex;
+	flex-direction: column;
+	gap: var( --spacing-base ); // 8px
+}
+
+.modal-actions {
+	display: flex;
+	justify-content: right;
+	margin-top: calc( var( --spacing-base ) * 3 );
+
+	.modal-action-button {
+		margin-left: var( --spacing-base );
+	}
+}

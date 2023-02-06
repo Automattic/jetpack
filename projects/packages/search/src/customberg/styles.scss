@@ -1,0 +1,28 @@
+@import 'lib/base-styles';
+@import 'lib/wordpress-interface';
+
+// In order to use mix-blend-mode, this element needs to have an explicitly set background-color
+// We scope it to .wp-toolbar to be wp-admin only, to prevent bleed into other implementations
+html.wp-toolbar {
+	background: $white;
+}
+
+.jp-search-configure-sidebar .components-button.interface-complementary-area__pin-unpin-item {
+	display: none;
+}
+
+// Customberg is an inappropriate place to show a wp-admin notice.
+#wpbody-content > .notice {
+	display: none;
+}
+
+#wpfooter {
+	display: none;
+}
+
+// Fix fill color for gridicons in dark mode
+.jp-search-configure-app-wrapper .jetpack-instant-search__overlay--dark .gridicon {
+	fill: $white;
+}
+
+@include wordpress-admin-schemes();

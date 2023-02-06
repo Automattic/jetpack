@@ -1,0 +1,22 @@
+.gathering-tweetstorms__embed-toolbar {
+	justify-content: center;
+	align-items: center;
+
+	.components-spinner {
+		position: absolute;
+		margin: 0;
+	}
+}
+
+.gathering-tweetstorms__embed-import-notice {
+	display: flex;
+	align-items: center;
+
+	.gathering-tweetstorms__embed-import-message {
+		padding-right: 20px;
+	}
+
+	.gathering-tweetstorms__embed-import-button {
+		flex-shrink: 0;
+	}
+}

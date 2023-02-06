@@ -1,0 +1,172 @@
+/*!
+ * Jetpack CRM Extension: MailPoet
+ * https://jetpackcrm.com
+ */
+
+#jpcrm-mailpoet-hub-page {
+	
+    margin-top: 4em;
+
+	#jpcrm-mailpoet-logo{
+
+	    text-align: center;
+	    margin: 1.5em auto;
+	    display: table;
+
+		img {
+
+		   vertical-align: middle;
+
+		}
+		
+		#jpcrm-mailpoet-jpcrm-logo {
+			max-width: 250px;
+		}
+
+		#jpcrm-mailpoet-mailpoet-logo {
+			max-width: 158px;
+		}
+
+		i {
+
+		    vertical-align: middle;
+		    display: table-cell;
+		    padding: 0px 1em;
+		    font-size: 1.5em;
+    		color: #069e08;
+
+		}
+
+	}
+
+	#jpcrm-mailpoet-messages {
+
+	    max-width: 800px;
+	    margin: auto;
+    	margin-bottom: 1em;
+
+	}
+
+	#jpcrm-mailpoet-page-body {
+
+	    max-width: 800px;
+	    margin: auto;
+
+	    .jpcrm-mailpoet-settings-button {
+
+		    font-size: 1.3em;
+		    margin-right: 0.5em;
+
+	    }
+
+		.jpcrm-mailpoet-stats-header {
+
+		    font-size: 1.3em;
+		    margin: 0.5em 1em;	
+			display: flex;
+			align-items: center;
+
+		    span {
+
+				color: #8594a2;
+			    margin-right: 5px;
+			    margin-left: 5px;
+
+		    }
+
+		    i {
+
+	    		margin-left: 0.5em;
+
+		    }
+
+		    .jpcrm-mailpoet-stats-url {
+		    	
+		    	line-height: 0.8em;
+
+		    }
+
+		}
+
+		h2.ui.header {
+
+    		margin: 1em;
+
+		}
+
+		.jpcrm-mailpoet-recap {		
+		    margin: 0;
+		    color: #aca0a0;
+		}
+
+		#jpcrm-mailpoet-stats {
+			position: relative;
+			margin: 5px;
+		}
+
+
+		#jpcrm-mailpoet-stats-nothing-yet {
+
+    		display: table;
+
+    		div {
+
+    			display: table-cell;
+    			vertical-align: middle;
+
+				div {
+
+			    display: block;
+
+				}
+
+			    p {
+			    
+			    	color: #FFF;
+			    
+			    }
+			    
+
+			}
+
+		}
+
+		// debug mode output:
+		#jpcrm-mailpoet-debug-output {
+
+			background: #f1e9e9;
+		    color: #000;
+		    line-height: 2em;
+		    overflow-x: scroll;
+    		padding: 0.5em 1em;
+
+		}
+
+	}
+
+	// low key grey links for admin admins really
+	#jpcrm-mailpoet-quiet-restart-link {
+
+	    margin-top: 1.2em;
+	    text-align: center;
+    	opacity: 0.6;
+
+	    a {
+		    text-decoration: underline;
+		}
+	}
+
+	.status.green {
+		color: #069e08!important;
+	}
+	.status.orange {
+		color: #f2711c!important;
+	}
+	.status.red {
+		color: #db2828!important;
+	}
+
+	.jpcrm-clickable:hover {
+		cursor: pointer;
+	}
+}

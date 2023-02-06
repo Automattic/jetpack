@@ -1,0 +1,258 @@
+@import '_inc/client/scss/functions/rem';
+@import '_inc/client/scss/variables/colors';
+@import '_inc/client/scss/typography';
+
+.updated { // utlizes some core styles, overrides some others
+	.jp-banner__tos-blurb {
+		display: block;
+		padding: rem( 6px ) 0;
+		line-height: 1.5;
+		font-size: $font-body-extra-small;
+		color: $gray-dark;
+		@include minbreakpoint(phablet) {
+			margin-left: rem(18px);
+		}
+
+		a {
+			color: inherit;
+		}
+	}
+}
+
+// Full Page Connection Banner
+// only show when Jetpack is disconnected
+.jetpack-disconnected {
+	.jp-connect-full__container {
+		box-sizing: border-box;
+		position: absolute;
+			top: 0;
+			right: 0;
+			bottom: rem( 20px );
+			left: 0;
+		z-index: 999; // to sit over other elements
+		background: rgb( 241, 241, 241 );
+		text-align: center;
+
+		@include breakpoint(large-phone) {
+			top: 42px;
+		};
+
+		@include minbreakpoint(tablet) {
+			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
+		};
+
+		.jp-connect-full__container-card {
+			padding: rem( 64px ) rem( 64px ) rem( 96px );
+			@include breakpoint(large-phone) {
+				padding: rem(32px) rem(32px);
+			};
+			background: white;
+			margin: 1em;
+
+				img.jetpack-logo {
+					width: 160px;
+				}
+
+				img.support-characters {
+					margin-top: rem( 24px );
+					width: 50%;
+				}
+		}
+
+		h4 {
+			line-height: 1.25;
+			font-size: $font-title-medium;
+			font-weight: normal;
+			margin: 1em 0;
+		}
+
+	}
+
+	// Full page connection banner in the Jetpack dashboard.
+	&.toplevel_page_jetpack .jp-connect-full__container {
+		position: relative;
+		bottom: 0;
+		box-shadow:
+			0 0 0 1px #c3c4c7,
+			0 1px 1px 1px  rgba(0,0,0,.04);
+
+
+		.jp-connect-full__container-card {
+			margin: 0;
+		}
+
+		@include minbreakpoint(tablet) {
+			left: 0;
+		};
+
+		@include breakpoint(tablet) {
+			top: 32px;
+		};
+
+		@include breakpoint(large-phone) {
+			top: 0px;
+		};
+
+		// hide the notice by default. Only display it when it is injected in the middle of the page.
+		display: none;
+	}
+
+	// Only display the banner when it is injected in the middle of the page.
+	&.toplevel_page_jetpack .jp-jetpack-connect__container {
+		.jp-connect-full__container {
+			display: block;
+			.jp-connect-full__step-header h2 {
+				@include breakpoint(large-phone) {
+					margin: 0;
+				};
+			}
+		}
+	}
+}
+
+// dismiss
+.jp-connect-full__svg-dismiss {
+	position: absolute;
+		right: 0;
+		top: 0;
+	fill: $gray;
+	padding: rem( 16px );
+	height: rem( 24px );
+	width: rem( 24px );
+}
+
+.jp-connect-full__step-header {
+	max-width: 700px;
+	margin: 0 auto 40px auto;
+	@include breakpoint(large-phone) {
+		margin-bottom: rem( 24px );
+	};
+
+	line-height: 1.5;
+
+	h2 {
+		margin: rem( 24px ) 10% 0;
+		font-size: $font-title-large;
+		font-weight: bold;
+		line-height: 1.2;
+		color: black;
+
+		@include breakpoint(large-phone) {
+			margin-top: rem( 16px );
+			font-size: $font-title-medium;
+		};
+	}
+
+	h3 {
+		color: $gray-text-min;
+		font-size: $font-body;
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
+
+	&.bottom {
+		margin-top: rem( 80px );
+	}
+}
+
+#jp-connect-full__step2-header {
+	display: none;
+}
+
+.jp-connect-full__tos-blurb {
+	font-size: $font-body-extra-small;
+	margin: 0 auto rem( 16px );
+}
+
+.jp-connect-full__dismiss {
+	cursor: pointer;
+}
+
+.jp-connect-full__dismiss-paragraph {
+	font-size: $font-body-extra-small;
+}
+
+.jp-connect-full__tos-blurb a,
+.jp-connect-full__dismiss-paragraph a {
+	cursor: pointer;
+	color: inherit;
+	text-decoration: underline;
+}
+
+.jp-connect-full__row {
+	display: flex;
+	justify-content: space-around; // Fallback for IE and Edge as they don't support the `space-evenly` value.
+	justify-content: space-evenly;
+	text-align: left;
+	align-items: baseline;
+	margin: 0 auto;
+	max-width: 1000px;
+}
+
+.jp-connect-full__slide {
+	max-width: 38%;
+	margin: rem(48px) 0;
+
+	@include breakpoint(tablet) {
+		margin: rem(30px) 0;
+	}
+
+	h3 {
+		font-size: $font-title-small;
+	}
+
+	img {
+		max-width: 100%;
+	}
+
+	ul {
+		list-style: disc;
+		margin-left: 16px;
+	}
+
+	.illustration {
+
+		@include minbreakpoint(phablet) {
+			margin-bottom: rem( 32px );
+		}
+	}
+}
+
+.jp-connect-full__step-support {
+	max-width: 700px;
+	margin: 0 auto;
+	line-height: 1.25;
+
+	h2 {
+		margin: rem( 16px ) 0 0;
+		font-size: $font-title-medium;
+		font-weight: normal;
+		color: black;
+	}
+
+	h3 {
+		color: $gray-text-min;
+		font-size: $font-body;
+		font-weight: normal;
+		margin: rem( 10px ) 0 rem( 24px );
+	}
+}
+
+.jp-connect-full__button-container-loading {
+	font-size: $font-body-small;
+	animation: jetpack-loading-fade 1.6s ease-in-out infinite;
+}
+
+.jp-connect-full__button-container .jp-spinner {
+	width: 100%;
+}
+
+@media screen and (max-width: 480px) {
+	.jp-connect-full__row {
+		display: block;
+	}
+	.jp-connect-full__slide {
+		margin: 2em 0;
+		max-width: 100%;
+	}
+}

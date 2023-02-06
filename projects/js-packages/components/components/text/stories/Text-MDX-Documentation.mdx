@@ -1,0 +1,194 @@
+import { Meta, Source, Story } from '@storybook/addon-docs';
+import dedent from 'ts-dedent';
+import Text, { BOX_MODEL_VALUES, H2, H3, Title } from '../index';
+
+<Meta title="JS Packages/Components/Text/Readme" />
+
+# Text
+Set of React jetpack-components intended to facilitate when dealing with rendering text content.
+
+## <Text /\>
+
+`Text` is the primary component that renders text, supporting the following features:
+
+* **Typography**: provided by the ThemeProvider component.
+* **Spacing**: A simple range of shorthand classes to modify the text element's margin and padding.
+
+### Props
+
+#### variant
+
+**Type**: `headline-medium`, `headline-small`, `headline-small-regular`, `title-medium`,
+`title-medium-semi-bold`, `title-small`, `body`, `body-small`, `body-extra-small`,
+`body-extra-small-bold`, `label`.
+
+Define the text Typography variant among the options offered by the ThemeProvider component.
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function Hello() {
+      return (
+        <Text variant="headline-medium">
+          Hello, Text component!
+        </Text>
+      );
+    }
+  `}
+/>
+
+#### Spacing properties
+
+**Type**: number, one of `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`.
+
+Use the following properties to define margin and padding of the text. The unit is defined by the `--spacing-base` value.
+You can see how it works playing with the [Box Model](./?path=/story/js-packages-components-text--box-model) story.
+
+Prop | Description
+---|---
+**m** | margin
+**mt** | margin-top
+**mr** | margin-right
+**mb** | margin-bottom
+**ml** | margin-left
+**mx** | margin left and right
+**my** | margin top and bottom
+**p** | padding
+**pt** | padding-top
+**pr** | padding-right
+**pb** | padding-bottom
+**pl** | padding-left
+**px** | padding left and right
+**py** | padding top and bottom
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function HelloBoxModel() {
+      return (
+        <Text mt={ 2 } px={ 4 }>
+          Hello, Text component!
+        </Text>
+      );
+    }
+  `}
+/>
+
+#### component
+
+**Type**: `elementType`, `string`.
+
+Force an specific tag (`"span"`, `"div"`) or use a custom component that will receive className and children.
+
+The example below renders the component with a `<span />` element.
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    function SpanTextComponent() {
+      return (
+        <Text component="span" variant="title-medium">
+          Never underestimate the span element
+        </Text>
+      );
+    }
+  `}
+/>
+
+The following example shows how to define the typography and the margin for a Custom component.
+The className is passed down to the custom component, while the properties that belong to the Text component (in this case, `component`, `variant` and `mb`) are not.
+
+<Source
+  language='jsx'
+  code={dedent`
+    import Text from '@automattic/jetpack-components';
+    
+    function CustomComponent( { children, className } ) {
+      // className, provided by Text, is "custom-classname"
+      return (
+        <div className={ className }>{ children }</div>
+      );
+    }
+    
+    // Use a custom component when rendering the <Text />,
+    // it passes down the className property to it.
+    function CustomTextComponent() {
+      return (
+        <Text
+          component={ CustomComponent }
+          className="custom-classname"
+          variant="title-medium"
+          mb={ 3 }
+        >
+          Hello, Custom Text component!
+        </Text>
+      );
+    }
+  `}
+/>
+
+[▶️ Custom Tag story](.?path=/story/js-packages-components-text--custom-tag) and [▶️ Custom Component story](.?path=/story/js-packages-components-text--custom-component)
+
+#### Children
+
+**Type**: `node`.
+
+The text itself that will be rendered.
+
+# Text based components
+
+## <H2 /\>
+Text shorthand to render a `heading-medium` text, applying proper spacing.
+
+[▶️ Story](.?path=/story/js-packages-components-text-heading--headline-h-2)
+
+## <H3 /\>
+Text shorthand to render a `heading-small` text, applying proper spacing.
+
+[▶️ Story](.?path=/story/js-packages-components-text-heading--headline-h-3)
+
+### Props
+
+#### Weight: `bold` (default) | `regular`
+
+<Source
+  language='jsx'
+  code={dedent`
+    import { H3 } from '@automattic/jetpack-components';
+    
+    function Subtitle() {
+      return (
+        <H3 weight="regular">Let's explaining what H3 is</H3>
+      );
+    }
+  `}
+/>
+
+## <Title /\>
+Text shorthand to render a `body` text, applying proper spacing.
+
+### Props
+
+#### Size: `medium` (default) | `small`
+
+<Source
+  language='jsx'
+  code={dedent`
+    import { Title } from '@automattic/jetpack-components';
+    
+    function Subtitle() {
+      return (
+        <Title size="small">
+          To explain what a Title component does, we should before...
+        </Title>
+      );
+    }
+  `}
+/>
+
+[▶️ Story](.?path=/story/js-packages-components-text-title--default)

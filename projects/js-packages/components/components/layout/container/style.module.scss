@@ -1,0 +1,35 @@
+@use "sass:map";
+@import "../breakpoints.module.scss";
+
+@mixin container($size) {
+	$paddings: ("sm": "16px", "md": "18px", "lg": "24px");
+	$padding: map.get($paddings, #{$size});
+
+	@include media(#{$size}) using ($columns) {
+		padding: 0 #{$padding};
+		grid-template-columns: repeat( #{$columns}, minmax(0, 1fr) );
+	}
+}
+
+.container {
+	--max-container-width: 1128px;
+	// vertical spacing
+	--vertical-gutter: 24px;
+	// horizontal spacing
+	--horizontal-spacing: 8px;
+
+	display: grid;
+	column-gap: var(--vertical-gutter);
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+	width: 100%;
+
+	@include container( "sm" );
+	@include container( "md" );
+	@include container( "lg" );
+
+	&.fluid {
+		max-width: none;
+		padding: unset;
+	}
+}

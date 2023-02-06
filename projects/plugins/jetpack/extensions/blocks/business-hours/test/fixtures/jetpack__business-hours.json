@@ -1,0 +1,66 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/business-hours",
+        "isValid": true,
+        "attributes": {
+            "days": [
+                {
+                    "name": "Sun",
+                    "hours": []
+                },
+                {
+                    "name": "Mon",
+                    "hours": [
+                        {
+                            "opening": "09:00",
+                            "closing": "17:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Tue",
+                    "hours": [
+                        {
+                            "opening": "09:00",
+                            "closing": "17:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Wed",
+                    "hours": [
+                        {
+                            "opening": "09:00",
+                            "closing": "17:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Thu",
+                    "hours": [
+                        {
+                            "opening": "09:00",
+                            "closing": "17:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Fri",
+                    "hours": [
+                        {
+                            "opening": "09:00",
+                            "closing": "17:00"
+                        }
+                    ]
+                },
+                {
+                    "name": "Sat",
+                    "hours": []
+                }
+            ]
+        },
+        "innerBlocks": [],
+        "originalContent": ""
+    }
+]

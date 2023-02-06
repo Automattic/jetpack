@@ -1,0 +1,15 @@
+[
+    {
+        "blockName": "jetpack/gif",
+        "attrs": {
+            "caption": "Puppy love",
+            "giphyUrl": "https://giphy.com/embed/3o7TKTxeQEKMD1POUg",
+            "searchText": "puppy",
+            "paddingTop": "40%",
+            "className": "jetpack-test-class"
+        },
+        "innerBlocks": [],
+        "innerHTML": "",
+        "innerContent": []
+    }
+]

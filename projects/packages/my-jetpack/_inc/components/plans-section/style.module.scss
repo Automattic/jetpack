@@ -1,0 +1,14 @@
+.container {
+	a, a:active, a:hover {
+		color: var( --jp-black );
+	}
+}
+
+.expire-date {
+	margin-bottom: calc( var(--spacing-base ) * 3 );
+}
+
+.actions-list-item {
+	line-height: calc( var( --spacing-base ) * 3 );
+	margin: 0 0 var( --spacing-base ) 0;
+}

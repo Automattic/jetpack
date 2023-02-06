@@ -1,0 +1,12 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd" >
+<svg xmlns="http://www.w3.org/2000/svg">
+<metadata></metadata>
+<defs>
+<font id="vaultpressregular" horiz-adv-x="500" >
+<font-face units-per-em="2048" ascent="1638" descent="-410" />
+<missing-glyph horiz-adv-x="500" />
+<glyph unicode="&#x25fc;" d="M0 0z" />
+<glyph unicode="&#xf219;" horiz-adv-x="2048" d="M1022 1920l834 -265q85 -28 56 -172q-6 -27 -15 -65t-41 -143.5t-70.5 -208.5t-105 -244t-142.5 -266.5t-184.5 -260t-229.5 -239.5q-1 -1 -9.5 -8t-11 -9t-10.5 -8t-11.5 -8.5t-10.5 -7t-12 -6.5t-12 -4.5t-13 -3.5t-12 -1q-36 0 -101 56q-121 105 -230 239.5t-185 260 t-142.5 266.5t-105 244t-70.5 208.5t-41 143.5t-15 65q-12 59 8.5 111t71.5 70zM1627 1486h-331l-272 -683l-272 683h-331l112 -282h26q14 0 25.5 -10t16.5 -19t5 -11l296 -730h244l293 722l3 8q0 2 5 11t16.5 19t25.5 10h26z" />
+</font>
+</defs></svg> 

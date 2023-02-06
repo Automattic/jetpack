@@ -1,0 +1,34 @@
+{
+	"name": "automattic/action-repo-gardening",
+	"description": "GitHub Action to manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...).",
+	"type": "project",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"extra": {
+		"autotagger": {
+			"major": true
+		},
+		"autorelease": true,
+		"mirror-repo": "Automattic/action-repo-gardening",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/action-repo-gardening/compare/v${old}...v${new}"
+		}
+	}
+}

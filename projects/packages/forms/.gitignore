@@ -1,0 +1,9 @@
+.cache/
+dist/
+node_modules/
+vendor/
+wordpress/
+
+/src/**/*.css.map
+/src/**/*.min.css
+/src/**/*.rtl.css

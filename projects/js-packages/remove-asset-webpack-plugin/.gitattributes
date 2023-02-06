@@ -1,0 +1,8 @@
+# Files not needed to be distributed in the package.
+node_modules      export-ignore
+
+# Files to exclude from the mirror repo
+/changelog/**     production-exclude
+/.eslintrc.cjs    production-exclude
+/.gitattributes   production-exclude
+/tests/**         production-exclude

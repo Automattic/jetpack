@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a support question
+    url: http://jetpack.com/contact-support/
+    about: This issue tracker is not for support. If you have questions about one of our plugins, you can contact us here.

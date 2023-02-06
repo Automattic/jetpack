@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Mocker tool: add runner to add rows in the WAF log DB table for blocked requests

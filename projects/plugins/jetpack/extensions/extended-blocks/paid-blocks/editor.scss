@@ -1,0 +1,127 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+@import "@automattic/color-studio/dist/color-variables";
+
+$icon-size: 10px;
+$icon-background-color: #fff;
+
+// Upgrade Banner.
+.jetpack-upgrade-plan-banner {
+	.jetpack-upgrade-plan-banner__wrapper {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 14px;
+		font-family: $default-font;
+		text-transform: none;
+		background: black;
+		padding: 0 20px;
+		border-radius: 2px;
+		box-shadow: 0 0 1px inset $studio-white;
+		flex-wrap: wrap;
+
+		.banner-title,
+		.banner-description {
+			color: $studio-white;
+			margin-right: 10px;
+			margin-top: 10px;
+			margin-bottom: 10px;
+		}
+
+		.jetpack-upgrade-plan-banner__title,
+		.jetpack-upgrade-plan-banner__description {
+			margin-right: 10px;
+		}
+
+		.components-button {
+			flex-shrink: 0;
+			line-height: 1;
+			margin-left: auto;
+			height: 28px;
+			margin-top: 10px;
+			margin-bottom: 10px;
+
+			&.is-primary {
+				text-decoration: none;
+				background: $studio-pink-40;
+				color: $studio-white;
+
+				&:hover {
+					background: $studio-pink-30;
+				}
+				&.is-busy {
+					background-size: 100px 100%;
+					background-image: linear-gradient(-45deg, $studio-pink-40 28%, $studio-pink-60 28%, $studio-pink-60 72%, $studio-pink-40 72%);
+				}
+			}
+		}
+	}
+
+	// Banner in the editor-canvas context.
+	&.block-editor-block-list__block {
+		margin-top: 0;
+		margin-bottom: 12px;
+	}
+
+	&.wp-block[data-align=right],
+	&.wp-block[data-align=left] {
+		.jetpack-upgrade-plan-banner__wrapper {
+			max-width: $content-width;
+			width: 100%;
+		}
+	}
+}
+
+.jetpack-upgrade-plan__hidden {
+	display: none;
+}
+
+// Paid Icons: Hide by default.
+.jetpack-paid-block-symbol {
+	display: none;
+}
+
+// Paid Icons: Only show if upgrade is possible.
+.jetpack-enable-upgrade-nudge {
+	.block-editor-block-icon > svg {
+		overflow: visible;
+	}
+
+	.jetpack-paid-block-symbol {
+		display: block;
+	}
+
+	.components-placeholder__label .jetpack-paid-block-symbol {
+		display: none;
+	}
+}
+
+// Cover block: Override flexbox so we can place the banner above the block.
+.wp-block-cover.is-placeholder {
+	display: block;
+}
+
+// Media Placeholder
+.paid-block-media-placeholder {
+	width: 100%;
+
+	// Remove paid-block-media-placeholder from being a flexbox child
+	// when the cover block has a background set
+	.wp-block-cover:not( .is-placeholder ) & {
+		position: absolute;
+		top: 0;
+		right: 0;
+		left: 0;
+		bottom: 0;
+	}
+}
+
+// core/cover set padding 0 with !important.
+// https://github.com/WordPress/gutenberg/blob/d348f55a33124426897448d560b46cede6ebb089/packages/block-library/src/cover/editor.scss#L6-L9
+.block-editor-block-list__block.is-upgradable.is-selected.is-placeholder {
+	padding-top: 0;
+	background-color: transparent;
+}
+
+.block-editor-block-list__layout .block-editor-block-list__block.is-upgradable:focus:after {
+	box-shadow: none;
+}

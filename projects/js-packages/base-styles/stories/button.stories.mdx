@@ -1,0 +1,29 @@
+import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+import './button.scss';
+
+<Meta title="Examples/HTML" />
+
+# HTML-only story
+
+This is an example of a HTML-only story that a designer or front-end developer might use to establish the HTML
+and CSS structure to render an element properly.
+
+The file you are looking at lives in js-packages/base-styles/stories/button.stories.mdx. If you edit that file you will see your changes live.
+
+<Canvas>
+	<Story name="Plain button">
+		<button type="button" className="components-button is-small">Button</button>
+	</Story>
+</Canvas>
+
+<Canvas>
+	<Story name="Primary button">
+		<button type="button" className="components-button is-primary is-small">Primary Button</button>
+	</Story>
+</Canvas>
+
+<Canvas>
+	<Story name="Secondary button">
+		<button type="button" className="components-button is-secondary is-small">Secondary Button</button>
+	</Story>
+</Canvas>

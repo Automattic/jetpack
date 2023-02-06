@@ -1,0 +1,1085 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Webpack \`basic-test\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`basic-test\` Build results: Webpack build files 1`] = `
+{
+  "bar.asset.php": {},
+  "bar.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "baz.asset.php": {},
+  "baz.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.asset.php": {},
+  "main.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "basic-test", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+}
+`;
+
+exports[`Webpack \`basic-test\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build files 1`] = `
+{
+  "array/hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "array/hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "array/main.asset.php": {},
+  "array/main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "array/main2.asset.php": {},
+  "array/main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "ignore-modules", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "array/noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "function/hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "function/hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "function/main.asset.php": {},
+  "function/main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "function/main2.asset.php": {},
+  "function/main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "ignore-modules", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "function/noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "regex/hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "regex/hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "regex/main.asset.php": {},
+  "regex/main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "regex/main2.asset.php": {},
+  "regex/main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "ignore-modules", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "regex/noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "string/hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "string/hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "string/main.asset.php": {},
+  "string/main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "string/main2.asset.php": {},
+  "string/main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "ignore-modules", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "string/noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+}
+`;
+
+exports[`Webpack \`ignore-modules\` Build results: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+  ],
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`loader-failures\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`loader-failures\` Build results: Webpack build files 1`] = `
+{
+  "a.asset.php": {},
+  "a.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "loader-failures", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+}
+`;
+
+exports[`Webpack \`loader-failures\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build files 1`] = `
+{
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!*******************************!*\\
+  !*** external "jpI18nLoader" ***!
+  \\*******************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = global["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "manual-externals", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+}
+`;
+
+exports[`Webpack \`manual-externals\` Build results: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+  ],
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`missing-externals\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`missing-externals\` Build results: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [
+        {
+          "message": "@automattic/i18n-loader-webpack-plugin:
+Failed to add loader module @wordpress/jp-i18n-loader to the build.
+You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config.",
+        },
+      ],
+      "name": undefined,
+      "warnings": [
+        {
+          "loc": "",
+          "message": "Module not found: Error: Can't resolve '@wordpress/jp-i18n-loader' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+        },
+      ],
+    },
+    {
+      "errors": [
+        {
+          "message": "@automattic/i18n-loader-webpack-plugin:
+Failed to add loader module missingloader to the build.
+You'll need to add the appropriate externals directive to your Webpack config.",
+        },
+      ],
+      "name": undefined,
+      "warnings": [
+        {
+          "loc": "",
+          "message": "Module not found: Error: Can't resolve 'missingloader' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+        },
+      ],
+    },
+  ],
+  "errors": [
+    {
+      "compilerPath": undefined,
+      "message": "@automattic/i18n-loader-webpack-plugin:
+Failed to add loader module @wordpress/jp-i18n-loader to the build.
+You'll need to add @wordpress/dependency-extraction-webpack-plugin or an appropriate externals directive to your Webpack config.",
+    },
+    {
+      "compilerPath": undefined,
+      "message": "@automattic/i18n-loader-webpack-plugin:
+Failed to add loader module missingloader to the build.
+You'll need to add the appropriate externals directive to your Webpack config.",
+    },
+  ],
+  "warnings": [
+    {
+      "compilerPath": undefined,
+      "loc": "",
+      "message": "Module not found: Error: Can't resolve '@wordpress/jp-i18n-loader' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+    },
+    {
+      "compilerPath": undefined,
+      "loc": "",
+      "message": "Module not found: Error: Can't resolve 'missingloader' in '/path/to/i18n-loader-webpack-plugin/tests/fixtures/missing-externals'",
+    },
+  ],
+}
+`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build files 1`] = `
+{
+  "bar.asset.php": {},
+  "bar.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "baz.asset.php": {},
+  "baz.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.asset.php": {},
+  "main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main2.asset.php": {},
+  "main2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "runtime~bar.asset.php": {},
+  "runtime~bar.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "runtime~baz.asset.php": {},
+  "runtime~baz.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "runtime~main.asset.php": {},
+  "runtime~main.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "multiple-runtime", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "runtime~main2.asset.php": {},
+  "runtime~main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0,
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "multiple-runtime", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+}
+`;
+
+exports[`Webpack \`multiple-runtime\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build files 1`] = `
+{
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "indirect1.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "indirect2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.asset.php": {},
+  "main.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "nested-includes", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+}
+`;
+
+exports[`Webpack \`nested-includes\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`no-textdomain\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`no-textdomain\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [
+    {
+      "message": "Chunk dist/main.js has submodules using @wordpress/i18n, but no textdomain was passed to @automattic/i18n-loader-webpack-plugin. Please fix your Webpack configuration.",
+      "moduleIdentifier": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+      "moduleName": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+    },
+  ],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build files 1`] = `
+{
+  "bar.asset.php": {},
+  "bar.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "baz.asset.php": {},
+  "baz.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+}
+`;
+
+exports[`Webpack \`no-textdomain-no-i18n\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`options\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`options\` Build results: Webpack build files 1`] = `
+{
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.js": {
+    "jpI18nState": null,
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! loader */ "loader");
+/******/ 			if ( loader && loader.doload )
+/******/ 				return loader.doload( "jetpack_vendor/automattic/jetpack-foobar/dist/" + __webpack_require__.u( chunkId ), "options", "core" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting loader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "main2.asset.php": {},
+  "main2.js": {
+    "jpI18nState": null,
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/i18n */ "@wordpress/i18n");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "options", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.i18n." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+}
+`;
+
+exports[`Webpack \`options\` Build results: Webpack build stats 1`] = `
+{
+  "children": [
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+    {
+      "errors": [],
+      "name": undefined,
+      "warnings": [],
+    },
+  ],
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build files 1`] = `
+{
+  "bar.asset.php": {},
+  "bar.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "baz.asset.php": {},
+  "baz.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "hasI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "hasI18n2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.asset.php": {},
+  "main.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main2.asset.php": {},
+  "main2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "noI18n.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "runtime.asset.php": {},
+  "runtime.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"hasI18n": 0,
+/******/ 			"hasI18n2": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "single-runtime", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+}
+`;
+
+exports[`Webpack \`single-runtime\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build error 1`] = `null`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build files 1`] = `
+{
+  "indirect1.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "indirect2.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+  "main.asset.php": {},
+  "main.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"src_hasI18n_js-src_hasI18n2_js": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "splitting", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "main2.asset.php": {},
+  "main2.js": {
+    "jpI18nState": "/***/ "@wordpress/jp-i18n-loader":
+/*!**************************************!*\\
+  !*** external ["wp","jpI18nLoader"] ***!
+  \\**************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = window["wp"]["jpI18nLoader"];
+",
+    "loader": "/******/ 	/* webpack/runtime/loading @automattic/i18n-loader-webpack-plugin */
+/******/ 	(() => {
+/******/ 		var installedChunks = {
+/******/ 			"src_hasI18n_js-src_hasI18n2_js": 0
+/******/ 		};
+/******/ 		
+/******/ 		var loadI18n = (chunkId) => {
+/******/ 			var loader = __webpack_require__(/*! @wordpress/jp-i18n-loader */ "@wordpress/jp-i18n-loader");
+/******/ 			if ( loader && loader.downloadI18n )
+/******/ 				return loader.downloadI18n( "dist/" + __webpack_require__.u( chunkId ), "splitting", "plugin" );
+/******/ 			return Promise.reject( new Error( "I18n loader is not available. Check that WordPress is exporting wp.jpI18nLoader." ) );
+/******/ 		};
+/******/ 		
+/******/ 		__webpack_require__.f.wpI18n = (chunkId, promises) => {
+/******/ 			if ( installedChunks[chunkId] ) {
+/******/ 				promises.push( installedChunks[chunkId] );
+/******/ 			} else if ( installedChunks[chunkId] === 0 ) {
+/******/ 				promises.push( installedChunks[chunkId] = loadI18n( chunkId ).then(
+/******/ 					() => {
+/******/ 						installedChunks[chunkId] = false;
+/******/ 					},
+/******/ 					(e) => {
+/******/ 						installedChunks[chunkId] = 0;
+/******/ 						// Log only, we don't want i18n failure to break the entire page.
+/******/ 						console.error( "Failed to fetch i18n data: ", e );
+/******/ 					}
+/******/ 				) );
+/******/ 			}
+/******/ 		};
+/******/ 	})();",
+  },
+  "src_hasI18n_js-src_hasI18n2_js.js": {
+    "jpI18nState": null,
+    "loader": null,
+  },
+}
+`;
+
+exports[`Webpack \`splitting\` Build results: Webpack build stats 1`] = `
+{
+  "errors": [],
+  "warnings": [],
+}
+`;

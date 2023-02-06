@@ -1,0 +1,45 @@
+name: "Repository Gardening"
+description: "Manage Pull Requests and issues in your Open Source project (automate labelling, milestones, feedback to PR authors, ...)."
+branding:
+  icon: 'activity'
+  color: 'green'
+inputs:
+  github_token:
+    description: "GitHub access token"
+    required: true
+    default: ${{ github.token }}
+  reply_to_customers_threshold:
+    description: "Minimum of support references needed to trigger a reminder to batch-reply to customers. Default to 10."
+    required: false
+    default: "10"
+  slack_token:
+    description: "Slack Bot access token"
+    required: false
+    default: ""
+  slack_design_channel:
+    description: "Slack channel ID where messages for the Design team will be sent"
+    required: false
+    default: ""
+  slack_editorial_channel:
+    description: "Slack channel ID where messages for the Editorial team will be sent"
+    required: false
+    default: ""
+  slack_he_triage_channel:
+    description: "Slack channel ID where messages for the HE Triage team will be sent"
+    required: false
+    default: ""
+  slack_team_channel:
+    description: "Slack channel ID where general notifications should be sent"
+    required: false
+    default: ""
+  slack_quality_channel:
+    description: "Slack channel ID where issues needing extra triage / escalation will be sent"
+    required: false
+    default: ""
+  tasks:
+    description: "Comma-separated selection of task names (function name, camelCase) this action should run. e.g. addLabels,cleanLabels"
+    required: false
+    default: "all"
+runs:
+  using: node16
+  main: "dist/index.js"

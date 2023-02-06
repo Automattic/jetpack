@@ -1,0 +1,55 @@
+{
+	"private": true,
+	"description": "A Jetpack plugin that helps users to migrate their sites to WordPress.com.",
+	"homepage": "https://jetpack.com",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Migration"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/plugins/migration"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-client",
+		"build-client": "webpack",
+		"build-concurrently": "pnpm run clean && concurrently 'pnpm:build-client'",
+		"build-production-concurrently": "pnpm run clean && concurrently 'NODE_ENV=production BABEL_ENV=production pnpm run build-client' && pnpm run validate",
+		"clean": "rm -rf build/",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build && webpack watch"
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
+	"dependencies": {
+		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
+		"@wordpress/data": "7.6.0",
+		"@wordpress/element": "4.20.0",
+		"@wordpress/date": "4.22.0",
+		"@wordpress/i18n": "4.22.0",
+		"react": "17.0.2",
+		"react-dom": "17.0.2"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.20.12",
+		"@babel/preset-env": "7.20.2",
+		"@babel/register": "7.18.9",
+		"@babel/runtime": "7.20.13",
+		"@wordpress/browserslist-config": "5.5.0",
+		"concurrently": "6.0.2",
+		"sass": "1.43.3",
+		"sass-loader": "12.4.0",
+		"webpack": "5.72.1",
+		"webpack-cli": "4.9.1"
+	},
+	"engines": {
+		"node": "^18.13.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	}
+}

@@ -1,0 +1,134 @@
+@import '../lib/styles/_helper.scss';
+
+$item-spacing: 16px;
+
+.jetpack-instant-search__search-results-list.is-format-product {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 0 0 3em;
+
+	margin-right: $results-margin-lg - $item-spacing;
+	@include break-large-down() {
+		margin-right: $results-margin-md - $item-spacing;
+	}
+	@include break-medium-down() {
+		margin-right: $results-margin-sm - $item-spacing;
+	}
+}
+
+.jetpack-instant-search__search-result.jetpack-instant-search__search-result-product {
+	margin: 0 $item-spacing $item-spacing 0;
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	// On mobile and responsive viewports, we allow only a single column.
+	$column-count: 2;
+	width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	margin-right: $item-spacing;
+
+	@include break-small-up {
+		$column-count: 3;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+
+	@include break-medium-up {
+		$column-count: 4;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+
+	@include break-large-up {
+		// Lower column count due to sidebar no longer being collapsed.
+		$column-count: 3;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+
+	@include break-xlarge-up {
+		$column-count: 4;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+
+	@include break-xxlarge-up {
+		$column-count: 5;
+		width: calc( ( 100% - ( #{$item-spacing} * #{$column-count} ) ) / #{$column-count} );
+	}
+}
+
+.jetpack-instant-search__search-result > .jetpack-instant-search__search-result-product-img-link {
+	display: block;
+}
+
+.jetpack-instant-search__search-result-product-img-container {
+	border-radius: 5px;
+	color: transparent;
+
+	&.jetpack-instant-search__search-result-product-img-container--placeholder {
+		background: $studio-gray-10;
+	}
+
+	.gridicon {
+		fill: $color-modal-background;
+	}
+
+	// Use aspect ratio box trick
+	// See https://css-tricks.com/aspect-ratio-boxes/
+	position: relative;
+	&:before {
+		display: block;
+		content: '';
+		width: 100%;
+		padding-top: 100%;
+	}
+}
+
+.jetpack-instant-search__search-result-product-img {
+	// Use aspect ratio box trick
+	// See https://css-tricks.com/aspect-ratio-boxes/
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+
+	border-radius: 5px;
+	height: 100%;
+	object-fit: cover;
+	width: 100%;
+
+	> .gridicon {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
+	> .gridicons-image {
+		width: 25%;
+		height: 25%;
+	}
+	> .gridicons-block {
+		width: 50%;
+		height: 50%;
+	}
+}
+
+.jetpack-instant-search__search-result-title.jetpack-instant-search__search-result-product-title {
+	font-size: 1.25em;
+	margin: 0.25em 0 0;
+}
+
+.jetpack-instant-search__search-result-product-match {
+	font-size: 0.9em;
+	margin-top: 0.25em;
+
+	mark {
+		align-items: center;
+		display: flex;
+		font-weight: normal;
+	}
+
+	.gridicon {
+		height: 1em;
+		width: 1em;
+		margin-right: 0.25em;
+	}
+}

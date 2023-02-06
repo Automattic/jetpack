@@ -1,0 +1,28 @@
+.galleryAppender {
+	padding-top: $grid-unit-20;
+}
+
+.horizontalBorder {
+	border-top-width: $border-width;
+	border-color: $light-gray-400;
+}
+
+.horizontalBorderDark {
+	border-color: $gray-70;
+}
+
+.is-style-square {
+	aspect-ratio: 1;
+}
+
+.is-style-rectangular {
+	aspect-ratio: 1;
+}
+
+.cellRowStyles {
+	flex-shrink: 1;
+}
+
+.galleryLayoutTitle {
+	text-align: left;
+}

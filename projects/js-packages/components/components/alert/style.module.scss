@@ -1,0 +1,43 @@
+.container {
+	display: flex;
+	font-size: var( --font-body );
+	line-height: calc( var( --spacing-base ) * 3 );
+	min-height: calc( var( --spacing-base ) * 3 );
+	align-items: center;
+	margin: calc( var( --spacing-base ) * 2 ) 0;
+}
+
+.icon-wrapper {
+	margin-right: calc( var( --spacing-base ) / 2 );
+	width: calc( var( --spacing-base ) * 3 );
+	height: calc( var( --spacing-base ) * 3 );
+	align-self: flex-start;
+}
+
+.is-error {
+	color: var( --jp-red );
+	.icon {
+		fill: var( --jp-red );
+	}
+}
+
+.is-warning {
+	color: var( --jp-yellow-40 );
+	.icon {
+		fill: var( --jp-yellow-40 );
+	}
+}
+
+.is-info {
+	color: var( --jp-blue-40 );
+	.icon {
+		fill: var( --jp-blue-40 );
+	}
+}
+
+.is-success {
+	color: var( --jp-green );
+	.icon {
+		fill: var( --jp-green );
+	}
+}

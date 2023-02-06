@@ -1,0 +1,12 @@
+[
+	{
+		"id": "mapbox-gl-js",
+		"file": "node_modules/mapbox-gl/dist/mapbox-gl.js",
+		"version": "1.13.0"
+	},
+	{
+		"id": "mapbox-gl-css",
+		"file": "node_modules/mapbox-gl/dist/mapbox-gl.css",
+		"version": "1.13.0"
+	}
+]

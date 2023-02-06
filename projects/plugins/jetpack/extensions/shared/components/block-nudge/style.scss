@@ -1,0 +1,37 @@
+// Some styling here could inherit from Warning component, but is needed to
+// override some overzealous theme editor styling.
+
+.jetpack-block-nudge {
+	// Necessary extra specificity
+	&.block-editor-warning {
+		margin-bottom: 12px;
+	}
+
+	.block-editor-warning__message {
+		margin: 13px 0;
+	}
+
+	.block-editor-warning__actions {
+		line-height: 1;
+	}
+
+	.jetpack-block-nudge__info {
+		font-size: 13px;
+		display: flex;
+		flex-direction: row;
+		line-height: 1.4;
+	}
+
+	.jetpack-block-nudge__text-container {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.jetpack-block-nudge__title {
+		font-size: 14px;
+	}
+
+	.jetpack-block-nudge__message {
+		color: var( --color-text-subtle );
+	}
+}

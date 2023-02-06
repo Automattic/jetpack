@@ -1,0 +1,54 @@
+
+.wp-block-jetpack-dialogue__timestamp-controls {
+	display: flex;
+
+	.components-number-control {
+		min-width: 60px;
+	}
+}
+
+.wp-block-jetpack-dialogue__timestamp-button {
+	margin-left: 6px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-control__hour,
+.wp-block-jetpack-dialogue__timestamp-control__minute {
+	margin-right: 5px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-control__play-button {
+	align-self: flex-end;
+	margin-left: 10px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-content .wp-block-jetpack-dialogue__timestamp-container {
+	min-width: 290px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-range-control {
+	margin-top: 8px;
+	margin-right: 16px;
+}
+
+.wp-block-jetpack-dialogue__timestamp-dropdown {
+	min-width: 90px;
+}
+
+.wp-block-jetpack-dialogue__participant.is-participant-adding,
+.wp-block-jetpack-dialogue__participant.is-participant-editing {
+	opacity: 0.7;
+}
+
+.wp-block-jetpack-conversation:not(.is-style-column) {
+	.wp-block-jetpack-dialogue__meta {
+		// The div below is added by the withFocusOutside HoC.
+		// We need to stretch it out to deal with speaker width.
+		&.has-not-media-source > div {
+			width: 100%;
+		}	
+	
+		.wp-block-jetpack-dialogue__participant {
+			min-width: 50px;
+		}
+	}
+}

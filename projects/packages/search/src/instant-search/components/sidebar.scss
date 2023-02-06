@@ -1,0 +1,29 @@
+@import '../lib/styles/_helper.scss';
+
+.jetpack-instant-search__sidebar {
+	padding-top: 14px;
+
+	.jetpack-instant-search__widget-area {
+		> .widget {
+			border: none;
+			padding: 0;
+			margin: 0;
+			background: none;
+
+			a {
+				font-weight: initial;
+			}
+		}
+	}
+
+	h2.widgettitle {
+		font-size: 1.3em;
+		margin: 1em 0 0.5em;
+		border: none;
+
+		&::before,
+		&::after {
+			display: none !important; // hide theme-specific horizontal rules added via psudo-elements.
+		}
+	}
+}

@@ -1,0 +1,31 @@
+.a8cjptt-threats p {
+	font-weight: normal;
+}
+
+.a8cjptt-threats p code {
+	white-space: nowrap;
+}
+
+.a8cjptt-threats > div + div {
+	margin-top: 16px;
+}
+
+.a8cjptt-alert {
+	margin-bottom: 8px;
+}
+
+.a8cjptt-alert:last-of-type {
+	margin-bottom: 18px;
+}
+
+.a8cjptt-danger {
+	color: red;
+}
+
+.a8cjptt-success {
+	color: green;
+}
+
+.a8cjptt-info {
+	color: blue;
+}

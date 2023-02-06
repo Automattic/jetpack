@@ -1,0 +1,17 @@
+[
+    {
+        "clientId": "_clientId_0",
+        "name": "jetpack/instagram-gallery",
+        "isValid": true,
+        "attributes": {
+            "accessToken": "abcd",
+            "instagramUser": "testjetpackuser",
+            "columns": 3,
+            "count": 9,
+            "spacing": 10,
+            "isStackedOnMobile": true
+        },
+        "innerBlocks": [],
+        "originalContent": "<div class=\"wp-block-jetpack-instagram-gallery\"><a href=\"https://www.instagram.com/testjetpackuser/\" rel=\"noopener noreferrer\" target=\"_blank\">https://www.instagram.com/testjetpackuser/</a></div>"
+    }
+]

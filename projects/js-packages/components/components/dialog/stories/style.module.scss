@@ -1,0 +1,21 @@
+
+.section {
+	display: flex;
+	padding: calc( var( --spacing-base ) * 6 ) 0;
+	border: 1px dotted var( --jp-green-60 );
+	box-sizing: border-box;
+	align-items: center;
+	color: var( --jp-white );
+	flex-wrap: nowrap;
+    flex-direction: column;
+	justify-content: space-between;
+	height: calc( var( --spacing-base ) * 20 );
+	flex-grow: 2;
+	background: repeating-linear-gradient(
+		-45deg,
+		var( --jp-green-50 ),
+		var( --jp-green-50 ) 20px,
+		var( --jp-green-60 ) 20px,
+		var( --jp-green-60 ) 40px
+	);
+}

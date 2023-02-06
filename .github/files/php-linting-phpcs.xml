@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<!-- phpcs config file for use in the Github Action -->
+<ruleset>
+	<rule ref="../../.phpcs.xml.dist" />
+
+	<!-- Redundant to the "PHP lint" job. -->
+	<rule ref="Generic.PHP.Syntax">
+		<exclude name="Generic.PHP.Syntax"/>
+	</rule>
+
+	<!-- Redundant to the "PHP Compatibility" job. -->
+	<rule ref="PHPCompatibilityWP">
+		<exclude name="PHPCompatibility"/>
+	</rule>
+</ruleset>

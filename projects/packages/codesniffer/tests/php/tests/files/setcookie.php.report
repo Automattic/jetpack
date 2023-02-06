@@ -1,0 +1,6 @@
+ 12 | WARNING | The setcookie function requires the httponly parameter to be set to true, unless intentionally disabled.
+    |         | (Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse)
+ 15 | WARNING | The setcookie function requires the httponly parameter to be set to true, unless intentionally disabled.
+    |         | (Jetpack.Functions.SetCookie.MissingTrueHTTPOnly)
+ 18 | WARNING | The setcookie function requires the httponly parameter to be set to true, unless intentionally disabled.
+    |         | (Jetpack.Functions.SetCookie.MissingTrueHTTPOnly)

@@ -1,0 +1,3 @@
+# Not loaded by default eslint, but we use tools/js-tools/load-eslint-ignore.js in .eslintrc to munge it in.
+
+/src/js/jetpack-jitm.js

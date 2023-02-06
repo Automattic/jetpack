@@ -1,0 +1,18 @@
+.connections-list {
+	list-style-type: none;
+	margin: 0;
+	width: 100%;
+
+	.components-notice {
+		margin: 5px 0 10px;
+	}
+}
+
+.upgrade-link {
+	white-space: nowrap;
+}
+
+.more-link {
+	display: inline-block;
+	margin-top: 6px;
+}
