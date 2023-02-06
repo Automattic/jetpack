@@ -21,12 +21,12 @@ import type React from 'react';
  * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { autoplay, loop, muted, controls, playsinline } = attributes;
+	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
-		( attributeName: string ) => {
+		( attributeName: string, attributeValue?: string ) => {
 			return newValue => {
-				setAttributes( { [ attributeName ]: newValue } );
+				setAttributes( { [ attributeName ]: attributeValue ?? newValue } );
 			};
 		},
 		[ setAttributes ]
@@ -84,6 +84,19 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				checked={ playsinline }
 				help={ __(
 					'Play the video inline instead of full-screen on mobile devices.',
+					'jetpack-videopress-pkg'
+				) }
+			/>
+
+			<ToggleControl
+				label={ __( 'Preload Metadata', 'jetpack-videopress-pkg' ) }
+				onChange={ handleAttributeChange(
+					'preload',
+					preload === 'metadata' ? 'none' : 'metadata'
+				) }
+				checked={ preload === 'metadata' }
+				help={ __(
+					'Preload the video metadata when the page is loaded.',
 					'jetpack-videopress-pkg'
 				) }
 			/>

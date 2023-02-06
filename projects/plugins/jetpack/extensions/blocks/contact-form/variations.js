@@ -22,7 +22,7 @@ const variations = compact( [
 	{
 		name: 'contact-form',
 		title: __( 'Contact Form', 'jetpack' ),
-		description: __( 'Add a contact form to your page.', 'jetpack' ),
+		description: __( 'Add a contact form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
 			<>
 				<Path
@@ -63,7 +63,7 @@ const variations = compact( [
 		name: 'newsletter-form',
 		title: __( 'Newsletter Sign-up', 'jetpack' ),
 		description: __(
-			'A simple way to collect information from folks visiting your site.',
+			'A simple way to collect information from folks visiting your site',
 			'jetpack'
 		),
 		keywords: [ __( 'subscribe', 'jetpack' ), __( 'email', 'jetpack' ), __( 'signup', 'jetpack' ) ],

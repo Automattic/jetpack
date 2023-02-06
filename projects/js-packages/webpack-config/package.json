@@ -31,7 +31,7 @@
 		"@cerner/duplicate-package-checker-webpack-plugin": "2.3.0",
 		"@wordpress/browserslist-config": "5.9.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "4.9.0",
-		"babel-loader": "8.3.0",
+		"babel-loader": "9.1.2",
 		"browserslist": "4.20.4",
 		"css-loader": "6.5.1",
 		"css-minimizer-webpack-plugin": "4.0.0",

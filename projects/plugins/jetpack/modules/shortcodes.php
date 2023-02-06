@@ -134,7 +134,8 @@ if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {
 	 * Get VideoPress ID from wpvideo shortcode attributes.
 	 *
 	 * @param array $atts Shortcode attributes.
-	 * @return int  $id   VideoPress ID.
+	 *
+	 * @return string|int $id VideoPress ID.
 	 */
 	function jetpack_shortcode_get_wpvideo_id( $atts ) {
 		if ( isset( $atts[0] ) ) {

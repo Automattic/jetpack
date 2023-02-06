@@ -53,7 +53,7 @@
 		"@wordpress/format-library": "4.3.0",
 		"@wordpress/postcss-plugins-preset": "4.10.0",
 		"autoprefixer": "10.4.12",
-		"babel-loader": "8.3.0",
+		"babel-loader": "9.1.2",
 		"babel-plugin-inline-json-import": "0.3.2",
 		"css-loader": "6.5.1",
 		"jest": "29.3.1",

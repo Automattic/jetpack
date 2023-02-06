@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Put legacy contact-form blocks registration behind a flag

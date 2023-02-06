@@ -38,7 +38,7 @@ class Block_Editor_Extensions {
 	 * @param array $block_metadata - The block metadata.
 	 */
 	public static function init( $block_metadata ) {
-		if ( ! Status::is_active() ) {
+		if ( ! Status::is_registrant_plugin_active() ) {
 			return;
 		}
 
@@ -153,9 +153,12 @@ class Block_Editor_Extensions {
 		}
 
 		$videopress_editor_state = array(
-			'extensions'          => $extensions_list,
-			'siteType'            => $site_type,
-			'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
+			'extensions'                  => $extensions_list,
+			'siteType'                    => $site_type,
+			'myJetpackConnectUrl'         => admin_url( 'admin.php?page=my-jetpack#/connection' ),
+			'jetpackVideoPressSettingUrl' => admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ),
+			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
+			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
 		);
 
 		// Expose initital state of site connection

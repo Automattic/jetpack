@@ -230,6 +230,23 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
+						{ ! this.props.isWoASite && (
+							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
+							<FormFieldset className="jp-stats-odyssey-toggle">
+								<CompactFormToggle
+									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
+									disabled={ ! isStatsActive || unavailableInOfflineMode }
+									toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
+									onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ /* This toggle enables Odyssey Stats. */ }
+										{ __( 'Enable the new Jetpack Stats experience', 'jetpack' ) }
+									</span>
+									<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
+								</CompactFormToggle>
+							</FormFieldset>
+						) }
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
@@ -245,22 +262,6 @@ class SiteStatsComponent extends React.Component {
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
-						{ ! this.props.isWoASite && (
-							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
-							<FormFieldset>
-								<CompactFormToggle
-									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
-									disabled={ ! isStatsActive || unavailableInOfflineMode }
-									toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
-									onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ /* This toggle enables Odyssey Stats. */ }
-										{ __( 'Enable a new Jetpack Stats experience (Experimental)', 'jetpack' ) }
-									</span>
-								</CompactFormToggle>
-							</FormFieldset>
-						) }
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
