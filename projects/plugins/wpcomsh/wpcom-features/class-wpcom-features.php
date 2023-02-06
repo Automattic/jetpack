@@ -268,6 +268,7 @@ class WPCOM_Features {
 	public const PRIVATE_WHOIS                 = 'private_whois';
 	public const REAL_TIME_BACKUPS             = 'real-time-backups';
 	public const RECURRING_PAYMENTS            = 'recurring-payments';
+	public const REDUCED_ATOMIC_EMAIL_PRIORITY = 'reduced-email-priority';
 	public const REPUBLICIZE                   = 'republicize';
 	public const SCAN                          = 'scan';
 	public const SCAN_MANAGED                  = 'scan-managed';
@@ -658,6 +659,13 @@ class WPCOM_Features {
 		self::RECURRING_PAYMENTS            => array(
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_PERSONAL_AND_HIGHER,
+		),
+
+		/*
+		 * Reduced email priority when sending emails via SMTP via the Atomic platform.
+		 */
+		self::REDUCED_ATOMIC_EMAIL_PRIORITY => array(
+			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 
 		/*
