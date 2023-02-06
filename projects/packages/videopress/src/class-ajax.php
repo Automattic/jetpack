@@ -142,7 +142,12 @@ class AJAX {
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
-				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
+				$is_videopress_private_for_site_default_value = false;
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$blog_is_private                              = ( intval( get_option( 'blog_public', '' ) ) === -1 );
+					$is_videopress_private_for_site_default_value = $blog_is_private;
+				}
+				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', $is_videopress_private_for_site_default_value );
 				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
 				break;
 		}
