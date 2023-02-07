@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { maybeStringify, JSONSchema } from './utils';
+import { JSONSchema } from './utils';
 export type RequestParams = string | JSONSchema;
 export type RequestMethods = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 export class API {
@@ -67,9 +67,7 @@ export class API {
 		};
 
 		if ( method === 'POST' && params ) {
-			args.body = maybeStringify( {
-				JSON: params,
-			} );
+			args.body = JSON.stringify( { JSON: params } );
 		}
 
 		const result = await fetch( url, args );
