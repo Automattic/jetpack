@@ -4,6 +4,15 @@ import { API_Endpoint } from './Endpoint';
 import { SyncedStore } from './SyncedStore';
 import { ValidatedValue } from './types';
 
+/**
+ * This is a helper function to get values
+ * from the window object and validate them.
+ *
+ * @param namespace - The namespace of the value. For example, `jetpack_favorites`.
+ * @param valueName - The name of the value. For example, `posts`.
+ * @param valueSchema - The Zod schema to validate the value against.
+ * @returns The validated value.
+ */
 export function getValidatedValue< T extends z.ZodSchema >(
 	namespace: string,
 	valueName: string,
