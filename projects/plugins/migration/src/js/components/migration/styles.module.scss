@@ -19,6 +19,10 @@
 			}
 		}
 
+		.jp-connection__connect-screen-layout {
+		  	min-height: calc(100vh - 150px);
+		}
+
 	  	.jp-connection__connect-screen-layout__left {
 			padding: 64px;
 		}

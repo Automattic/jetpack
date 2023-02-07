@@ -8,6 +8,8 @@ import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
 import './styles.module.scss';
 
+export * from './progress';
+
 interface Props {
 	apiRoot: string;
 	apiNonce: string;
