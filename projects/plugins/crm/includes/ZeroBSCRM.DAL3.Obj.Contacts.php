@@ -2512,9 +2512,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 				// ========= BUILD DATA ===========
 
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactoerd later.
-				$update  = false;
-				$dataArr = array();
-				$typeArr = array();
+				$update                    = false;
+				$dataArr                   = array();
+				$typeArr                   = array();
+				$contactsPreUpdateSegments = array();
 
 				if ( is_array( $limitedFields ) ) {
 
