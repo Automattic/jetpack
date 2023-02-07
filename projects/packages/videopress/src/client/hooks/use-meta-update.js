@@ -1,14 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
 
 const useMetaUpdate = id => {
-	const mapCameltoSnakeCase = {
+	const mapCamelToSnakeCase = {
 		allowDownload: 'allow_download',
 		displayEmbed: 'display_embed',
 	};
 
 	const convertToSnakeCase = obj =>
 		Object.keys( obj ).reduce( ( result, key ) => {
-			result[ mapCameltoSnakeCase[ key ] || key ] = obj[ key ];
+			result[ mapCamelToSnakeCase[ key ] || key ] = obj[ key ];
 			return result;
 		}, {} );
 

@@ -325,8 +325,7 @@ const EditVideoDetails = () => {
 									] }
 								/>
 								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
-									{ ' ' }
-									{ __( 'Share', 'jetpack-videopress-pkg' ) }{ ' ' }
+									{ __( 'Share', 'jetpack-videopress-pkg' ) }
 								</Text>
 								<CheckboxControl
 									checked={ displayEmbed }
@@ -337,7 +336,6 @@ const EditVideoDetails = () => {
 									onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
 								/>
 								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
-									{ ' ' }
 									{ __( 'Download', 'jetpack-videopress-pkg' ) }
 								</Text>
 								<CheckboxControl
