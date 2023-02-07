@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-beta - 2023-01-30
+### 11.8 - 2023-02-07
 #### Enhancements
 - Contact Form: improve file naming when exporting form responses.
 - Contact form: UI improvements for the dropdown field.
@@ -265,10 +265,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - VideoPress: do not add block transform to v6 when video is not a VideoPress video.
 
 #### Bug fixes
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active.
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backup/Scan state.
 - Dashboard: fix the price display and description for products with intro offers for the first month.
 - Dashboard: show Boost in My Plans dashboard when added to a site.
 - Infinite Scroll: fix an AMP related bug.
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
 - Modules: allow for deactivating multiple plugins when activating a module.
 - Related Posts: fix Related Posts options saving.
 - Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
