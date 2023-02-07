@@ -71,17 +71,21 @@ function setupRestApi( namespace: string ) {
  *
  * Usage:
  *
- *  1. Which namespace to use?
- * 	2. Create a Store that's going to sync.
- *  3. Reference $widget in Svelte component to use it as a regular Svelte Store.
- * 	4. This will update the Svelte Store and POST `false` to `example.com/wp-json/jetpack-boost/widget-status`
+ *  1:	Which namespace to use?
+ *			- This is the name of the global variable that will be used to store the data.
+ *			- It's also the name of the REST API endpoint.
+ * 			- For more information, @see getValidatedValue
+ * 	2:	Create a Store that's going to sync.
+ *  3:	Reference $favoritesEnabled in Svelte component to use it as a regular Svelte Store.
+ * 	4:	To disable the favorites feature, you can use a regular svelte store assignment.
+ * 		This will update the Svelte Store and POST `false` to `example.com/wp-json/jetpack-favorites/status`
  * ```js
- * 1: 	const client = initializeClient( 'jetpack_boost' );
- * 2: 	const option = client.createAsyncStore( 'widget_status', z.boolean().default( true ) );
+ * 1: 	const client = initializeClient( 'jetpack_favorites' );
+ * 2: 	const option = client.createAsyncStore( 'status', z.boolean().default( true ) );
  * 		/// In YourComponent.svelte:
- * 3: 	const widget = option.store;
- * 		$: console.log( $widget );
- * 4:	$widget = false;
+ * 3: 	const favoritesEnabled = option.store;
+ * 		$: console.log( $favoritesEnabled );
+ * 4:	$favoritesEnabled = false;
  */
 export function initializeClient( namespace: string ) {
 	const api = setupRestApi( namespace );
