@@ -3,11 +3,14 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
 
 class Minify implements Feature {
 	// @todo - handle PHP constants.
 
 	public function setup() {
+		require 'functions-helpers.php';
+
 		// TODO: Make concat URL dir configurable
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( $_SERVER['REQUEST_URI'], 0, 9 ) ) {
 			require_once __DIR__ . '/service.php';
@@ -15,16 +18,17 @@ class Minify implements Feature {
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$disable = isset( $_GET['jb-disable-minify'] );
+		$disable = isset( $_GET['jb-disable-minify'] ) || jetpack_boost_page_optimize_bail();
 
 		if ( $disable ) {
 			return;
 		}
 
-		require 'functions-helpers.php';
+		add_action( Config::get_cron_cache_cleanup_hook(), 'jetpack_boost_page_optimize_cache_cleanup' );
+		register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
+		register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
-		// @todo - handle cleanup. Depends on PHP constants.
-		// jetpack_boost_page_optimize_schedule_cache_cleanup();
+		jetpack_boost_page_optimize_schedule_cache_cleanup();
 
 		$this->init_concatenate();
 

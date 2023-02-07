@@ -1,6 +1,63 @@
 <?php
 
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
+
 // @todo - refactor this. Dump of functions from page optimize.
+
+function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
+	if ( ! is_dir( $cache_folder ) ) {
+		return;
+	}
+
+	$defined_cache_dir = Config::get_cache_dir_path();
+
+	// If cache is disabled when the cleanup runs, purge it
+	$using_cache = ! empty( $defined_cache_dir );
+	if ( ! $using_cache ) {
+		$file_age = 0;
+	}
+	// If the cache folder changed since queueing, purge it
+	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
+		$file_age = 0;
+	}
+
+	// Grab all files in the cache directory
+	$cache_files = glob( $cache_folder . '/page-optimize-cache-*' );
+
+	// Cleanup all files older than $file_age
+	foreach ( $cache_files as $cache_file ) {
+		if ( ! is_file( $cache_file ) ) {
+			continue;
+		}
+
+		if ( ( time() - $file_age ) > filemtime( $cache_file ) ) {
+			unlink( $cache_file );
+		}
+	}
+}
+
+// Unschedule cache cleanup, and purge cache directory
+function jetpack_boost_page_optimize_deactivate() {
+	$cache_folder = Config::get_cache_dir_path();
+
+	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
+
+	wp_clear_scheduled_hook( Config::get_cron_cache_cleanup_hook(), [ $cache_folder ] );
+}
+
+function jetpack_boost_page_optimize_uninstall() {
+	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
+	jetpack_boost_page_optimize_deactivate();
+
+	// JS
+	delete_option( 'jetpack_boost_page_optimize-js' );
+	delete_option( 'jetpack_boost_page_optimize-load-mode' );
+	delete_option( 'jetpack_boost_page_optimize-js-exclude' );
+	// CSS
+	delete_option( 'jetpack_boost_page_optimize-css' );
+	delete_option( 'jetpack_boost_page_optimize-css-exclude' );
+
+}
 
 function jetpack_boost_page_optimize_get_text_domain() {
 	return 'page-optimize';
@@ -140,13 +197,15 @@ function jetpack_boost_page_optimize_use_concat_base_dir() {
  * resolving resource URIs to filesystem paths later on.
  */
 function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_path ) {
+	$abspath = Config::get_abspath();
+
 	// Always check longer path first
-	if ( strlen( PAGE_OPTIMIZE_ABSPATH ) > strlen( PAGE_OPTIMIZE_CONCAT_BASE_DIR ) ) {
-		$longer_path  = PAGE_OPTIMIZE_ABSPATH;
+	if ( strlen( $abspath ) > strlen( PAGE_OPTIMIZE_CONCAT_BASE_DIR ) ) {
+		$longer_path  = $abspath;
 		$shorter_path = PAGE_OPTIMIZE_CONCAT_BASE_DIR;
 	} else {
 		$longer_path  = PAGE_OPTIMIZE_CONCAT_BASE_DIR;
-		$shorter_path = PAGE_OPTIMIZE_ABSPATH;
+		$shorter_path = $abspath;
 	}
 
 	$prefix_abspath = trailingslashit( $longer_path );
@@ -164,15 +223,14 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 }
 
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
-	$cache_folder = false;
-	if ( defined( 'PAGE_OPTIMIZE_CACHE_DIR' ) && ! empty( PAGE_OPTIMIZE_CACHE_DIR ) ) {
-		$cache_folder = PAGE_OPTIMIZE_CACHE_DIR;
-	}
+	$cache_folder = Config::get_cache_dir_path();
 	$args = array( $cache_folder );
 
+	$cache_cleanup_hook = Config::get_cron_cache_cleanup_hook();
+
 	// If caching is on, and job isn't queued for current cache folder
-	if ( false !== $cache_folder && false === wp_next_scheduled( JETPACK_BOOST_PAGE_OPTIMIZE_CRON_CACHE_CLEANUP_JOB, $args ) ) {
-		wp_schedule_event( time(), 'daily', JETPACK_BOOST_PAGE_OPTIMIZE_CRON_CACHE_CLEANUP_JOB, $args );
+	if ( false !== $cache_folder && false === wp_next_scheduled( $cache_cleanup_hook, $args ) ) {
+		wp_schedule_event( time(), 'daily', $cache_cleanup_hook, $args );
 	}
 }
 

@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
+
 /**
  * This is a class to map script and style URLs to local filesystem paths.
  * This is necessary when we are deciding what we can concatenate and when
@@ -22,12 +24,16 @@ class Dependency_Path_Mapping {
 	function __construct(
 		// Expose URLs and DIRs for unit test
 		$site_url = null, // default site URL is determined dynamically
-		$site_dir = PAGE_OPTIMIZE_ABSPATH,
+		$site_dir = null,
 		$content_url = WP_CONTENT_URL,
 		$content_dir = WP_CONTENT_DIR,
 		$plugin_url = WP_PLUGIN_URL,
 		$plugin_dir = WP_PLUGIN_DIR
 	) {
+		if ( null === $site_dir ) {
+			$site_dir = Config::get_abspath();
+		}
+
 		if ( null === $site_url ) {
 			$site_url = is_multisite() ? get_site_url( get_current_blog_id() ) : get_site_url();
 		}

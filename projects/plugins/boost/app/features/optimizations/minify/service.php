@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Dependency_Path_Mapping;
+
 global $jetpack_boost_page_optimize_types;
 $jetpack_boost_page_optimize_types = array(
 	'css' => 'text/css',
@@ -7,32 +10,34 @@ $jetpack_boost_page_optimize_types = array(
 );
 
 function jetpack_boost_page_optimize_service_request() {
-	$use_cache = defined( 'PAGE_OPTIMIZE_CACHE_DIR' ) && ! empty( PAGE_OPTIMIZE_CACHE_DIR );
-	if ( $use_cache && ! is_dir( PAGE_OPTIMIZE_CACHE_DIR ) && ! mkdir( PAGE_OPTIMIZE_CACHE_DIR, 0775, true ) ) {
+	$cache_dir = Config::get_cache_dir_path();
+	$use_cache = ! empty( $cache_dir );
+	if ( $use_cache && ! is_dir( $cache_dir ) && ! mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
 		error_log(
 			sprintf(
 			/* translators: a filesystem path to a directory */
 				__( "Disabling page-optimize cache. Unable to create cache directory '%s'.", jetpack_boost_page_optimize_get_text_domain() ),
-				PAGE_OPTIMIZE_CACHE_DIR
+				$cache_dir
 			)
 		);
 	}
-	if ( $use_cache && ( ! is_dir( PAGE_OPTIMIZE_CACHE_DIR ) || ! is_writable( PAGE_OPTIMIZE_CACHE_DIR ) || ! is_executable( PAGE_OPTIMIZE_CACHE_DIR ) ) ) {
+
+	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
 		error_log(
 			sprintf(
 			/* translators: a filesystem path to a directory */
 				__( "Disabling page-optimize cache. Unable to write to cache directory '%s'.", jetpack_boost_page_optimize_get_text_domain() ),
-				PAGE_OPTIMIZE_CACHE_DIR
+				$cache_dir
 			)
 		);
 	}
 
 	if ( $use_cache ) {
 		$request_uri_hash = md5( $_SERVER['REQUEST_URI'] );
-		$cache_file       = PAGE_OPTIMIZE_CACHE_DIR . "/page-optimize-cache-$request_uri_hash";
-		$cache_file_meta  = PAGE_OPTIMIZE_CACHE_DIR . "/page-optimize-cache-meta-$request_uri_hash";
+		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
+		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
 
 		if ( file_exists( $cache_file ) ) {
 			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
@@ -150,7 +155,7 @@ function jetpack_boost_page_optimize_build_output() {
 	$pre_output    = '';
 	$output        = '';
 
-	$should_minify_css = defined( 'PAGE_OPTIMIZE_CSS_MINIFY' ) && ! empty( PAGE_OPTIMIZE_CSS_MINIFY );
+	$should_minify_css = Config::is_css_minify_enabled();
 
 	if ( $should_minify_css ) {
 		$css_minify = new tubalmartin\CssMin\Minifier();
@@ -313,12 +318,11 @@ function jetpack_boost_page_optimize_get_path( $uri ) {
 		$path = realpath( PAGE_OPTIMIZE_CONCAT_BASE_DIR . "/$uri" );
 
 		if ( false === $path ) {
-			$path = realpath( PAGE_OPTIMIZE_ABSPATH . "/$uri" );
+			$path = realpath( Config::get_abspath() . "/$uri" );
 		}
 	} else {
 		if ( empty( $dependency_path_mapping ) ) {
-			require_once __DIR__ . '/dependency-path-mapping.php';
-			$dependency_path_mapping = new Jetpack_Boost_Page_Optimize_Dependency_Path_Mapping();
+			$dependency_path_mapping = new Dependency_Path_Mapping();
 		}
 		$path = $dependency_path_mapping->uri_path_to_fs_path( $uri );
 	}
