@@ -123,7 +123,7 @@ async function getMediaToken(
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id = window.videopressAjax?.post_id || 0, guid = 0 } = args;
+	const { id = window.videopressAjax?.post_id || 0, guid = 0, flushToken } = args;
 	const key = `vpc-${ scope }-${ id }-${ guid }`;
 
 	const context = window?.videopressAjax?.context || 'main';
@@ -133,21 +133,26 @@ async function getMediaToken(
 		expire: number;
 	};
 
-	try {
-		const storedRawTokenData = localStorage.getItem( key );
-		if ( storedRawTokenData ) {
-			storedToken = JSON.parse( storedRawTokenData );
-			if ( storedToken && storedToken.expire > Date.now() ) {
-				debug( '(%s) Providing %o token from the store', context, key );
-				return storedToken.data;
-			}
+	const storedRawTokenData = localStorage.getItem( key );
+	if ( flushToken ) {
+		debug( '(%s) Flushing %o token', context, key );
+		localStorage.removeItem( key );
+	} else {
+		try {
+			if ( storedRawTokenData ) {
+				storedToken = JSON.parse( storedRawTokenData );
+				if ( storedToken && storedToken.expire > Date.now() ) {
+					debug( '(%s) Providing %o token from the store', context, key );
+					return storedToken.data;
+				}
 
-			// Remove expired token.
-			debug( '(%s) Removing expired %o token', context, key );
-			localStorage.removeItem( key );
+				// Remove expired token.
+				debug( '(%s) Removing expired %o token', context, key );
+				localStorage.removeItem( key );
+			}
+		} catch ( e ) {
+			debug( 'Invalid token in the localStore' );
 		}
-	} catch ( e ) {
-		debug( 'Invalid token in the localStore' );
 	}
 
 	const token = await requestMediaToken( scope, args );

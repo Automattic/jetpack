@@ -20,6 +20,7 @@ export type GetMediaTokenArgsProps = {
 	guid?: VideoGUID;
 	adminAjaxAPI?: string;
 	filename?: string;
+	flushToken?: boolean;
 };
 
 export type AdminAjaxTokenProps = AdminAjaxTokensProps[ number ];
