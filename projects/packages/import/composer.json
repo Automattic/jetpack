@@ -3,7 +3,11 @@
 	"description": "Set of REST API routes used in WPCOM Unified Importer.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
+	"require": {
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-sync": "@dev",
+		"automattic/jetpack-connection": "@dev"
+	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
