@@ -15,21 +15,42 @@ use WorDBless\BaseTestCase;
  */
 class Test_Blaze extends BaseTestCase {
 	/**
+	 * Admin user id
+	 *
+	 * @var int
+	 */
+	protected $admin_id;
+
+	/**
+	 * Editor user id
+	 *
+	 * @var int
+	 */
+	protected $editor_id;
+
+	/**
 	 * Set up before each test.
 	 *
 	 * @before
 	 */
 	public function set_up() {
-		// I don't like putting this here, but we can't use setUpBeforeClass with WorDBless at this time.
-		// https://github.com/Automattic/wordbless/issues/52
-		$admin_id = wp_insert_user(
+		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user',
 				'user_pass'  => 'dummy_pass',
 				'role'       => 'administrator',
 			)
 		);
-		wp_set_current_user( $admin_id );
+
+		$this->editor_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_user_2',
+				'user_pass'  => 'dummy_pass_2',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( 0 );
+
 		Blaze::$script_path = 'js/editor.js';
 	}
 
@@ -41,6 +62,7 @@ class Test_Blaze extends BaseTestCase {
 	public function tear_down() {
 		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
 		wp_deregister_script( Blaze::SCRIPT_HANDLE );
+		wp_set_current_user( 0 );
 	}
 
 	/**
@@ -62,15 +84,26 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the jetpack_blaze_enabled filter overwrites eligibility.
+	 * Test that the jetpack_blaze_enabled filter overwrites eligibility, for admins.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::should_initialize
 	 */
 	public function test_filter_overwrites_eligibility() {
 		$this->assertFalse( Blaze::should_initialize() );
+		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 		$this->assertTrue( Blaze::should_initialize() );
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that Blaze is not available to editors.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::should_initialize
+	 */
+	public function test_editor_not_eligible() {
+		wp_set_current_user( $this->editor_id );
+		$this->assertFalse( Blaze::should_initialize() );
 	}
 
 	/**
@@ -81,13 +114,14 @@ class Test_Blaze extends BaseTestCase {
 	}
 
 	/**
-	 * Tests if the post_row action is added when we force Blaze to be enabled.
+	 * Tests if the post_row action is added for admins when we force Blaze to be enabled.
 	 *
 	 * @covers Automattic\Jetpack\Blaze::add_post_links_actions
 	 */
 	public function test_post_row_added() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 
+		wp_set_current_user( $this->admin_id );
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 		Blaze::add_post_links_actions();
 
@@ -104,11 +138,16 @@ class Test_Blaze extends BaseTestCase {
 	 *
 	 * @param string $hook           The current admin page.
 	 * @param bool   $blaze_enabled  Whether Blaze is force-enabled or not.
+	 * @param bool   $is_user_admin  Whether the current user is an admin or not.
 	 * @param bool   $should_enqueue Whether we should enqueue Blaze assets or not.
 	 */
-	public function test_enqueue_block_editor_assets( $hook, $blaze_enabled, $should_enqueue ) {
+	public function test_enqueue_block_editor_assets( $hook, $blaze_enabled, $is_user_admin, $should_enqueue ) {
 		// Confirm that our script is not added by default.
 		$this->assertFalse( wp_script_is( Blaze::SCRIPT_HANDLE, 'registered' ) );
+
+		if ( $is_user_admin ) {
+			wp_set_current_user( $this->admin_id );
+		}
 
 		if ( $blaze_enabled ) {
 			add_filter( 'jetpack_blaze_enabled', '__return_true' );
@@ -135,24 +174,34 @@ class Test_Blaze extends BaseTestCase {
 	 */
 	public function get_enqueue_scenarios() {
 		return array(
-			'In site editor, Blaze enabled'       => array(
+			'In site editor, Blaze enabled, site admin'  => array(
 				'site-editor.php',
 				true,
+				true,
 				false,
 			),
-			'In post editor, Blaze disabled'      => array(
+			'In post editor, Blaze disabled, site admin' => array(
 				'post.php',
 				false,
+				true,
 				false,
 			),
-			'In post editor, Blaze enabled'       => array(
+			'In post editor, Blaze enabled, site admin'  => array(
 				'post.php',
 				true,
 				true,
+				true,
 			),
-			'In random admin page, Blaze enabled' => array(
+			'In random admin page, Blaze enabled, site admin' => array(
 				'tools.php',
 				true,
+				true,
+				false,
+			),
+			'In post editor, Blaze enabled, editor role' => array(
+				'post.php',
+				true,
+				false,
 				false,
 			),
 		);
