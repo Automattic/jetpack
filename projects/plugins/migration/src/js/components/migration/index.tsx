@@ -5,6 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
+import type React from 'react';
 import './styles.module.scss';
 
 interface Props {
@@ -13,8 +14,10 @@ interface Props {
 	registrationNonce: string;
 }
 /**
- * @param props: Props
- * @returns Migration
+ * Migration screen - Get start migration
+ *
+ * @param {object} props - Props
+ * @returns {React.ReactElement} - JSX Element
  */
 export function Migration( props: Props ) {
 	const pluginName = 'jetpack-migration';
