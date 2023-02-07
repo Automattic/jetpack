@@ -17,6 +17,7 @@ export const { name, title, description } = metadata;
 
 registerBlockType( name, {
 	edit: Edit,
+	title,
 	save,
 	icon,
 	example: {
