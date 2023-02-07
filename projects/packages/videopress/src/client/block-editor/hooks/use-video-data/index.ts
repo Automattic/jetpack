@@ -107,12 +107,12 @@ export default function useVideoData( {
 					gettingTokenAttempt++;
 					debug( 'Authenticating error. Trying again: %o', gettingTokenAttempt + '/3' );
 					if ( gettingTokenAttempt > 3 ) {
-						debug( 'Too many attempts to get token. Aborting.' );
 						setIsRequestingVideoData( false );
+						debug( 'Too many attempts to get token. Aborting.' );
 						throw new Error( errorData?.message ?? errorData );
 					}
 
-					const tokenData = await getMediaToken( 'playback', { id, guid } );
+					const tokenData = await getMediaToken( 'playback', { id, guid, flushToken: true } );
 					if ( ! tokenData?.token ) {
 						debug( 'Token is missing. Aborting.' );
 						setIsRequestingVideoData( false );
