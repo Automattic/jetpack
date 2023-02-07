@@ -29,4 +29,4 @@ define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
 define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 
 // Enable Jetpack's Experimental blocks.
-define( 'JETPACK_EXPERIMENTAL_BLOCKS', true );
+define( 'JETPACK_BLOCKS_VARIATION', 'experimental' );
