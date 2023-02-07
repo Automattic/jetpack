@@ -8,8 +8,8 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\IP;
 use Automattic\Jetpack\Tracking as Tracks;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * Tracks class.
@@ -164,7 +164,7 @@ class Tracking {
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => Brute_Force_Protection_Shared_Functions::get_ip(),
+				'origin_ip' => IP::get_ip(),
 				'login'     => $login,
 			)
 		);

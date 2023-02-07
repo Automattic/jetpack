@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
+use Automattic\Jetpack\IP\IP;
 
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
@@ -38,12 +38,12 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 				<td>
 					<p><strong>
 					<?php
-					$brute_force_protection_ip = Brute_Force_Protection_Shared_Functions::get_ip();
-					if ( ! empty( $brute_force_protection_ip ) ) {
+					$current_ip = IP::get_ip();
+					if ( ! empty( $current_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */
 							esc_html__( 'Your current IP: %1$s', 'jetpack' ),
-							esc_html( $brute_force_protection_ip )
+							esc_html( $current_ip )
 						);
 					}
 					?>

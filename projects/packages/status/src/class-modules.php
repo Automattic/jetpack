@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Constants;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
+use Automattic\Jetpack\IP\IP;
 
 /**
  * Class Automattic\Jetpack\Modules
@@ -435,8 +435,8 @@ class Modules {
 			}
 
 			// Protect won't work with mis-configured IPs.
-			if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				if ( ! Brute_Force_Protection_Shared_Functions::get_ip() ) {
+			if ( 'protect' === $module ) {
+				if ( ! IP::get_ip() ) {
 					$state->state( 'message', 'protect_misconfigured_ip' );
 					return false;
 				}

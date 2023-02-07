@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IP\IP;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -20,7 +21,6 @@ use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * Responsible for populating the initial Redux state.
@@ -200,7 +200,7 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => Brute_Force_Protection_Shared_Functions::get_ip(),
+			'currentIp'                   => IP::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
