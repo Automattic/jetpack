@@ -120,7 +120,7 @@ fi
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Check if a remote branch for the release branch exits and ask to delete it if it does.
-PREFIX=$(jq -r '.extra["release-branch-prefix"] // empty' "$BASE"/projects/"$PROJECT"/composer.json)
+PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$PROJECT"/composer.json)
 RELEASE_BRANCH=
 if [[ -n "$PREFIX" ]]; then
 	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
