@@ -34,7 +34,8 @@ class Data {
 			$blog_is_private = ( intval( get_blog_option( get_current_blog_id(), 'blog_public', '' ) ) === -1 );
 			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', $blog_is_private ) );
 		} else {
-			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
+			$blog_is_private = ( intval( get_option( 'blog_public', '' ) ) === -1 );
+			return boolval( get_option( 'videopress_private_enabled_for_site', $blog_is_private ) );
 		}
 	}
 
