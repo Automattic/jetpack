@@ -324,7 +324,10 @@ const EditVideoDetails = () => {
 										},
 									] }
 								/>
-								<Text>{ __( 'Share', 'jetpack-videopress-pkg' ) }</Text>
+								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+									{ ' ' }
+									{ __( 'Share', 'jetpack-videopress-pkg' ) }{ ' ' }
+								</Text>
 								<CheckboxControl
 									checked={ displayEmbed }
 									label={ __(
@@ -333,7 +336,10 @@ const EditVideoDetails = () => {
 									) }
 									onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
 								/>
-								<Text>{ __( 'Download', 'jetpack-videopress-pkg' ) }</Text>
+								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+									{ ' ' }
+									{ __( 'Download', 'jetpack-videopress-pkg' ) }
+								</Text>
 								<CheckboxControl
 									checked={ allowDownload }
 									label={ __(
