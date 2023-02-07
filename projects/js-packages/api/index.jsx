@@ -522,6 +522,10 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/pricing`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		fetchMigrationStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/migration/status`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	/**
