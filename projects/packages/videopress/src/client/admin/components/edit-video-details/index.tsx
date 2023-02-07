@@ -329,7 +329,7 @@ const EditVideoDetails = () => {
 										'Display download option and allow viewers to download this video',
 										'jetpack-videopress-pkg'
 									) }
-									onChange={ setAllowDownload }
+									onChange={ value => setAllowDownload( value ? 1 : 0 ) }
 								/>
 								<RadioControl
 									className={ classnames( styles.field, styles.rating ) }

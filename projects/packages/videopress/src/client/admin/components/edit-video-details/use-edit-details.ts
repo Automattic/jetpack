@@ -49,7 +49,7 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		updateData( { rating } );
 	};
 
-	const setAllowDownload = ( allowDownload: boolean ) => {
+	const setAllowDownload = ( allowDownload: number ) => {
 		updateData( { allowDownload } );
 	};
 
