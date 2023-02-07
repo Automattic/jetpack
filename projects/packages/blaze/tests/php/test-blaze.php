@@ -15,6 +15,13 @@ use WorDBless\BaseTestCase;
  */
 class Test_Blaze extends BaseTestCase {
 	/**
+	 * Has the class been initialized already?
+	 *
+	 * @var bool
+	 */
+	protected static $initialized = false;
+
+	/**
 	 * Admin user id
 	 *
 	 * @var int
@@ -41,29 +48,34 @@ class Test_Blaze extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
-		$this->admin_id = wp_insert_user(
-			array(
-				'user_login' => 'dummy_user',
-				'user_pass'  => 'dummy_pass',
-				'role'       => 'administrator',
-			)
-		);
+		if ( ! self::$initialized ) {
+			$this->admin_id = wp_insert_user(
+				array(
+					'user_login' => 'dummy_user',
+					'user_pass'  => 'dummy_pass',
+					'role'       => 'administrator',
+				)
+			);
 
-		$this->editor_id = wp_insert_user(
-			array(
-				'user_login' => 'dummy_user_2',
-				'user_pass'  => 'dummy_pass_2',
-				'role'       => 'editor',
-			)
-		);
+			$this->editor_id = wp_insert_user(
+				array(
+					'user_login' => 'dummy_user_2',
+					'user_pass'  => 'dummy_pass_2',
+					'role'       => 'editor',
+				)
+			);
 
-		$this->author_id = wp_insert_user(
-			array(
-				'user_login' => 'dummy_user_2',
-				'user_pass'  => 'dummy_pass_2',
-				'role'       => 'editor',
-			)
-		);
+			$this->author_id = wp_insert_user(
+				array(
+					'user_login' => 'dummy_user_2',
+					'user_pass'  => 'dummy_pass_2',
+					'role'       => 'editor',
+				)
+			);
+
+			self::$initialized = true;
+		}
+
 		wp_set_current_user( 0 );
 
 		Blaze::$script_path = 'js/editor.js';
