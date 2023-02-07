@@ -12,15 +12,6 @@ use WorDBless\BaseTestCase;
 class Test_Threat_Model extends BaseTestCase {
 
 	/**
-	 * Set up before each test
-	 *
-	 * @before
-	 */
-	protected function set_up() {
-		parent::setUp();
-	}
-
-	/**
 	 * Tests for threat model's __construct() method.
 	 */
 	public function test_threat_model_construct() {

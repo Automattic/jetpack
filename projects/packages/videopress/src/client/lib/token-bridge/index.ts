@@ -68,7 +68,10 @@ export async function tokenBridgeHandler(
 
 	const { source: tokenRequester } = event;
 	// Check the source of the message
-	if ( tokenRequester instanceof MessagePort || tokenRequester instanceof ServiceWorker ) {
+	if (
+		tokenRequester instanceof MessagePort ||
+		( typeof ServiceWorker !== 'undefined' && tokenRequester instanceof ServiceWorker )
+	) {
 		debug( '(%s) Invalid source', context );
 		return;
 	}
@@ -88,7 +91,7 @@ export async function tokenBridgeHandler(
 			guid,
 			requestId,
 		},
-		'*'
+		{ targetOrigin: '*' }
 	);
 
 	const tokenData = await getMediaToken( 'playback', {
@@ -105,7 +108,7 @@ export async function tokenBridgeHandler(
 				guid: event.data.guid,
 				requestId,
 			} as VideopressAjaxPostMessageEventProps,
-			'*'
+			{ targetOrigin: '*' }
 		);
 		return;
 	}
@@ -118,7 +121,7 @@ export async function tokenBridgeHandler(
 			jwt: tokenData.token,
 			requestId,
 		} as VideopressAjaxPostMessageEventProps,
-		'*'
+		{ targetOrigin: '*' }
 	);
 }
 
