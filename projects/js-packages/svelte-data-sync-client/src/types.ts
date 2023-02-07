@@ -2,11 +2,19 @@ import type { Readable, Writable } from 'svelte/store';
 import type { z } from 'zod';
 
 /**
+ * Callback to perform after a SyncedStore value is updated.
+ * This is typically a POST request to the corresponding API endpoint.
+ * But can be changed to any function that returns a Promise.
+ */
+export type SyncedStoreCallback< T > = ( value: T ) => Promise< T >;
+
+/**
  * A Svelte store that's going to automatically sync with the API.
  */
 export type SyncedStoreInterface< T > = {
 	store: SyncedWritable< T >;
 	pending: Readable< boolean >;
+	setCallback: ( callback: SyncedStoreCallback< T > ) => void;
 };
 
 /**
@@ -25,13 +33,6 @@ export interface Pending {
 	stop: () => void;
 	start: () => void;
 }
-
-/**
- * Callback to perform after a SyncedStore value is updated.
- * This is typically a POST request to the corresponding API endpoint.
- * But can be changed to any function that returns a Promise.
- */
-export type SyncedStoreCallback< T > = ( value: T ) => Promise< T >;
 
 /**
  * A writable Svelte store that's going to automatically sync with the API.

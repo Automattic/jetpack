@@ -49,6 +49,7 @@ export class SyncedStore< T > {
 			pending: {
 				subscribe: this.pending.subscribe,
 			},
+			setCallback: this.setCallback.bind( this ),
 		};
 	}
 

@@ -98,8 +98,21 @@ export function initializeClient( namespace: string ) {
 		const store = new SyncedStore< z.infer< T > >( value );
 		const endpoint = new API_Endpoint< z.infer< T > >( api, valueName, schema );
 
-		// Wire up store to the endpoint.
-		// This is customizable.
+		/**
+		 * Wire up store to the endpoint.
+		 * When the store changes, this will:
+		 * 	- Use the nonce that was provided by the server
+		 *	- POST the value to the endpoint
+		 *
+		 * This can be changed by using the `setCallback` method
+		 * that `store.getPublicInterface()` exposes.
+		 * For example,
+		 * ```js
+		 *	const client = initializeClient( 'jetpack_favorites' );
+		 *	client.setCallback( 'status', ( value ) => {
+		 *		client.endpoint.status.POST( value.replace("a", "b") );
+		 *	} );
+		 */
 		endpoint.nonce = nonce;
 		store.setCallback( endpoint.POST );
 
