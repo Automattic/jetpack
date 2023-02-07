@@ -3,11 +3,12 @@
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Dependency_Path_Mapping;
 
-global $jetpack_boost_page_optimize_types;
-$jetpack_boost_page_optimize_types = array(
-	'css' => 'text/css',
-	'js'  => 'application/javascript',
-);
+function jetpack_boost_page_optimize_types() {
+	return array(
+		'css' => 'text/css',
+		'js'  => 'application/javascript',
+	);
+}
 
 function jetpack_boost_page_optimize_service_request() {
 	$cache_dir = Config::get_cache_dir_path();
@@ -89,7 +90,7 @@ function jetpack_boost_page_optimize_service_request() {
 }
 
 function jetpack_boost_page_optimize_build_output() {
-	global $jetpack_boost_page_optimize_types;
+	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	require_once __DIR__ . '/cssmin/cssmin.php';
 
@@ -280,7 +281,7 @@ function jetpack_boost_page_optimize_status_exit( $status ) {
 }
 
 function jetpack_boost_page_optimize_get_mime_type( $file ) {
-	global $jetpack_boost_page_optimize_types;
+	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	$lastdot_pos = strrpos( $file, '.' );
 	if ( false === $lastdot_pos ) {
