@@ -11,7 +11,7 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
-import { SelectControl, RadioControl } from '@wordpress/components';
+import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -162,6 +162,7 @@ const EditVideoDetails = () => {
 		description,
 		rating,
 		privacySetting,
+		allowDownload,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -175,6 +176,7 @@ const EditVideoDetails = () => {
 		setDescription,
 		setRating,
 		setPrivacySetting,
+		setAllowDownload,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -319,6 +321,15 @@ const EditVideoDetails = () => {
 											value: VIDEO_PRIVACY_LEVEL_PRIVATE,
 										},
 									] }
+								/>
+								<Text>{ __( 'Download', 'jetpack-videopress-pkg' ) }</Text>
+								<CheckboxControl
+									checked={ allowDownload }
+									label={ __(
+										'Display download option and allow viewers to download this video',
+										'jetpack-videopress-pkg'
+									) }
+									onChange={ setAllowDownload }
 								/>
 								<RadioControl
 									className={ classnames( styles.field, styles.rating ) }
