@@ -5,11 +5,13 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Tracking;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
@@ -880,14 +882,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'enable_calypso_stats':
 					$value         = (bool) $value;
 					$stats_options = array(
-						'enable_calypso_stats' => $value,
+						'enable_calypso_stats'     => $value,
+						'calypso_stats_changed_at' => time(),
 					);
 					// Save the last time the user enabled or disabled Calypso stats.
+					$event_name = 'calypso_stats_disabled';
 					if ( $value ) {
-						$stats_options['calypso_stats_last_enabled_at'] = time();
-					} else {
-						$stats_options['calypso_stats_last_disabled_at'] = time();
+						$event_name = 'calypso_stats_enabled';
 					}
+					// Track the event
+					$connection_manager = new Manager( 'jetpack' );
+					$tracking           = new Tracking( 'jetpack', $connection_manager );
+					$tracking->record_user_event( $event_name, $stats_options );
+
 					$updated = Stats_Options::set_options( $stats_options );
 					break;
 
