@@ -1,25 +1,28 @@
-import {
-	AdminPage,
-	AdminSectionHero,
-	Container,
-	Col,
-	PricingCard,
-} from '@automattic/jetpack-components';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { useSelect } from '@wordpress/data';
+import restApi from '@automattic/jetpack-api';
+import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
-import { Migration } from '../migration';
-import styles from './styles.module.scss';
+import React, { useEffect, useState } from 'react';
+import { Migration, MigrationProgress } from '../migration';
 
 const Admin = () => {
-	const connectionStatus = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionStatus(),
-		[]
-	);
-	const { isUserConnected, isRegistered } = connectionStatus;
-	const showConnectionCard = ! isRegistered || ! isUserConnected;
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
+	const [ migrationState, setMigrationState ] = useState( {} );
+	const [ migrationStatus, setMigrationStatus ] = useState( 'inactive' );
+
+	useEffect( () => configureApi(), [ apiRoot, apiNonce ] );
+	useEffect( () => checkMigrationStatus(), [] );
+
+	const configureApi = () => {
+		restApi.setApiRoot( apiRoot );
+		restApi.setApiNonce( apiNonce );
+	};
+
+	const checkMigrationStatus = () => {
+		restApi.fetchMigrationStatus().then( state => {
+			setMigrationState( state );
+			setMigrationStatus( state?.status );
+		} );
+	};
 
 	return (
 		<AdminPage
@@ -29,46 +32,19 @@ const Admin = () => {
 			showFooter={ false }
 		>
 			<AdminSectionHero>
-				{ showConnectionCard ? (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col sm={ 4 } md={ 8 } lg={ 12 }>
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
+						{ migrationStatus === 'inactive' ? (
 							<Migration
 								apiRoot={ apiRoot }
 								apiNonce={ apiNonce }
 								registrationNonce={ registrationNonce }
 							/>
-						</Col>
-					</Container>
-				) : (
-					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-						<Col>
-							<div id="jp-admin-notices" className="jetpack-migration-jitm-card" />
-						</Col>
-						<Col sm={ 4 } md={ 6 } lg={ 6 }>
-							<h1 className={ styles.heading }>
-								{ __( 'The plugin headline.', 'jetpack-migration' ) }
-							</h1>
-							<ul className={ styles[ 'jp-product-promote' ] }>
-								<li>{ __( 'All the amazing things this plugin does', 'jetpack-migration' ) }</li>
-								<li>{ __( 'Presented in a list of amazing features', 'jetpack-migration' ) }</li>
-								<li>{ __( 'And all the benefits you will get', 'jetpack-migration' ) }</li>
-							</ul>
-						</Col>
-						<Col lg={ 1 } md={ 1 } sm={ 0 } />
-						<Col sm={ 4 } md={ 5 } lg={ 5 }>
-							<PricingCard
-								title={ __( 'Jetpack Migration', 'jetpack-migration' ) }
-								priceBefore={ 9 }
-								priceAfter={ 4.5 }
-								ctaText={ __( 'Get Jetpack Migration', 'jetpack-migration' ) }
-								infoText={ __(
-									'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
-									'jetpack-migration'
-								) }
-							/>
-						</Col>
-					</Container>
-				) }
+						) : (
+							<MigrationProgress apiRoot={ apiRoot } apiNonce={ apiNonce } />
+						) }
+					</Col>
+				</Container>
 			</AdminSectionHero>
 		</AdminPage>
 	);
