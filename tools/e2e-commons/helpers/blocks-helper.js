@@ -22,7 +22,7 @@ async function findAvailableBlock( blockSlug, page ) {
 }
 
 async function getAllAvailableBlocks( page ) {
-	return await page.evaluate( () =>
+	return await page.page.evaluate( () =>
 		wp.data
 			.select( 'core/blocks' )
 			.getBlockTypes()

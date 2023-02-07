@@ -1,7 +1,7 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
-import { waitForBlock } from '../../helpers/blocks-helper.cjs';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
 import { EditorCanvas } from './index.js';
 
 export default class BlockEditorPage extends WpPage {
