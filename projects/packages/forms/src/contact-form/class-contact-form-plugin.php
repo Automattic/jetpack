@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
@@ -250,8 +251,26 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_blocks_scripts' ) );
+
 		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
+	}
+
+	/**
+	 * Loads the Form blocks scripts.
+	 */
+	public static function load_blocks_scripts() {
+		Assets::register_script(
+			'jp-forms-blocks',
+			'../../dist/blocks/editor.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+			)
+		);
 	}
 
 	/**
