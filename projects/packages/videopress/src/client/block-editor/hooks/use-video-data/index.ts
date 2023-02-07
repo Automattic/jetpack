@@ -55,7 +55,7 @@ export default function useVideoData( {
 			try {
 				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
 
-				// Try to anticipate the private requestin
+				// Try to anticipate the video privacy, based on the block attributes.
 				let tokenData: MediaTokenProps;
 				if ( maybeIsPrivate ) {
 					tokenData = await getMediaToken( 'playback', { id, guid } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Do not register the VaultPress and Scan submenu items if we don't have the backups and scan state yet.
