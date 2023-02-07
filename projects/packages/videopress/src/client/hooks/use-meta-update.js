@@ -1,10 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
 
-/*
- * Map object from video field name to block attribute name.
- * Only register those fields that have a different attribute name.
- */
-
 const useMetaUpdate = id => {
 	const mapCameltoSnakeCase = {
 		allowDownload: 'allow_download',
