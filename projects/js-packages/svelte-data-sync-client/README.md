@@ -51,7 +51,7 @@ That's it, now you can use `favorites.status` and `favorites.posts` in your Svel
 
 #### Step 3: Store Usage
 
-Every store created with `client.createAsyncStore()` will create a store with two Svelte stores:
+Use `client.createAsyncStore()` to create an object with two Svelte stores:
 
 - `store`: Use this as a normal Svelte store. When the value is updates, it will dispatch POST requests to the REST API endpoint.
 - `pending`: In case you need to display a loading state, this store will be `true` while the value is being updated.
