@@ -1365,6 +1365,17 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether a site has a 'site_source_slug' option set - only applicable on WordPress.com
+	 *
+	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
+	 *
+	 * @return bool
+	 */
+	public function get_site_source_slug() {
+			return get_option( 'site_source_slug' );
+	}
+
+	/**
 	 * Return any selected features (used to help recommend plans)
 	 *
 	 * @return string

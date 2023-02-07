@@ -4,7 +4,7 @@ Tags: jetpack
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.4.3
+Stable tag: 1.4.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -108,7 +108,7 @@ If you don’t have Backups as part of your Jetpack plan, [visit Jetpack.com to 
 
 As soon as you purchase Jetpack VaultPress Backup, it will be activated, and the first backup will be completed. There are barely any settings to configure, and you don’t need coding experience.
 
-For plans with daily backups, a new backup will take place approximately 24 hours from the previous backup. They occur automatically – you don’t need to create a specific time for backups to run. 
+For plans with daily backups, a new backup will take place approximately 24 hours from the previous backup. They occur automatically – you don’t need to create a specific time for backups to run.
 
 For plans with real-time backups, a new backup will be performed each time a change is made to WordPress core's database tables, WooCommerce database tables, and any associated file changes. All other changes are backed up daily.
 
@@ -160,7 +160,7 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.4.4-beta - 2023-02-01
+### 1.4.4 - 2023-02-07
 #### Changed
 - Updated package dependencies.
 

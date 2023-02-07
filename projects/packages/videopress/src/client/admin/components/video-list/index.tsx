@@ -4,12 +4,17 @@
 import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, info } from '@wordpress/icons';
+import { Icon, info, warning } from '@wordpress/icons';
+import classnames from 'classnames';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
-import { VIDEO_PRIVACY_LEVELS, VIDEO_PRIVACY_LEVEL_PRIVATE } from '../../../state/constants';
+import {
+	ERROR_MIME_TYPE_NOT_SUPPORTED,
+	VIDEO_PRIVACY_LEVELS,
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+} from '../../../state/constants';
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
@@ -128,6 +133,44 @@ export const LocalVideoList = ( {
 		onActionClick?.( videos[ index ] );
 	};
 
+	const getTitleAdornment = video => {
+		if ( video?.isUploadedToVideoPress ) {
+			return (
+				<Tooltip
+					position="top center"
+					text={ __( 'Video already uploaded to VideoPress', 'jetpack-videopress-pkg' ) }
+				>
+					<div className={ styles[ 'title-adornment' ] }>
+						<Icon icon={ info } />
+					</div>
+				</Tooltip>
+			);
+		}
+		if ( video?.readError != null ) {
+			const errorMessageReadError = __( 'Video cannot be read', 'jetpack-videopress-pkg' );
+			const errorMessageMimeType = __(
+				'Video has an unsupported file type',
+				'jetpack-videopress-pkg'
+			);
+
+			return (
+				<Tooltip
+					position="top center"
+					text={
+						video?.readError === ERROR_MIME_TYPE_NOT_SUPPORTED
+							? errorMessageMimeType
+							: errorMessageReadError
+					}
+				>
+					<div className={ classnames( styles[ 'title-adornment' ], styles.error ) }>
+						<Icon icon={ warning } />
+					</div>
+				</Tooltip>
+			);
+		}
+		return null;
+	};
+
 	return (
 		<div className={ styles.list }>
 			<div className={ styles.header }>
@@ -161,20 +204,9 @@ export const LocalVideoList = ( {
 						uploadDate={ video.uploadDate }
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
-						disabled={ video?.isUploadedToVideoPress }
+						disabled={ video?.isUploadedToVideoPress || video?.readError != null }
 						disableActionButton={ uploading }
-						titleAdornment={
-							video?.isUploadedToVideoPress && (
-								<Tooltip
-									position="top center"
-									text={ __( 'Video already uploaded to VideoPress', 'jetpack-videopress-pkg' ) }
-								>
-									<div className={ styles[ 'title-adornment' ] }>
-										<Icon icon={ info } />
-									</div>
-								</Tooltip>
-							)
-						}
+						titleAdornment={ getTitleAdornment( video ) }
 					/>
 				);
 			} ) }
