@@ -29,6 +29,13 @@ class Test_Blaze extends BaseTestCase {
 	protected $editor_id;
 
 	/**
+	 * Author user id
+	 *
+	 * @var int
+	 */
+	protected $author_id;
+
+	/**
 	 * Set up before each test.
 	 *
 	 * @before
@@ -43,6 +50,14 @@ class Test_Blaze extends BaseTestCase {
 		);
 
 		$this->editor_id = wp_insert_user(
+			array(
+				'user_login' => 'dummy_user_2',
+				'user_pass'  => 'dummy_pass_2',
+				'role'       => 'editor',
+			)
+		);
+
+		$this->author_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user_2',
 				'user_pass'  => 'dummy_pass_2',
@@ -103,6 +118,16 @@ class Test_Blaze extends BaseTestCase {
 	 */
 	public function test_editor_not_eligible() {
 		wp_set_current_user( $this->editor_id );
+		$this->assertFalse( Blaze::should_initialize() );
+	}
+
+	/**
+	 * Test that Blaze is not available to authors.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::should_initialize
+	 */
+	public function test_author_not_eligible() {
+		wp_set_current_user( $this->author_id );
 		$this->assertFalse( Blaze::should_initialize() );
 	}
 
