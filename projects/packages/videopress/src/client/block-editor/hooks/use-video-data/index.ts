@@ -58,7 +58,7 @@ export default function useVideoData( {
 				// Try to anticipate the video privacy, based on the block attributes.
 				let tokenData: MediaTokenProps;
 				if ( maybeIsPrivate ) {
-					tokenData = await getMediaToken( 'playback', { id, guid } );
+					tokenData = await getMediaToken( 'playback', { guid } );
 				}
 
 				// Add the token to the request if it exists.
@@ -107,12 +107,12 @@ export default function useVideoData( {
 					gettingTokenAttempt++;
 					debug( 'Authenticating error. Trying again: %o', gettingTokenAttempt + '/3' );
 					if ( gettingTokenAttempt > 3 ) {
-						setIsRequestingVideoData( false );
 						debug( 'Too many attempts to get token. Aborting.' );
+						setIsRequestingVideoData( false );
 						throw new Error( errorData?.message ?? errorData );
 					}
 
-					const tokenData = await getMediaToken( 'playback', { id, guid, flushToken: true } );
+					const tokenData = await getMediaToken( 'playback', { guid } );
 					if ( ! tokenData?.token ) {
 						debug( 'Token is missing. Aborting.' );
 						setIsRequestingVideoData( false );
