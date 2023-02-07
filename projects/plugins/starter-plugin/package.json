@@ -38,10 +38,10 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.7",
+		"@babel/core": "7.20.12",
 		"@babel/preset-env": "7.20.2",
 		"@babel/register": "7.18.9",
-		"@babel/runtime": "7.20.7",
+		"@babel/runtime": "7.20.13",
 		"@testing-library/react": "12.1.5",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react-hooks": "8.0.1",

@@ -919,7 +919,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "5bc363dc834a70b786d88552ceb1e3f6684ac80e"
+                "reference": "a73f0123ceeebdd35b48b9b4df8dafbe971619cd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -974,6 +974,10 @@
                 ],
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -2084,10 +2088,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "1e063258c2df95b38a9eaa4cad153e2ab9ac3792"
+                "reference": "f86f8528b864500624df35217810f82dfb05f372"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev"
@@ -2102,7 +2107,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {

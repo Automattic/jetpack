@@ -5,7 +5,6 @@ export default class SubscribeBlock extends EditorCanvas {
 		super( page, 'Subscribe' );
 		this.blockTitle = SubscribeBlock.title();
 		this.page = page;
-		this.blockSelector = '#block-' + blockId;
 	}
 	static name() {
 		return 'subscriptions';
@@ -14,12 +13,21 @@ export default class SubscribeBlock extends EditorCanvas {
 	static title() {
 		return 'Subscribe';
 	}
-	async checkBlock() {
-		const response = await this.page.waitForResponse(
-			r => decodeURIComponent( r.url() ).match( /wpcom\/v2\/subscribers\/counts/ ),
+	async insertBlock( editorPage ) {
+		const responsePromise = this.page.waitForResponse(
+			r =>
+				decodeURIComponent( decodeURIComponent( r.url() ) ).match(
+					/wpcom\/v2\/subscribers\/counts/
+				),
 			{ timeout: 30000 }
 		);
-		expect( response.status(), 'Response status should be 200' ).toBe( 200 );
+		const blockId = await editorPage.insertBlock( SubscribeBlock.name(), SubscribeBlock.title() );
+		const response = await responsePromise;
+
+		expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
+
+		this.blockId = blockId;
+		return blockId;
 	}
 
 	/**

@@ -95,7 +95,7 @@ const Header = () => {
 							stats={ [
 								{
 									icon: <SocialIcon />,
-									label: __( 'Total shares this month', 'jetpack-social' ),
+									label: __( 'Total shares past 30 days', 'jetpack-social' ),
 									loading: null === sharesCount,
 									value: formatter.format( sharesCount ),
 								},

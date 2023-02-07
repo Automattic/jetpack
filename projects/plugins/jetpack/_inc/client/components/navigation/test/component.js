@@ -65,13 +65,17 @@ describe( 'Navigation', () => {
 			render( <Navigation { ...currentTestProps } /> );
 			expect( screen.getByRole( 'menuitem', { name: 'At a Glance' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'menuitem', { name: 'Plans' } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'menuitem', { name: 'Plans (opens in a new tab)' } )
+			).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
 		} );
 
 		it( 'does not render Plans tab when offline', () => {
 			render( <Navigation { ...currentTestProps } isOfflineMode={ true } /> );
-			expect( screen.queryByRole( 'menuitem', { name: 'Plans' } ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'menuitem', { name: 'Plans (opens in a new tab)' } )
+			).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'option', { name: 'Plans' } ) ).not.toBeInTheDocument();
 		} );
 	} );
@@ -96,7 +100,9 @@ describe( 'Navigation', () => {
 			expect( screen.getByRole( 'option', { name: 'At a Glance' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'menuitem', { name: 'My Plan' } ) ).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'My Plan' } ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'menuitem', { name: 'Plans' } ) ).toBeInTheDocument();
+			expect(
+				screen.getByRole( 'menuitem', { name: 'Plans (opens in a new tab)' } )
+			).toBeInTheDocument();
 			expect( screen.getByRole( 'option', { name: 'Plans' } ) ).toBeInTheDocument();
 		} );
 	} );
