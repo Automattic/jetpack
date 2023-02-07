@@ -1960,7 +1960,7 @@ importers:
 
   projects/plugins/migration:
     specifiers:
-      '@automattic/jetpack-api': workspace:0.14.9
+      '@automattic/jetpack-api': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
