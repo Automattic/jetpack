@@ -103,9 +103,13 @@ export default function useVideoData( {
 					private_enabled_for_site: response.private_enabled_for_site,
 				} );
 			} catch ( errorData ) {
+				/*
+				 * When the request fails because of an authentication error,
+				 * try to get a new token and retry the request.
+				 */
 				if ( errorData?.error === 'auth' ) {
 					gettingTokenAttempt++;
-					debug( 'Authenticating error. Trying again: %o', gettingTokenAttempt + '/3' );
+					debug( 'Authenticating error. Reattempt %o', gettingTokenAttempt + '/3' );
 					if ( gettingTokenAttempt > 3 ) {
 						debug( 'Too many attempts to get token. Aborting.' );
 						setIsRequestingVideoData( false );
@@ -118,6 +122,7 @@ export default function useVideoData( {
 						setIsRequestingVideoData( false );
 						return;
 					}
+
 					return fetchVideoItem( tokenData.token );
 				}
 
