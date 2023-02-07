@@ -110,21 +110,21 @@ describe( 'MediaSection', () => {
 		expect( 'MediaSection' ).toBeDefined();
 	} );
 
-	it( 'should render the picker if media is not selected', () => {
+	it( 'should render the picker if media is not selected', async () => {
 		useSelect.mockImplementation( () => null );
 		render( <MediaSection /> );
-		expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Choose Media/i ) ).toBeInTheDocument();
-		expect( screen.getByText( /Add an image or video/i ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Media' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /Choose Media/i ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /Add an image or video/i ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'should render a preview if an image is selected', () => {
+	it( 'should render a preview if an image is selected', async () => {
 		useSelect.mockImplementation( () => dummyImageData );
 		render( <MediaSection /> );
-		expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Remove media/i ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'img' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Media' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /Remove media/i ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'img' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
 	} );
@@ -138,19 +138,19 @@ describe( 'MediaSection', () => {
 		} ) );
 
 		const { user } = setup( <MediaSection /> );
-		const removeButton = screen.getByText( /Remove media/i );
+		const removeButton = await screen.findByText( /Remove media/i );
 		await user.click( removeButton );
 		expect( updateAttachedMedia ).toHaveBeenCalledWith( [] );
 	} );
 
-	it( 'should render a video preview if a video is selected', () => {
+	it( 'should render a video preview if a video is selected', async () => {
 		useSelect.mockImplementation( () => dummyVideoData );
 		render( <MediaSection /> );
-		expect( screen.getByText( 'Media' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Remove media/i ) ).toBeInTheDocument();
-		expect(
-			screen.getByText( ( _, element ) => element.tagName.toLowerCase() === 'video' )
-		).toBeInTheDocument();
+		await expect( screen.findByText( 'Media' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( /Remove media/i ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( ( _, element ) => element.tagName.toLowerCase() === 'video' )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
 		expect( window.HTMLMediaElement.prototype.load ).toHaveBeenCalled();
@@ -159,7 +159,9 @@ describe( 'MediaSection', () => {
 	it( 'should play and pause the video when it is hovered and unhovered', async () => {
 		useSelect.mockImplementation( () => dummyVideoData );
 		const { user } = setup( <MediaSection /> );
-		const video = screen.getByText( ( _, element ) => element.tagName.toLowerCase() === 'video' );
+		const video = await screen.findByText(
+			( _, element ) => element.tagName.toLowerCase() === 'video'
+		);
 
 		await user.hover( video );
 		await waitFor( () =>
