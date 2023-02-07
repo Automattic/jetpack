@@ -33,14 +33,18 @@ class Test_Options extends StatsBaseTestCase {
 	public function test_get_options() {
 		$options           = Options::get_options();
 		$options_should_be = array(
-			'admin_bar'    => true,
-			'roles'        => array(
+			'admin_bar'                      => true,
+			'roles'                          => array(
 				'administrator',
 			),
-			'count_roles'  => array(),
-			'do_not_track' => true,
-			'blog_id'      => 1234,
-			'version'      => Main::STATS_VERSION,
+			'count_roles'                    => array(),
+			'do_not_track'                   => true,
+			'blog_id'                        => 1234,
+			'version'                        => Main::STATS_VERSION,
+			'collapse_nudges'                => false,
+			'enable_calypso_stats'           => false,
+			'calypso_stats_last_enabled_at'  => 0,
+			'calypso_stats_last_disabled_at' => 0,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -58,14 +62,18 @@ class Test_Options extends StatsBaseTestCase {
 		);
 		$options           = Options::get_options();
 		$options_should_be = array(
-			'admin_bar'    => true,
-			'roles'        => array(
+			'admin_bar'                      => true,
+			'roles'                          => array(
 				'administrator',
 			),
-			'count_roles'  => array_keys( get_editable_roles() ),
-			'do_not_track' => true,
-			'blog_id'      => 1234,
-			'version'      => Main::STATS_VERSION,
+			'count_roles'                    => array_keys( get_editable_roles() ),
+			'do_not_track'                   => true,
+			'blog_id'                        => 1234,
+			'version'                        => Main::STATS_VERSION,
+			'collapse_nudges'                => false,
+			'enable_calypso_stats'           => false,
+			'calypso_stats_last_enabled_at'  => 0,
+			'calypso_stats_last_disabled_at' => 0,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -134,14 +142,18 @@ class Test_Options extends StatsBaseTestCase {
 				),
 				'result'         => true,
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'set version'          => array(
@@ -150,14 +162,18 @@ class Test_Options extends StatsBaseTestCase {
 				),
 				'result'         => true,
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'set blog blog_id'     => array(
@@ -166,14 +182,18 @@ class Test_Options extends StatsBaseTestCase {
 				),
 				'result'         => true,
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'multiple options'     => array(
@@ -190,17 +210,21 @@ class Test_Options extends StatsBaseTestCase {
 				),
 				'result'         => true,
 				'stored_options' => array(
-					'admin_bar'    => false,
-					'roles'        => array(
+					'admin_bar'                      => false,
+					'roles'                          => array(
 						'administrator',
 						'editor',
 					),
-					'count_roles'  => array(
+					'count_roles'                    => array(
 						'administrator',
 					),
-					'do_not_track' => false,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'do_not_track'                   => false,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 		);
@@ -245,16 +269,20 @@ class Test_Options extends StatsBaseTestCase {
 			'do_not_track' => true,
 		);
 		$stored_options = array(
-			'admin_bar'    => false,
-			'roles'        => array(
+			'admin_bar'                      => false,
+			'roles'                          => array(
 				'editor',
 			),
-			'count_roles'  => array(
+			'count_roles'                    => array(
 				'administrator',
 			),
-			'do_not_track' => true,
-			'blog_id'      => 1234,
-			'version'      => Main::STATS_VERSION,
+			'do_not_track'                   => true,
+			'blog_id'                        => 1234,
+			'version'                        => Main::STATS_VERSION,
+			'collapse_nudges'                => false,
+			'enable_calypso_stats'           => false,
+			'calypso_stats_last_enabled_at'  => 0,
+			'calypso_stats_last_disabled_at' => 0,
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -272,85 +300,109 @@ class Test_Options extends StatsBaseTestCase {
 				'option_name'    => 'blog_id',
 				'option_value'   => 888,
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'Roles'        => array(
 				'option_name'    => 'roles',
 				'option_value'   => array( 'administrator', 'editor' ),
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 						'editor',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'Count Roles'  => array(
 				'option_name'    => 'count_roles',
 				'option_value'   => array( 'administrator' ),
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array( 'administrator' ),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array( 'administrator' ),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'Version'      => array(
 				'option_name'    => 'version',
 				'option_value'   => '7',
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'Honor DNT'    => array(
 				'option_name'    => 'do_not_track',
 				'option_value'   => false,
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => false,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => false,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 			'Dummy option' => array(
 				'option_name'    => 'dummy',
 				'option_value'   => 'dummy',
 				'stored_options' => array(
-					'admin_bar'    => true,
-					'roles'        => array(
+					'admin_bar'                      => true,
+					'roles'                          => array(
 						'administrator',
 					),
-					'count_roles'  => array(),
-					'do_not_track' => true,
-					'blog_id'      => 1234,
-					'version'      => Main::STATS_VERSION,
+					'count_roles'                    => array(),
+					'do_not_track'                   => true,
+					'blog_id'                        => 1234,
+					'version'                        => Main::STATS_VERSION,
+					'collapse_nudges'                => false,
+					'enable_calypso_stats'           => false,
+					'calypso_stats_last_enabled_at'  => 0,
+					'calypso_stats_last_disabled_at' => 0,
 				),
 			),
 		);
