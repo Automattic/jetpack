@@ -33,9 +33,13 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [ 'title', 'description', 'rating', 'allowDownload' ].some( field =>
-		hasFieldChanged( field )
-	);
+	const metaChanged = [
+		'title',
+		'description',
+		'rating',
+		'allowDownload',
+		'displayEmbed',
+	].some( field => hasFieldChanged( field ) );
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -53,6 +57,10 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		updateData( { allowDownload } );
 	};
 
+	const setDisplayEmbed = ( displayEmbed: number ) => {
+		updateData( { displayEmbed } );
+	};
+
 	const handleMetaUpdate = () => {
 		return new Promise( ( resolve, reject ) => {
 			if ( metaChanged ) {
@@ -68,6 +76,7 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		setDescription,
 		setRating,
 		setAllowDownload,
+		setDisplayEmbed,
 		handleMetaUpdate,
 		metaChanged,
 	};
@@ -104,6 +113,7 @@ export default () => {
 		description: video?.description,
 		rating: video?.rating,
 		allowDownload: video?.allowDownload,
+		displayEmbed: video?.displayEmbed,
 	} );
 
 	const updateData = newData => {
@@ -194,6 +204,7 @@ export default () => {
 				description: video?.description,
 				rating: video?.rating,
 				allowDownload: video?.allowDownload,
+				displayEmbed: video?.displayEmbed,
 			} );
 		}
 

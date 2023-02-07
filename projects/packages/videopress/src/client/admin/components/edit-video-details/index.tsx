@@ -163,6 +163,7 @@ const EditVideoDetails = () => {
 		rating,
 		privacySetting,
 		allowDownload,
+		displayEmbed,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -177,6 +178,7 @@ const EditVideoDetails = () => {
 		setRating,
 		setPrivacySetting,
 		setAllowDownload,
+		setDisplayEmbed,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -321,6 +323,15 @@ const EditVideoDetails = () => {
 											value: VIDEO_PRIVACY_LEVEL_PRIVATE,
 										},
 									] }
+								/>
+								<Text>{ __( 'Share', 'jetpack-videopress-pkg' ) }</Text>
+								<CheckboxControl
+									checked={ displayEmbed }
+									label={ __(
+										'Display share menu and allow viewers to copy a link or embed this video',
+										'jetpack-videopress-pkg'
+									) }
+									onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
 								/>
 								<Text>{ __( 'Download', 'jetpack-videopress-pkg' ) }</Text>
 								<CheckboxControl
