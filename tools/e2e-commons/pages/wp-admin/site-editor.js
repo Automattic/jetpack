@@ -34,11 +34,16 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async closeWelcomeGuide() {
-		logger.step( 'Handling the welcome guide modal' );
-		const welcomeModal = "div[aria-label='Welcome to the site editor']";
-		if ( await this.isElementVisible( welcomeModal, 1000 ) ) {
-			logger.info( 'Closing the modal' );
-			await this.click( "button[aria-label='Close dialog']" );
+		const isWelcomeGuideActive = await this.page.evaluate( () =>
+			wp.data.select( 'core/edit-site' ).isFeatureActive( 'welcomeGuide' )
+		);
+
+		if ( isWelcomeGuideActive ) {
+			logger.step( 'Closing the welcome guide modal' );
+			await this.page.evaluate( () => {
+				wp.data.dispatch( 'core/edit-site' ).toggleFeature( 'welcomeGuide' );
+				wp.data.dispatch( 'core/edit-site' ).toggleFeature( 'welcomeGuideStyles' );
+			} );
 		}
 	}
 
