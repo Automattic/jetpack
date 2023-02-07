@@ -29,16 +29,15 @@ class Regenerate_Admin_Notice {
 		return Transient::get( 'regenerate_admin_notice', false );
 	}
 
-	public static function enable_suggestion() {
-		Transient::set( 'regenerate_admin_suggestion', true );
+	/**
+	 * Hide the admin notice for a week.
+	 */
+	public static function snooze_suggestion() {
+		Transient::set( 'snooze_regenerate_suggestion', true, WEEK_IN_SECONDS );
 	}
 
-	public static function dismiss_suggestion() {
-		Transient::delete( 'regenerate_admin_suggestion' );
-	}
-
-	public static function is_suggestion_enabled() {
-		return Transient::get( 'regenerate_admin_suggestion', false );
+	public static function is_suggestion_snoozed() {
+		return Transient::get( 'snooze_regenerate_suggestion', false );
 	}
 
 	/**
@@ -62,8 +61,8 @@ class Regenerate_Admin_Notice {
 			return;
 		}
 
-		// Mark the critical CSS as fresh so we don't show the suggestion again in a period of time.
-		Critical_CSS_State::set_fresh( true );
+		// Temporarily snooze the suggestion
+		self::snooze_suggestion();
 
 		// Dismiss the notice that shows up for major changes.
 		static::dismiss();
@@ -73,7 +72,7 @@ class Regenerate_Admin_Notice {
 
 	public static function init() {
 		add_action( 'admin_notices', array( static::class, 'maybe_render' ) );
-		if ( static::is_enabled() || static::is_suggestion_enabled() ) {
+		if ( static::is_enabled() || ! static::is_suggestion_snoozed() ) {
 			static::maybe_handle_dismissal();
 		}
 	}
@@ -88,7 +87,7 @@ class Regenerate_Admin_Notice {
 
 		if ( static::is_enabled() ) {
 			static::render_notice();
-		} elseif ( static::is_suggestion_enabled() && ! Critical_CSS_State::is_fresh() ) {
+		} elseif ( ! static::is_suggestion_snoozed() && ! Critical_CSS_State::is_fresh() ) {
 			static::render_suggestion();
 		}
 	}

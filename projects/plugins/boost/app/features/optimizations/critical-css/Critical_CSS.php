@@ -6,6 +6,7 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
@@ -146,7 +147,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		$generator                = new Generator();
 		$constants['criticalCSS'] = array(
 			'status'            => $generator->get_local_critical_css_generation_info(),
-			'suggestRegenerate' => Regenerate_Admin_Notice::is_suggestion_enabled(),
+			'suggestRegenerate' => ! Critical_CSS_State::is_fresh(),
 		);
 
 		return $constants;

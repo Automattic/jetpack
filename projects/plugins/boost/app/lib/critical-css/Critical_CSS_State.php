@@ -386,12 +386,15 @@ class Critical_CSS_State {
 		return self::FAIL === $this->state;
 	}
 
+	/**
+	 * Has there been any HTML/CSS structure changes since the last Critical CSS generation?
+	 */
 	public static function is_fresh() {
-		return Transient::get( 'ccss_is_fresh', false );
+		return Transient::get( 'is_ccss_fresh', false );
 	}
 
 	public static function set_fresh( $is_fresh = true ) {
-		Transient::set( 'ccss_is_fresh', $is_fresh, WEEK_IN_SECONDS );
+		Transient::set( 'is_ccss_fresh', $is_fresh );
 	}
 
 	/**
