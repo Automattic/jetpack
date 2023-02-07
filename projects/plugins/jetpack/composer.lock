@@ -2088,10 +2088,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "d013b764b41b21c50fee6f89da679a3bf60469e5"
+                "reference": "f86f8528b864500624df35217810f82dfb05f372"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-jitm": "@dev",
                 "automattic/jetpack-options": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev"
