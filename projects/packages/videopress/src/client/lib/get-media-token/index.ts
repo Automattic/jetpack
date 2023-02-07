@@ -34,7 +34,7 @@ const requestMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id, guid, adminAjaxAPI: adminAjaxAPIArgument, filename } = args;
+	const { id = 0, guid, adminAjaxAPI: adminAjaxAPIArgument, filename } = args;
 	return new Promise( function ( resolve, reject ) {
 		const adminAjaxAPI =
 			adminAjaxAPIArgument ||
@@ -123,7 +123,7 @@ async function getMediaToken(
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
-	const { id = window.videopressAjax?.post_id || 0, guid = 0, flushToken } = args;
+	const { id = 0, guid = 0, flushToken } = args;
 	const key = `vpc-${ scope }-${ id }-${ guid }`;
 
 	const context = window?.videopressAjax?.context || 'main';
