@@ -42,7 +42,8 @@
 		"wordads",
 		"payments-intro",
 		"post-publish-qr-post-panel",
-		"payment-buttons"
+		"payment-buttons",
+		"site-editor-snackbar-on-load"
 	],
 	"beta": [
 		"amazon",
