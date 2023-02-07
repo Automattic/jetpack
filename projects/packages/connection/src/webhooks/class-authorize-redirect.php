@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Connection\Webhooks;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Tracking;
 use GP_Locales;
 use Jetpack_Network;
@@ -56,8 +57,12 @@ class Authorize_Redirect {
 			exit;
 		}
 
+		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			// The user is either already connected, or finished the connection process.
+			if ( class_exists( '\Automattic\Jetpack\Licensing' ) ) {
+				Licensing::instance()->handle_user_connected_redirect( $dest_url );
+			}
+
 			wp_safe_redirect( $dest_url );
 			exit;
 		} elseif ( ! empty( $_GET['done'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
