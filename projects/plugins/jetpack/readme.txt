@@ -242,7 +242,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-beta - 2023-01-30
+### 11.8 - 2023-02-07
 #### Enhancements
 - Form block: add styling of input fields.
 
@@ -251,8 +251,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Revue block: add a direct link to the WordPress.com subscriber import page.
 
 #### Bug fixes
-- Slidedhow: fix slideshow loading excessive dependencies on every page view.
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active.
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backup/Scan state.
+- Dashboard: fix the price display and description for products with intro offers for the first month.
+- Dashboard: show Boost in My Plans dashboard when added to a site.
+- Infinite Scroll: fix an AMP related bug.
+- Modules: allow for deactivating multiple plugins when activating a module.
+- Related Posts: fix Related Posts options saving.
+- Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
+- Sharing: do not include the sharing buttons in REST API responses.
+- Slideshow: fix slideshow loading excessive dependencies on every page view.
+- Subscriptions: add a null check to a $post reference.
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
 
 --------
