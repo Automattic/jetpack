@@ -21,9 +21,17 @@ export class API_Endpoint< T extends RequestParams > {
 		} );
 	}
 
-	public async GET(): Promise< T > {
+	/**
+	 * Class member variables:
+	 *
+	 * Variables below are class member variables, instead of class methods,
+	 * because they need to be bound to the class instance, to make it
+	 * easier to pass them around as callbacks
+	 * without losing the `this` context.
+	 */
+	public GET = async (): Promise< T > => {
 		return await this.validatedRequest( 'GET' );
-	}
+	};
 
 	public POST = async ( params: T ): Promise< T > => {
 		return await this.validatedRequest( 'POST', params );
