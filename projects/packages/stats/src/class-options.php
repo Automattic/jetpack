@@ -161,8 +161,8 @@ class Options {
 			'do_not_track'                   => true, // @todo
 			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
 			'version'                        => Main::STATS_VERSION,
-			'collapse_nudges'                => 0,
-			'enable_calypso_stats'           => 0,
+			'collapse_nudges'                => false,
+			'enable_calypso_stats'           => false,
 			'calypso_stats_last_enabled_at'  => 0,
 			'calypso_stats_last_disabled_at' => 0,
 		);

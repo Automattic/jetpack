@@ -867,10 +867,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
-				case 'do_not_track':
 				case 'version':
-				case 'collapse_nudges':
 					$updated = Stats_Options::set_option( $option, $value );
+					break;
+
+				case 'do_not_track':
+				case 'collapse_nudges':
+					// Cast type to boolean.
+					$updated = Stats_Options::set_option( $option, (bool) $value );
 					break;
 
 				case 'enable_calypso_stats':
@@ -878,6 +882,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$stats_options = array(
 						'enable_calypso_stats' => $value,
 					);
+					// Save the last time the user enabled or disabled Calypso stats.
 					if ( $value ) {
 						$stats_options['calypso_stats_last_enabled_at'] = time();
 					} else {
