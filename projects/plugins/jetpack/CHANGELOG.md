@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.8-beta - 2023-01-30
+## 11.8 - 2023-02-07
 ### Enhancements
 - Form block: add styling of input fields. [#27837]
 
@@ -11,13 +11,16 @@
 - Revue block: add a direct link to the WordPress.com subscriber import page. [#28538]
 
 ### Bug fixes
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active. [#28650]
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backups/Scan state. [#28711]
 - Slideshow: fix slideshow loading excessive dependencies on every page view. [#28562]
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages. [#28643]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Contact Form: fix a PHP warning. [#28640]
+- Dashboard: remove border around counts for anti-spam/protect. [#28746]
 - JSON API: fix the response format for '/sites/$site/dropdown-pages/', the endpoint is not used in production yet. [#28586]
+- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Reading settings: add 'Reading' link to the menu in Calypso for self-hosted Jetpack sites. [#28616]
 - Shortcodes: fix a PHP warning. [#28644]
 - Subscriptions: fix warnings from the global reading of '$post'. [#28639]
