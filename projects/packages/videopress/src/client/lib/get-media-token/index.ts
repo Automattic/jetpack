@@ -1,24 +1,36 @@
 /**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+/**
  * Internal dependencies
  */
 import { VideoGUID } from '../../block-editor/blocks/video/types';
-import {
+import { MEDIA_TOKEN_SCOPES } from './types';
+/**
+ * Types
+ */
+import type {
 	MediaTokenScopeProps,
 	MediaTokenScopeAdminAjaxResponseBodyProps,
 	MediaTokenProps,
-	MEDIA_TOKEN_SCOPES,
 	AdminAjaxTokenProps,
 	GetMediaTokenArgsProps,
 } from './types';
 
+const debug = debugFactory( 'videopress:get-media-token' );
+
+// Lifetime of the token in milliseconds.
+const TOKEN_LIFETIME = 1000 * 60 * 60 * 24; // 24 hours
+
 /**
- * Return media token data hiting the admin-ajax endpoint.
+ * Request media token data hiting the admin-ajax endpoint.
  *
  * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
  * @param {GetMediaTokenArgsProps} args - function arguments.
  * @returns {MediaTokenProps}             Media token data.
  */
-const getMediaToken = function (
+const requestMediaToken = function (
 	scope: MediaTokenScopeProps,
 	args: GetMediaTokenArgsProps = {}
 ): Promise< MediaTokenProps > {
@@ -97,5 +109,62 @@ const getMediaToken = function (
 			} );
 	} );
 };
+
+/**
+ * Return media token data
+ * from the localStore in case it is still valid,
+ * otherwise request it from the admin-ajax endpoint.
+ *
+ * @param {MediaTokenScopeProps} scope  - The scope of the token to request.
+ * @param {GetMediaTokenArgsProps} args - function arguments.
+ * @returns {MediaTokenProps}             Media token data.
+ */
+async function getMediaToken(
+	scope: MediaTokenScopeProps,
+	args: GetMediaTokenArgsProps = {}
+): Promise< MediaTokenProps > {
+	const { id = window.videopressAjax?.post_id || 0, guid = 0 } = args;
+	const key = `vpc-${ scope }-${ id }-${ guid }`;
+
+	const context = window?.videopressAjax?.context || 'main';
+
+	let storedToken: {
+		data: MediaTokenProps;
+		expire: number;
+	};
+
+	try {
+		const storedRawTokenData = localStorage.getItem( key );
+		if ( storedRawTokenData ) {
+			storedToken = JSON.parse( storedRawTokenData );
+			if ( storedToken && storedToken.expire > Date.now() ) {
+				debug( '(%s) Providing %o token from the store', context, key );
+				return storedToken.data;
+			}
+
+			// Remove expired token.
+			debug( '(%s) Removing expired %o token', context, key );
+			localStorage.removeItem( key );
+		}
+	} catch ( e ) {
+		debug( 'Invalid token in the localStore' );
+	}
+
+	const token = await requestMediaToken( scope, args );
+
+	// Only store playback tokens.
+	if ( 'playback' === scope ) {
+		debug( '(%s) Storing %o token', context, key );
+		localStorage.setItem(
+			key,
+			JSON.stringify( {
+				data: token,
+				expire: Date.now() + TOKEN_LIFETIME,
+			} )
+		);
+	}
+
+	return token;
+}
 
 export default getMediaToken;
