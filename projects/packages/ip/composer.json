@@ -6,8 +6,7 @@
 	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
-		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -23,9 +22,7 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		],
-		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
-		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
+		]
 	},
 	"repositories": [
 		{
@@ -38,11 +35,6 @@
 	],
 	"minimum-stability": "dev",
 	"prefer-stable": true,
-	"config": {
-		"allow-plugins": {
-			"roots/wordpress-core-installer": true
-		}
-	},
 	"extra": {
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
