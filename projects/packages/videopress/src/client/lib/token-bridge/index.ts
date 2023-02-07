@@ -28,6 +28,8 @@ type TokenBrigeEventProps = {
 	origin: Origin;
 };
 
+const requestToken = { attempts: 0, isRequesting: false };
+
 /**
  * Function handler to dialog with the client
  * (token requester) and the app
@@ -48,6 +50,10 @@ export async function tokenBridgeHandler(
 	}
 
 	const { context = 'main' } = videopressAjax;
+	if ( requestToken.isRequesting ) {
+		debug( '(%s) Token request already in progress', context );
+		return;
+	}
 
 	const { guid, requestId } = event.data;
 	if ( ! guid || ! requestId ) {
@@ -78,6 +84,17 @@ export async function tokenBridgeHandler(
 
 	debug( '(%s) Token request accepted: %o | %o | %o', context, guid, postId, requestId );
 
+	requestToken.isRequesting = true;
+
+	const tokenData = await getMediaToken( 'playback', {
+		id: Number( postId ),
+		guid,
+		adminAjaxAPI: videopressAjax.ajaxUrl,
+		flushToken: requestToken.attempts > 0,
+	} );
+
+	requestToken.isRequesting = false;
+
 	/*
 	 * Acknowledge receipt of message so player knows
 	 * if it can expect a response or if it should try again later.
@@ -94,14 +111,8 @@ export async function tokenBridgeHandler(
 		{ targetOrigin: '*' }
 	);
 
-	const tokenData = await getMediaToken( 'playback', {
-		id: Number( postId ),
-		guid,
-		adminAjaxAPI: videopressAjax.ajaxUrl,
-	} );
-
 	if ( ! tokenData?.token ) {
-		debug( '(%s) Error getting token', context );
+		debug( '(%s) Error getting token. Attempt %o', context, requestToken.attempts );
 		tokenRequester.postMessage(
 			{
 				event: 'videopress_token_error',
@@ -110,6 +121,8 @@ export async function tokenBridgeHandler(
 			} as VideopressAjaxPostMessageEventProps,
 			{ targetOrigin: '*' }
 		);
+
+		requestToken.attempts++;
 		return;
 	}
 
