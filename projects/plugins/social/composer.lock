@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3a13cc9bec6e3280a24b83910c689007",
+    "content-hash": "ae1efbcda666762d3406afbe3a62a937",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -504,16 +504,16 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "v2.2.40",
+            "version": "v2.2.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "de81993920ea61e8971fab797d7a80f006253788"
+                "reference": "6b264ee6f98ba04fae676d33e03290d4b41a18c4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/de81993920ea61e8971fab797d7a80f006253788",
-                "reference": "de81993920ea61e8971fab797d7a80f006253788",
+                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/6b264ee6f98ba04fae676d33e03290d4b41a18c4",
+                "reference": "6b264ee6f98ba04fae676d33e03290d4b41a18c4",
                 "shasum": ""
             },
             "require": {
@@ -557,9 +557,9 @@
             ],
             "description": "Just in time messages for Jetpack",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-jitm/tree/v2.2.40"
+                "source": "https://github.com/Automattic/jetpack-jitm/tree/v2.2.41"
             },
-            "time": "2023-01-30T21:02:24+00:00"
+            "time": "2023-02-06T22:02:25+00:00"
         },
         {
             "name": "automattic/jetpack-licensing",
@@ -656,16 +656,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v2.7.7",
+            "version": "v2.7.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "b2bbae18b5e7c426f5479bf38fc8c27f2f58828b"
+                "reference": "0dc729ed7a35fed87d997c8108385b864c9176ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/b2bbae18b5e7c426f5479bf38fc8c27f2f58828b",
-                "reference": "b2bbae18b5e7c426f5479bf38fc8c27f2f58828b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/0dc729ed7a35fed87d997c8108385b864c9176ef",
+                "reference": "0dc729ed7a35fed87d997c8108385b864c9176ef",
                 "shasum": ""
             },
             "require": {
@@ -673,14 +673,14 @@
                 "automattic/jetpack-assets": "^1.17.30",
                 "automattic/jetpack-connection": "^1.49.1",
                 "automattic/jetpack-constants": "^1.6.20",
-                "automattic/jetpack-jitm": "^2.2.39",
+                "automattic/jetpack-jitm": "^2.2.41",
                 "automattic/jetpack-licensing": "^1.7.14",
                 "automattic/jetpack-plugins-installer": "^0.2.2",
                 "automattic/jetpack-redirect": "^1.7.23"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.1",
-                "automattic/jetpack-videopress": "^0.10.7",
+                "automattic/jetpack-videopress": "^0.10.8",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -711,9 +711,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.7.7"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.7.8"
             },
-            "time": "2023-01-26T20:36:31+00:00"
+            "time": "2023-02-07T00:49:51+00:00"
         },
         {
             "name": "automattic/jetpack-partner",
