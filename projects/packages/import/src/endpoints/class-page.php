@@ -10,34 +10,13 @@ namespace Automattic\Jetpack\Import\Endpoints;
 /**
  * Class Page
  */
-class Page extends \WP_REST_Posts_Controller {
-
-	/**
-	 * The Import ID add a new item to the schema.
-	 */
-	use Import;
+class Page extends Post {
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		parent::__construct( 'page' );
-
-		// @see add_post_meta
-		$this->import_id_meta_type = 'post';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/pages',
-			$this->get_route_options()
-		);
 	}
 
 	/**
@@ -48,12 +27,12 @@ class Page extends \WP_REST_Posts_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$pages = get_pages( $this->get_import_db_query( $parent_import_id ) );
+		$pages = \get_pages( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $pages ) && count( $pages ) === 1 ) {
 			$parent_id = $pages[0];
 
-			return (bool) wp_update_post(
+			return (bool) \wp_update_post(
 				array(
 					'ID'          => $resource_id,
 					'post_parent' => $parent_id,
