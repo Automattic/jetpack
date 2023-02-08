@@ -76,7 +76,13 @@ jobs:
             mkdir "$BUILD_BASE"
             touch "$BUILD_BASE/mirrors.txt"
           else
-            pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
+            while true; do
+              echo "::group::Build attempt..."
+              if pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"; then break; fi
+              git restore .
+              rm -rf "$BUILD_BASE"
+              echo "::endgroup::"
+            done
           fi
 
       - name: Filter mirror list for release branch
