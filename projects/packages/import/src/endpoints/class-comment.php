@@ -24,7 +24,7 @@ class Comment extends \WP_REST_Comments_Controller {
 		parent::__construct();
 
 		// @see add_comment_meta
-		$this->import_id_meta_name = $this->rest_base;
+		$this->import_id_meta_type = $this->rest_base;
 	}
 
 	/**
@@ -36,16 +36,7 @@ class Comment extends \WP_REST_Comments_Controller {
 		register_rest_route(
 			self::$rest_namespace,
 			$this->rest_base,
-			array(
-				array(
-					'methods'             => \WP_REST_Server::CREATABLE,
-					'callback'            => array( $this, 'create_item' ),
-					'permission_callback' => array( $this, 'import_permissions_callback' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
-				),
-				'allow_batch' => array( 'v1' => true ),
-				'schema'      => array( $this, 'get_public_item_schema' ),
-			)
+			$this->get_route_options()
 		);
 	}
 

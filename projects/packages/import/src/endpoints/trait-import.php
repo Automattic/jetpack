@@ -20,11 +20,18 @@ trait Import {
 	private static $rest_namespace = 'jetpack/v4/import';
 
 	/**
+	 * Meta and REST property name used for storing the WXR import ID.
+	 *
+	 * @var string
+	 */
+	protected $import_id_field_name = 'unified_importer_id';
+
+	/**
 	 * Import ID meta name.
 	 *
 	 * @var string
 	 */
-	public $import_id_meta_name;
+	protected $import_id_meta_type;
 
 	/**
 	 * Adds the schema from additional fields to a schema array.
@@ -36,7 +43,7 @@ trait Import {
 	 */
 	public function add_additional_fields_schema( $schema ) {
 		// Add the import unique ID to the schema.
-		$schema['properties']['unified_importer_id'] = array(
+		$schema['properties'][ $this->import_id_field_name ] = array(
 			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
 			'type'        => 'integer',
 			'context'     => array( 'view', 'embed', 'edit' ),
@@ -68,12 +75,12 @@ trait Import {
 		}
 
 		// Add the import unique ID to the resource metadata.
-		add_metadata( $this->import_id_meta_name, $data['id'], 'unified_importer_id', $request['unified_importer_id'], true );
+		add_metadata( $this->import_id_meta_type, $data['id'], $this->import_id_field_name, $request[ $this->import_id_field_name ], true );
 
 		// If the resource has a parent.
-		if ( $request['unified_importer_id'] !== 0 ) {
+		if ( $request[ $this->import_id_field_name ] !== 0 ) {
 			// Update the parent.
-			$this->update_parent_id( $data['id'], $request['unified_importer_id'] );
+			$this->update_parent_id( $data['id'], $request[ $this->import_id_field_name ] );
 		}
 
 		return $response;
@@ -113,10 +120,30 @@ trait Import {
 			'fields'     => 'ids',
 			'meta_query' => array(
 				array(
-					'key'   => 'unified_importer_id',
+					'key'   => $this->import_id_field_name,
 					'value' => $parent_import_id,
 				),
 			),
+		);
+	}
+
+	/**
+	 * Get the register route options.
+	 *
+	 * @see register_rest_route()
+	 *
+	 * @return array The options.
+	 */
+	protected function get_route_options() {
+		return array(
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'create_item' ),
+				'permission_callback' => array( $this, 'import_permissions_callback' ),
+				'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
+			),
+			'allow_batch' => array( 'v1' => true ),
+			'schema'      => array( $this, 'get_public_item_schema' ),
 		);
 	}
 

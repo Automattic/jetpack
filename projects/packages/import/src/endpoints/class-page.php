@@ -1,6 +1,6 @@
 <?php
 /**
- * Posts REST route
+ * Pages REST route
  *
  * @package automattic/jetpack-import
  */
@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Import\Endpoints;
 
 /**
- * Class Post
+ * Class Page
  */
-class Post extends \WP_REST_Posts_Controller {
+class Page extends \WP_REST_Posts_Controller {
 
 	/**
 	 * The Import ID add a new item to the schema.
@@ -21,7 +21,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'post' );
+		parent::__construct( 'page' );
 
 		// @see add_post_meta
 		$this->import_id_meta_type = 'post';
@@ -35,7 +35,7 @@ class Post extends \WP_REST_Posts_Controller {
 	public function register_routes() {
 		register_rest_route(
 			self::$rest_namespace,
-			'/posts',
+			'/pages',
 			$this->get_route_options()
 		);
 	}
@@ -48,10 +48,10 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$posts = get_posts( $this->get_import_db_query( $parent_import_id ) );
+		$pages = get_pages( $this->get_import_db_query( $parent_import_id ) );
 
-		if ( is_array( $posts ) && count( $posts ) === 1 ) {
-			$parent_id = $posts[0];
+		if ( is_array( $pages ) && count( $pages ) === 1 ) {
+			$parent_id = $pages[0];
 
 			return (bool) wp_update_post(
 				array(

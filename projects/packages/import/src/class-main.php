@@ -22,13 +22,6 @@ class Main {
 	const PACKAGE_VERSION = '0.1.1-alpha';
 
 	/**
-	 * Meta name for storing the WXR import ID.
-	 *
-	 * @var string
-	 */
-	const IMPORT_ID_META_NAME = 'unified_importer_id';
-
-	/**
 	 * A list of all the routes.
 	 *
 	 * @var \WP_REST_Controller[]
@@ -68,6 +61,7 @@ class Main {
 		$routes = array(
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
+			'pages'      => new Endpoints\Page(),
 			'posts'      => new Endpoints\Post(),
 			'tags'       => new Endpoints\Tag(),
 		);
