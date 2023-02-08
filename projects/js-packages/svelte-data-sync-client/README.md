@@ -60,7 +60,7 @@ Here's a simple example of how that would work:
 
 ```svelte
 <script type="ts">
-	import { favorites } from "./widget-options.ts";
+	import { favorites } from "./favorites.ts";
 	const enabled = favorites.enabled.store;
 	const pending = favorites.enabled.pending;
 </script>
