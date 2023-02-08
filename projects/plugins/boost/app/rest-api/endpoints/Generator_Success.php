@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Nonce;
@@ -78,6 +79,9 @@ class Generator_Success implements Endpoint {
 		$recommendations->reset();
 
 		Regenerate_Admin_Notice::dismiss();
+		// Prevent the notice from showing again for a while.
+		Regenerate_Admin_Notice::snooze_suggestion();
+		Critical_CSS_State::set_fresh();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
 		return rest_ensure_response(
