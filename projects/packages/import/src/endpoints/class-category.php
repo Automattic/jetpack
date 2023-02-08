@@ -48,12 +48,12 @@ class Category extends \WP_REST_Terms_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$categories = get_categories( $this->get_import_db_query( $parent_import_id ) );
+		$categories = \get_categories( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $categories ) && count( $categories ) === 1 ) {
 			$parent_id = $categories[0];
 
-			return (bool) wp_update_category(
+			return (bool) \wp_update_category(
 				array(
 					'cat_ID'          => $resource_id,
 					'category_parent' => $parent_id,

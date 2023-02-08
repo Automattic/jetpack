@@ -75,7 +75,7 @@ trait Import {
 		}
 
 		// Add the import unique ID to the resource metadata.
-		add_metadata( $this->import_id_meta_type, $data['id'], $this->import_id_field_name, $request[ $this->import_id_field_name ], true );
+		\add_metadata( $this->import_id_meta_type, $data['id'], $this->import_id_field_name, $request[ $this->import_id_field_name ], true );
 
 		// If the resource has a parent.
 		if ( $request[ $this->import_id_field_name ] !== 0 ) {

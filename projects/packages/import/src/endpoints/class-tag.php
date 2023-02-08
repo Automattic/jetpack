@@ -48,12 +48,12 @@ class Tag extends \WP_REST_Terms_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$terms = get_terms( $this->get_import_db_query( $parent_import_id ) );
+		$terms = \get_terms( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $terms ) && count( $terms ) === 1 ) {
 			$parent_id = $terms[0];
 
-			return (bool) wp_update_term( $resource_id, $this->import_id_meta_type, array( 'parent' => $parent_id ) );
+			return (bool) \wp_update_term( $resource_id, $this->import_id_meta_type, array( 'parent' => $parent_id ) );
 		}
 
 		return false;
