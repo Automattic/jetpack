@@ -169,7 +169,11 @@ abstract class Sharing_Source {
 
 		$tags = array_map(
 			function ( $tag ) {
-				return '#' . $tag->name;
+				// Camel case the tag name and remove spaces as well as apostrophes.
+				$tag = preg_replace( '/\s+|\'/', '', ucwords( $tag->name ) );
+
+				// Return with a '#' prepended.
+				return '#' . $tag;
 			},
 			$tags
 		);
