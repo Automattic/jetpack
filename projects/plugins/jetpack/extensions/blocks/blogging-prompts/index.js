@@ -54,6 +54,7 @@ export const settings = {
 			link: true,
 			text: true,
 		},
+		inserter: false,
 	},
 	edit,
 	save,
