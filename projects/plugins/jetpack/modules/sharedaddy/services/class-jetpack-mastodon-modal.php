@@ -59,9 +59,19 @@ class Jetpack_Mastodon_Modal {
 </head>
 <body class="sd-mastodon-modal">
 	<div class="sd-mastodon-modal__inner">
+		<h2 class="sd-mastodon-modal__title"><?php esc_html_e( 'Share to Mastodon', 'jetpack' ); ?></h2>
 		<form action="" method="post">
-			<label for="jetpack-mastodon-instance" class="sd-mastodon-modal__label"><?php esc_html_e( 'Enter the Mastodon instance where you’d like share this post.', 'jetpack' ); ?></label>
-			<input required aria-required="true" type="url" id="jetpack-mastodon-instance" name="jetpack-mastodon-instance" value="<?php esc_url( 'https://mastodon.social' ); ?>" />
+			<label for="jetpack-mastodon-instance" class="sd-mastodon-modal__label">
+				<?php esc_html_e( 'Enter the full URL of the Mastodon instance where you’d like to share this post.', 'jetpack' ); ?>
+			</label>
+			<input
+				required
+				aria-required="true"
+				type="url"
+				id="jetpack-mastodon-instance"
+				name="jetpack-mastodon-instance"
+				placeholder="<?php echo esc_url( 'https://mastodon.social' ); ?>"
+			/>
 			<div class="sd-mastodon-modal__submit">
 				<?php wp_nonce_field( 'jetpack_share_mastodon_instance', '_wpnonce', true, true ); ?>
 				<button id="mastodon-submit"><?php esc_html_e( 'Share', 'jetpack' ); ?></button>
