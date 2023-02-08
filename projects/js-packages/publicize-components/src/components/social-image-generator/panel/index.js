@@ -1,16 +1,12 @@
-import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import {
-	PanelBody,
-	ToggleControl,
-	TextControl,
-	SelectControl,
-	Button,
-} from '@wordpress/components';
+import { PanelBody, ToggleControl, TextControl, SelectControl } from '@wordpress/components';
 import { useCallback, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
+import useMediaDetails from '../../../hooks/use-media-details';
+import MediaPicker from '../../media-picker';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack' );
 
 const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 	const PanelWrapper = prePublish ? Fragment : PanelBody;
@@ -26,24 +22,13 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		setImageId,
 	} = useImageGeneratorConfig();
 
-	const onSelectImage = useCallback( media => setImageId( media.id ), [ setImageId ] );
-	const onRemoveImage = useCallback( () => setImageId( null ), [ setImageId ] );
-	const renderMedia = useCallback(
-		open => (
-			<div>
-				<Button variant="primary" onClick={ open }>
-					{ imageId
-						? __( 'Replace Custom Image', 'jetpack' )
-						: __( 'Choose Custom Image', 'jetpack' ) }
-				</Button>
-				{ imageId && (
-					<Button variant="link" isDestructive onClick={ onRemoveImage }>
-						{ __( 'Remove Custom Image', 'jetpack' ) }
-					</Button>
-				) }
-			</div>
-		),
-		[ imageId, onRemoveImage ]
+	const [ mediaDetails ] = useMediaDetails( imageId );
+
+	const onCustomImageChange = useCallback(
+		media => {
+			setImageId( media?.id );
+		},
+		[ setImageId ]
 	);
 
 	const ImageOptions = () => {
@@ -51,7 +36,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			<>
 				<SelectControl
 					label={ __( 'Image Type', 'jetpack' ) }
-					value={ imageType }
+					value={ imageType || 'featured' }
 					options={ [
 						{
 							label: __( 'Featured Image', 'jetpack' ),
@@ -70,13 +55,14 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 				/>
 
 				{ imageType === 'custom' && (
-					<MediaUploadCheck>
-						<MediaUpload
-							onSelect={ onSelectImage }
-							allowedTypes={ ALLOWED_MEDIA_TYPES }
-							render={ renderMedia }
-						/>
-					</MediaUploadCheck>
+					<MediaPicker
+						buttonLabel={ ADD_MEDIA_LABEL }
+						subTitle={ __( 'Add a custom image', 'jetpack' ) }
+						mediaId={ imageId }
+						mediaDetails={ mediaDetails }
+						onChange={ onCustomImageChange }
+						allowedMediaTypes={ ALLOWED_MEDIA_TYPES }
+					/>
 				) }
 			</>
 		);
@@ -93,7 +79,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			{ isEnabled && (
 				<>
 					<TextControl
-						value={ customText }
+						value={ customText || '' }
 						onChange={ setCustomText }
 						label={ __( 'Custom Text', 'jetpack' ) }
 						help={ __(
