@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.2-alpha';
+	const PACKAGE_VERSION = '0.5.3-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
@@ -120,6 +120,11 @@ class Blaze {
 		$is_wpcom          = defined( 'IS_WPCOM' ) && IS_WPCOM;
 		$connection        = new Jetpack_Connection();
 		$site_id           = Jetpack_Connection::get_site_id();
+
+		// Only admins should be able to Blaze posts on a site.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false;
+		}
 
 		// On self-hosted sites, we must do some additional checks.
 		if ( ! $is_wpcom ) {

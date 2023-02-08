@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: Adding a JS function to a list of exports so that it can be called outside the bundle it was declared in.
