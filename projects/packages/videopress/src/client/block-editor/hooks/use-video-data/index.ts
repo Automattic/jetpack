@@ -110,13 +110,13 @@ export default function useVideoData( {
 				if ( errorData?.error === 'auth' ) {
 					gettingTokenAttempt++;
 					debug( 'Authenticating error. Reattempt %o', gettingTokenAttempt + '/3' );
-					if ( gettingTokenAttempt > 3 ) {
+					if ( gettingTokenAttempt > 2 ) {
 						debug( 'Too many attempts to get token. Aborting.' );
 						setIsRequestingVideoData( false );
 						throw new Error( errorData?.message ?? errorData );
 					}
 
-					const tokenData = await getMediaToken( 'playback', { guid } );
+					const tokenData = await getMediaToken( 'playback', { guid, flushToken: true } );
 					if ( ! tokenData?.token ) {
 						debug( 'Token is missing. Aborting.' );
 						setIsRequestingVideoData( false );
