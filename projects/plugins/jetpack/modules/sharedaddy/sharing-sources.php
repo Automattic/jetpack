@@ -154,6 +154,41 @@ abstract class Sharing_Source {
 	}
 
 	/**
+	 * Get a comma-separated list of the post's tags to use for sharing.
+	 * Prepends a '#' to each tag.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return string
+	 */
+	public function get_share_tags( $post_id ) {
+		$tags = get_the_tags( $post_id );
+		if ( ! $tags ) {
+			return '';
+		}
+
+		$tags = array_map(
+			function ( $tag ) {
+				return '#' . $tag->name;
+			},
+			$tags
+		);
+
+		/**
+		 * Allow customizing how the list of tags is displayed.
+		 *
+		 * @module sharedaddy
+		 * @since $$next-version$$
+		 *
+		 * @param string $tags    Comma-separated list of tags.
+		 * @param int    $post_id Post ID.
+		 */
+		$tag_list = (string) apply_filters( 'jetpack_sharing_tag_list', implode( ', ', $tags ), $post_id );
+
+		return html_entity_decode( wp_kses( $tag_list, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+	}
+
+	/**
 	 * Does this sharing source have a custom style.
 	 *
 	 * @return bool
@@ -3119,6 +3154,7 @@ class Share_Mastodon extends Sharing_Source {
 
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link  = $this->get_share_url( $post->ID );
+		$post_tags  = $this->get_share_tags( $post->ID );
 
 		/**
 		 * Allow filtering the default message that gets posted to Mastodon.
@@ -3132,7 +3168,7 @@ class Share_Mastodon extends Sharing_Source {
 		 */
 		$shared_message = apply_filters(
 			'jetpack_sharing_mastodon_default_message',
-			$post_title . ' ' . $post_link,
+			$post_title . ' ' . $post_link . ' ' . $post_tags,
 			$post,
 			$post_data
 		);
