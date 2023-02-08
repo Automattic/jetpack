@@ -879,10 +879,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = Stats_Options::set_option( $option, (bool) $value );
 					break;
 
-				case 'enable_calypso_stats':
+				case 'enable_odyssey_stats':
 					$value         = (bool) $value;
 					$stats_options = array(
-						'enable_calypso_stats'     => $value,
+						'enable_odyssey_stats'     => $value,
 						'calypso_stats_changed_at' => time(),
 					);
 					$updated       = Stats_Options::set_options( $stats_options );

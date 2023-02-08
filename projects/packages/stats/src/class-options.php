@@ -162,7 +162,7 @@ class Options {
 			'blog_id'                  => Jetpack_Options::get_option( 'id' ),
 			'version'                  => Main::STATS_VERSION,
 			'collapse_nudges'          => false,
-			'enable_calypso_stats'     => false,
+			'enable_odyssey_stats'     => false,
 			'calypso_stats_changed_at' => 0,
 		);
 	}
