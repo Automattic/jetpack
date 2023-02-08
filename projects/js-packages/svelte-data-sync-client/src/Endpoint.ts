@@ -10,7 +10,14 @@ export class API_Endpoint< T extends RequestParams > {
 	private endpoint: string;
 
 	constructor( private api: API, private name: string, private schema: z.ZodSchema ) {
-		// Convert `widget_name` to `widget-name` to match the endpoint.
+		/**
+		 * Convert underscores to dashes,
+		 * because all endpoints are kebab-case and options are snake_case.
+		 * For example, `jetpack_favorites` becomes `jetpack-favorites`.
+		 *
+		 * For more information on the shape of the API,
+		 * @see API.request
+		 */
 		this.endpoint = this.name.replace( '_', '-' );
 	}
 
