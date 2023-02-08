@@ -114,6 +114,7 @@ class Waf_Initializer {
 			// Compatiblity patch for cases where an outdated WAF_Constants class has been
 			// autoloaded by the standalone bootstrap execution at the beginning of the current request.
 			if ( ! method_exists( Waf_Constants::class, 'define_mode' ) ) {
+				( new Waf_Standalone_Bootstrap() )->generate();
 				return;
 			}
 
