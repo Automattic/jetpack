@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Donations block: remove dependencies on lodash and @wordpress/keycodes

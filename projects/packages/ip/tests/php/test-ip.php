@@ -1,22 +1,21 @@
 <?php
 /**
- * Tests for modules/protect/shared_functions.php
+ * IP class test suite.
  *
- * @package automattic/jetpack
+ * @package automattic/jetpack-ip
  */
 
 use Automattic\Jetpack\IP\IP;
 
 /**
- * Tests for modules/protect/shared_functions.php
+ * IP class test suite.
  */
 final class IPTest extends PHPUnit\Framework\TestCase {
 
 	/**
-	 * Test `get_ip` and `clean_ip`.
+	 * Test `get_ip`.
 	 *
 	 * @covers ::get_ip
-	 * @covers ::clean_ip
 	 * @dataProvider provide_get_ip
 	 * @param string|false $expect Expected output.
 	 * @param array        $server Data for `$_SERVER`.

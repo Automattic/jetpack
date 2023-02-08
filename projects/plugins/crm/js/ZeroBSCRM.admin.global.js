@@ -2777,5 +2777,5 @@ if ( module ) {
 		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, zeroBSCRMJS_ucwords,
 		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, 
 		zeroBSCRMJS_retrieveEmails, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zbsJS_updateScreenOptions,
-		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient };
+		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang };
 }
