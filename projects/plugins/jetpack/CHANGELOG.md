@@ -5,7 +5,7 @@
 ## 11.9-a.1 - 2023-02-08
 ### Enhancements
 - Contact form: add a blur effect while the form is loading the styles. [#28212]
-- Form block: include style variations. [#28212]
+- Form block: add two new style variations. [#28212]
 - Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra. [#28678]
 - VideoPress: add transform control from video block to videopress/video block. [#28691]
 
@@ -16,12 +16,12 @@
 - Subscriptions: update subscribe block description. [#28742]
 
 ### Bug fixes
-- Subscriptions: fix rendering of subscriber email in .com. [#28761]
+- Subscriptions: fix rendering of subscriber email on WPcom. [#28761]
 - Custom CSS: scope Additional CSS submenus to site with a connected owner. [#28757]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Admin: Add New badge for Odyssey Stats toggle. [#28662]
-- AI Block display backend user error. [#28617]
+- Admin: add New badge for Odyssey Stats toggle. [#28662]
+- WPcom: AI Block display backend user error. [#28617]
 - API: added a new `site_source_slug` option to help resuming on copy site feature. [#28768]
 - API: Fix PHP warning [#28750]
 - API: Fix PHP warning [#28806]
