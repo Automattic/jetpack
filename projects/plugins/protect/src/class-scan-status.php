@@ -124,7 +124,7 @@ class Scan_Status extends Status {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
-		self::update_option( maybe_serialize( $body ) );
+		self::update_status_option( $body );
 		return $body;
 	}
 
