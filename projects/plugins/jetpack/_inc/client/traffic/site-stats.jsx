@@ -153,7 +153,7 @@ class SiteStatsComponent extends React.Component {
 		const optedOutOfOdyssey =
 			isStatsActive &&
 			! unavailableInOfflineMode &&
-			! this.props.getOptionValue( 'enable_calypso_stats' );
+			! this.props.getOptionValue( 'enable_odyssey_stats' );
 
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return <ModuleOverriddenBanner moduleName={ stats.name } />;
@@ -257,10 +257,10 @@ class SiteStatsComponent extends React.Component {
 								{ /* Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead. */ }
 								<FormFieldset className="jp-stats-odyssey-toggle">
 									<CompactFormToggle
-										checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
+										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
 										disabled={ ! isStatsActive || unavailableInOfflineMode }
-										toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
-										onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
+										toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_odyssey_stats' ] ) }
+										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
 									>
 										<span className="jp-form-toggle-explanation">
 											{ /* This toggle enables Odyssey Stats. */ }

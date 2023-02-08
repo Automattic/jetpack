@@ -326,7 +326,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	protected static function has_opt_out_new_stats_notice() {
-		$new_stats_enabled = Stats_Options::get_option( 'enable_calypso_stats' );
+		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
 		$hidden_jitms      = \Jetpack_Options::get_option( 'hide_jitm' );
 		return $new_stats_enabled && ! isset( $hidden_jitms[ self::OPT_OUT_NEW_STATS_FEATURE_CLASS ] );
 	}
