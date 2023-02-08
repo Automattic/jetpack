@@ -885,17 +885,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'enable_calypso_stats'     => $value,
 						'calypso_stats_changed_at' => time(),
 					);
-					// Save the last time the user enabled or disabled Calypso stats.
+					$updated       = Stats_Options::set_options( $stats_options );
+					// Track the event.
 					$event_name = 'calypso_stats_disabled';
 					if ( $value ) {
 						$event_name = 'calypso_stats_enabled';
 					}
-					// Track the event
 					$connection_manager = new Manager( 'jetpack' );
 					$tracking           = new Tracking( 'jetpack', $connection_manager );
-					$tracking->record_user_event( $event_name, $stats_options );
-
-					$updated = Stats_Options::set_options( $stats_options );
+					$tracking->record_user_event( $event_name, array_merge( $stats_options, array( 'updated' => $updated ) ) );
 					break;
 
 				case 'akismet_show_user_comments_approved':
