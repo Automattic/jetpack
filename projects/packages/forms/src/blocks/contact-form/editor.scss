@@ -295,8 +295,6 @@
 		border: 1px solid #8c8f94;
 		border-radius: 0;
 		padding: 16px;
-		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
-		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 		margin: 0;
 	}
 
@@ -352,6 +350,13 @@
 
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
+	}
+}
+
+:where(:not(.contact-form)) > .jetpack-field {
+	.jetpack-field__input, .jetpack-field__textarea {
+		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	}
 }
 
