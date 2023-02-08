@@ -722,11 +722,11 @@ async function buildProject( t ) {
 	}
 
 	// Copy SECURITY.md.
-	t.output( 'Copying SECURITY.md' );
+	t.output( 'Copying SECURITY.md\n' );
 	await fs.copyFile( `SECURITY.md`, npath.join( buildDir, 'SECURITY.md' ) );
 
 	// Copy project files.
-	t.output( 'Copying project files' );
+	t.output( 'Copying project files\n' );
 	for await ( const file of listProjectFiles( t.cwd, t.execa ) ) {
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
@@ -737,7 +737,7 @@ async function buildProject( t ) {
 			await fs.copyFile( srcfile, destfile );
 		}
 	}
-	t.output( 'Done copying project files' );
+	t.output( 'Done copying project files\n' );
 
 	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
 	// Ideally we'll have fixed the upgrade errors by the time something else breaks, in which case this should be removed instead of extended.
@@ -773,28 +773,28 @@ async function buildProject( t ) {
 	}
 
 	// Remove monorepo repos from composer.json.
-	t.output( 'About to update composer.json repositories' );
+	t.output( 'About to update composer.json repositories\n' );
 	if ( composerJson.repositories && composerJson.repositories.some( r => r.options?.monorepo ) ) {
 		composerJson.repositories = composerJson.repositories.filter( r => ! r.options?.monorepo );
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
-		t.output( 'Adjusted composerJson var' );
+		t.output( 'Adjusted composerJson var\n' );
 
 		// Update '@dev' dependency version numbers in composer.json.
 		const composerDepTyes = [ 'require', 'require-dev' ];
 		for ( const key of composerDepTyes ) {
-			t.output( `Checking ${ key }` );
+			t.output( `Checking ${ key }\n` );
 			if ( composerJson[ key ] ) {
 				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
-					t.output( `Checking ${ key } ${ pkg } ${ ver }` );
+					t.output( `Checking ${ key } ${ pkg } ${ ver }\n` );
 					if ( ver === '@dev' ) {
 						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
 							if ( ctxPkg.name === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
 								composerJson[ key ][ pkg ] = massagedVer;
-								t.output( `Updated ${ key } ${ pkg } ${ ver } => ${ massagedVer }` );
+								t.output( `Updated ${ key } ${ pkg } ${ ver } => ${ massagedVer }\n` );
 								break;
 							}
 						}
@@ -803,7 +803,7 @@ async function buildProject( t ) {
 			}
 		}
 
-		t.output( 'Writing composer.json' );
+		t.output( 'Writing composer.json\n' );
 		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
