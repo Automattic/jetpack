@@ -36,7 +36,7 @@ test.describe( 'Connection', () => {
 
 	test( 'Classic', async ( { page } ) => {
 		await test.step( 'Can start classic connection', async () => {
-			await doClassicConnection( page, true );
+			await doClassicConnection( page );
 		} );
 
 		await test.step( 'Can assert that site is connected', async () => {

@@ -1,4 +1,5 @@
 import { imagePath } from 'constants/urls';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -70,7 +71,11 @@ const PromptLayoutComponent = props => {
 						<div className="jp-recommendations-question__progress-bar">{ progressBar }</div>
 					</div>
 				) }
-				<h1 className="jp-recommendations-question__question">{ question }</h1>
+				<h1 className="jp-recommendations-question__question">
+					{ createInterpolateElement( question, {
+						nbsp: <span>&nbsp;</span>,
+					} ) }
+				</h1>
 				<p className="jp-recommendations-question__description">{ description }</p>
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>

@@ -27,7 +27,6 @@ class VaultPress_Hotfixes {
 				$this->protect_youtube_embeds();
 			}
 		}
-
 	}
 
 	function protect_rest_type_juggling( $replace, $server, $request ) {

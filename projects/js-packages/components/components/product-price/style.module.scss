@@ -7,6 +7,7 @@
 
 .price-container {
 	flex-grow: 2;
+	flex-basis: 0;
 }
 
 .price {
@@ -35,10 +36,16 @@
 		}
 	}
 }
-
-.leyend {
-	color: var( --jp-gray-40 );
+.footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	justify-content: flex-start;
 	margin-bottom: calc( var( --spacing-base ) * 3 );
+}
+
+.legend {
+	color: var( --jp-gray-40 );
 	font-size: var(--font-body-small);
 	line-height: 20px;
 
@@ -48,13 +55,13 @@
 }
 
 .promo-label {
-	display: inline-flex;
 	background-color:  var( --jp-yellow-10);
 	border-radius: 4px;
 	padding-left: var( --spacing-base );
 	padding-right: var( --spacing-base );
 	font-weight: 600;
 	font-size: 13px;
+	margin-left: var( --spacing-base );
 }
 
 .symbol {

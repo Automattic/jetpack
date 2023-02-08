@@ -6,6 +6,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Calendar utilities class.
  *
@@ -369,7 +371,7 @@ class iCalendarReader {
 								$maybe   = strtotime( $event['DTSTART'] );
 								while ( $maybe < $current ) {
 									$maybe = strtotime( '+ ' . ( $interval * $catchup ) . ' months', strtotime( $event['DTSTART'] ) );
-									$catchup++;
+									++$catchup;
 								}
 								$recurring_event_date_start = date( 'Ymd', strtotime( $event_date_desc . date( 'F Y', strtotime( '+ ' . ( $interval * ( $catchup - 1 ) ) . ' months', strtotime( $event['DTSTART'] ) ) ) ) ) . date( '\THis', strtotime( $event['DTSTART'] ) );
 							} else {
@@ -473,7 +475,7 @@ class iCalendarReader {
 										}
 									}
 									$upcoming[] = $event;
-									$count_counter++;
+									++$count_counter;
 								}
 
 								// Move forward one day.
@@ -521,7 +523,7 @@ class iCalendarReader {
 									}
 								}
 								$upcoming[] = $event;
-								$count_counter++;
+								++$count_counter;
 							}
 						}
 
@@ -541,11 +543,8 @@ class iCalendarReader {
 					$set_recurring_events[] = $uid;
 
 				}
-			} else {
-				// Process normal events.
-				if ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) {
-					$upcoming[] = $event;
-				}
+			} elseif ( strtotime( isset( $event['DTEND'] ) ? $event['DTEND'] : $event['DTSTART'] ) >= $current ) { // Process normal events.
+				$upcoming[] = $event;
 			}
 		}
 		return $upcoming;
@@ -569,7 +568,7 @@ class iCalendarReader {
 		// rewrite webcal: URI schem to HTTP.
 		$url = preg_replace( '/^webcal/', 'http', $url );
 		// try to fetch.
-		$r = wp_remote_get(
+		$r = wp_safe_remote_get(
 			$url,
 			array(
 				'timeout'   => 3,
@@ -612,11 +611,11 @@ class iCalendarReader {
 				case 'END':
 					switch ( $line ) {
 						case 'BEGIN:VTODO':
-							$this->todo_count++;
+							++$this->todo_count;
 							$type = 'VTODO';
 							break;
 						case 'BEGIN:VEVENT':
-							$this->event_count++;
+							++$this->event_count;
 							$type = 'VEVENT';
 							break;
 						case 'BEGIN:VCALENDAR':
@@ -970,8 +969,7 @@ class iCalendarReader {
 
 		if ( ! $all_day && $this->timezone ) {
 			try {
-				$start_time      = new DateTime( $event['DTSTART'] );
-				$timezone_offset = $this->timezone->getOffset( $start_time );
+				$timezone_offset = $this->timezone->getOffset( new DateTime( $event['DTSTART'] ) );
 				$start          += $timezone_offset;
 
 				if ( $end ) {
@@ -1064,8 +1062,7 @@ function icalendar_get_events( $url = '', $count = 5 ) {
 	 * Find your calendar's address
 	 * https://support.google.com/calendar/bin/answer.py?hl=en&answer=37103
 	 */
-	$ical = new iCalendarReader();
-	return $ical->get_events( $url, $count );
+	return ( new iCalendarReader() )->get_events( $url, $count );
 }
 
 /**
@@ -1077,6 +1074,5 @@ function icalendar_get_events( $url = '', $count = 5 ) {
  * @return mixed bool|string false on failure, rendered HTML string on success.
  */
 function icalendar_render_events( $url = '', $args = array() ) {
-	$ical = new iCalendarReader();
-	return $ical->render( $url, $args );
+	return ( new iCalendarReader() )->render( $url, $args );
 }

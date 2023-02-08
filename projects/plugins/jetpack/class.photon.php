@@ -107,7 +107,7 @@ class Jetpack_Photon {
 	 * Enables the noresize mode for Photon, allowing to avoid intermediate size files generation.
 	 */
 	private function enable_noresize_mode() {
-		jetpack_require_lib( 'class.jetpack-photon-image-sizes' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image-sizes.php';
 
 		// The main objective of noresize mode is to disable additional resized image versions creation.
 		// This filter handles removal of additional sizes.
@@ -1292,7 +1292,6 @@ class Jetpack_Photon {
 		$this->should_rest_photon_image_downsize_override( $request );
 
 		return $response;
-
 	}
 
 	/**
@@ -1339,7 +1338,6 @@ class Jetpack_Photon {
 		}
 
 		$this->should_rest_photon_image_downsize_override( $request );
-
 	}
 
 	/**

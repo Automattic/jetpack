@@ -319,7 +319,6 @@ class Test_Blocks extends TestCase {
 		} finally {
 			remove_filter( 'jetpack_is_standalone_block', '__return_false' );
 		}
-
 	}
 
 	/**

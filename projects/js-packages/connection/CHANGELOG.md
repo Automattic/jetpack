@@ -2,6 +2,114 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.9 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## 0.24.8 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.24.7 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.24.6 - 2023-01-18
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
+## 0.24.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Connection: Metro JS is unable to build the component SCSS files. Adding a native index file to only export the modules required for the mobile editor build. [#28154]
+
+## 0.24.4 - 2023-01-02
+### Fixed
+- Connection: Fix box-sizing layout issue on Manage Connection modal [#28101]
+
+## 0.24.3 - 2022-12-27
+### Fixed
+- Avoid warnings when disconnecting a site from WordPress.com. [#28003]
+
+## 0.24.2 - 2022-12-19
+### Added
+- Allow passing the custom logo and icon to connection screen [#27802]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+## 0.24.1 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.24.0 - 2022-12-05
+### Changed
+- Improve design of the connection error notice. [#27340]
+
+## 0.23.0 - 2022-12-02
+### Added
+- Connection: hide the "Manage Connection" modal on "Escape" press. [#27643]
+
+### Changed
+- Updated package dependencies. [#27697]
+
+## 0.22.11 - 2022-11-28
+### Changed
+- My Jetpack: move connection status card out of connection package. [#26967]
+- Updated package dependencies. [#27576]
+
+## 0.22.10 - 2022-11-22
+### Added
+- Add Manage Connection dialog to My Jetpack [#27476]
+
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.22.9 - 2022-11-17
+### Changed
+- Updated package dependencies. [#26736]
+
+## 0.22.8 - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## 0.22.7 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.22.6 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.22.5 - 2022-10-25
+### Added
+- Connection: add getWpcomUser() and getBlogId() selectors. [#26978]
+
+## 0.22.4 - 2022-10-19
+### Changed
+- Updated package dependencies. [#26883]
+
+## 0.22.3 - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## 0.22.2 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## 0.22.1 - 2022-10-11
+### Changed
+- Updated package dependencies.
+
+## 0.22.0 - 2022-10-05
+### Added
+- Trigger restore connection flow. [#26489]
+
+### Changed
+- Updated package dependencies. [#26457]
+
 ## 0.21.0 - 2022-09-27
 ### Added
 - Added connection hook useConnectionErrorNotice to more-easily integrate the ConnectionErrorNotice component with minimal processing logic at the point of integration. [#26400]

@@ -15,6 +15,7 @@
 	display: flex;
 	align-items: center;
 	font-size: var( --font-body-small );
+	box-sizing: border-box;
 
 	&:focus-within {
 		box-shadow: 0 0 0 1px var( --jp-black ) inset;

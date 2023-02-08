@@ -1,6 +1,10 @@
 {
 	"extends": "./tsconfig.json",
-	"include": [ "app/assets/src/js/**/*", "../../js-packages/components/**/*" ],
+	"include": [
+		"app/assets/src/js/**/*",
+		"../../js-packages/components/**/*",
+		"app/features/image-guide/src/**/*"
+	],
 	"compilerOptions": {
 		"jsx": "react-jsx"
 	}

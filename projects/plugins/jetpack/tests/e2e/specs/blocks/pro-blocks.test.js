@@ -27,6 +27,7 @@ test.describe( 'Paid blocks', () => {
 		await test.step( 'Visit block editor page', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.resolveWelcomeGuide( false );
+			await blockEditor.waitForEditor();
 		} );
 	} );
 
@@ -55,18 +56,15 @@ test.describe( 'Paid blocks', () => {
 	} );
 
 	test( 'Pay with PayPal', async ( { page } ) => {
-		let blockId;
+		let block;
 
 		await test.step( 'Add a Pay with PayPal block', async () => {
-			blockId = await blockEditor.insertBlock(
-				SimplePaymentBlock.name(),
-				SimplePaymentBlock.title()
-			);
+			block = new SimplePaymentBlock( null, page );
+			await block.insertBlock();
 		} );
 
 		await test.step( 'Fill details of Pay with PayPal block', async () => {
-			const spBlock = new SimplePaymentBlock( blockId, page );
-			await spBlock.fillDetails();
+			await block.fillDetails();
 		} );
 
 		await test.step(
@@ -90,7 +88,6 @@ test.describe( 'Paid blocks', () => {
 		let blockId;
 
 		await test.step( 'Add a WordAds block', async () => {
-			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			blockId = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.selectPostTitle();
 		} );

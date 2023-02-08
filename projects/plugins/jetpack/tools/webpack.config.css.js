@@ -169,8 +169,6 @@ for ( const name of [
 	'modules/custom-css/csstidy/cssparse',
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
-	'modules/custom-css/custom-css/css/css-editor',
-	'modules/custom-css/custom-css/css/use-codemirror',
 	'modules/post-by-email/post-by-email',
 	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',

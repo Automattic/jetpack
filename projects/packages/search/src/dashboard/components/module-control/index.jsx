@@ -1,5 +1,7 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
+import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -8,6 +10,7 @@ import Card from 'components/card';
 import CompactFormToggle from 'components/form-toggle/compact';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import React, { Fragment, useCallback } from 'react';
+import { STORE_ID } from 'store';
 
 import 'scss/rna-styles.scss';
 import './style.scss';
@@ -30,8 +33,8 @@ const WIDGETS_EDITOR_URL = 'widgets.php';
  * @param {object} props - Component properties.
  * @param {string} props.domain - Calypso slug.
  * @param {string} props.siteAdminUrl - site admin URL.
- * @param {string} props.upgradeBillPeriod - billing cycle for upgrades.
  * @param {Function} props.updateOptions - function to update settings.
+ * @param {boolean} props.isDisabledFromOverLimit - true if the subscription is invalid to manipulate controls.
  * @param {boolean} props.isSavingEitherOption - true if Saving options.
  * @param {boolean} props.isModuleEnabled - true if Search module is enabled.
  * @param {boolean} props.isInstantSearchEnabled - true if Instant Search is enabled.
@@ -47,23 +50,35 @@ export default function SearchModuleControl( {
 	siteAdminUrl,
 	updateOptions,
 	domain,
+	isDisabledFromOverLimit,
 	isSavingEitherOption,
 	isModuleEnabled,
 	isInstantSearchEnabled,
 	isInstantSearchPromotionActive,
-	upgradeBillPeriod,
 	supportsOnlyClassicSearch,
 	supportsSearch,
 	supportsInstantSearch,
 	isTogglingModule,
 	isTogglingInstantSearch,
 } ) {
-	const upgradeUrl = getRedirectUrl(
-		upgradeBillPeriod === 'monthly' ? 'jetpack-search-monthly' : 'jetpack-search',
-		{ site: domain }
+	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
+	const { isUserConnected } = useConnection( {
+		redirectUri: `${ adminUrl }admin.php?page=jetpack-search`,
+		from: 'jetpack-search',
+	} );
+	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );
+	const upgradeUrl = getProductCheckoutUrl(
+		'jetpack_search_free',
+		domain,
+		`${ adminUrl }admin.php?page=jetpack-search`,
+		isUserConnected || isWpcom
 	);
 
 	const toggleSearchModule = useCallback( () => {
+		if ( isDisabledFromOverLimit ) {
+			return;
+		}
+
 		const newOption = {
 			module_active: ! isModuleEnabled,
 		};
@@ -72,9 +87,19 @@ export default function SearchModuleControl( {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_module_toggle', newOption );
-	}, [ supportsInstantSearch, isModuleEnabled, updateOptions, isInstantSearchEnabled ] );
+	}, [
+		supportsInstantSearch,
+		isModuleEnabled,
+		updateOptions,
+		isInstantSearchEnabled,
+		isDisabledFromOverLimit,
+	] );
 
 	const toggleInstantSearch = useCallback( () => {
+		if ( isDisabledFromOverLimit ) {
+			return;
+		}
+
 		const newOption = {
 			instant_search_enabled: supportsInstantSearch && ! isInstantSearchEnabled,
 		};
@@ -83,14 +108,18 @@ export default function SearchModuleControl( {
 		}
 		updateOptions( newOption );
 		analytics.tracks.recordEvent( 'jetpack_search_instant_toggle', newOption );
-	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions ] );
+	}, [ supportsInstantSearch, isInstantSearchEnabled, updateOptions, isDisabledFromOverLimit ] );
 
 	return (
-		<div className="jp-form-settings-group jp-form-search-settings-group">
+		<div
+			className={ classNames( {
+				'jp-form-settings-group jp-form-search-settings-group': true,
+				'jp-form-search-settings-group--disabled': isDisabledFromOverLimit,
+			} ) }
+		>
 			<Card
 				className={ classNames( {
 					'jp-form-has-child': true,
-					'jp-form-settings-disable': false,
 				} ) }
 			>
 				<div className="jp-form-search-settings-group-inside">
@@ -100,6 +129,7 @@ export default function SearchModuleControl( {
 						isTogglingModule={ isTogglingModule }
 						supportsSearch={ supportsSearch }
 						toggleSearchModule={ toggleSearchModule }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 
 					<InstantSearchToggle
@@ -113,6 +143,7 @@ export default function SearchModuleControl( {
 						supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 						toggleInstantSearch={ toggleInstantSearch }
 						upgradeUrl={ upgradeUrl }
+						isDisabledFromOverLimit={ isDisabledFromOverLimit }
 					/>
 				</div>
 			</Card>
@@ -131,21 +162,29 @@ const InstantSearchToggle = ( {
 	supportsOnlyClassicSearch,
 	toggleInstantSearch,
 	upgradeUrl,
+	isDisabledFromOverLimit,
 } ) => {
+	const isInstantSearchToggleChecked =
+		isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch && ! isDisabledFromOverLimit;
+	const isInstantSearchToggleDisabled =
+		isSavingEitherOption || ! supportsInstantSearch || isDisabledFromOverLimit;
+
 	const isInstantSearchCustomizeButtonDisabled =
 		isSavingEitherOption ||
 		! isModuleEnabled ||
 		! isInstantSearchEnabled ||
-		! supportsInstantSearch;
-	const isWidgetsEditorButtonDisabled = isSavingEitherOption || ! isModuleEnabled;
+		! supportsInstantSearch ||
+		isDisabledFromOverLimit;
+	const isWidgetsEditorButtonDisabled =
+		isSavingEitherOption || ! isModuleEnabled || isDisabledFromOverLimit;
 
 	return (
 		<div className="jp-form-search-settings-group__toggle is-instant-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<CompactFormToggle
-					checked={ isModuleEnabled && isInstantSearchEnabled && supportsInstantSearch }
-					disabled={ isSavingEitherOption || ! supportsInstantSearch }
+					checked={ isInstantSearchToggleChecked }
+					disabled={ isInstantSearchToggleDisabled }
 					onChange={ toggleInstantSearch }
 					toggling={ isTogglingInstantSearch }
 					className="is-search-admin"
@@ -236,14 +275,19 @@ const SearchToggle = ( {
 	isTogglingModule,
 	supportsSearch,
 	toggleSearchModule,
+	isDisabledFromOverLimit,
 } ) => {
+	const isSearchToggleChecked = isModuleEnabled && supportsSearch && ! isDisabledFromOverLimit;
+	const isSearchToggleDisabled =
+		isSavingEitherOption || ! supportsSearch || isDisabledFromOverLimit;
+
 	return (
 		<div className="jp-form-search-settings-group__toggle is-search jp-search-dashboard-wrap">
 			<div className="jp-search-dashboard-row">
 				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 				<CompactFormToggle
-					checked={ isModuleEnabled && supportsSearch }
-					disabled={ isSavingEitherOption || ! supportsSearch }
+					checked={ isSearchToggleChecked }
+					disabled={ isSearchToggleDisabled }
 					onChange={ toggleSearchModule }
 					toggling={ isTogglingModule }
 					className="is-search-admin"

@@ -13,6 +13,8 @@
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
@@ -592,7 +594,7 @@ class Jetpack_Subscriptions {
 	 * Reeturn merged `subscription_options` option with module default settings.
 	 */
 	public function get_settings() {
-		return wp_parse_args( (array) get_option( 'subscription_options', array() ), $this->get_default_settings() );
+		return wp_parse_args( (array) get_option( 'subscription_options' ), $this->get_default_settings() );
 	}
 
 	/**

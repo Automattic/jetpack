@@ -396,7 +396,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$content = '<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>' . $content;
 		}
 		$this->display_page( $title, $content, $back_link, $recovery_form );
-
 	}
 
 	/**

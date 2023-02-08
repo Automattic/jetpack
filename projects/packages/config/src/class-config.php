@@ -12,6 +12,7 @@ namespace Automattic\Jetpack;
  * contain the package classes shown below. The consumer plugin
  * must require the corresponding packages to use these features.
  */
+use Automattic\Jetpack\Blaze as Blaze;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\JITM as JITM;
@@ -19,6 +20,8 @@ use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
 use Automattic\Jetpack\Post_List\Post_List as Post_List;
 use Automattic\Jetpack\Publicize\Publicize_Setup as Publicize_Setup;
 use Automattic\Jetpack\Search\Initializer as Jetpack_Search_Main;
+use Automattic\Jetpack\Stats\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 use Automattic\Jetpack\Waf\Waf_Initializer as Jetpack_Waf_Main;
@@ -49,6 +52,9 @@ class Config {
 		'wordads'         => false,
 		'waf'             => false,
 		'videopress'      => false,
+		'stats'           => false,
+		'stats_admin'     => false,
+		'blaze'           => false,
 	);
 
 	/**
@@ -145,6 +151,16 @@ class Config {
 
 		if ( $this->config['videopress'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\VideoPress\Initializer' ) && $this->ensure_feature( 'videopress' );
+		}
+		if ( $this->config['stats'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats\Main' ) && $this->ensure_feature( 'stats' );
+		}
+		if ( $this->config['stats_admin'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Stats_Admin\Main' ) && $this->ensure_feature( 'stats_admin' );
+		}
+
+		if ( $this->config['blaze'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Blaze' ) && $this->ensure_feature( 'blaze' );
 		}
 	}
 
@@ -305,6 +321,22 @@ class Config {
 	}
 
 	/**
+	 * Enables Stats.
+	 */
+	protected function enable_stats() {
+		Stats_Main::init();
+		return true;
+	}
+
+	/**
+	 * Enables Stats Admin.
+	 */
+	protected function enable_stats_admin() {
+		Stats_Admin_Main::init();
+		return true;
+	}
+
+	/**
 	 * Handles VideoPress options
 	 */
 	protected function ensure_options_videopress() {
@@ -312,6 +344,14 @@ class Config {
 		if ( ! empty( $options ) ) {
 			VideoPress_Pkg_Initializer::update_init_options( $options );
 		}
+		return true;
+	}
+
+	/**
+	 * Enables Blaze.
+	 */
+	protected function enable_blaze() {
+		Blaze::init();
 		return true;
 	}
 

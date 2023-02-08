@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds a REST route for Migration plugin to fetch status from source site.

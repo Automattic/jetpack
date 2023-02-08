@@ -141,6 +141,13 @@ Example:
 
 In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1` and to the default channel.
 
+## Client payload for repository_dispatch event
+ If the workflow is triggered by a `repository_dispatch` event from another repository, you may want to include some additional information about the upstream repository in the notification. This can be included in the `client_payload` object of the repository dispatch event. The action will parse the `client_payload` object and use the use information in the notification. The following properties are supported:
+- `sha`: the sha that triggered the repository dispatch event.
+- `repository` the repository that triggered the repository dispatch event.
+
+These are not mandatory properties. If they are not included in the `client_payload` object, the notification will just contain the `event_type` value of the dispatch.
+
 ## License
 
 This project is licensed under the GPL2+ License - see the LICENSE.txt file for details.

@@ -10,7 +10,11 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Status;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -23,9 +27,11 @@ add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 function jetpack_top_posts_widget_init() {
 	// Currently, this widget depends on the Stats Module.
 	if (
-		( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
-	&&
-		! function_exists( 'stats_get_from_restapi' )
+		! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		&& (
+			! Jetpack::is_module_active( 'stats' )
+			|| ( new Status() )->is_offline_mode()
+		)
 	) {
 		return;
 	}
@@ -677,7 +683,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$days = 2;
 		}
 
-		$post_view_posts = stats_get_from_restapi( array(), 'top-posts?max=11&summarize=1&num=' . (int) $days );
+		$query_args      = array(
+			'max'       => 11,
+			'summarize' => 1,
+			'num'       => (int) $days,
+		);
+		$post_view_posts = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_top_posts( $query_args ) );
 
 		if ( ! isset( $post_view_posts->summary ) || empty( $post_view_posts->summary->postviews ) ) {
 			return array();
@@ -783,7 +794,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$post_type = $post->post_type;
 
 			$posts[] = compact( 'title', 'permalink', 'post_id', 'post_type' );
-			$counter++;
+			++$counter;
 
 			if ( $counter == $count ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				break; // only need to load and show x number of likes.

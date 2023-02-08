@@ -3,7 +3,7 @@
  */
 import { Button, ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { PlaceholderWrapper } from '../../edit.js';
+import { PlaceholderWrapper } from '../../edit';
 
 const getErrorMessage = uploadErrorData => {
 	if ( ! uploadErrorData ) {

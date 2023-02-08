@@ -628,3 +628,14 @@ export function doNotUseConnectionIframe( state ) {
 export function isWooCommerceActive( state ) {
 	return !! state.jetpack.initialState.isWooCommerceActive;
 }
+
+/**
+ * Returns the Jetpack Cloud URL for the specified resource for the current site.
+ *
+ * @param {object} state - Global state tree.
+ * @param {string} slug - Jetpack Cloud resource slug.
+ * @returns {string} The valid Jetpack Cloud URL
+ */
+export function getJetpackCloudUrl( state, slug ) {
+	return `https://cloud.jetpack.com/${ slug }/${ getSiteRawUrl( state ) }`;
+}

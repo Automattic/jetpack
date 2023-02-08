@@ -61,16 +61,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'pexels_object' => array(
 							'type' => 'object',
 						),
-						'orientations'  => array(
-							'type'        => 'array',
-							'items'       => array(
-								'type' => 'string',
-								'enum' => array( 'landscape', 'portrait', 'square' ),
-							),
-							'minItems'    => 1,
-							'maxItems'    => 3,
-							'uniqueItems' => true,
-						),
 					),
 				),
 			),
@@ -404,7 +394,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$internal_request = new WP_REST_Request( REQUESTS::DELETE, '/' . $this->namespace . $wpcom_path );
+			$internal_request = new WP_REST_Request( Requests::DELETE, '/' . $this->namespace . $wpcom_path );
 			$internal_request->set_query_params( $request->get_params() );
 
 			return rest_do_request( $internal_request );
@@ -414,7 +404,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			$wpcom_path,
 			'2',
 			array(
-				'method' => REQUESTS::DELETE,
+				'method' => Requests::DELETE,
 			)
 		);
 
@@ -466,7 +456,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		$id = media_handle_sideload( $file, $post_id, null );
 		if ( is_wp_error( $id ) ) {
-			@unlink( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			wp_delete_file( $file['tmp_name'] );
 			$id->add_data( array( 'status' => 400 ) );
 		}
 

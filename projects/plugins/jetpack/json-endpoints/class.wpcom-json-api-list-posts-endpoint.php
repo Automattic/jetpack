@@ -172,13 +172,11 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				);
 			}
 			$args['type'] = $allowed_types;
-		} else {
-			if ( ! $this->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
-				return array(
-					'found' => 0,
-					'posts' => array(),
-				);
-			}
+		} elseif ( ! $this->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+			return array(
+				'found' => 0,
+				'posts' => array(),
+			);
 		}
 
 		$query = array(
@@ -344,7 +342,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						if ( $the_post && ! is_wp_error( $the_post ) ) {
 							$posts[] = $the_post;
 						} else {
-							$excluded_count++;
+							++$excluded_count;
 						}
 					}
 

@@ -33,7 +33,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 
 	const progress = used / total;
 	const progressLabel = `${ ( progress * 100 ).toFixed() }%`;
-	const totalLabel = filesize( total, { base: 2 } );
+	const totalLabel = filesize( total, { base: 10 } );
 
 	return (
 		<div className={ classnames( className ) }>
@@ -55,7 +55,7 @@ const VideoStorageMeter: React.FC< VideoStorageMeterProps > = ( {
 
 export const ConnectVideoStorageMeter = props => {
 	const { storageUsed, uploadedVideoCount } = useVideos();
-	const total = 1024 * 1024 * 1024 * 1024;
+	const total = 1000 * 1000 * 1000 * 1000;
 
 	const { features } = usePlan();
 

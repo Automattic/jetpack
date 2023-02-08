@@ -44,3 +44,24 @@ export function usePostJustPublished( fn, deps ) {
 		fn();
 	}, [ isPublishing, wasPublishing, fn, deps ] );
 }
+
+/**
+ * React hook to detect when a post just started publishing,
+ * running the callback when it happens.
+ * Additionally, it accepts a dependency array which is passed to useEffect hook.
+ *
+ * @param {Function} fn - Callback function to run when the post starts publishing.
+ * @param {Array} deps  - Dependency array.
+ */
+export function usePostStartedPublishing( fn, deps ) {
+	const isPublishing = useSelect( select => select( editorStore ).isPublishingPost(), [] );
+	const wasPublishing = usePrevious( isPublishing );
+
+	useEffect( () => {
+		if ( ! ( ! wasPublishing && isPublishing ) ) {
+			return;
+		}
+
+		fn();
+	}, [ isPublishing, wasPublishing, fn, deps ] );
+}

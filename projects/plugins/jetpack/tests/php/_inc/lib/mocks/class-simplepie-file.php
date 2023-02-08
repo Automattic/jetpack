@@ -10,6 +10,8 @@ if ( ! class_exists( 'SimplePie_File' ) ) {
 	 * Class SimplePie_Locator
 	 */
 	class SimplePie_File {
+		public $body;
+
 		/**
 		 * Constructor
 		 *

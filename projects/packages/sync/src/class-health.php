@@ -79,7 +79,7 @@ class Health {
 	 * If sync is active, Health-related hooks will be initialized after plugins are loaded.
 	 */
 	public static function init() {
-		add_action( 'jetpack_full_sync_end', array( __ClASS__, 'full_sync_end_update_status' ), 10, 2 );
+		add_action( 'jetpack_full_sync_end', array( __CLASS__, 'full_sync_end_update_status' ), 10, 2 );
 	}
 
 	/**
@@ -102,7 +102,6 @@ class Health {
 			default:
 				return self::STATUS_UNKNOWN;
 		}
-
 	}
 
 	/**

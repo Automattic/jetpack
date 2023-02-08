@@ -6,6 +6,8 @@
  */
 class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
+	private $icon_id;
+
 	/**
 	 * Include Open Graph functions before each test.
 	 *

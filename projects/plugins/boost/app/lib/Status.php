@@ -36,11 +36,29 @@ class Status {
 	}
 
 	public function update( $new_status ) {
+		/**
+		 * Fires before attempting to update the status of a module.
+		 *
+		 * @param string $slug Slug of the module.
+		 * @param bool $new_status New status of the module.
+		 */
+		do_action( 'jetpack_boost_before_module_status_update', $this->slug, (bool) $new_status );
 
 		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
+
 			// Only record analytics event if the config update succeeds.
 			$this->track_module_status( (bool) $new_status );
+
+			/**
+			 * Fires when a module is enabled or disabled.
+			 *
+			 * @param string $module The module slug.
+			 * @param bool   $status The new status.
+			 * @since 1.5.2
+			 */
+			do_action( 'jetpack_boost_module_status_updated', $this->slug, (bool) $new_status );
+
 			return true;
 		}
 		return false;

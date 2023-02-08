@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
-import analytics from '../_inc/client/lib/analytics';
 import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
@@ -17,19 +16,6 @@ import './store/media-source';
 import './store/membership-products';
 import extensionList from './index.json';
 import './index.scss';
-
-// @TODO Please make a shared analytics solution and remove this!
-if (
-	typeof window === 'object' &&
-	typeof window.Jetpack_Editor_Initial_State === 'object' &&
-	typeof window.Jetpack_Editor_Initial_State.tracksUserData === 'object' &&
-	typeof window.Jetpack_Editor_Initial_State.wpcomBlogId !== 'undefined'
-) {
-	const { userid, username } = window.Jetpack_Editor_Initial_State.tracksUserData;
-	analytics.initialize( userid, username, {
-		blog_id: window.Jetpack_Editor_Initial_State.wpcomBlogId,
-	} );
-}
 
 // Register middleware for @wordpress/api-fetch to indicate the fetch is coming from the editor.
 apiFetch.use( ( options, next ) => {
@@ -72,7 +58,7 @@ apiFetch.use( ( options, next ) => {
  */
 export function isBetaExtension( name ) {
 	if ( ! extensionList ) {
-		return;
+		return false;
 	}
 
 	const betaExtensions = extensionList.beta || [];

@@ -310,9 +310,7 @@ XSL;
 		$header_url       = esc_html( ent2ncr( __( 'Page URL', 'jetpack' ) ) );
 		$header_image_url = esc_html( ent2ncr( __( 'Image URL', 'jetpack' ) ) );
 		$header_thumbnail = esc_html( ent2ncr( __( 'Thumbnail', 'jetpack' ) ) );
-		$header_title     = esc_html( ent2ncr( __( 'Title', 'jetpack' ) ) );
 		$header_lastmod   = esc_html( ent2ncr( __( 'Last Modified', 'jetpack' ) ) );
-		$header_caption   = esc_html( ent2ncr( __( 'Caption', 'jetpack' ) ) );
 
 		$description = self::sanitize_with_links(
 			/* translators: %1$s: jetpack.com URL. %2$s: google.com URL. %3$s: bing.com URL. */
@@ -381,8 +379,6 @@ $css
 				<th>#</th>
 				<th>$header_url</th>
 				<th>$header_image_url</th>
-				<th>$header_title</th>
-				<th>$header_caption</th>
 				<th>$header_lastmod</th>
 				<th>$header_thumbnail</th>
 			</tr>
@@ -411,12 +407,6 @@ $css
 						<a href='{\$itemURL}'>
 							<xsl:value-of select='image:image/image:loc'/>
 						</a>
-					</td>
-					<td>
-						<xsl:value-of select='image:image/image:title'/>
-					</td>
-					<td>
-						<xsl:value-of select='image:image/image:caption'/>
 					</td>
 					<td>
 						<xsl:value-of select='sitemap:lastmod'/>

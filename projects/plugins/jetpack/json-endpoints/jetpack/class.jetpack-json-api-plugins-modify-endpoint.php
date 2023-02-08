@@ -195,12 +195,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				// We don't have to check for activate_plugins permissions since we assume that the user has those
 				// Since we set them via $needed_capabilities.
 				return $this->activate();
+			} elseif ( $this->current_user_can( 'deactivate_plugins' ) ) {
+				return $this->deactivate();
 			} else {
-				if ( $this->current_user_can( 'deactivate_plugins' ) ) {
-					return $this->deactivate();
-				} else {
-					return new WP_Error( 'unauthorized_error', __( 'Plugin deactivation is not allowed', 'jetpack' ), '403' );
-				}
+				return new WP_Error( 'unauthorized_error', __( 'Plugin deactivation is not allowed', 'jetpack' ), '403' );
 			}
 		}
 

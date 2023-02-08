@@ -355,13 +355,14 @@ class Actions {
 		$full_queue = self::$sender->get_full_sync_queue();
 
 		$debug['debug_details']['sync_locks'] = array(
-			'retry_time_sync'             => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
-			'retry_time_full_sync'        => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
-			'next_sync_time_sync'         => self::$sender->get_next_sync_time( 'sync' ),
-			'next_sync_time_full_sync'    => self::$sender->get_next_sync_time( 'full_sync' ),
-			'queue_locked_sync'           => $queue->is_locked(),
-			'queue_locked_full_sync'      => $full_queue->is_locked(),
-			'dedicated_sync_request_lock' => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'                  => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'                   => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'                     => $queue->is_locked(),
+			'queue_locked_full_sync'                => $full_queue->is_locked(),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
 
 		// Sync Logs.
@@ -369,7 +370,6 @@ class Actions {
 		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
 
 		return $debug;
-
 	}
 
 	/**
@@ -494,12 +494,7 @@ class Actions {
 		// Enable/Disable Dedicated Sync flow via response headers.
 		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
 		if ( false !== $dedicated_sync_header ) {
-			$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
-			Settings::update_settings(
-				array(
-					'dedicated_sync_enabled' => $dedicated_sync_enabled,
-				)
-			);
+			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
 		}
 
 		if ( ! $result ) {
@@ -517,7 +512,9 @@ class Actions {
 				$error_log = array_slice( $error_log, -4, null, true );
 			}
 			// Add new error indexed to time.
-			$error_log[ (string) microtime( true ) ] = $rpc->get_jetpack_error();
+			$error = $rpc->get_jetpack_error();
+			$error->add_data( $rpc->get_last_response() );
+			$error_log[ (string) microtime( true ) ] = $error;
 			// Update the error log.
 			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
 
@@ -707,7 +704,7 @@ class Actions {
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 
 			// # of send actions performed.
-			$executions ++;
+			++$executions;
 
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 
@@ -1041,5 +1038,37 @@ class Actions {
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
 		return $result;
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @access public
+	 * @static
+	 * @since 1.43.0
+	 *
+	 * @param bool $unlock_queues Whether to unlock Sync queues. Defaults to true.
+	 */
+	public static function reset_sync_locks( $unlock_queues = true ) {
+		// Next sync locks.
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' );
+		// Retry after locks.
+		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
+		// Dedicated sync locks.
+		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
+		// Queue locks.
+		// Note that we are just unlocking the queues here, not reseting them.
+		if ( $unlock_queues ) {
+			$sync_queue = new Queue( 'sync' );
+			$sync_queue->unlock();
+
+			$full_sync_queue = new Queue( 'full_sync' );
+			$full_sync_queue->unlock();
+		}
 	}
 }

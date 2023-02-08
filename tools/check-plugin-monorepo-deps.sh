@@ -80,7 +80,7 @@ if ! "$CL" &>/dev/null; then
 fi
 
 for PKG in "$BASE"/projects/packages/*/composer.json; do
-	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v1 "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" --arg v2 "$(jq -r '.extra["branch-alias"]["dev-trunk"] // "dev-trunk"' "$PKG")" '.[$k] |= { rel: $v1, dev: $v2 }' <<<"$PACKAGES")
+	PACKAGES=$(jq -c --arg k "$(jq -r .name "$PKG")" --arg v1 "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" --arg v2 "@dev" '.[$k] |= { rel: $v1, dev: $v2 }' <<<"$PACKAGES")
 done
 
 for PLUGIN in "${PLUGINS[@]}"; do
@@ -103,6 +103,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
 
 	# Check lock file versions
 	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked[] | select( $packages[.name] ) | [ .name, .version, $packages[.name].rel ] | @tsv')"
+	[[ -n "$TMP" ]] || continue
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
 		if [[ "$WHAT" == "dev" ]]; then
 			if [[ "$LOCKVER" != "dev-trunk" ]]; then

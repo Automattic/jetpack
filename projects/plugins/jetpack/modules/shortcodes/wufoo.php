@@ -94,7 +94,7 @@ function wufoo_shortcode( $atts ) {
 	 * iframe embed, loaded inside <noscript> tags.
 	 */
 	$iframe_embed = sprintf(
-		'<iframe height="%1$d" src="%2$s" allowTransparency="true" frameborder="0" scrolling="no" style="width:100%;border:none;">
+		'<iframe height="%1$d" src="%2$s" allowTransparency="true" frameborder="0" scrolling="no" style="width:100%%;border:none;">
 			<a href="%3$s" target="_blank" rel="noopener noreferrer">%4$s</a>
 		</iframe>',
 		absint( $attr['height'] ),

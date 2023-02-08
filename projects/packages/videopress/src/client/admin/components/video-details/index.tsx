@@ -12,14 +12,19 @@ import Placeholder from '../placeholder';
 import styles from './style.module.scss';
 import { VideoDetailsProps } from './types';
 
-const VideoDetails = ( { filename, src, uploadDate, loading }: VideoDetailsProps ) => {
+const VideoDetails = ( { filename, src, uploadDate, loading, shortcode }: VideoDetailsProps ) => {
 	const formattedDate = uploadDate?.length ? gmdateI18n( 'F j, Y', uploadDate ) : false;
 
 	return (
 		<div className={ styles.details }>
-			<div className={ styles[ 'detail-row' ] }>
+			<div>
 				<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
 				{ loading ? <Placeholder height={ 36 } /> : <ClipboardButtonInput value={ src } /> }
+			</div>
+
+			<div>
+				<Text variant="body-small">{ __( 'WordPress shortcode', 'jetpack-videopress-pkg' ) }</Text>
+				{ loading ? <Placeholder height={ 36 } /> : <ClipboardButtonInput value={ shortcode } /> }
 			</div>
 
 			<div>

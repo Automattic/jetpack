@@ -227,13 +227,29 @@ class Sender {
 	/**
 	 * Retrieve the next sync time.
 	 *
+	 * Update @since 1.43.2
+	 * Sometimes when we process Sync requests in Jetpack, the server clock can be a
+	 * bit in the future and this can lock Sync to not send stuff for a while.
+	 * We are introducing an extra check, to make sure to limit the next_sync_time
+	 * to be at most one hour in the future from the current time.
+	 *
 	 * @access public
 	 *
 	 * @param string $queue_name Name of the queue.
 	 * @return float Timestamp of the next sync.
 	 */
 	public function get_next_sync_time( $queue_name ) {
-		return (float) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
+		$option_name    = self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name;
+		$next_sync_time = (float) get_option( $option_name, 0 );
+
+		$is_more_than_one_hour = ( $next_sync_time - microtime( true ) ) >= HOUR_IN_SECONDS;
+
+		if ( $is_more_than_one_hour ) {
+			delete_option( $option_name );
+			$next_sync_time = 0;
+		}
+
+		return $next_sync_time;
 	}
 
 	/**
@@ -362,6 +378,24 @@ class Sender {
 
 		// Try to disconnect the request as quickly as possible and process things in the background.
 		$this->fastcgi_finish_request();
+
+		/**
+		 * Close the PHP session to free up the server threads to handle other requests while we
+		 * send sync data with Dedicated Sync.
+		 *
+		 * When we spawn Dedicated Sync, we send `$_COOKIES` with the request to help out with any
+		 * firewall and/or caching functionality that might prevent us to ping the site directly.
+		 *
+		 * This will cause Dedicated Sync to reuse the visitor's PHP session and lock it until the
+		 * request finishes, which can take anywhere from 1 to 30+ seconds, depending on the server
+		 * `max_execution_time` configuration.
+		 *
+		 * By closing the session we're freeing up the session, so other requests can acquire the
+		 * lock and proceed with their own tasks.
+		 */
+		if ( session_status() === PHP_SESSION_ACTIVE ) {
+			session_write_close();
+		}
 
 		// Output not used right now. Try to release dedicated sync lock
 		Dedicated_Sender::try_release_lock_spawn_request();
@@ -944,10 +978,8 @@ class Sender {
 		foreach ( Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
-
-		foreach ( array( 'sync', 'full_sync', 'full-sync-enqueue' ) as $queue_name ) {
-			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
-		}
+		// Reset Sync locks without unlocking queues since we already reset those.
+		Actions::reset_sync_locks( false );
 
 		Settings::reset_data();
 	}

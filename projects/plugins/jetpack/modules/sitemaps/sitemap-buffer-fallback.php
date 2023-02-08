@@ -124,7 +124,7 @@ abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 			} elseif ( $value === null ) {
 				$string .= "<$tag />";
 			} else {
-				$string .= "<$tag>" . htmlspecialchars( $value ) . "</$tag>";
+				$string .= "<$tag>" . htmlspecialchars( $value, ENT_COMPAT ) . "</$tag>";
 			}
 		}
 

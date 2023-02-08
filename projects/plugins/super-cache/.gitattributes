@@ -7,9 +7,13 @@ package.json      export-ignore
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
 
+/jetpack_vendor/**  production-include
+/vendor/**          production-include
+
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.
 .gitignore        production-exclude
+.phpcs.dir.xml    production-exclude
 changelog/**      production-exclude
 phpunit.xml.dist  production-exclude
 tests/**          production-exclude

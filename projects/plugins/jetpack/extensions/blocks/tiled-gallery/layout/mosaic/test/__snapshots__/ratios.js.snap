@@ -1,28 +1,28 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`ratiosToMosaicRows transforms as expected: ratios 1`] = `
-Array [
-  Array [
+[
+  [
     1,
   ],
-  Array [
+  [
     1,
   ],
-  Array [
+  [
     1,
     1,
-    1,
-    1,
-  ],
-  Array [
     1,
     1,
   ],
-  Array [
+  [
+    1,
+    1,
+  ],
+  [
     1,
     2,
   ],
-  Array [
+  [
     2,
     1,
   ],

@@ -1,40 +1,35 @@
-## Jetpack 11.4
+## Jetpack 11.8
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Jetpack Recommendations Assistant
+### Form Block
 
-There have been updates for the Jetpack Recommendations Assistant. In particular, there is a recommendation for agency managed sites [#26302], and mobile app store links are now shown based on device type [#26093].
+The form block received updates for styling the input fields, to test:
 
-**To test the agency specific recommendation, try:**
+- Create a new test post and add a Form block.
+- When presented with the different form variation templates, make sure there aren't any design oddities with the updated icons.
+- Select the 'Contact Form' type for this example.
+- Click on one of the input fields in the inserted Form block, and in the sidebar for the block settings there should be 'Color' and 'Input Field Styles' sections.
+- Try adjusting some of the style settings for the input fields, saving, and make sure the published post looks okay on the frontend.
 
-- With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- Select "This is a personal site".
-- Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- This time, select the "I build or manage this site for a client" option.
-- Select "Continue" and this time you should get the new agencies recommendation.
-- On the agency screen, test that the "Learn More" and "Get Jetpack for Agencies" links work.
-- Click "Not now" on the agency screen recommendation and you should be directed to the next recommendation. Continue selecting "Not now" until you reach the summary page.
-- Click the "Sign Up" external link next to the Jetpack for Agencies recommendation and make sure it opens (no need to fill out): https://cloud.jetpack.com/agency/signup
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
-- You should see the Agencies recommendation first, select "Not now".
-- Next you should see the WooCommerce recommendation.
-- That is all for testing these updated recommendations.
+### Subscribe Block
 
-**And to test the mobile app links:**
+The Subscriptions module received several changes in this version, to test:
 
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/summary`
-- On a desktop or laptop computer, a QR code for the Jetpack mobile app will be displayed next to the `jetpack.com/mobile` URL.
-- When visiting the same recommendations page on a mobile device, the respective app store button should be shown for well known devices and mobile operating systems.
-- If you don't have a mobile device to test with, you might try using Chrome to simulate the user agent:
-  - Open the Chrome Dev Tools
-  - Click the vertical menu option > More tools > Network conditions
-  - In the Network conditions tab, uncheck the "Use browser default" for the user agent, and select an iOS or Android one for testing.
-  - When refreshing the recommendations page you should see the expected mobile app store button.
+- On a Jetpack-connected test site, add a Subscribe block to a new post.
+  - Make sure Subscriptions are enabled first, via Jetpack -> Settings -> Discussion.
+- In the block settings sidebar, under Settings, there should be a toggle to include social followers in the count. Make sure the follower amounts match the subscribers and connected social followers, if there are any.
+- If you have a social network connected via the WordPress.com dashboard at Tools -> Marketing -> Connections, you can also test the social followers are included when publishing if the toggle is enabled.
+- Publish the post with your Subscribe block. Next, visit the published post and subscribe one of your email addresses to receive new post notifications.
+  - For the purposes of this test, make sure the email address is not connected to a WordPress.com account. If you are using Gmail, you can use the '+' symbol to create an alias such as 'example+20230130@gmail.com'
+  - Make sure to confirm the subscription by clicking the link in the confirmation email.
+- Publish another new post with some text content. Make sure the email address you subscribed receives the new post email notification.
+
+### And More!
+
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.8/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

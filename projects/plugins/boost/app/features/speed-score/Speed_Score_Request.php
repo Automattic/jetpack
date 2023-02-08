@@ -9,9 +9,9 @@
 
 namespace Automattic\Jetpack_Boost\Features\Speed_Score;
 
+use Automattic\Jetpack_Boost\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Cacheable;
 use Automattic\Jetpack_Boost\Lib\Url;
-use Automattic\Jetpack_Boost\Lib\Utils;
 
 /**
  * Class Speed_Score_Request
@@ -153,12 +153,8 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function execute() {
-		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-
-		$response = Utils::send_wpcom_request(
-			'POST',
-			sprintf( '/sites/%d/jetpack-boost/speed-scores', $blog_id ),
-			null,
+		$response = $this->get_client()->post(
+			'speed-scores',
 			array(
 				'request_id'     => $this->get_cache_id(),
 				'url'            => Url::normalize( $this->url ),
@@ -204,13 +200,9 @@ class Speed_Score_Request extends Cacheable {
 	 * @return true|\WP_Error True on success, WP_Error on failure.
 	 */
 	public function poll_update() {
-		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
-
-		$response = Utils::send_wpcom_request(
-			'GET',
+		$response = $this->get_client()->get(
 			sprintf(
-				'/sites/%d/jetpack-boost/speed-scores/%s',
-				$blog_id,
+				'speed-scores/%s',
 				$this->get_cache_id()
 			)
 		);
@@ -281,7 +273,7 @@ class Speed_Score_Request extends Cacheable {
 		}
 
 		$this->created = time();
-		$this->retry_count++;
+		++$this->retry_count;
 		$this->store();
 
 		return true;
@@ -309,5 +301,9 @@ class Speed_Score_Request extends Cacheable {
 				)
 			);
 		}
+	}
+
+	private function get_client() {
+		return Boost_API::get_client();
 	}
 }

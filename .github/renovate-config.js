@@ -33,6 +33,7 @@ module.exports = {
 	branchPrefix: 'renovate/',
 	allowPlugins: true,
 	allowScripts: true,
+	ignoreScripts: false,
 	gitAuthor: 'Renovate Bot (self-hosted) <bot@renovateapp.com>',
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
@@ -91,19 +92,6 @@ module.exports = {
 				return monorepoPackages.sort();
 			} )(),
 			enabled: false,
-		},
-
-		// Renovate doesn't detect some of our PHP packages as libraries, so we need to override `rangeStrategy`.
-		{
-			matchPaths: composerLibraryFiles,
-			matchDepTypes: [ 'require' ],
-			rangeStrategy: 'replace',
-		},
-		{
-			matchPaths: composerLibraryFiles,
-			matchDepTypes: [ 'require' ],
-			matchCurrentVersion: '/ \\|\\| /',
-			rangeStrategy: 'widen',
 		},
 
 		// We need to keep a wide version range to support PHP 5.6.

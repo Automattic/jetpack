@@ -180,7 +180,6 @@ class Plugin_Storage {
 		}
 
 		self::$configured = true;
-
 	}
 
 	/**

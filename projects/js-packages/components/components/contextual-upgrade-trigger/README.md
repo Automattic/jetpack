@@ -71,3 +71,11 @@ URL to link to
 - Type: `String`
 - Default: `undefined`
 - Required: `false`
+
+### openInNewTab
+
+Indicate if the link should open in a new tab
+
+- Type: `Boolean`
+- Default: `false`
+- Required: `false`

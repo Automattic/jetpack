@@ -1,0 +1,50 @@
+.launchpad__save-modal {
+
+	.components-modal__content {
+		padding: 48px;
+		padding-top: 60px;
+		margin: 0;
+		max-width: 656px;
+	}
+
+	&-body {
+		display: flex;
+		flex-direction: column;
+		gap: 32px;
+		align-items: flex-end;
+	}
+
+	&-text {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+	}
+
+	&-controls {
+		display: flex;
+		width: 100%;
+		justify-content: space-between;
+	}
+
+	&-buttons {
+		display: flex;
+		gap: 16px;
+	}
+
+	&-heading {
+		color: var(--studio-gray-100);
+		font-family: Recoleta, "Noto Serif", Georgia, "Times New Roman", Times, serif;
+		font-size: 32px;
+		line-height: 40px;
+		font-weight: 400;
+		letter-spacing: 0.2px;
+		margin: 0;
+	}
+
+	&-message {
+		margin: 0;
+		color: var(--studio-gray-80);
+		font-size: 16px;
+		line-height: 24px;
+	}
+}

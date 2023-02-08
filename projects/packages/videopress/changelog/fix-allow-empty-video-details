@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: Allows empty caption and description values so it's possible to save empty fields from the frontend.

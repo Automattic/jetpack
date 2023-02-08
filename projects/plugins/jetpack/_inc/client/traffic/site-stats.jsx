@@ -15,6 +15,8 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { filter, includes } from 'lodash';
 import React from 'react';
+import { connect } from 'react-redux';
+import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -163,7 +165,7 @@ class SiteStatsComponent extends React.Component {
 								src={ imagePath + 'stats.svg' }
 								width="60"
 								height="60"
-								alt={ __( 'Jetpack Stats Icon', 'jetpack' ) }
+								alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
 								className="jp-at-a-glance__stats-icon"
 							/>
 						</div>
@@ -172,12 +174,12 @@ class SiteStatsComponent extends React.Component {
 								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: createInterpolateElement(
 										__(
-											'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+											'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a>Learn More</a>',
 											'jetpack'
 										),
 										{
-											a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-											a1: (
+											Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
+											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 													target="_blank"
@@ -190,7 +192,7 @@ class SiteStatsComponent extends React.Component {
 						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
 								<Button onClick={ this.activateStats } primary={ true }>
-									{ __( 'Activate Site Stats', 'jetpack' ) }
+									{ __( 'Activate Jetpack Stats', 'jetpack' ) }
 								</Button>
 							</div>
 						) }
@@ -202,7 +204,7 @@ class SiteStatsComponent extends React.Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				header={ _x( 'Site stats', 'Settings header', 'jetpack' ) }
+				header={ _x( 'Jetpack Stats', 'Settings header', 'jetpack' ) }
 				hideButton
 				module="site-stats"
 			>
@@ -228,6 +230,23 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
+						{ ! this.props.isWoASite && (
+							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
+							<FormFieldset className="jp-stats-odyssey-toggle">
+								<CompactFormToggle
+									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
+									disabled={ ! isStatsActive || unavailableInOfflineMode }
+									toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
+									onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ /* This toggle enables Odyssey Stats. */ }
+										{ __( 'Enable the new Jetpack Stats experience', 'jetpack' ) }
+									</span>
+									<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
+								</CompactFormToggle>
+							</FormFieldset>
+						) }
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
@@ -261,7 +280,7 @@ class SiteStatsComponent extends React.Component {
 							) ) }
 						</FormFieldset>
 						<FormFieldset>
-							<FormLegend>{ __( 'Allow stats reports to be viewed by', 'jetpack' ) }</FormLegend>
+							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
 							<CompactFormToggle checked={ true } disabled={ true }>
 								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
 							</CompactFormToggle>
@@ -290,4 +309,6 @@ class SiteStatsComponent extends React.Component {
 	}
 }
 
-export const SiteStats = withModuleSettingsFormHelpers( SiteStatsComponent );
+export const SiteStats = connect( state => ( {
+	isWoASite: isWoASite( state ),
+} ) )( withModuleSettingsFormHelpers( SiteStatsComponent ) );

@@ -288,7 +288,6 @@ class Error_Handler {
 		}
 
 		return false;
-
 	}
 
 	/**
@@ -326,7 +325,6 @@ class Error_Handler {
 		);
 
 		return $error_array;
-
 	}
 
 	/**
@@ -380,7 +378,6 @@ class Error_Handler {
 		}
 
 		return $encrypted_data;
-
 	}
 
 	/**
@@ -401,7 +398,6 @@ class Error_Handler {
 		}
 
 		return $user_id;
-
 	}
 
 	/**
@@ -566,7 +562,6 @@ class Error_Handler {
 		$verified_errors[ $error_code ][ $user_id ] = $error;
 
 		update_option( self::STORED_VERIFIED_ERRORS_OPTION, $verified_errors );
-
 	}
 
 	/**
@@ -612,7 +607,6 @@ class Error_Handler {
 		}
 
 		return new \WP_REST_Response( false, 200 );
-
 	}
 
 	/**

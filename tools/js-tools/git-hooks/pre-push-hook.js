@@ -34,6 +34,10 @@ function checkChangelogFiles() {
 		console.log( chalk.green( 'Release branch detected. Skipping changelog test.' ) );
 		return;
 	}
+	if ( currentBranch === 'prerelease' ) {
+		console.log( chalk.green( 'Prerelease branch detected. Skipping changelog test.' ) );
+		return;
+	}
 
 	// Check if any changelog files are needed.
 	const needChangelog = spawnSync(

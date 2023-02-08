@@ -316,6 +316,5 @@ class Tracking {
 			'_ut' => 'anon',
 			'_ui' => $anon_id,
 		);
-
 	}
 }

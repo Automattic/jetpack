@@ -19,8 +19,19 @@ require_once __DIR__ . '/functions.php';
 
 /**
  * Waf_Runtime class
+ *
+ * @template Target as array{ only?: string[], except?: string[], count?: boolean }
+ * @template TargetBag as array<string, Target>
  */
 class Waf_Runtime {
+	/**
+	 * If used, normalize_array_targets() will just return the number of matching values, instead of the values themselves.
+	 */
+	const NORMALIZE_ARRAY_COUNT = 1;
+	/**
+	 * If used, normalize_array_targets() will apply "only" and "except" filters to the values of the source array, instead of the keys.
+	 */
+	const NORMALIZE_ARRAY_MATCH_VALUES = 2;
 
 	/**
 	 * Last rule.
@@ -69,15 +80,22 @@ class Waf_Runtime {
 	/**
 	 * Transforms.
 	 *
-	 * @var Waf_Transforms[]
+	 * @var Waf_Transforms
 	 */
 	private $transforms;
 	/**
 	 * Operators.
 	 *
-	 * @var Waf_Operators[]
+	 * @var Waf_Operators
 	 */
 	private $operators;
+
+	/**
+	 * The request
+	 *
+	 * @var Waf_Request
+	 */
+	private $request;
 
 	/**
 	 * Rules to remove.
@@ -103,11 +121,15 @@ class Waf_Runtime {
 	 * Constructor method.
 	 *
 	 * @param Waf_Transforms $transforms Transforms.
-	 * @param Waf_Operators  $operators Operators.
+	 * @param Waf_Operators  $operators  Operators.
+	 * @param Waf_Request?   $request    Information about the request.
 	 */
-	public function __construct( $transforms, $operators ) {
+	public function __construct( $transforms, $operators, $request = null ) {
 		$this->transforms = $transforms;
 		$this->operators  = $operators;
+		$this->request    = null === $request
+			? new Waf_Request()
+			: $request;
 	}
 
 	/**
@@ -174,12 +196,12 @@ class Waf_Runtime {
 	/**
 	 * Return TRUE if at least one of the targets matches the rule.
 	 *
-	 * @param string[] $transforms One of the transform methods defined in the Jetpack Waf_Transforms class.
-	 * @param mixed    $targets Targets.
-	 * @param string   $match_operator Match operator.
-	 * @param mixed    $match_value Match value.
-	 * @param bool     $match_not Match not.
-	 * @param bool     $capture Capture.
+	 * @param string[]  $transforms One of the transform methods defined in the Jetpack Waf_Transforms class.
+	 * @param TargetBag $targets Targets.
+	 * @param string    $match_operator Match operator.
+	 * @param mixed     $match_value Match value.
+	 * @param bool      $match_not Match not.
+	 * @param bool      $capture Capture.
 	 * @return bool
 	 */
 	public function match_targets( $transforms, $targets, $match_operator, $match_value, $match_not, $capture = false ) {
@@ -367,14 +389,12 @@ class Waf_Runtime {
 	public function flag_target_for_removal( $id_or_tag, $id_or_tag_value, $name, $prop = null ) {
 		if ( null === $prop ) {
 			$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] = true;
-		} else {
-			if (
-				! isset( $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] )
-				// if the entire target is already being removed then it would be redundant to remove a single property.
-				|| true !== $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ]
-			) {
-				$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ][] = $prop;
-			}
+		} elseif (
+			! isset( $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ] )
+			// if the entire target is already being removed then it would be redundant to remove a single property.
+			|| true !== $this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ]
+		) {
+			$this->targets_to_remove[ $id_or_tag ][ $id_or_tag_value ][ $name ][] = $prop;
 		}
 	}
 
@@ -435,95 +455,90 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Meta.
+	 * A cache of metadata about the incoming request.
 	 *
-	 * @param string $key Key.
-	 * @param string $prop Prop.
+	 * @param string $key The type of metadata to request ('headers', 'request_method', etc.).
 	 */
-	public function meta( $key, $prop = false ) {
+	public function meta( $key ) {
 		if ( ! isset( $this->metadata[ $key ] ) ) {
 			$value = null;
 			switch ( $key ) {
 				case 'headers':
-					$value = array();
-					foreach ( $_SERVER as $k => $v ) {
-						$k = strtolower( $k );
-						if ( 'http_' === substr( $k, 0, 5 ) ) {
-							$value[ $this->normalize_header_name( substr( $k, 5 ) ) ] = $v;
-						} elseif ( 'content_type' === $k ) {
-							$value['content-type'] = $v;
-						} elseif ( 'content_length' === $k ) {
-							$value['content-length'] = $v;
-						}
-					}
-					$value['content-type'] = ( ! isset( $value['content-type'] ) || '' === $value['content-type'] )
-						// default Content-Type per RFC 7231 section 3.1.5.5.
-						? 'application/octet-stream'
-						: $value['content-type'];
-					$value['content-length'] = ( isset( $value['content-length'] ) && '' !== $value['content-length'] )
-						? $value['content-length']
-						// if the content-length header is missing, default it to zero.
-						: '0';
+					$value = $this->request->get_headers();
 					break;
-				case 'remote_addr':
-					$value = '';
-					if ( ! empty( $_SERVER['HTTP_CLIENT_IP'] ) ) {
-						$value = wp_unslash( $_SERVER['HTTP_CLIENT_IP'] );
-					} elseif ( ! empty( $_SERVER['HTTP_X_FORWARDED_FOR'] ) ) {
-						$value = wp_unslash( $_SERVER['HTTP_X_FORWARDED_FOR'] );
-					} elseif ( ! empty( $_SERVER['REMOTE_ADDR'] ) ) {
-						$value = wp_unslash( $_SERVER['REMOTE_ADDR'] );
-					}
+				case 'headers_names':
+					$value = $this->args_names( $this->meta( 'headers' ) );
 					break;
 				case 'request_method':
-					$value = empty( $_SERVER['REQUEST_METHOD'] )
-						? 'GET'
-						: wp_unslash( $_SERVER['REQUEST_METHOD'] );
+					$value = $this->request->get_method();
 					break;
 				case 'request_protocol':
-					$value = empty( $_SERVER['SERVER_PROTOCOL'] )
-						? ( empty( $_SERVER['HTTPS'] ) ? 'HTTP' : 'HTTPS' )
-						: wp_unslash( $_SERVER['SERVER_PROTOCOL'] );
+					$value = $this->request->get_protocol();
 					break;
 				case 'request_uri':
-					$value = isset( $_SERVER['REQUEST_URI'] )
-						? wp_unslash( $_SERVER['REQUEST_URI'] )
-						: '';
+					$value = $this->request->get_uri( false );
 					break;
 				case 'request_uri_raw':
-					$value = ( isset( $_SERVER['https'] ) ? 'https://' : 'http://' ) . ( isset( $_SERVER['SERVER_NAME'] ) ? wp_unslash( $_SERVER['SERVER_NAME'] ) : '' ) . $this->meta( 'request_uri' );
+					$value = $this->request->get_uri( true );
 					break;
 				case 'request_filename':
-					$value = strtok(
-						isset( $_SERVER['REQUEST_URI'] )
-							? wp_unslash( $_SERVER['REQUEST_URI'] )
-							: '',
-						'?'
-					);
+					$value = $this->request->get_filename();
 					break;
 				case 'request_line':
 					$value = sprintf(
 						'%s %s %s',
-						$this->meta( 'request_method' ),
-						$this->meta( 'request_uri' ),
-						$this->meta( 'request_protocol' )
+						$this->request->get_method(),
+						$this->request->get_uri( false ),
+						$this->request->get_protocol()
 					);
 					break;
 				case 'request_basename':
-					$value = basename( $this->meta( 'request_filename' ) );
+					$value = basename( $this->request->get_filename() );
 					break;
 				case 'request_body':
-					$value = file_get_contents( 'php://input' );
+					$value = $this->request->get_body();
 					break;
 				case 'query_string':
-					$value = isset( $_SERVER['QUERY_STRING'] ) ? wp_unslash( $_SERVER['QUERY_STRING'] ) : '';
+					$value = $this->request->get_query_string();
+					break;
+				case 'args_get':
+					$value = $this->request->get_get_vars();
+					break;
+				case 'args_get_names':
+					$value = $this->args_names( $this->meta( 'args_get' ) );
+					break;
+				case 'args_post':
+					$value = $this->request->get_post_vars();
+					break;
+				case 'args_post_names':
+					$value = $this->args_names( $this->meta( 'args_post' ) );
+					break;
+				case 'args':
+					$value = array_merge( $this->meta( 'args_get' ), $this->meta( 'args_post' ) );
+					break;
+				case 'args_names':
+					$value = $this->args_names( $this->meta( 'args' ) );
+					break;
+				case 'request_cookies':
+					$value = $this->request->get_cookies();
+					break;
+				case 'request_cookies_names':
+					$value = $this->args_names( $this->meta( 'request_cookies' ) );
+					break;
+				case 'files':
+					$value = array();
+					foreach ( $this->request->get_files() as $f ) {
+						$value[] = array( $f['name'], $f['filename'] );
+					}
+					break;
+				case 'files_names':
+					$value = $this->args_names( $this->meta( 'files' ) );
+					break;
 			}
 			$this->metadata[ $key ] = $value;
 		}
 
-		return false === $prop
-			? $this->metadata[ $key ]
-			: ( isset( $this->metadata[ $key ][ $prop ] ) ? $this->metadata[ $key ][ $prop ] : '' );
+		return $this->metadata[ $key ];
 	}
 
 	/**
@@ -554,42 +569,55 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Normalize targets.
+	 * Get match-able values from a collection of targets.
 	 *
-	 * @param array $targets Targets.
+	 * This function expects an associative array of target items, and returns an array of possible values from those targets that can be used to match against.
+	 * The key is the lowercase target name (i.e. `args`, `request_headers`, etc) - see https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-(v3.x)#Variables
+	 * The value is an associative array of options that define how to narrow down the returned values for that target if it's an array (ARGS, for example). The possible options are:
+	 *   count:  If `true`, then the returned value will a count of how many matched targets were found, rather then the actual values of those targets.
+	 *           For example, &ARGS_GET will return the number of keys the query string.
+	 *   only:   If specified, then only values in that target that match the given key will be returned.
+	 *           For example, ARGS_GET:id|ARGS_GET:/^name/ will only return the values for `$_GET['id']` and any key in `$_GET` that starts with `name`
+	 *   except: If specified, then values in that target will be left out from the returned values (even if they were included in an `only` option)
+	 *           For example, ARGS_GET|!ARGS_GET:z will return every value from `$_GET` except for `$_GET['z']`.
+	 *
+	 * This function will return an array of associative arrays. Each with:
+	 *   name:   The target name that this value came from (i.e. the key in the input `$targets` argument )
+	 *   source: For targets that are associative arrays (like ARGS), this will be the target name AND the key in that target (i.e. "args:z" for ARGS:z)
+	 *   value:  The value that was found in the associated target.
+	 *
+	 * @param TargetBag $targets An assoc. array with keys that are target name(s) and values are options for how to process that target (include/exclude rules, whether to return values or counts).
+	 * @return array{ name: string, source: string, value: mixed }
 	 */
 	public function normalize_targets( $targets ) {
 		$return = array();
 		foreach ( $targets as $k => $v ) {
-			$count_only = isset( $v['count'] );
+			$count_only = isset( $v['count'] ) ? self::NORMALIZE_ARRAY_COUNT : 0;
 			$only       = isset( $v['only'] ) ? $v['only'] : array();
 			$except     = isset( $v['except'] ) ? $v['except'] : array();
 			$_k         = strtolower( $k );
 			switch ( $_k ) {
 				case 'request_headers':
-					$only   = array_map(
-						function ( $t ) {
-							return '/' === $t[0] ? $t : $this->normalize_header_name( $t );
-						},
-						$only
+					$this->normalize_array_target(
+						// get the headers that came in with this request
+						$this->meta( 'headers' ),
+						// ensure only and exclude filters are normalized
+						array_map( array( $this->request, 'normalize_header_name' ), $only ),
+						array_map( array( $this->request, 'normalize_header_name' ), $except ),
+						$k,
+						$return,
+						// flags
+						$count_only
 					);
-					$except = array_map(
-						function ( $t ) {
-							return '/' === $t[0] ? $t : $this->normalize_header_name( $t );
-						},
-						$except
-					);
-					$this->normalize_array_target( $this->meta( 'headers' ), $only, $except, $k, $return, $count_only );
 					continue 2;
 				case 'request_headers_names':
-					$this->normalize_array_target( array_keys( $this->meta( 'headers' ) ), array(), array(), $k, $return, $count_only );
+					$this->normalize_array_target( $this->meta( 'headers_names' ), $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
 					continue 2;
 				case 'request_method':
 				case 'request_protocol':
 				case 'request_uri':
 				case 'request_uri_raw':
 				case 'request_filename':
-				case 'remote_addr':
 				case 'request_basename':
 				case 'request_body':
 				case 'query_string':
@@ -601,40 +629,24 @@ class Waf_Runtime {
 					$this->normalize_array_target( $this->state_values( "$k." ), $only, $except, $k, $return, $count_only );
 					continue 2;
 				case 'request_cookies':
-					$this->normalize_array_target( $_COOKIE, $only, $except, $k, $return, $count_only );
+				case 'args':
+				case 'args_get':
+				case 'args_post':
+				case 'files':
+					$this->normalize_array_target( $this->meta( $_k ), $only, $except, $k, $return, $count_only );
 					continue 2;
 				case 'request_cookies_names':
-					$this->normalize_array_target( array_keys( $_COOKIE ), array(), array(), $k, $return, $count_only );
-					continue 2;
-				case 'args':
-					$this->normalize_array_target( $_REQUEST, $only, $except, $k, $return, $count_only );
-					continue 2;
 				case 'args_names':
-					$this->normalize_array_target( array_keys( $_REQUEST ), array(), array(), $k, $return, $count_only );
-					continue 2;
-				case 'args_get':
-					$this->normalize_array_target( $_GET, $only, $except, $k, $return, $count_only );
-					continue 2;
 				case 'args_get_names':
-					$this->normalize_array_target( array_keys( $_GET ), array(), array(), $k, $return, $count_only );
-					continue 2;
-				case 'args_post':
-					$this->normalize_array_target( $_POST, $only, $except, $k, $return, $count_only );
-					continue 2;
 				case 'args_post_names':
-					$this->normalize_array_target( array_keys( $_POST ), array(), array(), $k, $return, $count_only );
-					continue 2;
-				case 'files':
-					$names = array_map(
-						function ( $f ) {
-							return $f['name'];
-						},
-						$_FILES
-					);
-					$this->normalize_array_target( $names, $only, $except, $k, $return, $count_only );
-					continue 2;
 				case 'files_names':
-					$this->normalize_array_target( array_keys( $_FILES ), $only, $except, $k, $return, $count_only );
+					// get the "full" data (for 'args_names' get data for 'args') and stripe it down to just the key names
+					$data = array_map(
+						function ( $item ) {
+							return $item[0]; },
+						$this->meta( substr( $_k, 0, -6 ) )
+					);
+					$this->normalize_array_target( $data, $only, $except, $k, $return, $count_only | self::NORMALIZE_ARRAY_MATCH_VALUES );
 					continue 2;
 				default:
 					var_dump( 'Unknown target', $k, $v );
@@ -656,74 +668,59 @@ class Waf_Runtime {
 	 * @param array $array Array to verify ip against.
 	 */
 	public function is_ip_in_array( $array ) {
-		$request = new Waf_Request();
-
-		$real_ip = $request->get_real_user_ip_address();
+		$real_ip = $this->request->get_real_user_ip_address();
 
 		return in_array( $real_ip, $array, true );
 	}
 
 	/**
-	 * Normalize array target.
+	 * Extract values from an associative array, potentially applying filters and/or counting results.
 	 *
-	 * @param array  $source Source.
-	 * @param array  $only Only.
-	 * @param array  $excl Excl.
-	 * @param string $name Name.
-	 * @param array  $results Results.
-	 * @param bool   $count_only Count only.
+	 * @param array{ 0: string, 1: scalar }|scalar[] $source      The source assoc. array of values (i.e. $_GET, $_SERVER, etc.).
+	 * @param string[]                               $only        Only include the values for these keys in the output.
+	 * @param string[]                               $excl        Never include the values for these keys in the output.
+	 * @param string                                 $name        The name of this target (see https://github.com/SpiderLabs/ModSecurity/wiki/Reference-Manual-(v3.x)#Variables).
+	 * @param array                                  $results     Array to add output values to, will be modified by this method.
+	 * @param int                                    $flags       Any of the NORMALIZE_ARRAY_* constants defined at the top of the class.
 	 */
-	private function normalize_array_target( $source, $only, $excl, $name, &$results, $count_only ) {
+	private function normalize_array_target( $source, $only, $excl, $name, &$results, $flags = 0 ) {
 		$output   = array();
 		$has_only = isset( $only[0] );
 		$has_excl = isset( $excl[0] );
 
-		if ( $has_only ) {
-			foreach ( $only as $prop ) {
-				if ( isset( $source[ $prop ] ) && $this->key_matches( $prop, $only ) ) {
-					$output[ $prop ] = $source[ $prop ];
-				}
+		foreach ( $source as $source_key => $source_val ) {
+			if ( is_array( $source_val ) ) {
+				// if $source_val looks like a tuple from flatten_array(), then use the tuple as the key and value
+				$source_key = $source_val[0];
+				$source_val = $source_val[1];
 			}
-		} else {
-			$output = $source;
+			$filter_match = ( $flags & self::NORMALIZE_ARRAY_MATCH_VALUES ) > 0 ? $source_val : $source_key;
+			// if this key is on the "exclude" list, skip it
+			if ( $has_excl && $this->key_matches( $filter_match, $excl ) ) {
+				continue;
+			}
+			// if this key isn't in our "only" list, then skip it
+			if ( $has_only && ! $this->key_matches( $filter_match, $only ) ) {
+				continue;
+			}
+			// otherwise add this key/value to our output
+			$output[] = array( $source_key, $source_val );
 		}
 
-		if ( $has_excl ) {
-			foreach ( array_keys( $output ) as $k ) {
-				if ( $this->key_matches( $k, $excl ) ) {
-					unset( $output[ $k ] );
-				}
-			}
-		}
-
-		if ( $count_only ) {
+		if ( ( $flags & self::NORMALIZE_ARRAY_COUNT ) > 0 ) {
+			// If we've been told to just count the values, then just count them.
 			$results[] = array(
-				'name'   => $name,
+				'name'   => (string) $name,
 				'value'  => count( $output ),
 				'source' => '&' . $name,
 			);
 		} else {
-			foreach ( $output as $tk => $tv ) {
-				if ( is_array( $tv ) ) {
-					// flatten it so we get all the values considered
-					$flat_values = $this->array_flatten( $tv );
-					foreach ( $flat_values as $fv ) {
-						$results[] = array(
-							// force names to strings
-							// we don't care about the nested keys here, just the overall variable name
-							'name'   => '' . $tk,
-							'value'  => $fv,
-							'source' => "$name:$tk",
-						);
-					}
-				} else {
-					$results[] = array(
-						// force names to strings
-						'name'   => '' . $tk,
-						'value'  => $tv,
-						'source' => "$name:$tk",
-					);
-				}
+			foreach ( $output as list( $item_name, $item_value ) ) {
+				$results[] = array(
+					'name'   => (string) $item_name,
+					'value'  => $item_value,
+					'source' => "$name:$item_name",
+				);
 			}
 		}
 
@@ -731,34 +728,28 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Basic array flatten with array_merge; no-op on non-array targets.
+	 * Given an array of tuples - probably from flatten_array() - return a new array
+	 * consisting of only the first value (the key name) from each tuple.
 	 *
-	 * @param array $source Array to flatten.
-	 * @return array The flattened array.
+	 * @param array{0:string, 1:scalar}[] $flat_array An array of tuples.
+	 * @return string[]
 	 */
-	private function array_flatten( $source ) {
-		if ( ! is_array( $source ) ) {
-			return $source;
-		}
-
-		$return = array();
-
-		foreach ( $source as $v ) {
-			if ( is_array( $v ) ) {
-				$return = array_merge( $return, $this->array_flatten( $v ) );
-			} else {
-				$return[] = $v;
-			}
-		}
-
-		return $return;
+	private function args_names( $flat_array ) {
+		$names = array_map(
+			function ( $tuple ) {
+				return $tuple[0];
+			},
+			$flat_array
+		);
+		return array_unique( $names );
 	}
 
 	/**
-	 * Key matches.
+	 * Return whether or not a given $input key matches one of the given $patterns.
 	 *
-	 * @param string $input Input.
-	 * @param array  $patterns Patterns.
+	 * @param string   $input    Key name to test against patterns.
+	 * @param string[] $patterns Patterns to test key name with.
+	 * @return bool
 	 */
 	private function key_matches( $input, $patterns ) {
 		foreach ( $patterns as $p ) {
@@ -766,10 +757,8 @@ class Waf_Runtime {
 				if ( 1 === preg_match( $p, $input ) ) {
 					return true;
 				}
-			} else {
-				if ( 0 === strcasecmp( $p, $input ) ) {
-					return true;
-				}
+			} elseif ( 0 === strcasecmp( $p, $input ) ) {
+				return true;
 			}
 		}
 

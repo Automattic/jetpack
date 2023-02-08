@@ -278,7 +278,7 @@ class Assets {
 			} elseif ( '..' === $pp[ $i ] ) {
 				array_splice( $pp, --$i, 2 );
 			} else {
-				$i++;
+				++$i;
 			}
 		}
 		$ret .= join( '/', $pp );

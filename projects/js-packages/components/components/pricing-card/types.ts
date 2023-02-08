@@ -12,7 +12,7 @@ export type PricingCardProps = {
 	/**
 	 * The Icon.
 	 */
-	icon?: string;
+	icon?: string | React.ReactNode;
 	/**
 	 * Price before discount.
 	 */

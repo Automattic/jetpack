@@ -108,7 +108,7 @@ export class DashStats extends Component {
 						),
 						className: 'tooltip class',
 					},
-					{ label: __( 'Click to view detailed stats.', 'jetpack' ) },
+					{ label: __( 'Click to view Jetpack Stats.', 'jetpack' ) },
 				],
 			} );
 		} );
@@ -158,11 +158,11 @@ export class DashStats extends Component {
 					src={ imagePath + 'stats-people.svg' }
 					width="272"
 					height="144"
-					alt={ __( 'Jetpack Stats People', 'jetpack' ) }
+					alt={ __( 'People studying site traffic charts', 'jetpack' ) }
 					className="jp-at-a-glance__stats-icon"
 				/>
 				<p>
-					{ __( 'Hello there! Your stats have been activated.', 'jetpack' ) }
+					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
 					<br />
 					{ __(
 						'Just give us a little time to collect data so we can display it for you here.',
@@ -189,7 +189,7 @@ export class DashStats extends Component {
 						<span>
 							{ createInterpolateElement(
 								__(
-									'Something happened while loading stats. Please try again later or <a>view your stats now on WordPress.com</a>',
+									'Something happened while loading Jetpack Stats. Please try again later or <a>view your stats now on WordPress.com</a>',
 									'jetpack'
 								),
 								{
@@ -230,7 +230,7 @@ export class DashStats extends Component {
 						src={ imagePath + 'stats.svg' }
 						width="60"
 						height="60"
-						alt={ __( 'Jetpack Stats Icon', 'jetpack' ) }
+						alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
 						className="jp-at-a-glance__stats-icon"
 					/>
 				</div>
@@ -239,11 +239,11 @@ export class DashStats extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
-									a: <a href="#" onClick={ this.activateStats } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
 									a1: (
 										<a
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -257,7 +257,7 @@ export class DashStats extends Component {
 				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
-							{ __( 'Activate Site Stats', 'jetpack' ) }
+							{ __( 'Activate', 'jetpack' ) }
 						</Button>
 					</div>
 				) }
@@ -343,7 +343,7 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<ModuleOverriddenBanner moduleName={ __( 'Site Stats', 'jetpack' ) } />
+					<ModuleOverriddenBanner moduleName={ __( 'Jetpack Stats', 'jetpack' ) } />
 				</div>
 			);
 		}
@@ -351,7 +351,7 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Site Stats', 'jetpack' ) }>
+					<DashSectionHeader label={ __( 'Jetpack Stats', 'jetpack' ) }>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card

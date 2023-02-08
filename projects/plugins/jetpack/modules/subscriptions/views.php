@@ -1,4 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
  * Jetpack_Subscriptions_Widget main view class.
@@ -133,7 +136,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
-		self::$instance_count ++;
+		++self::$instance_count;
 
 		self::render_widget_title( $args, $instance );
 
@@ -159,10 +162,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( ! empty( $instance['title_following'] ) ) {
 					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . esc_attr( $instance['title_following'] ) . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
-			} else {
-				if ( ! empty( $instance['title'] ) ) {
-					echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				}
+			} elseif ( ! empty( $instance['title'] ) ) {
+				echo $before_title . '<label for="subscribe-field' . ( self::$instance_count > 1 ? '-' . self::$instance_count : '' ) . '">' . $instance['title'] . '</label>' . $after_title . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 		}
 
@@ -181,6 +182,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( self::is_jetpack() && isset( $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 			$success_message   = isset( $instance['success_message'] ) ? stripslashes( $instance['success_message'] ) : '';
 			$subscribers_total = self::fetch_subscriber_count();
+
 			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
 					?>
@@ -257,7 +259,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					break;
 				case 'success':
 					?>
-					<div class="success"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ), 'post' ); ?></div>
+					<div class="success"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $success_message ) ), 'post' ); ?></div>
 					<?php
 					break;
 				default:
@@ -323,6 +325,24 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Generates the source parameter to pass to the iframe
+	 *
+	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+	 */
+	protected static function get_post_access_level() {
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return 'everybody';
+		}
+		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
+		$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		if ( empty( $meta ) ) {
+			$meta = 'everybody';
+		}
+		return $meta;
+	}
+
+	/**
 	 * Renders a form allowing folks to subscribe to the blog.
 	 *
 	 * @param array  $args Display arguments including 'before_title', 'after_title', 'before_widget', and 'after_widget'.
@@ -332,6 +352,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	public static function render_widget_subscription_form( $args, $instance, $subscribe_email ) {
 		$show_only_email_and_button   = $instance['show_only_email_and_button'];
 		$show_subscribers_total       = (bool) $instance['show_subscribers_total'];
+		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_text               = empty( $instance['show_only_email_and_button'] ) ?
 			stripslashes( $instance['subscribe_text'] ) :
 			false;
@@ -339,13 +360,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$source                       = 'widget';
 		$widget_id                    = ! empty( $args['widget_id'] ) ? $args['widget_id'] : self::$instance_count;
 		$subscribe_button             = ! empty( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : $instance['subscribe_button'];
-		$subscribers_total            = self::fetch_subscriber_count();
 		$subscribe_placeholder        = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes        = isset( $instance['submit_button_classes'] ) ? 'wp-block-button__link ' . $instance['submit_button_classes'] : 'wp-block-button__link';
 		$submit_button_styles         = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
 		$submit_button_wrapper_styles = isset( $instance['submit_button_wrapper_styles'] ) ? $instance['submit_button_wrapper_styles'] : '';
 		$email_field_classes          = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 		$email_field_styles           = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
+		$post_access_level            = self::get_post_access_level();
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -359,6 +380,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
+				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -391,6 +414,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							placeholder="%3$s"
 							value=""
 							id="%4$s"
+							required
 						/>',
 						( ! empty( $email_field_classes )
 							? 'class="' . esc_attr( $email_field_classes ) . '"'
@@ -427,7 +451,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					>
 						<?php
 						echo wp_kses(
-							html_entity_decode( $subscribe_button ),
+							html_entity_decode( $subscribe_button, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 							self::$allowed_html_tags_for_submit_button
 						);
 						?>
@@ -438,7 +462,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
 					?>
 				</div>
 			<?php } ?>
@@ -462,11 +486,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$form_id = self::get_redirect_fragment( $widget_id );
 			?>
 			<div class="wp-block-jetpack-subscriptions__container">
-			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+			<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>"
+				data-blog="<?php echo esc_attr( \Jetpack_Options::get_option( 'id' ) ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>" >
 				<?php
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
-					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $subscribe_text ) ), 'post' ); ?></div>
+					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $subscribe_text ) ), 'post' ); ?></div>
 														<?php
 				}
 
@@ -516,7 +542,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						>
 							<?php
 							echo wp_kses(
-								html_entity_decode( $subscribe_button ),
+								html_entity_decode( $subscribe_button, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 								self::$allowed_html_tags_for_submit_button
 							);
 							?>
@@ -524,11 +550,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</p>
 				<?php } ?>
 			</form>
-			<?php if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) { ?>
+			<?php if ( $show_subscribers_total && 0 < $subscribers_total ) { ?>
 				<div class="wp-block-jetpack-subscriptions__subscount">
 					<?php
 					/* translators: %s: number of folks following the blog */
-					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
 					?>
 				</div>
 			<?php } ?>
@@ -595,19 +621,19 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * Determine the amount of folks currently subscribed to the blog.
 	 *
-	 * @return int|array
+	 * @return int
 	 */
 	public static function fetch_subscriber_count() {
 		$subs_count = 0;
-
 		if ( self::is_jetpack() ) {
-			$subs_count = get_transient( 'wpcom_subscribers_total' );
+			$cache_key  = 'wpcom_subscribers_total';
+			$subs_count = get_transient( $cache_key );
 			if ( false === $subs_count || 'failed' === $subs_count['status'] ) {
 				$xml = new Jetpack_IXR_Client();
-
 				$xml->query( 'jetpack.fetchSubscriberCount' );
 
 				if ( $xml->isError() ) { // If we get an error from .com, set the status to failed so that we will try again next time the data is requested.
+
 					$subs_count = array(
 						'status'  => 'failed',
 						'code'    => $xml->getErrorCode(),
@@ -620,16 +646,15 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						'value'  => $xml->getResponse(),
 					);
 				}
-
-				set_transient( 'wpcom_subscribers_total', $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
+				set_transient( $cache_key, $subs_count, 3600 ); // Try to cache the result for at least 1 hour.
 			}
+			return $subs_count['value'];
 		}
 
-		if ( self::is_wpcom() && function_exists( 'wpcom_reach_total_for_blog' ) ) {
+		if ( self::is_wpcom() ) {
 			$subs_count = wpcom_reach_total_for_blog();
+			return $subs_count;
 		}
-
-		return $subs_count;
 	}
 
 	/**
@@ -673,6 +698,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$defaults = array(
 			'show_subscribers_total'     => true,
 			'show_only_email_and_button' => false,
+			'include_social_followers'   => true,
 		);
 
 		$defaults['title']                 = esc_html__( 'Subscribe to Blog via Email', 'jetpack' );
@@ -708,11 +734,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$subscribe_placeholder = stripslashes( $instance['subscribe_placeholder'] );
 			$subscribe_button      = stripslashes( $instance['subscribe_button'] );
 			$success_message       = stripslashes( $instance['success_message'] );
-			$subs_fetch            = self::fetch_subscriber_count();
-			if ( 'failed' === $subs_fetch['status'] ) {
-				printf( '<div class="error inline"><p>%s: %s</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
-			}
-			$subscribers_total = number_format_i18n( $subs_fetch['value'] );
+			$subscribers_total     = self::fetch_subscriber_count();
 		}
 
 		if ( self::is_wpcom() ) :
@@ -860,6 +882,13 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance['show_subscribers_total'] = true;
 	}
 
+	// the default behavior is to include the social followers
+	if ( empty( $instance['include_social_followers'] ) || 'true' === $instance['include_social_followers'] ) {
+		$instance['include_social_followers'] = true;
+	} else {
+		$instance['include_social_followers'] = false;
+	}
+
 	$show_only_email_and_button = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text         = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
@@ -994,3 +1023,32 @@ function jetpack_blog_subscriptions_init() {
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
+
+/**
+ * Sets the default value for `subscription_options` site option.
+ *
+ * This default value is available across Simple, Atomic and Jetpack sites,
+ * including the /sites/$site/settings endpoint.
+ *
+ * @param array  $default Default `subscription_options` array.
+ * @param string $option Option name.
+ * @param bool   $passed_default Whether `get_option()` passed a default value.
+ *
+ * @return array Default value of `subscription_options`.
+ */
+function subscription_options_fallback( $default, $option, $passed_default ) {
+	if ( $passed_default ) {
+		return $default;
+	}
+
+	$site_url    = get_home_url();
+	$display_url = preg_replace( '(^https?://)', '', untrailingslashit( $site_url ) );
+
+	return array(
+		/* translators: Both %1$s and %2$s is site address */
+		'invitation'     => sprintf( __( "Howdy,\nYou recently subscribed to <a href='%1\$s'>%2\$s</a> and we need to verify the email you provided. Once you confirm below, you'll be able to receive and read new posts.\n\nIf you believe this is an error, ignore this message and nothing more will happen.", 'jetpack' ), $site_url, $display_url ),
+		'comment_follow' => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again.", 'jetpack' ),
+	);
+}
+
+add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );

@@ -70,6 +70,8 @@ jobs:
           fi
           composer remove --dev automattic/jetpack-codesniffer
           composer require --dev phpcompatibility/php-compatibility=dev-develop
+          # Update any other packages needing update now too.
+          composer update
 
       - name: Run phpcs for PHPCompatibility
         run: |

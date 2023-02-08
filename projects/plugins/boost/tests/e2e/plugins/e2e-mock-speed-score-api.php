@@ -66,3 +66,11 @@ function e2e_mock_speed_score_api_response( $body ) {
 		'body'     => wp_json_encode( $body ),
 	);
 }
+
+/**
+ * On deactivation, purge any cached speed scores.
+ */
+register_deactivation_hook( __FILE__, 'e2e_mock_speed_score_purge' );
+function e2e_mock_speed_score_purge() {
+	\Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score_Request::clear_cache();
+}

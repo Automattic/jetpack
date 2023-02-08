@@ -6,6 +6,8 @@
  * First Introduced: 1.2
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -116,21 +118,19 @@ class Jetpack_Image_Widget extends WP_Widget {
 				</figure>'; // wp_kses_post caption on update.
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
-		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				echo '<p>' . wp_kses(
-					sprintf(
-						/* translators: %s link to the widget settings page. */
-						__( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ),
-						admin_url( 'widgets.php' )
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			echo '<p>' . wp_kses(
+				sprintf(
+					/* translators: %s link to the widget settings page. */
+					__( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ),
+					admin_url( 'widgets.php' )
+				),
+				array(
+					'a' => array(
+						'href' => array(),
 					),
-					array(
-						'a' => array(
-							'href' => array(),
-						),
-					)
-				) . '</p>';
-			}
+				)
+			) . '</p>';
 		}
 
 		echo "\n" . $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -188,7 +188,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$height                 = $size[1];
 				$instance['img_height'] = absint( $height );
 
-				unlink( $tmp_file );
+				wp_delete_file( $tmp_file );
 			} else {
 				$instance['img_width']  = $new_img_width;
 				$instance['img_height'] = $new_img_height;

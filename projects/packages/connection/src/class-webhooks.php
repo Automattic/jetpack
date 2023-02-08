@@ -93,7 +93,6 @@ class Webhooks {
 				break;
 			// Class Jetpack::admin_page_load() still handles other cases.
 		}
-
 	}
 
 	/**
@@ -193,23 +192,20 @@ class Webhooks {
 			}
 			wp_safe_redirect( $connect_url );
 			$this->do_exit();
+		} elseif ( ! isset( $_GET['calypso_env'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
+			( new CookieState() )->state( 'message', 'already_authorized' );
+			wp_safe_redirect( $redirect );
+			$this->do_exit();
 		} else {
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
-			if ( ! isset( $_GET['calypso_env'] ) ) {
-				( new CookieState() )->state( 'message', 'already_authorized' );
-				wp_safe_redirect( $redirect );
-				$this->do_exit();
-			} else {
-				$connect_url = add_query_arg(
-					array(
-						'from'               => $from,
-						'already_authorized' => true,
-					),
-					$this->connection->get_authorization_url()
-				);
-				wp_safe_redirect( $connect_url );
-				$this->do_exit();
-			}
+			$connect_url = add_query_arg(
+				array(
+					'from'               => $from,
+					'already_authorized' => true,
+				),
+				$this->connection->get_authorization_url()
+			);
+			wp_safe_redirect( $connect_url );
+			$this->do_exit();
 		}
 	}
 }

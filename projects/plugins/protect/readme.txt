@@ -1,14 +1,14 @@
 === Jetpack Protect ===
-Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline
+Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
-Requires at least: 5.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
-Stable tag: 1.0.2
+Tested up to: 6.1
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack Protect - Free malware scan and WordPress site security
+Free daily malware scanning and WordPress site security. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand, that has over 25,000 registered malware and vulnerabilities. No configuration required!
 
 == Description ==
 
@@ -22,9 +22,13 @@ Jetpack Protect scans your site on a daily basis and warns you about:
 - What plugins are installed and any related vulnerabilities
 - What themes are installed and any associated vulnerabilities
 
-== Over 25,000 registered malware and vulnerabilities in our database ==
+== Over 25,000 registered vulnerabilities in our database ==
 
-WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities and malwares are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
+WordPress security is something that evolves over time. Jetpack Protect leverages the extensive database of WPScan, an Automattic brand. All vulnerabilities are entered into our database by dedicated WordPress security professionals and updated constantly as new information becomes available.
+
+**Want to remove vulnerabilities and additionally malware in one-click?**
+
+Upgrade Protect to also get automated malware scanning and one-click fixes for most issues. Upgrading also gives you dedicated email support access.
 
 == Easy to setup and use ==
 
@@ -109,7 +113,16 @@ The features of the new Jetpack Protect plugin are not included in the [Jetpack 
 3. View all the found vulnerabilities in your site and learn how to fix them.
 
 == Changelog ==
-### 1.0.4 - 2022-08-29
+### 1.3.0-beta - 2023-01-25
+#### Added
+- Add ability to toggle automatic and manual firewall rules independently.
+- Add improved messaging for currently enabled firewall features.
+- Disable Jetpack Firewall on unsupported environments.
+
+#### Changed
+- Updated package dependencies.
+
 #### Fixed
-- Fixed NaN error that prevented the pricing interstitial from rendering.
+- Assorted fixes for minor bugs and grammar.
+- Updated composer.lock
 

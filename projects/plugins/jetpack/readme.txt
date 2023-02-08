@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.3.2
-Requires at least: 5.9
+Stable tag: 11.8
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.0
+Tested up to: 6.1
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -242,14 +242,27 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.4-beta - 2022-09-27
+### 11.8 - 2023-02-07
 #### Enhancements
-- Editor: update icon sizing in the Jetpack sidebar for consistency.
-- Recommendations: update assistant with question for agency managed sites.
+- Form block: add styling of input fields.
+
+#### Improved compatibility
+- General: migrated to new Web Fonts API from Gutenberg.
+- Revue block: add a direct link to the WordPress.com subscriber import page.
 
 #### Bug fixes
-- Admin: fix JavaScript errors related to the Jetpack disconnect option on multisite networks.
-- Payments block: make filtering patterns used for the payments intro more robust.
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active.
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backup/Scan state.
+- Dashboard: fix the price display and description for products with intro offers for the first month.
+- Dashboard: show Boost in My Plans dashboard when added to a site.
+- Infinite Scroll: fix an AMP related bug.
+- Modules: allow for deactivating multiple plugins when activating a module.
+- Related Posts: fix Related Posts options saving.
+- Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
+- Sharing: do not include the sharing buttons in REST API responses.
+- Slideshow: fix slideshow loading excessive dependencies on every page view.
+- Subscriptions: add a null check to a $post reference.
+- Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
 
 --------
 

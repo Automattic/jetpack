@@ -87,7 +87,6 @@ function wp_supercache_badbehaviour_admin() {
 	if ( $err ) {
 		echo '<p><strong>' . __( 'Warning!', 'wp-super-cache' ) . "</strong> $err</p>";
 	}
-
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_badbehaviour_admin' );
 

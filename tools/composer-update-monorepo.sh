@@ -92,7 +92,6 @@ mapfile -t TO_UPDATE < <(
 # Any deps that look like "^1.2.3" should be locked at that version, as it's probably a release branch.
 WITH=()
 TMP="$(jq -r --arg packages $'\n'"$PACKAGES"$'\n' '.require // {}, .["require-dev"] // {} | to_entries[] | select( ( "\n\( .key )\n" | inside( $packages ) ) and ( .value | test( "^\\^[0-9]+\\.[0-9]+(\\.[0-9]+)+$" ) ) ) | "--with=\( .key )=\( .value[1:] )"' "$DIR/composer.json")"
-echo "$TMP"
 if [[ -n "$TMP" ]]; then
 	mapfile -t WITH <<<"$TMP"
 fi

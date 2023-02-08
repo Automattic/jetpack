@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { slide } from 'svelte/transition';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../../elements/BackButton.svelte';
@@ -11,7 +11,7 @@
 		clearDismissedRecommendations,
 		dismissalError,
 		setDismissalError,
-	} from '../../../stores/critical-css-recommendations.ts';
+	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
@@ -54,7 +54,7 @@
 	/**
 	 * Figure out heading based on state.
 	 */
-	let heading;
+	let heading: string;
 	$: heading =
 		$activeRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )

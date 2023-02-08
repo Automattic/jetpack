@@ -11,17 +11,22 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import classnames from 'classnames';
-import React from 'react';
 import { useState } from 'react';
+import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
+import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
 import { VideoCardProps } from './types';
+/**
+ * Types
+ */
+import type React from 'react';
 
 const QuickActions = ( {
 	id,
@@ -32,6 +37,8 @@ const QuickActions = ( {
 	onVideoDetailsClick: VideoCardProps[ 'onVideoDetailsClick' ];
 	className?: VideoCardProps[ 'className' ];
 } ) => {
+	const { canPerformAction } = usePermission();
+
 	return (
 		<div className={ classnames( styles[ 'video-card__quick-actions-section' ], className ) }>
 			<Button
@@ -39,6 +46,7 @@ const QuickActions = ( {
 				size="small"
 				onClick={ onVideoDetailsClick }
 				className={ styles[ 'video-card__quick-actions__edit-button' ] }
+				disabled={ ! canPerformAction }
 			>
 				{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }
 			</Button>
@@ -63,42 +71,52 @@ export const VideoCard = ( {
 	editable,
 	showQuickActions = true,
 	loading = false,
+	isUpdatingPoster = false,
+	uploading = false,
+	processing = false,
+	uploadProgress,
 	onVideoDetailsClick,
 }: VideoCardProps ) => {
-	const isBlank = ! title && ! duration && ! plays && ! thumbnail;
-	thumbnail = loading ? <Placeholder width={ 360 } /> : thumbnail;
+	const isBlank = ! title && ! duration && ! plays && ! thumbnail && ! loading;
 
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a product name */
+				/* translators: placeholder is a number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				numberFormat( plays )
 		  )
 		: '';
+	const [ anchor, setAnchor ] = useState( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
+	const disabled = loading || uploading;
 
 	return (
 		<>
 			<div
 				className={ classnames( styles[ 'video-card__wrapper' ], {
 					[ styles[ 'is-blank' ] ]: isBlank,
-					[ styles.disabled ]: isSm || loading,
+					[ styles.disabled ]: isSm || disabled,
 				} ) }
-				{ ...( isSm && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
+				{ ...( isSm && ! disabled && { onClick: () => setIsOpen( wasOpen => ! wasOpen ) } ) }
 			>
 				{ ! isSm && <div className={ styles[ 'video-card__background' ] } /> }
 
 				<VideoThumbnail
 					className={ styles[ 'video-card__thumbnail' ] }
 					thumbnail={ thumbnail }
+					loading={ loading || isUpdatingPoster }
+					uploading={ uploading }
+					processing={ processing }
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
+					uploadProgress={ uploadProgress }
+					ref={ setAnchor }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
-					{ isSm && (
+					{ isSm && ! disabled && (
 						<div className={ styles.chevron }>
 							{ isOpen && <Icon icon={ chevronUp } /> }
 							{ ! isOpen && <Icon icon={ chevronDown } /> }
@@ -132,6 +150,8 @@ export const VideoCard = ( {
 					) }
 				</div>
 
+				<PublishFirstVideoPopover id={ id } anchor={ anchor } />
+
 				{ showQuickActions && ! isSm && (
 					<QuickActions
 						id={ id }
@@ -155,8 +175,26 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting } = useVideo( id );
-	return <VideoCard id={ id } { ...restProps } loading={ isDeleting || restProps?.loading } />;
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
+		id
+	);
+
+	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
+	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;
+
+	return (
+		<VideoCard
+			id={ id }
+			{ ...restProps }
+			loading={ loading }
+			uploading={ uploading }
+			isUpdatingPoster={ isUpdatingPoster }
+			processing={ processing }
+			editable={ editable }
+			privacySetting={ data.privacySetting }
+			uploadProgress={ uploadProgress }
+		/>
+	);
 };
 
 export default ConnectVideoCard;

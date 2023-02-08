@@ -255,12 +255,10 @@ function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
 		} else {
 			$args = 'resize=' . rawurlencode( absint( $wpcom_args['w'] ) . ',' . absint( $wpcom_args['h'] ) ) . '&' . $args;
 		}
+	} elseif ( is_array( $args ) ) {
+		$args = array_merge( array( 'fit' => array( $wpcom_args['w'], $wpcom_args['h'] ) ), $args );
 	} else {
-		if ( is_array( $args ) ) {
-			$args = array_merge( array( 'fit' => array( $wpcom_args['w'], $wpcom_args['h'] ) ), $args );
-		} else {
-			$args = 'fit=' . rawurlencode( absint( $wpcom_args['w'] ) . ',' . absint( $wpcom_args['h'] ) ) . '&' . $args;
-		}
+		$args = 'fit=' . rawurlencode( absint( $wpcom_args['w'] ) . ',' . absint( $wpcom_args['h'] ) ) . '&' . $args;
 	}
 
 	return $args;

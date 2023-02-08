@@ -209,7 +209,6 @@ class Jetpack_Protect_Module {
 		if ( isset( $response['msg'] ) && $response['msg'] ) {
 			update_site_option( 'trusted_ip_header', json_decode( $response['msg'] ) );
 		}
-
 	}
 
 	/**
@@ -406,7 +405,7 @@ class Jetpack_Protect_Module {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			$transient--;
+			--$transient;
 
 			if ( ! $transient || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );

@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
+import styles from './globals.module.scss';
 import { ThemeInstance, ThemeProviderProps } from './types';
 
 export const typography = {
@@ -29,10 +30,13 @@ export const colors = {
 	'--jp-gray-40': '#787C82',
 	'--jp-gray-50': '#646970',
 	'--jp-gray-60': '#50575E',
+	'--jp-gray-70': '#3C434A',
 	'--jp-gray-80': '#2C3338',
+	'--jp-gray-90': '#1d2327',
 	'--jp-gray-off': '#e2e2df',
 	// Red
 	'--jp-red-0': '#F7EBEC',
+	'--jp-red-5': '#FACFD2',
 	'--jp-red-40': '#E65054',
 	'--jp-red-50': '#D63638',
 	'--jp-red-60': '#B32D2E',
@@ -40,9 +44,13 @@ export const colors = {
 	'--jp-red-80': '#691C1C',
 	'--jp-red': '#d63639',
 	// Yellow
+	'--jp-yellow-5': '#F5E6B3',
 	'--jp-yellow-10': '#F2CF75',
 	'--jp-yellow-20': '#F0C930',
+	'--jp-yellow-30': '#DEB100',
 	'--jp-yellow-40': '#C08C00',
+	'--jp-yellow-50': '#9D6E00',
+	'--jp-yellow-60': '#7D5600',
 	// Blue
 	'--jp-blue-20': '#68B3E8',
 	'--jp-blue-40': '#1689DB',
@@ -78,10 +86,14 @@ export const spacing = {
 
 const globalThemeInstances: Record< string, ThemeInstance > = {};
 
-const setup = ( root: HTMLElement, id: string ) => {
+const setup = ( root: HTMLElement, id: string, withGlobalStyles?: boolean ) => {
 	const tokens = { ...typography, ...colors, ...borders, ...spacing };
 	for ( const key in tokens ) {
 		root.style.setProperty( key, tokens[ key ] );
+	}
+
+	if ( withGlobalStyles ) {
+		root.classList.add( styles.global );
 	}
 
 	if ( ! id ) {
@@ -101,7 +113,12 @@ const setup = ( root: HTMLElement, id: string ) => {
  * @param {ThemeProviderProps} props           - Component properties.
  * @returns {React.ReactNode}        ThemeProvider component.
  */
-const ThemeProvider: React.FC< ThemeProviderProps > = ( { children = null, targetDom, id } ) => {
+const ThemeProvider: React.FC< ThemeProviderProps > = ( {
+	children = null,
+	targetDom,
+	id,
+	withGlobalStyles = true,
+} ) => {
 	const themeWrapperRef = useRef< HTMLDivElement >();
 
 	// Check whether the theme provider instance is already registered.
@@ -113,15 +130,15 @@ const ThemeProvider: React.FC< ThemeProviderProps > = ( { children = null, targe
 		}
 
 		if ( targetDom ) {
-			return setup( targetDom, id );
+			return setup( targetDom, id, withGlobalStyles );
 		}
 
 		if ( ! themeWrapperRef?.current ) {
 			return;
 		}
 
-		setup( themeWrapperRef.current, id );
-	}, [ targetDom, themeWrapperRef, isAlreadyProvided, id ] );
+		setup( themeWrapperRef.current, id, withGlobalStyles );
+	}, [ targetDom, themeWrapperRef, isAlreadyProvided, id, withGlobalStyles ] );
 
 	// Do not wrap when the DOM element target is defined.
 	if ( targetDom ) {

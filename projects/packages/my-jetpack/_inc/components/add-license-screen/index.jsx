@@ -3,6 +3,7 @@ import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useAvailableLicenses from '../../hooks/use-available-licenses';
 import GoBackLink from '../go-back-link';
 
 /**
@@ -18,6 +19,7 @@ export default function AddLicenseScreen() {
 	}, [] );
 
 	const { recordEvent } = useAnalytics();
+	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
 
 	const onClickGoBack = useCallback(
 		event => {
@@ -40,10 +42,12 @@ export default function AddLicenseScreen() {
 				</Col>
 				<Col>
 					<ActivationScreen
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						currentRecommendationsStep={ null }
+						availableLicenses={ availableLicenses }
+						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ undefined }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						currentRecommendationsStep={ null }
+						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 					/>
 				</Col>
 			</Container>

@@ -103,6 +103,7 @@ const printPostCmdMsg = argv => {
 	}
 };
 
+// eslint-disable-next-line jsdoc/require-returns-check -- false positive
 /**
  * Default executor with error handler
  *
@@ -332,7 +333,7 @@ const buildExecCmd = argv => {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );
@@ -348,7 +349,7 @@ const buildExecCmd = argv => {
 		console.warn( chalk.yellow( 'This currently only run tests for the Jetpack plugin.' ) );
 		console.warn(
 			chalk.yellow(
-				'Other projects do not require a working database, so you can run them locally or directly within jetpadk docker sh'
+				'Other projects do not require a working database, so you can run them locally or directly within jetpack docker sh'
 			)
 		);
 		const unitArgs = argv._.slice( 2 );

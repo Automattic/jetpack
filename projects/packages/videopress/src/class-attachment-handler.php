@@ -41,6 +41,7 @@ class Attachment_Handler {
 		add_filter( 'ajax_query_attachments_args', array( __CLASS__, 'ajax_query_attachments_args' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'media_list_table_query' ) );
 
+		add_filter( 'user_has_cap', array( __CLASS__, 'disable_delete_if_disconnected' ), 10, 3 );
 	}
 
 	/**
@@ -257,4 +258,35 @@ class Attachment_Handler {
 		}
 	}
 
+	/**
+	 * Filter to disable the `delete_post` capability
+	 * for VideoPress attachments if the current user is
+	 * not connected.
+	 *
+	 * @param array $allcaps All the capabilities of the user.
+	 * @param array $cap     [0] Required capability.
+	 * @param array $args    [0] Requested capability.
+	 *                       [1] User ID.
+	 *                       [2] Associated object ID.
+	 * @return array the filtered array of capabilities.
+	 */
+	public static function disable_delete_if_disconnected( $allcaps, $cap, $args ) {
+
+		// Only apply this filter to `delete_post` checks
+		if ( 'delete_post' !== $args[0] ) {
+			return $allcaps;
+		}
+
+		// Only apply this filter to VideoPress attachments
+		if ( ! is_videopress_attachment( $args[2] ) ) {
+			return $allcaps;
+		}
+
+		// Set the capability to false if the user can't perform the actions
+		if ( ! Data::can_perform_action() ) {
+			$allcaps[ $cap[0] ] = false;
+		}
+
+		return $allcaps;
+	}
 }

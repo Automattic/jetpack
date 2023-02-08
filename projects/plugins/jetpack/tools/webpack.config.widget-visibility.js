@@ -37,6 +37,12 @@ module.exports = {
 		} ),
 		definePaletteColorsAsStaticVariables(),
 	],
+	externals: {
+		...jetpackWebpackConfig.externals,
+		jetpackConfig: JSON.stringify( {
+			consumer_slug: 'jetpack',
+		} ),
+	},
 	module: {
 		strictExportPresence: true,
 		rules: [

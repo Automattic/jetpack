@@ -17,7 +17,14 @@ import storeHolder from './store-holder';
  */
 export const stateDebug = debugFactory( 'videopress/media:state' );
 
-const initialState = window.jetpackVideoPressInitialState?.initialState || {};
+const initialState = window.jetpackVideoPressInitialState?.initialState || { videos: {} };
+
+const hashPieces = window.location.hash.split( '?' );
+
+if ( hashPieces?.[ 0 ] === '#/' && hashPieces?.[ 1 ] && hashPieces?.[ 1 ] !== 'page=1' ) {
+	// Avoid flash of initial data when we have a query on the main library page (#/), different from a page=1 query
+	initialState.videos.isFetching = true;
+}
 
 /**
  * jetpack-videopress redux initializer

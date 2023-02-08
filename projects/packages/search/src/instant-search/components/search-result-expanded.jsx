@@ -39,9 +39,15 @@ export default function SearchResultExpanded( props ) {
 							className="jetpack-instant-search__search-result-title-link jetpack-instant-search__search-result-expanded__title-link"
 							href={ `//${ fields[ 'permalink.url.raw' ] }` }
 							onClick={ props.onClick }
-							//eslint-disable-next-line react/no-danger
-							dangerouslySetInnerHTML={ { __html: highlight.title } }
-						/>
+						>
+							<span
+								//eslint-disable-next-line react/no-danger
+								dangerouslySetInnerHTML={ { __html: highlight.title } }
+							/>
+							{ fields[ 'forum.topic_resolved' ] === 'yes' && (
+								<span className="jetpack-instant-search__search-result-title-checkmark" />
+							) }
+						</a>
 					</h3>
 
 					{ ! isMultiSite && (

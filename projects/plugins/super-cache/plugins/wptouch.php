@@ -81,7 +81,6 @@ function wp_super_cache_maybe_disable_wptouch( $t ) {
 	}
 
 	return false;
-
 }
 
 add_cacheaction( 'disable_mobile_check', 'wp_super_cache_maybe_disable_wptouch' );

@@ -1,3 +1,4 @@
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { Button, Placeholder, Spinner, TextControl, withNotices } from '@wordpress/components';
@@ -5,7 +6,6 @@ import { Fragment, Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import classnames from 'classnames';
-import isCurrentUserConnected from '../../shared/is-current-user-connected';
 import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
 import { MailChimpBlockControls } from './controls';
 import { icon, innerButtonBlock } from '.';

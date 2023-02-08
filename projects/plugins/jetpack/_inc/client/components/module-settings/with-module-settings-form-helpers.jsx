@@ -134,13 +134,14 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * if the form was initialized with an array
 		 * @param {String} settingName  the setting to get.
 		 * @param {String} module       the module related to the setting.
+		 * @param  {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
 		 * @returns {*}                 the current value of the settings.
 		 */
-		getOptionValue = ( settingName, module = '' ) => {
+		getOptionValue = ( settingName, module = '', ignoreDisabledModules = true ) => {
 			return get(
 				this.state.options,
 				settingName,
-				this.props.getSettingCurrentValue( settingName, module )
+				this.props.getSettingCurrentValue( settingName, module, ignoreDisabledModules )
 			);
 		};
 

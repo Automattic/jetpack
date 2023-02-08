@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
+use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Core_Json_Api_Endpoints;
 
@@ -65,22 +66,17 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
-		$has_scan    = $this->has_scan();
-		$show_backup = $this->should_show_backup();
-		$url         = Redirect::get_url( 'calypso-backups' );
-
-		if ( $has_scan && ! $show_backup ) {
+		if ( $this->should_show_scan() ) {
 			$menu_label = __( 'Scan', 'jetpack' );
 			$url        = Redirect::get_url( 'calypso-scanner' );
-		} elseif ( ! $has_scan && $show_backup ) {
-			$menu_label = __( 'Backup', 'jetpack' );
-		} else {
-			// Will be both, as the code won't get this far if neither is true (see should_show_link()).
-			$menu_label = __( 'Backup & Scan', 'jetpack' );
+			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
 		}
 
-		add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
-
+		if ( $this->should_show_backup() ) {
+			$menu_label = __( 'VaultPress', 'jetpack' );
+			$url        = Redirect::get_url( 'calypso-backups' );
+			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
+		}
 	}
 
 	/**
@@ -102,7 +98,7 @@ class Admin_Sidebar_Link {
 			if ( 'jetpack_admin_page' !== $link[1] ) {
 				break;
 			}
-			$offset++;
+			++$offset;
 		}
 
 		return $offset;
@@ -133,7 +129,18 @@ class Admin_Sidebar_Link {
 			return false;
 		}
 
-		return $this->has_scan() || $this->should_show_backup();
+		return $this->should_show_scan() || $this->should_show_backup();
+	}
+
+	/**
+	 * Check if we should display the Scan menu item.
+	 *
+	 * It will only be displayed if site has Scan enabled and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
+	 *
+	 * @return boolean
+	 */
+	private function should_show_scan() {
+		return $this->has_scan() && ! $this->has_protect_plugin();
 	}
 
 	/**
@@ -155,7 +162,20 @@ class Admin_Sidebar_Link {
 	private function has_scan() {
 		$this->maybe_refresh_transient_cache();
 		$scan_state = get_transient( 'jetpack_scan_state' );
-		return ! $scan_state || 'unavailable' !== $scan_state->state;
+		if ( ! $scan_state ) {
+			return false;
+		}
+
+		return isset( $scan_state->state ) && 'unavailable' !== $scan_state->state;
+	}
+
+	/**
+	 * Detects if Protect plugin is active.
+	 *
+	 * @return boolean
+	 */
+	private function has_protect_plugin() {
+		return class_exists( 'Jetpack_Protect' );
 	}
 
 	/**
@@ -166,7 +186,11 @@ class Admin_Sidebar_Link {
 	private function has_backup() {
 		$this->maybe_refresh_transient_cache();
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
-		return ! $rewind_state || 'unavailable' !== $rewind_state->state;
+		if ( ! $rewind_state ) {
+			return false;
+		}
+
+		return isset( $rewind_state->state ) && 'unavailable' !== $rewind_state->state;
 	}
 
 	/**
@@ -175,7 +199,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function has_backup_plugin() {
-		return class_exists( 'Jetpack_Backup' );
+		return Backup::is_active();
 	}
 
 	/**

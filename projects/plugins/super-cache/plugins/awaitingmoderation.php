@@ -49,7 +49,6 @@ function wp_supercache_awaitingmoderation_admin() {
 	</form>
 	</fieldset>
 	<?php
-
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_awaitingmoderation_admin' );
 

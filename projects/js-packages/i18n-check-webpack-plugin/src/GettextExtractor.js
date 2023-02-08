@@ -40,7 +40,7 @@ class GettextExtractor {
 	 *
 	 * @param {object} options - Configuration options.
 	 * @param {object} options.babelOptions - Options for Babel.
-	 * @param {object<string, (string | null)[]>} options.functions - Functions to extract. Defaults are available as a static property `defaultFunctions`.
+	 * @param {Object<string, (string | null)[]>} options.functions - Functions to extract. Defaults are available as a static property `defaultFunctions`.
 	 * @param {Function} options.lintLogger - Lint logging callback. See `this.setLintLogger()`.
 	 */
 	constructor( options = {} ) {

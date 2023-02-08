@@ -37,14 +37,18 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 		<div className="jp-components__pricing-card">
 			{ props.icon && (
 				<div className="jp-components__pricing-card__icon">
-					<img
-						src={ props.icon }
-						alt={ sprintf(
-							/* translators: placeholder is a product name */
-							__( 'Icon for the product %s', 'jetpack' ),
-							props.title
-						) }
-					/>
+					{ 'string' === typeof props.icon ? (
+						<img
+							src={ props.icon }
+							alt={ sprintf(
+								/* translators: placeholder is a product name */
+								__( 'Icon for the product %s', 'jetpack' ),
+								props.title
+							) }
+						/>
+					) : (
+						props.icon
+					) }
 				</div>
 			) }
 			<h1 className="jp-components__pricing-card__title">{ props.title }</h1>

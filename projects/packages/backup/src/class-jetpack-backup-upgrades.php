@@ -30,7 +30,6 @@ class Jetpack_Backup_Upgrades {
 			call_user_func( array( __CLASS__, $upgrade ) );
 
 		}
-
 	}
 
 	/**

@@ -1,13 +1,17 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import { getJetpackProductUpsellByFeature, FEATURE_SEARCH_JETPACK } from 'lib/plans/constants';
 import { noop } from 'lodash';
-import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import {
+	getProductDescriptionUrl,
+	isSearchNewPricingLaunched202208,
+} from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -108,7 +112,11 @@ class DashSearch extends Component {
 				pro_inactive: true,
 				overrideContent: this.props.hasConnectedOwner ? (
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={
+							isSearchNewPricingLaunched202208()
+								? __( 'Start for free', 'jetpack' )
+								: __( 'Upgrade', 'jetpack' )
+						}
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
@@ -182,11 +190,11 @@ class DashSearch extends Component {
 			pro_inactive: false,
 			content: createInterpolateElement(
 				__(
-					'<a>Activate</a> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
+					'<Button>Activate</Button> to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 					'jetpack'
 				),
 				{
-					a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
+					Button: <Button className="jp-link-button" onClick={ this.activateSearch } />,
 				}
 			),
 		} );

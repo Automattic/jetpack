@@ -14,9 +14,7 @@ export default function useSocialMediaConnections() {
 	const skippedConnections = connections
 		.filter( connection => ! connection.enabled )
 		.map( connection => connection.id );
-	const enabledConnections = connections
-		.filter( connection => connection.enabled )
-		.map( connection => connection.id );
+	const enabledConnections = connections.filter( connection => connection.enabled );
 
 	return {
 		connections,

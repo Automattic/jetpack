@@ -3,7 +3,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import ConnectedPlugins from '../../connected-plugins';
 
 /**
@@ -45,6 +45,23 @@ const StepDisconnect = props => {
 		},
 		[ trackModalClick, onDisconnect ]
 	);
+	const handleEscapePress = useCallback(
+		event => {
+			if ( event.key === 'Escape' && ! isDisconnecting ) {
+				handleStayConnectedClick();
+			}
+		},
+		[ handleStayConnectedClick, isDisconnecting ]
+	);
+
+	useEffect( () => {
+		document.addEventListener( 'keydown', handleEscapePress, false );
+
+		return () => {
+			document.removeEventListener( 'keydown', handleEscapePress, false );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	/**
 	 * Render the disconnect button, allows for some variance based on context.
@@ -76,7 +93,7 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @returns {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
 		const hasOtherConnectedPlugins =
@@ -94,6 +111,8 @@ const StepDisconnect = props => {
 				</div>
 			);
 		}
+
+		return undefined;
 	};
 
 	return (

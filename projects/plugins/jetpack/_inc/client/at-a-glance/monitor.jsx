@@ -1,6 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
@@ -58,11 +59,11 @@ class DashMonitor extends Component {
 		const activateMessage = this.props.hasConnectedOwner
 			? createInterpolateElement(
 					__(
-						'<a>Activate Monitor</a> to receive email notifications if your site goes down.',
+						'<Button>Activate Monitor</Button> to receive email notifications if your site goes down.',
 						'jetpack'
 					),
 					{
-						a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />,
+						Button: <Button className="jp-link-button" onClick={ this.activateAndTrack } />,
 					}
 			  )
 			: __(
@@ -87,9 +88,12 @@ class DashMonitor extends Component {
 				{ ! this.props.isOfflineMode && ! this.props.hasConnectedOwner && (
 					<p className="jp-dash-item__description jp-dash-item__connect">
 						{ createInterpolateElement(
-							__( '<a>Connect your WordPress.com</a> account to use this feature.', 'jetpack' ),
+							__(
+								'<Button>Connect your WordPress.com</Button> account to use this feature.',
+								'jetpack'
+							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.connect } />,
+								Button: <Button className="jp-link-button" onClick={ this.connect } />,
 							}
 						) }
 					</p>

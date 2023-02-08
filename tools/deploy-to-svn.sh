@@ -84,6 +84,12 @@ if [[ -z "$WPSLUG" ]]; then
 fi
 $FAIL && exit 1
 
+if jq -e '.extra["wp-svn-autopublish"] // false' "$PLUGIN_DIR/composer.json" &>/dev/null; then
+	yellow "$PLUGIN_NAME is set up to automatically publish to WordPress.org via GitHub Actions."
+	yellow $'\e[1mIf you run this script in addition to the auto-publish, you\'ll likely wind up with a broken tag (see https://github.com/Automattic/jetpack/issues/28400).'
+	proceed_p '' 'Really publish to SVN manually?'
+fi
+
 # Check build dir.
 if [[ -z "$BUILD_DIR" ]]; then
 	TMPDIR="${TMPDIR:-/tmp}"
@@ -124,8 +130,12 @@ printf "\r\e[K"
 success "Done!"
 
 info "Checking out SVN tags shallowly to $DIR/tags"
-svn -q up tags --depth=empty
+svn -q up tags --depth=immediates
 success "Done!"
+
+if [[ -e "tags/$SVNTAG" ]]; then
+	die "Tag $SVNTAG already exists in SVN. Aborting."
+fi
 
 info "Deleting everything in trunk except for .svn directories"
 find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
@@ -180,7 +190,7 @@ info "Tagging $SVNTAG"
 svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$SVNTAG -m "Creating the $SVNTAG tag"
 success "Done!"
 if [[ "$SVNTAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-	info "Updating stable tag in readme.txt in SVN tags/$SVNTAG"
+	info "Updating stable tag in readme.txt in SVN tags/$SVNTAG (this does not make $SVNTAG the live version, the stable tag in trunk/readme.txt is what is changed when ready, later)"
 	svn up tags/$SVNTAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
 	printf "\r\e[K"
 	sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVNTAG/" "tags/$SVNTAG/readme.txt"

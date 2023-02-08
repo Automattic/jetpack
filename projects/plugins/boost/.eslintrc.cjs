@@ -45,6 +45,11 @@ module.exports = {
 			},
 		],
 
+		// This is not a react project.
+		'react-hooks/rules-of-hooks': 0,
+
+		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
+		camelcase: 0,
 	},
 };

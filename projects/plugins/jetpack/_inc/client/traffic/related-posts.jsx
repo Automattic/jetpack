@@ -74,7 +74,7 @@ class RelatedPostsComponent extends React.Component {
 							{
 								a: (
 									<a
-										href={ getRedirectUrl( 'jetpack-support-jetpack-blocks-related-posts-block' ) }
+										href={ getRedirectUrl( 'jetpack-support-related-posts' ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>

@@ -118,7 +118,7 @@ class Waf_Transforms {
 	 * @return string
 	 */
 	public function html_entity_decode( $value ) {
-		return html_entity_decode( $value );
+		return html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Waf_Transforms {
 					// If this folder is a backreference, remove it unless we're already at the root.
 					if ( isset( $parts[ $i - 1 ] ) && ! in_array( $parts[ $i - 1 ], array( '', '..' ), true ) ) {
 						array_splice( $parts, $i - 1, 2 );
-						$i--;
+						--$i;
 						continue 2;
 					}
 					break;
@@ -180,7 +180,7 @@ class Waf_Transforms {
 					array_splice( $parts, $i, 1 );
 					continue 2;
 			}
-			$i++;
+			++$i;
 		}
 
 		return implode( '/', $parts );

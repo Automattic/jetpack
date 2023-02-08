@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
@@ -7,7 +7,7 @@
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
-	import routerHistory from '../../../utils/router-history.ts';
+	import routerHistory from '../../../utils/router-history';
 
 	export let generateText = '';
 	export let generateMoreText = '';
@@ -32,7 +32,9 @@
 					),
 					$criticalCssStatus.success_count
 				)}
-				<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{#if $criticalCssStatus.updated}
+					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{/if}
 				{#if $criticalCssStatus.progress < 100}
 					<span>{generateMoreText}</span>
 				{/if}

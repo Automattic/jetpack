@@ -1,0 +1,35 @@
+/*!
+ * Jetpack CRM Extension: MailPoet Contact Tabs
+ * https://jetpackcrm.com
+ * V1.0
+ */
+
+ #zbs-contact-view-vitals-mailpoet-tab {
+
+    .zbs-view-vital-mailpoet {
+
+        .zbs-view-vital-mailpoet-label {
+            
+            width: 150px;
+            text-align: right;
+
+        }
+
+        .zbs-view-vital-mailpoet-value {
+
+
+        }
+
+    }
+
+}
+
+#jpcrm-external-sources-metabox {
+
+    .jpcrm-external-source-group .jpcrm-external-source .jpcrm-ext-source-mailpoet-subscriber{
+
+        margin-bottom: 4px;
+        
+    }
+
+}

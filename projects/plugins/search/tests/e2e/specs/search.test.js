@@ -70,7 +70,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test1</mark> Record 1' );
+			).toBe( '<span><mark>Test1</mark> Record 1</span>' );
 		} );
 
 		await test.step( 'Can edit query in search form', async () => {
@@ -80,7 +80,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 1' );
+			).toBe( '<span><mark>Test2</mark> Record 1</span>' );
 		} );
 
 		await test.step( 'Can change sort order', async () => {
@@ -94,7 +94,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 3' );
+			).toBe( '<span><mark>Test2</mark> Record 3</span>' );
 
 			await homepage.chooseSortingLink( 'oldest' );
 			await homepage.waitForSearchResponse();
@@ -106,7 +106,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			).toBe( '<span><mark>Test2</mark> Record 2</span>' );
 		} );
 
 		await test.step( 'Can apply filters', async () => {
@@ -116,7 +116,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 2' );
+			).toBe( '<span><mark>Test2</mark> Record 2</span>' );
 
 			await homepage.clickFilterCategory2();
 			await homepage.clickFilterTag3();
@@ -125,7 +125,7 @@ test.describe( 'Instant Search', () => {
 			expect(
 				await homepage.getFirstResultTitle(),
 				'First result title should match the expected value'
-			).toBe( '<mark>Test2</mark> Record 3' );
+			).toBe( '<span><mark>Test2</mark> Record 3</span>' );
 		} );
 
 		await test.step( 'Can close overlay by clicking the cross', async () => {

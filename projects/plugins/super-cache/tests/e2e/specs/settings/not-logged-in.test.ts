@@ -67,4 +67,17 @@ describe( 'wp_cache_not_logged_in settings', () => {
 
 		expect( first ).toBe( second );
 	} );
+
+	test( 'logged in users do not get cached pages when "Disable caching for logged in visitors"', async () => {
+		await updateSettings( authCookie, {
+			wp_cache_not_logged_in: CacheNotLoggedInOptions.DisableForLoggedIn,
+		} );
+
+		const url = getSiteUrl();
+
+		const first = await authenticatedRequest( authCookie, 'GET', url );
+		const second = await authenticatedRequest( authCookie, 'GET', url );
+
+		expect( first ).not.toBe( second );
+	} );
 } );

@@ -109,6 +109,7 @@ function get_button_classes( $attributes ) {
 
 	if ( $has_font_size ) {
 		$classes[] = 'has-' . $attributes['fontSize'] . '-font-size';
+		$classes[] = 'has-custom-font-size';
 	}
 
 	if ( $has_class_name ) {

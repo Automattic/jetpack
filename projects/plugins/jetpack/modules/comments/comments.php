@@ -577,7 +577,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		if ( false !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) ) {
-			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
+			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 
 		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );

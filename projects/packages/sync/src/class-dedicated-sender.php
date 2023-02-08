@@ -51,6 +51,11 @@ class Dedicated_Sender {
 	const DEDICATED_SYNC_REQUEST_LOCK_QUERY_PARAM_NAME = 'request_lock_id';
 
 	/**
+	 * The name of the transient to use to temporarily disable enabling of Dedicated sync.
+	 */
+	const DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG = 'jetpack_sync_dedicated_sync_temp_disable';
+
+	/**
 	 * Filter a URL to check if Dedicated Sync is enabled.
 	 * We need to remove slashes and then run it through `urldecode` as sometimes the
 	 * URL is in an encoded form, depending on server configuration.
@@ -111,7 +116,7 @@ class Dedicated_Sender {
 	 *
 	 * @access public
 	 *
-	 * @param Automattic\Jetpack\Sync\Queue $queue Queue object.
+	 * @param \Automattic\Jetpack\Sync\Queue $queue Queue object.
 	 *
 	 * @return boolean|WP_Error True if spawned, WP_Error otherwise.
 	 */
@@ -138,6 +143,41 @@ class Dedicated_Sender {
 		$sync_next_time = Sender::get_instance()->get_next_sync_time( $queue->id );
 		if ( $sync_next_time > microtime( true ) ) {
 			return new WP_Error( 'sync_throttled_' . $queue->id );
+		}
+		/**
+		 * How much time to wait before we start suspecting Dedicated Sync is in trouble.
+		 */
+		$queue_send_time_threshold = 30 * MINUTE_IN_SECONDS;
+
+		$queue_lag = $queue->lag();
+
+		// Only check if we're failing to send events if the queue lag is longer than the threshold.
+		if ( $queue_lag > $queue_send_time_threshold ) {
+			/**
+			 * Check if Dedicated Sync is healthy and revert to Default Sync if such case is detected.
+			 */
+			$last_successful_queue_send_time = get_option( Actions::LAST_SUCCESS_PREFIX . $queue->id, null );
+
+			if ( $last_successful_queue_send_time === null ) {
+				/**
+				 * No successful sync sending completed. This might be either a "new" sync site or a site that's totally stuck.
+				 */
+				self::on_dedicated_sync_lag_not_sending_threshold_reached();
+
+				return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+			} else {
+				/**
+				 * We have recorded a successful sending of events. Let's see if that is not too long ago in the past.
+				 */
+				$time_since_last_succesful_send = time() - $last_successful_queue_send_time;
+
+				if ( $time_since_last_succesful_send > $queue_send_time_threshold ) {
+					// We haven't successfully sent stuff in more than 30 minutes. Revert to Default Sync
+					self::on_dedicated_sync_lag_not_sending_threshold_reached();
+
+					return new WP_Error( 'dedicated_sync_not_sending', 'Dedicated Sync is not successfully sending events' );
+				}
+			}
 		}
 
 		/**
@@ -311,5 +351,61 @@ class Dedicated_Sender {
 		}
 
 		return self::DEDICATED_SYNC_VALIDATION_STRING === $dedicated_sync_response_body;
+	}
+
+	/**
+	 * Disable dedicated sync and set a transient to prevent re-enabling it for some time.
+	 *
+	 * @return void
+	 */
+	public static function on_dedicated_sync_lag_not_sending_threshold_reached() {
+		set_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true, 6 * HOUR_IN_SECONDS );
+
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => 0,
+			)
+		);
+
+		// Inform that we had to temporarily disable Dedicated Sync
+		$data = array(
+			'timestamp'      => microtime( true ),
+
+			// Send the flow type that was attempted.
+			'sync_flow_type' => 'dedicated',
+		);
+
+		$sender = Sender::get_instance();
+
+		$sender->send_action( 'jetpack_sync_flow_error_temp_disable', $data );
+	}
+
+	/**
+	 * Disable or enable Dedicated Sync sender based on the header value returned from WordPress.com
+	 *
+	 * @param string $dedicated_sync_header The Dedicated Sync header value - `on` or `off`.
+	 *
+	 * @return bool Whether Dedicated Sync is going to be enabled or not.
+	 */
+	public static function maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header ) {
+		$dedicated_sync_enabled = 'on' === $dedicated_sync_header ? 1 : 0;
+
+		// Prevent enabling of Dedicated sync via header flag if we're in an autoheal timeout.
+		if ( $dedicated_sync_enabled ) {
+			$check_transient = get_transient( self::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
+			if ( $check_transient ) {
+				// Something happened and Dedicated Sync should not be automatically re-enabled.
+				return false;
+			}
+		}
+
+		Settings::update_settings(
+			array(
+				'dedicated_sync_enabled' => $dedicated_sync_enabled,
+			)
+		);
+
+		return Settings::is_dedicated_sync_enabled();
 	}
 }

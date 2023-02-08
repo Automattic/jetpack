@@ -9,6 +9,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 require_once __DIR__ . '/class.json-api-metadata.php';
 require_once __DIR__ . '/class.json-api-date.php';
 require_once ABSPATH . 'wp-admin/includes/post.php';
@@ -760,7 +762,7 @@ abstract class SAL_Post {
 
 		$pages = $old_pages;
 		$page  = $old_page;
-		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited 
+		// phpcs:enable WordPress.WP.GlobalVariablesOverride.Prohibited
 		return $return;
 	}
 
@@ -779,8 +781,6 @@ abstract class SAL_Post {
 		$user = get_user_by( 'id', $this->post->post_author );
 
 		if ( ! $user || is_wp_error( $user ) ) {
-			trigger_error( 'Unknown user', E_USER_WARNING ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-
 			return null;
 		}
 
@@ -830,7 +830,7 @@ abstract class SAL_Post {
 			return '';
 		}
 
-		return esc_url_raw( htmlspecialchars_decode( $avatar_url[0] ) );
+		return esc_url_raw( htmlspecialchars_decode( $avatar_url[0], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 	}
 
 	/**
@@ -867,7 +867,7 @@ abstract class SAL_Post {
 				}
 				break;
 			case 'display':
-				if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				if ( ( new Status() )->is_private_site() && ! current_user_can( 'read' ) ) {
 					return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 				}
 				break;

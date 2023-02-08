@@ -63,5 +63,13 @@ export const settings = {
 				type: 'flex',
 			},
 		},
+		typography: {
+			fontSize: true,
+			__experimentalFontFamily: true,
+			__experimentalTextTransform: true,
+			__experimentalDefaultControls: {
+				fontSize: true,
+			},
+		},
 	},
 };

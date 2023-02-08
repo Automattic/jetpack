@@ -1,4 +1,6 @@
+import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
+import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
 import { clearDismissedRecommendations } from '../stores/critical-css-recommendations';
 import {
 	requestGeneration,
@@ -6,7 +8,7 @@ import {
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
-import { modules, isEnabled } from '../stores/modules';
+import { modules, isModuleEnabledStore } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
@@ -73,6 +75,7 @@ export default async function generateCriticalCss(
 		if ( reset ) {
 			await clearDismissedRecommendations();
 			updateGenerateStatus( { status: 'requesting', progress: 0 } );
+			hideRegenerateCriticalCssSuggestion();
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
@@ -92,7 +95,7 @@ export default async function generateCriticalCss(
 		// percent. Also check for module deactivation and cancel if need be.
 		const offset = cssStatus.success_count || 0;
 		const wrappedCallback = wrapCallback( offset, percent => {
-			if ( ! isEnabled( 'critical-css' ) ) {
+			if ( ! get( isModuleEnabledStore( 'critical-css' ) ) ) {
 				cancelling = true;
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
 			}

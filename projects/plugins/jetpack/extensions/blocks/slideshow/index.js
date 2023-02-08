@@ -123,7 +123,7 @@ export const settings = {
 		_x( 'gallery', 'block search term', 'jetpack' ),
 		_x( 'slider', 'block search term', 'jetpack' ),
 	],
-	description: __( 'Add an interactive slideshow.', 'jetpack' ),
+	description: __( 'Display multiple images in sequential order.', 'jetpack' ),
 	attributes,
 	supports: {
 		align: [ 'center', 'wide', 'full' ],

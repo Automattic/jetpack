@@ -182,7 +182,6 @@ class Endpoints {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_jetpack_license_key', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
-
 	}
 
 	/**

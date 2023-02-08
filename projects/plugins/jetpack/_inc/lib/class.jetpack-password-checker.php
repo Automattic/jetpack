@@ -490,7 +490,7 @@ class Jetpack_Password_Checker {
 
 		// Spaces.
 		if ( strpos( $password, ' ' ) ) {
-			$size++;
+			++$size;
 		}
 
 		return $size;

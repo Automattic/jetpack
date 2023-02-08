@@ -150,7 +150,7 @@ abstract class Sharing_Source {
 		 */
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
-		return html_entity_decode( wp_kses( $title, null ) );
+		return html_entity_decode( wp_kses( $title, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**
@@ -1990,7 +1990,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 					$this->icon = $new_icon;
 					$new_icon   = esc_url_raw( wp_specialchars_decode( $this->icon, ENT_QUOTES ) );
 				}
-				$i++;
+				++$i;
 			}
 		}
 
@@ -2663,7 +2663,6 @@ class Share_Pocket extends Sharing_Source {
 		} else {
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Pocket', 'share to', 'jetpack' ), __( 'Click to share on Pocket', 'jetpack' ), 'share=pocket' );
 		}
-
 	}
 
 	/**
@@ -2716,7 +2715,6 @@ class Share_Pocket extends Sharing_Source {
 				)
 			);
 		endif;
-
 	}
 
 }
@@ -2928,7 +2926,6 @@ class Share_Skype extends Sharing_Source {
 		} else {
 			$this->smart = false;
 		}
-
 	}
 
 	/**

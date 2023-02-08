@@ -116,7 +116,6 @@ class Tus_Client {
 		$this->api_url = sprintf( self::BASE_API_URL, (int) $blog_id );
 
 		$this->cache = new Transient_Store( $this->get_key() );
-
 	}
 
 	/**
@@ -688,14 +687,14 @@ class Tus_Client {
 		}
 
 		$guid       = wp_remote_retrieve_header( $response, 'x-videopress-upload-guid' );
-		$media_id   = wp_remote_retrieve_header( $response, 'x-videopress-upload-media-id' );
+		$media_id   = (int) wp_remote_retrieve_header( $response, 'x-videopress-upload-media-id' );
 		$upload_src = wp_remote_retrieve_header( $response, 'x-videopress-upload-src-url' );
+
 		if ( $guid && $media_id && $upload_src ) {
 			$this->set_uploaded_video_details( $guid, $media_id, $upload_src );
 		}
 
 		return (int) wp_remote_retrieve_header( $response, 'upload-offset' );
-
 	}
 
 	/**

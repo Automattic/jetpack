@@ -1,0 +1,223 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 02/06/16
+ */
+
+// This file is specifically for customer filters dialogs
+
+
+// major wrap of filter UI
+.zbs-crm-customerfilters-wrap{ 
+
+
+    background: #f3f3f7;
+    border: 1px solid #dedee3;
+    padding: 11px;
+    font-size: 12px;
+    line-height: 1.3em;
+    margin-bottom: 22px;
+    overflow: auto;
+    border-radius: 4px;
+
+	// wrapping form
+	form#zbs-crm-customerfilter-form {
+
+
+		.zbs-crm-customerfilter-ajax-output {
+
+			    margin: 20px;
+			    text-align: center;
+			    font-size: 18px;
+			    padding: 20px;
+
+
+			    .zbs-crm-customerfilter-preview {
+
+				    margin-top: 14px;
+				    font-size: 14px;
+				    width: 300px;
+				    text-align: left;
+				    margin-left: auto;
+				    margin-right: auto;
+
+				    h4 {
+
+				    }
+
+				    .zbs-crm-customerfilter-preview-line {
+				    	
+				    }
+			    }
+
+		}
+
+	}
+
+	// individual filters
+	.zbs-crm-customerfilter {
+	    
+	    // unless overridden below
+	    display: inline-block;
+	    padding: 4px 8px;
+
+
+		// label
+		label {
+    		
+			// use our generic label first
+  			@extend .zbs-admin-label;
+
+    		margin: 4px 8px;
+		    font-size: 13px;
+
+
+		}
+		label.zbs-full-line {
+			display:block;
+		}
+
+		// fields: Input text
+		input[type=text]{
+    		
+    		margin: 4px 8px;
+
+		}
+
+		// fields: Input checkbox
+		input[type=checkbox]{
+    		
+    		margin: 4px 8px;
+
+		}
+
+		// fields: Input radio
+		input[type=radio]{
+    		
+    		margin: 4px 8px;
+
+		}
+
+		// fields: Select
+		select {
+    		
+    		margin: 4px 8px;
+
+		}
+
+		// fields: textarea
+		textarea{
+    		
+    		margin: 4px 8px;
+
+		}
+
+
+	}
+
+	// overrides for display:inline-block
+	.zbs-crm-customerfilter.zbs-full-line {
+		
+		display:block;
+
+	}
+
+
+	// group e.g. checkboxes for tags
+	.zbs-crm-customerfilter-group {
+
+		// individual item in a group (e.g. 1 tag in the group of tags)
+		.zbs-crm-customerfilter-groupline {
+
+			// shrink the labels here, as is sub-group
+			label {
+
+				font-size:12px;
+
+			}
+
+			// float these right :)
+			input[type=checkbox]{
+
+    			//float: right;
+
+			}
+
+
+		}
+
+
+	}
+
+	// a group shown as a panel
+	.zbs-crm-customerfilter-group.zbs-panel {
+    
+    	display: inline-block;
+
+	    padding: 10px;
+	    margin: 8px;
+	    border-radius: 4px;
+	    background: #FFF;
+	    border: 1px solid #dedee3;
+	    width: auto; 
+
+		// group labels
+		label {
+
+		    border-bottom: 1px solid #dedee3;
+		    width: auto;
+		    padding: 3px;
+		    padding-top: 0;
+
+		}
+
+	}
+
+	// full line group
+	.zbs-crm-customerfilter-group.zbs-full-line {
+		
+		display:block;
+
+	}
+
+
+	// submit button
+	.zbs-crm-closing-action {
+		
+		display:block;
+	    text-align: center;
+	    border-top: 1px solid #dedee3;
+	    padding: 16px 10px 6px 10px; 
+
+
+	}
+
+
+}
+
+// LAZY needs putting away!
+
+// daterangepicker styles (outer div)
+#zbs-crm-customerfilter-addedrange-reportrange {
+	background: #fff; 
+	cursor: pointer;  
+	padding: 5px 10px; 
+	border: 1px solid #ccc; 
+	width: 196px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.zbs-crm-customerfilter-valuerange {
+
+	// "To" label
+	span.to-label {
+		
+		padding-right:8px !important;
+
+	}
+	
+}

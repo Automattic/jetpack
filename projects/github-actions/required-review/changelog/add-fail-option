@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add optional input which fails review required status checks instead of leaving them pending. 

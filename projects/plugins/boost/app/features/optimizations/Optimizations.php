@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
@@ -34,6 +35,7 @@ class Optimizations implements Has_Setup {
 			new $critical_css_class(),
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
+			new Image_Guide(),
 		);
 
 		foreach ( $features as $feature ) {
@@ -88,7 +90,6 @@ class Optimizations implements Has_Setup {
 		if ( empty( $feature->get_endpoints() ) ) {
 			return false;
 		}
-
 	}
 
 	/**

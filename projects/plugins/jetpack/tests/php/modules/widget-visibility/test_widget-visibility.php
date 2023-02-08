@@ -1,6 +1,6 @@
 <?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 
-require_jetpack_file( 'modules/widget-visibility/widget-conditions.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/widget-visibility/widget-conditions.php';
 
 /**
  * Test class for Jetpack_Widget_Conditions (widget visibility)

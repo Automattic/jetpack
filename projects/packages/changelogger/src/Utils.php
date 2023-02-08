@@ -84,7 +84,7 @@ class Utils {
 	 *   - warnings: An array of warning messages and applicable lines.
 	 *   - lines: An array mapping headers to line numbers.
 	 * @return array
-	 * @throws \RuntimeException On error.
+	 * @throws LoadChangeFileException On error.
 	 */
 	public static function loadChangeFile( $filename, &$diagnostics = null ) {
 		$diagnostics = array(
@@ -93,19 +93,19 @@ class Utils {
 		);
 
 		if ( ! file_exists( $filename ) ) {
-			$ex           = new \RuntimeException( 'File does not exist.' );
+			$ex           = new LoadChangeFileException( 'File does not exist.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 
 		$fileinfo = new \SplFileInfo( $filename );
 		if ( $fileinfo->getType() !== 'file' ) {
-			$ex           = new \RuntimeException( "Expected a file, got {$fileinfo->getType()}." );
+			$ex           = new LoadChangeFileException( "Expected a file, got {$fileinfo->getType()}." );
 			$ex->fileLine = null;
 			throw $ex;
 		}
 		if ( ! $fileinfo->isReadable() ) {
-			$ex           = new \RuntimeException( 'File is not readable.' );
+			$ex           = new LoadChangeFileException( 'File is not readable.' );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -115,7 +115,7 @@ class Utils {
 		// @codeCoverageIgnoreStart
 		if ( false === $contents ) {
 			$err          = error_get_last();
-			$ex           = new \RuntimeException( "Failed to read file: {$err['message']}" );
+			$ex           = new LoadChangeFileException( "Failed to read file: {$err['message']}" );
 			$ex->fileLine = null;
 			throw $ex;
 		}
@@ -138,7 +138,7 @@ class Utils {
 		}
 
 		if ( '' !== $contents && "\n" !== $contents[0] ) {
-			$ex           = new \RuntimeException( 'Invalid header.' );
+			$ex           = new LoadChangeFileException( 'Invalid header.' );
 			$ex->fileLine = $line;
 			throw $ex;
 		}
@@ -176,7 +176,7 @@ class Utils {
 		);
 
 		try {
-			$process = self::runCommand( array( 'git', 'log', '-1', "--format=%cI\n%s", $file ), $output, $formatter );
+			$process = self::runCommand( array( 'git', 'log', '-1', '--first-parent', "--format=%cI\n%s", $file ), $output, $formatter );
 			if ( $process->isSuccessful() ) {
 				$cmd_output = explode( "\n", trim( $process->getOutput() ) );
 
@@ -188,9 +188,12 @@ class Utils {
 				// PR number.
 				if ( isset( $cmd_output[1] ) ) {
 					$matches = array();
-					preg_match( '/\(#(\d+)\)$/', $cmd_output[1], $matches );
-					if ( isset( $matches[1] ) ) {
+					preg_match( '/(?:^Merge pull request #(\d+))|(?:\(#(\d+)\)$)/', $cmd_output[1], $matches );
+					if ( ! empty( $matches[1] ) ) {
 						$repo_data['pr-num'] = $matches[1];
+					}
+					if ( ! empty( $matches[2] ) ) {
+						$repo_data['pr-num'] = $matches[2];
 					}
 				}
 			}
@@ -240,7 +243,7 @@ class Utils {
 			$files[ $name ] = 0;
 			try {
 				$data = self::loadChangeFile( $path, $diagnostics );
-			} catch ( \RuntimeException $ex ) {
+			} catch ( LoadChangeFileException $ex ) {
 				$output->writeln( "<error>$name: {$ex->getMessage()}</>" );
 				$files[ $name ] = 2;
 				continue;

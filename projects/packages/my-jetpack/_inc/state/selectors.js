@@ -10,6 +10,9 @@ export const getProduct = ( state, productId ) => {
 
 	const product = mapObjectKeysToCamel( stateProduct, true );
 	product.pricingForUi = mapObjectKeysToCamel( product.pricingForUi || {}, true );
+	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
+		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
+		: null;
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
@@ -55,6 +58,26 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.isRequestingPurchases || false,
 };
 
+const availableLicensesSelectors = {
+	getAvailableLicenses: state => state.availableLicenses?.items || [],
+	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
+};
+
+const pluginSelectors = {
+	hasStandalonePluginInstalled: state =>
+		Object.values( state.plugins ).filter(
+			plugin =>
+				[
+					'jetpack-backup',
+					'jetpack-boost',
+					'jetpack-protect',
+					'jetpack-search',
+					'jetpack-social',
+					'jetpack-videopress',
+				].indexOf( plugin.TextDomain ) >= 0
+		).length > 0,
+};
+
 const noticeSelectors = {
 	getGlobalNotice: state => state.notices?.global,
 };
@@ -62,7 +85,9 @@ const noticeSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...availableLicensesSelectors,
 	...noticeSelectors,
+	...pluginSelectors,
 };
 
 export default selectors;

@@ -21,6 +21,7 @@ class Customizer {
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
+		$this->plan = new Plan();
 	}
 
 	/**
@@ -242,14 +243,17 @@ class Customizer {
 				'type'                 => 'option',
 			)
 		);
-		$wp_customize->add_control(
-			$id,
-			array(
-				'type'    => 'checkbox',
-				'section' => $section_id,
-				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
-			)
-		);
+
+		if ( ! $this->plan->is_free_plan() ) {
+			$wp_customize->add_control(
+				$id,
+				array(
+					'type'    => 'checkbox',
+					'section' => $section_id,
+					'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
+				)
+			);
+		}
 	}
 
 	/**

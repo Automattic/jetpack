@@ -2,15 +2,16 @@
 # Remember to end all directories with `/**` to properly tag every file.
 # /src/js/example.min.js  production-include
 
-app/assets/dist/**            production-include
-jetpack_vendor/**             production-include
-vendor/autoload.php           production-include
-vendor/autoload_functions.php production-include
-vendor/autoload_packages.php  production-include
-vendor/automattic/**          production-include
-vendor/composer/**            production-include
-vendor/jetpack-autoloader/**  production-include
-vendor/tedivm/** 			  production-include
+app/assets/dist/**                              production-include
+app/features/image-guide/dist/**                production-include
+jetpack_vendor/**                               production-include
+vendor/autoload.php                             production-include
+vendor/autoload_functions.php                   production-include
+vendor/autoload_packages.php                    production-include
+vendor/automattic/**                            production-include
+vendor/composer/**                              production-include
+vendor/jetpack-autoloader/**                    production-include
+vendor/tedivm/**                                production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # Remember to end all directories with `/**` to properly tag every file.

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 	import { showError } from '../../../stores/critical-css-status';
 	import { requestCloudCss, retryCloudCss } from '../../../utils/cloud-css';

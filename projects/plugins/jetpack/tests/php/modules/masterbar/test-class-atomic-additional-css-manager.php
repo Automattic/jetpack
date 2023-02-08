@@ -12,9 +12,9 @@ require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-atomic-additional-css-manager.php' );
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php' );
-require_jetpack_file( 'modules/masterbar/nudges/additional-css/class-css-customizer-nudge.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-atomic-additional-css-manager.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-css-nudge-customize-control.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/additional-css/class-css-customizer-nudge.php';
 
 /**
  * Class Test_Atomic_Additional_CSS_Manager

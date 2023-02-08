@@ -11,7 +11,7 @@ import './style.scss';
  * @returns {React.Component} The `ConnectScreenLayout` component.
  */
 const ConnectScreenLayout = props => {
-	const { title, children, className, assetBaseUrl, images } = props;
+	const { title, children, className, assetBaseUrl, images, logo } = props;
 
 	const showImageSlider = images?.length;
 
@@ -24,7 +24,7 @@ const ConnectScreenLayout = props => {
 			}
 		>
 			<div className="jp-connection__connect-screen-layout__left">
-				<JetpackLogo />
+				{ logo || <JetpackLogo /> }
 
 				<h2>{ title }</h2>
 
@@ -49,6 +49,8 @@ ConnectScreenLayout.propTypes = {
 	images: PropTypes.arrayOf( PropTypes.string ),
 	/** The assets base URL. */
 	assetBaseUrl: PropTypes.string,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 export default ConnectScreenLayout;

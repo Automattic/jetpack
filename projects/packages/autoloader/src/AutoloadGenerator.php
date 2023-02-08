@@ -12,9 +12,6 @@
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fopen
-// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_fwrite
 // phpcs:disable WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 // phpcs:disable WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase
@@ -23,7 +20,6 @@
 
 namespace Automattic\Jetpack\Autoloader;
 
-use Composer\Autoload\ClassMapGenerator;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Installer\InstallationManager;
@@ -37,6 +33,13 @@ use Composer\Util\PackageSorter;
  * Class AutoloadGenerator.
  */
 class AutoloadGenerator {
+
+	/**
+	 * IO object.
+	 *
+	 * @var IOInterface IO object.
+	 */
+	private $io;
 
 	/**
 	 * The filesystem utility.
@@ -302,7 +305,15 @@ class AutoloadGenerator {
 				$dir = $this->filesystem->normalizePath(
 					$this->filesystem->isAbsolutePath( $path ) ? $path : $basePath . '/' . $path
 				);
-				return ClassMapGenerator::createMap(
+
+				// Composer 2.4 changed the name of the class.
+				if ( class_exists( \Composer\ClassMapGenerator\ClassMapGenerator::class ) ) {
+					$generator = new \Composer\ClassMapGenerator\ClassMapGenerator();
+					$generator->scanPaths( $dir, $excludedClasses, 'classmap', empty( $namespace ) ? null : $namespace );
+					return $generator->getClassMap()->getMap();
+				}
+
+				return \Composer\Autoload\ClassMapGenerator::createMap(
 					$dir,
 					$excludedClasses,
 					null, // Don't pass the IOInterface since the normal autoload generation will have reported already.

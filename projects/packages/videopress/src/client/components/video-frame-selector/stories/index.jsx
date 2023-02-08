@@ -1,4 +1,4 @@
-import VideoFrameSelector from '..';
+import VideoFrameSelector, { VideoPlayer as VideoPlayerComponent } from '..';
 
 export default {
 	title: 'Packages/VideoPress/Video Frame Selector',
@@ -19,5 +19,12 @@ const Template = args => <VideoFrameSelector { ...args } />;
 
 export const Default = Template.bind( {} );
 Default.args = {
+	src: 'https://videos.files.wordpress.com/PnQvSqdF/videopress-upload-demo-7.mp4',
+};
+
+const VideoPlayerTemplate = args => <VideoPlayerComponent { ...args } />;
+
+export const VideoPlayer = VideoPlayerTemplate.bind( {} );
+VideoPlayer.args = {
 	src: 'https://videos.files.wordpress.com/PnQvSqdF/videopress-upload-demo-7.mp4',
 };

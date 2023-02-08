@@ -13,7 +13,6 @@ const importantProviders = [
 	'singular_post',
 ];
 
-// eslint-disable-next-line camelcase
 const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
 const dismissed = writable< string[] >( initialState );
 
@@ -114,7 +113,6 @@ export function setDismissalError( title: string, error: JSONObject ): void {
 export async function dismissRecommendation( key: string ): Promise< void > {
 	await api.post( '/recommendations/dismiss', {
 		providerKey: key,
-		// eslint-disable-next-line camelcase
 		nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
 	} );
 	dismissed.update( keys => [ ...keys, key ] );
@@ -125,7 +123,6 @@ export async function dismissRecommendation( key: string ): Promise< void > {
  */
 export async function clearDismissedRecommendations(): Promise< void > {
 	await api.post( '/recommendations/reset', {
-		// eslint-disable-next-line camelcase
 		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
 	} );
 	dismissed.set( [] );

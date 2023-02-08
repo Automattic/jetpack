@@ -7,11 +7,33 @@
 	}
 }
 
+.video-player-wrapper {
+	position: relative;
+}
+
+.video-player-spinner-wrapper {
+	position: absolute;
+	z-index: 0;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+.spinner {
+	transform: scale( 3 );
+}
+
 .video {
 	width: 100%;
 	object-fit: cover;
 	aspect-ratio: 16 / 9;
+	z-index: 1;
+	position: relative;
 }
+
 
 .play-icon {
 	width: 130px;

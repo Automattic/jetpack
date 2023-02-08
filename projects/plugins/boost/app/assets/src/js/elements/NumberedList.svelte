@@ -1,15 +1,16 @@
-<script>
+<script lang="ts">
+	import { TemplateVars } from '../utils/copy-dom-template';
 	import TemplatedString from './TemplatedString.svelte';
 
 	/**
 	 * List of string items to include in the list.
 	 */
-	export let items;
+	export let items: string[];
 
 	/**
 	 * Template vars to fill in <template> elements in each list item.
 	 */
-	export let vars;
+	export let vars: TemplateVars;
 </script>
 
 <ol class="numbered-list">

@@ -17,6 +17,7 @@ import {
 	BoostInterstitial,
 	CRMInterstitial,
 	ExtrasInterstitial,
+	ProtectInterstitial,
 	ScanInterstitial,
 	SocialInterstitial,
 	SearchInterstitial,
@@ -51,6 +52,7 @@ const MyJetpack = () => (
 				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
 				<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
+				<Route path="/add-protect" element={ <ProtectInterstitial /> } />
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
 				<Route path="/add-social" element={ <SocialInterstitial /> } />
 				<Route path="/add-search" element={ <SearchInterstitial /> } />

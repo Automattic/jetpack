@@ -17,6 +17,7 @@ new WPCOM_JSON_API_GET_Site_V1_2_Endpoint(
 
 		'query_parameters'                     => array(
 			'context' => false,
+			'filters' => '(string) Optional. Returns sites that satisfy the given filters only. Example: filters=jetpack,atomic,wpcom',
 		),
 
 		'response_format'                      => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
@@ -56,8 +57,11 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'single_user_site'            => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'                      => '(bool) If the site is a VIP site or not.',
 		'is_following'                => '(bool) If the current user is subscribed to this site in the reader',
+		'organization_id'             => '(int) P2 Organization identifier.',
 		'options'                     => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'plan'                        => '(array) Details of the current plan for this site.',
+		'products'                    => '(array) Details of the current products for this site.',
+		'zendesk_site_meta'           => '(array) Site meta data for Zendesk.',
 		'updates'                     => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
 		'jetpack_modules'             => '(array) A list of active Jetpack modules.',
 		'meta'                        => '(object) Meta data',
@@ -79,6 +83,19 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 	 */
 	public function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'sites_site_format', array( $this, 'site_format' ) );
+
+		// Site filtering is a WPCOM concept, once a request gets anywhere else it should just be returned
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Apply filter here, return same error as switch_to_blog_and_validate_user if blog is not found.
+			require_lib( 'site-filter' );
+			$filters = Site_Filter::process_query_arg( $this->query_args() );
+			if ( is_wp_error( $filters ) ) {
+				return $filters;
+			}
+			if ( ! empty( $filters ) && ! Site_Filter::filter_blog( $this->api->get_blog_id( $blog_id ), $filters ) ) {
+				return new WP_Error( 'unknown_blog', 'Unknown blog', 404 );
+			}
+		}
 
 		return parent::callback( $path, $blog_id );
 	}

@@ -42,11 +42,15 @@ class Waf_Standalone_Bootstrap {
 	 * @return void
 	 */
 	private function initialize_constants() {
-		Waf_Constants::initialize_constants();
+		Waf_Constants::initialize_bootstrap_constants();
 	}
 
 	/**
 	 * Initialized the WP filesystem and serves as a mocking hook for tests.
+	 *
+	 * Should only be implemented after the wp_loaded action hook:
+	 *
+	 * @link https://developer.wordpress.org/reference/functions/wp_filesystem/#more-information
 	 *
 	 * @return void
 	 */

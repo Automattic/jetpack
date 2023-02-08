@@ -174,7 +174,6 @@ class Scan extends Module_Product {
 		}
 
 		return $product_activation;
-
 	}
 
 	/**

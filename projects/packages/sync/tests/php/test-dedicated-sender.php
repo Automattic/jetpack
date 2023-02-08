@@ -34,8 +34,14 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		$this->queue = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Queue' )
 			->setConstructorArgs( array( 'sync' ) )
-			->setMethods( array( 'is_locked', 'size' ) )
+			->setMethods( array( 'is_locked', 'size', 'lag' ) )
 			->getMock();
+
+		// Delete the Last successful sync option to make sure it's not causing side effects.
+		delete_option( Actions::LAST_SUCCESS_PREFIX . 'sync' );
+
+		// Delete the timeout Dedicated Sync enable transient to avoid side effects
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 	}
 	/**
 	 * Returning the environment into its initial state.
@@ -107,6 +113,60 @@ class Test_Dedicated_Sender extends BaseTestCase {
 
 		$this->assertTrue( is_wp_error( $result ) );
 		$this->assertSame( 'locked_queue_sync', $result->get_error_code() );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync with a laggy queue.
+	 */
+	public function test_spawn_sync_with_laggy_queue_disable_dedicated_sync() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
+
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'dedicated_sync_not_sending', $result->get_error_code() );
+
+		$dedicated_sync_transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+		$this->assertTrue( $dedicated_sync_transient );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::spawn_sync when Sync has not been sending for a while.
+	 */
+	public function test_spawn_sync_with_sync_not_sending_disable_dedicated_sync() {
+		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
+
+		$this->queue->method( 'lag' )->will( $this->returnValue( 33 * MINUTE_IN_SECONDS ) );
+
+		// Set the last succesful sync time to be 3 hours ago, since the threshold is 1 hour.
+		update_option( Actions::LAST_SUCCESS_PREFIX . 'sync', time() - 3 * HOUR_IN_SECONDS, false );
+
+		$result = Dedicated_Sender::spawn_sync( $this->queue );
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'dedicated_sync_not_sending', $result->get_error_code() );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertFalse( (bool) $dedicated_sync_status );
+
+		$dedicated_sync_transient = get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+		$this->assertTrue( $dedicated_sync_transient );
+	}
+
+	/**
+	 * Tests Dedicated_Sender::maybe_enable_dedicated_sync when Sync has not been sending for a while.
+	 */
+	public function test_enable_dedicated_sync_when_temporary_disabled() {
+		set_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG, true );
+
+		$result = Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( 'on' );
+
+		$this->assertFalse( $result );
+
+		$dedicated_sync_status = Settings::get_setting( 'dedicated_sync_enabled' );
+		$this->assertFalse( (bool) $dedicated_sync_status );
 	}
 
 	/**

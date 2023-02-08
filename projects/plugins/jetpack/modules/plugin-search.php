@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;

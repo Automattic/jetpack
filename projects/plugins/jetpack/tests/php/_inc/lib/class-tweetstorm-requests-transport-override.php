@@ -75,7 +75,7 @@ class Tweetstorm_Requests_Transport_Override implements Requests_Transport {
 	 *
 	 * @return bool
 	 */
-	public static function test() {
+	public static function test( $capabilities = array() ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return true;
 	}
 }

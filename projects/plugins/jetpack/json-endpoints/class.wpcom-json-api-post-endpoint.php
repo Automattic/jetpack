@@ -454,7 +454,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$show = true;
 						}
 
-						if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta['meta_key'] && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						if (
+							in_array( $meta['meta_key'], Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
+							! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
+						) {
 							$show = false;
 						}
 
@@ -564,7 +567,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return (object) array();
 		}
-
 	}
 
 	/**
@@ -576,7 +578,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		global $post;
 
 		static $instance = 0;
-		$instance++;
+		++$instance;
 
 		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -662,7 +664,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					: wp_get_attachment_link( $id, $size, true, false );
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 				if ( $captiontag && trim( $attachment->post_excerpt ) ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-					$output .= "<div class='wp-caption aligncenter'>$link 
+					$output .= "<div class='wp-caption aligncenter'>$link
 						<p class='wp-caption-text'>" . wptexturize( $attachment->post_excerpt ) . '</p>
 						</div>';
 				} else {

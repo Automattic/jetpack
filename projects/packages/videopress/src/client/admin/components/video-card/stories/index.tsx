@@ -50,4 +50,6 @@ _default.args = {
 	onDeleteVideo: action( 'onDeleteVideo' ),
 	showQuickActions: true,
 	loading: false,
+	uploading: false,
+	processing: false,
 };

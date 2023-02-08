@@ -6,6 +6,8 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	function jetpack_foo_full_sync_callable() {
 		return 'the value';
@@ -17,9 +19,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
 	private $full_sync_end_checksum;
+	private $full_sync_end_range;
 	private $full_sync_start_config;
 	private $synced_user_ids;
 
+	private $started_sync_count  = 0;
 	private $test_posts_count    = 20;
 	private $test_comments_count = 11;
 
@@ -35,7 +39,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
 		$this->sender->set_enqueue_wait_time( 0 );
-
 	}
 
 	public function test_sync_start_action_with_ranges() {
@@ -429,7 +432,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotNull( $srs_added_mu_blog_user );
 		$this->assertNull( $srs_user );
 		$this->assertNotNull( $srs_mu_blog_user );
-
 	}
 
 	public function record_full_synced_users( $user_ids ) {
@@ -511,7 +513,6 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
 		$this->assertEmpty( $events );
-
 	}
 
 	public function test_full_sync_sends_all_options() {
@@ -1232,9 +1233,9 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_full_sync_sends_previous_interval_end_on_comments() {
-		$this->post_id = self::factory()->post->create();
-		for ( $i = 0; $i < 25; $i ++ ) {
-			self::factory()->comment->create_post_comments( $this->post_id );
+		$post_id = self::factory()->post->create();
+		for ( $i = 0; $i < 25; $i++ ) {
+			self::factory()->comment->create_post_comments( $post_id );
 		}
 		// The first event is for full sync start.
 		$this->full_sync->start( array( 'comments' => true ) );

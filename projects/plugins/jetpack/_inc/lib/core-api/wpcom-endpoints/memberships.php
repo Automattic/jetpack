@@ -145,7 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		}
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
+			require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
@@ -196,7 +196,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$is_editable = isset( $request['is_editable'] ) ? (bool) $request['is_editable'] : null;
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
+			require_lib( 'memberships' );
 			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
@@ -259,7 +259,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 		$is_editable  = ! isset( $request['is_editable'] ) ? null : (bool) $request['is_editable'];
 
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-			jetpack_require_lib( 'memberships' );
+			require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
 			return (array) get_memberships_settings_for_site( $blog_id, $product_type, $is_editable );
 		} else {

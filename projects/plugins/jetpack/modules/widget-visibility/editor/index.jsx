@@ -49,9 +49,9 @@ const blockHasVisibilitySettings = name => {
  * Adds a ".conditions" field to a block's attributes.
  * Used to store visibility rules.
  *
- * @param {Object} settings - Block settings.
+ * @param {object} settings - Block settings.
  * @param {string} name - Block name.
- * @return {Object} Modified settings.
+ * @return {object} Modified settings.
  */
 function addVisibilityAttribute( settings, name ) {
 	if ( blockHasVisibilitySettings( name ) && typeof settings.attributes !== 'undefined' ) {

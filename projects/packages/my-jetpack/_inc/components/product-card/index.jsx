@@ -12,12 +12,14 @@ export const PRODUCT_STATUSES = {
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
 	NEEDS_PURCHASE: 'needs_purchase',
+	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
 };
 
 const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.INACTIVE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
+	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
 
@@ -63,6 +65,12 @@ const ActionButton = ( {
 			return (
 				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
 					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
+				</Button>
+			);
+		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
+			return (
+				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
+					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.ACTIVE:
@@ -118,7 +126,9 @@ const ProductCard = props => {
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
 	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
-	const isPurchaseRequired = status === PRODUCT_STATUSES.NEEDS_PURCHASE;
+	const isPurchaseRequired =
+		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
+		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
 	const containerClassName = classNames( styles.container, {
@@ -236,6 +246,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.ERROR,
 		PRODUCT_STATUSES.ABSENT,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
+		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
 	] ).isRequired,
 };
 

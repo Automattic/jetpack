@@ -476,7 +476,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
 			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );
 		}
-
 	}
 
 	/**
@@ -1693,7 +1692,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_blocks = array( $blocks );
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
-
 	}
 	/**
 	 * Test that a gallery block with a GIF not as the first image has that GIF filtered out.

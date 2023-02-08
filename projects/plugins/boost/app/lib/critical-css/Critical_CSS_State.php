@@ -161,6 +161,15 @@ class Critical_CSS_State {
 	}
 
 	/**
+	 * Get Critical CSS state status.
+	 *
+	 * @return mixed
+	 */
+	public function get_status() {
+		return $this->state;
+	}
+
+	/**
 	 * Get Critical CSS state error.
 	 *
 	 * @return mixed
@@ -223,6 +232,13 @@ class Critical_CSS_State {
 
 		if ( 100 === $this->get_percent_complete() ) {
 			$this->state = self::SUCCESS;
+
+			/**
+			 * Fires when Critical CSS has been generated - whether locally or remotely.
+			 *
+			 * @since 1.5.2
+			 */
+			do_action( 'jetpack_boost_critical_css_generated', $this->state );
 		}
 
 		$this->save();
@@ -282,7 +298,7 @@ class Critical_CSS_State {
 				// For each URL
 				// Track the state and errors in a state array.
 				$sources[ $key ] = array(
-					'urls'          => $urls,
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
 					'status'        => self::REQUESTING,
 					'error'         => null,
 					'success_ratio' => $provider::get_success_ratio(),
@@ -368,6 +384,17 @@ class Critical_CSS_State {
 	 */
 	public function is_fatal_error() {
 		return self::FAIL === $this->state;
+	}
+
+	/**
+	 * Has there been any HTML/CSS structure changes since the last Critical CSS generation?
+	 */
+	public static function is_fresh() {
+		return Transient::get( 'is_ccss_fresh', false );
+	}
+
+	public static function set_fresh( $is_fresh = true ) {
+		Transient::set( 'is_ccss_fresh', $is_fresh );
 	}
 
 	/**

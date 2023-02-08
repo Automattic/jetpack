@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';

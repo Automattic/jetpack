@@ -30,19 +30,19 @@
 }
 
 .jb-button {
-  min-width: 135px !important;
-  text-align: center;
-  border-radius: 4px;
-  padding: 10px 24px;
-  display: inline-block;
-  font-weight: 500;
+	min-width: 135px !important;
+	text-align: center;
+	border-radius: 4px;
+	padding: 10px 24px;
+	display: inline-block;
+	font-weight: 500;
 
-  &--primary {
-  	color: var(--jp-white)!important;
-  }
+	&--primary {
+		color: var(--jp-white)!important;
+	}
 
-  &--outline {
-    color: var(--jp-black)!important;
-    border: 1px solid!important;
-  }
+	&--outline {
+		color: var(--jp-black)!important;
+		border: 1px solid!important;
+	}
 }

@@ -8,9 +8,9 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
-require_jetpack_file( 'modules/sitemaps/sitemap-constants.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-buffer.php' );
-require_jetpack_file( 'modules/sitemaps/sitemap-buffer-fallback.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-constants.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-buffer-fallback.php';
 
 /**
  * Test class for Jetpack_Sitemap_Buffer.

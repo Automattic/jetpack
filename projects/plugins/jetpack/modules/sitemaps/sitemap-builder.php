@@ -1246,9 +1246,6 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			),
 		);
 
-		$item_array['url']['image:image']['image:title']   = $post->post_title;
-		$item_array['url']['image:image']['image:caption'] = $post->post_excerpt;
-
 		/**
 		 * Filter associative array with data to build <url> node
 		 * and its descendants for current post in image sitemap.
@@ -1396,6 +1393,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 */
 	private function post_to_news_sitemap_item( $post ) {
 
+		// Exclude posts with meta 'jetpack_seo_noindex' set true from the Jetpack news sitemap.
+		add_filter( 'jetpack_sitemap_news_skip_post', array( 'Jetpack_SEO_Posts', 'exclude_noindex_posts_from_jetpack_sitemap' ), 10, 2 );
+
 		/**
 		 * Filter condition to allow skipping specific posts in news sitemap.
 		 *
@@ -1441,7 +1441,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				'lastmod'   => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'news:news' => array(
 					'news:publication'      => array(
-						'news:name'     => html_entity_decode( get_bloginfo( 'name' ) ),
+						'news:name'     => html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ),
 						'news:language' => $language,
 					),
 					/** This filter is already documented in core/wp-includes/feed.php */

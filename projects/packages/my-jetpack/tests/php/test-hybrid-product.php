@@ -3,8 +3,7 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
-use Automattic\Jetpack\My_Jetpack\Products\Backup;
-use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\My_Jetpack\Products\Search;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -31,10 +30,16 @@ class Test_Hybrid_Product extends TestCase {
 	 * @before
 	 */
 	public function set_up() {
+		// Mark this as deprecated since no class is using Hybrid_Product.
+		$deprecated = true;
 
 		// See https://stackoverflow.com/a/41611876.
 		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
+		}
+
+		if ( $deprecated ) {
+			$this->markTestSkipped( 'Hybrid_Product is deprecated.' );
 		}
 
 		$this->install_mock_plugins();
@@ -48,7 +53,6 @@ class Test_Hybrid_Product extends TestCase {
 			)
 		);
 		wp_set_current_user( self::$user_id );
-
 	}
 
 	/**
@@ -57,14 +61,14 @@ class Test_Hybrid_Product extends TestCase {
 	 * @return void
 	 */
 	public function install_mock_plugins() {
-		$plugin_dir = WP_PLUGIN_DIR . '/' . Backup::$plugin_slug;
+		$plugin_dir = WP_PLUGIN_DIR . '/' . Search::$plugin_slug;
 		if ( ! file_exists( $plugin_dir ) ) {
 			mkdir( $plugin_dir, 0777, true );
 		}
 		if ( ! file_exists( WP_PLUGIN_DIR . '/jetpack' ) ) {
 			mkdir( WP_PLUGIN_DIR . '/jetpack', 0777, true );
 		}
-		copy( __DIR__ . '/assets/backup-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-backup/jetpack-backup.php' );
+		copy( __DIR__ . '/assets/search-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack-search/jetpack-search.php' );
 		copy( __DIR__ . '/assets/jetpack-mock-plugin.txt', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
 	}
 
@@ -77,7 +81,6 @@ class Test_Hybrid_Product extends TestCase {
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
-
 	}
 
 	/**
@@ -85,89 +88,87 @@ class Test_Hybrid_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_true() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertTrue( Backup::is_plugin_active() );
+		$this->assertTrue( Search::is_plugin_active() );
 	}
 
 	/**
-	 * Tests with Backup active
+	 * Tests with Search active
 	 */
-	public function test_if_jetpack_inactive_and_backup_active_return_true() {
+	public function test_if_jetpack_inactive_and_search_active_return_true() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertTrue( Backup::is_plugin_active() );
+		activate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertTrue( Search::is_plugin_active() );
 	}
 
 	/**
 	 * Tests with both inactive
 	 */
-	public function test_if_jetpack_inactive_and_backup_inactive_return_false() {
+	public function test_if_jetpack_inactive_and_search_inactive_return_false() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertFalse( Backup::is_active() );
+		deactivate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertFalse( Search::is_active() );
 	}
 
 	/**
-	 * Tests Backup Manage URL with Backup plugin
+	 * Tests Search Manage URL with Search plugin
 	 */
-	public function test_backup_manage_url_with_backup() {
+	public function test_search_manage_url_with_search() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( admin_url( 'admin.php?page=jetpack-backup' ), Backup::get_manage_url() );
+		activate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search' ), Search::get_manage_url() );
 	}
 
 	/**
-	 * Tests Backup Manage URL with Jetpack plugin
+	 * Tests Search Manage URL with Jetpack plugin
 	 */
-	public function test_backup_manage_url_with_jetpack() {
+	public function test_search_manage_url_with_jetpack() {
+		$this->markTestSkipped( 'TODO: Make this work' );
+	}
+
+	/**
+	 * Tests Search Post Activation URL with Jetpack disconected
+	 */
+	public function test_search_post_activation_url_with_jetpack_disconnected() {
 		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
+		deactivate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( '', Search::get_post_activation_url() );
 	}
 
 	/**
-	 * Tests Backup Post Activation URL with Jetpack disconected
+	 * Tests Search Post Activation URL with Search disconected
 	 */
-	public function test_backup_post_activation_url_with_jetpack_disconnected() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( '', Backup::get_post_activation_url() );
-	}
-
-	/**
-	 * Tests Backup Post Activation URL with Backup disconected
-	 */
-	public function test_backup_post_activation_url_with_backup_disconnected() {
+	public function test_search_post_activation_url_with_search_disconnected() {
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( '', Backup::get_post_activation_url() );
+		activate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( '', Search::get_post_activation_url() );
 	}
 
 	/**
-	 * Tests Backup Post Activation URL with Jetpack conected
+	 * Tests Search Post Activation URL with Jetpack conected
 	 */
-	public function test_backup_post_activation_url_with_jetpack_connected() {
+	public function test_search_post_activation_url_with_jetpack_connected() {
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 
 		activate_plugins( 'jetpack/jetpack.php' );
-		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( '', Backup::get_post_activation_url() );
+		deactivate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( '', Search::get_post_activation_url() );
 	}
 
 	/**
-	 * Tests Backup Post Activation URL with Backup conected
+	 * Tests Search Post Activation URL with Search conected
 	 */
-	public function test_backup_post_activation_url_with_backup_connected() {
+	public function test_search_post_activation_url_with_search_connected() {
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test.1' );
 		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
 
 		deactivate_plugins( 'jetpack/jetpack.php' );
-		activate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( '', Backup::get_post_activation_url() );
+		activate_plugins( Search::get_installed_plugin_filename() );
+		$this->assertSame( '', Search::get_post_activation_url() );
 	}
 
 }

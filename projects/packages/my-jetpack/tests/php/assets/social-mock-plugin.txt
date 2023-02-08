@@ -1,0 +1,11 @@
+<?php
+/**
+ * Jetpack Social Plugin
+ *
+ * Plugin Name:       Social
+ * Description:       Jetpack Social mock
+ * Author:            Automattic
+ * Author URI:        https://automattic.com
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ */

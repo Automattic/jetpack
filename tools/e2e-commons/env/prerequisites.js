@@ -117,8 +117,16 @@ async function connect() {
 	const creds = getDotComCredentials();
 	await execWpCommand( `user update wordpress --user_email=${ creds.email }` );
 
-	provisionJetpackStartConnection( creds.userId, 'free' );
-
+	try {
+		provisionJetpackStartConnection( creds.userId, 'free' );
+	} catch ( error ) {
+		// Let's try to re-try the provisioning if it fails the first time.
+		if ( error.message.startsWith( 'Jetpack Start provision is failed' ) ) {
+			provisionJetpackStartConnection( creds.userId, 'free' );
+		} else {
+			throw error;
+		}
+	}
 	assert.ok( await isBlogTokenSet() );
 
 	// We are connected. Let's save the existing connection options just in case.

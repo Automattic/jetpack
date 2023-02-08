@@ -21,63 +21,6 @@ define( 'VAULTPRESS__VERSION', '2.2.3-alpha' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
- * First, we check for our supported version of PHP. If it fails,
- * we "pause" VaultPress by ending the loading process and displaying an admin_notice to inform the site owner.
- */
-if ( version_compare( phpversion(), VAULTPRESS__MINIMUM_PHP_VERSION, '<' ) ) {
-	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-		error_log(
-			sprintf(
-				/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by VaultPress. */
-				esc_html__( 'Your version of PHP (%1$s) is lower than the version required by VaultPress (%2$s). Please update PHP to continue enjoying VaultPress.', 'vaultpress' ),
-				esc_html( phpversion() ),
-				VAULTPRESS__MINIMUM_PHP_VERSION
-			)
-		);
-	}
-
-	/**
-	 * Outputs an admin notice for folks running an outdated version of PHP.
-	 *
-	 * @todo: Remove once WP 5.2 is the minimum version.
-	 *
-	 * @since 2.0.0
-	 */
-	function vaultpress_admin_unsupported_php_notice() {
-		$update_php_url = ( function_exists( 'wp_get_update_php_url' ) ? wp_get_update_php_url() : 'https://wordpress.org/support/update-php/' );
-
-		?>
-		<div class="notice notice-error is-dismissible">
-			<p>
-			<?php
-				printf(
-					/* translators: Placeholders are numbers, versions of PHP in use on the site, and required by VaultPress. */
-					esc_html__( 'Your version of PHP (%1$s) is lower than the version required by VaultPress (%2$s). Please update PHP to continue enjoying VaultPress.', 'vaultpress' ),
-					esc_html( phpversion() ),
-					esc_html( VAULTPRESS__MINIMUM_PHP_VERSION )
-				);
-			?>
-			</p>
-			<p class="button-container">
-				<?php
-				printf(
-					'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
-					esc_url( $update_php_url ),
-					__( 'Learn more about updating PHP' ),
-					/* translators: accessibility text */
-					__( '(opens in a new tab)' )
-				);
-				?>
-			</p>
-		</div>
-		<?php
-	}
-
-	add_action( 'admin_notices', 'vaultpress_admin_unsupported_php_notice' );
-	return;
-}
-
-/**
  * Load all the packages.
  *
  * We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.
@@ -533,7 +476,7 @@ class VaultPress {
 		}
 	}
 
-  // show message after activation
+	// show message after activation
 	function activated_notice() {
 		if ( 'network' == $this->get_option( 'activated' ) ) {
 			$message = sprintf(
@@ -1518,7 +1461,7 @@ class VaultPress {
 		$retry = 2;
 		$protocol = 'https';
 		do {
-			$retry--;
+			--$retry;
 			$args['sslverify'] = 'https' == $protocol ? true : false;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
@@ -1826,8 +1769,8 @@ JS;
 		}
 
 		if ( !isset( $bdb ) ) {
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-database.php' );
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-filesystem.php' );
+			require_once __DIR__ . '/class.vaultpress-database.php';
+			require_once __DIR__ . '/class.vaultpress-filesystem.php';
 
 			$bdb = new VaultPress_Database();
 			$bfs = new VaultPress_Filesystem();
@@ -2273,7 +2216,7 @@ JS;
 		$hostname = $this->get_option( 'hostname' );
 
 		if ( !class_exists( 'VaultPress_IXR_SSL_Client' ) )
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-ixr-ssl-client.php' );
+			require_once __DIR__ . '/class.vaultpress-ixr-ssl-client.php';
 		$useragent = 'VaultPress/' . $this->plugin_version . '; ' . $this->site_url();
 		$client = new VaultPress_IXR_SSL_Client( $hostname, '/xmlrpc.php', 80, $timeout, $useragent );
 
@@ -2634,7 +2577,7 @@ JS;
 				foreach ( $data as $val ) {
 					if ( in_array( $data, $vaultpress_pings[$type] ) )
 						continue;
-					$vaultpress_pings['count']++;
+					++$vaultpress_pings['count'];
 					$vaultpress_pings[$type][]=$val;
 				}
 				return;
@@ -2645,13 +2588,13 @@ JS;
 					$vaultpress_pings[$type][$subtype] = array();
 				if ( in_array( $data, $vaultpress_pings[$type][$subtype] ) )
 					return;
-				$vaultpress_pings['count']++;
+				++$vaultpress_pings['count'];
 				$vaultpress_pings[$type][$subtype][] = $data;
 				return;
 			default:
 				if ( in_array( $data, $vaultpress_pings[$type] ) )
 					return;
-				$vaultpress_pings['count']++;
+				++$vaultpress_pings['count'];
 				$vaultpress_pings[$type][] = $data;
 				return;
 		}
@@ -2685,7 +2628,7 @@ JS;
 
 		$ping_attempts = 0;
 		do {
-			$ping_attempts++;
+			++$ping_attempts;
 			$rval = $this->contact_service( 'ping', array( 'args' => $vaultpress_pings ) );
 			if ( $rval || $ping_attempts >= 3 )
 				break;
@@ -2720,7 +2663,7 @@ JS;
 			return ABSPATH . 'wp-content' . DIRECTORY_SEPARATOR;
 		}
 		// Run with a solid assumption: WP_CONTENT_DIR/vaultpress/vaultpress.php
-		return dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR;
+		return dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 	}
 
 	function resolve_upload_path() {
@@ -3094,12 +3037,12 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 }
 
 // only load hotfixes if it's not a VP request
-require_once( dirname( __FILE__ ) . '/class.vaultpress-hotfixes.php' );
+require_once __DIR__ . '/class.vaultpress-hotfixes.php';
 $hotfixes = new VaultPress_Hotfixes();
 
 // Add a helper method to WP CLI for auto-registerion via Jetpack
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once( dirname( __FILE__ ) . '/class.vaultpress-cli.php' );
+	require_once __DIR__ . '/class.vaultpress-cli.php';
 }
 
-include_once( dirname( __FILE__ ) . '/cron-tasks.php' );
+require_once __DIR__ . '/cron-tasks.php';

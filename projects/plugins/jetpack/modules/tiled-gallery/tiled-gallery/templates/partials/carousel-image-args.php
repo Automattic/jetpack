@@ -20,7 +20,8 @@ data-orig-file="<?php echo esc_url( wp_get_attachment_url( $item->image->ID ) );
 data-orig-size="<?php echo esc_attr( $item->meta_width() ); ?>,<?php echo esc_attr( $item->meta_height() ); ?>"
 data-comments-opened="<?php echo esc_attr( comments_open( $item->image->ID ) ); ?>"
 data-image-meta="<?php echo esc_attr( $fuzzy_image_meta ); ?>"
-data-image-title="<?php echo esc_attr( htmlspecialchars( wptexturize( $item->image->post_title ) ) ); ?>"
-data-image-description="<?php echo esc_attr( htmlspecialchars( wpautop( wptexturize( $item->image->post_content ) ) ) ); ?>"
+<?php // The two lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here. ?>
+data-image-title="<?php echo esc_attr( htmlspecialchars( wptexturize( $item->image->post_title ), ENT_COMPAT ) ); ?>"
+data-image-description="<?php echo esc_attr( htmlspecialchars( wpautop( wptexturize( $item->image->post_content ) ), ENT_COMPAT ) ); ?>"
 data-medium-file="<?php echo esc_url( $item->medium_file() ); ?>"
 data-large-file="<?php echo esc_url( $item->large_file() ); ?>"

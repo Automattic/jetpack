@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-settings-map.php' );
+require_once __DIR__ . '/class.wp-super-cache-settings-map.php';
 
 class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 

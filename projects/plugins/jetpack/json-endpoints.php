@@ -34,6 +34,7 @@ require_once $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint
 require_once $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php';
+require_once $json_endpoints_dir . 'class.wpcom-json-api-list-dropdown-pages-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-post-type-taxonomies-endpoint.php';
@@ -113,7 +114,11 @@ require_once $json_endpoints_dir . 'class.wpcom-json-api-get-site-v1-2-endpoint.
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-posts-v1-2-endpoint.php';
 
 // Jetpack Only Endpoints
-$json_jetpack_endpoints_dir = __DIR__ . '/json-endpoints/jetpack/';
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	$json_jetpack_endpoints_dir = ABSPATH . 'public.api/rest/json-endpoints/jetpack/';
+} else {
+	$json_jetpack_endpoints_dir = __DIR__ . '/json-endpoints/jetpack/';
+}
 
 // This files instantiates the endpoints
 require_once $json_jetpack_endpoints_dir . 'json-api-jetpack-endpoints.php';

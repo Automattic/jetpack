@@ -6,7 +6,9 @@ import {
 	Col,
 	getRedirectUrl,
 	PricingCard,
+	JetpackVaultPressBackupLogo,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -17,6 +19,7 @@ import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
 import { STORE_ID } from '../store';
 import Backups from './Backups';
+import BackupStorageSpace from './backup-storage-space';
 import ReviewRequest from './review-request';
 import './admin-style.scss';
 import './masthead/masthead-style.scss';
@@ -25,6 +28,7 @@ import './masthead/masthead-style.scss';
 const Admin = () => {
 	const [ connectionStatus ] = useConnection();
 	const { tracks } = useAnalytics();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
 	const isFullyConnected =
 		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
@@ -40,12 +44,18 @@ const Admin = () => {
 		<AdminPage
 			showHeader={ isFullyConnected }
 			showFooter={ isFullyConnected }
-			moduleName={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
+			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
+			header={ <JetpackVaultPressBackupLogo /> }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
+							{ hasConnectionError && (
+								<Col className="jetpack-connection-verified-error">
+									<ConnectionError />
+								</Col>
+							) }
 							<Col>
 								<div id="jp-admin-notices" className="jetpack-backup-jitm-card" />
 							</Col>
@@ -84,55 +94,13 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 		tracks.recordEvent( 'jetpack_backup_learn_more_click' );
 	}, [ tracks ] );
 
-	const trackSeeAllBackupsClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_see_all_backups_click', { site: domain } );
-	}, [ tracks, domain ] );
-
 	const trackSeeSiteActivityClick = useCallback( () => {
 		tracks.recordEvent( 'jetpack_backup_see_site_activity_click', { site: domain } );
 	}, [ tracks, domain ] );
 
 	return (
-		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-			<Col lg={ 6 } md={ 4 }>
-				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
-				<p className="jp-realtime-note">
-					{ createInterpolateElement(
-						__(
-							'No need to run a manual backup before you make changes to your site. <ExternalLink>Learn more</ExternalLink>',
-							'jetpack-backup-pkg'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink
-									href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
-									onClick={ trackLearnMoreClick }
-								/>
-							),
-						}
-					) }
-				</p>
-
-				<h2>{ __( 'Where are backups stored?', 'jetpack-backup-pkg' ) }</h2>
-				<p>
-					{ __(
-						'All the backups are safely stored in the cloud and available for you at any time on Jetpack.com, with full details about status and content.',
-						'jetpack-backup-pkg'
-					) }
-				</p>
-				{ hasBackupPlan && connectionStatus.isUserConnected && (
-					<p>
-						<ExternalLink
-							href={ getRedirectUrl( 'jetpack-backup', { site: domain } ) }
-							onClick={ trackSeeAllBackupsClick }
-						>
-							{ __( 'See all your backups', 'jetpack-backup-pkg' ) }
-						</ExternalLink>
-					</p>
-				) }
-			</Col>
-			<Col lg={ 1 } md={ 1 } sm={ 0 } />
-			<Col lg={ 5 } md={ 3 } sm={ 4 }>
+		<Container horizontalSpacing={ 3 } horizontalGap={ 3 } className="backup-segments">
+			<Col lg={ 6 } md={ 6 }>
 				<h2>{ __( "Your site's heartbeat", 'jetpack-backup-pkg' ) }</h2>
 				<p>
 					{ __(
@@ -150,6 +118,31 @@ const BackupSegments = ( hasBackupPlan, connectionLoaded ) => {
 						</ExternalLink>
 					</p>
 				) }
+			</Col>
+			{ hasBackupPlan && connectionStatus.isUserConnected && (
+				<>
+					<Col lg={ 1 } md={ 1 } />
+					<Col lg={ 5 } md={ 5 } className="backup-segments__storage-section">
+						{ <BackupStorageSpace /> }
+					</Col>
+				</>
+			) }
+			<Col lg={ 6 } md={ 6 }>
+				<h2>{ __( 'Restore points created with every edit', 'jetpack-backup-pkg' ) }</h2>
+				<p>
+					{ __(
+						'No need to run a manual backup before you make changes to your site.',
+						'jetpack-backup-pkg'
+					) }
+				</p>
+				<p>
+					<ExternalLink
+						href={ getRedirectUrl( 'jetpack-blog-realtime-mechanics' ) }
+						onClick={ trackLearnMoreClick }
+					>
+						{ __( 'Learn more', 'jetpack-backup-pkg' ) }
+					</ExternalLink>
+				</p>
 			</Col>
 			<ReviewMessage connectionLoaded={ connectionLoaded } />
 		</Container>
@@ -197,6 +190,10 @@ const ReviewMessage = connectionLoaded => {
 		tracks.recordEvent( 'jetpack_backup_new_review_click' );
 	}, [ tracks ] );
 
+	const tracksDismissReview = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_dismiss_review_click' );
+	}, [ tracks ] );
+
 	if ( hasRecentSuccesfulRestore() ) {
 		requestReason = 'restore';
 		reviewText = __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
@@ -210,7 +207,8 @@ const ReviewMessage = connectionLoaded => {
 
 	const [ dismissedReview, dismissMessage ] = useDismissedReviewRequest(
 		connectionLoaded,
-		requestReason
+		requestReason,
+		tracksDismissReview
 	);
 
 	if ( ! hasRecentSuccesfulRestore() && ! hasFiveSuccessfulBackups() ) {
@@ -218,7 +216,7 @@ const ReviewMessage = connectionLoaded => {
 	}
 
 	return (
-		<Col lg={ 6 } md={ 4 }>
+		<Col lg={ 6 } md={ 6 }>
 			<ReviewRequest
 				cta={ createInterpolateElement(
 					__(
@@ -284,7 +282,7 @@ const useBackups = connectionLoaded => {
 	return [ backups, setBackups ];
 };
 
-const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
+const useDismissedReviewRequest = ( connectionLoaded, requestReason, tracksDismissReview ) => {
 	const [ dismissedReview, setDismissedReview ] = useState( true );
 
 	useEffect( () => {
@@ -310,6 +308,7 @@ const useDismissedReviewRequest = ( connectionLoaded, requestReason ) => {
 
 	const dismissMessage = e => {
 		e.preventDefault();
+		tracksDismissReview();
 		apiFetch( {
 			path: '/jetpack/v4/site/dismissed-review-request',
 			method: 'POST',
@@ -326,12 +325,17 @@ const NoBackupCapabilities = () => {
 	const { tracks } = useAnalytics();
 	const [ priceAfter, setPriceAfter ] = useState( 0 );
 	const [ price, setPrice ] = useState( 0 );
+	const [ currencyCode, setCurrencyCode ] = useState( 'USD' );
+	const [ introOffer, setIntroOffer ] = useState( null );
 	const domain = useSelect( select => select( STORE_ID ).getCalypsoSlug(), [] );
 
 	useEffect( () => {
 		apiFetch( { path: '/jetpack/v4/backup-promoted-product-info' } ).then( res => {
+			setCurrencyCode( res.currency_code );
 			setPrice( res.cost / 12 );
+
 			if ( res.introductory_offer ) {
+				setIntroOffer( res.introductory_offer );
 				setPriceAfter( res.introductory_offer.cost_per_interval / 12 );
 			} else {
 				setPriceAfter( res.cost / 12 );
@@ -349,6 +353,15 @@ const NoBackupCapabilities = () => {
 		'Special introductory pricing, all renewals are at full price. 14 day money back guarantee.',
 		'jetpack-backup-pkg'
 	);
+	const priceDetails =
+		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
+			? __( 'for the first month, billed yearly', 'jetpack-backup-pkg' )
+			: __(
+					'per month, billed yearly',
+					'jetpack-backup-pkg',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 			<Col lg={ 6 } md={ 6 } sm={ 4 }>
@@ -371,14 +384,16 @@ const NoBackupCapabilities = () => {
 			<Col lg={ 1 } md={ 1 } sm={ 0 } />
 			<Col lg={ 5 } md={ 6 } sm={ 4 }>
 				<PricingCard
-					ctaText={ __( 'Get Jetpack Backup', 'jetpack-backup-pkg' ) }
+					ctaText={ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
 					icon="data:image/svg+xml,%3Csvg width='32' height='32' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='m21.092 15.164.019-1.703v-.039c0-1.975-1.803-3.866-4.4-3.866-2.17 0-3.828 1.351-4.274 2.943l-.426 1.524-1.581-.065a2.92 2.92 0 0 0-.12-.002c-1.586 0-2.977 1.344-2.977 3.133 0 1.787 1.388 3.13 2.973 3.133H22.399c1.194 0 2.267-1.016 2.267-2.4 0-1.235-.865-2.19-1.897-2.368l-1.677-.29Zm-10.58-3.204a4.944 4.944 0 0 0-.201-.004c-2.75 0-4.978 2.298-4.978 5.133s2.229 5.133 4.978 5.133h12.088c2.357 0 4.267-1.97 4.267-4.4 0-2.18-1.538-3.99-3.556-4.339v-.06c0-3.24-2.865-5.867-6.4-5.867-2.983 0-5.49 1.871-6.199 4.404Z' fill='%23000'/%3E%3C/svg%3E"
 					infoText={ priceAfter === price ? basicInfoText : introductoryInfoText }
 					// eslint-disable-next-line react/jsx-no-bind
 					onCtaClick={ sendToCart }
 					priceAfter={ priceAfter }
 					priceBefore={ price }
-					title={ __( 'Jetpack Backup', 'jetpack-backup-pkg' ) }
+					currencyCode={ currencyCode }
+					priceDetails={ priceDetails }
+					title={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 				/>
 			</Col>
 		</Container>

@@ -349,13 +349,13 @@ function renderRecommendations( statusChecks ) {
 			'Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.',
 		hasPrivacy: `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
 ~~~
-#### Does this pull request change what data or activity we track or use?
+## Does this pull request change what data or activity we track or use?
 
 My PR adds *x* and *y*.
 ~~~`,
 		hasTesting: `Please include detailed testing steps, explaining how to test your change, like so:
 ~~~
-#### Testing instructions:
+## Testing instructions:
 
 * Go to '..'
 *

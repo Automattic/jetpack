@@ -10,8 +10,8 @@ export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case WAF_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, state, {
-				bootstrapPath: action.settings?.bootstrapPath,
-				hasRulesAccess: action.settings?.hasRulesAccess,
+				bootstrapPath: action.settings?.bootstrap_path,
+				automaticRulesAvailable: action.settings?.automatic_rules_available,
 			} );
 		default:
 			return state;
@@ -64,11 +64,11 @@ export function getWafBootstrapPath( state ) {
 }
 
 /**
- * Returns whether the site has access to latest firewall rules.
+ * Returns true if the firewall has automatic rules available.
  *
- * @param {object}  state - Global state tree
- * @returns {boolean}  True when the site has access to latest firewall rules.
+ * @param {object} state - Global state tree
+ * @returns {boolean} Whether the firewall has automatic rules available
  */
-export function getWafHasRulesAccess( state ) {
-	return get( state.jetpack.waf, [ 'data', 'hasRulesAccess' ], false );
+export function getAutomaticRulesAvailable( state ) {
+	return get( state.jetpack.waf, [ 'data', 'automaticRulesAvailable' ], false );
 }

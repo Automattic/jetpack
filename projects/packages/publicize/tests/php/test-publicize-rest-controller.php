@@ -18,6 +18,13 @@ use WP_REST_Server;
 class Test_REST_Controller extends TestCase {
 
 	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
 	 * REST Server object.
 	 *
 	 * @var WP_REST_Server

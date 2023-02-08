@@ -529,7 +529,6 @@ class WordAds {
 			return $content;
 		}
 		return $this->get_ad( 'top_amp', $ad_type ) . $content;
-
 	}
 
 	/**

@@ -593,10 +593,10 @@ class Jetpack_PostImages {
 	 *
 	 * @param int   $post_id Post ID.
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine).
-	 * @return array containing details of the best image to be used
+	 * @return array|null containing details of the best image to be used, or null if no image is found.
 	 */
 	public static function get_image( $post_id, $args = array() ) {
-		$image = array();
+		$image = null;
 
 		/**
 		 * Fires before we find a single good image for a specific post.

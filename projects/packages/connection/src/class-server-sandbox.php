@@ -146,7 +146,6 @@ class Server_Sandbox {
 		} else {
 			$this->log_new_signature_error( 'Empty Authorization Header' );
 		}
-
 	}
 
 	/**

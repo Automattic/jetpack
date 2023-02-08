@@ -26,6 +26,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import PaidPlanPanel from './paid-plan';
+import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -38,6 +40,7 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
@@ -53,7 +56,8 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ isNewsletterFeatureEnabled() && <PaidPlanPanel /> }
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -66,7 +70,7 @@ export default function SubscriptionControls( {
 							),
 							numberFormat( subscriberCount )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }
@@ -234,6 +238,14 @@ export default function SubscriptionControls( {
 								'jetpack'
 							);
 						}
+					} }
+				/>
+				<ToggleControl
+					disabled={ ! showSubscribersTotal }
+					label={ __( 'Include social followers in count', 'jetpack' ) }
+					checked={ includeSocialFollowers }
+					onChange={ () => {
+						setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
 					} }
 				/>
 				<ToggleControl

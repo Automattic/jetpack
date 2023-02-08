@@ -7,14 +7,15 @@
 
 namespace Automattic\Jetpack\Stats;
 
-use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Modules;
 
 /**
  * Stats XMLRPC Provider.
  *
  * Adds additional methods to the WordPress XML-RPC API for handling Stats specific features.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class XMLRPC_Provider {
 
@@ -48,13 +49,20 @@ class XMLRPC_Provider {
 	}
 
 	/**
-	 * Adds additional methods to the WordPress xmlrpc API for handling Stats specific features
+	 * Adds additional methods to the WordPress xmlrpc API for handling Stats specific features.
 	 *
 	 * @param array $methods The Jetpack API methods.
 	 *
 	 * @return array
 	 */
 	public function xmlrpc_methods( $methods ) {
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			return $methods;
+		}
+
+		if ( ! ( new Modules() )->is_active( 'stats' ) ) {
+			return $methods;
+		}
 
 		$methods['jetpack.getBlog'] = array( $this, 'get_blog' );
 
@@ -76,7 +84,7 @@ class XMLRPC_Provider {
 			'siteurl'             => get_option( 'siteurl' ),
 			'gmt_offset'          => get_option( 'gmt_offset' ),
 			'timezone_string'     => get_option( 'timezone_string' ),
-			'stats_version'       => Constants::get_constant( 'STATS_VERSION' ),
+			'stats_version'       => Main::STATS_VERSION,
 			'stats_api'           => 'jetpack',
 			'page_on_front'       => get_option( 'page_on_front' ),
 			'permalink_structure' => get_option( 'permalink_structure' ),

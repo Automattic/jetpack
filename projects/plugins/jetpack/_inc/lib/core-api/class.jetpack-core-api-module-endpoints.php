@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
 
 /**
@@ -776,16 +777,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						if ( ! $plan->supports_instant_search() ) {
 							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
 							$error   = $updated->get_error_message();
+						} elseif ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
+							$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
+							$error   = $updated->get_error_message();
 						} else {
-							if ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
-								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
-								$error   = $updated->get_error_message();
-							} else {
-								$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
-								$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
-								$instance->auto_config_search();
-								$updated = true;
-							}
+							$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
+							$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
+							$instance->auto_config_search();
+							$updated = true;
 						}
 					}
 					break;
@@ -864,6 +863,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'admin_bar':
+				case 'enable_calypso_stats':
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
@@ -946,7 +946,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						: true;
 					break;
 
-				case 'dismiss_dash_app_card':
 				case 'dismiss_empty_stats_card':
 				case 'dismiss_dash_backup_getting_started':
 				case 'dismiss_dash_agencies_learn_more':
@@ -957,7 +956,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
-					jetpack_require_lib( 'widgets' );
+					require_once JETPACK__PLUGIN_DIR . '_inc/lib/widgets.php';
 					// Break apart and set Jetpack onboarding options.
 					$result = $this->process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
@@ -1033,7 +1032,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// There was an error because some options were updated but others were invalid or failed to update.
 			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
 		}
-
 	}
 
 	/**
@@ -1564,20 +1562,21 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			$range = 'day';
 		}
 
-		if ( ! function_exists( 'stats_get_from_restapi' ) ) {
+		if ( ! function_exists( 'convert_stats_array_to_object' ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'modules/stats.php';
 		}
 
+		$wpcom_stats = new WPCOM_Stats();
 		switch ( $range ) {
 
 			// This is always called first on page load.
 			case 'day':
-				$initial_stats = stats_get_from_restapi();
+				$initial_stats = convert_stats_array_to_object( $wpcom_stats->get_stats() );
 				return rest_ensure_response(
 					array(
 						'general' => $initial_stats,
 
-						// Build data for 'day' as if it was stats_get_from_restapi( array(), 'visits?unit=day&quantity=30' ).
+						// Build data for 'day' as if it was $wpcom_stats ->get_visits( array( 'unit' => 'day, 'quantity' => 30).
 						'day'     => isset( $initial_stats->visits )
 							? $initial_stats->visits
 							: array(),
@@ -1586,13 +1585,27 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 			case 'week':
 				return rest_ensure_response(
 					array(
-						'week' => stats_get_from_restapi( array(), 'visits?unit=week&quantity=14' ),
+						'week' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'week',
+									'quantity' => 14,
+								)
+							)
+						),
 					)
 				);
 			case 'month':
 				return rest_ensure_response(
 					array(
-						'month' => stats_get_from_restapi( array(), 'visits?unit=month&quantity=12&' ),
+						'month' => convert_stats_array_to_object(
+							$wpcom_stats->get_visits(
+								array(
+									'unit'     => 'month',
+									'quantity' => 12,
+								)
+							)
+						),
 					)
 				);
 		}
@@ -1802,6 +1815,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Actions performed only when Gravatar Hovercards is activated through the endpoint call.

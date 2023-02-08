@@ -42,6 +42,13 @@ function fixDeps( pkg ) {
 		}
 	}
 
+	// Undeclared dependency on prop-types.
+	// https://github.com/nutboltu/storybook-addon-mock/issues/157
+	if ( pkg.name === 'storybook-addon-mock' ) {
+		pkg.dependencies ||= {};
+		pkg.dependencies[ 'prop-types' ] = '*';
+	}
+
 	// Missing dep or peer dep on @wordpress/element.
 	// https://github.com/WordPress/gutenberg/issues/41341
 	// https://github.com/WordPress/gutenberg/issues/41346
