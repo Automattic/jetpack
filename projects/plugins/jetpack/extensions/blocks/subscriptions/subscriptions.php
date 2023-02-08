@@ -739,16 +739,12 @@ function maybe_gate_existing_comments( $comment ) {
  */
 function get_locked_content_placeholder_text() {
 	return do_blocks(
-		'<!-- wp:group {"layout":{"type":"constrained","contentSize":"400px"},"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"backgroundColor":"tertiary"} -->
-			<div class="wp-block-group has-tertiary-background-color has-background" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center"} -->
-			<h2 class="has-text-align-center">' . esc_html__( 'Subscribe to get access.', 'jetpack' ) . '</h2>
+		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
+			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
+			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' . esc_html__( 'This post is for paid subscribers', 'jetpack' ) . '</h2>
 			<!-- /wp:heading -->
 
-			<!-- wp:paragraph {"align":"center","fontSize":"small"} -->
-			<p class="has-text-align-center has-small-font-size">' . esc_html__( 'Read more of this content if you subscribe today.', 'jetpack' ) . '</p>
-			<!-- /wp:paragraph -->
-
-			<!-- wp:jetpack/subscriptions {"className":"is-style-compact"} /-->
+			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
 			</div>
 		<!-- /wp:group -->'
 	);
