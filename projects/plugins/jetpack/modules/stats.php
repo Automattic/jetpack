@@ -575,7 +575,12 @@ function stats_reports_page( $main_chart_only = false ) {
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
 		$body = stats_convert_admin_urls( $body );
-		echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+		stats_print_header_section( $body );
+		stats_print_odyssey_nudge( $body );
+		stats_print_content_section( $body );
+		stats_print_chart_scripts( $body );
 	}
 
 	if ( isset( $_GET['page'] ) && 'stats' === $_GET['page'] && ! isset( $_GET['chart'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -586,6 +591,73 @@ function stats_reports_page( $main_chart_only = false ) {
 	if ( isset( $_GET['noheader'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		die;
 	}
+}
+
+function stats_print_header_section( $html ) {
+	$header = stats_parse_header_section( $html );
+	echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+function stats_print_content_section( $html ) {
+	$content = stats_parse_content_section( $html );
+	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+function stats_print_chart_scripts( $html ) {
+	$b = stats_content_marker();
+	$i = strpos( $html, $b );
+	if ( $i > 0 ) {
+		return;
+	}
+	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+function stats_content_marker() {
+	return '<div class="gotonewdash">';
+}
+
+function stats_parse_header_section( $html ) {
+	$b = stats_content_marker();
+	return strstr( $html, $b, true );
+}
+
+function stats_parse_content_section( $html ) {
+	$b = stats_content_marker();
+	return strstr( $html, $b );
+}
+
+function stats_should_show_odyssey_nudge() {
+	// Read from the db?!
+	return true;
+}
+
+function stats_print_odyssey_nudge( $html ) {
+	if ( ! stats_should_show_odyssey_nudge() ) {
+		return;
+	}
+	$b = stats_content_marker();
+	$i = strpos( $html, $b );
+	if ( $i === false ) {
+		return;
+	}
+	?>
+	<style>
+		.stats-odyssey-nudge {
+			border-left: 3px solid var(--jp-green-40);
+		}
+		.stats-odyssey-nudge--content {
+			margin-bottom: 0;
+		}
+	</style>
+	<div class="stats-odyssey-nudge dops-card">
+		<div class="stats-odyssey-nudge--content">
+			<h1>Explore the new Jetpack Stats</h1>
+			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
+			<button>Switch to new Stats</button>
+			<a href="#">Learn about Stats</a>
+		</div>
+	</div>
+	<?php
 }
 
 /**
