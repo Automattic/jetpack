@@ -88,7 +88,6 @@ test.describe( 'Paid blocks', () => {
 		let blockId;
 
 		await test.step( 'Add a WordAds block', async () => {
-			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			blockId = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.selectPostTitle();
 		} );
