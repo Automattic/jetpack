@@ -33,3 +33,39 @@ export function isUserConnected(): boolean {
 	debug( 'User is not connected ❌' );
 	return false;
 }
+
+/**
+ * Check whether the Jetpack VideoPress module is active.
+ *
+ * @returns {boolean} True if the module is active, false otherwise.
+ */
+export function isVideoPressModuleActive(): boolean {
+	return window?.videoPressEditorState?.isVideoPressModuleActive === '1';
+}
+
+/**
+ * Return whether the VideoPress feature is active,
+ * considering the user connection status
+ * and also the module status.
+ *
+ * Note: It's possible to have the module active,
+ * but the user not connected.
+ *
+ * @returns {boolean} True if the feature is active, false otherwise.
+ */
+export function isVideoPressActive(): boolean {
+	if ( ! isUserConnected() ) {
+		return false;
+	}
+
+	return isVideoPressModuleActive() || isStandaloneActive();
+}
+
+/**
+ * Return whether the standalone plugin is active.
+ *
+ * @returns {boolean} True if the feature is active, false otherwise.
+ */
+export function isStandaloneActive(): boolean {
+	return window?.videoPressEditorState?.isStandaloneActive === '1';
+}
