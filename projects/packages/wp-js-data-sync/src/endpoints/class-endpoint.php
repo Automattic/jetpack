@@ -120,6 +120,11 @@ class Endpoint {
 
 	public function handle_delete() {
 		$this->entry->delete();
+
+		if ( $this->entry->has_errors() ) {
+			return new \WP_Error( 400, $this->entry->get_errors(), array( 'status' => 400 ) );
+		}
+
 		return array(
 			'status' => 'success',
 			'JSON'   => $this->entry->get(),
