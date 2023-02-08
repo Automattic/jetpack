@@ -7,14 +7,16 @@ import { __ } from '@wordpress/i18n';
 import { Icon, info, warning } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useState } from 'react';
-/**
- * Internal dependencies
- */
 import {
 	ERROR_MIME_TYPE_NOT_SUPPORTED,
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 } from '../../../state/constants';
+import { usePlan } from '../../hooks/use-plan';
+import useVideos from '../../hooks/use-videos';
+/**
+ * Internal dependencies
+ */
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
@@ -120,6 +122,9 @@ export const LocalVideoList = ( {
 	const [ isSmall ] = useBreakpointMatch( 'sm' );
 	const allSelected = selected?.length === videos?.length;
 	const showCheckbox = false; // TODO: implement bulk actions
+	const { hasVideoPressPurchase } = usePlan();
+	const { uploadedVideoCount, isFetching } = useVideos();
+	const hasVideos = uploadedVideoCount > 0 || isFetching || uploading?.length > 0;
 
 	const handleAll = checked => {
 		if ( checked ) {
@@ -205,7 +210,7 @@ export const LocalVideoList = ( {
 						onActionClick={ handleClickWithIndex( index ) }
 						actionButtonLabel={ __( 'Upload to VideoPress', 'jetpack-videopress-pkg' ) }
 						disabled={ video?.isUploadedToVideoPress || video?.readError != null }
-						disableActionButton={ uploading }
+						disableActionButton={ ( hasVideos && ! hasVideoPressPurchase ) || uploading }
 						titleAdornment={ getTitleAdornment( video ) }
 					/>
 				);
