@@ -7,6 +7,9 @@ import { __ } from '@wordpress/i18n';
 import { Icon, info, warning } from '@wordpress/icons';
 import classnames from 'classnames';
 import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import {
 	ERROR_MIME_TYPE_NOT_SUPPORTED,
 	VIDEO_PRIVACY_LEVELS,
@@ -14,9 +17,6 @@ import {
 } from '../../../state/constants';
 import { usePlan } from '../../hooks/use-plan';
 import useVideos from '../../hooks/use-videos';
-/**
- * Internal dependencies
- */
 import Checkbox from '../checkbox';
 import ConnectVideoRow, { LocalVideoRow, Stats } from '../video-row';
 import styles from './style.module.scss';
