@@ -725,3 +725,29 @@ body .sd-social-icon .sd-content li.share-custom a span {
 		display: none;
 	}
 }
+
+/*
+ * Styling for the Mastodon modal.
+ */
+.sd-mastodon-modal {
+	background-color: #17063B;
+	color: #ffffff;
+	display: flex;
+	flex-direction: column;
+}
+
+.sd-mastodon-modal .sd-mastodon-modal__inner {
+	padding: 4em;
+	display: flex;
+	box-sizing: border-box;
+	height: 72px;
+}
+
+.sd-mastodon-modal__inner:before {
+	font: normal 72px/1 'social-logos';
+	content: '\f10a';
+}
+
+.sd-mastodon-modal__label label {
+	padding-left: 48px;
+}

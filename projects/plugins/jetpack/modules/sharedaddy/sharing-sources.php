@@ -3105,6 +3105,18 @@ class Share_Mastodon extends Sharing_Source {
 	 * @return void
 	 */
 	public function process_request( $post, array $post_data ) {
+		if ( empty( $_POST['jetpack-mastodon-instance'] ) ) {
+			require_once WP_SHARING_PLUGIN_DIR . 'services/class-jetpack-mastodon-modal.php';
+			add_action( 'template_redirect', array( 'Jetpack_Mastodon_Modal', 'modal' ) );
+			return;
+		}
+
+		check_admin_referer( 'jetpack_share_mastodon_instance' );
+
+		$mastodon_instance = isset( $_POST['jetpack-mastodon-instance'] )
+			? sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) )
+			: null;
+
 		$post_title = $this->get_share_title( $post->ID );
 		$post_link  = $this->get_share_url( $post->ID );
 
@@ -3126,11 +3138,12 @@ class Share_Mastodon extends Sharing_Source {
 		);
 
 		$share_url = sprintf(
-			'https://mas.to/share?text=%s',
+			'%1$s/share?text=%2$s',
+			$mastodon_instance,
 			rawurlencode( $shared_message )
 		);
 
-		// Record stats
+			// Record stats
 		parent::process_request( $post, $post_data );
 
 		parent::redirect_request( $share_url );
