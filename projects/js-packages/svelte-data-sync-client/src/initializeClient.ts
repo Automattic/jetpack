@@ -26,8 +26,8 @@ export function getValidatedValue< T extends z.ZodSchema >(
 	/**
 	 * This function handles fetching nonces if they're there
 	 * But it shouldn't trigger errors if the nonce is missing.
-	 * Allowing the client application decide how to handle
-	 * missing nonces.
+	 * Allowing the client application to decide
+	 * how to handle missing nonces.
 	 *
 	 * This is useful, for example, if the `valueSchema` is set to something
 	 * like `z.string().optional()`. In this case, the application might be
