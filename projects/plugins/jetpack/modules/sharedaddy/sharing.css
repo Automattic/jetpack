@@ -734,6 +734,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	color: #ffffff;
 	display: flex;
 	flex-direction: column;
+	font-family: sans-serif;
 	margin-top: 1em;
 }
 
