@@ -430,19 +430,25 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function parse_menu_item( $title ) {
 		$item = array();
 
-		if ( false !== strpos( $title, 'count-' ) && preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches ) ) {
+		if (
+			false !== strpos( $title, 'count-' )
+			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
+			) {
 
-			$count = (int) ( $matches[1] ? $matches[1] : 0 );
+			$count = (int) ( $matches[1] );
 			if ( $count > 0 ) {
 				// Keep the counter in the item array.
 				$item['count'] = $count;
 			}
 
 			// Finally remove the markup.
-			$title = trim( $matches[0] ? str_replace( $matches[0], '', $title ) : '' );
+			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'inline-text' ) && preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches ) ) {
+		if (
+			false !== strpos( $title, 'inline-text' )
+			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
+			) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -451,10 +457,13 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Finally remove the markup.
-			$title = trim( $matches[0] ? str_replace( $matches[0], '', $title ) : '' );
+			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'awaiting-mod' ) && preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches ) ) {
+		if (
+			false !== strpos( $title, 'awaiting-mod' )
+			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
+			) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -463,7 +472,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Finally remove the markup.
-			$title = trim( $matches[0] ? str_replace( $matches[0], '', $title ) : '' );
+			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
