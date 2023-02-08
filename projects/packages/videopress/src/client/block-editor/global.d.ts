@@ -11,6 +11,7 @@ declare global {
 			isVideoPressModuleActive: '' | '1';
 			isStandaloneActive: '' | '1';
 			jetpackVideoPressSettingUrl: string;
+			imageURLBase: string;
 		};
 
 		JP_CONNECTION_INITIAL_STATE: {
