@@ -1,6 +1,7 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
 import { EditorCanvas } from './index.js';
 import { expect } from '@playwright/test';
 
@@ -53,6 +54,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		await waitForBlock( blockName, this );
 		await this.searchForBlock( blockTitle );
 
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );

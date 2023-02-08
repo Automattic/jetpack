@@ -1,19 +1,11 @@
 import { Component, createPortal } from '@wordpress/element';
+import { createInfoWindowPopup } from '../mapbox-utils';
 
 export class InfoWindow extends Component {
 	componentDidMount() {
 		const { mapboxgl } = this.props;
 		this.el = document.createElement( 'DIV' );
-		this.infowindow = new mapboxgl.Popup( {
-			closeButton: true,
-			closeOnClick: false,
-			offset: {
-				left: [ 0, 0 ],
-				top: [ 0, 5 ],
-				right: [ 0, 0 ],
-				bottom: [ 0, -40 ],
-			},
-		} );
+		this.infowindow = createInfoWindowPopup( mapboxgl );
 		this.infowindow.setDOMContent( this.el );
 		this.infowindow.on( 'close', this.closeClick );
 	}

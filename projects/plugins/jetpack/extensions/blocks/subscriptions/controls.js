@@ -70,7 +70,7 @@ export default function SubscriptionControls( {
 							),
 							numberFormat( subscriberCount )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }
