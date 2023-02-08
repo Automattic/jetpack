@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Rename stats option enable_calypso_stats to enable_odyssey_stats
