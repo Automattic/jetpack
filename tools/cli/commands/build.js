@@ -811,10 +811,9 @@ async function buildProject( t ) {
 		);
 	}
 
-	throw new Error( "Seems like the bug didn't trigger" );
-
 	// Remove engines and workspace refs from package.json.
 	let packageJson;
+	t.output( 'About to update package.json (maybe)\n' );
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
@@ -854,6 +853,7 @@ async function buildProject( t ) {
 	}
 
 	// If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	t.output( 'About to handle npmjs-autopublish (maybe)\n' );
 	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
 		let ignore = '# Automatically generated ignore rules.\n/.github/\n/composer.json\n';
 		if ( await fsExists( `${ buildDir }/.npmignore` ) ) {
@@ -865,6 +865,7 @@ async function buildProject( t ) {
 	}
 
 	// If autorelease is active, flag .git files to be excluded from the archive.
+	t.output( 'About to handle autorelease (maybe)\n' );
 	if ( composerJson.extra?.autorelease ) {
 		let rules = '# Automatically generated rules.\n/.git*\texport-ignore\n';
 		if ( await fsExists( `${ buildDir }/.gitattributes` ) ) {
@@ -876,6 +877,7 @@ async function buildProject( t ) {
 	}
 
 	// Get the project version number from the changelog.md file.
+	t.output( 'Determining project version number\n' );
 	let projectVersionNumber = '';
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
@@ -894,6 +896,7 @@ async function buildProject( t ) {
 		}
 	} );
 	await once( rl, 'close' );
+	t.output( `Got version number ${ projectVersionNumber }\n` );
 
 	if ( ! projectVersionNumber ) {
 		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
@@ -905,8 +908,13 @@ async function buildProject( t ) {
 		jsName: packageJson?.name,
 		version: projectVersionNumber,
 	};
+	t.output( 'Awaiting mirror mutex\n' );
 	await t.ctx.mirrorMutex( async () => {
 		// prettier-ignore
-		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+		t.output( 'Writing mirrors.txt\n' );
+		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, {
+			encoding: 'utf8',
+		} );
+		throw new Error( "Seems like the bug didn't trigger" );
 	} );
 }
