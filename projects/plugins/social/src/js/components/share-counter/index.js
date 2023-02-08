@@ -15,7 +15,7 @@ const ShareCounter = ( { value, max } ) => {
 	const text = createInterpolateElement(
 		sprintf(
 			// translators: %1$d is the number of shares used, %2$d is the total number of shares available.
-			__( '<boldText>%1$d</boldText> shares remaining this month.', 'jetpack-social' ),
+			__( '<boldText>%1$d</boldText> shares remaining in the next 30 days.', 'jetpack-social' ),
 			remaining
 		),
 		{
