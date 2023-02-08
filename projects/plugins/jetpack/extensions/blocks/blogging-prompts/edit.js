@@ -41,21 +41,26 @@ function BloggingPromptsEdit( { attributes, setAttributes } ) {
 			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
 			{ showResponses && (
 				<div className="jetpack-blogging-prompts__answers">
-					{ gravatars.map( ( { url } ) => {
-						return (
-							url && <img className="jetpack-blogging-prompts__answers-gravatar" src={ url } />
-						);
-					} ) }
-					<a
-						className="jetpack-blogging-prompts__answers-link"
-						href={ `https://wordpress.com/tag/dailyprompt-${ prompt_id }` }
-					>
-						{ sprintf(
-							// translators: %s is the number of responses.
-							_n( 'View %s response', 'View all %s responses', answerCount, 'jetpack' ),
-							answerCount
-						) }
-					</a>
+					{ gravatars &&
+						gravatars.slice( 0, 2 ).map( ( { url } ) => {
+							return (
+								url && <img className="jetpack-blogging-prompts__answers-gravatar" src={ url } />
+							);
+						} ) }
+					{ answerCount > 0 ? (
+						<a
+							className="jetpack-blogging-prompts__answers-link"
+							href={ `https://wordpress.com/tag/dailyprompt-${ prompt_id }` }
+						>
+							{ sprintf(
+								// translators: %s is the number of responses.
+								_n( 'View %s response', 'View all %s responses', answerCount, 'jetpack' ),
+								answerCount
+							) }
+						</a>
+					) : (
+						<div>{ __( 'No other responses, yet.', 'jetpack' ) }</div>
+					) }
 				</div>
 			) }
 		</div>

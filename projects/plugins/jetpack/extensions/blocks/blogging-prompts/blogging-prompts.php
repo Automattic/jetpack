@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Extensions\BloggingPrompts;
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'blogging-prompts';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -21,13 +22,25 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * Registers the blogging prompt integration for the block editor.
  */
 function register_extension() {
-	Blocks::jetpack_register_block( BLOCK_NAME );
+	Blocks::jetpack_register_block( BLOCK_NAME, array( 'render_callback' => __NAMESPACE__ . '\render_block' ) );
 
 	// Load the blogging-prompts endpoint here on init so its route will be registered.
 	// We can use it with `WPCOM_API_Direct::do_request` to avoid a network request on Simple Sites.
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && should_load_blogging_prompts() ) {
 		wpcom_rest_api_v2_load_plugin_files( 'wp-content/rest-api-plugins/endpoints/blogging-prompts.php' );
 	}
+}
+
+function render_block( $attr ) {
+	$wrapper_attributes = get_block_wrapper_attributes();
+
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
+	return sprintf(
+		'<div %1$s>%2$s</div>',
+		$wrapper_attributes,
+		'Hello World!'
+	);
 }
 
 /**
