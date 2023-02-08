@@ -43,7 +43,7 @@ class Test_Options extends StatsBaseTestCase {
 			'version'                  => Main::STATS_VERSION,
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
-			'calypso_stats_changed_at' => 0,
+			'odyssey_stats_changed_at' => 0,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -71,7 +71,7 @@ class Test_Options extends StatsBaseTestCase {
 			'version'                  => Main::STATS_VERSION,
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
-			'calypso_stats_changed_at' => 0,
+			'odyssey_stats_changed_at' => 0,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -150,7 +150,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'set version'          => array(
@@ -169,7 +169,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'set blog blog_id'     => array(
@@ -188,7 +188,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'multiple options'     => array(
@@ -218,7 +218,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 		);
@@ -275,7 +275,7 @@ class Test_Options extends StatsBaseTestCase {
 			'version'                  => Main::STATS_VERSION,
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
-			'calypso_stats_changed_at' => 0,
+			'odyssey_stats_changed_at' => 0,
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -303,7 +303,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'Roles'        => array(
@@ -321,7 +321,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'Count Roles'  => array(
@@ -338,7 +338,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'Version'      => array(
@@ -355,7 +355,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'Honor DNT'    => array(
@@ -372,7 +372,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 			'Dummy option' => array(
@@ -389,7 +389,7 @@ class Test_Options extends StatsBaseTestCase {
 					'version'                  => Main::STATS_VERSION,
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
-					'calypso_stats_changed_at' => 0,
+					'odyssey_stats_changed_at' => 0,
 				),
 			),
 		);

@@ -886,7 +886,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$value         = (bool) $value;
 					$stats_options = array(
 						'enable_odyssey_stats'     => $value,
-						'calypso_stats_changed_at' => time(),
+						'odyssey_stats_changed_at' => time(),
 					);
 					$updated       = Stats_Options::set_options( $stats_options );
 					// Track the event.

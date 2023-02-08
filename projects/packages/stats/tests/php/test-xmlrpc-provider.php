@@ -98,7 +98,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 			'version'                  => Main::STATS_VERSION,
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
-			'calypso_stats_changed_at' => 0,
+			'odyssey_stats_changed_at' => 0,
 			'host'                     => 'example.org',
 			'path'                     => '/',
 			'blogname'                 => false,
