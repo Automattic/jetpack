@@ -139,7 +139,7 @@ class Favorite_Posts_Status extends Data_Sync_Entry_Handler {
 
 #### A more complex example:
 
-Here's an example that's going to handle an entry called `favorite_posts`.
+Here's an example that's going to handle an entry called `posts`.
 
 This is going to store a list of post IDs in the database, but the REST API will receive and return a list of post objects.
 
@@ -186,8 +186,8 @@ Now that we have two handlers setup, we can register them with the Data Sync reg
 
 ```php
 $registry = Registry::get_instance( 'jetpack_favorites' );
-$registry->register( 'favorite_posts_status', new Favorite_Posts_Status() );
-$registry->register( 'favorite_posts', new Favorite_Posts() );
+$registry->register( 'enabled', new Favorite_Posts_Status() );
+$registry->register( 'posts', new Favorite_Posts() );
 ```
 
 ### Step 4: Uage
@@ -201,7 +201,7 @@ Now that the entries are registered, just like in [Usage](#usage) section, you c
 
 Or change the values via the Entry object in PHP:
 ```php
-$entry = Registry::get_instance( 'jetpack_favorites' )->get_entry( 'favorite_posts_status' );
+$entry = Registry::get_instance( 'jetpack_favorites' )->get_entry( 'enabled' );
 $entry->set( true );
 ```
 

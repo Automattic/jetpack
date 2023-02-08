@@ -42,12 +42,12 @@ const favorite_post_schema = z.object({
 });
 
 export const favorites = {
-	status: client.createAsyncStore('favorite_posts_status', z.boolean().catch(false)),
+	enabled: client.createAsyncStore('favorite_posts_enabled', z.boolean().catch(false)),
 	posts: client.createAsyncStore('favorite_posts', z.array(favorite_post_schema).catch([])),
 };
 ```
 
-That's it, now you can use `favorites.status` and `favorites.posts` in your Svelte components.
+That's it, now you can use `favorites.enabled` and `favorites.posts` in your Svelte components.
 
 #### Step 3: Store Usage
 
@@ -61,16 +61,16 @@ Here's a simple example of how that would work:
 ```svelte
 <script type="ts">
 	import { favorites } from "./widget-options.ts";
-	const status = favorites.status.store;
-	const pending = favorites.status.pending;
+	const enabled = favorites.enabled.store;
+	const pending = favorites.enabled.pending;
 </script>
 
 {#if $pending}
 	 🌊 I'm updating the value
 {/if}
 
-<label for="favorite-posts-status">
-	<input type="checkbox" bind:checked={$status} />
+<label for="favorite-posts-enabled">
+	<input type="checkbox" bind:checked={$enabled} />
 	Enable
 </label>
 ```
@@ -81,8 +81,8 @@ Every created Data Sync Client Store will also have an `.endpoints` property tha
 
 ```ts
 // favorites.ts
-const result = await favorites.status.endpoints.GET();
-const result = await favorites.status.endpoints.POST( true );;
+const result = await favorites.enabled.endpoints.GET();
+const result = await favorites.enabled.endpoints.POST( true );;
 ```
 
 Note that the endpoint methods are type-safe too, so you can't pass a value that doesn't match the schema. If you do, errors will be thrown.
@@ -117,8 +117,8 @@ const favorite_post_schema = z.object({
 });
 
 export const favorites = {
-	status: client.createAsyncStore('favorite_posts_status', z.boolean().catch(false)),
-	posts: client.createAsyncStore('favorite_posts', z.array(favorite_post_schema),
+	enabled: client.createAsyncStore('enabled', z.boolean().catch(false)),
+	posts: client.createAsyncStore('posts', z.array(favorite_post_schema),
 };
 ```
 
