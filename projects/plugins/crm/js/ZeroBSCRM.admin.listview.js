@@ -2927,21 +2927,7 @@ function zeroBSCRMJS_listView_generic_editdirectlink( dataLine ) {
 		'</a></td>'
 	);
 }
-// Draw <td> for  edit link
-/**
- * @param dataLine
- */
-function zeroBSCRMJS_listView_generic_editdirectlink( dataLine ) {
-	// return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_editURL(dataLine['id']) + '" class="ui basic button"><i class="icon edit"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
 
-	return (
-		'<td class="center aligned"><a href="' +
-		zeroBSCRMJS_listView_editURL( dataLine.id ) +
-		'" class="ui basic button"><i class="icon eye"></i>' +
-		window.zbs_lang.zbs_view +
-		'</a></td>'
-	);
-}
 // Draw <td> for  edit link
 /**
  * @param dataLine
@@ -4735,12 +4721,7 @@ function zeroBSCRMJS_listView_invoice_status( dataLine ) {
 function zeroBSCRMJS_listView_invoice_bulkActionTitle_changestatus() {
 	return zeroBSCRMJS_listViewLang( 'changestatus' );
 }
-/**
- *
- */
-function zeroBSCRMJS_listView_invoice_bulkActionTitle_delete() {
-	return zeroBSCRMJS_listViewLang( 'delete' );
-}
+
 /* ====================================================================================
 ============== / Bulk actions - Titles - Invoice ======================================
 ==================================================================================== */

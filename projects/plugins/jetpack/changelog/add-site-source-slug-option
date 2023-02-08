@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Added a new `site_source_slug` option to help resuming on copy site feature
