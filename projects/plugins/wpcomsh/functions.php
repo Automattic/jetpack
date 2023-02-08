@@ -364,3 +364,29 @@ function wpcomsh_is_xmlrpc_request_matching( $path_regex ) {
 
 	return class_exists( 'WPCOM_JSON_API' ) && preg_match( $path_regex, WPCOM_JSON_API::$self->path );
 }
+
+/**
+ * Check if we are handling a WordPress core REST v2 API request where the API path matches
+ * the regular expression in $path_regex and the method in $request_method.
+ *
+ * @param string $path_regex      A regular expression for the requested path, which should include the REST prefix available from {@see rest_get_url_prefix()}.
+ * @param string $request_method  The expected HTTP method of the request, e.g. GET|POST|PUT|DELETE.
+ * @return bool                   Whether the incoming request matches the supplied path and method.
+ */
+function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GET' ) {
+	if ( ! defined( 'REST_REQUEST' ) || ! REST_REQUEST ) {
+		return false;
+	}
+
+	if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== $request_method ) {
+		return false;
+	}
+
+	if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+		return false;
+	}
+
+	$rest_path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
+
+	return false !== preg_match( $path_regex, $rest_path );
+}

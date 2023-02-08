@@ -252,6 +252,7 @@ class WPCOM_Features {
 	public const INSTALL_PLUGINS               = 'install-plugins';
 	public const INSTALL_PURCHASED_PLUGINS     = 'install-purchased-plugins';
 	public const INSTALL_THEMES                = 'install-themes';
+	public const INSTALL_WOO_PAYMENT_GATEWAYS  = 'install-woo-payment-gateways';
 	public const INSTANT_SEARCH                = 'instant-search';
 	public const JETPACK_DASHBOARD             = 'jetpack-dashboard';
 	public const LIVE_SUPPORT                  = 'live_support';
@@ -554,6 +555,9 @@ class WPCOM_Features {
 		self::INSTALL_THEMES                => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::INSTALL_WOO_PAYMENT_GATEWAYS  => array(
+			self::WPCOM_ECOMMERCE_TRIAL_PLANS,
 		),
 		self::INSTANT_SEARCH                => array(
 			self::WPCOM_SEARCH,

@@ -65,6 +65,13 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 				break;
 			}
 
+			/*
+			 * Specifically allow install permissions for WooCommerce payment gateways.
+			 */
+			if ( wpcomsh_is_woocommerce_payment_gateway_request() && wpcom_site_has_feature( WPCOM_Features::INSTALL_WOO_PAYMENT_GATEWAYS ) ) {
+				break;
+			}
+
 			if ( ! wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS ) ) {
 				$caps[] = 'do_not_allow';
 			}
@@ -103,6 +110,38 @@ function wpcomsh_is_plugin_list_request() {
  */
 function wpcomsh_is_theme_install_request() {
 	return wpcomsh_is_xmlrpc_request_matching( '@/sites/(.+)/themes/(.+)/install@' );
+}
+
+/**
+ * Whether the current request is a REST API request from the WooCommerce payment setup task
+ * trying to fetch or install a recommended payment gateway.
+ *
+ * @return bool
+ */
+function wpcomsh_is_woocommerce_payment_gateway_request() {
+	$wp_json_prefix = preg_quote( rest_get_url_prefix(), '@' );
+
+	// Check if we're looking up payment gateway suggestions.
+	if ( wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/payment-gateway-suggestions@' ) ) {
+		return true;
+	}
+
+	// Check if we're trying to perform a payment gateway install from the WooCommerce payments setup task.
+	$wp_referer = wp_get_referer();
+	if (
+		wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/plugins/install@', 'POST' )
+		&& (
+			// User is trying to install from the WooCommerce Payments task page
+			$wp_referer === admin_url( 'admin.php?page=wc-admin&task=woocommerce-payments' )
+			// User is trying to install from the general payments task page
+			|| $wp_referer === admin_url( 'admin.php?page=wc-admin&task=payments' )
+			// User is retrying install from the payment gateway install/setup page
+			|| str_starts_with( $wp_referer, admin_url( 'admin.php?page=wc-admin&task=payments&id=' ) )
+		) ) {
+		return true;
+	}
+
+	return false;
 }
 
 /**
