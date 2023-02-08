@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
+Comment: Backport stable tag
 
-Updated package dependencies.
+
