@@ -6,9 +6,10 @@ import FilterStream from './filter-stream.js';
  *
  * @param {string} src - Source directory.
  * @param {Function} spawn - `execa` spawn function.
+ * @param {Function|undefined} output - Debug output function (temporary).
  * @yields {string} File name.
  */
-export async function* listProjectFiles( src, spawn ) {
+export async function* listProjectFiles( src, spawn, output = undefined ) {
 	// Lots of process plumbing going on here.
 	//  {
 	//    ls-files
@@ -55,7 +56,16 @@ export async function* listProjectFiles( src, spawn ) {
 		crlfDelay: Infinity,
 	} );
 
+	if ( output ) {
+		output( 'D: Yielding list of files\n' );
+	}
 	yield* rl;
 
+	if ( output ) {
+		output( 'D: Awaiting processes\n' );
+	}
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
+	if ( output ) {
+		output( 'D: Finished listProjectFiles\n' );
+	}
 }
