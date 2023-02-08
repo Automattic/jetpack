@@ -16,6 +16,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 	 * Test `get_ip`.
 	 *
 	 * @covers ::get_ip
+	 * @covers ::clean_ip
 	 * @dataProvider provide_get_ip
 	 * @param string|false $expect Expected output.
 	 * @param array        $server Data for `$_SERVER`.
@@ -220,6 +221,64 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Test `ip_is_private`.
+	 *
+	 * @covers ::ip_is_private
+	 */
+	public function test_ip_is_private() {
+		$public_ips = array(
+			'1.2.3.4',
+			'9.255.255.255',
+			'128.0.0.0',
+		);
+		foreach ( $public_ips as $public_ip ) {
+			$this->assertFalse( IP::ip_is_private( $public_ip ) );
+		}
+
+		$private_ips = array(
+			'10.1.2.3',        // Single class A network.
+			'172.23.45.67',    // 16 contiguous class B network.
+			'192.168.1.2',     // 256 contiguous class C network.
+			'169.254.255.255', // Link-local address also referred to as Automatic Private IP Addressing.
+			'127.0.0.0',       // localhost.
+		);
+		foreach ( $private_ips as $private_ip ) {
+			$this->assertTrue( IP::ip_is_private( $private_ip ) );
+		}
+	}
+
+	/**
+	 * Test `convert_ip_address`.
+	 *
+	 * @covers ::convert_ip_address
+	 */
+	public function test_convert_ip_address() {
+		$converted_ip_address = IP::convert_ip_address( '1.2.3.4' );
+		if ( function_exists( 'inet_pton' ) ) {
+			// if inet_pton() is available, the IP address should be converted to the in_addr representation as a string.
+			$this->assertIsString( $converted_ip_address );
+		} else {
+			// if inet_pton() is not available, the IP address should be converted to an integer.
+			$this->assertIsInt( $converted_ip_address );
+		}
+	}
+
+	/**
+	 * Test `ip_address_is_in_range`.
+	 *
+	 * @covers ::ip_address_is_in_range
+	 */
+	public function test_ip_address_is_in_range() {
+		$range_low    = '1.1.1.1';
+		$range_high   = '1.2.3.4';
+		$in_range_ip  = '1.2.2.2';
+		$out_range_ip = '1.2.255.255';
+
+		$this->assertTrue( IP::ip_address_is_in_range( $in_range_ip, $range_low, $range_high ) );
+		$this->assertFalse( IP::ip_address_is_in_range( $out_range_ip, $range_low, $range_high ) );
 	}
 
 }
