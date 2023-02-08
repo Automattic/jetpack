@@ -509,15 +509,19 @@ async function writeFileAtomic( file, data, options = {}, t ) {
  *
  * @param {string} src - Source file.
  * @param {string} dest - Dest file.
+ * @param {object} t - Temporary. Remove when debug statements are removed.
  */
-async function copyFileAtomic( src, dest ) {
+async function copyFileAtomic( src, dest, t ) {
 	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
 	// if some attacker could take advantage they could do worse more directly.
 	const tmpfile = npath.join( npath.dirname( dest ), `.${ npath.basename( dest ) }.tmp` );
+	t.output( `D:   Copying ${ src } => ${ tmpfile }\n` );
 	await fs.copyFile( src, tmpfile );
 	try {
+		t.output( `D:   Renaming ${ tmpfile } => ${ dest }\n` );
 		await fs.rename( tmpfile, dest );
 	} catch ( e ) {
+		t.output( `D:   Rename failed! ${ e.stack }\n` );
 		await fs.rm( tmpfile ).catch( () => null );
 		throw e;
 	}
@@ -732,15 +736,17 @@ async function buildProject( t ) {
 
 	// Copy project files.
 	t.output( 'D: Copying project files\n' );
-	for await ( const file of listProjectFiles( t.cwd, t.execa ) ) {
+	for await ( const file of listProjectFiles( t.cwd, t.execa, t.output ) ) {
+		t.output( `D:  copying ${ file }...\n` );
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
 		await fs.mkdir( npath.dirname( destfile ), { recursive: true } );
 		if ( destfile.endsWith( '/composer.json' ) || destfile.endsWith( '/package.json' ) ) {
-			await copyFileAtomic( srcfile, destfile );
+			await copyFileAtomic( srcfile, destfile, t );
 		} else {
 			await fs.copyFile( srcfile, destfile );
 		}
+		t.output( `D:  Copied ${ srcfile } => ${ destfile }!\n` );
 	}
 	t.output( 'D: Done copying project files\n' );
 
