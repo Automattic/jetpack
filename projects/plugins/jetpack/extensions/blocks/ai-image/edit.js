@@ -45,22 +45,22 @@ function getImagesFromOpenAI(
 	} )
 		.then( res => {
 			setLoadingImages( false );
-			if ( res.error && res.error.message ) {
-				setErrorMessage( res.error.message );
-				return;
-			}
 			const images = res.data.map( image => {
 				return 'data:image/png;base64,' + image.b64_json;
 			} );
 			setResultImages( images );
 		} )
-		.catch( () => {
-			setErrorMessage(
-				__(
-					'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-					'jetpack'
-				)
-			);
+		.catch( e => {
+			if ( e.message ) {
+				setErrorMessage( e.message ); // Message was already translated by the backend
+			} else {
+				setErrorMessage(
+					__(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					)
+				);
+			}
 			setLoadingImages( false );
 		} );
 }
