@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Dependency_Path_Mapping;
 
 // @todo - refactor this. Dump of functions from page optimize.
 
