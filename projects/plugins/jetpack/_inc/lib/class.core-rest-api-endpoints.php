@@ -2739,7 +2739,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'enable_odyssey_stats'                 => array(
 				'description'       => esc_html__( 'Preview the new Jetpack Stats experience (Experimental).', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 0,
+				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'stats',
 			),
