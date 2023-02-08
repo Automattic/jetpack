@@ -81,6 +81,13 @@ export class API {
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
 		}
 
+		/**
+		 * `data.JSON` is used to keep in line with how WP REST API parses request json params
+		 * It also allows frees up the the endpoint to accept other values in the root of the JSON object
+		 * if that ever becomes necessary.
+		 * @see https://developer.wordpress.org/reference/classes/wp_rest_request/parse_json_params/
+		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
+		 */
 		if ( ! data || data.JSON === undefined ) {
 			console.error( 'Failed to parse the response\n', { url, text, result } );
 			throw new Error( `Failed to "${ method }" to ${ url }. Received ${ result.status }` );
