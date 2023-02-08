@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.9] - 2023-02-08
+### Added
+- Add allow download option to VideoPress videos in VP dashboard [#28804]
+- Add preload toggle to VideoPress block [#28705]
+- VideoPress: anticipate privacy state of the video [#28664]
+- VideoPress: Enforce chapters restrictions on description parsing [#28731]
+- VideoPress: handle VideoPress module connection from video block [#28722]
+- VideoPress: re-write token bridge lib [#28659]
+- VideoPress: set isPravate attribute based also on private_enabled_for_site [#28769]
+
+### Changed
+- Updated package dependencies. [#28682]
+- Updated package dependencies. [#28700]
+- VideoPress: do not depend on window.wp.media in getMediaToken() lib [#28660]
+- VideoPress: enqueue extensions when registrant plugin is active [#28717]
+- VideoPress: improve requesting video data [#28663]
+
+### Fixed
+- VideoPress: Fix fatal error when local video cannot be read [#28817]
+- VideoPress: Fix token bridge issue in development environment [#28788]
+
 ## [0.10.8] - 2023-01-30
 ### Added
 - VideoPress: Add video chapters validation function [#28628]
@@ -675,6 +696,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.8...v0.10.9
 [0.10.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.5...v0.10.6
