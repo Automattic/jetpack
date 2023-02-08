@@ -1,13 +1,13 @@
 <?php
 /**
- * Site Editor - Show location-aware snackbar on load.
+ * Site Editor - Show a snackbar indicating what's being edited.
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\SiteEditorSnackbarOnLoad;
+namespace Automattic\Jetpack\Extensions\SiteEditorSnackbars;
 
-const FEATURE_NAME = 'site-editor-snackbar-on-load';
+const FEATURE_NAME = 'site-editor-snackbars';
 
 add_filter(
 	'jetpack_set_available_extensions',

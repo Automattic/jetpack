@@ -43,7 +43,7 @@
 		"payments-intro",
 		"post-publish-qr-post-panel",
 		"payment-buttons",
-		"site-editor-snackbar-on-load"
+		"site-editor-snackbars"
 	],
 	"beta": [
 		"amazon",

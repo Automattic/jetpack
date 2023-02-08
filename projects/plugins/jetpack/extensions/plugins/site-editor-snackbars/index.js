@@ -2,11 +2,10 @@ import { subscribe, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 
-const SiteEditorSnackbarOnLoad = () => {
+const SiteEditorSnackbars = () => {
 	const [ canvasMode, setCanvasMode ] = useState();
-	const [ prevCanvasMode, setPrevCanvasMode ] = useState();
 
-	const { createSuccessNotice } = useDispatch( 'core/notices' );
+	const { createInfoNotice, removeNotice } = useDispatch( 'core/notices' );
 
 	const { entityTitle, entityType, isSiteEditor } = useSelect( select => {
 		if ( ! select( 'core/edit-site' ) ) {
@@ -51,32 +50,27 @@ const SiteEditorSnackbarOnLoad = () => {
 		return () => unsubscribe();
 	}, [ isSiteEditor ] );
 
-	// Show a snackbar indicating what's being edited after switching to the edit canvas mode.
+	// Show a snackbar indicating what's being edited.
 	useEffect( () => {
-		if ( ! isSiteEditor ) {
+		const noticeId = 'jetpack/site-editor/snackbars';
+		removeNotice( noticeId );
+
+		if ( ! isSiteEditor || canvasMode !== 'edit' || ! entityTitle || ! entityType ) {
 			return;
 		}
 
-		if ( canvasMode === prevCanvasMode ) {
-			return;
-		}
-
-		if ( canvasMode === 'edit' && prevCanvasMode !== 'edit' ) {
-			const message = sprintf(
-				/* translators: %1$s and %2$s are the title and type, respectively, of the entity being edited (e.g. "Editing the Index template", or "Editing the Header template part").*/
-				__( 'Editing the %1$s %2$s', 'jetpack' ),
-				entityTitle,
-				entityType.toLowerCase()
-			);
-			createSuccessNotice( message, { type: 'snackbar' } );
-		}
-
-		setPrevCanvasMode( canvasMode );
-	}, [ isSiteEditor, canvasMode, prevCanvasMode, createSuccessNotice, entityTitle, entityType ] );
+		const message = sprintf(
+			/* translators: %1$s and %2$s are the title and type, respectively, of the entity being edited (e.g. "Editing the Index template", or "Editing the Header template part").*/
+			__( 'Editing the %1$s %2$s', 'jetpack' ),
+			entityTitle,
+			entityType.toLowerCase()
+		);
+		createInfoNotice( message, { id: noticeId, type: 'snackbar' } );
+	}, [ isSiteEditor, canvasMode, createInfoNotice, removeNotice, entityTitle, entityType ] );
 
 	return null;
 };
 
-export const name = 'site-editor-snackbar-on-load';
+export const name = 'site-editor-snackbars';
 
-export const settings = { render: SiteEditorSnackbarOnLoad };
+export const settings = { render: SiteEditorSnackbars };
