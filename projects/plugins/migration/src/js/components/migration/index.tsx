@@ -12,7 +12,7 @@ export * from './progress';
 
 export const ToS = createInterpolateElement(
 	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'By clicking "Get started", you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
 		'jetpack-migration'
 	),
 	{
