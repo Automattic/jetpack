@@ -177,6 +177,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'design_type',
 		'site_goals',
 		'site_segment',
+		'site_source_slug',
 		'import_engine',
 		'is_pending_plan',
 		'is_wpforteams_site',
@@ -791,6 +792,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$site_creation_flow = $site->get_site_creation_flow();
 					if ( $site_creation_flow ) {
 						$options[ $key ] = $site_creation_flow;
+					}
+					break;
+				case 'site_source_slug':
+					$site_source_slug = $site->get_site_source_slug();
+					if ( $site_source_slug ) {
+						$options[ $key ] = $site_source_slug;
 					}
 					break;
 				case 'is_cloud_eligible':

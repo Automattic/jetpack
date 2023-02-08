@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Podcast player block: remove dependency on wp-components from the frontend code

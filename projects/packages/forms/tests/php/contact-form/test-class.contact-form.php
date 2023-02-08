@@ -1697,7 +1697,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
 			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
-			$this->assertCount( 8, $data['data'], 'has total expected data keys' );
+			$this->assertCount( 10, $data['data'], 'has total expected data keys' );
 		}
 	}
 

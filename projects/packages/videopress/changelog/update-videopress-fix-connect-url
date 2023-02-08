@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: enqueue extensions when registrant plugin is active
