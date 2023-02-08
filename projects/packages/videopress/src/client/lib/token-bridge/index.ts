@@ -118,7 +118,7 @@ export async function tokenBridgeHandler(
 		id: Number( postId ),
 		guid,
 		adminAjaxAPI: videopressAjax.ajaxUrl,
-		flushToken: requestToken.attempt > 0,
+		flushToken: isRetry || requestToken.attempt > 0,
 	} );
 
 	requestToken.attempt++;

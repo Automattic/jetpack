@@ -23,6 +23,8 @@ const debug = debugFactory( 'videopress:get-media-token' );
 // Lifetime of the token in milliseconds.
 const TOKEN_LIFETIME = 1000 * 60 * 60 * 12; // 12 hours
 
+const context = window?.videopressAjax?.context || 'main';
+
 /**
  * Request media token data hiting the admin-ajax endpoint.
  *
@@ -103,8 +105,8 @@ const requestMediaToken = function (
 						break;
 				}
 			} )
-			.catch( () => {
-				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
+			.catch( err => {
+				debug( '(%s) Error requesting token: %o', context, err?.message || 'Unknown error' );
 				resolve( { token: null } );
 			} );
 	} );
@@ -125,8 +127,6 @@ async function getMediaToken(
 ): Promise< MediaTokenProps > {
 	const { id = 0, guid = 0, flushToken } = args;
 	const key = `vpc-${ scope }-${ id }-${ guid }`;
-
-	const context = window?.videopressAjax?.context || 'main';
 
 	let storedToken: {
 		data: MediaTokenProps;
@@ -156,7 +156,11 @@ async function getMediaToken(
 	}
 
 	debug( '(%s) Requesting token', context );
-	const token = await requestMediaToken( scope, args );
+	const tokenData = await requestMediaToken( scope, args );
+
+	if ( ! tokenData?.token ) {
+		return;
+	}
 
 	// Only store playback tokens.
 	if ( 'playback' === scope ) {
@@ -164,14 +168,14 @@ async function getMediaToken(
 		localStorage.setItem(
 			key,
 			JSON.stringify( {
-				data: token,
+				data: tokenData,
 				expire: Date.now() + TOKEN_LIFETIME,
 			} )
 		);
 	}
 
 	debug( '(%s) Providing %o token from request/response', context, key );
-	return token;
+	return tokenData;
 }
 
 export default getMediaToken;
