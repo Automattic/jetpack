@@ -869,14 +869,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
-				case 'version':
-					$updated = Stats_Options::set_option( $option, $value );
-					break;
-
 				case 'do_not_track':
+				case 'version':
 				case 'collapse_nudges':
-					// Cast type to boolean.
-					$updated = Stats_Options::set_option( $option, (bool) $value );
+					$grouped_options_current    = (array) get_option( 'stats_options' );
+					$grouped_options            = $grouped_options_current;
+					$grouped_options[ $option ] = $value;
+
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current !== $grouped_options
+						? update_option( 'stats_options', $grouped_options )
+						: true;
 					break;
 
 				case 'enable_odyssey_stats':
