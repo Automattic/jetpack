@@ -259,10 +259,10 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 		$converted_ip_address = IP::convert_ip_address( '1.2.3.4' );
 		if ( function_exists( 'inet_pton' ) ) {
 			// if inet_pton() is available, the IP address should be converted to the in_addr representation as a string.
-			$this->assertIsString( $converted_ip_address );
+			$this->assertEquals( gettype( $converted_ip_address ), 'string' );
 		} else {
 			// if inet_pton() is not available, the IP address should be converted to an integer.
-			$this->assertIsInt( $converted_ip_address );
+			$this->assertEquals( gettype( $converted_ip_address ), 'integer' );
 		}
 	}
 
