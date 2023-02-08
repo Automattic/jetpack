@@ -24,7 +24,6 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		// Mock Jetpack Connection.
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
