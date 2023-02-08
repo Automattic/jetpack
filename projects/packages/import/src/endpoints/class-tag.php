@@ -57,19 +57,7 @@ class Tag extends \WP_REST_Terms_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$terms = get_terms(
-			array(
-				'taxonomy'   => 'post_tag',
-				'number'     => 1,
-				'fields'     => 'ids',
-				'meta_query' => array(
-					array(
-						'key'   => 'unified_importer_id',
-						'value' => $parent_import_id,
-					),
-				),
-			)
-		);
+		$terms = get_terms( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $terms ) && count( $terms ) === 1 ) {
 			$parent_id = $terms[0];

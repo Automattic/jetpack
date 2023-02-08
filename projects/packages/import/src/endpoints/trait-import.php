@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
-use Automattic\Jetpack\Connection\Rest_Authentication;
-
 /**
  * Import trait. Add a unique import ID to the items schema and authentication.
  */
@@ -83,9 +81,13 @@ trait Import {
 
 	/**
 	 * Ensure that the user has permissions to import.
+	 *
+	 * @return bool|\WP_Error
 	 */
 	public function import_permissions_callback() {
-		if ( Rest_Authentication::is_signed_with_blog_token() && \current_user_can( 'import' ) ) {
+		// The permission check is done in the REST API authentication. It's the same
+		// as the one used in wp-admin/import.php.
+		if ( \current_user_can( 'import' ) ) {
 			return true;
 		}
 
@@ -94,7 +96,28 @@ trait Import {
 			'jetpack-import'
 		);
 
-		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => \rest_authorization_required_code() ) );
+		return new \WP_Error( 'rest_forbidden', $error_msg, array( 'status' => \rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Get the import DB query. This is used to get the items with a specific
+	 * meta key that have been imported.
+	 *
+	 * @param int $parent_import_id The parent import ID.
+	 * @return array The query.
+	 */
+	protected function get_import_db_query( $parent_import_id ) {
+		// Get the only one item with the parent import ID.
+		return array(
+			'number'     => 1,
+			'fields'     => 'ids',
+			'meta_query' => array(
+				array(
+					'key'   => 'unified_importer_id',
+					'value' => $parent_import_id,
+				),
+			),
+		);
 	}
 
 	/**

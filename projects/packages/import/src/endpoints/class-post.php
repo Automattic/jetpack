@@ -57,18 +57,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$posts = get_posts(
-			array(
-				'numberposts' => 1,
-				'fields'      => 'ids',
-				'meta_query'  => array(
-					array(
-						'key'   => 'unified_importer_id',
-						'value' => $parent_import_id,
-					),
-				),
-			)
-		);
+		$posts = get_posts( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $posts ) && count( $posts ) === 1 ) {
 			$parent_id = $posts[0];

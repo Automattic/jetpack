@@ -57,18 +57,7 @@ class Category extends \WP_REST_Terms_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$categories = get_categories(
-			array(
-				'number'     => 1,
-				'fields'     => 'ids',
-				'meta_query' => array(
-					array(
-						'key'   => 'unified_importer_id',
-						'value' => $parent_import_id,
-					),
-				),
-			)
-		);
+		$categories = get_categories( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $categories ) && count( $categories ) === 1 ) {
 			$parent_id = $categories[0];

@@ -57,18 +57,7 @@ class Comment extends \WP_REST_Comments_Controller {
 	 * @return bool True if updated.
 	 */
 	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$comments = get_comments(
-			array(
-				'number'     => 1,
-				'fields'     => 'ids',
-				'meta_query' => array(
-					array(
-						'key'   => 'unified_importer_id',
-						'value' => $parent_import_id,
-					),
-				),
-			)
-		);
+		$comments = get_comments( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $comments ) && count( $comments ) === 1 ) {
 			$parent_id = $comments[0];
