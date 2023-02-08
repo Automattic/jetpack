@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { JSONSchema } from './utils';
 export type RequestParams = string | JSONSchema;
-export type RequestMethods = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+export type RequestMethods = 'GET' | 'POST' | 'DELETE';
 export class API {
 	private baseUrl: string;
 	private restNonce: string;
