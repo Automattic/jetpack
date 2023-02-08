@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Admin;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Transient;
 
 /**
@@ -21,11 +22,22 @@ class Regenerate_Admin_Notice {
 	}
 
 	public static function dismiss() {
-		Transient::delete( 'regenerate_admin_notice', false );
+		Transient::delete( 'regenerate_admin_notice' );
 	}
 
 	public static function is_enabled() {
 		return Transient::get( 'regenerate_admin_notice', false );
+	}
+
+	/**
+	 * Hide the admin notice for a week.
+	 */
+	public static function snooze_suggestion() {
+		Transient::set( 'snooze_regenerate_suggestion', true, WEEK_IN_SECONDS );
+	}
+
+	public static function is_suggestion_snoozed() {
+		return Transient::get( 'snooze_regenerate_suggestion', false );
 	}
 
 	/**
@@ -35,40 +47,52 @@ class Regenerate_Admin_Notice {
 		return add_query_arg(
 			array(
 				self::$dismissal_key => '',
+				'nonce'              => wp_create_nonce( 'jb_dismiss_notice' ),
 			)
 		);
 	}
 
 	public static function maybe_handle_dismissal() {
-		// We're okay dismissing the notice without nonce verification.
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended
-		if ( ! is_admin() || ! current_user_can( 'manage_options' ) || ! isset( $_GET[ self::$dismissal_key ] ) ) {
+		if ( ! is_admin()
+			|| ! current_user_can( 'manage_options' )
+			|| ! isset( $_GET[ self::$dismissal_key ], $_GET['nonce'] )
+			|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'jb_dismiss_notice' )
+		) {
 			return;
 		}
+
+		// Temporarily snooze the suggestion
+		self::snooze_suggestion();
+
+		// Dismiss the notice that shows up for major changes.
 		static::dismiss();
-		wp_safe_redirect( remove_query_arg( self::$dismissal_key ) );
+
+		wp_safe_redirect( remove_query_arg( array( self::$dismissal_key, 'nonce' ) ) );
 	}
 
 	public static function init() {
 		add_action( 'admin_notices', array( static::class, 'maybe_render' ) );
-		if ( static::is_enabled() ) {
+		if ( static::is_enabled() || ! static::is_suggestion_snoozed() ) {
 			static::maybe_handle_dismissal();
 		}
 	}
 
 	public static function maybe_render() {
-		if ( static::is_enabled() && current_user_can( 'manage_options' ) ) {
-			static::render();
-		}
-	}
-
-	public static function render() {
 		// We're not actually using the GET parameter here, it's only used to find out what page we're on.
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		$on_settings_page = is_admin() && isset( $_GET['page'] ) && Admin::MENU_SLUG === $_GET['page'];
-		if ( $on_settings_page ) {
+		if ( $on_settings_page || ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+
+		if ( static::is_enabled() ) {
+			static::render_notice();
+		} elseif ( ! static::is_suggestion_snoozed() && ! Critical_CSS_State::is_fresh() ) {
+			static::render_suggestion();
+		}
+	}
+
+	public static function render_notice() {
 		?>
 		<div id="jetpack-boost-notice-critical-css-regenerate" class="notice notice-warning is-dismissible">
 			<h3>
@@ -79,6 +103,35 @@ class Regenerate_Admin_Notice {
 			</p>
 			<p>
 				<?php esc_html_e( 'You can go to the Jetpack Boost settings page to have it re-generated automatically.', 'jetpack-boost' ); ?>
+			</p>
+
+			<p>
+				<a class='button button-primary' href="<?php echo esc_url( admin_url( 'admin.php?page=' . Admin::MENU_SLUG ) ); ?>">
+					<strong>
+						<?php esc_html_e( 'Go to Jetpack Boost', 'jetpack-boost' ); ?>
+					</strong>
+				</a>
+				<a class="jb-dismiss-notice" href="<?php echo esc_url( static::get_dismiss_url() ); ?>">
+					<strong>
+						<?php esc_html_e( 'Dismiss notice', 'jetpack-boost' ); ?>
+					</strong>
+				</a>
+			</p>
+		</div>
+		<?php
+	}
+
+	public static function render_suggestion() {
+		?>
+		<div id="jetpack-boost-notice-critical-css-regenerate" class="notice notice-info is-dismissible">
+			<h3>
+				<?php esc_html_e( 'Jetpack Boost - Regenerate Critical CSS', 'jetpack-boost' ); ?>
+			</h3>
+			<p>
+				<?php esc_html_e( 'We noticed some updates to your site that may have changed your HTML/CSS structure.', 'jetpack-boost' ); ?>
+			</p>
+			<p>
+				<?php esc_html_e( 'Please regenerate your Critical CSS to maintain optimal site performance.', 'jetpack-boost' ); ?>
 			</p>
 
 			<p>

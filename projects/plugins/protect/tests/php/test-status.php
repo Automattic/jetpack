@@ -25,7 +25,6 @@ class Test_Status extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		Protect_Status::$status = null;
 	}
 
