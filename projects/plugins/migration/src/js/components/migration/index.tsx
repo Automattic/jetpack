@@ -10,6 +10,23 @@ import './styles.module.scss';
 
 export * from './progress';
 
+export const ToS = createInterpolateElement(
+	__(
+		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
+		'jetpack-migration'
+	),
+	{
+		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		shareDetailsLink: (
+			<a
+				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
+				rel="noopener noreferrer"
+				target="_blank"
+			/>
+		),
+	}
+);
+
 interface Props {
 	apiRoot: string;
 	apiNonce: string;
@@ -79,6 +96,7 @@ export function Migration( props: Props ) {
 				</li>
 			</ul>
 			<div className={ 'action-buttons' }>
+				<div className={ 'tos' }>{ ToS }</div>
 				<Button
 					isPrimary={ true }
 					isBusy={ buttonIsLoading }
