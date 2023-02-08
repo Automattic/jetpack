@@ -484,15 +484,19 @@ async function copyDirectory( src, dest ) {
  * @param {string} file - File name.
  * @param {string} data - Contents to write.
  * @param {object} options - Options.
+ * @param {object} t - Temporary. Remove when debug statements are removed.
  */
-async function writeFileAtomic( file, data, options = {} ) {
+async function writeFileAtomic( file, data, options = {}, t ) {
 	// Note there doesn't seem to be any need for managing ownership or flag 'wx' here,
 	// if some attacker could take advantage they could do worse more directly.
 	const tmpfile = npath.join( npath.dirname( file ), `.${ npath.basename( file ) }.tmp` );
+	t.output( `D: Writing ${ tmpfile }\n` );
 	await fs.writeFile( tmpfile, data, options );
 	try {
+		t.output( `D: Renaming ${ tmpfile } => ${ file }\n` );
 		await fs.rename( tmpfile, file );
 	} catch ( e ) {
+		t.output( `D: Rename failed! ${ e.stack }\n` );
 		await fs.rm( tmpfile ).catch( () => null );
 		throw e;
 	}
@@ -563,7 +567,8 @@ async function buildProject( t ) {
 				await writeFileAtomic(
 					`${ t.cwd }/composer.json`,
 					JSON.stringify( composerJson, null, '\t' ) + '\n',
-					{ encoding: 'utf8' }
+					{ encoding: 'utf8' },
+					t
 				);
 				// Update composer.lock too, if any.
 				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
@@ -722,9 +727,11 @@ async function buildProject( t ) {
 	}
 
 	// Copy SECURITY.md.
+	t.output( 'D: Copying SECURITY.md\n' );
 	await fs.copyFile( `SECURITY.md`, npath.join( buildDir, 'SECURITY.md' ) );
 
 	// Copy project files.
+	t.output( 'D: Copying project files\n' );
 	for await ( const file of listProjectFiles( t.cwd, t.execa ) ) {
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
@@ -735,6 +742,7 @@ async function buildProject( t ) {
 			await fs.copyFile( srcfile, destfile );
 		}
 	}
+	t.output( 'D: Done copying project files\n' );
 
 	// HACK: Create stubs to avoid upgrade errors. See https://github.com/Automattic/jetpack/pull/22431.
 	// Ideally we'll have fixed the upgrade errors by the time something else breaks, in which case this should be removed instead of extended.
@@ -770,23 +778,28 @@ async function buildProject( t ) {
 	}
 
 	// Remove monorepo repos from composer.json.
+	t.output( 'D: About to update composer.json repositories\n' );
 	if ( composerJson.repositories && composerJson.repositories.some( r => r.options?.monorepo ) ) {
 		composerJson.repositories = composerJson.repositories.filter( r => ! r.options?.monorepo );
 		if ( composerJson.repositories.length === 0 ) {
 			delete composerJson.repositories;
 		}
+		t.output( 'D: Adjusted composerJson var\n' );
 
 		// Update '@dev' dependency version numbers in composer.json.
 		const composerDepTyes = [ 'require', 'require-dev' ];
 		for ( const key of composerDepTyes ) {
+			t.output( `D: Checking ${ key }\n` );
 			if ( composerJson[ key ] ) {
 				for ( const [ pkg, ver ] of Object.entries( composerJson[ key ] ) ) {
+					t.output( `D: Checking ${ key } ${ pkg } ${ ver }\n` );
 					if ( ver === '@dev' ) {
 						for ( const ctxPkg of Object.values( t.ctx.versions ) ) {
 							if ( ctxPkg.name === pkg ) {
 								let massagedVer = ctxPkg.version;
 								massagedVer = `^${ massagedVer }`;
 								composerJson[ key ][ pkg ] = massagedVer;
+								t.output( `D: Updated ${ key } ${ pkg } ${ ver } => ${ massagedVer }\n` );
 								break;
 							}
 						}
@@ -795,15 +808,18 @@ async function buildProject( t ) {
 			}
 		}
 
+		t.output( 'D: Writing composer.json\n' );
 		await writeFileAtomic(
 			`${ buildDir }/composer.json`,
 			JSON.stringify( composerJson, null, '\t' ) + '\n',
-			{ encoding: 'utf8' }
+			{ encoding: 'utf8' },
+			t
 		);
 	}
 
 	// Remove engines and workspace refs from package.json.
 	let packageJson;
+	t.output( 'D: About to update package.json (maybe)\n' );
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
 			await fs.readFile( `${ buildDir }/package.json`, { encoding: 'utf8' } )
@@ -838,11 +854,13 @@ async function buildProject( t ) {
 		await writeFileAtomic(
 			`${ buildDir }/package.json`,
 			JSON.stringify( packageJson, null, '\t' ) + '\n',
-			{ encoding: 'utf8' }
+			{ encoding: 'utf8' },
+			t
 		);
 	}
 
 	// If npmjs-autopublish is active, default to ignoring .github and composer.json (and not ignoring anything else) in the publish.
+	t.output( 'D: About to handle npmjs-autopublish (maybe)\n' );
 	if ( composerJson.extra?.[ 'npmjs-autopublish' ] ) {
 		let ignore = '# Automatically generated ignore rules.\n/.github/\n/composer.json\n';
 		if ( await fsExists( `${ buildDir }/.npmignore` ) ) {
@@ -854,6 +872,7 @@ async function buildProject( t ) {
 	}
 
 	// If autorelease is active, flag .git files to be excluded from the archive.
+	t.output( 'D: About to handle autorelease (maybe)\n' );
 	if ( composerJson.extra?.autorelease ) {
 		let rules = '# Automatically generated rules.\n/.git*\texport-ignore\n';
 		if ( await fsExists( `${ buildDir }/.gitattributes` ) ) {
@@ -865,6 +884,7 @@ async function buildProject( t ) {
 	}
 
 	// Get the project version number from the changelog.md file.
+	t.output( 'D: Determining project version number\n' );
 	let projectVersionNumber = '';
 	const changelogFileName = composerJson.extra?.changelogger?.changelog || 'CHANGELOG.md';
 	const rl = rlcreateInterface( {
@@ -883,6 +903,7 @@ async function buildProject( t ) {
 		}
 	} );
 	await once( rl, 'close' );
+	t.output( `D: Got version number ${ projectVersionNumber }\n` );
 
 	if ( ! projectVersionNumber ) {
 		throw new Error( `\nError fetching latest version number from ${ changelogFileName }\n` );
@@ -894,8 +915,11 @@ async function buildProject( t ) {
 		jsName: packageJson?.name,
 		version: projectVersionNumber,
 	};
+	t.output( 'D: Awaiting mirror mutex\n' );
 	await t.ctx.mirrorMutex( async () => {
+		t.output( 'D: Writing mirrors.txt\n' );
 		// prettier-ignore
 		await fs.appendFile( `${ t.argv.forMirrors }/mirrors.txt`, `${ gitSlug }\n`, { encoding: 'utf8' } );
+		t.output( 'D: mirrors.txt written!\n' );
 	} );
 }
