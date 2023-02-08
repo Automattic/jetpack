@@ -1,6 +1,6 @@
-import { useState } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import classnames from 'classnames';
-import { concat, difference, includes, kebabCase, map, without } from 'lodash';
+import { difference, includes, kebabCase, map, without } from 'lodash';
 import TableItem from './item';
 
 import './style.scss';
@@ -8,21 +8,23 @@ import './style.scss';
 const Table = ( { className, columns, defaultSelected, items, onSelectionChange } ) => {
 	const [ selected, setSelected ] = useState( defaultSelected || [] );
 
-	const toggleSelected = id => {
-		const newState = includes( selected, id ) ? without( selected, id ) : concat( selected, id );
+	const toggleSelected = useCallback(
+		id => {
+			const newState = includes( selected, id ) ? without( selected, id ) : [ ...selected, id ];
 
-		setSelected( newState );
-		onSelectionChange( newState );
-	};
-
-	const selectAll = () => {
+			setSelected( newState );
+			onSelectionChange( newState );
+		},
+		[ selected, onSelectionChange ]
+	);
+	const selectAll = useCallback( () => {
 		if ( difference( map( items, 'id' ), selected ).length === 0 ) {
 			setSelected( [] );
 			return;
 		}
 
 		setSelected( map( items, 'id' ) );
-	};
+	}, [ items, selected ] );
 
 	const classes = classnames( 'jp-forms__table', className );
 	const checkboxClasses = classnames( 'jp-forms__table-checkbox', {

@@ -1,9 +1,9 @@
-import { Fragment } from '@wordpress/element';
+import { Fragment, useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
 const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
-	const handleChange = () => onSelectChange( item.id );
+	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
 	const classes = classnames( 'jp-forms__table-item', {
 		'is-selected': isSelected,
