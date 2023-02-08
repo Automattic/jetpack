@@ -433,7 +433,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if (
 			false !== strpos( $title, 'count-' )
 			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
-			) {
+		) {
 
 			$count = (int) ( $matches[1] );
 			if ( $count > 0 ) {
@@ -448,7 +448,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if (
 			false !== strpos( $title, 'inline-text' )
 			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
-			) {
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -463,7 +463,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		if (
 			false !== strpos( $title, 'awaiting-mod' )
 			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
-			) {
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
