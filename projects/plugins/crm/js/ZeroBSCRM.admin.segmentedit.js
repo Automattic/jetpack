@@ -1420,3 +1420,7 @@ function jpcrm_js_compare_conditions( a, b ) {
 
 	return 0;
 }
+
+if ( module ) {
+    module.exports = { zeroBSCRMJS_segmentLang };
+}

@@ -232,3 +232,8 @@ function zbsJS_welcomeWizard_update_deets() {
 	window.zbsOptions.zbs_crm_email = jQuery( '#zbs_crm_email' ).val();
 	window.zbsOptions.zbs_crm_subscribed = jQuery( '#zbs_sub' ).is( ':checked' ) ? 1 : 0;
 }
+
+if ( module ) {
+    module.exports = { zbs_biz_select, zbs_crm_name_change };
+}
+

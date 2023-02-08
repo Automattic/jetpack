@@ -9,7 +9,7 @@
  */
 
 // Define the tour!
-const zbsTour = {
+export const zbsTour = {
 	id: 'zbs-welcome-tour',
 	steps: [
 		{
