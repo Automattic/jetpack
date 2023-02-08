@@ -180,10 +180,11 @@ abstract class Sharing_Source {
 		 * @module sharedaddy
 		 * @since $$next-version$$
 		 *
-		 * @param string $tags    Comma-separated list of tags.
-		 * @param int    $post_id Post ID.
+		 * @param string $tags     Comma-separated list of tags.
+		 * @param int    $post_id  Post ID.
+		 * @param int    $this->id Sharing ID.
 		 */
-		$tag_list = (string) apply_filters( 'jetpack_sharing_tag_list', implode( ', ', $tags ), $post_id );
+		$tag_list = (string) apply_filters( 'jetpack_sharing_tag_list', implode( ', ', $tags ), $post_id, $this->id );
 
 		return html_entity_decode( wp_kses( $tag_list, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
