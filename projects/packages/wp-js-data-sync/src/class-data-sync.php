@@ -16,8 +16,12 @@
  *
  * ```
  *
- * This will to create two endpoints: `/wp-json/jetpack-boost/widget_status` and `/wp-json/jetpack-boost/widget_data`
- * and pass the following variables to the `jetpack-boost` script handle:
+ * This will to create two endpoints: `/wp-json/jetpack-boost/widget-status` and `/wp-json/jetpack-boost/widget-data`
+ * and pass the following variables to the `jetpack-boost` script handle.
+ *
+ * Note that keys for URLs are always automatically transformed to kebab-case, so `widget_status` becomes `widget-status`,
+ * and it's expected that keys are always in snake_case when referencing options.
+ * They're only transformed to kebab-case when used in URLs.
  *
  * ```
  *    jetpack_boost = {
