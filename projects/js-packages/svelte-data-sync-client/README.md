@@ -53,7 +53,7 @@ That's it, now you can use `favorites.enabled` and `favorites.posts` in your Sve
 
 Use `client.createAsyncStore()` to create an object with two Svelte stores:
 
-- `store`: Use this as a normal Svelte store. When the value is updates, it will dispatch POST requests to the REST API endpoint.
+- `store`: Use this as a normal Svelte store. When the value is updated, it will dispatch POST requests to the REST API endpoint.
 - `pending`: In case you need to display a loading state, this store will be `true` while the value is being updated.
 
 Here's a simple example of how that would work:
