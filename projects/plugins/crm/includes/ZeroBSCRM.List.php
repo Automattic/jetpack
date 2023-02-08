@@ -532,9 +532,11 @@ class zeroBSCRM_list{
                                     <div id="zbs-list-view-filter-options-current" class="zbs-filter-manager-connected ui-sortable">
 
                                     <?php if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $filterButtonKey => $filterButton){
-
-                                        ?><div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo esc_html( $filterButton[0] ); ?></div><?php
-
+										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
+										?>
+										<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
+										<?php
+										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                     } ?>
 
 
@@ -553,7 +555,7 @@ class zeroBSCRM_list{
 										if ( ! array_key_exists( $filterButtonKey, $currentFilterButtons ) ) {
 
 											?>
-												<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' ) ) ); ?></div>
+												<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
 												<?php
 
 										}
@@ -917,8 +919,14 @@ class zeroBSCRM_list{
 
                             if ($buttonCount > 0) echo ',';
                             
-                            #} Hard coded, lazy
-                            echo "{namestr:'". esc_html( zeroBSCRM_slashOut($button[0],true) ) ."',fieldstr:'". esc_html( $buttonKey ) ."'}";
+							// Hard coded, lazy
+							printf(
+								"{namestr:'%s',fieldstr:'%s'}",
+								wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
+								// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
+								esc_html( $buttonKey )
+								// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							);
 
                             $buttonCount++;
 
