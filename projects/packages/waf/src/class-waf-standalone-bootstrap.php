@@ -42,13 +42,7 @@ class Waf_Standalone_Bootstrap {
 	 * @return void
 	 */
 	private function initialize_constants() {
-		// Compatiblity patch for cases where an outdated Waf_Constants class has been
-		// autoloaded by the standalone bootstrap execution at the beginning of the current request.
-		if ( method_exists( Waf_Constants::class, 'initialize_bootstrap_constants' ) ) {
-			Waf_Constants::initialize_bootstrap_constants();
-		} elseif ( method_exists( Waf_Constants::class, 'initialize_constants' ) ) {
-			Waf_Constants::initialize_constants();
-		}
+		Waf_Constants::initialize_constants();
 	}
 
 	/**
