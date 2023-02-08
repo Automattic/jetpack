@@ -2191,7 +2191,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $print_r_output The array string to be reverted. Needs to being with 'Array'.
 	 * @param bool   $parse_html Whether to run html_entity_decode on each line.
 	 *                           As strings are stored right now, they are all escaped, so '=>' are '&gt;'.
-	 * @return array|string Array when succesfully reconstructed, string otherwise
+	 * @return array|string Array when succesfully reconstructed, string otherwise. Output will always be esc_html'd.
 	 */
 	public static function reverse_that_print( $print_r_output, $parse_html = false ) {
 		$lines = explode( "\n", trim( $print_r_output ) );
