@@ -13,10 +13,7 @@ export class API {
 	 * @param baseUrl - For example: http://localhost/wp-json/jetpack-favorites
 	 * @param restNonce - For example: abcdefghij
 	 */
-	public initialize( baseUrl?: string, restNonce?: string ) {
-		if ( ! baseUrl || ! restNonce ) {
-			return;
-		}
+	public initialize( baseUrl: string, restNonce: string ) {
 		this.baseUrl = baseUrl;
 		this.restNonce = restNonce;
 	}
