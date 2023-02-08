@@ -501,8 +501,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 							%1$s
 							style="%2$s"
 							placeholder="%3$s"
-							value=""
-							id="%4$s"
+							value="%4$s"
+							id="%5$s"
 						/>',
 						( ! empty( $classes['email_field'] )
 							? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -513,6 +513,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 							: 'width: 95%; padding: 1px 10px'
 						),
 						esc_attr( $data['subscribe_placeholder'] ),
+						esc_attr( $data['subscribe_email'] ),
 						esc_attr( $email_field_id )
 					);
 					?>

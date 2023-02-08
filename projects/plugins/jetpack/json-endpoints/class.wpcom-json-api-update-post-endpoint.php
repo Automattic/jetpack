@@ -263,6 +263,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( $new ) {
 			$input = $this->input( true );
 
+			// default to post.
+			if ( empty( $input['type'] ) ) {
+				$input['type'] = 'post';
+			}
+
 			if ( 'revision' === $input['type'] ) {
 				if ( ! isset( $input['parent'] ) ) {
 					return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
@@ -271,11 +276,6 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$input['slug']   = $input['parent'] . '-autosave-v1';
 			} elseif ( ! isset( $input['title'] ) && ! isset( $input['content'] ) && ! isset( $input['excerpt'] ) ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
-			}
-
-			// default to post.
-			if ( empty( $input['type'] ) ) {
-				$input['type'] = 'post';
 			}
 
 			$post_type = get_post_type_object( $input['type'] );

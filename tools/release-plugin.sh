@@ -36,6 +36,11 @@ if ! command -v gh &> /dev/null; then
 	fi 
 fi
 
+GH_VER="$( gh --version | grep -E -o -m1 '([0-9])*\.([0-9])*\.([0-9])*' )"
+if ! version_compare "$GH_VER" "2.21.2"; then
+	die "Your version of the GH CLI is out of date. Please upgrade your version with 'brew upgrade gh' and start again"
+fi
+
 # Get the options passed and parse them.
 ARGS=('-p')
 ALPHABETA=
@@ -98,7 +103,36 @@ if ! check_ver "$2"; then
 fi
 VERSION="$2"
 
+# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
+VERSION_AB=
+if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
+	VERSION_AB="-${VERSION_AB:1:1}"
+fi
+
+if [[ -n "$ALPHABETA" ]]; then
+	if [[ "$VERSION_AB" != "$ALPHABETA" || ! "$VERSION_AB" ]]; then
+		die "$ALPHABETA passed to script, but version number $VERSION does not contain the corresponding flag."
+	fi
+elif [[ -n "$VERSION_AB" && -z "$ALPHABETA" ]]; then
+	die "$VERSION contains alpha or beta flag, but corresponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
+fi
+
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
+
+# Check if a remote branch for the release branch exits and ask to delete it if it does.
+PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$PROJECT"/composer.json)
+RELEASE_BRANCH=
+if [[ -n "$PREFIX" ]]; then
+	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
+else
+	die "No release branch prefix found for $PROJECT, aborting."
+fi
+
+REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
+if [[ -n "$REMOTE_BRANCH" ]]; then
+	proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
+	git push origin --delete "$RELEASE_BRANCH"
+fi
 
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
