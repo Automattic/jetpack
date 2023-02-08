@@ -30,7 +30,7 @@ class Minify implements Feature {
 
 		jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-		$this->init_concatenate();
+		add_action( 'init', array( $this, 'init_concatenate' ) );
 
 		// Disable Jetpack photon-cdn for static JS/CSS
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
@@ -44,7 +44,7 @@ class Minify implements Feature {
 		return 'init';
 	}
 
-	private function init_concatenate() {
+	public function init_concatenate() {
 		if ( is_admin() ) {
 			return;
 		}
