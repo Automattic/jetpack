@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.7.1
+Stable tag: 11.8
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,18 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-beta - 2023-01-30
+### 11.9-a.1 - 2023-02-08
 #### Enhancements
-- Form block: add styling of input fields.
+- Contact form: add a blur effect while the form is loading the styles.
+- Form block: include style variations.
+- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
+- VideoPress: add transform control from video block to videopress/video block.
 
 #### Improved compatibility
-- General: migrated to new Web Fonts API from Gutenberg.
-- Revue block: add a direct link to the WordPress.com subscriber import page.
+- Donations block: remove dependencies on lodash and @wordpress/keycodes
+- Podcast player block: remove dependency on wp-components from the frontend code
+- Slideshow block: remove dependency on Lodash
+- Subscriptions: update subscribe block description.
 
 #### Bug fixes
-- Slidedhow: fix slideshow loading excessive dependencies on every page view.
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
-- Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
+- Subscriptions: fix rendering of subscriber email in .com.
+- Custom CSS: scope Additional CSS submenus to site with a connected owner.
 
 --------
 

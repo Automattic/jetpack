@@ -46,6 +46,8 @@
 	],
 	"beta": [
 		"amazon",
+		"conversation",
+		"dialogue",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
@@ -58,9 +60,7 @@
 		"ai-paragraph",
 		"anchor-fm",
 		"blogging-prompts",
-		"premium-content",
-		"conversation",
-		"dialogue"
+		"premium-content"
 	],
 	"no-post-editor": [
 		"business-hours",
