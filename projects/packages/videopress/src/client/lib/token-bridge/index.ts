@@ -26,6 +26,7 @@ type TokenBrigeEventProps = {
 	guid: VideoGUID;
 	requestId: string;
 	origin: Origin;
+	isRetry?: boolean;
 };
 
 const requestToken = { attempt: 0, isRequesting: false };
@@ -55,7 +56,7 @@ export async function tokenBridgeHandler(
 		return;
 	}
 
-	const { guid, requestId } = event.data;
+	const { guid, requestId, isRetry } = event.data;
 	if ( ! guid || ! requestId ) {
 		debug( '(%s) Invalid request', context );
 		return;
@@ -80,6 +81,10 @@ export async function tokenBridgeHandler(
 	) {
 		debug( '(%s) Invalid source', context );
 		return;
+	}
+
+	if ( isRetry ) {
+		debug( '(%s) ⚠️ Retry request', context );
 	}
 
 	debug(
