@@ -71,8 +71,59 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		return $daily_prompts;
 	}
 
+	$prompts = jetpack_fetch_blogging_prompts(
+		array(
+			'from'    => $day_before,
+			'number'  => 10,
+			'_locale' => $locale,
+		)
+	);
+
+	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
+
+	return $prompts;
+}
+
+/**
+ * Retrieve blogging prompts from the wpcom API and cache them, starting the list
+ * with the given prompt ID.
+ *
+ * @param int $prompt_id ID of the prompt to start with.
+ * @param int $count Number of prompts to retrieve.
+ * @return stdClass[]|null Array of blogging prompt objects or null.
+ */
+function jetpack_get_blogging_prompts_by_id( $prompt_id, $count = 10 ) {
+	$locale        = get_locale();
+	$transient_key = "jetpack_blogging_prompt_{$prompt_id}_{$count}_{$locale}";
+	$prompts       = get_transient( $transient_key );
+
+	// Return the cached prompts, if we have them. Otherwise fetch from the API.
+	if ( false !== $prompts ) {
+		return $prompts;
+	}
+
+	$prompts = jetpack_fetch_blogging_prompts(
+		array(
+			'from_id' => $prompt_id,
+			'number'  => $count,
+			'_locale' => $locale,
+		)
+	);
+
+	set_transient( $transient_key, $prompts, HOUR_IN_SECONDS );
+
+	return $prompts;
+}
+
+/**
+ * Retrieve blogging prompts from the wpcom API.
+ *
+ * @param array $query_params Query parameters to pass to the API.
+ * @return stdClass[]|null Array of blogging prompt objects or null.
+ */
+function jetpack_fetch_blogging_prompts( $query_params ) {
 	$blog_id = \Jetpack_Options::get_option( 'id' );
-	$path    = '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts?from=' . rawurldecode( $day_before ) . '&number=10&_locale=' . rawurldecode( $locale );
+	$path    = add_query_arg( $query_params, '/sites/' . rawurldecode( $blog_id ) . '/blogging-prompts' );
 
 	$args = array(
 		'headers' => array(
@@ -106,10 +157,7 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		return null;
 	}
 
-	$prompts = $body->prompts;
-	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
-
-	return $prompts;
+	return $body->prompts;
 }
 
 /**
@@ -194,13 +242,13 @@ function jetpack_is_potential_blogging_site() {
  * @return bool
  */
 function jetpack_is_valid_blogging_prompt( $prompt_id ) {
-	$daily_prompts = jetpack_get_daily_blogging_prompts();
+	$prompts = jetpack_get_blogging_prompts_by_id( $prompt_id );
 
-	if ( ! $daily_prompts ) {
+	if ( ! $prompts ) {
 		return false;
 	}
 
-	foreach ( $daily_prompts as $prompt ) {
+	foreach ( $prompts as $prompt ) {
 		if ( $prompt->id === $prompt_id ) {
 			return true;
 		}
