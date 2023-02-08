@@ -7,35 +7,12 @@
 
 namespace Automattic\Jetpack\Import;
 
-use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Rest_Authentication;
-use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
  * This class will provide endpoint for the Unified Importer.
  */
 class Main {
-
-	/**
-	 * Slug.
-	 *
-	 * @var string
-	 */
-	const PACKAGE_SLUG = 'jetpack-import';
-
-	/**
-	 * Package name.
-	 *
-	 * @var string
-	 */
-	const PACKAGE_NAME = 'Jetpack Import';
-
-	/**
-	 * Package URL.
-	 *
-	 * @var string
-	 */
-	const PACKAGE_URI = 'https://jetpack.com/jetpack-import';
 
 	/**
 	 * Package version.
@@ -56,15 +33,7 @@ class Main {
 	 *
 	 * @var \WP_REST_Controller[]
 	 */
-	private $routes = array();
-
-	/**
-	 * Class constructor.
-	 *
-	 * @return void
-	 */
-	private function __construct() {
-	}
+	private static $routes = array();
 
 	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
@@ -73,21 +42,18 @@ class Main {
 	 * @return void
 	 */
 	public static function configure() {
-		$import = new self();
-		$config = new Config();
+		if ( did_action( 'jetpack_import_initialized' ) ) {
+			return;
+		}
 
-		$config->ensure(
-			'connection',
-			array(
-				'slug'     => self::PACKAGE_SLUG,
-				'name'     => self::PACKAGE_NAME,
-				'url_info' => self::PACKAGE_URI,
-			)
-		);
+		add_action( 'rest_api_init', array( __CLASS__, 'initialize_rest_api' ) );
 
-		$config->ensure( 'sync', Data_Settings::MUST_SYNC_DATA_SETTINGS );
-
-		add_action( 'rest_api_init', array( $import, 'initialize_rest_api' ) );
+		/**
+		 * Runs right after the Jetpack Import package is initialized.
+		 *
+		 * @since $$next-version$$
+		*/
+		do_action( 'jetpack_import_initialized' );
 	}
 
 	/**
@@ -95,7 +61,7 @@ class Main {
 	 *
 	 * @return void
 	 */
-	public function initialize_rest_api() {
+	public static function initialize_rest_api() {
 		// Set up the REST authentication hooks.
 		Rest_Authentication::init();
 
@@ -106,11 +72,17 @@ class Main {
 			'tags'       => new Endpoints\Tag(),
 		);
 
-		// Allow other plugins to modify import routes.
-		$this->routes = apply_filters( 'jetpack_import_types', $routes );
+		/**
+		 * Allow other plugins to modify import routes.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $routes Array of import routes.
+		 */
+		self::$routes = apply_filters( 'jetpack_import_types', $routes );
 
 		// Register all the routes.
-		foreach ( $this->routes as $route ) {
+		foreach ( self::$routes as $route ) {
 			$route->register_routes();
 		}
 	}
