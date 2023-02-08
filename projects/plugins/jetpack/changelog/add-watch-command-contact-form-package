@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Add "watch" entries for both composer and package .json files

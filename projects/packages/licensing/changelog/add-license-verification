@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-After connection flow, load unattached licenses. If any of them match the product that's being connected, redirect users to the license activation page.
