@@ -155,6 +155,7 @@ async function getMediaToken(
 		}
 	}
 
+	debug( '(%s) Requesting token', context );
 	const token = await requestMediaToken( scope, args );
 
 	// Only store playback tokens.
