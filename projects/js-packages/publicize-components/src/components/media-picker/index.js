@@ -8,8 +8,6 @@ import { isVideo } from '../../hooks/use-media-restrictions';
 import VideoPreview from '../video-preview';
 import styles from './styles.module.scss';
 
-const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
-
 /**
  * Wrapper that handles media-related functionality.
  *
@@ -88,7 +86,7 @@ export default function MediaPicker( {
 							className={ mediaId && styles.preview }
 							onClick={ open }
 						>
-							{ ! mediaId && ADD_MEDIA_LABEL }
+							{ ! mediaId && buttonLabel }
 						</Button>
 						{ subTitle && <span>{ subTitle }</span> }
 					</>
@@ -103,7 +101,7 @@ export default function MediaPicker( {
 				) }
 			</div>
 		),
-		[ mediaId, onRemoveMedia, subTitle ]
+		[ buttonLabel, mediaId, onRemoveMedia, subTitle ]
 	);
 
 	const setMediaRender = useCallback(
