@@ -1118,12 +1118,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/import",
-                "reference": "7fe2b27802bcb19e7fdeeb14234ec2715bc6158a"
+                "reference": "2556be058dbd4bb258842e1bdd363ef1161fd44c"
             },
             "require": {
-                "automattic/jetpack-config": "@dev",
-                "automattic/jetpack-connection": "@dev",
-                "automattic/jetpack-sync": "@dev"
+                "automattic/jetpack-connection": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
