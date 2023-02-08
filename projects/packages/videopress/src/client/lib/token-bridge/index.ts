@@ -84,7 +84,7 @@ export async function tokenBridgeHandler(
 	}
 
 	if ( isRetry ) {
-		debug( '(%s) ⚠️ Retry request', context );
+		debug( '(%s) Client retry', context );
 	}
 
 	debug(
