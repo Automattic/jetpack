@@ -3114,7 +3114,7 @@ class Share_Mastodon extends Sharing_Source {
 		check_admin_referer( 'jetpack_share_mastodon_instance' );
 
 		$mastodon_instance = isset( $_POST['jetpack-mastodon-instance'] )
-			? sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) )
+			? trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) )
 			: null;
 
 		$post_title = $this->get_share_title( $post->ID );
@@ -3138,7 +3138,7 @@ class Share_Mastodon extends Sharing_Source {
 		);
 
 		$share_url = sprintf(
-			'%1$s/share?text=%2$s',
+			'%1$sshare?text=%2$s',
 			$mastodon_instance,
 			rawurlencode( $shared_message )
 		);
