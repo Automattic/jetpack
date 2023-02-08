@@ -2,7 +2,43 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.8-beta - 2023-01-30
+## 11.9-a.1 - 2023-02-08
+### Enhancements
+- Add a blur effect while the form is loading the styles [#28212]
+- Add New badge for Odyssey Stats toggle [#28662]
+- Display backend user error [#28617]
+- Donations block: remove dependencies on lodash and @wordpress/keycodes [#28667]
+- Include style variations for the Form block [#28212]
+- Podcast player block: remove dependency on wp-components from the frontend code [#28740]
+- Reorder export columns in 3 groups: response meta (title, source, date), response field values, response extra (consent, ip address) [#28678]
+- Slideshow block: remove dependency on Lodash [#28665]
+- Update paywall placeholder design for Subscriptions [#28813]
+- Update subscribe block description [#28742]
+- VideoPress: Add transform control from video block to videopress/video block [#28691]
+
+### Improved compatibility
+- Add "watch" entries for both composer and package .json files [#28704]
+- Put legacy contact-form blocks registration behind a flag [#28630]
+
+### Bug fixes
+- Fix rendering of subscriber email in .com as default value for the subscribe block input in wpcom [#28761]
+- Scope Additional CSS submenus to site with a connected owner [#28757]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added a new `site_source_slug` option to help resuming on copy site feature [#28768]
+- Add tooling for building the Jetpack Forms Dashboard [#28689]
+- API: Fix PHP warning [#28750]
+- API: Fix PHP warning [#28806]
+- Build: Check blocks' view scripts for unexpected dependencies. [#28626]
+- General: update wrong return types [#28744]
+- Masterbar: Fix PHP warning [#28799]
+- Protect: update wording in error message [#28554]
+- Social Logos: update dependency [#28685]
+- Update composer lockfile [#28733]
+- Updated package dependencies. [#28682]
+- WordPress.com REST API: fix notice. [#28745]
+
+## [11.8] - 2023-02-07
 ### Enhancements
 - Form block: add styling of input fields. [#27837]
 
@@ -11,13 +47,16 @@
 - Revue block: add a direct link to the WordPress.com subscriber import page. [#28538]
 
 ### Bug fixes
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active. [#28650]
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backups/Scan state. [#28711]
 - Slideshow: fix slideshow loading excessive dependencies on every page view. [#28562]
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages. [#28643]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Contact Form: fix a PHP warning. [#28640]
+- Dashboard: remove border around counts for anti-spam/protect. [#28746]
 - JSON API: fix the response format for '/sites/$site/dropdown-pages/', the endpoint is not used in production yet. [#28586]
+- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Reading settings: add 'Reading' link to the menu in Calypso for self-hosted Jetpack sites. [#28616]
 - Shortcodes: fix a PHP warning. [#28644]
 - Subscriptions: fix warnings from the global reading of '$post'. [#28639]
@@ -7669,6 +7708,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I

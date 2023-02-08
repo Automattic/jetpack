@@ -24,7 +24,6 @@ class Test_Scan_Status extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		Scan_Status::$status = null;
 	}
 
