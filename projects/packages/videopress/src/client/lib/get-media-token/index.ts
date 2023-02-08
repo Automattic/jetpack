@@ -147,7 +147,7 @@ async function getMediaToken(
 				}
 
 				// Remove expired token.
-				debug( '(%s) Removing expired %o token', context, key );
+				debug( '(%s) Token %o expired. Clean.', context, key );
 				localStorage.removeItem( key );
 			}
 		} catch ( e ) {
@@ -169,6 +169,7 @@ async function getMediaToken(
 		);
 	}
 
+	debug( '(%s) Providing %o token from request/response', context, key );
 	return token;
 }
 
