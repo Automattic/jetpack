@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
@@ -165,8 +164,9 @@ class REST_Controller {
 						'type'        => 'number',
 						'description' => 'ID of the notice',
 						'enum'        => array(
-							'new-stats-feedback',
-							'opt-out-new-stats',
+							Notices::OPT_IN_NEW_STATS_NOTICE_ID,
+							Notices::OPT_OUT_NEW_STATS_NOTICE_ID,
+							Notices::NEW_STATS_FEEDBACK_NOTICE_ID,
 						),
 					),
 					'status' => array(
@@ -174,8 +174,8 @@ class REST_Controller {
 						'type'        => 'string',
 						'description' => 'Status of the notice',
 						'enum'        => array(
-							'dismissed',
-							'postponed',
+							Notices::NOTICE_STATUS_DISMISSED,
+							Notices::NOTICE_STATUS_POSTPONED,
 						),
 					),
 				),
@@ -471,14 +471,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
-		$notices                            = Stats_Options::get_option( 'notices' );
-		$notices[ $req->get_param( 'id' ) ] = array(
-			'status'       => $req->get_param( 'status' ),
-			'id'           => $req->get_param( 'id' ),
-			'dismissed_at' => time(),
-			'next_show'    => $req->get_param( 'status' ) === 'postponed' ? time() + 30 * DAY_IN_SECONDS : 0,
-		);
-		return Stats_Options::set_option( 'notices', $notices );
+		return Notices::update_notice( $req->param['id'], $req->param['status'] );
 	}
 
 	/**
