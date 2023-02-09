@@ -26,7 +26,6 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'admin',

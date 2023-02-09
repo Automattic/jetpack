@@ -203,6 +203,10 @@ export type LocalVideo = {
 	 * Flag to indicate if the video is already uploaded or not to VideoPress.
 	 */
 	isUploadedToVideoPress: boolean;
+	/**
+	 * The video error, if any.
+	 */
+	readError?: 0 | 1 | 2;
 };
 
 export type MetadataVideo = {

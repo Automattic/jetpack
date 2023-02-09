@@ -387,6 +387,17 @@ class Critical_CSS_State {
 	}
 
 	/**
+	 * Has there been any HTML/CSS structure changes since the last Critical CSS generation?
+	 */
+	public static function is_fresh() {
+		return Transient::get( 'is_ccss_fresh', false );
+	}
+
+	public static function set_fresh( $is_fresh = true ) {
+		Transient::set( 'is_ccss_fresh', $is_fresh );
+	}
+
+	/**
 	 * Given a column, collate all provider sources returning the specified
 	 * column for each one.
 	 *

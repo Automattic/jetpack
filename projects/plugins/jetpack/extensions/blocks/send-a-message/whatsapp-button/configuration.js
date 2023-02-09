@@ -143,7 +143,7 @@ export default function WhatsAppButtonConfiguration( { attributes, setAttributes
 		return (
 			<ToolbarGroup>
 				<Dropdown
-					position="bottom right"
+					placement="bottom-start"
 					className="jetpack-whatsapp-button-settings-selector"
 					contentClassName="jetpack-whatsapp-button__popover"
 					renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }

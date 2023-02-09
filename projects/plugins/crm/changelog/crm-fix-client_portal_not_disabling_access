@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Client Portal bug that prevented access from being disabled using the contact page was fixed
