@@ -62,14 +62,16 @@ function inject_blogging_prompts() {
 		return;
 	}
 
-	// And only for blogging sites or those explicitly responding to the prompt.
-	if ( should_load_blogging_prompts() ) {
-		$daily_prompts = jetpack_get_daily_blogging_prompts();
+	$prompt_id = get_blogging_prompt_answer_id();
 
-		if ( $daily_prompts ) {
+	// And only for blogging sites or those explicitly responding to the prompt.
+	if ( $prompt_id ) {
+		$prompts = jetpack_get_blogging_prompts_by_id( $prompt_id );
+
+		if ( $prompts ) {
 			wp_add_inline_script(
 				'jetpack-blocks-editor',
-				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $daily_prompts, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'var Jetpack_BloggingPrompts = ' . wp_json_encode( $prompts, JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 		}
@@ -77,13 +79,13 @@ function inject_blogging_prompts() {
 }
 
 /**
- * Determines if the blogging prompts extension should be loaded in the editor.
+ * Get the blogging prompt id to answer, if there is one.
  *
- * @return bool
+ * @return int
  */
-function should_load_blogging_prompts() {
+function get_blogging_prompt_answer_id() {
 	 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
-	return isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] );
+	return isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );

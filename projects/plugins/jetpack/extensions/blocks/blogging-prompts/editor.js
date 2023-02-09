@@ -38,7 +38,7 @@ function initBloggingPrompts() {
 
 	// Try to find the prompt by id, otherwise just default to the first prompt for today.
 	// The current list of prompts starts from yesteday, so today's is the second prompt.
-	const prompt = prompts.find( p => p.id === answerPromptId ) ?? prompts[ 1 ];
+	const prompt = prompts.find( p => p.id === answerPromptId ) ?? prompts[ 0 ];
 
 	if ( prompt ) {
 		insertTemplate( prompt );
