@@ -10,7 +10,7 @@ import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { isWoASite, userCanConnectAccount } from 'state/initial-state';
+import { isOdysseyStatsEnabled, isWoASite, userCanConnectAccount } from 'state/initial-state';
 
 class DashStatsBottom extends Component {
 	statsBottom() {
@@ -119,6 +119,7 @@ class DashStatsBottom extends Component {
 							/>
 						) }
 						{ this.props.isLinked &&
+							! this.props.isOdysseyStatsEnabled && // Only show if Odyssey Stats is disabled
 							createInterpolateElement(
 								__( '<ExternalLink>View on WordPress.com</ExternalLink>', 'jetpack' ),
 								{
@@ -163,6 +164,7 @@ DashStatsBottom.defaultProps = {
 
 export default connect( state => {
 	return {
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
 		isWoASite: isWoASite( state ),
 		userCanConnectAccount: userCanConnectAccount( state ),
 	};
