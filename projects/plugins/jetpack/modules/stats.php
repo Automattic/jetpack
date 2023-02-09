@@ -1155,12 +1155,22 @@ function stats_dashboard_widget_content() {
 <div class="clear"></div>
 <div class="stats-view-all">
 	<?php
-	$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
-	printf(
-		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-		esc_url( $stats_day_url ),
-		esc_html__( 'View all stats', 'jetpack' )
-	);
+	$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
+	if ( ! $new_stats_enabled ) {
+		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
+		printf(
+			'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
+			esc_url( $stats_day_url ),
+			esc_html__( 'View all stats', 'jetpack' )
+		);
+	} else {
+		printf(
+			'<a class="button" href="%1$s">%2$s</a>',
+			esc_url( menu_page_url( 'stats', false ) ),
+			esc_html__( 'View all stats', 'jetpack' )
+		);
+
+	}
 	?>
 </div>
 <div class="clear"></div>
