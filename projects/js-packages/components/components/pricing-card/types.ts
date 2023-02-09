@@ -41,4 +41,8 @@ export type PricingCardProps = {
 	 * Optional informative text.
 	 */
 	infoText?: React.ReactNode;
+	/**
+	 * Optional Child nodes
+	 */
+	children?: React.ReactNode;
 };

@@ -1,4 +1,4 @@
-import { imagePath } from 'constants/urls';
+import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -10,6 +10,8 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
@@ -143,10 +145,15 @@ class SiteStatsComponent extends React.Component {
 	}
 
 	render() {
-		const stats = this.props.getModule( 'stats' ),
-			isStatsActive = this.props.getOptionValue( 'stats' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' ),
-			siteRoles = this.props.getSiteRoles();
+		const stats = this.props.getModule( 'stats' );
+		const isStatsActive = this.props.getOptionValue( 'stats' );
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' );
+		const siteRoles = this.props.getSiteRoles();
+
+		const optedOutOfOdyssey =
+			isStatsActive &&
+			! unavailableInOfflineMode &&
+			! this.props.getOptionValue( 'enable_odyssey_stats' );
 
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return <ModuleOverriddenBanner moduleName={ stats.name } />;
@@ -230,6 +237,40 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
+						{ ! this.props.isWoASite && (
+							<>
+								{ optedOutOfOdyssey && (
+									<SimpleNotice
+										className="jp-stats-odyssey-disabled-notice"
+										showDismiss={ false }
+										status="is-error"
+										text={ __(
+											'Not into the new stats? Tell us why so we can make stats better for you.',
+											'jetpack'
+										) }
+									>
+										<NoticeAction href={ JETPACK_STATS_OPT_OUT_SURVEY } external={ true }>
+											{ __( 'Take a Quick Survey', 'jetpack' ) }
+										</NoticeAction>
+									</SimpleNotice>
+								) }
+								{ /* Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead. */ }
+								<FormFieldset className="jp-stats-odyssey-toggle">
+									<CompactFormToggle
+										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
+										disabled={ ! isStatsActive || unavailableInOfflineMode }
+										toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_odyssey_stats' ] ) }
+										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
+									>
+										<span className="jp-form-toggle-explanation">
+											{ /* This toggle enables Odyssey Stats. */ }
+											{ __( 'Enable a new Jetpack Stats experience', 'jetpack' ) }
+										</span>
+										<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
+									</CompactFormToggle>
+								</FormFieldset>
+							</>
+						) }
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
@@ -245,22 +286,6 @@ class SiteStatsComponent extends React.Component {
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
-						{ ! this.props.isWoASite && (
-							// Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead.
-							<FormFieldset>
-								<CompactFormToggle
-									checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
-									disabled={ ! isStatsActive || unavailableInOfflineMode }
-									toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
-									onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ /* This toggle enables Odyssey Stats. */ }
-										{ __( 'Enable a new Jetpack Stats experience (Experimental)', 'jetpack' ) }
-									</span>
-								</CompactFormToggle>
-							</FormFieldset>
-						) }
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (

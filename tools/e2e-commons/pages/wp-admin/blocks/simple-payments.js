@@ -1,12 +1,12 @@
 import EditorCanvas from './editor-canvas.js';
 import { expect } from '@playwright/test';
+import { BlockEditorPage } from '../index.js';
 
 export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
 		this.page = page;
-		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -44,7 +44,7 @@ export default class SimplePaymentBlock extends EditorCanvas {
 	}
 
 	getSelector( selector ) {
-		return `${ this.blockSelector } ${ selector }`;
+		return `${ '#block-' + this.blockId } ${ selector }`;
 	}
 
 	/**

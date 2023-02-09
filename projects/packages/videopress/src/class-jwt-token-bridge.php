@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * VideoPress Jwt_Token_Bridge class.
  */
@@ -46,12 +44,7 @@ class Jwt_Token_Bridge {
 	 * @return string
 	 */
 	public static function get_bridge_url() {
-		// TODO: use minified version in production.
-		return Assets::get_file_url_for_environment(
-			'../build/lib/videopress-token-bridge.js', // <- production
-			'client/lib/videopress-token-bridge.js', // <- development
-			__FILE__
-		);
+		return plugins_url( '../build/lib/token-bridge.js', __FILE__ );
 	}
 
 	/**

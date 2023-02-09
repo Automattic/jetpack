@@ -44,9 +44,10 @@ const projects = [
 	{
 		project: 'PayPal block on WoA',
 		path: 'projects/plugins/jetpack/tests/e2e',
-		testArgs: [ '-g paypal', '--repeat-each=50', '--trace=retain-on-failure' ],
-		suite: 'atomic-paypal-block',
+		testArgs: [ '-g subscribe', '--repeat-each=20', '--trace=retain-on-failure' ],
+		suite: 'atomic-subscribe-block',
 	},
+	
 ];
 
 const matrix = [];
