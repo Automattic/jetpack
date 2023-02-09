@@ -1,5 +1,5 @@
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import store from 'state/redux-store-minimal';
 import PluginDeactivation from './portals/plugin-deactivation';
@@ -10,12 +10,17 @@ import PluginDeactivation from './portals/plugin-deactivation';
 function initPluginsPageApp() {
 	const container = document.getElementById( 'jetpack-plugin-portal-app' );
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<Provider store={ store }>
 			<PluginDeactivation />
-		</Provider>,
-		container
+		</Provider>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 if ( document.readyState !== 'loading' ) {

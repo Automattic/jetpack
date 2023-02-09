@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Removed the dependency on the WAF package for the has_login_ability operation.
+
+

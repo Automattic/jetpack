@@ -12,6 +12,12 @@
 		"codeception/util-universalframework": "^1.0"
 	},
 	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
@@ -27,7 +33,7 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_4_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
