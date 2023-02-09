@@ -148,9 +148,10 @@ class Test_REST_Controller extends Stats_Test_Case {
 	}
 
 	/**
-	 * Test '/jetpack/v4/stats-app/stats/notices'
+	 * Test '/jetpack/v4/stats-app/stats/notices' succeed.
 	 */
-	public function test_stats_notices_exists() {
+	public function test_stats_notices_succeed() {
+		wp_set_current_user( $this->admin_id );
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
 		$request->set_body_params(
 			array(
@@ -161,6 +162,22 @@ class Test_REST_Controller extends Stats_Test_Case {
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertNotEquals( 200, $response->get_status() );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices' failed
+	 */
+	public function test_stats_notices_illegal_params() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id' => 'new_stats_feedback',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
 	}
 }
