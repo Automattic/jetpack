@@ -6,11 +6,32 @@
  */
 
 use Automattic\Jetpack\IP\Utils;
+use Brain\Monkey;
+use Brain\Monkey\Functions;
 
 /**
  * Utils class test suite.
  */
 final class UtilsTest extends PHPUnit\Framework\TestCase {
+	/**
+	 * Set up.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		Monkey\setUp();
+
+		Functions\when( 'wp_unslash' )->returnArg();
+	}
+
+	/**
+	 * Tear down.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		Monkey\tearDown();
+	}
 
 	/**
 	 * Test `get_ip`.
@@ -22,7 +43,10 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 * @param object|null  $trusted_header_data Trusted header data.
 	 */
 	public function test_get_ip( $expect, $server, $trusted_header_data ) {
-		add_test_option( 'trusted_ip_header', $trusted_header_data );
+		Functions\expect( 'get_site_option' )
+			->once()
+			->with( 'trusted_ip_header' )
+			->andReturn( $trusted_header_data );
 
 		$old_server = $_SERVER;
 		$_SERVER    = $server;

@@ -5,7 +5,7 @@ Utilities for working with IP addresses.
 ## Usage
 
 ```php
-use Automattic\Jetpack\IP;
+use Automattic\Jetpack\IP\Utils;
 
 echo "Your IP address is: " . Utils::get_ip();
 ```
