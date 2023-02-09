@@ -1155,7 +1155,7 @@ function stats_dashboard_widget_content() {
 <div class="clear"></div>
 <div class="stats-view-all">
 	<?php
-	$new_stats_enabled = Stats_Options::get_option( 'enable_calypso_stats' );
+	$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
 	if ( ! $new_stats_enabled ) {
 		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
 		printf(
