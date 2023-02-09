@@ -97,6 +97,17 @@ require_once __DIR__ . '/feature-plugins/post-list.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 
+/**
+ * Conditionally load the jetpack-mu-wpcom package.
+ *
+ * JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN=true will load the package via the Jetpack Beta Tester plugin, not wpcomsh.
+ */
+if ( ! defined( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN' ) || ! JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN ) {
+	if ( class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
+		Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
+	}
+}
+
 if ( ! class_exists( 'Jetpack_Data' ) ) {
 	require_once __DIR__ . '/feature-plugins/class-jetpack-data.php';
 }

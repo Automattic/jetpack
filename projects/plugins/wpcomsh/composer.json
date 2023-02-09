@@ -11,7 +11,8 @@
     "automattic/wc-calypso-bridge": "1.9.18",
     "wordpress/classic-editor-plugin": "1.5",
     "automattic/jetpack-config": "^1.5",
-    "automattic/jetpack-post-list": "^0.2.4"
+    "automattic/jetpack-post-list": "^0.2.4",
+    "automattic/jetpack-mu-wpcom": "^0.2.0"
   },
   "require-dev": {
     "php": ">=7.0.0",
