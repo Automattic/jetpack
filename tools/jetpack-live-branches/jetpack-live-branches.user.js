@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.26
+// @version      1.27
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -166,6 +166,14 @@
 									name: 'content',
 								},
 								{
+									label: 'Pre-generate CRM data',
+									name: 'jpcrm-populate-crm-data',
+								},
+								{
+									label: 'Pre-generate Woo data',
+									name: 'jpcrm-populate-woo-data',
+								},
+								{
 									label: '<code>xmlrpc.php</code> unavailable',
 									name: 'blockxmlrpc',
 								},
@@ -325,6 +333,12 @@
 				if ( input.value ) {
 					query.push( encodeURIComponent( input.name ) + '=' + encodeURIComponent( input.value ) );
 				} else {
+					if (
+						input.name === 'jpcrm-populate-crm-data' ||
+						input.value === 'jpcrm-populate-woo-data'
+					) {
+						query.push( encodeURIComponent( 'jpcrm' ) );
+					}
 					query.push( encodeURIComponent( input.name ) );
 				}
 			} );
@@ -423,7 +437,17 @@
 			const url = getLink();
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
-				$link.attr( 'href', url ).text( url );
+				if ( url.match( /[?&]jpcrm-populate-crm-data/ ) && ! url.match( /zero-bs-crm/ ) ) {
+					$link
+						.attr( 'href', null )
+						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
+				} else if ( url.match( /[?&]jpcrm-populate-woo-data/ ) && ! url.match( /woocommerce/ ) ) {
+					$link
+						.attr( 'href', null )
+						.text( 'Select the WooCommerce plugin in order to populate with Woo data' );
+				} else {
+					$link.attr( 'href', url ).text( url );
+				}
 			} else {
 				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
 			}
