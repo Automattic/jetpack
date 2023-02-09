@@ -159,7 +159,7 @@ class REST_Controller {
 				'callback'            => array( $this, 'update_notice_status' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 				'args'                => array(
-					'id'     => array(
+					'id'            => array(
 						'required'    => true,
 						'type'        => 'string',
 						'description' => 'ID of the notice',
@@ -169,7 +169,7 @@ class REST_Controller {
 							Notices::NEW_STATS_FEEDBACK_NOTICE_ID,
 						),
 					),
-					'status' => array(
+					'status'        => array(
 						'required'    => true,
 						'type'        => 'string',
 						'description' => 'Status of the notice',
@@ -177,6 +177,12 @@ class REST_Controller {
 							Notices::NOTICE_STATUS_DISMISSED,
 							Notices::NOTICE_STATUS_POSTPONED,
 						),
+					),
+					'postponed_for' => array(
+						'type'        => 'number',
+						'default'     => null,
+						'description' => 'Postponed for (in seconds)',
+						'minimum'     => 0,
 					),
 				),
 			)
@@ -471,7 +477,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
-		return ( new Notices() )->update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ) );
+		return ( new Notices() )->update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ), $req->get_param( 'postponed_for' ) );
 	}
 
 	/**

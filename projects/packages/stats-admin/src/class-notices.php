@@ -30,15 +30,16 @@ class Notices {
 	 *
 	 * @param mixed $id ID of the notice.
 	 * @param mixed $status Status of the notice.
+	 * @param int   $postponed_for Postponed for how many seconds.
 	 * @return bool
 	 */
-	public function update_notice( $id, $status ) {
+	public function update_notice( $id, $status, $postponed_for = self::POSTPONE_FEEDBACK_DAYS * DAY_IN_SECONDS ) {
 		$notices        = Stats_Options::get_option( 'notices' );
 		$notices[ $id ] = array(
 			'status'       => $status,
 			'id'           => $id,
 			'dismissed_at' => time(),
-			'next_show_at' => $status === self::NOTICE_STATUS_POSTPONED ? time() + self::POSTPONE_FEEDBACK_DAYS * DAY_IN_SECONDS : PHP_INT_MAX,
+			'next_show_at' => $status === self::NOTICE_STATUS_POSTPONED ? time() + $postponed_for : PHP_INT_MAX,
 		);
 		return Stats_Options::set_option( 'notices', $notices );
 	}
