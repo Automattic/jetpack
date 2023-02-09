@@ -146,4 +146,21 @@ class Test_REST_Controller extends Stats_Test_Case {
 
 		$this->assertNotTrue( $response );
 	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices'
+	 */
+	public function test_stats_notices_exists() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id'     => 'new_stats_feedback',
+				'status' => 'dismissed',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 200, $response->get_status() );
+	}
 }
