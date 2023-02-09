@@ -160,7 +160,7 @@ class Waf_Compatibility {
 
 			// Delete the old option if the update was successful.
 			// Check the values directly as `update_raw_option()` returns false if the value hasn't changed.
-			if ( Jetpack_Options::get_raw_option( 'jetpack_protect_whitelist' ) === $merged_allow_list ) {
+			if ( Jetpack_Options::get_raw_option( 'jetpack_waf_ip_allow_list' ) === $merged_allow_list ) {
 				delete_option( 'jetpack_protect_whitelist' );
 			}
 		}
