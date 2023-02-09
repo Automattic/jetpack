@@ -1969,6 +1969,7 @@ importers:
       '@babel/register': 7.18.9
       '@babel/runtime': 7.20.13
       '@wordpress/browserslist-config': 5.9.0
+      '@wordpress/components': 22.1.0
       '@wordpress/data': 8.3.0
       '@wordpress/date': 4.26.0
       '@wordpress/element': 5.3.0
@@ -1984,6 +1985,7 @@ importers:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@wordpress/components': 22.1.0_jc4nol2pc3xxtec3jthlyk5a5a
       '@wordpress/data': 8.3.0_react@18.2.0
       '@wordpress/date': 4.26.0
       '@wordpress/element': 5.3.0
