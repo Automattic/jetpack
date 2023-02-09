@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed PHP fatal when the jetpack-waf directory has been deleted from the wp-content folder
+
+

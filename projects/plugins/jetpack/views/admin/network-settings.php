@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
@@ -38,7 +38,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 				<td>
 					<p><strong>
 					<?php
-					$current_ip = IP::get_ip();
+					$current_ip = IP_Utils::get_ip();
 					if ( ! empty( $current_ip ) ) {
 						printf(
 							/* Translators: placeholder is an IP address. */
