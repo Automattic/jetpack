@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
@@ -147,6 +148,37 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_wordads_stats' ),
 				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+			)
+		);
+
+		// Stats notices.
+		register_rest_route(
+			static::$namespace,
+			'/stats/notices',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'id'     => array(
+						'required'    => true,
+						'type'        => 'number',
+						'description' => 'ID of the notice',
+						'enum'        => array(
+							'new-stats-feedback',
+							'opt-out-new-stats',
+						),
+					),
+					'status' => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Status of the notice',
+						'enum'        => array(
+							'dismissed',
+							'postponed',
+						),
+					),
+				),
 			)
 		);
 	}
@@ -430,6 +462,23 @@ class REST_Controller {
 			'v1.1',
 			array( 'timeout' => 5 )
 		);
+	}
+
+	/**
+	 * Dismiss or delay stats notices.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function update_notice_status( $req ) {
+		$notices                            = Stats_Options::get_option( 'notices' );
+		$notices[ $req->get_param( 'id' ) ] = array(
+			'status'       => $req->get_param( 'status' ),
+			'id'           => $req->get_param( 'id' ),
+			'dismissed_at' => time(),
+			'next_show'    => $req->get_param( 'status' ) === 'postponed' ? time() + 30 * DAY_IN_SECONDS : 0,
+		);
+		return Stats_Options::set_option( 'notices', $notices );
 	}
 
 	/**
