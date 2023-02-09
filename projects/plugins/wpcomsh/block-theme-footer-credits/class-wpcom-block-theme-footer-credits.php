@@ -65,9 +65,13 @@ class WPCOM_Block_Theme_Footer_Credits {
 	 * @return string The footer credit HTML with WordPress.com link.
 	 */
 	public function get_credit_html() {
+		$credit_link = $this->get_credit_link();
+		if ( empty( $credit_link ) ) {
+			return '';
+		}
 		return '<!-- wp:group --><div class="wp-block-group">' .
 			'<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">' .
-			$this->get_credit_link() . '</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
+			$credit_link . '</p><!-- /wp:paragraph --></div><!-- /wp:group -->';
 	}
 
 	/**
@@ -77,9 +81,13 @@ class WPCOM_Block_Theme_Footer_Credits {
 	 */
 	public function get_credit_link() {
 		// Set any globals so the JS can access them.
-		$lang        = get_bloginfo( 'language' );
-		$credit_link = sprintf( '<a href="%s">%s.</a>', apply_filters( 'wpcom_better_footer_credit_url', 'https://wordpress.com/?ref=footer_blog', $lang ), __( 'Blog at WordPress.com' ) );
-
+		$lang       = get_bloginfo( 'language' );
+		$credit_url = apply_filters( 'wpcom_better_footer_credit_url', 'https://wordpress.com/?ref=footer_blog', $lang );
+		if ( ! empty( $credit_url ) ) {
+			$credit_link = sprintf( '<a href="%s">%s.</a>', esc_url( $credit_url ), __( 'Blog at WordPress.com' ) );
+		} else {
+			$credit_link = '';
+		}
 		return apply_filters( 'wpcom_better_footer_credit_link', $credit_link, $lang );
 	}
 

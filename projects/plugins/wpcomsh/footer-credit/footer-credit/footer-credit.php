@@ -28,8 +28,7 @@ function footercredit_replace_credit( $link, $lang ) {
 	}
 
 	if ( $credit_option == 'hidden' ) {
-		// we need to show the placeholder in preview
-		return is_customize_preview() ? '' : footercredit_make_credit_link_discoverable( '<a></a>' );
+		return '';
 	}
 
 	$options = footercredit_options();
