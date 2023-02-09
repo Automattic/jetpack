@@ -14,7 +14,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async edit() {
-		const editBtnSelector = "button[aria-label='Open the editor']";
+		const editBtnSelector = 'button.edit-site-site-hub__edit-button';
 		if ( await this.isElementVisible( editBtnSelector, 2000 ) ) {
 			await this.click( editBtnSelector );
 		}

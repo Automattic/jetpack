@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
@@ -46,11 +46,11 @@ const ALLOWED_MEDIA_TYPES_ALL = [
 ];
 
 describe( 'useMediaRestrictions hook', () => {
-	const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
-		initialProps: DUMMY_CONNECTIONS,
-	} );
-
 	test( 'maxImageSize returns the best image size available', () => {
+		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: DUMMY_CONNECTIONS,
+		} );
+
 		const defaultMaxImageSize = result.current.maxImageSize;
 		rerender( [ { service_name: 'linkedin' } ] );
 		const linkedinMaxImageSize = result.current.maxImageSize;
@@ -61,6 +61,10 @@ describe( 'useMediaRestrictions hook', () => {
 	} );
 
 	test( 'Video limits are calculated correctly', () => {
+		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: DUMMY_CONNECTIONS,
+		} );
+
 		const defaultVideoLimits = result.current.videoLimits;
 		rerender( [ { service_name: 'twitter' }, { service_name: 'facebook' } ] );
 		const modifiedVideoLimits = result.current.videoLimits;
@@ -92,6 +96,10 @@ describe( 'useMediaRestrictions hook', () => {
 
 	describe( 'Validation tests', () => {
 		test( 'Too big/small media results in file size error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_SIZED_MEDIA.map( media =>
 				result.current.getValidationError( media )
 			);
@@ -100,6 +108,10 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Invalid file type results in file type error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_TYPES.map( type =>
 				result.current.getValidationError( 200, type )
 			);
@@ -108,6 +120,10 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Too short/long videos result in video length error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_LENGTH_VIDEOS.map( video =>
 				result.current.getValidationError( video )
 			);
@@ -118,6 +134,10 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Valid media results in no error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = VALID_MEDIA.map( media =>
 				result.current.getValidationError( media )
 			);
