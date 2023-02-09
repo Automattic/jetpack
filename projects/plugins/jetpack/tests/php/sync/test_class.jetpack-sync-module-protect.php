@@ -12,7 +12,13 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$user = get_userdata( $user_id );
 
-		Brute_Force_Protection::instance()->log_failed_attempt( $user->user_email );
+		do_action(
+			'jpp_log_failed_attempt',
+			array(
+				'login'             => $user->user_email,
+				'has_login_ability' => true,
+			)
+		);
 
 		$this->sender->do_sync();
 
