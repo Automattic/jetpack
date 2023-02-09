@@ -39,8 +39,11 @@ class Notices {
 			'status'       => $status,
 			'id'           => $id,
 			'dismissed_at' => time(),
-			'next_show_at' => $status === self::NOTICE_STATUS_POSTPONED ? time() + $postponed_for : PHP_INT_MAX,
 		);
+		// Set the next show time if the notice is postponed.
+		if ( $status === self::NOTICE_STATUS_POSTPONED && $postponed_for > 0 ) {
+			$notices[ $id ]['next_show_at'] = time() + $postponed_for;
+		}
 		return Stats_Options::set_option( 'notices', $notices );
 	}
 
@@ -92,7 +95,7 @@ class Notices {
 					case 'dismissed':
 						return true;
 					case 'postponed':
-						return $notice['next_show_at'] > time();
+						return $notice['next_show_at'] === 0 || $notice['next_show_at'] > time();
 					default:
 						return false;
 				}
