@@ -212,7 +212,7 @@ jQuery( function ( $ ) {
 	/* ========== */
 	/* TOUR SETUP */
 	/* ========== */
-	addClickListener = function ( el, fn ) {
+	var addClickListener = function ( el, fn ) {
 		if ( el.addEventListener ) {
 			el.addEventListener( 'click', fn, false );
 		} else {
