@@ -704,6 +704,8 @@ function stats_print_odyssey_nudge( $html ) {
 	if ( $i === false ) {
 		return;
 	}
+	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
+	$settings_url = stats_settings_url();
 	?>
 	<style>
 		.stats-odyssey-nudge {
@@ -717,11 +719,25 @@ function stats_print_odyssey_nudge( $html ) {
 		<div class="stats-odyssey-nudge--content">
 			<h1>Explore the new Jetpack Stats</h1>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
-			<button>Switch to new Stats</button>
-			<a href="#">Learn about Stats</a>
+			<a href="<?php echo esc_url( $settings_url ); ?>">Switch to new Stats</a>
+			<a href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
 		</div>
 	</div>
 	<?php
+}
+
+/**
+ * Stats: Return the URL for the Jetpack Stats settings page.
+ *
+ * Does not check for admin priviledges. The caller should check that.
+ *
+ * @access public
+ * @return string
+ */
+function stats_settings_url() {
+	$i18n_headers = jetpack_get_module_i18n( 'stats' );
+	$url          = admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) );
+	return $url;
 }
 
 /**
