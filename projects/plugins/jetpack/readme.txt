@@ -242,27 +242,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8 - 2023-02-07
+### 11.9-a.1 - 2023-02-08
 #### Enhancements
-- Form block: add styling of input fields.
+- Contact form: add a blur effect while the form is loading the styles.
+- Form block: include style variations.
+- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
+- VideoPress: add transform control from video block to videopress/video block.
 
 #### Improved compatibility
-- General: migrated to new Web Fonts API from Gutenberg.
-- Revue block: add a direct link to the WordPress.com subscriber import page.
+- Donations block: remove dependencies on lodash and @wordpress/keycodes
+- Podcast player block: remove dependency on wp-components from the frontend code
+- Slideshow block: remove dependency on Lodash
+- Subscriptions: update subscribe block description.
 
 #### Bug fixes
-- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active.
-- Dashboard: do not register the VaultPress and Scan submenu items without having Backup/Scan state.
-- Dashboard: fix the price display and description for products with intro offers for the first month.
-- Dashboard: show Boost in My Plans dashboard when added to a site.
-- Infinite Scroll: fix an AMP related bug.
-- Modules: allow for deactivating multiple plugins when activating a module.
-- Related Posts: fix Related Posts options saving.
-- Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
-- Sharing: do not include the sharing buttons in REST API responses.
-- Slideshow: fix slideshow loading excessive dependencies on every page view.
-- Subscriptions: add a null check to a $post reference.
-- Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
+- Subscriptions: fix rendering of subscriber email in .com.
+- Custom CSS: scope Additional CSS submenus to site with a connected owner.
 
 --------
 
