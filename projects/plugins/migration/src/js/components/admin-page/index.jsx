@@ -1,26 +1,20 @@
 import restApi from '@automattic/jetpack-api';
 import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { useMigrationstatus } from '../hooks/use-migration-status';
 import { Migration, MigrationProgress } from '../migration';
 
 const Admin = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
-	const [ migrationStatus, setMigrationStatus ] = useState( 'inactive' );
 
 	const configureApi = useCallback( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const checkMigrationStatus = () => {
-		restApi.fetchMigrationStatus().then( state => {
-			setMigrationStatus( state?.status );
-		} );
-	};
-
 	useEffect( () => configureApi(), [ configureApi ] );
-	useEffect( () => checkMigrationStatus(), [] );
+	const migrationStatus = useMigrationstatus( restApi );
 
 	return (
 		<AdminPage
@@ -32,7 +26,7 @@ const Admin = () => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						{ migrationStatus === 'inactive' ? (
+						{ migrationStatus.status === 'inactive' ? (
 							<Migration
 								apiRoot={ apiRoot }
 								apiNonce={ apiNonce }
