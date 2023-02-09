@@ -137,7 +137,7 @@ export function TimestampDropdown( props ) {
 
 	return (
 		<Dropdown
-			position="bottom right"
+			placement="bottom-start"
 			className={ `${ className }__timestamp-dropdown` }
 			contentClassName={ `${ className }__timestamp-content` }
 			renderToggle={ ( { onToggle } ) => {

@@ -79,8 +79,6 @@ class Generator_Success implements Endpoint {
 		$recommendations->reset();
 
 		Regenerate_Admin_Notice::dismiss();
-		// Prevent the notice from showing again for a while.
-		Regenerate_Admin_Notice::snooze_suggestion();
 		Critical_CSS_State::set_fresh();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.

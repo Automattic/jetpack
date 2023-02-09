@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import config from '../stores/config';
+import { isUserConnected } from '../stores/connection';
 
 /**
  * Get the URL to upgrade boost.
@@ -24,7 +25,11 @@ export function getUpgradeURL() {
 
 	// Add site to query string.
 	checkoutProductUrl.searchParams.set( 'site', siteSuffix );
-	checkoutProductUrl.searchParams.set( 'unlinked', '1' );
+
+	// If not connected, add unlinked=1 to query string to tell wpcom to connect the site.
+	if ( ! isUserConnected() ) {
+		checkoutProductUrl.searchParams.set( 'unlinked', '1' );
+	}
 
 	return checkoutProductUrl.toString();
 }

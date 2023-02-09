@@ -228,8 +228,9 @@ class Connection {
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
 		return array(
-			'connected'   => $force_connected || $this->is_connected(),
-			'wpcomBlogId' => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+			'connected'     => $force_connected || $this->is_connected(),
+			'wpcomBlogId'   => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+			'userConnected' => $this->manager->is_user_connected(),
 		);
 	}
 
