@@ -1,20 +1,23 @@
-import { JetpackFooter } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import JetpackFormsLogo from '../components/logo';
+import Layout from '../components/layout';
+import InboxList from './list';
+import InboxResponse from './response';
+
+import './style.scss';
 
 const Inbox = () => {
 	return (
-		<div>
-			<div className="jp-forms__header">
-				<JetpackFormsLogo />
-				<h2 className="jp-forms__header-text">{ __( 'Form Responses', 'jetpack-forms' ) }</h2>
-			</div>
+		<Layout title={ __( 'Responses', 'jetpack-forms' ) }>
+			<div className="jp-forms__inbox-content">
+				<div className="jp-forms__inbox-content-column">
+					<InboxList />
+				</div>
 
-			<JetpackFooter
-				className="jp-forms__footer"
-				moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
-			/>
-		</div>
+				<div className="jp-forms__inbox-content-column">
+					<InboxResponse />
+				</div>
+			</div>
+		</Layout>
 	);
 };
 
