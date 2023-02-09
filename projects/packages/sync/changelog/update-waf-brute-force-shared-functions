@@ -1,4 +1,4 @@
-Significance: minor
+Significance: patch
 Type: changed
 
-Move the brute force protection transient cleanup and shared functions to dedicated namespaced classes.
+Comment: Update brute force protection variable naming for better clarity.
