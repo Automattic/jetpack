@@ -48,7 +48,7 @@ function stats_load() {
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-
+	add_action( 'rest_api_init', 'register_endpoints_for_nudge' );
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
 	// Add an icon to see stats in WordPress.com for a particular post.
@@ -341,7 +341,6 @@ function stats_reports_load() {
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
 		add_action( 'admin_footer', 'my_action_javascript' );
-		add_action( 'wp_ajax_my_action', 'my_action_handler' );
 
 		wp_localize_script( 'my-ajax-handle', 'the_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
@@ -351,27 +350,37 @@ function my_action_javascript() { ?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
 
-		let url = '/wp-admin/admin-ajax.php';
+		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
 			'action': 'my_action',
 			'whatever': 1234
 		};
 
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(url, data, function(response) {
-			alert('Got this from the server: ' + response);
+		jQuery('#test-button').click(function() {
+			jQuery.post(url, data, function(response) {
+				alert('Got this from the server: ' + response);
+			});
 		});
 	});
 	</script>
 	<?php
 }
 
+function register_endpoints_for_nudge() {
+	register_rest_route(
+		'jetpack/v4',
+		'/stats/nudge',
+		array(
+			'methods'  => 'POST',
+			'callback' => 'my_action_handler',
+		)
+	);
+}
+
 function my_action_handler() {
 	// global $wpdb; // this is how you get access to the database
-
 	// update_option( 'stats-some-option-name', 'my-test-value' );
-	echo 'happy response';
-	wp_die(); // this is required to terminate immediately and return a proper response
+	return rest_ensure_response( 'happy response' );
 }
 
 /**
