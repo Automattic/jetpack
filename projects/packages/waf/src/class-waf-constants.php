@@ -25,6 +25,14 @@ class Waf_Constants {
 	}
 
 	/**
+	 * Compatiblity patch for cases where an outdated Waf_Constants class has been autoloaded by
+	 * the standalone bootstrap execution at the beginning of the current request.
+	 */
+	public static function initialize_constants() {
+		self::initialize_bootstrap_constants();
+	}
+
+	/**
 	 * Set the path to the WAF directory if it has not been set.
 	 *
 	 * @return void

@@ -639,3 +639,13 @@ export function isWooCommerceActive( state ) {
 export function getJetpackCloudUrl( state, slug ) {
 	return `https://cloud.jetpack.com/${ slug }/${ getSiteRawUrl( state ) }`;
 }
+
+/**
+ * Returns if the new Stats experience is enabled.
+ *
+ * @param {object} state - Global state tree.
+ * @returns {boolean} True if the new Stats experience is enabled.
+ */
+export function isOdysseyStatsEnabled( state ) {
+	return !! state.jetpack.initialState.isOdysseyStatsEnabled;
+}

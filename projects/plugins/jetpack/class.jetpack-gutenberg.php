@@ -688,6 +688,11 @@ class Jetpack_Gutenberg {
 				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
 				 */
 				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
+				/**
+				 * Prevent the registration of the blocks from extensions/blocks/contact-form
+				 * if the Forms package is enabled.
+				 */
+				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', false ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),

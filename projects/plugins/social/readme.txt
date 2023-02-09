@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,7 +91,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.7.0-beta - 2023-02-01
+### 1.7.0 - 2023-02-07
 #### Added
 - Added Advanced Social plan to pricing table
 
