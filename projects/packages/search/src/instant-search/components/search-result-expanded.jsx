@@ -1,3 +1,4 @@
+import { cleanForSlug } from '@wordpress/url';
 import React from 'react';
 import PathBreadcrumbs from './path-breadcrumbs';
 import PhotonImage from './photon-image';
@@ -19,6 +20,20 @@ export default function SearchResultExpanded( props ) {
 		return null;
 	}
 
+	const getCategories = () => {
+		let cats = fields[ 'category.name.default' ];
+
+		if ( ! cats ) {
+			return [];
+		}
+
+		if ( ! Array.isArray( cats ) ) {
+			cats = [ cats ];
+		}
+
+		return cats;
+	};
+
 	const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
@@ -30,6 +45,9 @@ export default function SearchResultExpanded( props ) {
 				`jetpack-instant-search__search-result-expanded--${ fields.post_type }`,
 				! firstImage ? 'jetpack-instant-search__search-result-expanded--no-image' : '',
 				isMultiSite ? 'is-multisite' : '',
+				getCategories()
+					.map( cat => 'jetpack-instant-search__search-result-category--' + cleanForSlug( cat ) )
+					.join( ' ' ),
 			].join( ' ' ) }
 		>
 			<div className="jetpack-instant-search__search-result-expanded__content-container">

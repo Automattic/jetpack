@@ -2461,8 +2461,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            // either ext source + setting, or set by the func call
-            if ($do_not_update_blanks){
+				// either ext source + setting, or set by the func call
+				if ( $do_not_update_blanks ) {
 
                     // this setting says 'don't override filled-out data with blanks'
                     // so here we check through any passed blanks + convert to limitedFields
@@ -2505,141 +2505,152 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     } // / if ID
 
-            } // / if do_not_update_blanks
+				} // / if do_not_update_blanks
 
-        #} ========= / OVERRIDE SETTING (Deny blank overrides) ===========
+				// ========= / OVERRIDE SETTING (Deny blank overrides) ===========
 
+				// ========= BUILD DATA ===========
 
-        #} ========= BUILD DATA ===========
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactoerd later.
+				$update                    = false;
+				$dataArr                   = array();
+				$typeArr                   = array();
+				$contactsPreUpdateSegments = array();
 
-            $update = false; $dataArr = array(); $typeArr = array();
+				if ( is_array( $limitedFields ) ) {
 
-            if (is_array($limitedFields)){
+					// LIMITED FIELDS
+					$update = true;
 
-                // LIMITED FIELDS
-                $update = true;
+					// cycle through
+					foreach ( $limitedFields as $field ) {
 
-                // cycle through
-                foreach ($limitedFields as $field){
+						// some weird case where getting empties, so added check
+						if ( empty( $field['key'] ) ) {
+							continue;
+						}
+						// Created date field is immutable. Skip.
+						if ( $field['key'] === 'zbsc_created' ) {
+							continue;
+						}
 
-                    // some weird case where getting empties, so added check
-                    if (!empty($field['key'])){ 
-                        $dataArr[$field['key']] = $field['val']; 
-                        $typeArr[] = $field['type'];
-                    }
+						$dataArr[ $field['key'] ] = $field['val'];
+						$typeArr[]                = $field['type'];
+					}
 
-                }
+					// add update time
+					if ( ! isset( $dataArr['zbsc_lastupdated'] ) ) {
+						$dataArr['zbsc_lastupdated'] = time();
+						$typeArr[]                   = '%d';
+					}
+				} else {
 
-                // add update time
-                if (!isset($dataArr['zbsc_lastupdated'])){ $dataArr['zbsc_lastupdated'] = time(); $typeArr[] = '%d'; }
+					// FULL UPDATE/INSERT
 
-            } else {
+					// UPDATE
+					$dataArr = array(
 
-                // FULL UPDATE/INSERT
+						'zbs_owner'        => $owner,
 
-                    // UPDATE
-                    $dataArr = array( 
+						// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- to be refactored.
+						// fields
+						'zbsc_status'      => $data['status'],
+						'zbsc_email'       => $data['email'],
+						'zbsc_prefix'      => $data['prefix'],
+						'zbsc_fname'       => $data['fname'],
+						'zbsc_lname'       => $data['lname'],
+						'zbsc_addr1'       => $data['addr1'],
+						'zbsc_addr2'       => $data['addr2'],
+						'zbsc_city'        => $data['city'],
+						'zbsc_county'      => $data['county'],
+						'zbsc_country'     => $data['country'],
+						'zbsc_postcode'    => $data['postcode'],
+						'zbsc_secaddr1'    => $data['secaddr1'],
+						'zbsc_secaddr2'    => $data['secaddr2'],
+						'zbsc_seccity'     => $data['seccity'],
+						'zbsc_seccounty'   => $data['seccounty'],
+						'zbsc_seccountry'  => $data['seccountry'],
+						'zbsc_secpostcode' => $data['secpostcode'],
+						'zbsc_hometel'     => $data['hometel'],
+						'zbsc_worktel'     => $data['worktel'],
+						'zbsc_mobtel'      => $data['mobtel'],
+						'zbsc_wpid'        => $data['wpid'],
+						'zbsc_avatar'      => $data['avatar'],
 
-                                // ownership
-                                // no need to update these (as of yet) - can't move teams etc.
-                                //'zbs_site' => zeroBSCRM_installSite(),
-                                //'zbs_team' => zeroBSCRM_installTeam(),
-                                'zbs_owner' => $owner,
+						'zbsc_tw'          => $data['tw'],
+						'zbsc_fb'          => $data['fb'],
+						'zbsc_li'          => $data['li'],
 
-                                // fields
-                                'zbsc_status' => $data['status'],
-                                'zbsc_email' => $data['email'],
-                                'zbsc_prefix' => $data['prefix'],
-                                'zbsc_fname' => $data['fname'],
-                                'zbsc_lname' => $data['lname'],
-                                'zbsc_addr1' => $data['addr1'],
-                                'zbsc_addr2' => $data['addr2'],
-                                'zbsc_city' => $data['city'],
-                                'zbsc_county' => $data['county'],
-                                'zbsc_country' => $data['country'],
-                                'zbsc_postcode' => $data['postcode'],
-                                'zbsc_secaddr1' => $data['secaddr1'],
-                                'zbsc_secaddr2' => $data['secaddr2'],
-                                'zbsc_seccity' => $data['seccity'],
-                                'zbsc_seccounty' => $data['seccounty'],
-                                'zbsc_seccountry' => $data['seccountry'],
-                                'zbsc_secpostcode' => $data['secpostcode'],
-                                'zbsc_hometel' => $data['hometel'],
-                                'zbsc_worktel' => $data['worktel'],
-                                'zbsc_mobtel' => $data['mobtel'],
-                                'zbsc_wpid' => $data['wpid'],
-                                'zbsc_avatar' => $data['avatar'],
+						'zbsc_lastupdated' => time(),
+					);
 
+						// if set.
+					if ( $data['lastcontacted'] !== -1 ) {
+						$dataArr['zbsc_lastcontacted'] = $data['lastcontacted'];
+					}
 
-                                'zbsc_tw' => $data['tw'],
-                                'zbsc_fb' => $data['fb'],
-                                'zbsc_li' => $data['li'],
+					$typeArr = array( // field data types
+						// '%d',  // site
+						// '%d',  // team
+						'%d',    // owner
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%d',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%d',   // last updated
+					);
+					// if set
+					if ( $data['lastcontacted'] !== -1 ) {
+						$typeArr[] = '%d';
+					}
 
-                                //'zbsc_created' => time(),
-                                'zbsc_lastupdated' => time()
-                            );
+					if ( ! empty( $id ) && $id > 0 ) {
 
-                    // if set
-                    if ($data['lastcontacted'] !== -1) $dataArr['zbsc_lastcontacted'] = $data['lastcontacted'];
+						// is update
+						$update = true;
 
-                    $typeArr = array( // field data types
-                                //'%d',  // site
-                                //'%d',  // team
-                                '%d',    // owner
+					} else {
 
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%d',
-                                '%s',
+						// INSERT (get's few extra :D)
+						$update              = false;
+						$dataArr['zbs_site'] = zeroBSCRM_site();
+						$typeArr[]           = '%d';
+						$dataArr['zbs_team'] = zeroBSCRM_team();
+						$typeArr[]           = '%d';
 
-                                '%s',
-                                '%s',
-                                '%s',
-     
-                                '%d'   // last updated
-                            );
-                    // if set
-                    if ($data['lastcontacted'] !== -1) $typeArr[] = '%d';
+						if ( isset( $data['created'] ) && ! empty( $data['created'] ) && $data['created'] !== -1 ) {
+							$dataArr['zbsc_created'] = $data['created'];
+							$typeArr[]               = '%d';
+						} else {
+							$dataArr['zbsc_created'] = time();
+							$typeArr[]               = '%d';
+							}
 
-                if (!empty($id) && $id > 0){
-
-                    // is update
-                    $update = true;
-
-                } else {
-
-                    // INSERT (get's few extra :D)
-                    $update = false;
-                    $dataArr['zbs_site'] = zeroBSCRM_site();    $typeArr[] = '%d';
-                    $dataArr['zbs_team'] = zeroBSCRM_team();    $typeArr[] = '%d';
-                    if (isset($data['created']) && !empty($data['created']) && $data['created'] !== -1){
-                        $dataArr['zbsc_created'] = $data['created'];$typeArr[] = '%d';
-                    } else {
-                        $dataArr['zbsc_created'] = time();          $typeArr[] = '%d';
-                    }
-                    $dataArr['zbsc_lastcontacted'] = -1; $typeArr[] = '%d';
-
-                }
-
-            }
+							$dataArr['zbsc_lastcontacted'] = -1;
+							$typeArr[]                     = '%d';
+						}
+					}
         #} ========= / BUILD DATA ===========
 
         #} ============================================================
@@ -2657,32 +2668,31 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            // whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
-            $dataArr = $this->wpdbChecks($dataArr);
+					// whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
+					$dataArr = $this->wpdbChecks( $dataArr );
             
-        #} ========= / CHECK force_uniques & not_empty ================
-        #} ============================================================ 
-            
-        #} Check if ID present
-        if ($update){
+					// CHECK force_uniques & not_empty
 
-                #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
-                $originalStatus = $this->getContactStatus($id);
+					// Check if ID present
+					if ( $update ) {
 
-                #} get any segments (whom counts may be affected by changes)
-                $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
+						// Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
+						$originalStatus = $this->getContactStatus( $id );
 
-                // log any change of status
-                if (isset($dataArr['zbsc_status']) && !empty($dataArr['zbsc_status']) && !empty($originalStatus) && $dataArr['zbsc_status'] != $originalStatus){
+						// get any segments (whom counts may be affected by changes)
+						// $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
 
-                    // status change
-                    $statusChange = array(
-                        'from' => $originalStatus,
-                        'to' => $dataArr['zbsc_status']
-                        );
-                }
+						// log any change of status
+						if ( isset( $dataArr['zbsc_status'] ) && ! empty( $dataArr['zbsc_status'] ) && ! empty( $originalStatus ) && $dataArr['zbsc_status'] !== $originalStatus ) {
 
-                #} Attempt update
+							// status change
+							$statusChange = array(
+								'from' => $originalStatus,
+								'to'   => $dataArr['zbsc_status'],
+							);
+						}
+
+						// Attempt update
                 if ($wpdb->update( 
                         $ZBSCRM_t['contacts'], 
                         $dataArr, 
@@ -3140,6 +3150,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         )));
 
                                 }
+								// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 
                             }
 
@@ -3201,6 +3213,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             
                     $msg = __('DB Insert Failed','zero-bs-crm');                    
                     $zbs->DAL->addError(303,$this->objectType,$msg,$dataArr);
+					// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                     #} Failed to Insert
                     return false;
