@@ -1,8 +1,9 @@
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { useState, createInterpolateElement, useEffect } from '@wordpress/element';
+import { useState, createInterpolateElement, useEffect, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import useAnalytics from '../../../hooks/useAnalytics';
 import { STORE_ID } from '../../../store';
 import Price from './price';
 import './style.scss';
@@ -26,6 +27,11 @@ export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
 	);
 
 	const [ pricingText, setPricingText ] = useState( '' );
+
+	const { tracks } = useAnalytics();
+	const trackUpgradeStorageClick = useCallback( () => {
+		tracks.recordEvent( 'jetpack_backup_upgrade_storage_prompt_cta', { site: siteSlug } );
+	}, [ tracks, siteSlug ] );
 
 	useEffect( () => {
 		if ( addOnLoaded ) {
@@ -65,6 +71,7 @@ export const StorageAddonUpsellPrompt = ( { usageLevel } ) => {
 					`${ adminUrl }admin.php?page=jetpack-backup`,
 					true
 				) }
+				onClick={ trackUpgradeStorageClick }
 			>
 				<div className="action-button__copy">
 					<div className="action-button__status">{ storageStatusText }</div>

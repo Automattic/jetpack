@@ -1,6 +1,6 @@
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
 
-export default class TiledGallery extends BlockEditorCanvas {
+export default class TiledGallery extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Tiled Gallery block' );
 		this.blockTitle = TiledGallery.title();

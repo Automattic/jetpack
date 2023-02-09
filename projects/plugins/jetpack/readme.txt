@@ -242,9 +242,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8-a.13 - 2023-01-27
+### 11.8-beta - 2023-01-30
+#### Enhancements
+- Form block: add styling of input fields.
+
+#### Improved compatibility
+- General: migrated to new Web Fonts API from Gutenberg.
+- Revue block: add a direct link to the WordPress.com subscriber import page.
+
 #### Bug fixes
-- Subscriptions: add a null check to a $post reference.
+- Slidedhow: fix slideshow loading excessive dependencies on every page view.
+- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return.
+- Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
 
 --------
 

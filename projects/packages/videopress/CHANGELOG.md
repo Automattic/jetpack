@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.8] - 2023-01-30
+### Added
+- VideoPress: Add video chapters validation function [#28628]
+
+### Changed
+- VideoPress: change how we detect search parameters on the home page to prevent the stuck edit video details page [#28611]
+- VideoPress: fix loading state bug on VideoPress video library when the query string parameters are `page=1` [#28627]
+- VideoPress: replace the usage of useContext() by local helper function [#28618]
+
+### Fixed
+- VideoPress: fix error when uploading tracks in Atomic sites [#28597]
+
 ## [0.10.7] - 2023-01-26
 ### Added
 - VideoPress: show Connect banner above video player when the site is not connected [#28585]
@@ -663,6 +675,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.7...v0.10.8
 [0.10.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.6...v0.10.7
 [0.10.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.5...v0.10.6
 [0.10.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.4...v0.10.5

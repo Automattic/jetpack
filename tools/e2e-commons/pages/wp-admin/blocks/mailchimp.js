@@ -1,10 +1,10 @@
 import { LoginPage, ConnectionsPage } from '../../wpcom/index.js';
 import logger from '../../../logger.cjs';
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
 import axios from 'axios';
 import { resolveSiteUrl } from '../../../helpers/utils-helper.cjs';
 
-export default class MailchimpBlock extends BlockEditorCanvas {
+export default class MailchimpBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Mailchimp block' );
 		this.blockTitle = MailchimpBlock.title();

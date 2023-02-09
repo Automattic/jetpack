@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Json API: Fix the response format for the "/sites/$site/dropdown-pages/". The endpoint is not used in production yet.

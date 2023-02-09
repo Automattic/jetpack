@@ -1,5 +1,6 @@
-import PageActions from '../../page-actions.js';
-export default class SubscribeBlock extends PageActions {
+import EditorCanvas from './editor-canvas.js';
+import { expect } from '@playwright/test';
+export default class SubscribeBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Subscribe' );
 		this.blockTitle = SubscribeBlock.title();
@@ -14,20 +15,25 @@ export default class SubscribeBlock extends PageActions {
 		return 'Subscribe';
 	}
 	async checkBlock() {
-		await this.page.waitForResponse(
-			r =>
-				decodeURIComponent( r.url() ).match( /wpcom\/v2\/subscribers\/counts/ ) &&
-				r.status() === 200
+		const response = await this.page.waitForResponse(
+			r => decodeURIComponent( r.url() ).match( /wpcom\/v2\/subscribers\/counts/ ),
+			{ timeout: 30000 }
 		);
+		expect( response.status(), 'Response status should be 200' ).toBe( 200 );
 	}
 
 	/**
 	 * Checks whether block is rendered on frontend
 	 *
-	 * @param {page} page Playwright page instance
+	 * @param {Object} frontendPage PageActions page instance
 	 */
-	static async isRendered( page ) {
-		await page.waitForSelector( '.wp-block-jetpack-subscriptions__container #subscribe-field-1' );
-		await page.waitForSelector( '.wp-block-jetpack-subscriptions__container button' );
+	async isRenderedInFrontend( frontendPage ) {
+		await frontendPage.waitForElementToBeVisible(
+			".wp-block-jetpack-subscriptions__container input[name='email']"
+		);
+		await frontendPage.waitForElementToBeVisible(
+			'.wp-block-jetpack-subscriptions__container button'
+		);
+		return true;
 	}
 }

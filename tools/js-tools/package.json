@@ -43,7 +43,7 @@
 		"eslint-plugin-react-hooks": "4.5.0",
 		"eslint-plugin-svelte3": "4.0.0",
 		"eslint-plugin-testing-library": "5.10.0",
-		"eslint-plugin-wpcalypso": "6.1.0",
+		"eslint-plugin-wpcalypso": "7.0.0",
 		"glob": "7.1.6",
 		"ignore": "5.1.8",
 		"inquirer": "7.3.3",

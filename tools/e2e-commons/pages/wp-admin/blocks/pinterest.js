@@ -1,6 +1,6 @@
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
 
-export default class PinterestBlock extends BlockEditorCanvas {
+export default class PinterestBlock extends EditorCanvas {
 	constructor( blockId, page, pinId ) {
 		super( page, 'Pinterest block' );
 		this.blockTitle = PinterestBlock.title();

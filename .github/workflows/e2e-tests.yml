@@ -49,7 +49,7 @@ jobs:
     name: "${{ matrix.project }} e2e tests"
     runs-on: ubuntu-latest
     needs: create-test-matrix
-    timeout-minutes: 25
+    timeout-minutes: 40
     strategy:
       fail-fast: false
       matrix:

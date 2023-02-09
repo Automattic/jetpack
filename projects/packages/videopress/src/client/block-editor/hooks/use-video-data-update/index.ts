@@ -19,9 +19,9 @@ import {
 	WPComV2VideopressGetMetaEndpointResponseProps,
 	WPComV2VideopressPostMetaEndpointBodyProps,
 } from '../../../types';
-import extractVideoChapters from '../../../utils/extract-video-chapters';
-import generateChaptersFile from '../../../utils/generate-chapters-file';
 import { snakeToCamel } from '../../../utils/map-object-keys-to-camel-case';
+import extractVideoChapters from '../../../utils/video-chapters/extract-video-chapters';
+import generateChaptersFile from '../../../utils/video-chapters/generate-chapters-file';
 import {
 	VideoBlockAttributes,
 	VideoBlockSetAttributesProps,
@@ -161,11 +161,12 @@ export function useSyncMedia(
 	setAttributes: VideoBlockSetAttributesProps,
 	options: UseSyncMediaOptionsProps
 ): UseSyncMediaProps {
-	const { id, guid } = attributes;
+	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
 		id,
 		guid,
 		skipRatingControl: true,
+		maybeIsPrivate: isPrivate,
 	} );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
@@ -305,6 +306,13 @@ export function useSyncMedia(
 			.then( () => {
 				// Update local state with fresh video data.
 				updateInitialState( dataToUpdate );
+
+				// Privacy settings attribute update
+				if ( dataToUpdate?.privacy_setting !== 2 ) {
+					setAttributes( {
+						isPrivate: dataToUpdate.privacy_setting === 1,
+					} );
+				}
 
 				// | Video Chapters feature |
 				const chapters = extractVideoChapters( dataToUpdate?.description );

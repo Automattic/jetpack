@@ -1,6 +1,6 @@
-import BlockEditorCanvas from './editor-canvas.js';
+import EditorCanvas from './editor-canvas.js';
 
-export default class EventbriteBlock extends BlockEditorCanvas {
+export default class EventbriteBlock extends EditorCanvas {
 	constructor( blockId, page, eventId ) {
 		super( page, 'Eventbrite block' );
 		this.blockTitle = EventbriteBlock.title();
