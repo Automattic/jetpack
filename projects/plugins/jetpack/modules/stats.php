@@ -696,6 +696,7 @@ function stats_should_show_odyssey_nudge() {
  * @return void
  */
 function stats_print_odyssey_nudge( $html ) {
+	// TODO: Test for privileges and bail as needed.
 	if ( ! stats_should_show_odyssey_nudge() ) {
 		return;
 	}
