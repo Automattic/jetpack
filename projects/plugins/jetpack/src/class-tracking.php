@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Plugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\IP\Utils;
 use Automattic\Jetpack\Tracking as Tracks;
 
 /**
@@ -164,7 +163,7 @@ class Tracking {
 		$this->tracking->record_user_event(
 			'failed_login',
 			array(
-				'origin_ip' => Utils::get_ip(),
+				'origin_ip' => IP_Utils::get_ip(),
 				'login'     => $login,
 			)
 		);

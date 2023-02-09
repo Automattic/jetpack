@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\IP\Utils;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack;
 use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
@@ -528,7 +528,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -589,7 +589,7 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = Utils::get_ip();
+		$ip = IP_Utils::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip && class_exists( 'Jetpack' ) ) {
@@ -617,7 +617,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( Utils::ip_is_private( $ip ) ) {
+		if ( IP_Utils::ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -704,7 +704,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = Utils::get_ip();
+		$ip = IP_Utils::get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -820,7 +820,7 @@ class Brute_Force_Protection {
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
 
 		$request['action']            = $action;
-		$request['ip']                = Utils::get_ip();
+		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
