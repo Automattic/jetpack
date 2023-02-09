@@ -140,7 +140,7 @@ async function getMediaToken(
 	} else {
 		try {
 			if ( storedRawTokenData ) {
-				storedToken = JSON.parse( storedRawTokenData );
+				storedToken = await JSON.parse( storedRawTokenData );
 				if ( storedToken && storedToken.expire > Date.now() ) {
 					debug( '(%s) Providing %o token from the store', context, key );
 					return storedToken.data;
