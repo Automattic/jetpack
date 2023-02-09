@@ -1,6 +1,6 @@
 <?php
 /**
- * IP Address Class
+ * Jetpack IP class file.
  *
  * @package automattic/jetpack-ip
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\IP;
 
 /**
- * Static class that provides utility methods for working with IP addresses.
+ * Class that provides static methods for working with IP addresses.
  */
 class IP {
 
