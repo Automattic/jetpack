@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -199,7 +200,7 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
