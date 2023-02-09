@@ -47,7 +47,6 @@ const projects = [
 		testArgs: [ '-g subscribe', '--repeat-each=20', '--trace=retain-on-failure' ],
 		suite: 'atomic-subscribe-block',
 	},
-	
 ];
 
 const matrix = [];

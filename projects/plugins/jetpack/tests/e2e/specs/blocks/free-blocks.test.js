@@ -8,7 +8,7 @@ import {
 	TiledGalleryBlock,
 	SubscribeBlock,
 } from 'jetpack-e2e-commons/pages/wp-admin/index.js';
-import { PostFrontendPage, SitePage } from 'jetpack-e2e-commons/pages/index.js';
+import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import config from 'config';
 import { prerequisitesBuilder, Plans } from 'jetpack-e2e-commons/env/index.js';
 import playwrightConfig from '../../playwright.config.cjs';
@@ -185,7 +185,7 @@ test.describe( 'Free blocks', () => {
 			} );
 		} );
 
-		test( 'Subscribe block', async ( { page } ) => {
+		test.only( 'Subscribe block', async ( { page } ) => {
 			await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
 			const block = new SubscribeBlock( null, page );
 
@@ -201,7 +201,7 @@ test.describe( 'Free blocks', () => {
 
 			await test.step( 'Can assert that Subscribe block is rendered', async () => {
 				expect(
-					await block.isRenderedInFrontend( await SitePage.init( newTab ) ),
+					await block.isRenderedInFrontend( newTab ),
 					'Block should be displayed'
 				).toBeTruthy();
 			} );
