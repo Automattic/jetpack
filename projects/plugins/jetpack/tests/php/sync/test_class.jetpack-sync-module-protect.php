@@ -48,7 +48,13 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sends_failed_login_empty_message() {
-		Brute_Force_Protection::instance()->log_failed_attempt();
+		do_action(
+			'jpp_log_failed_attempt',
+			array(
+				'login'             => null,
+				'has_login_ability' => true,
+			)
+		);
 
 		$this->sender->do_sync();
 
