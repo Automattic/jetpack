@@ -16,7 +16,7 @@ const ZendeskChatScript: ZendeskChatScriptType = () => {
 		}
 	}, [] );
 
-	return <div id="zendesk-chat-container" />;
+	return <div data-testid="zendesk-chat-container" id="zendesk-chat-container" />;
 };
 
 export default ZendeskChatScript;
