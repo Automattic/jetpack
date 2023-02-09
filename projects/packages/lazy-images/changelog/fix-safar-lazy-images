@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed  a bug that would occassionally skip loading some images on safari or cause jank
