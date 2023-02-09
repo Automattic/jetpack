@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Used identical functions from packages instead of shared PHP file.
-
+Use jetpack-ip package IP class methods over shared functions in a PHP file.
 
