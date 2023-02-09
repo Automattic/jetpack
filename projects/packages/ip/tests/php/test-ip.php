@@ -5,7 +5,7 @@
  * @package automattic/jetpack-ip
  */
 
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\Utils\IP;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 
