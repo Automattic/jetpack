@@ -1,4 +1,8 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
+import {
+	usePublicizeConfig,
+	useSocialMediaConnections,
+} from '@automattic/jetpack-publicize-components';
 import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
@@ -23,6 +27,9 @@ export default function SubscribePanels() {
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
+
+	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
+	const { isPublicizeEnabled } = usePublicizeConfig();
 
 	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
@@ -63,6 +70,8 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	const willShareToSocialMedia = isPublicizeEnabled && hasConnections && hasEnabledConnections;
+
 	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
 	return (
 		<>
@@ -80,23 +89,40 @@ export default function SubscribePanels() {
 			>
 				{ showNotices && (
 					<InspectorNotice>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+						{ willShareToSocialMedia &&
+							createInterpolateElement(
 								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
+									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+									sprintf(
+										/* translators: %s will be a number of subscribers */
+										_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+										numberFormat( subscriberCount )
+									),
+									sprintf(
+										/* translators: %s will be a number of social followers */
+										_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+										numberFormat( followerCount )
+									)
 								),
+								{ span: <span className="jetpack-subscribe-reader-count" /> }
+							) }
+						{ ! willShareToSocialMedia &&
+							createInterpolateElement(
 								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
-							{ span: <span className="jetpack-subscribe-reader-count" /> }
-						) }
+									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									__(
+										'This post will reach <span>%1$s</span> and wonʼt be shared on social.',
+										'jetpack'
+									),
+									sprintf(
+										/* translators: %s will be a number of subscribers */
+										_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+										numberFormat( subscriberCount )
+									)
+								),
+								{ span: <span className="jetpack-subscribe-reader-count" /> }
+							) }
 					</InspectorNotice>
 				) }
 
@@ -107,23 +133,40 @@ export default function SubscribePanels() {
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
 				{ showNotices && (
 					<InspectorNotice>
-						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
+						{ willShareToSocialMedia &&
+							createInterpolateElement(
 								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
+									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									__(
+										'This post was shared to <span>%1$s</span> and <span>%2$s</span>.',
+										'jetpack'
+									),
+									sprintf(
+										/* translators: %s will be a number of subscribers */
+										_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+										numberFormat( subscriberCount )
+									),
+									sprintf(
+										/* translators: %s will be a number of social followers */
+										_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+										numberFormat( followerCount )
+									)
 								),
+								{ span: <span className="jetpack-subscribe-reader-count" /> }
+							) }
+						{ ! willShareToSocialMedia &&
+							createInterpolateElement(
 								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
-							{ span: <span className="jetpack-subscribe-reader-count" /> }
-						) }
+									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
+									sprintf(
+										/* translators: %s will be a number of subscribers */
+										_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+										numberFormat( subscriberCount )
+									)
+								),
+								{ span: <span className="jetpack-subscribe-reader-count" /> }
+							) }
 					</InspectorNotice>
 				) }
 			</PluginPostPublishPanel>
