@@ -245,7 +245,7 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Initializes the WP filesystem.
+	 * Initializes the WP filesystem and WAF directory structure.
 	 *
 	 * @return void
 	 * @throws \Exception If filesystem is unavailable.
@@ -258,6 +258,8 @@ class Waf_Runner {
 		if ( ! \WP_Filesystem() ) {
 			throw new \Exception( 'No filesystem available.' );
 		}
+
+		self::initialize_waf_directory();
 	}
 
 	/**
@@ -278,7 +280,6 @@ class Waf_Runner {
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
 		self::initialize_filesystem();
-		self::create_waf_directory();
 		Waf_Rules_Manager::generate_automatic_rules();
 		Waf_Rules_Manager::generate_ip_rules();
 		self::create_blocklog_table();
@@ -286,12 +287,12 @@ class Waf_Runner {
 	}
 
 	/**
-	 * Created the waf directory on activation.
+	 * Ensures that the waf directory is created.
 	 *
 	 * @return void
 	 * @throws \Exception In case there's a problem when creating the directory.
 	 */
-	public static function create_waf_directory() {
+	public static function initialize_waf_directory() {
 		WP_Filesystem();
 		Waf_Constants::define_waf_directory();
 
@@ -302,7 +303,7 @@ class Waf_Runner {
 
 		if ( ! $wp_filesystem->is_dir( JETPACK_WAF_DIR ) ) {
 			if ( ! $wp_filesystem->mkdir( JETPACK_WAF_DIR ) ) {
-				throw new \Exception( 'Failed creating WAF standalone bootstrap file directory: ' . JETPACK_WAF_DIR );
+				throw new \Exception( 'Failed creating WAF file directory: ' . JETPACK_WAF_DIR );
 			}
 		}
 	}
