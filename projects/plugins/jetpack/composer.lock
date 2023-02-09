@@ -1945,7 +1945,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "f2e34fe09e5988d20fe683e873766d9bfcdb924e"
+                "reference": "b35e687ae1136f9df017654899cc9fac32295364"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1969,7 +1969,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.32.x-dev"
+                    "dev-trunk": "0.33.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
