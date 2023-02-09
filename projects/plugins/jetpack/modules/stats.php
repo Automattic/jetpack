@@ -428,6 +428,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  * @param bool $main_chart_only (default: false) Main Chart Only.
  */
 function stats_reports_page( $main_chart_only = false ) {
+	// TODO: Replace or remove "View stats on WordPress.com right now" link.
+	// Probably makes more sense to have advertise Odyssey here.
 
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
@@ -673,6 +675,8 @@ function stats_parse_header_section( $html ) {
  * @return string
  */
 function stats_parse_content_section( $html ) {
+	// TODO: Skip past gotonewdash DIV.
+	// Doesn't make sense to push users to Calypso once Odyssey is ready.
 	$b = stats_content_marker();
 	return strstr( $html, $b );
 }
