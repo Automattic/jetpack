@@ -249,7 +249,10 @@ class Dashboard {
 								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url' => admin_url(),
 							),
-							'stats_notices' => array( 'opt_out_new_stats' => self::has_opt_out_new_stats_notice() ),
+							'stats_notices' => array(
+								'opt_out_new_stats'  => self::has_opt_out_new_stats_notice(),
+								'new_stats_feedback' => true,
+							),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),

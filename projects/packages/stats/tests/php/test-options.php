@@ -44,6 +44,7 @@ class Test_Options extends StatsBaseTestCase {
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
 			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -72,6 +73,7 @@ class Test_Options extends StatsBaseTestCase {
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
 			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -151,6 +153,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'set version'          => array(
@@ -170,6 +173,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'set blog blog_id'     => array(
@@ -189,6 +193,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'multiple options'     => array(
@@ -219,6 +224,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 		);
@@ -276,6 +282,7 @@ class Test_Options extends StatsBaseTestCase {
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
 			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -304,6 +311,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'Roles'        => array(
@@ -322,6 +330,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'Count Roles'  => array(
@@ -339,6 +348,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'Version'      => array(
@@ -356,6 +366,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'Honor DNT'    => array(
@@ -373,6 +384,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 			'Dummy option' => array(
@@ -390,6 +402,7 @@ class Test_Options extends StatsBaseTestCase {
 					'collapse_nudges'          => false,
 					'enable_odyssey_stats'     => true,
 					'odyssey_stats_changed_at' => 0,
+					'notices'                  => array(),
 				),
 			),
 		);
