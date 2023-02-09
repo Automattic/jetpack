@@ -1,8 +1,7 @@
-import { Dialog, ProductOffer, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Dialog, ProductOffer, TermsOfService, Text } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { STORE_ID } from '../../store';
 import background from './background.svg';
@@ -30,33 +29,10 @@ const ConnectionScreen = () => {
 	} );
 
 	const buttonText = __( 'Get Started', 'jetpack-social' );
-	const tos = createInterpolateElement(
-		sprintf(
-			/* translators: placeholder is a button label */
-			__(
-				'By clicking the <strong>%s</strong> button, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-				'jetpack-social'
-			),
-			buttonText
-		),
-		{
-			strong: <strong />,
-			tosLink: (
-				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-			),
-			shareDetailsLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-					rel="noopener noreferrer"
-					target="_blank"
-				/>
-			),
-		}
-	);
 
 	const getButtonDisclaimer = () => (
 		<Text variant="body-small" className={ styles.tos } mt={ 3 }>
-			{ tos }
+			<TermsOfService agreeButtonLabel={ buttonText } />
 		</Text>
 	);
 
