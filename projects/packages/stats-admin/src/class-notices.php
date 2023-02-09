@@ -55,7 +55,7 @@ class Notices {
 		}
 
 		// Views > 3 and not dismissed, we show the feedback notice.
-		if ( self::get_new_stats_views() >= self::VIEWS_TO_SHOW_FEEDBACK && ! self::is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ) ) {
+		if ( self::get_new_stats_views() >= self::VIEWS_TO_SHOW_FEEDBACK && ! self::is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ) ) {
 			return array(
 				self::NEW_STATS_FEEDBACK_NOTICE_ID => true,
 			);
@@ -75,27 +75,28 @@ class Notices {
 	 *
 	 * @return array Array of hidden notice IDs.
 	 */
-	public static function get_hidden_notice_ids() {
+	public static function get_hidden_notices() {
 		static $hidden_notice_ids;
 		$notices = Stats_Options::get_option( 'notices' );
 
-		$hidden_notice_ids = array_map(
-			function ( $notice, $id ) {
+		$hidden_notice_ids = array_filter(
+			$notices,
+			function ( $notice ) {
 				if ( ! isset( $notice['status'] ) ) {
 					return false;
 				}
 				switch ( $notice['status'] ) {
 					case 'dismissed':
-						return $id;
+						return true;
 					case 'postponed':
-						return $notice['next_show_at'] < time() ? $id : false;
+						return $notice['next_show_at'] > time();
 					default:
 						return false;
 				}
 			},
-			$notices
+			ARRAY_FILTER_USE_BOTH
 		);
-		$hidden_notice_ids = array_filter( $hidden_notice_ids );
+
 		return $hidden_notice_ids;
 	}
 
@@ -106,7 +107,7 @@ class Notices {
 	 * @return bool
 	 */
 	public static function is_notice_hidden( $id ) {
-		return in_array( $id, self::get_hidden_notice_ids(), true );
+		return array_key_exists( $id, self::get_hidden_notices() );
 	}
 
 	/**

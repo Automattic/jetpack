@@ -161,7 +161,7 @@ class REST_Controller {
 				'args'                => array(
 					'id'     => array(
 						'required'    => true,
-						'type'        => 'number',
+						'type'        => 'string',
 						'description' => 'ID of the notice',
 						'enum'        => array(
 							Notices::OPT_IN_NEW_STATS_NOTICE_ID,
@@ -471,7 +471,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
-		return Notices::update_notice( $req->param['id'], $req->param['status'] );
+		return Notices::update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ) );
 	}
 
 	/**
