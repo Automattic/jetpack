@@ -74,6 +74,7 @@ class Block_Editor_Content {
 			'controls'        => true,  // Whether the video should display controls
 			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this)
 			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color
+			'preloadcontent'  => 'metadata',
 			// 'defaultlangcode' => false, // Default language code. Currently ignored by the player.
 		);
 
@@ -82,6 +83,10 @@ class Block_Editor_Content {
 			if ( is_string( $value ) && 'false' === strtolower( $value ) ) {
 				$atts[ $key ] = false;
 			}
+		}
+
+		if ( isset( $atts['preload'] ) ) {
+			$atts['preloadcontent'] = $atts['preload'];
 		}
 
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );
@@ -95,6 +100,7 @@ class Block_Editor_Content {
 			'controls'        => $atts['controls'],
 			'playsinline'     => $atts['playsinline'],
 			'useAverageColor' => $atts['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
+			'preloadContent'  => $atts['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
 		);
 		$src          = esc_url( add_query_arg( $query_params, $base_url ) );
 
