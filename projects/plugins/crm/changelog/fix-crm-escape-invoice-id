@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: Escaping an invoice ID in ZeroBSCRM.admin.invoicebuilder.js

@@ -244,13 +244,9 @@ $jp-gray-20:             #a7aaad;
 }
 
 .jitm-banner__buttons_container {
-	display: grid;
+	display: flex;
 	height: 50%;
 	margin: auto 16px auto;
-
-	@include breakpoint( ">480px" ) {
-		display: flex;
-	}
 }
 
 .jitm-banner__icons {
@@ -346,7 +342,6 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	@include breakpoint( "<960px" ) {
-		display: grid;
 		margin-right: 5px;
 	}
 }
