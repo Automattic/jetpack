@@ -1,18 +1,18 @@
 <?php
 /**
- * IP class test suite.
+ * Utils class test suite.
  *
  * @package automattic/jetpack-ip
  */
 
-use Automattic\Jetpack\Utils\IP;
+use Automattic\Jetpack\IP\Utils;
 use Brain\Monkey;
 use Brain\Monkey\Functions;
 
 /**
- * IP class test suite.
+ * Utils class test suite.
  */
-final class IPTest extends PHPUnit\Framework\TestCase {
+final class UtilsTest extends PHPUnit\Framework\TestCase {
 	/**
 	 * Set up.
 	 *
@@ -52,7 +52,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 		$old_server = $_SERVER;
 		$_SERVER    = $server;
 		try {
-			$this->assertSame( $expect, IP::get_ip() );
+			$this->assertSame( $expect, Utils::get_ip() );
 		} finally {
 			$_SERVER = $old_server;
 		}
@@ -259,7 +259,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 			'128.0.0.0',
 		);
 		foreach ( $public_ips as $public_ip ) {
-			$this->assertFalse( IP::ip_is_private( $public_ip ) );
+			$this->assertFalse( Utils::ip_is_private( $public_ip ) );
 		}
 
 		$private_ips = array(
@@ -270,7 +270,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 			'127.0.0.0',       // localhost.
 		);
 		foreach ( $private_ips as $private_ip ) {
-			$this->assertTrue( IP::ip_is_private( $private_ip ) );
+			$this->assertTrue( Utils::ip_is_private( $private_ip ) );
 		}
 	}
 
@@ -280,7 +280,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 	 * @covers ::convert_ip_address
 	 */
 	public function test_convert_ip_address() {
-		$converted_ip_address = IP::convert_ip_address( '1.2.3.4' );
+		$converted_ip_address = Utils::convert_ip_address( '1.2.3.4' );
 		if ( function_exists( 'inet_pton' ) ) {
 			// if inet_pton() is available, the IP address should be converted to the in_addr representation as a string.
 			$this->assertEquals( gettype( $converted_ip_address ), 'string' );
@@ -301,8 +301,8 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 		$in_range_ip  = '1.2.2.2';
 		$out_range_ip = '1.2.255.255';
 
-		$this->assertTrue( IP::ip_address_is_in_range( $in_range_ip, $range_low, $range_high ) );
-		$this->assertFalse( IP::ip_address_is_in_range( $out_range_ip, $range_low, $range_high ) );
+		$this->assertTrue( Utils::ip_address_is_in_range( $in_range_ip, $range_low, $range_high ) );
+		$this->assertFalse( Utils::ip_address_is_in_range( $out_range_ip, $range_low, $range_high ) );
 	}
 
 }
