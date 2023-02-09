@@ -593,16 +593,37 @@ function stats_reports_page( $main_chart_only = false ) {
 	}
 }
 
+/**
+ * Legacy Stats: Print Header Section
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
 function stats_print_header_section( $html ) {
 	$header = stats_parse_header_section( $html );
 	echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
+/**
+ * Legacy Stats: Print Content Section
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
 function stats_print_content_section( $html ) {
 	$content = stats_parse_content_section( $html );
 	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
+/**
+ * Legacy Stats: Print Chart Scripts
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
 function stats_print_chart_scripts( $html ) {
 	$b = stats_content_marker();
 	$i = strpos( $html, $b );
@@ -612,25 +633,65 @@ function stats_print_chart_scripts( $html ) {
 	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 }
 
+/**
+ * Legacy Stats: Returns content marker
+ *
+ * Used to differentiate between content and script in
+ * the returned server-generated HTML.
+ *
+ * @access public
+ * @return string
+ */
 function stats_content_marker() {
 	return '<div class="gotonewdash">';
 }
 
+/**
+ * Legacy Stats: Parse Header Section
+ *
+ * Returns the section of the content up to and including the date header.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return string
+ */
 function stats_parse_header_section( $html ) {
 	$b = stats_content_marker();
 	return strstr( $html, $b, true );
 }
 
+/**
+ * Legacy Stats: Print Content Section
+ *
+ * Returns the section of the content excluding the date header.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return string
+ */
 function stats_parse_content_section( $html ) {
 	$b = stats_content_marker();
 	return strstr( $html, $b );
 }
 
+/**
+ * Legacy Stats: Determine if we need to show the Odyssey upgrade nudge.
+ *
+ * @access public
+ * @return boolean
+ */
 function stats_should_show_odyssey_nudge() {
 	// Read from the db?!
 	return true;
 }
 
+/**
+ * Legacy Stats: Print the Odyssey upgrade nudge.
+ *
+ * @access public
+ * @param mixed $html HTML.
+ * @return void
+ */
 function stats_print_odyssey_nudge( $html ) {
 	if ( ! stats_should_show_odyssey_nudge() ) {
 		return;
