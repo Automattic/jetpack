@@ -102,8 +102,9 @@ class DashStatsBottom extends Component {
 								createInterpolateElement( __( '<button>View detailed stats</button>', 'jetpack' ), {
 									button: (
 										<Button
-											onClick={ this.trackViewDetailedStats }
 											href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
+											onClick={ this.trackViewDetailedStats }
+											primary
 										/>
 									),
 								} )
