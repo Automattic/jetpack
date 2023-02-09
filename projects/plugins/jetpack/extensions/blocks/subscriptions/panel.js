@@ -112,7 +112,7 @@ export default function SubscribePanels() {
 								sprintf(
 									/* translators: 1$s will be subscribers, %2$s will be social followers */
 									__(
-										'This post will reach <span>%1$s</span> and wonʼt be shared on social.',
+										'This post will reach <span>%1$s</span> and wonʼt be shared on social media.',
 										'jetpack'
 									),
 									sprintf(
