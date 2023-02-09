@@ -45,6 +45,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public $error = false;
 
 	/**
+	 * Styles to be applied to the field
+	 *
+	 * @var string
+	 */
+	public $block_styles = '';
+
+	/**
+	 * Styles to be applied to the field
+	 *
+	 * @var string
+	 */
+	public $field_styles = '';
+
+	/**
+	 * Styles to be applied to the field
+	 *
+	 * @var string
+	 */
+	public $label_styles = '';
+
+	/**
 	 * Constructor function.
 	 *
 	 * @param array                $attributes An associative array of shortcode attributes.  @see shortcode_atts().
@@ -61,6 +82,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'requiredtext'           => null,
 				'options'                => array(),
 				'id'                     => null,
+				'style'                  => null,
+				'fieldbackgroundcolor'   => null,
+				'textcolor'              => null,
 				'default'                => null,
 				'values'                 => null,
 				'placeholder'            => null,
@@ -69,6 +93,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'consenttype'            => null,
 				'implicitconsentmessage' => null,
 				'explicitconsentmessage' => null,
+				'borderradius'           => null,
+				'borderwidth'            => null,
+				'lineheight'             => null,
+				'labellineheight'        => null,
+				'bordercolor'            => null,
+				'inputcolor'             => null,
+				'labelcolor'             => null,
+				'labelfontsize'          => null,
+				'fieldfontsize'          => null,
 			),
 			$attributes,
 			'contact-field'
@@ -246,6 +279,45 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		$field_width         = $this->get_attribute( 'width' );
 		$class               = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 
+		if ( is_numeric( $this->get_attribute( 'borderradius' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--border-radius: ' . esc_attr( $this->get_attribute( 'borderradius' ) ) . 'px;';
+			$this->field_styles .= 'border-radius: ' . (int) $this->get_attribute( 'borderradius' ) . 'px;';
+		}
+		if ( is_numeric( $this->get_attribute( 'borderwidth' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--border-size: ' . esc_attr( $this->get_attribute( 'borderwidth' ) ) . 'px;';
+			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
+		}
+		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+		}
+
+		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
+			$this->label_styles .= 'color: ' . esc_attr( $this->get_attribute( 'labelcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'labelfontsize' ) ) ) {
+			$this->label_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'labelfontsize' ) ) . ';';
+		}
+		if ( is_numeric( $this->get_attribute( 'labellineheight' ) ) ) {
+			$this->label_styles .= 'line-height: ' . (int) $this->get_attribute( 'labellineheight' ) . ';';
+		}
+
 		if ( ! empty( $field_width ) ) {
 			$class .= ' grunion-field-width-' . $field_width;
 		}
@@ -329,19 +401,37 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @param string $label - the label.
 	 * @param bool   $required - if the field is marked as required.
 	 * @param string $required_field_text - the text in the required text field.
+	 * @param array  $extra_attrs Array of key/value pairs to append as attributes to the element.
 	 *
 	 * @return string HTML
 	 */
-	public function render_label( $type, $id, $label, $required, $required_field_text ) {
+	public function render_label( $type, $id, $label, $required, $required_field_text, $extra_attrs = array() ) {
+		$form_style = $this->get_form_style();
+
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			return '';
+		}
+
+		if ( ! empty( $this->label_styles ) ) {
+			$extra_attrs['style'] = $this->label_styles;
+		}
+
+		$extra_attrs_string = '';
+		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
+			foreach ( $extra_attrs as $attr => $val ) {
+				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
+			}
+		}
 
 		$type_class = $type ? ' ' . $type : '';
 		return "<label
 				for='" . esc_attr( $id ) . "'
-				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'
-				>"
+				class='grunion-field-label{$type_class}" . ( $this->is_error() ? ' form-error' : '' ) . "'"
+				. $extra_attrs_string
+				. '>'
 				. esc_html( $label )
 				. ( $required ? '<span>' . $required_field_text . '</span>' : '' )
-			. "</label>\n";
+				. "</label>\n";
 	}
 
 	/**
@@ -359,6 +449,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 */
 	public function render_input_field( $type, $id, $value, $class, $placeholder, $required, $extra_attrs = array() ) {
 		$extra_attrs_string = '';
+
+		if ( ! empty( $this->field_styles ) ) {
+			$extra_attrs['style'] = $this->field_styles;
+		}
+
 		if ( is_array( $extra_attrs ) && ! empty( $extra_attrs ) ) {
 			foreach ( $extra_attrs as $attr => $val ) {
 				$extra_attrs_string .= sprintf( '%s="%s" ', esc_attr( $attr ), esc_attr( $val ) );
@@ -457,6 +552,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_textarea_field( $id, $label, $value, $class, $required, $required_field_text, $placeholder ) {
 		$field  = $this->render_label( 'textarea', 'contact-form-comment-' . $id, $label, $required, $required_field_text );
 		$field .= "<textarea
+		                style='" . $this->field_styles . "'
 		                name='" . esc_attr( $id ) . "'
 		                id='contact-form-comment-" . esc_attr( $id ) . "'
 		                rows='20' "
@@ -481,11 +577,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field .= '<div class="grunion-radio-options">';
+
+		$field_style = 'style="' . $this->field_styles . '"';
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
-				$field .= "\t\t<label class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "\t\t<label {$field_style} class='grunion-radio-label radio" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input
 									type='radio'
 									name='" . esc_attr( $id ) . "'
@@ -495,9 +595,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
 				$field .= esc_html( $option ) . "</label>\n";
-				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
+		$field .= '</div>';
 		return $field;
 	}
 
@@ -514,11 +614,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field      = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-			$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
-			$field .= "\t\t" . esc_html( $label ) . ( $required ? '<span>' . $required_field_text . '</span>' : '' );
-		$field     .= "</label>\n";
-		$field     .= "<div class='clear-form'></div>\n";
+		$field  = "<label class='grunion-field-label checkbox" . ( $this->is_error() ? ' form-error' : '' ) . "' style='" . $this->label_styles . "'>";
+		$field .= "\t\t<input type='checkbox' name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack-forms' ) . "' " . $class . checked( (bool) $value, true, false ) . ' ' . ( $required ? "required aria-required='true'" : '' ) . "/> \n";
+		$field .= "\t\t" . esc_html( $label ) . ( $required ? '<span>' . $required_field_text . '</span>' : '' );
+		$field .= "</label>\n";
+		$field .= "<div class='clear-form'></div>\n";
 		return $field;
 	}
 
@@ -558,16 +658,20 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
-		$field = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
+		$field .= '<div class="grunion-checkbox-multiple-options">';
+
+		$field_style = 'style="' . $this->field_styles . '"';
+
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Contact_Form_Plugin::strip_tags( $option );
 			if ( is_string( $option ) && $option !== '' ) {
-				$field .= "\t\t<label class='grunion-checkbox-multiple-label checkbox-multiple" . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+				$field .= "\t\t<label {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
 				$field .= esc_html( $option ) . "</label>\n";
-				$field .= "\t\t<div class='clear-form'></div>\n";
 			}
 		}
+		$field .= '</div>';
 
 		return $field;
 	}
@@ -690,6 +794,77 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Return the HTML for the outlined label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_outline_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<div class="notched-label">
+				<div class="notched-label__leading"></div>
+				<div class="notched-label__notch">
+					<label
+						for="' . esc_attr( $id ) . '"
+						class="notched-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+						style="' . $this->label_styles . '"
+					>'
+			. esc_html( $label )
+			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			'</label>
+				</div>
+				<div class="notched-label__trailing"></div>
+			</div>';
+	}
+
+	/**
+	 * Return the HTML for the animated label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_animated_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<label
+				for="' . esc_attr( $id ) . '"
+				class="animated-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+				style="' . $this->label_styles . '"
+			>'
+			. esc_html( $label )
+			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			'</label>';
+	}
+
+	/**
+	 * Return the HTML for the below label.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param bool   $required - if the field is marked as required.
+	 * @param string $required_field_text - the text in the required text field.
+	 *
+	 * @return string HTML
+	 */
+	public function render_below_label( $id, $label, $required, $required_field_text ) {
+		return '
+			<label
+				for="' . esc_attr( $id ) . '"
+				class="below-label__label ' . ( $this->is_error() ? ' form-error' : '' ) . '"
+			>'
+			. esc_html( $label )
+			. ( $required ? '<span>' . $required_field_text . '</span>' : '' ) .
+			'</label>';
+	}
+
+	/**
 	 * Return the HTML for the email field.
 	 *
 	 * @param string $type - the type.
@@ -704,8 +879,19 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	 * @return string HTML
 	 */
 	public function render_field( $type, $id, $label, $value, $class, $placeholder, $required, $required_field_text ) {
+		$class .= ' grunion-field';
+
 		if ( $type === 'select' ) {
 			$class .= ' contact-form-dropdown';
+		}
+
+		$form_style = $this->get_form_style();
+		if ( ! empty( $form_style ) && $form_style !== 'default' ) {
+			if ( empty( $placeholder ) ) {
+				$placeholder .= ' ';
+			} else {
+				$class .= ' has-placeholder';
+			}
 		}
 
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
@@ -716,7 +902,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			$wrap_classes .= ' ui-front';
 		}
 
-		$shell_field_class = "class='grunion-field-wrap grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
+		if ( empty( $label ) ) {
+			$wrap_classes .= ' no-label';
+		}
+
+		$shell_field_class = "class='grunion-field-" . trim( esc_attr( $type ) . '-wrap ' . esc_attr( $wrap_classes ) ) . "' ";
 
 		/**
 		 * Filter the Contact Form required field text
@@ -729,11 +919,15 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$field = "\n<div {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+		$block_style = 'style="' . $this->block_styles . '"';
+
+		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
+
 		// If they are logged in, and this is their site, don't pre-populate fields
 		if ( current_user_can( 'manage_options' ) ) {
 			$value = '';
 		}
+
 		switch ( $type ) {
 			case 'email':
 				$field .= $this->render_email_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
@@ -769,6 +963,21 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
 		}
+
+		if ( ! empty( $form_style ) && $form_style !== 'default' && ! in_array( $type, array( 'checkbox', 'consent' ), true ) ) {
+			switch ( $form_style ) {
+				case 'outlined':
+					$field .= $this->render_outline_label( $id, $label, $required, $required_field_text );
+					break;
+				case 'animated':
+					$field .= $this->render_animated_label( $id, $label, $required, $required_field_text );
+					break;
+				case 'below':
+					$field .= $this->render_below_label( $id, $label, $required, $required_field_text );
+					break;
+			}
+		}
+
 		$field .= "\t</div>\n";
 		return $field;
 	}
@@ -802,5 +1011,16 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 
 		return $type;
+	}
+
+	/**
+	 * Gets the form style based on its CSS class.
+	 *
+	 * @return string The form style type.
+	 */
+	private function get_form_style() {
+		$class_name = $this->form->get_attribute( 'className' );
+		preg_match( '/is-style-([^\s]+)/i', $class_name, $matches );
+		return count( $matches ) >= 2 ? $matches[1] : null;
 	}
 }

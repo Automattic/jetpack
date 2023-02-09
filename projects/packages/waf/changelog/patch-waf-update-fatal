@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix an update error that impacted sites using the WAF in standalone mode.

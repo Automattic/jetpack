@@ -1,7 +1,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
+import * as WPElement from '@wordpress/element';
 import React from 'react';
-import ReactDOM from 'react-dom';
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
 
@@ -18,12 +18,17 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<ThemeProvider>
 			<Admin />
-		</ThemeProvider>,
-		container
+		</ThemeProvider>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 render();

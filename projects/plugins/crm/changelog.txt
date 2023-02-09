@@ -1,3 +1,25 @@
+v5.5.3 - 26 January 2023
+-------------------------
+* Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
+* Fixed: HTML escaped code in contact list filters for segments
+
+v5.5.2 - 25 January 2023
+-------------------------
+* Fixed: Custom profile images are now shown in the Latest Contacts dashboard
+* Fixed: Potential XSS in the Custom Fields setting page
+* Fixed: Custom profile pictures are no longer removed when updating contacts
+* Fixed: Potential XSS in invoices with manual input references
+* Fixed: Code snippet was removed from the top of the Forms new/edit page
+* Fixed: Remove HTML code in the "Bundle holder" notification when uploading files to a contact
+* Fixed: HTML escaped code in contact list filters for segments
+* Fixed: Improved security regarding filenames for uploaded files
+* Fixed: The creation date for contacts is updated on any WooCommerce subscription event
+* Improved: Added translation for contact fields when exporting contacts
+* Improved: Added Invoice Status to PDF Invoice template
+* Added: Export Segments to .CSV
+* Added: WooCommerce order status mapping to transaction status
+* Added: WooCommerce order status mapping to invoice status
+
 v5.5.1 - 16 December 2022
 -------------------------
 * Fixed: Inline field editing no longer prevents listings from being displayed

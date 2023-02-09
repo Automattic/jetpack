@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.24.9 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
 ## 0.24.8 - 2023-01-26
 ### Changed
 - Use `flex-start` instead of `start` for better browser compatibility. [#28530]

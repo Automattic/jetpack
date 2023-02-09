@@ -1,6 +1,6 @@
 <?php
 /**
- * Class used to define the Protect module.
+ * Class used to define the Brute force protection feature.
  *
  * @package automattic/jetpack-waf
  */
@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
@@ -414,10 +415,17 @@ class Brute_Force_Protection {
 		 *
 		 * @param array Information about failed login attempt
 		 *   [
-		 *     'login' => (string) Username or email used in failed login attempt
+		 *     'login'             => (string) Username or email used in failed login attempt
+		 *     'has_login_ability' => (bool) Whether the user has the ability to login based on their IP address
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
+		do_action(
+			'jpp_log_failed_attempt',
+			array(
+				'login'             => $login_user,
+				'has_login_ability' => $this->has_login_ability(),
+			)
+		);
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
@@ -435,7 +443,7 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Set up the Protect configuration page in the Jetpack Settings screen
+	 * Set up the Brute force protection configuration page in the Jetpack Settings screen
 	 */
 	public function modules_loaded() {
 		add_filter( 'jetpack_module_configurable_protect', '__return_true' );
@@ -547,7 +555,7 @@ class Brute_Force_Protection {
 				}
 
 				if ( $item->range && isset( $item->range_low ) && isset( $item->range_high ) ) {
-					if ( Brute_Force_Protection_Shared_Functions::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
+					if ( IP_Utils::ip_address_is_in_range( $ip, $item->range_low, $item->range_high ) ) {
 						return true;
 					}
 				}
@@ -608,7 +616,7 @@ class Brute_Force_Protection {
 	 * Check if IP is whitelisted.
 	 */
 	public function is_current_ip_whitelisted() {
-		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
+		$ip = IP_Utils::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip ) {
@@ -636,7 +644,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( Brute_Force_Protection_Shared_Functions::ip_is_private( $ip ) ) {
+		if ( IP_Utils::ip_is_private( $ip ) ) {
 			return true;
 		}
 
@@ -723,7 +731,7 @@ class Brute_Force_Protection {
 			return;
 		}
 
-		$ip = Brute_Force_Protection_Shared_Functions::get_ip();
+		$ip = IP_Utils::get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -834,10 +842,6 @@ class Brute_Force_Protection {
 	public function protect_call( $action = 'check_ip', $request = array() ) {
 		global $wp_version;
 
-		error_log( var_export( Brute_Force_Protection_Shared_Functions::jetpack_protect_get_ip(), true ) );
-		error_log( var_export( wp_json_encode( $this->get_headers() ), true ) );
-		error_log( var_export( $action, true ) );
-
 		$api_key = $this->maybe_get_protect_key();
 
 		$user_agent = '';
@@ -851,7 +855,7 @@ class Brute_Force_Protection {
 		}
 
 		$request['action']            = $action;
-		$request['ip']                = Brute_Force_Protection_Shared_Functions::get_ip();
+		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
 		$request['wordpress_version'] = (string) $wp_version;

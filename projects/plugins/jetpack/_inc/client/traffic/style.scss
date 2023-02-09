@@ -200,3 +200,37 @@
 		margin-top: 0.75rem;
 	}
 }
+
+
+#jp-settings-site-stats .jp-foldable-settings-standalone .jp-form-settings-group .jp-support-info {
+	top: 1em;
+}
+
+.jp-stats-odyssey-disabled-notice {
+	@include breakpoint('<480px') {
+		a.dops-notice__action {
+			white-space: initial;
+		}
+	
+		a.dops-notice__action .gridicon {
+			display: none;
+		}
+	}
+	@include breakpoint('>480px') {
+		width: calc(100% - 26px);
+	}
+}
+
+.jp-stats-odyssey-toggle {
+	margin-bottom: 20px;
+}
+
+.jp-stats-odyssey-badge {
+	color: $white;
+	background-color: $blue-medium;
+	border-radius: 3px;
+	font-size: 11px;
+	line-height: 12px;
+	margin-left: 9px;
+	padding: 4px 8px;
+}
