@@ -540,12 +540,13 @@
                     }
 
                 }
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName -- to be refactored.
+				// We have to explicitly retrieve the avatar from the DB.
+				$dataArr['avatar'] = ( $contact_id !== -1 ) ? $zbs->DAL->contacts->getContactAvatar( $contact_id ) : '';
+				//phpcs:enable WordPress.NamingConventions.ValidVariableName
 
                 // make a copy for IA below (just fields)
                 $contactData = $dataArr;
-
-                #AVATARSAVE - save any avatar change if changed :)
-                if (isset($_POST['zbs-contact-avatar-custom-url']) && !empty($_POST['zbs-contact-avatar-custom-url'])) $dataArr['avatar'] = sanitize_text_field( $_POST['zbs-contact-avatar-custom-url'] );
                 
                 // Company assignment?
                 if (isset($_POST['zbs_company'])) $dataArr['companies'] = array((int)sanitize_text_field($_POST['zbs_company']));
