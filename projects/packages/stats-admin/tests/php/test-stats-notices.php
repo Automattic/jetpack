@@ -100,4 +100,41 @@ class Test_Notices extends Stats_Test_Case {
 		$this->assertEquals( array( 'opt_in_new_stats' => true ), self::$notices->get_notices_to_show() );
 	}
 
+	/**
+	 * Test get views.
+	 */
+	public function test_get_new_stats_views() {
+		Stats_Options::set_option( 'views', 3 );
+		$this->assertEquals( 3, self::$notices->get_new_stats_views() );
+	}
+
+	/**
+	 * Test is notice hidden.
+	 */
+	public function test_is_notice_hidden() {
+		$this->assertFalse( self::$notices->is_notice_hidden( 'opt_in_new_stats' ) );
+		self::$notices->update_notice( 'opt_in_new_stats', 'dismissed' );
+		$this->assertTrue( self::$notices->is_notice_hidden( 'opt_in_new_stats' ) );
+		self::$notices->update_notice( 'opt_in_new_stats', 'postponed' );
+		$this->assertTrue( self::$notices->is_notice_hidden( 'opt_in_new_stats' ) );
+	}
+
+	/**
+	 * Test get hidden notices.
+	 */
+	public function test_get_hidden_notices() {
+		$this->assertEmpty( self::$notices->get_hidden_notices( 'opt_in_new_stats' ) );
+		self::$notices->update_notice( 'opt_in_new_stats', 'dismissed' );
+		self::$notices->update_notice( 'new_stats_feedback', 'postponed' );
+
+		$this->assertArrayHasKey( 'opt_in_new_stats', self::$notices->get_hidden_notices() );
+		$this->assertArrayHasKey( 'new_stats_feedback', self::$notices->get_hidden_notices() );
+
+		$stored_notices                                       = Stats_Options::get_option( 'notices' );
+		$stored_notices['new_stats_feedback']['next_show_at'] = time() - 1;
+		Stats_Options::set_option( 'notices', $stored_notices );
+
+		$this->assertArrayNotHasKey( 'new_stats_feedback', self::$notices->get_hidden_notices() );
+	}
+
 }
