@@ -230,14 +230,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	html += '<div class="zbscrm-cf-settings-wrap">';
 	html += '<div class="zbs-placeholder-text"></div>';
 
-	html +=
-		'<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' +
-		area +
-		'][placeholder][]" value="' +
-		placeholder +
-		'" placeholder="' +
-		zeroBSCRMJS_settingsLang( 'fieldplacehold', 'Field Placeholder Text' ) +
-		'" />';
+	html += '<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' + area + '][placeholder][]" value="' + jpcrm.esc_attr( placeholder ) + '" placeholder="' + zeroBSCRMJS_settingsLang('fieldplacehold','Field Placeholder Text') + '" />';
 
 	// encrypted (only shows if )
 	// Removed encrypted (for now), see JIRA-ZBS-738
