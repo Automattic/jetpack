@@ -471,7 +471,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function update_notice_status( $req ) {
-		return Notices::update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ) );
+		return ( new Notices() )->update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ) );
 	}
 
 	/**

@@ -32,7 +32,7 @@ class Notices {
 	 * @param mixed $status Status of the notice.
 	 * @return bool
 	 */
-	public static function update_notice( $id, $status ) {
+	public function update_notice( $id, $status ) {
 		$notices        = Stats_Options::get_option( 'notices' );
 		$notices[ $id ] = array(
 			'status'       => $status,
@@ -48,21 +48,21 @@ class Notices {
 	 *
 	 * @return array
 	 */
-	public static function get_notices_to_show() {
+	public function get_notices_to_show() {
 		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
 		if ( ! $new_stats_enabled ) {
 			return array();
 		}
 
 		// Views > 3 and not dismissed, we show the feedback notice.
-		if ( self::get_new_stats_views() >= self::VIEWS_TO_SHOW_FEEDBACK && ! self::is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ) ) {
+		if ( $this->get_new_stats_views() >= self::VIEWS_TO_SHOW_FEEDBACK && ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ) ) {
 			return array(
 				self::NEW_STATS_FEEDBACK_NOTICE_ID => true,
 			);
 		}
 
 		// If opt-out notice is not dismissed, we show it.
-		if ( ! self::is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ) ) {
+		if ( ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ) ) {
 			return array(
 				self::OPT_OUT_NEW_STATS_NOTICE_ID => true,
 			);
@@ -75,7 +75,7 @@ class Notices {
 	 *
 	 * @return array Array of hidden notice IDs.
 	 */
-	public static function get_hidden_notices() {
+	public function get_hidden_notices() {
 		static $hidden_notice_ids;
 		$notices = Stats_Options::get_option( 'notices' );
 
@@ -106,14 +106,14 @@ class Notices {
 	 * @param mixed $id ID of the notice.
 	 * @return bool
 	 */
-	public static function is_notice_hidden( $id ) {
-		return array_key_exists( $id, self::get_hidden_notices() );
+	public function is_notice_hidden( $id ) {
+		return array_key_exists( $id, $this->get_hidden_notices() );
 	}
 
 	/**
 	 * Returns the number of views of the new stats dashboard.
 	 */
-	public static function get_new_stats_views() {
+	public function get_new_stats_views() {
 		return Stats_Options::get_option( 'views' );
 	}
 }

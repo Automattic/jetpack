@@ -255,7 +255,7 @@ class Dashboard {
 								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url' => admin_url(),
 							),
-							'stats_notices' => Notices::get_notices_to_show(),
+							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),
