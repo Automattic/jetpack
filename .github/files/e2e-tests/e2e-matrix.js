@@ -41,6 +41,18 @@ const projects = [
 		suite: '',
 	},
 	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
+	{
+		project: 'Blocks with latest Gutenberg',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'blocks', '--retries=1' ],
+		suite: 'gutenberg',
+	},
+	{
+		project: 'Jetpack on Atomic',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'blocks', '--retries=1' ],
+		suite: 'atomic',
+	},
 ];
 
 const matrix = [];
