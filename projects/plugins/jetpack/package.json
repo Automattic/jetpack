@@ -51,7 +51,6 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-		"automattic/jetpack-ip": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",
 		"@automattic/jetpack-partner-coupon": "workspace:*",
 		"@automattic/jetpack-publicize-components": "workspace:*",

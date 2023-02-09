@@ -5,6 +5,8 @@
  * @package automattic/jetpack-waf
  */
 
+use Automattic\Jetpack\IP\IP;
+
 /**
  * Returns an array of IP objects that will never be blocked by the Protect module
  *

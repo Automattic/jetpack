@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\IP\IP;
+
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 	<div class="updated"><p><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></p></div>
