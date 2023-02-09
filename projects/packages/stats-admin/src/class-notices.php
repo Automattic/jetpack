@@ -52,18 +52,19 @@ class Notices {
 	public function get_notices_to_show() {
 		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
 
+		// Show opt in notice shown on legacy stats if new stats is disabled.
 		if ( ! $new_stats_enabled && ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ) ) {
 			return array( self::OPT_IN_NEW_STATS_NOTICE_ID => true );
 		}
 
-		// Views > 3 and not dismissed, we show the feedback notice.
+		// Views > 3 and not hidden, show the feedback notice.
 		if ( $this->get_new_stats_views() >= self::VIEWS_TO_SHOW_FEEDBACK && ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ) ) {
 			return array(
 				self::NEW_STATS_FEEDBACK_NOTICE_ID => true,
 			);
 		}
 
-		// If opt-out notice is not dismissed, we show it.
+		// If opt-out notice is not hidden, we show it.
 		if ( ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ) ) {
 			return array(
 				self::OPT_OUT_NEW_STATS_NOTICE_ID => true,
