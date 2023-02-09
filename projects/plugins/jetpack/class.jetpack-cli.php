@@ -9,7 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
@@ -660,14 +660,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 				// Build array of IPs that are already on the allowed list.
 				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
-				// low & high range params for IP::ip_address_is_in_range().
+				// low & high range params for Utils::ip_address_is_in_range().
 				foreach ( $current_allow as $allowed ) {
 
 					// IP ranges.
 					if ( $allowed->range ) {
 
 						// Is it already on the allowed list?
-						if ( IP::ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
+						if ( Utils::ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
 							/* translators: %s is an IP address */
 							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;

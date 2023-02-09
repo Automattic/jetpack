@@ -7,7 +7,7 @@ Utilities for working with IP addresses.
 ```php
 use Automattic\Jetpack\IP;
 
-echo "Your IP address is: " . IP::get_ip();
+echo "Your IP address is: " . Utils::get_ip();
 ```
 
 ## Security

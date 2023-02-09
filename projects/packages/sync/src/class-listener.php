@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -427,7 +427,7 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			$ip = IP::get_ip();
+			$ip = Utils::get_ip();
 
 			$actor['ip']         = $ip ? $ip : '';
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';

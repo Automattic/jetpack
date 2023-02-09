@@ -5,7 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils;
 
 /**
  * Returns an array of IP objects that will never be blocked by the Protect module
@@ -125,7 +125,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 				$whitelist_error = true;
 				break;
 			}
-			if ( ! IP::convert_ip_address( $low ) || ! IP::convert_ip_address( $high ) ) {
+			if ( ! Utils::convert_ip_address( $low ) || ! Utils::convert_ip_address( $high ) ) {
 				$whitelist_error = true;
 				break;
 			}
@@ -136,7 +136,7 @@ function jetpack_protect_save_whitelist( $whitelist, $global = false ) {
 				$whitelist_error = true;
 				break;
 			}
-			if ( ! IP::convert_ip_address( $item ) ) {
+			if ( ! Utils::convert_ip_address( $item ) ) {
 				$whitelist_error = true;
 				break;
 			}

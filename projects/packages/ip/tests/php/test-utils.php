@@ -1,16 +1,16 @@
 <?php
 /**
- * IP class test suite.
+ * Utils class test suite.
  *
  * @package automattic/jetpack-ip
  */
 
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils;
 
 /**
- * IP class test suite.
+ * Utils class test suite.
  */
-final class IPTest extends PHPUnit\Framework\TestCase {
+final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 	/**
 	 * Test `get_ip`.
@@ -27,7 +27,7 @@ final class IPTest extends PHPUnit\Framework\TestCase {
 		$old_server = $_SERVER;
 		$_SERVER    = $server;
 		try {
-			$this->assertSame( $expect, IP::get_ip() );
+			$this->assertSame( $expect, Utils::get_ip() );
 		} finally {
 			$_SERVER = $old_server;
 		}

@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Constants;
-use Automattic\Jetpack\IP\IP;
+use Automattic\Jetpack\IP\Utils;
 
 /**
  * Class Automattic\Jetpack\Modules
@@ -436,7 +436,7 @@ class Modules {
 
 			// Protect won't work with mis-configured IPs.
 			if ( 'protect' === $module ) {
-				if ( ! IP::get_ip() ) {
+				if ( ! Utils::get_ip() ) {
 					$state->state( 'message', 'protect_misconfigured_ip' );
 					return false;
 				}
