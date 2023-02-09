@@ -16,7 +16,7 @@ async function insertTemplate( prompt ) {
 			answerCount: prompt.answered_users_count,
 			gravatars: prompt.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 			prompt: prompt.text,
-			prompt_id: prompt.id,
+			promptId: prompt.id,
 			showLabel: true,
 			showResponses: true,
 		} ),

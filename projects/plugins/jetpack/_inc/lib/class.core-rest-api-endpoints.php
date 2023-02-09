@@ -749,6 +749,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Blogging prompts
+		register_rest_route(
+			'jetpack/v4',
+			'/blogging-prompts',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_blogging_prompts',
+				'permission_callback' => function () {
+					return current_user_can( 'edit_posts' );
+				},
+				'args'                => array(
+					'prompt_id' => array(
+						'type'              => 'integer',
+						'required'          => false,
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param );
+						},
+						'sanitize_callback' => function ( $param ) {
+							return absint( $param );
+						},
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -4197,6 +4222,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'data' => $data,
 			)
 		);
+	}
+
+	/**
+	 * Gets a list of blogging prompts for the site from wpcom.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @return stdClass[]|null An array of prompt post objects, or null.
+	 */
+	public static function get_blogging_prompts( $request ) {
+		$prompt_id = $request->get_param( 'prompt_id' );
+
+		// Use the prompt id, if one is specified.
+		if ( $prompt_id ) {
+			return jetpack_get_blogging_prompts_by_id( $prompt_id );
+		}
+
+		// Otherwise, return the prompts for today.
+		return jetpack_get_daily_blogging_prompts();
 	}
 
 } // class end

@@ -79,7 +79,9 @@ function jetpack_get_daily_blogging_prompts( $time = 0 ) {
 		)
 	);
 
-	set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
+	if ( $prompts ) {
+		set_transient( $transient_key, $prompts, DAY_IN_SECONDS );
+	}
 
 	return $prompts;
 }
@@ -110,7 +112,9 @@ function jetpack_get_blogging_prompts_by_id( $prompt_id, $count = 10 ) {
 		)
 	);
 
-	set_transient( $transient_key, $prompts, HOUR_IN_SECONDS );
+	if ( $prompts ) {
+		set_transient( $transient_key, $prompts, HOUR_IN_SECONDS );
+	}
 
 	return $prompts;
 }

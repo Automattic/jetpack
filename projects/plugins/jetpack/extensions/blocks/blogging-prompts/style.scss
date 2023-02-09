@@ -6,15 +6,10 @@
 	&__label {
 		font-size: 14px;
 		margin-bottom: 16px;
-
-		svg {
-			// fill: var(--color-black);
-		}
 	}
 
 	&__prompt {
 		font-size: 24px;
-		margin-bottom: 16px;
 	}
 
 	&__answers-link {
@@ -25,6 +20,7 @@
 
 	&__answers {
 		font-size: 16px;
+		margin-top: 16px;
 	}
 
 	&__answers-gravatar {

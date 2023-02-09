@@ -35,7 +35,7 @@ export const settings = {
 			source: 'html',
 			selector: '.jetpack-blogging-prompts__prompt',
 		},
-		prompt_id: {
+		promptId: {
 			type: 'number',
 		},
 		showResponses: {
@@ -54,7 +54,6 @@ export const settings = {
 			link: true,
 			text: true,
 		},
-		inserter: false,
 	},
 	edit,
 	save,
