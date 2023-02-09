@@ -20,6 +20,7 @@
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const minifyCssLink = getRedirectUrl( 'jetpack-boost-minify-css' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
@@ -126,7 +127,13 @@
 	<Module slug={'minify'}>
 		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
-			{__( `Minify CSS and JS.`, 'jetpack-boost' )}
+			<TemplatedString
+				template={__(
+					`Minimize code and markup in your web pages and script files, reducing file sizes and speeding up your site. Read more on <link>web.dev</link>.`,
+					'jetpack-boost'
+				)}
+				vars={externalLinkTemplateVar( minifyCssLink )}
+			/>
 		</p>
 	</Module>
 
