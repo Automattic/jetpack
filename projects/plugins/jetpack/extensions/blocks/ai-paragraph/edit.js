@@ -217,13 +217,17 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
-			.catch( () => {
-				setErrorMessage(
-					__(
-						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-						'jetpack'
-					)
-				);
+			.catch( e => {
+				if ( e.message ) {
+					setErrorMessage( e.message ); // Message was already translated by the backend
+				} else {
+					setErrorMessage(
+						__(
+							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+							'jetpack'
+						)
+					);
+				}
 				setShowRetry( true );
 				setIsLoadingCompletion( false );
 			} );

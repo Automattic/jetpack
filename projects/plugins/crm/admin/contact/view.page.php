@@ -1244,7 +1244,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<div style="margin-bottom:0;line-height: 1.8em;text-align:center" class="ui info segment">
 											<?php
 
-											esc_html_e( '<strong>Bundle holder:</strong> Please install the Client Portal Pro extension if you\'d like clients to view and upload their files via the Client Portal.', 'zero-bs-crm' );
+											echo wp_kses( __( '<strong>Bundle holder:</strong> Please install the Client Portal Pro extension if you\'d like clients to view and upload their files via the Client Portal.', 'zero-bs-crm' ), $zbs->acceptable_restricted_html );
 
 										}
 

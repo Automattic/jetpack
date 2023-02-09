@@ -1,6 +1,7 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
 import { EditorCanvas } from './index.js';
 import { expect } from '@playwright/test';
 
@@ -13,7 +14,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async edit() {
-		const editBtnSelector = "button[aria-label='Open the editor']";
+		const editBtnSelector = 'button.edit-site-site-hub__edit-button';
 		if ( await this.isElementVisible( editBtnSelector, 2000 ) ) {
 			await this.click( editBtnSelector );
 		}
@@ -33,11 +34,16 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async closeWelcomeGuide() {
-		logger.step( 'Handling the welcome guide modal' );
-		const welcomeModal = "div[aria-label='Welcome to the site editor']";
-		if ( await this.isElementVisible( welcomeModal, 1000 ) ) {
-			logger.info( 'Closing the modal' );
-			await this.click( "button[aria-label='Close dialog']" );
+		const isWelcomeGuideActive = await this.page.evaluate( () =>
+			wp.data.select( 'core/edit-site' ).isFeatureActive( 'welcomeGuide' )
+		);
+
+		if ( isWelcomeGuideActive ) {
+			logger.step( 'Closing the welcome guide modal' );
+			await this.page.evaluate( () => {
+				wp.data.dispatch( 'core/edit-site' ).toggleFeature( 'welcomeGuide' );
+				wp.data.dispatch( 'core/edit-site' ).toggleFeature( 'welcomeGuideStyles' );
+			} );
 		}
 	}
 
@@ -48,6 +54,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		await waitForBlock( blockName, this );
 		await this.searchForBlock( blockTitle );
 
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
