@@ -159,7 +159,7 @@ class Block_Editor_Extensions {
 			'jetpackVideoPressSettingUrl' => admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ),
 			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
 			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
-			'imageURLBase'                => plugin_dir_url( __DIR__ ) . 'build/images/',
+			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
 		);
 
 		// Expose initital state of site connection
