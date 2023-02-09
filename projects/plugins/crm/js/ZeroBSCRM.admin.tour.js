@@ -9,7 +9,7 @@
  */
 
 // Define the tour!
-export const zbsTour = {
+var zbsTour = {
 	id: 'zbs-welcome-tour',
 	steps: [
 		{
@@ -212,7 +212,7 @@ jQuery( function ( $ ) {
 	/* ========== */
 	/* TOUR SETUP */
 	/* ========== */
-	var addClickListener = function ( el, fn ) {
+	addClickListener = function ( el, fn ) {
 		if ( el.addEventListener ) {
 			el.addEventListener( 'click', fn, false );
 		} else {
