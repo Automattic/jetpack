@@ -18,21 +18,30 @@ export async function* listProjectFiles( src, spawn ) {
 	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
 		cwd: src,
 		stdio: [ 'ignore', 'pipe', null ],
+		buffer: false,
 	} );
 	const lsIgnoredFiles = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
+		{ cwd: src, stdio: [ 'ignore', 'pipe', null ], buffer: false }
 	);
 	const checkAttrInclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
-		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ lsIgnoredFiles.stdout, 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const checkAttrExclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
-		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ 'pipe', 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const filterProductionInclude = new FilterStream(
 		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
@@ -57,5 +66,8 @@ export async function* listProjectFiles( src, spawn ) {
 
 	yield* rl;
 
+	if ( output ) {
+		output( `D: Awaiting processes.\n` );
+	}
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
 }
