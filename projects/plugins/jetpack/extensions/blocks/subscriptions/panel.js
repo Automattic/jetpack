@@ -92,7 +92,7 @@ export default function SubscribePanels() {
 						{ willShareToSocialMedia &&
 							createInterpolateElement(
 								sprintf(
-									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									/* translators: 1$s will be a number of subscribers, %2$s will be a number of social followers */
 									__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
 									sprintf(
 										/* translators: %s will be a number of subscribers */
@@ -110,7 +110,7 @@ export default function SubscribePanels() {
 						{ ! willShareToSocialMedia &&
 							createInterpolateElement(
 								sprintf(
-									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									/* translators: 1$s will be a number of subscribers */
 									__(
 										'This post will reach <span>%1$s</span> and wonʼt be shared on social media.',
 										'jetpack'
@@ -136,7 +136,7 @@ export default function SubscribePanels() {
 						{ willShareToSocialMedia &&
 							createInterpolateElement(
 								sprintf(
-									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									/* translators: 1$s will be a number of subscribers, %2$s will be a number of social followers */
 									__(
 										'This post was shared to <span>%1$s</span> and <span>%2$s</span>.',
 										'jetpack'
@@ -157,7 +157,7 @@ export default function SubscribePanels() {
 						{ ! willShareToSocialMedia &&
 							createInterpolateElement(
 								sprintf(
-									/* translators: 1$s will be subscribers, %2$s will be social followers */
+									/* translators: 1$s will be a number of subscribers */
 									__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
 									sprintf(
 										/* translators: %s will be a number of subscribers */
