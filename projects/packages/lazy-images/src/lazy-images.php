@@ -449,7 +449,7 @@ class Jetpack_Lazy_Images {
 		 */
 		return apply_filters(
 			'lazyload_images_placeholder_image',
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+			''
 		);
 	}
 
