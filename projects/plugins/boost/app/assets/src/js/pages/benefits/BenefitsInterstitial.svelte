@@ -80,7 +80,7 @@
 					<!-- svelte-ignore missing-declaration Jetpack_Boost -->
 					<ReactComponent
 						this={PricingCard}
-						title={'Jetpack Boost'}
+						title={__( 'Jetpack Boost', 'jetpack-boost' )}
 						icon={`${ Jetpack_Boost.site.assetPath }../static/images/forward.svg`}
 						priceBefore={$pricing.yearly.priceBefore / 12}
 						priceAfter={$pricing.yearly.priceAfter / 12}
