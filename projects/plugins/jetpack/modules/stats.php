@@ -575,8 +575,11 @@ function stats_reports_page( $main_chart_only = false ) {
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
 		$body = stats_convert_admin_urls( $body );
-		// echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
+		// The response can contain either the content to display OR
+		// the scripts for the chart UI. The following calls inspect the
+		// response, insert the Odyssey nudge as needed, and make sure
+		// everything is output correctly.
 		stats_print_header_section( $body );
 		stats_print_odyssey_nudge( $body );
 		stats_print_content_section( $body );
