@@ -1,14 +1,138 @@
-# svelte-data-sync-client
+# Data Sync Client for Svelte
 
-A Svelte.js client for the wp-js-data-sync package
+This package is intended to be used together with the [`@jetpack/packages/wp-js-data-sync`](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/wp-js-data-sync/) package.
 
-## How to install svelte-data-sync-client
+The Data Sync Client for Svelte creates Type-safe [Svelte stores](https://svelte.dev/docs#run-time-svelte-store) that automatically sync with WordPress via the REST API and preload values using `wp_localize_script`.
 
-### Installation From Git Repo
+## Usage
 
-## Contribute
+### Step 1: Initialize the Client
 
-## Get Help
+First, you need to initialize the client, for example in `options.ts` file, this is going to create a namespaced factory that you can use to create stores:
+
+```ts
+// favorites.ts
+import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
+const client = initializeClient('jetpack_favorites');
+```
+
+### Step 2: Setup type safe stores:
+
+[Zod](https://zod.dev) is used to ensure that the values are properly typed and match the expectations.
+
+**Important Zod methods**:
+Zod is a flexible library that helps validate values at run-time.
+
+This gives you a lot of flexibility setting up the types, depending on how they're used and how they should be handled when something goes wrong.
+
+Here are a couple important Zod methods to know about:
+
+- [z.optional](https://github.com/colinhacks/zod#optional) - This is used to mark a field as optional, but it will still be validated if it's present.
+- [z.default](https://github.com/colinhacks/zod#default) - This is used to set a default value for a field if it's undefined, but will not override a value if it's already set, even if the type doesn't match.
+- [z.catch](https://github.com/colinhacks/zod#catch) - This is used to catch errors and return a default value if the type doesn't match.
+- [z.passthrough](https://github.com/colinhacks/zod#passthrough) - By default Zod object schemas strip out unrecognized keys during parsing. Using `passthrough` will allow unrecognized keys to be passed through.
+
+```ts
+import { z } from 'zod';
+
+// favorites.ts
+const favorite_post_schema = z.object({
+	id: z.number(),
+	title: z.string(),
+});
+
+export const favorites = {
+	enabled: client.createAsyncStore('favorite_posts_enabled', z.boolean().catch(false)),
+	posts: client.createAsyncStore('favorite_posts', z.array(favorite_post_schema).catch([])),
+};
+```
+
+That's it, now you can use `favorites.enabled` and `favorites.posts` in your Svelte components.
+
+#### Step 3: Store Usage
+
+Use `client.createAsyncStore()` to create an object with two Svelte stores:
+
+- `store`: Use this as a normal Svelte store. When the value is updated, it will dispatch POST requests to the REST API endpoint.
+- `pending`: In case you need to display a loading state, this store will be `true` while the value is being updated.
+
+Here's a simple example of how that would work:
+
+```svelte
+<script type="ts">
+	import { favorites } from "./favorites.ts";
+	const enabled = favorites.enabled.store;
+	const pending = favorites.enabled.pending;
+</script>
+
+{#if $pending}
+	 🌊 I'm updating the value
+{/if}
+
+<label for="favorite-posts-enabled">
+	<input type="checkbox" bind:checked={$enabled} />
+	Enable
+</label>
+```
+
+#### Interacting with REST API
+
+Every created Data Sync Client Store will also have an `.endpoints` property that can be used to interact with the REST API endpoints directly if needed (for example, to refresh a value).
+
+```ts
+// favorites.ts
+const result = await favorites.enabled.endpoints.GET();
+const result = await favorites.enabled.endpoints.POST( true );;
+```
+
+Note that the endpoint methods are type-safe too, so you can't pass a value that doesn't match the schema. If you do, errors will be thrown.
+
+If you need to interact with the REST API endpoints directly, you can use the [API](./src/API.ts) class directly:
+
+```ts
+const api = new API();
+// API Must be initialized with a nonce, otherwise WordPress REST API will return a 403 error.
+api.initialize( 'jetpack_favorites', window.jetpack_favorites.rest_api.nonce );
+
+// Send a request to any endpoint:
+const result = await api.request( 'GET', 'foobar', "<endpoint-nonce>");
+```
+
+To dive in deeper, have a look at [API](./src/API.ts) and [Endpoint](./src/Endpoint.ts) source files.
+
+#### Putting it all together
+
+Here's all the boilerplate code to get you started quickly:
+
+```ts
+// favorites.ts
+import { z } from 'zod';
+import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
+
+const client = initializeClient('jetpack_favorites');
+
+const favorite_post_schema = z.object({
+	ID: z.number(),
+	post_title: z.string(),
+});
+
+export const favorites = {
+	enabled: client.createAsyncStore('enabled', z.boolean().catch(false)),
+	posts: client.createAsyncStore('posts', z.array(favorite_post_schema),
+};
+```
+
+And use the stores in Svelte. 
+
+```svelte
+<div class="posts">
+	<h1>Posts</h1>
+	{#each $posts as post}
+		<h1>{post.post_title} ({post.ID})</h1>
+	{/each}
+</div>
+```
+
 
 ## Security
 
@@ -16,5 +140,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-svelte-data-sync-client is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+Svelte Data Sync Client is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

@@ -33,9 +33,13 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [ 'title', 'description', 'rating' ].some( field =>
-		hasFieldChanged( field )
-	);
+	const metaChanged = [
+		'title',
+		'description',
+		'rating',
+		'allowDownload',
+		'displayEmbed',
+	].some( field => hasFieldChanged( field ) );
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -47,6 +51,14 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 
 	const setRating = ( rating: RatingProp ) => {
 		updateData( { rating } );
+	};
+
+	const setAllowDownload = ( allowDownload: number ) => {
+		updateData( { allowDownload } );
+	};
+
+	const setDisplayEmbed = ( displayEmbed: number ) => {
+		updateData( { displayEmbed } );
 	};
 
 	const handleMetaUpdate = () => {
@@ -63,6 +75,8 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		setTitle,
 		setDescription,
 		setRating,
+		setAllowDownload,
+		setDisplayEmbed,
 		handleMetaUpdate,
 		metaChanged,
 	};
@@ -98,6 +112,8 @@ export default () => {
 		title: video?.title,
 		description: video?.description,
 		rating: video?.rating,
+		allowDownload: video?.allowDownload,
+		displayEmbed: video?.displayEmbed,
 	} );
 
 	const updateData = newData => {
@@ -161,7 +177,6 @@ export default () => {
 		// TODO: handle errors
 		Promise.allSettled( promises ).then( () => {
 			const videoData = { ...video, ...formData };
-
 			// posterImage already set by the action
 			delete videoData.posterImage;
 
@@ -188,6 +203,8 @@ export default () => {
 				title: video?.title,
 				description: video?.description,
 				rating: video?.rating,
+				allowDownload: video?.allowDownload,
+				displayEmbed: video?.displayEmbed,
 			} );
 		}
 
