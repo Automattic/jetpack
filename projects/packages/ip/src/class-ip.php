@@ -5,7 +5,7 @@
  * @package automattic/jetpack-ip
  */
 
-namespace Automattic\Jetpack\IP;
+namespace Automattic\Jetpack\Utils;
 
 /**
  * Class that provides static methods for working with IP addresses.
