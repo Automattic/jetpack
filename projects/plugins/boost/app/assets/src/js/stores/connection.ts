@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import api from '../api/api';
 import { onConnectionComplete } from '../utils/connection';
 import { reloadModulesState } from './modules';
@@ -6,6 +6,7 @@ import { reloadModulesState } from './modules';
 export type ConnectionStatus = {
 	isConnecting: boolean;
 	connected: boolean;
+	userConnected: boolean;
 	error: null | string;
 };
 
@@ -20,6 +21,15 @@ function partialUpdate( data: Partial< ConnectionStatus > ) {
 
 async function refresh(): Promise< void > {
 	partialUpdate( await api.get( '/connection' ) );
+}
+
+/**
+ * Returns true if the current user is connected to WordPress.com via Jetpack.
+ *
+ * @return {boolean} True if connected.
+ */
+export function isUserConnected(): boolean {
+	return get( connection ).userConnected;
 }
 
 async function initialize(): Promise< void > {
