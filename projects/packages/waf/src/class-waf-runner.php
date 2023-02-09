@@ -190,7 +190,7 @@ class Waf_Runner {
 			return;
 		}
 
-		Waf_Constants::initialize_bootstrap_constants();
+		Waf_Constants::initialize_constants();
 
 		// if ABSPATH is defined, then WordPress has already been instantiated,
 		// and we're running as a plugin (meh). Otherwise, we're running via something
