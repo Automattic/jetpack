@@ -86,6 +86,13 @@ export const VIDEO_PRIVACY_LEVELS = [
 	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
 ];
 
+/*
+ * Local video errors
+ */
+export const LOCAL_VIDEO_ERROR_INVALID_ATTACHMENT_ID = 0;
+export const LOCAL_VIDEO_ERROR_FILE_NOT_FOUND = 1;
+export const ERROR_MIME_TYPE_NOT_SUPPORTED = 2;
+
 export const VIDEO_RATING_G = 'G';
 export const VIDEO_RATING_PG_13 = 'PG-13';
 export const VIDEO_RATING_R_17 = 'R-17';

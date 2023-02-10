@@ -1,3 +1,4 @@
+import { act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import React from 'react';
 import { render, screen } from 'test/test-utils';
@@ -204,7 +205,9 @@ describe( 'NavigationSettings', () => {
 					render( <NavigationSettings { ...currentTestProps } /> );
 					await user.click( screen.getByRole( 'button', { name: 'Open Search' } ) );
 					await user.type( screen.getByRole( 'searchbox' ), 'search-term' );
-					jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+					await act( () => {
+						jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+					} );
 					expect( window.location.hash ).toBe( '#settings?term=search-term' );
 				} );
 
@@ -214,10 +217,14 @@ describe( 'NavigationSettings', () => {
 						render( <NavigationSettings { ...currentTestProps } /> );
 						await user.click( screen.getByRole( 'button', { name: 'Open Search' } ) );
 						await user.type( screen.getByRole( 'searchbox' ), 'search-term' );
-						jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						await act( () => {
+							jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						} );
 						expect( window.location.hash ).toBe( '#settings?term=search-term' );
 						await user.clear( screen.getByRole( 'searchbox' ) );
-						jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						await act( () => {
+							jest.advanceTimersByTime( 510 ); // The <Search> has delayTimeout=500
+						} );
 						expect( window.location.hash ).toBe( '#settings' );
 					} );
 				} );

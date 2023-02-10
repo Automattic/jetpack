@@ -5,7 +5,7 @@
  * WooSync Hub page JS
  */
 
-const jpcrm_woo_options = {
+var jpcrm_woo_options = {
 	jpcrm_wcsetuptype: 0,
 
 	jpcrm_wcdomain: '',
@@ -54,7 +54,7 @@ jQuery( document ).ready( function () {
 		}
 	} );
 
-	const navListItems = jQuery( 'div.setup-panel div a' ),
+	var navListItems = jQuery( 'div.setup-panel div a' ),
 		allWells = jQuery( '.setup-content' ),
 		allNextBtn = jQuery( '.nextBtn' ),
 		alBackBtn = jQuery( '.backBtn' ),
@@ -62,7 +62,7 @@ jQuery( document ).ready( function () {
 	allWells.hide();
 	navListItems.on( 'click', function ( e ) {
 		e.preventDefault();
-		const jQuerytarget = jQuery( jQuery( this ).attr( 'href' ) ),
+		var jQuerytarget = jQuery( jQuery( this ).attr( 'href' ) ),
 			jQueryitem = jQuery( this );
 		if ( ! jQueryitem.hasClass( 'disabled' ) ) {
 			navListItems.removeClass( 'btn-primary' ).addClass( 'btn-default' );
@@ -78,7 +78,7 @@ jQuery( document ).ready( function () {
 	} );
 
 	allNextBtn.on( 'click', function () {
-		let curStep = jQuery( this ).closest( '.setup-content' ),
+		var curStep = jQuery( this ).closest( '.setup-content' ),
 			curStepBtn = curStep.attr( 'id' ),
 			nextStepWizard = jQuery( 'div.setup-panel div a[href="#' + curStepBtn + '"]' )
 				.parent()
@@ -87,7 +87,7 @@ jQuery( document ).ready( function () {
 			curInputs = curStep.find( "input[type='text'],input[type='url']" ),
 			isValid = true;
 		jQuery( '.form-group' ).removeClass( 'has-error' );
-		for ( let i = 0; i < curInputs.length; i++ ) {
+		for ( var i = 0; i < curInputs.length; i++ ) {
 			if ( ! curInputs[ i ].validity.valid ) {
 				isValid = false;
 				jQuery( curInputs[ i ] ).closest( '.form-group' ).addClass( 'has-error' );
@@ -110,7 +110,7 @@ jQuery( document ).ready( function () {
 			}
 			jQuery( this ).addClass( 'disabled' );
 
-			const t = window.jpcrm_woo_options;
+			var t = window.jpcrm_woo_options;
 
 			t.action = 'jpcrm_woosync_wizard_finished';
 			t.security = jQuery( '#jpcrm-woo-wizard-ajax-nonce' ).val();

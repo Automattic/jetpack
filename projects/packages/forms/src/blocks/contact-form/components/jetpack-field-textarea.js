@@ -1,22 +1,31 @@
-import { TextareaControl, Disabled } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { isNil } from 'lodash';
+import classnames from 'classnames';
+import { isEmpty, isNil } from 'lodash';
+import { useFormStyle } from '../util/form';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export default function JetpackFieldTextarea( props ) {
 	const {
+		attributes,
+		clientId,
 		id,
+		isSelected,
 		required,
 		requiredText,
 		label,
 		setAttributes,
 		placeholder,
 		width,
-		attributes,
 	} = props;
+	const formStyle = useFormStyle( clientId );
+	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+
+	const classes = classnames( 'jetpack-field jetpack-field-textarea', {
+		'is-selected': isSelected,
+		'has-placeholder': ! isEmpty( placeholder ),
+	} );
 
 	useEffect( () => {
 		if ( isNil( label ) ) {
@@ -25,27 +34,24 @@ export default function JetpackFieldTextarea( props ) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
-	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
-
 	return (
 		<>
-			<div style={ blockStyle } className="jetpack-field">
+			<div className={ classes } style={ blockStyle }>
 				<JetpackFieldLabel
+					clientId={ clientId }
 					required={ required }
 					requiredText={ requiredText }
 					label={ label }
 					setAttributes={ setAttributes }
 					attributes={ attributes }
+					style={ formStyle }
 				/>
-				<Disabled>
-					<TextareaControl
-						placeholder={ placeholder }
-						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
-						title={ __( 'Set the placeholder text', 'jetpack-forms' ) }
-						style={ fieldStyle }
-					/>
-				</Disabled>
+				<textarea
+					className="jetpack-field__textarea"
+					value={ placeholder }
+					onChange={ e => setAttributes( { placeholder: e.target.value } ) }
+					style={ fieldStyle }
+				/>
 			</div>
 
 			<JetpackFieldControls

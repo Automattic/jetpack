@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: Fix avatar getting removed when saving a contact
