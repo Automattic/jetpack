@@ -3,7 +3,8 @@ import { RESTRICTIONS } from './restrictions';
 
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
-export const VIDEO_LENGTH_ERROR = 'VIDEO_LENGTH_ERROR';
+export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
+export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
 
 // Global max size: 100 GB;
 const GLOBAL_MAX_SIZE = 100000;
@@ -92,7 +93,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 *
 	 * @param {number} sizeInMb - The fileSize in bytes.
 	 * @param {number} length - Video length in seconds and.
-	 * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
 	 */
 	const getVideoValidationError = useCallback(
 		( sizeInMb, length ) => {
@@ -102,8 +103,12 @@ export default function useMediaRestrictions( enabledConnections ) {
 				return FILE_SIZE_ERROR;
 			}
 
-			if ( ! length || length > maxLength || length < minLength ) {
-				return VIDEO_LENGTH_ERROR;
+			if ( ! length || length < minLength ) {
+				return VIDEO_LENGTH_TOO_SHORT_ERROR;
+			}
+
+			if ( length > maxLength ) {
+				return VIDEO_LENGTH_TOO_LONG_ERROR;
 			}
 
 			return null;
@@ -115,7 +120,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 * Checks whether the media with the provided metaData is valid. It can validate images or videos.
 	 *
 	 * @param {number} metaData - Data for media.
-	 * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
 	 */
 	const getValidationError = useCallback(
 		metaData => {

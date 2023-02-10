@@ -30,7 +30,7 @@ class Waf_Compatibility {
 	 * Provides a default value for sites that installed the WAF
 	 * before the automatic rules option was introduced.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param mixed  $default         The default value to return if the option does not exist in the database.
 	 * @param string $option          Option name.
@@ -51,7 +51,7 @@ class Waf_Compatibility {
 	 * If the option is not available, use the WAF module status
 	 * to determine whether or not to run automatic rules.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @return bool The default value for automatic rules.
 	 */

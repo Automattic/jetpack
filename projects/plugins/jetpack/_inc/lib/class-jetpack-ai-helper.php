@@ -31,6 +31,13 @@ class Jetpack_AI_Helper {
 	public static $image_generation_cache_timeout = MONTH_IN_SECONDS;
 
 	/**
+	 * Stores the number of JetpackAI calls in case we want to mark AI-assisted posts some way.
+	 *
+	 * @var int
+	 */
+	public static $post_meta_with_ai_generation_number = '_jetpack_ai_calls';
+
+	/**
 	 * Checks if a given request is allowed to get AI data from WordPress.com.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -96,12 +103,34 @@ class Jetpack_AI_Helper {
 	}
 
 	/**
+	 * Mark the edited post as "touched" by AI stuff.
+	 *
+	 * @param  int $post_id Post ID for which the content is being generated.
+	 * @return void
+	 */
+	private static function mark_post_as_ai_assisted( $post_id ) {
+		if ( ! $post_id ) {
+			return;
+		}
+		$previous = get_post_meta( $post_id, self::$post_meta_with_ai_generation_number, true );
+		if ( ! $previous ) {
+			$previous = 0;
+		} elseif ( ! is_numeric( $previous ) ) {
+			// Data corrupted, nothing to do.
+			return;
+		}
+		$new_value = intval( $previous ) + 1;
+		update_post_meta( $post_id, self::$post_meta_with_ai_generation_number, $new_value );
+	}
+
+	/**
 	 * Get text back from WordPress.com based off a starting text.
 	 *
 	 * @param  string $content The content that's already been typed in the block.
+	 * @param  int    $post_id Post ID for which the content is being generated.
 	 * @return mixed
 	 */
-	public static function get_gpt_completion( $content ) {
+	public static function get_gpt_completion( $content, $post_id ) {
 		$content = wp_strip_all_tags( $content );
 		$cache   = get_transient( self::transient_name_for_completion() );
 		if ( $cache ) {
@@ -125,12 +154,13 @@ class Jetpack_AI_Helper {
 				\require_lib( 'openai' );
 			}
 
-			$result = ( new OpenAI( 'openai' ) )->request_gpt_completion( $content );
+			$result = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_gpt_completion( $content );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
 			// In case of Jetpack we are setting a transient on the WPCOM and not the remote site. I think the 'get_current_user_id' may default for the connection owner at this point but we'll deal with this later.
 			set_transient( self::transient_name_for_completion(), $result, self::$text_completion_cooldown_seconds );
+			self::mark_post_as_ai_assisted( $post_id );
 			return $result;
 		}
 
@@ -159,6 +189,7 @@ class Jetpack_AI_Helper {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
 		set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
+		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
 	}
@@ -167,11 +198,13 @@ class Jetpack_AI_Helper {
 	 * Get an array of image objects back from WordPress.com based off a prompt.
 	 *
 	 * @param  string $prompt The prompt to generate images for.
+	 * @param  int    $post_id Post ID for which the content is being generated.
 	 * @return mixed
 	 */
-	public static function get_dalle_generation( $prompt ) {
+	public static function get_dalle_generation( $prompt, $post_id ) {
 		$cache = get_transient( self::transient_name_for_image_generation( $prompt ) );
 		if ( $cache ) {
+			self::mark_post_as_ai_assisted( $post_id );
 			return $cache;
 		}
 
@@ -192,11 +225,12 @@ class Jetpack_AI_Helper {
 				\require_lib( 'openai' );
 			}
 
-			$result = ( new OpenAI( 'openai' ) )->request_dalle_generation( $prompt );
+			$result = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_dalle_generation( $prompt );
 			if ( is_wp_error( $result ) ) {
 				return $result;
 			}
 			set_transient( self::transient_name_for_image_generation( $prompt ), $result, self::$image_generation_cache_timeout );
+			self::mark_post_as_ai_assisted( $post_id );
 			return $result;
 		}
 
@@ -225,6 +259,7 @@ class Jetpack_AI_Helper {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
 		set_transient( self::transient_name_for_image_generation( $prompt ), $data, self::$image_generation_cache_timeout );
+		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
 	}

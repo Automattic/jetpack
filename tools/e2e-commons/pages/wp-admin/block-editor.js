@@ -1,14 +1,15 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
-import { BlockEditorCanvas } from './index.js';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
+import { EditorCanvas } from './index.js';
 
 export default class BlockEditorPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/post-new.php';
 		super( page, { expectedSelectors: [ '#editor' ], url } );
 
-		this.canvasPage = new BlockEditorCanvas( page );
+		this.canvasPage = new EditorCanvas( page );
 	}
 
 	//region selectors
@@ -75,6 +76,7 @@ export default class BlockEditorPage extends WpPage {
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		await waitForBlock( blockName, this );
 		await this.searchForBlock( blockTitle );
 
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
@@ -113,34 +115,6 @@ export default class BlockEditorPage extends WpPage {
 	async selectPostTitle() {
 		await this.canvasPage.canvas().focus( this.postTitleFldSel );
 		await this.canvasPage.canvas().click( this.postTitleFldSel );
-	}
-
-	async waitForAvailableBlock( blockSlug ) {
-		let block = await this.findAvailableBlock( blockSlug );
-		if ( block ) {
-			return true;
-		}
-		let count = 0;
-		while ( count < 20 && ! block ) {
-			await this.waitForTimeout( 1000 ); // Trying to wait for plan data to be updated
-			await this.reload( { waitUntil: 'domcontentloaded' } );
-			block = await this.findAvailableBlock( blockSlug );
-			count += 1;
-		}
-	}
-
-	async findAvailableBlock( blockSlug ) {
-		const allBlocks = await this.getAllAvailableBlocks();
-		return allBlocks.find( b => b.includes( blockSlug ) );
-	}
-
-	async getAllAvailableBlocks() {
-		return await this.page.evaluate( () =>
-			wp.data
-				.select( 'core/blocks' )
-				.getBlockTypes()
-				.map( b => b.name )
-		);
 	}
 
 	async openSettingsSidebar() {

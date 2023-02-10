@@ -19,11 +19,10 @@ export const stateDebug = debugFactory( 'videopress/media:state' );
 
 const initialState = window.jetpackVideoPressInitialState?.initialState || { videos: {} };
 
-const hash = window.location.hash.replace( /#\/\??/, '' );
-const hasSearchParams = new URLSearchParams( hash ).toString().replace( 'page=1', '' ).length > 0;
+const hashPieces = window.location.hash.split( '?' );
 
-if ( hasSearchParams ) {
-	// Avoid flash of initial data when we have a query
+if ( hashPieces?.[ 0 ] === '#/' && hashPieces?.[ 1 ] && hashPieces?.[ 1 ] !== 'page=1' ) {
+	// Avoid flash of initial data when we have a query on the main library page (#/), different from a page=1 query
 	initialState.videos.isFetching = true;
 }
 

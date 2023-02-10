@@ -5,6 +5,8 @@
  * @package automattic/jetpack-migration-plugin
  */
 
+namespace Automattic\Jetpack\Migration;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -28,6 +30,9 @@ class Jetpack_Migration {
 		// Set up the REST authentication hooks.
 		Connection_Rest_Authentication::init();
 
+		// Set up the REST API routes.
+		new REST_Controller();
+
 		// Set up the top-level menu
 		add_action( 'admin_menu', array( $this, 'admin_menu_hook_callback' ), 1000 ); // Jetpack uses 998.
 
@@ -35,7 +40,7 @@ class Jetpack_Migration {
 		add_action(
 			'plugins_loaded',
 			function () {
-				$config = new Automattic\Jetpack\Config();
+				$config = new \Automattic\Jetpack\Config();
 				// Connection package.
 				$config->ensure(
 					'connection',

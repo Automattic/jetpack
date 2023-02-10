@@ -18,6 +18,7 @@ export default function MessageBoxControl( { message = '', onChange, disabled, m
 	return (
 		<TextareaControl
 			value={ message }
+			label={ __( 'Message', 'jetpack' ) }
 			onChange={ onChange }
 			disabled={ disabled }
 			maxLength={ maxLength }

@@ -1196,7 +1196,7 @@ class Jetpack {
 			wp_register_script(
 				'jetpack-twitter-timeline',
 				Assets::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
-				array( 'jquery' ),
+				array(),
 				'4.0.0',
 				true
 			);

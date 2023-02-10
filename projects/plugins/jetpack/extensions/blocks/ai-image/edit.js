@@ -1,3 +1,4 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
@@ -27,7 +28,8 @@ function getImagesFromOpenAI(
 	setAttributes,
 	setLoadingImages,
 	setResultImages,
-	setErrorMessage
+	setErrorMessage,
+	postId
 ) {
 	setLoadingImages( true );
 	setErrorMessage( null );
@@ -38,26 +40,27 @@ function getImagesFromOpenAI(
 		method: 'POST',
 		data: {
 			prompt,
+			post_id: postId,
 		},
 	} )
 		.then( res => {
 			setLoadingImages( false );
-			if ( res.error && res.error.message ) {
-				setErrorMessage( res.error.message );
-				return;
-			}
 			const images = res.data.map( image => {
 				return 'data:image/png;base64,' + image.b64_json;
 			} );
 			setResultImages( images );
 		} )
-		.catch( () => {
-			setErrorMessage(
-				__(
-					'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-					'jetpack'
-				)
-			);
+		.catch( e => {
+			if ( e.message ) {
+				setErrorMessage( e.message ); // Message was already translated by the backend
+			} else {
+				setErrorMessage(
+					__(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					)
+				);
+			}
 			setLoadingImages( false );
 		} );
 }
@@ -74,6 +77,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const errorButtonText = __( 'Retry', 'jetpack' );
 	const successButtonText = __( 'Submit', 'jetpack' );
 	const submitButtonText = errorMessage ? errorButtonText : successButtonText;
+	const { tracks } = useAnalytics();
 
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
@@ -82,6 +86,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			mediaUpload: settings.mediaUpload,
 		};
 	}, [] );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	const submit = () => {
 		setLoadingImages( false );
@@ -92,8 +97,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
-			setErrorMessage
+			setErrorMessage,
+			postId
 		);
+		tracks.recordEvent( 'jetpack_ai_dalle_generation', {
+			post_id: postId,
+		} );
 	};
 
 	const ImageWithSelect = ( { image, inModal = false } ) => {
@@ -165,6 +174,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				console.error( message );
 				setLoadingImages( false );
 			},
+		} );
+		tracks.recordEvent( 'jetpack_ai_dalle_generation_upload', {
+			post_id: postId,
 		} );
 	};
 

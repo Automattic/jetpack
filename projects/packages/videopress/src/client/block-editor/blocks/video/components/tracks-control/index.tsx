@@ -19,8 +19,8 @@ import TrackForm from './track-form';
 /**
  * Types
  */
-import type { TrackProps, VideoControlProps } from '../../types';
 import type { TrackItemProps, TrackListProps } from './types';
+import type { TrackProps, VideoControlProps } from '../../types';
 import type React from 'react';
 
 const debug = debugFactory( 'videopress:video:tracks-control' );

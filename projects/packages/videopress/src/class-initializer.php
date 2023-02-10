@@ -121,7 +121,6 @@ class Initializer {
 		VideoPress_Rest_Api_V1_Site::init();
 		VideoPress_Rest_Api_V1_Settings::init();
 		XMLRPC::init();
-		Block_Editor_Extensions::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
 		if ( self::should_initialize_admin_ui() ) {
@@ -193,6 +192,11 @@ class Initializer {
 
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
+
+		// Register and enqueue scripts used by the VideoPress block.
+		Block_Editor_Extensions::init( $videopress_video_metadata );
+
+		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
 			return;
 		}

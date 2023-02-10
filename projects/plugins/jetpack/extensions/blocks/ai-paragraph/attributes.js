@@ -1,9 +1,9 @@
 export default {
 	content: {
 		type: 'string',
-		source: 'text',
+		source: 'html',
 	},
-	requestedPrompt: {
+	animationDone: {
 		type: 'boolean',
 		default: false,
 	},

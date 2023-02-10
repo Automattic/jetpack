@@ -6,9 +6,10 @@ import FilterStream from './filter-stream.js';
  *
  * @param {string} src - Source directory.
  * @param {Function} spawn - `execa` spawn function.
+ * @param {Function|undefined} output - Debug output function (temporary).
  * @yields {string} File name.
  */
-export async function* listProjectFiles( src, spawn ) {
+export async function* listProjectFiles( src, spawn, output = undefined ) {
 	// Lots of process plumbing going on here.
 	//  {
 	//    ls-files
@@ -18,21 +19,30 @@ export async function* listProjectFiles( src, spawn ) {
 	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
 		cwd: src,
 		stdio: [ 'ignore', 'pipe', null ],
+		buffer: false,
 	} );
 	const lsIgnoredFiles = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
+		{ cwd: src, stdio: [ 'ignore', 'pipe', null ], buffer: false }
 	);
 	const checkAttrInclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
-		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ lsIgnoredFiles.stdout, 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const checkAttrExclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
-		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ 'pipe', 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const filterProductionInclude = new FilterStream(
 		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
@@ -55,7 +65,16 @@ export async function* listProjectFiles( src, spawn ) {
 		crlfDelay: Infinity,
 	} );
 
+	if ( output ) {
+		output( 'D: Yielding list of files\n' );
+	}
 	yield* rl;
 
+	if ( output ) {
+		output( `D: Awaiting processes.\n` );
+	}
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
+	if ( output ) {
+		output( 'D: Finished listProjectFiles\n' );
+	}
 }

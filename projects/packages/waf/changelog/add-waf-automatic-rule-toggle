@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Change the web application firewall to run automatic and manual rules independently.

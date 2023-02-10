@@ -36,7 +36,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 					{ ! canEdit && <span>{ accessLabel }</span> }
 					{ canEdit && (
 						<Dropdown
-							position="bottom left"
+							placement="bottom-end"
 							contentClassName="edit-post-post-visibility__dialog"
 							focusOnMount
 							renderToggle={ ( { isOpen, onToggle } ) => (

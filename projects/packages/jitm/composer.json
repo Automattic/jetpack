@@ -47,6 +47,10 @@
 		],
 		"test-php": [
 			"@composer phpunit"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"minimum-stability": "dev",

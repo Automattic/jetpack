@@ -330,9 +330,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @return string the actaul post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
 	 */
 	protected static function get_post_access_level() {
+		$post_id = get_the_ID();
+		if ( ! $post_id ) {
+			return 'everybody';
+		}
 		require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
-		global $post;
-		$meta = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+		$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 		if ( empty( $meta ) ) {
 			$meta = 'everybody';
 		}

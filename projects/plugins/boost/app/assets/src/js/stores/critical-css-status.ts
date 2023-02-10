@@ -46,7 +46,7 @@ const resetState = {
 	status: 'not_generated',
 };
 
-const initialState = Jetpack_Boost.criticalCssStatus || resetState;
+const initialState = Jetpack_Boost.criticalCSS?.status || resetState;
 
 const store = writable< CriticalCssStatus >( initialState );
 const { subscribe, update } = store;
@@ -80,7 +80,10 @@ export const isFinished = derived( { subscribe }, state =>
  */
 export const showError = derived(
 	{ subscribe },
-	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+	state =>
+		state.status === 'error' ||
+		state.success_count === undefined ||
+		( state.status === 'success' && state.success_count === 0 )
 );
 
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {

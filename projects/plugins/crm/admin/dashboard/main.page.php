@@ -620,29 +620,19 @@ if (jQuery('#bar-chart').length){
 				<tbody>
 					<?php
 					foreach ( $latest_cust as $cust ) {
-						$avatar = '';
-						if ( isset( $cust ) && isset( $cust['email'] ) ) {
-							$avatar = zeroBSCRM_getGravatarURLfromEmail( $cust['email'], 25 );
-						}
-						$fname = '';
-						if ( isset( $cust ) && isset( $cust['fname'] ) ) {
-							$fname = $cust['fname'];
-						}
-						$lname = '';
-						if ( isset( $cust ) && isset( $cust['lname'] ) ) {
-							$lname = $cust['lname'];
-						}
-						$status = '';
-						if ( isset( $cust ) && isset( $cust['status'] ) ) {
-							$status = $cust['status'];
-						}
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
+						$avatar = ( isset( $cust ) && isset( $cust['id'] ) ) ? $zbs->DAL->contacts->getContactAvatar( $cust['id'] ) : '';
+						$fname  = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
+						$lname  = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
+						$status = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 						if ( empty( $status ) ) {
 							$status = __( 'None', 'zero-bs-crm' );
 						}
 						?>
 						<tr>
 						<td><?php echo esc_html( $cust['id'] ); ?></td>
-						<td><img class='img-rounded' alt='<?php esc_attr_e( 'Contact Image', 'zero-bs-crm', '' ); ?>' src='<?php echo esc_attr( $avatar ); ?>'/></td>
+						<td><img class='img-rounded jpcrm-avatar-small' alt='<?php esc_attr_e( 'Contact Image', 'zero-bs-crm' ); ?>' src='<?php echo esc_attr( $avatar ); ?>'/></td>
 						<td><div class='mar'><?php echo esc_html( $fname ); ?></div></td>
 						<td><div class='mar'><?php echo esc_html( $lname ); ?></div></td>
 						<td class='zbs-s <?php echo esc_attr( 'zbs-' . $zbs->DAL->makeSlug( $status ) ); ?>'><div><?php echo esc_html( $status ); ?></div></td>

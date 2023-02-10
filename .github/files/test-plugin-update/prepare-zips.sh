@@ -16,7 +16,7 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo "::endgroup::"
 
 	echo "::group::Fetching $SLUG-trunk.zip..."
-	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "monorepo/$SRC/composer.json")"
+	BETASLUG="$(jq -r '.extra["beta-plugin-slug"] // .extra["wp-plugin-slug"] // ""' "commit/$SRC/composer.json")"
 	if [[ -z "$BETASLUG" ]]; then
 		echo "No beta-plugin-slug or wp-plugin-slug in composer.json, skipping"
 	else

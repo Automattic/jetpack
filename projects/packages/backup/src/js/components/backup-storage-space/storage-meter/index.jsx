@@ -8,6 +8,7 @@ const StorageMeter = ( { storageUsed, storageLimit, usageLevel } ) => {
 		[ StorageUsageLevels.Critical ]: 'red-warning',
 		[ StorageUsageLevels.Warning ]: 'yellow-warning',
 		[ StorageUsageLevels.Normal ]: 'no-warning',
+		[ StorageUsageLevels.BackupsDiscarded ]: 'full-warning',
 	};
 	return (
 		<>

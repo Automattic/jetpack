@@ -15,6 +15,7 @@ const JetpackFieldConsent = ( {
 	implicitConsentMessage,
 	explicitConsentMessage,
 	setAttributes,
+	attributes,
 } ) => {
 	return (
 		<div
@@ -32,6 +33,7 @@ const JetpackFieldConsent = ( {
 						explicit: explicitConsentMessage,
 					}[ consentType ] ?? ''
 				}
+				attributes={ attributes }
 				setAttributes={ setAttributes }
 				labelFieldName={ `${ consentType }ConsentMessage` }
 				placeholder={ sprintf(

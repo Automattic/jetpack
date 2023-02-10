@@ -17,8 +17,8 @@ import { __, sprintf } from '@wordpress/i18n';
 /**
  * Types
  */
-import type { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
 import type { TrackFormProps } from './types';
+import type { UploadTrackDataProps } from '../../../../../lib/video-tracks/types';
 import type React from 'react';
 
 const DEFAULT_KIND = 'subtitles';

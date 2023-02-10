@@ -115,7 +115,7 @@ add_filter(
 	}
 );
 
-register_deactivation_hook( __FILE__, array( 'Jetpack_Migration', 'plugin_deactivation' ) );
+register_deactivation_hook( __FILE__, array( \Automattic\Jetpack\Migration\Jetpack_Migration::class, 'plugin_deactivation' ) );
 
 // Main plugin class.
-new Jetpack_Migration();
+new \Automattic\Jetpack\Migration\Jetpack_Migration();

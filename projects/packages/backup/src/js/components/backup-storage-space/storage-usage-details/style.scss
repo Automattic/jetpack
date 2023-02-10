@@ -1,8 +1,15 @@
+@import '@automattic/jetpack-base-styles/style';
+
 .backup-storage-space__meta {
 	display: flex;
 	justify-content: space-between;
-	
-	div {
+
+	@include for-phone-down {
+		flex-direction: column;
+		gap: 4px;
+	}
+
+	div, a {
 		color: var(--jp-gray-80);
 		font-weight: 400;
 		line-height: 20px;
@@ -12,8 +19,7 @@
 		font-size: 16px;
 	}
 
-	.backup-storage-space__retention {
+	.backup-storage-space__retention a {
 		font-size: 14px;
-		text-decoration: underline;
 	}
 }

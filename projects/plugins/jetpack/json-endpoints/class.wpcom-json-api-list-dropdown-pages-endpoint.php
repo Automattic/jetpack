@@ -30,14 +30,27 @@ new WPCOM_JSON_API_List_Dropdown_Pages_Endpoint(
  *
  * /sites/%s/dropdown-pages/ -> $blog_id
  */
-class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
+class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	/**
+	 * Page object format.
+	 *
+	 * @var array
+	 */
+	public $dropdown_page_object_format = array(
+		'ID'       => '(int) The page ID.',
+		'title'    => '(string) The page title.',
+		'children' => '(array:dropdown_page) An array of child pages.',
+	);
+
 	/**
 	 * The response format.
 	 *
 	 * @var array
 	 */
 	public $response_format = array(
-		'dropdown_pages' => '(array:page) An array of page objects.',
+		'found'          => '(int) The number of pages found.',
+		'dropdown_pages' => '(array:dropdown_page) An array of dropdown_page objects.',
 	);
 
 	/**
@@ -70,13 +83,19 @@ class WPCOM_JSON_API_List_Dropdown_Pages_Endpoint extends WPCOM_JSON_API_Post_En
 		$pages = get_pages();
 
 		if ( empty( $pages ) ) {
-			return array();
+			return array(
+				'found'          => 0,
+				'dropdown_pages' => array(),
+			);
 		}
 
 		$this->pages_by_id     = self::to_pages_by_id( $pages );
 		$this->pages_by_parent = self::to_pages_by_parent( $pages );
 		$dropdown_pages        = $this->create_dropdown_pages();
-		return $dropdown_pages;
+		return array(
+			'found'          => count( $dropdown_pages ),
+			'dropdown_pages' => $dropdown_pages,
+		);
 	}
 
 	/**

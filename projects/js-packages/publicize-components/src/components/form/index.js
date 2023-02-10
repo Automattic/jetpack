@@ -86,8 +86,8 @@ export default function PublicizeForm( {
 										sprintf(
 											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
 											_n(
-												'You have %d share remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-												'You have %d shares remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												'You have %d share remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												'You have %d shares remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
 												numberOfSharesRemaining,
 												'jetpack'
 											),
@@ -185,12 +185,12 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<>
+							{ isEnhancedPublishingEnabled && <MediaSection /> }
 							<MessageBoxControl
 								maxLength={ maxLength }
 								onChange={ updateMessage }
 								message={ message }
 							/>
-							{ isEnhancedPublishingEnabled && <MediaSection /> }
 						</>
 					) }
 				</Fragment>

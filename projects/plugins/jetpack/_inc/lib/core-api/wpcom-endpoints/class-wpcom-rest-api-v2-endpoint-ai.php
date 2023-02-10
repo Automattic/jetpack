@@ -56,8 +56,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'content' => array( 'required' => true ),
-					'token'   => array( 'required' => false ),
+					'content' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
@@ -71,8 +78,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'prompt' => array( 'required' => true ),
-					'token'  => array( 'required' => false ),
+					'prompt'  => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
@@ -84,7 +98,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_AI_Helper::get_gpt_completion( $request['content'] );
+		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
 	}
 
 	/**
@@ -93,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_dalle_generation( $request ) {
-		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'] );
+		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'], $request['post_id'] );
 	}
 }
 

@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { BACKUP_STATE } from '../../constants';
 import useBackupState from '../useBackupsState';
@@ -60,41 +60,46 @@ jest.mock( '@wordpress/api-fetch' );
 describe( 'useBackupsState', () => {
 	it( 'backupState should be NO_BACKUPS when the site has no backups', async () => {
 		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_backups ) );
-		const { result, waitForNextUpdate } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupState() );
 
-		await waitForNextUpdate();
-		expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS );
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS );
+		} );
 	} );
 
 	it( 'backupState should be NO_BACKUPS_RETRY when last backup has a retry state', async () => {
 		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_backups_retry ) );
-		const { result, waitForNextUpdate } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupState() );
 
-		await waitForNextUpdate();
-		expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS_RETRY );
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_BACKUPS_RETRY );
+		} );
 	} );
 
 	it( 'backupState should be COMPLETE when last backup has finished successfully', async () => {
 		apiFetch.mockReturnValue( Promise.resolve( fixtures.complete ) );
-		const { result, waitForNextUpdate } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupState() );
 
-		await waitForNextUpdate();
-		expect( result.current.backupState ).toBe( BACKUP_STATE.COMPLETE );
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.COMPLETE );
+		} );
 	} );
 
 	it( 'backupState should be NO_GOOD_BACKUPS when last backup finished with no stats', async () => {
 		apiFetch.mockReturnValue( Promise.resolve( fixtures.no_good_backups ) );
-		const { result, waitForNextUpdate } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupState() );
 
-		await waitForNextUpdate();
-		expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );
+		} );
 	} );
 
 	it( 'backupState should be NO_GOOD_BACKUPS when fetch backups API call fails', async () => {
 		apiFetch.mockReturnValue( Promise.reject( 'any error' ) );
-		const { result, waitForNextUpdate } = renderHook( () => useBackupState() );
+		const { result } = renderHook( () => useBackupState() );
 
-		await waitForNextUpdate();
-		expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );
+		await waitFor( () => {
+			expect( result.current.backupState ).toBe( BACKUP_STATE.NO_GOOD_BACKUPS );
+		} );
 	} );
 } );

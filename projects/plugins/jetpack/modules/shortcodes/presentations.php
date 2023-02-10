@@ -106,7 +106,7 @@ if ( ! class_exists( 'Presentations' ) ) :
 			}
 
 			foreach ( $GLOBALS['posts'] as $p ) {
-				if ( has_shortcode( $p->post_content, 'presentation' ) ) {
+				if ( isset( $p->post_content ) && has_shortcode( $p->post_content, 'presentation' ) ) {
 					$this->scripts_and_style_included = true;
 					break;
 				}
