@@ -1024,5 +1024,6 @@ function zeroBSCRMJS_validateSettings() {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zeroBSCRMJS_SMTPWiz, oauth_profile_key, zbsTestDelivery, zbsTestDeliveryMsg };
+    module.exports = { zeroBSCRMJS_SMTPWiz, oauth_profile_key, zbsTestDelivery, zbsTestDeliveryMsg, zeroBSCRMJS_mail_delivery_bindWizard,
+		zeroBSCRMJS_mail_delivery_bindList };
 }
