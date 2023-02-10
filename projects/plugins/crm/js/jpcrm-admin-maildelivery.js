@@ -260,6 +260,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		} );
 }
 
+var oauth_profile_key = '';
+
 // bind wizard funcs
 /**
  *
