@@ -292,7 +292,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'creative-mail':
 			return {
-				progressValue: '86',
+				progressValue: '76',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
@@ -305,7 +305,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'monitor':
 			return {
-				progressValue: '57',
+				progressValue: '52',
 				question: __(
 					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
@@ -320,7 +320,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'related-posts':
 			return {
-				progressValue: '71',
+				progressValue: '64',
 				question: __(
 					'Would you like Related Posts to display at the bottom of your content?',
 					'jetpack'
@@ -335,7 +335,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'site-accelerator':
 			return {
-				progressValue: '99',
+				progressValue: '88',
 				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
@@ -394,7 +394,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'woocommerce':
 			return {
-				progressValue: '43',
+				progressValue: '40',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
