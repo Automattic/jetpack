@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class for generating and working with firewall rule files.
@@ -67,7 +68,7 @@ class Waf_Rules_Manager {
 	/**
 	 * Tries periodically to update the rules using our API.
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_cron() {
 		Waf_Constants::define_mode();
@@ -75,10 +76,16 @@ class Waf_Rules_Manager {
 			return;
 		}
 
-		self::generate_automatic_rules();
-		self::generate_ip_rules();
-		self::generate_rules();
+		try {
+			self::generate_automatic_rules();
+			self::generate_ip_rules();
+			self::generate_rules();
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'waf_cron_update_failed', $e->getMessage() );
+		}
+
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
+		return true;
 	}
 
 	/**
@@ -94,9 +101,14 @@ class Waf_Rules_Manager {
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::RULES_VERSION );
-			self::generate_automatic_rules();
-			self::generate_ip_rules();
-			self::generate_rules();
+
+			try {
+				self::generate_automatic_rules();
+				self::generate_ip_rules();
+				self::generate_rules();
+			} catch ( \Exception $e ) {
+				return new WP_Error( 'waf_update_failed', $e->getMessage() );
+			}
 		}
 	}
 
