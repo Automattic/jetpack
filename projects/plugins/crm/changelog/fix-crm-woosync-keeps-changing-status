@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync now only changes status for contacts with the Lead status
