@@ -67,7 +67,7 @@ function zeroBSCRMJS_initEditView() {
 	zeroBSCRMJS_preLeaveEditView();
 }
 
-const zbscrmjsPageChangesSave = false; // this is a flag, letting it not prompt when
+var zbscrmjsPageChangesSave = false; // this is a flag, letting it not prompt when
 /**
  *
  */
@@ -166,10 +166,10 @@ function zeroBSCRMJS_hideNotificationsAfter() {
  *
  */
 function zeroBSCRMJS_editContactInit() {
-	const picture_file_input = document.getElementById( 'zbsc_profile-picture-file' );
+	var picture_file_input = document.getElementById( 'zbsc_profile-picture-file' );
 	picture_file_input.addEventListener( 'change', jpcrm_customer_profile_picture_on_change );
 
-	const picture_file_remove_btn = document.getElementById( 'zbsc_remove-profile-picture-button' );
+	var picture_file_remove_btn = document.getElementById( 'zbsc_remove-profile-picture-button' );
 	picture_file_remove_btn.addEventListener( 'click', jpcrm_customer_remove_profile_picture );
 
 	jQuery( '.send-sms-none' ).on( 'click', function ( e ) {
@@ -225,10 +225,10 @@ function jpcrm_bind_linkify() {
  */
 function zeroBSCRMJS_initLinkify( ele ) {
 	// find any links?
-	const v = jQuery( ele ).val();
-	let bound = false;
+	var v = jQuery( ele ).val();
+	var bound = false;
 	if ( v.length > 5 ) {
-		const possMatch = zeroBSCRMJS_retrieveURLS( v );
+		var possMatch = zeroBSCRMJS_retrieveURLS( v );
 
 		if ( typeof possMatch === 'object' && typeof possMatch !== 'null' ) {
 			if ( possMatch != null && possMatch[ 0 ] != 'undefined' ) {
@@ -291,7 +291,7 @@ function zeroBSCRMJS_bindLinkify() {
 	jQuery( '.zbs-linkify' )
 		.off( 'click' )
 		.on( 'click', function () {
-			const u = jQuery( this ).attr( 'data-url' );
+			var u = jQuery( this ).attr( 'data-url' );
 			if ( typeof u !== 'undefined' && u != '' ) {
 				window.open( u, '_blank' );
 			}
@@ -377,7 +377,7 @@ function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
 		if ( contactID > 0 ) {
-			let html = '<div class="ui mini animated button zbs-view-contact">';
+			var html = '<div class="ui mini animated button zbs-view-contact">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_editViewLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -388,7 +388,7 @@ function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
 			jQuery( '.zbs-task-for' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button blue mini labeled" href="' +
 				window.zbsObjectViewLinkPrefixCustomer +
 				contactID +
@@ -412,12 +412,12 @@ function zeroBSCRMJS_events_bindContactLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			let contactID = parseInt( jQuery( '#zbse_customer' ).val() );
+			var contactID = parseInt( jQuery( '#zbse_customer' ).val() );
 
 			if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 				contactID = parseInt( contactID );
 				if ( contactID > 0 ) {
-					const url = window.zbsObjectViewLinkPrefixCustomer + contactID;
+					var url = window.zbsObjectViewLinkPrefixCustomer + contactID;
 
 					window.open( url, '_parent' );
 				}
@@ -437,7 +437,7 @@ function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
 	if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 		companyID = parseInt( companyID );
 		if ( companyID > 0 ) {
-			let html = '<div class="ui mini animated button zbs-view-company">';
+			var html = '<div class="ui mini animated button zbs-view-company">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_editViewLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -448,7 +448,7 @@ function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
 			jQuery( '.zbs-task-for-company' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button blue mini labeled" href="' +
 				window.zbsObjectViewLinkPrefixCompany +
 				companyID +
@@ -472,12 +472,12 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			let companyID = parseInt( jQuery( '#zbse_company' ).val() );
+			var companyID = parseInt( jQuery( '#zbse_company' ).val() );
 
 			if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 				companyID = parseInt( companyID );
 				if ( companyID > 0 ) {
-					const url = window.zbsObjectViewLinkPrefixCompany + companyID;
+					var url = window.zbsObjectViewLinkPrefixCompany + companyID;
 
 					window.open( url, '_parent' );
 				}
