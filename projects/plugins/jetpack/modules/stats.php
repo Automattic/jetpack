@@ -90,12 +90,14 @@ function register_endpoints_for_nudge() {
  */
 function odyssey_nudge_handler() {
 	// 1. Update the option.
-	// update_option( 'stats-some-option-name', 'my-test-value' );
+	$time = time();
+	update_option( 'stats-odyssey-nudge-dismissed', $time );
 	// 2. Return a response.
 	// The JS will then hide the nudge.
 	$r = new WP_REST_Response(
 		array(
-			'status' => 200,
+			'status'     => 200,
+			'time-stamp' => $time,
 		)
 	);
 
@@ -507,7 +509,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$blog_id   = Stats_Options::get_option( 'blog_id' );
 	$stats_url = Redirect::get_url( 'calypso-stats' );
-	$nudge     = get_option( 'stats_display_nudge' ) || 'no value set';
+	$nudge     = stats_should_show_odyssey_nudge_debug();
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -528,7 +530,8 @@ function stats_reports_page( $main_chart_only = false ) {
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-				<p>Display nudge value is: <?php echo esc_html( $nudge ); ?><button id="test-button" onclick="test_button_toggle()">Toggle Nudge Option</button></p>
+				<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
+				<p><button id="test-button" onclick="test_button_toggle()">Toggle Nudge Option</button></p>
 				<?php
 				endif;
 
@@ -759,9 +762,44 @@ function stats_parse_content_section( $html ) {
  * @access public
  * @return boolean
  */
+function stats_should_show_odyssey_nudge_debug() {
+	// TODO: Remove me!
+	$value = get_option( 'stats-odyssey-nudge-dismissed' );
+	// Get the number of seconds in 30 days.
+	// $x    = 60 * 60 * 24 * 30;
+	$x    = 60 * 5;
+	$now  = time();
+	$time = intval( $value );
+	$aa   = $now - $time;
+	$bb   = ( $now - $time > $x ) ? 'true' : 'false';
+	return array(
+		'value'      => $value,
+		'type'       => gettype( $value ),
+		'x'          => $x,
+		'now'        => $now,
+		'seconds'    => $aa,
+		'show-nudge' => $bb,
+	);
+}
+
+/**
+ * Legacy Stats: Determine if we need to show the Odyssey upgrade nudge.
+ *
+ * @access public
+ * @return boolean
+ */
 function stats_should_show_odyssey_nudge() {
-	// Read from the db?!
-	return true;
+	$value = get_option( 'stats-odyssey-nudge-dismissed' );
+	if ( $value === false ) {
+		return true;
+	}
+	// Get the number of seconds in 30 days.
+	// $x    = 60 * 60 * 24 * 30;
+	$x    = 60 * 5;
+	$now  = time();
+	$time = intval( $value );
+	$aa   = $now - $time;
+	return ( $aa > $x );
 }
 
 /**
