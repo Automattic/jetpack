@@ -3,7 +3,7 @@ import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useCallback } from 'react';
 import { useMigrationstatus } from '../hooks/use-migration-status';
-import { Migration, MigrationProgress } from '../migration';
+import { Migration, MigrationLoading, MigrationProgress } from '../migration';
 
 const Admin = () => {
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
@@ -16,6 +16,21 @@ const Admin = () => {
 	useEffect( () => configureApi(), [ configureApi ] );
 	const migrationStatus = useMigrationstatus( restApi );
 
+	const renderContent = () => {
+		if ( ! migrationStatus ) {
+			return <MigrationLoading />;
+		} else if ( migrationStatus.status === 'inactive' ) {
+			return (
+				<Migration
+					apiRoot={ apiRoot }
+					apiNonce={ apiNonce }
+					registrationNonce={ registrationNonce }
+				/>
+			);
+		}
+		return <MigrationProgress apiRoot={ apiRoot } apiNonce={ apiNonce } />;
+	};
+
 	return (
 		<AdminPage
 			moduleName={ __( `Move to WordPress.com`, 'jetpack-migration' ) }
@@ -26,15 +41,7 @@ const Admin = () => {
 			<AdminSectionHero>
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 					<Col sm={ 4 } md={ 8 } lg={ 12 }>
-						{ migrationStatus.status === 'inactive' ? (
-							<Migration
-								apiRoot={ apiRoot }
-								apiNonce={ apiNonce }
-								registrationNonce={ registrationNonce }
-							/>
-						) : (
-							<MigrationProgress apiRoot={ apiRoot } apiNonce={ apiNonce } />
-						) }
+						{ renderContent() }
 					</Col>
 				</Container>
 			</AdminSectionHero>

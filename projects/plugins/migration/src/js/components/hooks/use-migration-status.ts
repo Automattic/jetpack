@@ -13,7 +13,7 @@ export function useMigrationstatus( restApi: {
 } ): MigrationStatus {
 	const FETCH_INTERVAL = 3000;
 	const activeIntervalId = useRef();
-	const [ migrationStatus, setMigrationStatus ] = useState( { status: 'inactive' } );
+	const [ migrationStatus, setMigrationStatus ] = useState();
 
 	const clearActiveInterval = () => {
 		clearInterval( activeIntervalId.current );
@@ -36,6 +36,7 @@ export function useMigrationstatus( restApi: {
 	}, [ restApi ] );
 
 	useEffect( () => {
+		checkMigrationStatus();
 		activeIntervalId.current = setInterval( () => checkMigrationStatus(), FETCH_INTERVAL );
 
 		return clearActiveInterval;
