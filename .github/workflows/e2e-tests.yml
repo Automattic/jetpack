@@ -232,7 +232,7 @@ jobs:
           token: ${{ secrets.E2E_TEST_REPORTS_TOKEN }}
           repository: automattic/jetpack-e2e-reports
           event-type: ${{ env.EVENT_TYPE }}
-          client-payload: ${{ env.CLIENT_PAYLOAD }
+          client-payload: ${{ env.CLIENT_PAYLOAD }}
 
   slack-notification:
     name: "Slack notification"
