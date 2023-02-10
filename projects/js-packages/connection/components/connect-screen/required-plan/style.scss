@@ -17,13 +17,9 @@
 		display: none;
 	}
 
-	&__tos-info {
-		margin-bottom: 8px;
-		margin-top: 16px;
-		font-size: var(--font-label);
-		line-height: 20px;
-		letter-spacing: -0.02em;
-		color: var(--jp-gray-60);
+	.terms-of-service {
+		margin-top: calc(var(--spacing-base) * 4);
+		margin-bottom: var(--spacing-base);
 	}
 
 	&__pricing-card {

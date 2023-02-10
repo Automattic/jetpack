@@ -65,9 +65,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 					>
 						{ showConnectButton && (
 							<>
-								<div className="jp-connection__connect-screen-required-plan__tos-info">
-									<TermsOfService agreeButtonLabel={ buttonLabel } />
-								</div>
+								<TermsOfService agreeButtonLabel={ buttonLabel } />
 								<ActionButton
 									label={ buttonLabel }
 									onClick={ handleButtonClick }
