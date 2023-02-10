@@ -1,4 +1,4 @@
-type MultipleButtonsProps = {
+export type MultipleButtonsProps = {
 	/**
 	 * Indicates whether there are multiple buttons present that would imply agreement if clicked.
 	 */
@@ -10,7 +10,7 @@ type MultipleButtonsProps = {
 	agreeButtonLabel?: undefined;
 };
 
-type SingleButtonProps = {
+export type SingleButtonProps = {
 	/**
 	 * Indicates whether there are multiple buttons present that would imply agreement if clicked.
 	 */
@@ -22,4 +22,9 @@ type SingleButtonProps = {
 	agreeButtonLabel: string;
 };
 
-export type TermsOfServiceProps = MultipleButtonsProps | SingleButtonProps;
+export type TermsOfServiceProps = {
+	/**
+	 * Represents additional CSS classes to be added to the component's root.
+	 */
+	className?: string;
+} & ( MultipleButtonsProps | SingleButtonProps );

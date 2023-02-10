@@ -1,16 +1,20 @@
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
 import { getRedirectUrl } from '../../../components';
-import type { TermsOfServiceProps } from './types';
+import type { MultipleButtonsProps, SingleButtonProps, TermsOfServiceProps } from './types';
 import './styles.scss';
 
-const Wrapper: React.FC< TermsOfServiceProps > = props => (
-	<p className="terms-of-service">
-		<Text { ...props } />
+const Wrapper: React.FC< TermsOfServiceProps > = ( { className, ...textProps } ) => (
+	<p className={ classNames( className, 'terms-of-service' ) }>
+		<Text { ...textProps } />
 	</p>
 );
 
-const Text: React.FC< TermsOfServiceProps > = ( { multipleButtons, agreeButtonLabel } ) => {
+const Text: React.FC< MultipleButtonsProps | SingleButtonProps > = ( {
+	multipleButtons,
+	agreeButtonLabel,
+} ) => {
 	const tosLink = (
 		<a
 			className="terms-of-service__link"
