@@ -1,5 +1,4 @@
 // External Dependencies
-import analytics from 'lib/analytics';
 import React, { Component } from 'react';
 
 // Internal Dependencies
@@ -22,10 +21,6 @@ class VideoPress extends Component {
 		}
 
 		guid = matches[ 2 ];
-
-		analytics.tracks.recordEvent( 'jetpack_videopress_divi_embed', {
-			guid,
-		} );
 
 		const url =
 			'https://videopress.com/embed/' +

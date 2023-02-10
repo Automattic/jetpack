@@ -1,3 +1,3 @@
-import VideoPress from './VideoPress/VideoPress';
+import VideoPress from './videopress';
 
 export default [ VideoPress ];
