@@ -47,7 +47,7 @@ class Image_Guide implements Feature {
 	}
 
 	public function setup_trigger() {
-		return 'init';
+		return 'plugins_loaded';
 	}
 
 	public function enqueue_assets() {

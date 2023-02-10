@@ -172,6 +172,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * @inheritDoc
 	 */
 	public function setup_trigger() {
-		return 'init';
+		return 'plugins_loaded';
 	}
 }

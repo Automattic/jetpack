@@ -103,7 +103,8 @@ class Optimizations implements Has_Setup {
 				continue;
 			}
 
-			$optimization->feature->setup();
+			add_action( $optimization->feature->setup_trigger(), array( $optimization->feature, 'setup' ) );
+
 			$this->register_endpoints( $optimization->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );

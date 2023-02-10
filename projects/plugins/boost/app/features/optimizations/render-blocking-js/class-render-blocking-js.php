@@ -311,7 +311,7 @@ class Render_Blocking_JS implements Feature {
 	}
 
 	public function setup_trigger() {
-		return 'init';
+		return 'plugins_loaded';
 	}
 
 }

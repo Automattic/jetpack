@@ -16,6 +16,6 @@ class Lazy_Images implements Feature {
 	}
 
 	public function setup_trigger() {
-		return 'init';
+		return 'plugins_loaded';
 	}
 }
