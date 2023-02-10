@@ -1009,6 +1009,7 @@ importers:
       classnames: 2.3.1
       email-validator: 2.0.4
       gridicons: 3.4.1_react@18.2.0
+      lodash: 4.17.21
       react-redux: 7.2.8_biqbaboplfbrettd7655fr4n2y
       react-router-dom: 5.3.4_react@18.2.0
       redux: 4.0.5
@@ -1038,7 +1039,6 @@ importers:
       concurrently: 6.4.0
       glob: 7.1.6
       jquery: 3.6.0
-      lodash: 4.17.21
       postcss: 8.4.21
       postcss-loader: 6.2.0_4y4aznponuaovazqx4t4g76j4i
       sass-loader: 12.4.0_sass@1.38.1+webpack@5.72.1
