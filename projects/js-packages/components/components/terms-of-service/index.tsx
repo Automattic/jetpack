@@ -3,15 +3,24 @@ import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '../../../components';
 import type { TermsOfServiceProps } from './types';
 
-const TermsOfService: React.FC< TermsOfServiceProps > = ( {
-	multipleButtons,
-	agreeButtonLabel,
-} ) => {
+const Wrapper: React.FC< TermsOfServiceProps > = props => (
+	<p className="terms-of-service">
+		<Text { ...props } />
+	</p>
+);
+
+const Text: React.FC< TermsOfServiceProps > = ( { multipleButtons, agreeButtonLabel } ) => {
 	const tosLink = (
-		<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
+		<a
+			className="terms-of-service__link"
+			href={ getRedirectUrl( 'wpcom-tos' ) }
+			rel="noopener noreferrer"
+			target="_blank"
+		/>
 	);
 	const shareDetailsLink = (
 		<a
+			className="terms-of-service__link"
 			href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
 			rel="noopener noreferrer"
 			target="_blank"
@@ -48,4 +57,4 @@ const TermsOfService: React.FC< TermsOfServiceProps > = ( {
 	);
 };
 
-export default TermsOfService;
+export default Wrapper;
