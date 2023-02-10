@@ -12,7 +12,7 @@
                 zbs_crm_share_ess: zbsOptions.zbs_crm_share_essentials,
                 security: jQuery( '#zbswf-ajax-nonce' ).val()
             };*/
-var zbsOptions = {
+export var zbsOptions = {
 	zbs_crm_name: 'Jetpack CRM',
 	zbs_crm_type: '',
 	zbs_crm_other: '',
