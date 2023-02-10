@@ -6208,6 +6208,6 @@ function jpcrm_get_contact_meta( contact_id ) {
 	return false;
 }
 
-if ( module ) {
+if ( typeof module !== 'undefined' ) {
     module.exports = { zeroBSCRMJS_listViewLang, zeroBSCRMJS_listView_editURL };
 }

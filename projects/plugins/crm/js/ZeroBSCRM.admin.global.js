@@ -2772,7 +2772,7 @@ var jpcrm = {
 	},
 };
 
-if ( module ) {
+if ( typeof module !== 'undefined' ) {
     module.exports = { zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
 		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, zeroBSCRMJS_ucwords,
 		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, 

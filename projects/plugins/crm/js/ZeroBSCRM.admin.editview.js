@@ -492,6 +492,6 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
 ============================================================================================================ */
 
 
-if ( module ) {
+if ( typeof module !== 'undefined' ) {
     module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, zbscrmjs_events_changeCompany };
 }

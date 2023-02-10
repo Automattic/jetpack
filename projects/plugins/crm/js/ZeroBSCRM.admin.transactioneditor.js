@@ -470,6 +470,6 @@ function zeroBSCRMJS_transEditLang( key, fallback ) {
 	return fallback;
 }
 
-if ( module ) {
+if ( typeof module !== 'undefined' ) {
     module.exports = { zbscrmjs_transaction_unsetCustomer, zbscrmjs_transaction_unsetCompany, zbscrmjs_transaction_setCustomer, zbscrmjs_transaction_setCompany };
 }
