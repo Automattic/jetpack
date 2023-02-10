@@ -556,7 +556,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
 				<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
-				<p><button id="test-button" onclick="test_button_toggle()">Toggle Nudge Option</button><button onclick="test_button_reset()">Reset Option</button></p>
+				<p><button onclick="test_button_reset()">Reset Option</button></p>
 				<?php
 				endif;
 
@@ -859,6 +859,7 @@ function stats_print_odyssey_nudge( $html ) {
 		}
 	</style>
 	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
+		<button onclick="test_button_toggle()">X</button>
 		<div class="stats-odyssey-nudge--content">
 			<h1>Explore the new Jetpack Stats</h1>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
