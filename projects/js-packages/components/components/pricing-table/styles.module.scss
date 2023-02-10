@@ -109,16 +109,16 @@
 
 .icon {
 	margin: 0 var(--spacing-base);
-	fill: var(--fill, var(--jp-gray));
+	fill: var(--jp-gray);
 	flex-shrink: 0;
-}
 
-.icon-check {
-	--fill: var(--jp-green-40);
-}
+	&.icon-check {
+		fill: var(--jp-green-40);
+	}
 
-.icon-cross {
-	--fill: var(--jp-red-50);
+	&.icon-cross {
+		fill: var(--jp-red-50);
+	}
 }
 
 .popover {
