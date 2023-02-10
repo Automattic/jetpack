@@ -2185,7 +2185,7 @@ class Grunion_Contact_Form_Plugin {
 	 * Kludge method: reverses the output of a standard print_r( $array ).
 	 * Sort of what unserialize does to a serialized object.
 	 * This is here while we work on a better data storage inside the posts. See:
-	 * - https://a8c.slack.com/archives/C01CSBEN0QZ/p1675781140892129
+	 * - p1675781140892129-slack-C01CSBEN0QZ
 	 * - https://www.php.net/manual/en/function.print-r.php#93529
 	 *
 	 * @param string $print_r_output The array string to be reverted. Needs to being with 'Array'.
