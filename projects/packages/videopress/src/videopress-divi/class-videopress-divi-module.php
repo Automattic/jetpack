@@ -47,6 +47,7 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	 */
 	public function init() {
 		$this->name = esc_html__( 'VideoPress', 'jetpack-videopress-pkg' );
+		$this->icon = 'q';
 	}
 
 	/**
