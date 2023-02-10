@@ -228,7 +228,7 @@ jobs:
         with:
           result-encoding: string
           script: |
-            const { title } = await github.rest.pulls.get({
+            const { data: { title } } = await github.rest.pulls.get({
               pull_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
