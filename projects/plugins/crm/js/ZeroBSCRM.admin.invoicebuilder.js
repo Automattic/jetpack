@@ -521,16 +521,16 @@ function zbscrm_JS_draw_send_invoice_to( res ) {
 	// at some point we changed these to be passing the full obj
 	// ... if so, interpret
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_contact === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_contact === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
 	) {
-		zbs_invoice_contact = parseInt( zbs_invoice.invoiceObj.invoice_contact.id );
+		zbs_invoice_contact = parseInt( window.zbs_invoice.invoiceObj.invoice_contact.id );
 	}
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_company === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_company === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
 	) {
-		zbs_invoice_company = parseInt( zbs_invoice.invoiceObj.invoice_company.id );
+		zbs_invoice_company = parseInt( window.zbs_invoice.invoiceObj.invoice_company.id );
 	}
 
 	// here we allow for prefilled data via zbsprefillcust _GET param (passed by php)
