@@ -1,24 +1,19 @@
 <?php
-/*
-!
+/*!
  * Main Hub Page file: This is the main file which renders the Resources view
  * Jetpack CRM - https://jetpackcrm.com
  */
 
-/*
-======================================================
+/* ======================================================
 	Breaking Checks ( stops direct access )
 	======================================================= */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
-	/*
-	======================================================
+	if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+	/* ======================================================
 	/ Breaking Checks
 	========================================================= */
 
 // permissions check
-if ( ! zeroBSCRM_permsCustomers() ) {
+if ( !zeroBSCRM_permsCustomers() ) {
 	wp_die( esc_html( __( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) ) );
 }
 
@@ -34,7 +29,7 @@ function jpcrm_render_hub_page() {
 	global $zbs;
 
 	// discern views
-	$show_review_link  = false;
+	$show_review_link = false;
 	$show_bundle_block = true;
 
 	$share_message = __( 'I\'m trying out Jetpack CRM, a CRM that runs on WordPress!', 'zero-bs-crm' );
@@ -146,4 +141,5 @@ function jpcrm_render_hub_page() {
 	</div>
 
 	<?php
+
 }

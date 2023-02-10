@@ -8,7 +8,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
 }
 
-// WLREMOVE
+##WLREMOVE
 
 global $zbs;
 
@@ -33,11 +33,11 @@ $learn_from_mike_videos = array(
 
 	),
 
-	'youtube-preview-3' => array(
+  'youtube-preview-3' => array(
 
-		'url'   => $zbs->urls['youtube_intro_to_tags'],
-		'img'   => 'youtube-preview-3-intro-to-tags.png',
-		'title' => __( 'Introduction to tags and segments', 'zero-bs-crm' ),
+		'url' => $zbs->urls['youtube_intro_to_tags'],
+		'img' => 'youtube-preview-3-intro-to-tags.png',
+		'title' => __( "Introduction to tags and segments", 'zero-bs-crm' )
 
 	),
 
@@ -123,4 +123,4 @@ $learn_from_mike_videos = array(
 <script>var jpcrm_show_first_use_dash = true;</script>
 <?php
 
-// /WLREMOVE
+##/WLREMOVE

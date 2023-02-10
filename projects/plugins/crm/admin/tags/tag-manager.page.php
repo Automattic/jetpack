@@ -3,9 +3,7 @@
 // Tag Manager Page
 // Split from ZeroBSCRM.AdminPages.php; at some point this should be merged into ZeroBSCRM.TagManager.php
 
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
 
 function zeroBSCRM_pages_admin_tags() {
 	global $zbs;
@@ -13,9 +11,9 @@ function zeroBSCRM_pages_admin_tags() {
 	// default to no upsell
 	$upsell_html = '';
 
-	if ( ! zeroBSCRM_hasPaidExtensionActivated() ) {
+	if ( !zeroBSCRM_hasPaidExtensionActivated() ) {
 		// Bulk Tagger upsell
-		$upsell_html  = '<!-- Bulk Tagger -->';
+		$upsell_html = '<!-- Bulk Tagger -->';
 		$upsell_html .= '<div style="padding-right:1em">';
 		$upsell_html .= '<h4>Tagging Tools:</h4>';
 		$upsell_html .= zeroBSCRM_UI2_squareFeedbackUpsell(
@@ -28,17 +26,18 @@ function zeroBSCRM_pages_admin_tags() {
 		$upsell_html .= '<!-- / Import Tools box -->';
 	}
 
-	$obj_type = ! empty( $_GET['tagtype'] ) ? sanitize_text_field( $_GET['tagtype'] ) : 'contact';
+	$obj_type = !empty( $_GET['tagtype'] ) ? sanitize_text_field( $_GET['tagtype'] ) : 'contact';
 
 	// verify perms or error and die
 	$has_perms_to_edit = zeroBSCRM_permsObjType( $zbs->DAL->objTypeID( $obj_type ) );
-	if ( ! $has_perms_to_edit ) {
+	if ( !$has_perms_to_edit ) {
 		jpcrm_perms_error();
 	}
 
 	switch ( $obj_type ) {
 
 		case 'contact':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objTypeID'  => ZBS_TYPE_CONTACT,
@@ -56,6 +55,7 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'company':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objTypeID'  => ZBS_TYPE_COMPANY,
@@ -71,6 +71,7 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'quote':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objTypeID'  => ZBS_TYPE_QUOTE,
@@ -86,13 +87,14 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'invoice':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
-					'objTypeID'  => ZBS_TYPE_INVOICE,
-					'objType'    => 'invoice',
-					'singular'   => __( 'Invoice', 'zero-bs-crm' ),
-					'plural'     => __( 'Invoices', 'zero-bs-crm' ),
-					'langLabels' => array(),
+					'objTypeID'     => ZBS_TYPE_INVOICE,
+					'objType'       => 'invoice',
+					'singular'      => __( 'Invoice', 'zero-bs-crm' ),
+					'plural'        => __( 'Invoices', 'zero-bs-crm' ),
+					'langLabels'    => array(),
 					'extraBoxes' => '',
 				)
 			);
@@ -101,6 +103,7 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'transaction':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objType'      => 'transaction',
@@ -117,6 +120,7 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'form':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objTypeID'  => ZBS_TYPE_FORM,
@@ -132,6 +136,7 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 		case 'event':
+
 			$tagView = new zeroBSCRM_TagManager(
 				array(
 					'objTypeID'  => ZBS_TYPE_EVENT,
@@ -150,4 +155,5 @@ function zeroBSCRM_pages_admin_tags() {
 			break;
 
 	}
+
 }

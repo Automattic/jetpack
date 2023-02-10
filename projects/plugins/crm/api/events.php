@@ -1,6 +1,5 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -10,26 +9,22 @@
  * Date: 04/06/2019
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
+/* ======================================================
+     Breaking Checks ( stops direct access )
+   ====================================================== */
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+/* ======================================================
+   / Breaking Checks
+   ====================================================== */
 
 // Check the method
 jpcrm_api_check_http_method( array( 'GET' ) );
 
 // Process the pagination parameters from the query
 list( $page, $per_page ) = jpcrm_api_process_pagination();
-
-if ( isset( $event_params['owned'] ) && (int) $event_params['owned'] > 0 ) {
-	$isOwned = (int) $event_params['owned'];
+ 
+if ( isset( $event_params['owned'] ) && (int)$event_params['owned'] > 0 ) {
+	$isOwned = (int)$event_params['owned'];
 } else {
 	$isOwned = -1;
 }
@@ -40,4 +35,4 @@ $events = zeroBS_getEvents( true, $per_page, $page, $isOwned );
 
 wp_send_json( $events );
 
-
+?>

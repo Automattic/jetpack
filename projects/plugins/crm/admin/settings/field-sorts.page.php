@@ -1,397 +1,351 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Admin Page: Settings: Field sorts
  */
 
 // stop direct access
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit; 
 
-global $wpdb, $zbs;  // } Req
+global $wpdb, $zbs;  #} Req
 
-// $settings = $zbs->settings->getAll();
+#$settings = $zbs->settings->getAll();
 
 $fieldTypes = array(
 
-	'address'  => array(
-		'name' => 'Address Fields',
-		'obj'  => 'zbsAddressFields',
-	),
-	'customer' => array(
-		'name' => 'Contact Fields',
-		'obj'  => 'zbsCustomerFields',
-	),
-	'company'  => array(
-		'name' => jpcrm_label_company() . ' Fields',
-		'obj'  => 'zbsCompanyFields',
-	),
-	// following make no sense as we have custom editors for them :) v3.0 removed QUOTES, other 2 were'nt even in there yet
-	// 'quote' => array('name'=>'Quote Fields','obj'=>'zbsCustomerQuoteFields'),
-	// 'invoice' => array('name'=>'Invoice Fields','obj'=>'zbsInvoiceFields'),
-	// 'transaction' => array('name'=>'Transaction Fields','obj'=>'zbsTransactionFields'),
+    'address' => array('name'=>'Address Fields','obj'=>'zbsAddressFields'),
+    'customer' => array('name'=>'Contact Fields','obj'=>'zbsCustomerFields'),
+    'company' => array('name'=>jpcrm_label_company().' Fields','obj'=>'zbsCompanyFields'),
+    // following make no sense as we have custom editors for them :) v3.0 removed QUOTES, other 2 were'nt even in there yet
+    //'quote' => array('name'=>'Quote Fields','obj'=>'zbsCustomerQuoteFields'),
+    //'invoice' => array('name'=>'Invoice Fields','obj'=>'zbsInvoiceFields'),
+    //'transaction' => array('name'=>'Transaction Fields','obj'=>'zbsTransactionFields'),
 
 );
 
-// } Act on any edits!
-if ( isset( $_POST['editwplfsort'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
+#} Act on any edits!
+if (isset($_POST['editwplfsort']) && zeroBSCRM_isZBSAdminOrAdmin()){
 
-	// check nonce
-	check_admin_referer( 'zbs-update-settings-fieldsorts' );
+    // check nonce
+    check_admin_referer( 'zbs-update-settings-fieldsorts' );
 
-	// } localise
-	global $zbsFieldSorts;
+    #} localise
+    global $zbsFieldSorts;
 
-	// } Retrieve existing
-	$newFieldOrderList = array();// $zbsFieldSorts;
-	$newFieldHideList  = array();
+    #} Retrieve existing
+    $newFieldOrderList = array();#$zbsFieldSorts;
+    $newFieldHideList = array();
 
-	// } Cycle through + Save custom field order
-	foreach ( $fieldTypes as $key => $fieldType ) {
+    #} Cycle through + Save custom field order
+    foreach ($fieldTypes as $key => $fieldType){
 
-		// } Retrieve from post
-		$potentialCSV = '';
-		if ( isset( $_POST[ 'zbscrm-' . $key . '-sortorder' ] ) && ! empty( $_POST[ 'zbscrm-' . $key . '-sortorder' ] ) ) {
-			$potentialCSV = sanitize_text_field( $_POST[ 'zbscrm-' . $key . '-sortorder' ] );
-		}
+        #} Retrieve from post
+        $potentialCSV = ''; if (isset($_POST['zbscrm-'.$key.'-sortorder']) && !empty($_POST['zbscrm-'.$key.'-sortorder'])) $potentialCSV = sanitize_text_field($_POST['zbscrm-'.$key.'-sortorder']);
 
-		// } TODO Compare with defaults (don't overridewise?)
-		// use $zbsFieldSorts
+        #} TODO Compare with defaults (don't overridewise?)
+        # use $zbsFieldSorts
 
-		// } If not empty, break into array
-		if ( ! empty( $potentialCSV ) ) {
+        #} If not empty, break into array
+        if (!empty($potentialCSV)){
 
-			// $newArr = array();
-			// brutal, lol
-			$newArr = explode( ',', $potentialCSV );
+            #$newArr = array();
+            # brutal, lol
+            $newArr = explode(',', $potentialCSV);
 
-			// } add if any
-			// } This adds to rolling arr
-			// if (count($newArr) > 0) $newFieldOrderList[$key]['overrides'] = $newArr;
-			// } ... but better to just add to save obj :)
-			$newFieldOrderList[ $key ] = $newArr;
+            #} add if any
+            #} This adds to rolling arr
+            #if (count($newArr) > 0) $newFieldOrderList[$key]['overrides'] = $newArr;
+            #} ... but better to just add to save obj :)
+            $newFieldOrderList[$key] = $newArr;
 
-		}
+        }
 
-		// for each fieldtype, also check for hidden fields (hacky temp workaround)
 
-		// } Retrieve from post
-		$potentialCSV = '';
-		if ( isset( $_POST[ 'zbscrm-' . $key . '-hidelist' ] ) && ! empty( $_POST[ 'zbscrm-' . $key . '-hidelist' ] ) ) {
-			$potentialCSV = sanitize_text_field( $_POST[ 'zbscrm-' . $key . '-hidelist' ] );
-		}
+        // for each fieldtype, also check for hidden fields (hacky temp workaround)
 
-		// } TODO Compare with defaults (don't overridewise?)
-		// use $zbsFieldSorts
+        #} Retrieve from post
+        $potentialCSV = ''; if (isset($_POST['zbscrm-'.$key.'-hidelist']) && !empty($_POST['zbscrm-'.$key.'-hidelist'])) $potentialCSV = sanitize_text_field($_POST['zbscrm-'.$key.'-hidelist']);
 
-		// } If not empty, break into array
-		if ( ! empty( $potentialCSV ) ) {
+        #} TODO Compare with defaults (don't overridewise?)
+        # use $zbsFieldSorts
 
-			// $newArr = array();
-			// brutal, lol
-			$newArr = explode( ',', $potentialCSV );
+        #} If not empty, break into array
+        if (!empty($potentialCSV)){
 
-			// } add if any
-			// } This adds to rolling arr
-			// if (count($newArr) > 0) $newFieldOrderList[$key]['overrides'] = $newArr;
-			// } ... but better to just add to save obj :)
-			$newFieldHideList[ $key ] = $newArr;
+            #$newArr = array();
+            # brutal, lol
+            $newArr = explode(',', $potentialCSV);
 
-		}
+            #} add if any
+            #} This adds to rolling arr
+            #if (count($newArr) > 0) $newFieldOrderList[$key]['overrides'] = $newArr;
+            #} ... but better to just add to save obj :)
+            $newFieldHideList[$key] = $newArr;
 
-		// / hidden fields
+        }
 
-	}
+        // / hidden fields
 
-	// debug echo 'UPDATING: <PRE>'; print_r($_POST); echo '</PRE>';
 
-	// } This brutally overrides existing!
-	$zbs->settings->update( 'fieldsorts', $newFieldOrderList );
-	$zbs->settings->update( 'fieldhides', $newFieldHideList );
-	$sbupdated = true;
+    }
 
-	// $x = $zbs->settings->get('fieldsorts');
-	// debug echo 'UPDATED: <PRE>'; print_r($x); echo '</PRE>';
+    #debug echo 'UPDATING: <PRE>'; print_r($_POST); echo '</PRE>';
 
-	// } Then needs to "reget" fields :)
-	zeroBSCRM_applyFieldSorts();
+    #} This brutally overrides existing!
+    $zbs->settings->update('fieldsorts',$newFieldOrderList);
+    $zbs->settings->update('fieldhides',$newFieldHideList);
+    $sbupdated = true;
+
+    #$x = $zbs->settings->get('fieldsorts');
+    #debug echo 'UPDATED: <PRE>'; print_r($x); echo '</PRE>';
+
+    #} Then needs to "reget" fields :)
+    zeroBSCRM_applyFieldSorts();
 
 }
 
 // Get field Hides...
-$fieldHideOverrides = $zbs->settings->get( 'fieldhides' );
+$fieldHideOverrides = $zbs->settings->get('fieldhides');
 
 ?>
 
-<p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Customers, Companies, Quotes', 'zero-bs-crm' ); ?></p>
+<p id="sbDesc"><?php esc_html_e('Using this page you can modify the order of the fields associated with Customers, Companies, Quotes',"zero-bs-crm"); ?></p>
 
-<?php
-if ( isset( $sbupdated ) ) {
-	if ( $sbupdated ) {
-		echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">';
-		zeroBSCRM_html_msg( 0, __( 'Field Orders Updated', 'zero-bs-crm' ) );
-		echo '</div>'; }
-}
-?>
+<?php if (isset($sbupdated)) if ($sbupdated) { echo '<div style="width:500px; margin-left:20px;" class="wmsgfullwidth">'; zeroBSCRM_html_msg(0,__('Field Orders Updated',"zero-bs-crm")); echo '</div>'; } ?>
 
 <div id="sbA">
-	<form method="post" action="?page=<?php echo esc_attr( $zbs->slugs['settings'] ); ?>&tab=fieldsorts" id="zbsfieldsortform">
-		<input type="hidden" name="editwplfsort" id="editwplfsort" value="1" />
-		<?php
-		// add nonce
-		wp_nonce_field( 'zbs-update-settings-fieldsorts' );
-		?>
-		<?php foreach ( $fieldTypes as $key => $fieldType ) { ?>
+    <form method="post" action="?page=<?php echo esc_attr( $zbs->slugs['settings'] ); ?>&tab=fieldsorts" id="zbsfieldsortform">
+        <input type="hidden" name="editwplfsort" id="editwplfsort" value="1" />
+        <?php
+        // add nonce
+        wp_nonce_field( 'zbs-update-settings-fieldsorts');
+        ?>
+        <?php foreach ($fieldTypes as $key => $fieldType){ ?>
 
 
 
-			<table class="table table-bordered table-striped wtab">
+            <table class="table table-bordered table-striped wtab">
 
-				<thead>
+                <thead>
 
-				<tr>
-					<th class="wmid"><?php esc_html_e( $fieldType['name'], 'zero-bs-crm' ); ?>:</th>
-				</tr>
+                <tr>
+                    <th class="wmid"><?php esc_html_e($fieldType['name'],"zero-bs-crm"); ?>:</th>
+                </tr>
 
-				</thead>
+                </thead>
 
-				<tbody id="zbscrm-<?php echo esc_attr( $key ); ?>-fieldsorts">
+                <tbody id="zbscrm-<?php echo esc_attr( $key ); ?>-fieldsorts">
 
-				<tr>
-					<td style="text-align:right">
+                <tr>
+                    <td style="text-align:right">
 
-						<div class="zbsSortableFieldList">
+                        <div class="zbsSortableFieldList">
 
-							<ul id="zbscrm-<?php echo esc_attr( $key ); ?>-sort">
+                            <ul id="zbscrm-<?php echo esc_attr( $key ); ?>-sort">
 
-								<?php
-								// } output fields
+                                <?php #} output fields
 
-								$fieldTypesArray = isset( $GLOBALS[ $fieldType['obj'] ] ) ? $GLOBALS[ $fieldType['obj'] ] : null;
+                                #} Weird this doesn't work for mike:
+                                #global $$fieldType['obj'];
+                                $fieldTypeObjVarName = $fieldType['obj'];
+                                global ${$fieldTypeObjVarName};# $$fieldTypeObjVarName; #} compat php7
+                                $fieldTypesArray = ${$fieldTypeObjVarName};
 
-								// } This holds running list of migrated fields so only shows once
-								$migratedFieldsOut = array();
+                                #} This holds running list of migrated fields so only shows once
+                                $migratedFieldsOut = array();
 
-								// } This holds a csv sort order output in input below
-								$csvSortOrder = '';
-								$csvHideList  = '';
+                                #} This holds a csv sort order output in input below
+                                $csvSortOrder = '';
+                                $csvHideList = '';
 
-								if ( count( $fieldTypesArray ) > 0 ) {
-									foreach ( $fieldTypesArray as $subkey => $field ) {
+                                if (count($fieldTypesArray) > 0) foreach ($fieldTypesArray as $subkey => $field){
 
-										// remove address custom fields echo '<br>'.$subkey; print_r($field);
-										if ( $key != 'address' && ( substr( $subkey, 0, 7 ) == 'addr_cf' || substr( $subkey, 0, 10 ) == 'secaddr_cf' ) ) {
+                                    // remove address custom fields echo '<br>'.$subkey; print_r($field);
+                                    if ($key != 'address' && (substr($subkey, 0,7) == 'addr_cf' || substr($subkey,0,10) == 'secaddr_cf')){
 
-											// to ignore :)
+                                        // to ignore :)
 
-										} else {
+                                    } else {
 
-											// normal
+                                        // normal
 
-											// } Those with a "migrate" attribute need to be switched for what they represent here
-											// } (Addresses currently @ 1.1.19)
+                                        #} Those with a "migrate" attribute need to be switched for what they represent here
+                                        #} (Addresses currently @ 1.1.19)
 
-											if ( isset( $field['migrate'] ) && ! empty( $field['migrate'] ) ) {
+                                        if (isset($field['migrate']) && !empty($field['migrate'])){
 
-												if ( ! in_array( $field['migrate'], $migratedFieldsOut ) ) {
+                                            if (!in_array($field['migrate'],$migratedFieldsOut)){
 
-													switch ( $field['migrate'] ) {
+                                                switch ($field['migrate']){
 
-														// } Address Fields which were seperate fields under an obj are now managed as groups
-														case 'addresses':
-															// } Grouped "Address" field out
-															?>
-														<li data-key="addresses">Addresses</li>
-															<?php
+                                                    #} Address Fields which were seperate fields under an obj are now managed as groups
+                                                    case "addresses":
 
-															break;
+                                                        #} Grouped "Address" field out
+                                                        ?><li data-key="addresses">Addresses</li><?php
 
-													}
+                                                        break;
 
-													// } add to csv
-													if ( ! empty( $csvSortOrder ) ) {
-														$csvSortOrder .= ',';
-													}
-													$csvSortOrder .= $field['migrate'];
+                                                }
 
-													// } And mark output
-													$migratedFieldsOut[] = $field['migrate'];
 
-												} // else just skip
+                                                #} add to csv
+                                                if (!empty($csvSortOrder)) $csvSortOrder .= ',';
+                                                $csvSortOrder .= $field['migrate'];
 
-											} else {
+                                                #} And mark output
+                                                $migratedFieldsOut[] = $field['migrate'];
 
-												// } Normal field out
-												?>
-											<li data-key="<?php echo esc_attr( $subkey ); ?>">
-																	<?php
-																		echo esc_html( $field[1] );
+                                            } // else just skip
 
-																	if ( substr( $subkey, 0, 2 ) == 'cf' ) {
-																		echo ' (' . esc_html__( 'Custom Field', 'zero-bs-crm' ) . ')';
-																	}
+                                        } else {
 
-																		// only bother with this if in these types:
-																	if ( in_array( $key, array( 'customer', 'company' ) ) ) {
+                                            #} Normal field out
+                                            ?><li data-key="<?php echo esc_attr( $subkey ); ?>"><?php echo esc_html( $field[1] );
 
-																											// } Show hide?
-																		if ( isset( $field['essential'] ) && ! empty( $field['essential'] ) ) {
+                                            if (substr($subkey,0,2) == "cf") echo ' ('. esc_html__('Custom Field',"zero-bs-crm").')';
 
-																			// these fields are always shown
 
-																		} else {
+                                            // only bother with this if in these types:
+                                            if (in_array($key,array('customer','company'))){
 
-																			// can be hidden
+                                                #} Show hide?
+                                                if (isset($field['essential']) && !empty($field['essential'])){
 
-																			// is hidden?
-																			$hidden = false;
-																			if ( isset( $fieldHideOverrides[ $key ] ) && is_array( $fieldHideOverrides[ $key ] ) ) {
-																				if ( in_array( $subkey, $fieldHideOverrides[ $key ] ) ) {
-																					$hidden = true;
+                                                    // these fields are always shown
 
-																					// } add to csv
-																					if ( ! empty( $csvHideList ) ) {
-																						$csvHideList .= ',';
-																					}
-																					$csvHideList .= $subkey;
-																				}
-																			}
-																			?>
-													<div class="zbs-showhide-field"><label for="zbsshowhide<?php echo esc_attr( $key . '-' . $subkey ); ?>"><?php esc_html_e( 'Hide', 'zero-bs-crm' ); ?>:</label><input id="zbsshowhide<?php echo esc_attr( $key . '-' . $subkey ); ?>" type="checkbox" value="1"
-																				<?php
-																				if ( $hidden ) {
-																					echo ' checked="checked"';
-																				}
-																				?>
-													/></div>
-																				<?php
 
-																		}
-																	} // if hide/show option
+                                                } else {
 
-																	?>
-											</li>
-												<?php
-											}
+                                                    // can be hidden
 
-											// } add to csv
-											if ( ! empty( $csvSortOrder ) ) {
-												$csvSortOrder .= ',';
-											}
-											$csvSortOrder .= $subkey;
+                                                    // is hidden?
+                                                    $hidden = false;
+                                                    if (isset($fieldHideOverrides[$key]) && is_array($fieldHideOverrides[$key])){
+                                                        if (in_array($subkey, $fieldHideOverrides[$key])){
+                                                            $hidden = true;
 
-										} // if not addr custom field
+                                                            #} add to csv
+                                                            if (!empty($csvHideList)) $csvHideList .= ',';
+                                                            $csvHideList .= $subkey;
+                                                        }
+                                                    }
+                                                    ?><div class="zbs-showhide-field"><label for="zbsshowhide<?php echo esc_attr( $key.'-'.$subkey ); ?>"><?php esc_html_e('Hide',"zero-bs-crm"); ?>:</label><input id="zbsshowhide<?php echo esc_attr( $key.'-'.$subkey ); ?>" type="checkbox" value="1"<?php if ($hidden) echo ' checked="checked"'; ?> /></div><?php
 
-									}
-								}
 
-								?>
 
-							</ul>
+                                                }
 
-						</div>
+                                            } // if hide/show option
 
-					</td>
-				</tr>
+                                            ?></li><?php
+                                        }
 
-				</tbody>
 
-			</table>
-			<input type="hidden" name="zbscrm-<?php echo esc_attr( $key ); ?>-sortorder" id="zbscrm-<?php echo esc_attr( $key ); ?>-sortorder" value="<?php echo esc_attr( $csvSortOrder ); ?>" />
-			<input type="hidden" name="zbscrm-<?php echo esc_attr( $key ); ?>-hidelist" id="zbscrm-<?php echo esc_attr( $key ); ?>-hidelist" value="<?php echo esc_attr( $csvHideList ); ?>" />
+                                        #} add to csv
+                                        if (!empty($csvSortOrder)) $csvSortOrder .= ',';
+                                        $csvSortOrder .= $subkey;
 
-		<?php } ?>
+                                    } // if not addr custom field
 
-		<table class="table table-bordered table-striped wtab">
-			<tbody>
+                                }
 
-			<tr>
-				<td class="wmid">
-					<button type="button" class="ui button primary" id="zbsSaveFieldSorts"><?php esc_html_e( 'Save Field Sorts', 'zero-bs-crm' ); ?></button>
-				</td>
-			</tr>
+                                ?>
 
-			</tbody>
-		</table>
+                            </ul>
 
-	</form>
+                        </div>
 
-	<script type="text/javascript">
-		var zbsSortableFieldTypes = [
-		<?php
-		$x = 1;
-		foreach ( $fieldTypes as $key => $fieldType ) {
-			if ( $x > 1 ) {
-				echo ',';
-			} echo "'" . esc_html( $key ) . "'";
-			++$x; }
-		?>
-		];
+                    </td>
+                </tr>
 
-		jQuery(function(){
+                </tbody>
 
+            </table>
+            <input type="hidden" name="zbscrm-<?php echo esc_attr( $key ); ?>-sortorder" id="zbscrm-<?php echo esc_attr( $key ); ?>-sortorder" value="<?php echo esc_attr( $csvSortOrder ); ?>" />
+            <input type="hidden" name="zbscrm-<?php echo esc_attr( $key ); ?>-hidelist" id="zbscrm-<?php echo esc_attr( $key ); ?>-hidelist" value="<?php echo esc_attr( $csvHideList ); ?>" />
 
-			jQuery( ".zbsSortableFieldList ul" ).sortable();
-			jQuery( ".zbsSortableFieldList ul" ).disableSelection();
+        <?php } ?>
 
-			// bind go button
-			jQuery('#zbsSaveFieldSorts').on( 'click', function(){
+        <table class="table table-bordered table-striped wtab">
+            <tbody>
 
-				// compile csv's
-				jQuery.each(window.zbsSortableFieldTypes,function(ind,ele){
+            <tr>
+                <td class="wmid">
+                    <button type="button" class="ui button primary" id="zbsSaveFieldSorts"><?php esc_html_e('Save Field Sorts',"zero-bs-crm"); ?></button>
+                </td>
+            </tr>
 
-					var csvList = '';
-					var csvHideList = '';
+            </tbody>
+        </table>
 
-					// list into csv
-					jQuery('#zbscrm-' + ele + '-sort li').each(function(ind,ele){
+    </form>
 
-						if (csvList.length > 0) csvList += ',';
+    <script type="text/javascript">
+        var zbsSortableFieldTypes = [<?php $x = 1; foreach ($fieldTypes as $key => $fieldType){ if ($x > 1){ echo ","; } echo "'". esc_html( $key ) ."'"; $x++; } ?>];
 
-						csvList += jQuery(ele).attr('data-key');
+        jQuery(function(){
 
-						//DEBUG  console.log(ind + " " + jQuery(ele).attr('data-key'));
 
+            jQuery( ".zbsSortableFieldList ul" ).sortable();
+            jQuery( ".zbsSortableFieldList ul" ).disableSelection();
 
-						// show hides:
+            // bind go button
+            jQuery('#zbsSaveFieldSorts').on( 'click', function(){
 
-						// if is present
-						if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele))){
+                // compile csv's
+                jQuery.each(window.zbsSortableFieldTypes,function(ind,ele){
 
-							// if is checked
-							if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele)).prop('checked')){
+                    var csvList = '';
+                    var csvHideList = '';
 
-								// log hide
-								if (csvHideList.length > 0) csvHideList += ',';
+                    // list into csv
+                    jQuery('#zbscrm-' + ele + '-sort li').each(function(ind,ele){
 
-								csvHideList += jQuery(ele).attr('data-key');
+                        if (csvList.length > 0) csvList += ',';
 
-							}
-						}
+                        csvList += jQuery(ele).attr('data-key');
 
-					});
+                        //DEBUG  console.log(ind + " " + jQuery(ele).attr('data-key'));
 
-					// add to hidden input
-					jQuery('#zbscrm-' + ele + '-sortorder').val(csvList);
-					jQuery('#zbscrm-' + ele + '-hidelist').val(csvHideList);
-					//DEBUG  console.log("set " + '#zbscrm-' + ele + '-sortorder',csvList);
 
+                        // show hides:
 
-				});
+                        // if is present
+                        if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele))){
 
+                            // if is checked
+                            if (jQuery('.zbs-showhide-field input[type=checkbox]',jQuery(ele)).prop('checked')){
 
-				setTimeout(function(){
+                                // log hide
+                                if (csvHideList.length > 0) csvHideList += ',';
 
-					// submit form
-					jQuery('#zbsfieldsortform').submit();
+                                csvHideList += jQuery(ele).attr('data-key');
 
-				},0);
+                            }
+                        }
 
-			})
+                    });
 
-		});
+                    // add to hidden input
+                    jQuery('#zbscrm-' + ele + '-sortorder').val(csvList);
+                    jQuery('#zbscrm-' + ele + '-hidelist').val(csvHideList);
+                    //DEBUG  console.log("set " + '#zbscrm-' + ele + '-sortorder',csvList);
 
-	</script>
+
+                });
+
+
+                setTimeout(function(){
+
+                    // submit form
+                    jQuery('#zbsfieldsortform').submit();
+
+                },0);
+
+            })
+
+        });
+
+    </script>
 
 </div>

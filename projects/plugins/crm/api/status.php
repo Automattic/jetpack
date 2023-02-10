@@ -1,19 +1,17 @@
 <?php
 
 // block direct access
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
 
 jpcrm_api_check_http_method( array( 'GET' ) );
 
 global $zbs;
 
 $reply = array(
-	'status'      => __( 'Successful Connection', 'zero-bs-crm' ),
-	'message'     => __( 'Your API Connection with Jetpack CRM is functioning correctly.', 'zero-bs-crm' ),
+	'status'  => __( 'Successful Connection', 'zero-bs-crm' ),
+	'message' => __( 'Your API Connection with Jetpack CRM is functioning correctly.', 'zero-bs-crm' ),
 	'crm_version' => $zbs->version,
-	'db_version'  => $zbs->db_version,
+	'db_version' => $zbs->db_version,
 );
 
 // eventually we can list modules and extension versions, but we'll first
@@ -26,12 +24,12 @@ if ( isset( $_GET['full'] ) ) {
 		if ( $ext['active'] != 1 ) {
 			continue;
 		}
-		$active_extensions_and_ver[ $ext['key'] ] = array(
+		$active_extensions_and_ver[$ext['key']] = array(
 			'name'    => $ext['name'],
 			'version' => $ext['ver'],
 		);
 	}
-	$reply['modules']    = jpcrm_core_modules_installed();
+	$reply['modules'] = jpcrm_core_modules_installed();
 	$reply['extensions'] = $active_extensions_and_ver;
 }
 

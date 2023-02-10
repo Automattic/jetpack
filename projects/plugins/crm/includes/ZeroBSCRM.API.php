@@ -1,6 +1,5 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V2.0
@@ -10,54 +9,50 @@
  * Date: 05/04/2017
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
+/* ======================================================
+  Breaking Checks ( stops direct access )
+   ====================================================== */
+    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+/* ======================================================
+  / Breaking Checks
+   ====================================================== */
 
-// } We can do this below in the templater or templates? add_action( 'wp_enqueue_scripts', 'zeroBS_portal_enqueue_stuff' );
-// } ... in the end we can just dump the above line into the templates before get_header() - hacky but works
+#} We can do this below in the templater or templates? add_action( 'wp_enqueue_scripts', 'zeroBS_portal_enqueue_stuff' );
+#} ... in the end we can just dump the above line into the templates before get_header() - hacky but works
 
-// Adds the Rewrite Endpoint for the 'clients' area of the CRM.
-// } WH - this is dumped here now, because this whole thing is fired just AFTER init (to allow switch/on/off in main ZeroBSCRM.php)
+// Adds the Rewrite Endpoint for the 'clients' area of the CRM. 
+#} WH - this is dumped here now, because this whole thing is fired just AFTER init (to allow switch/on/off in main ZeroBSCRM.php)
 
-function zeroBS_api_rewrite_endpoint() {
+function zeroBS_api_rewrite_endpoint(){
 	add_rewrite_endpoint( 'zbs_api', EP_ROOT );
 }
-add_action( 'init', 'zeroBS_api_rewrite_endpoint' );
+add_action('init','zeroBS_api_rewrite_endpoint');
 
 /**
  * Process the query and get page and items per page
  */
 function jpcrm_api_process_pagination() {
 
-	if ( isset( $_GET['page'] ) && (int) $_GET['page'] >= 0 ) {
-		$page = (int) $_GET['page'];
-	} else {
-		$page = 0;
-	}
+    if ( isset( $_GET['page'] ) && (int) $_GET['page'] >= 0 ) {
+        $page = (int) $_GET['page'];
+    } else {
+        $page = 0;
+    }
 
-	if ( isset( $_GET['perpage'] ) && (int) $_GET['perpage'] >= 0 ) {
-		$per_page = (int) $_GET['perpage'];
-	} else {
-		$per_page = 10;
-	}
+    if ( isset( $_GET['perpage'] ) && (int) $_GET['perpage'] >= 0 ) {
+        $per_page = (int) $_GET['perpage'];
+    } else {
+        $per_page = 10;
+    }
 
-	return array( $page, $per_page );
+    return array( $page, $per_page );
 }
 
 /**
  * Check and process if there is a search in the query
  */
 function jpcrm_api_process_search() {
-	return ( isset( $_GET['zbs_query'] ) ? sanitize_text_field( $_GET['zbs_query'] ) : '' );
+    return ( isset( $_GET['zbs_query'] ) ? sanitize_text_field( $_GET['zbs_query'] ) : '' );
 }
 
 /**
@@ -122,11 +117,12 @@ function jpcrm_api_teapot() {
  */
 function jpcrm_api_check_authentication() {
 
-	if ( ! jpcrm_is_api_request_authorised() ) {
+	if ( !jpcrm_is_api_request_authorised() ) {
 		jpcrm_api_unauthorised_request();
 	}
 
 	return true;
+
 }
 
 /**
@@ -137,7 +133,7 @@ function jpcrm_api_check_authentication() {
  */
 function jpcrm_api_check_http_method( $methods_allowed = array( 'GET' ) ) {
 
-	if ( ! in_array( $_SERVER['REQUEST_METHOD'], $methods_allowed ) ) {
+	if ( !in_array( $_SERVER['REQUEST_METHOD'], $methods_allowed ) ) {
 		if ( $_SERVER['REQUEST_METHOD'] == 'BREW' ) {
 			jpcrm_api_teapot();
 		} else {
@@ -149,16 +145,18 @@ function jpcrm_api_check_http_method( $methods_allowed = array( 'GET' ) ) {
 
 /**
  * Manage an API Error response with the correct headers and encode the data to JSON
- *
+ * 
  * @param string $errorMsg
- * @param int    $headerCode
+ * @param int $headerCode
  */
-function zeroBSCRM_API_error( $errorMsg = 'Error', $header_code = 400 ) {
+function zeroBSCRM_API_error($errorMsg='Error',$header_code=400){
 
-	// } 400 = general error
-	// } 403 = perms
-	wp_send_json( array( 'error' => $errorMsg ), $header_code );
+	#} 400 = general error
+	#} 403 = perms
+	wp_send_json( array ("error" => $errorMsg), $header_code );
+	
 }
+
 
 // now to locate the templates...
 // http://jeroensormani.com/how-to-add-template-files-in-your-plugin/
@@ -172,10 +170,10 @@ function zeroBSCRM_API_error( $errorMsg = 'Error', $header_code = 400 ) {
  *
  * @since 1.2.7
  *
- * @param   string $template_name          Template to load.
- * @param   string $string $template_path  Path to templates.
- * @param   string $default_path           Default path to template files.
- * @return  string                          Path to the template file.
+ * @param 	string 	$template_name			Template to load.
+ * @param 	string 	$string $template_path	Path to templates.
+ * @param 	string	$default_path			Default path to template files.
+ * @return 	string 							Path to the template file.
  */
 function zeroBSCRM_API_locate_api_endpoint( $template_name, $template_path = '', $default_path = '' ) {
 	// Set variable to search in zerobscrm-plugin-templates folder of theme.
@@ -187,12 +185,10 @@ function zeroBSCRM_API_locate_api_endpoint( $template_name, $template_path = '',
 		$default_path = ZEROBSCRM_PATH . 'api/'; // Path to the template folder
 	}
 	// Search template file in theme folder.
-	$template = locate_template(
-		array(
-			$template_path . $template_name,
-			$template_name,
-		)
-	);
+	$template = locate_template( array(
+		$template_path . $template_name,
+		$template_name
+	) );
 	// Get plugins template file.
 	if ( ! $template ) {
 		$template = $default_path . $template_name;
@@ -209,10 +205,10 @@ function zeroBSCRM_API_locate_api_endpoint( $template_name, $template_path = '',
  *
  * @see zeroBSCRM_API_get_template()
  *
- * @param string $template_name          Template to load.
- * @param array  $args                   Args passed for the template file.
- * @param string $string $template_path  Path to templates.
- * @param string $default_path           Default path to template files.
+ * @param string 	$template_name			Template to load.
+ * @param array 	$args					Args passed for the template file.
+ * @param string 	$string $template_path	Path to templates.
+ * @param string	$default_path			Default path to template files.
  */
 function zeroBSCRM_API_get_api_endpoint( $template_name, $args = array(), $tempate_path = '', $default_path = '' ) {
 	if ( is_array( $args ) && isset( $args ) ) {
@@ -226,27 +222,25 @@ function zeroBSCRM_API_get_api_endpoint( $template_name, $args = array(), $tempa
 	include $template_file;
 }
 
-// function similar to is_user_logged_in()
-function jpcrm_is_api_request_authorised() {
+//function similar to is_user_logged_in()
+function jpcrm_is_api_request_authorised(){
 
 	// WH - I've added api_secret here to bolster security,
 	// We should switch authentication method to "headers" not parameters - will be cleaner :)
 
 	// unclear if we're still needing this...
 	// we are coming from GROOVE HQ - define in wp-config.php
-	if ( defined( 'GROOVE_API_TOKEN' ) && ! empty( $_GET['api_token'] ) ) {
+	if( defined( 'GROOVE_API_TOKEN' ) && !empty( $_GET['api_token'] ) ) {
 		if ( hash_equals( sanitize_text_field( $_GET['api_token'], GROOVE_API_TOKEN ) ) ) {
 			// and define that we've checked
-			if ( ! defined( 'ZBSGROOVECHECKED' ) ) {
-				define( 'ZBSGROOVECHECKED', time() );
-			}
+			if (!defined('ZBSGROOVECHECKED')) define('ZBSGROOVECHECKED',time());
 			return true;
 		}
 	}
 
 	// the the API key/secret are currently in the URL
-	$possible_api_key    = isset( $_GET['api_key'] ) ? sanitize_text_field( $_GET['api_key'] ) : '';
-	$possible_api_secret = isset( $_GET['api_secret'] ) ? sanitize_text_field( $_GET['api_secret'] ) : '';
+	$possible_api_key = isset($_GET['api_key']) ? sanitize_text_field($_GET['api_key']) : '';
+	$possible_api_secret = isset($_GET['api_secret']) ? sanitize_text_field($_GET['api_secret']) : '';
 
 	// a required value is empty, so not authorised
 	if ( empty( $possible_api_key ) || empty( $possible_api_secret ) ) {
@@ -256,44 +250,46 @@ function jpcrm_is_api_request_authorised() {
 	$api_key = zeroBSCRM_getAPIKey();
 
 	// provided key doesn't match, so not authorised
-	if ( ! hash_equals( $possible_api_key, $api_key ) ) {
+	if ( !hash_equals( $possible_api_key, $api_key ) ) {
 		return false;
 	}
 
 	global $zbs;
 	$zbs->load_encryption();
 	$hashed_possible_api_secret = $zbs->encryption->hash( $possible_api_secret );
-	$hashed_api_secret          = zeroBSCRM_getAPISecret();
+	$hashed_api_secret = zeroBSCRM_getAPISecret();
 
 	// provided secret doesn't match, so not authorised
-	if ( ! hash_equals( $hashed_possible_api_secret, $hashed_api_secret ) ) {
+	if ( !hash_equals( $hashed_possible_api_secret, $hashed_api_secret ) ) {
 		return false;
 	}
 
 	return true;
+
 }
 
-function zeroBSCRM_getAPIEndpoint() {
-	return site_url( '/zbs_api/' ); // , 'https' );
+function zeroBSCRM_getAPIEndpoint(){
+  return site_url( '/zbs_api/'); #, 'https' );
 }
 
-function jpcrm_generate_api_publishable_key() {
+function jpcrm_generate_api_publishable_key(){
 	global $zbs;
 	$zbs->load_encryption();
 	$api_publishable_key = 'jpcrm_pk_' . $zbs->encryption->get_rand_hex();
 	return $api_publishable_key;
 }
 
-function jpcrm_generate_api_secret_key() {
+function jpcrm_generate_api_secret_key(){
 	global $zbs;
 	$zbs->load_encryption();
 	$api_secret_key = 'jpcrm_sk_' . $zbs->encryption->get_rand_hex();
 	return $api_secret_key;
 }
 
-/*
-SAME CODE AS IN PORTAL, BUT REPLACED WITH api_endpoint stuff. Templates (to return the JSON) are in /api/endpoints/ folder
+
+/* SAME CODE AS IN PORTAL, BUT REPLACED WITH api_endpoint stuff. Templates (to return the JSON) are in /api/endpoints/ folder
 */
+
 
 add_filter( 'template_include', 'zeroBSCRM_API_api_endpoint', 99 );
 
@@ -311,11 +307,11 @@ function zeroBSCRM_API_api_endpoint( $template ) {
 	jpcrm_api_check_authentication();
 
 	// Break it up if / present
-	if ( strpos( $zbsAPIQuery, '/' ) ) {
-		$zbsAPIRequest = explode( '/', $zbsAPIQuery );
+	if (strpos($zbsAPIQuery,'/')) {
+		$zbsAPIRequest = explode('/',$zbsAPIQuery);
 	} else {
 		// no / in it, so must just be a 1 worder like "invoices", here just jam in array so it matches prev exploded req.
-		$zbsAPIRequest = array( $zbsAPIQuery );
+		$zbsAPIRequest = array($zbsAPIQuery);
 	}
 
 	// no endpoint was specified, so die with 400
@@ -342,69 +338,71 @@ function zeroBSCRM_API_api_endpoint( $template ) {
 	);
 
 	// invalid endpoint was specified, so die with 400
-	if ( ! in_array( $zbsAPIRequest[0], $valid_api_endpoints ) ) {
+	if ( !in_array( $zbsAPIRequest[0], $valid_api_endpoints) ) {
 		jpcrm_api_invalid_request();
 	}
 
 	return zeroBSCRM_API_get_api_endpoint( $zbsAPIRequest[0] . '.php' );
+
 }
 
-if ( ! function_exists( 'hash_equals' ) ) {
-	function hash_equals( $str1, $str2 ) {
-		if ( strlen( $str1 ) != strlen( $str2 ) ) {
-			return false;
-		} else {
-			$res = $str1 ^ $str2;
-			$ret = 0;
-			for ( $i = strlen( $res ) - 1; $i >= 0; $i-- ) {
-				$ret |= ord( $res[ $i ] );
-			}
-			return ! $ret;
-		}
-	}
+
+if(!function_exists('hash_equals')) {
+  function hash_equals($str1, $str2) {
+    if(strlen($str1) != strlen($str2)) {
+      return false;
+    } else {
+      $res = $str1 ^ $str2;
+      $ret = 0;
+      for($i = strlen($res) - 1; $i >= 0; $i--) $ret |= ord($res[$i]);
+      return !$ret;
+    }
+  }
 }
 
-// } avoids us writing our own Parser. In particular can use
-// } https://parser.zapier.com/
-// } Fills a void for now, and saves needing to fully write a Jetpack inbox / own parser
-// } HOWEVER, would rather have our own - like this
-// } my96ew3z@robot.jetpackcrm.com to parse and deliver the emails to
-// } their API website (managed via the licensing)
-function zeroBS_inbox_api_catch( $emailFields ) {
+
+#} avoids us writing our own Parser. In particular can use
+#} https://parser.zapier.com/
+#} Fills a void for now, and saves needing to fully write a Jetpack inbox / own parser
+#} HOWEVER, would rather have our own - like this
+#} my96ew3z@robot.jetpackcrm.com to parse and deliver the emails to 
+#} their API website (managed via the licensing)
+function zeroBS_inbox_api_catch($emailFields){
 	global $wpdb, $ZBSCRM_t;
 
-	$customerID = (int) zeroBS_getCustomerIDWithEmail( $emailFields['from'] );
+	$customerID = (int)zeroBS_getCustomerIDWithEmail( $emailFields['from'] );
 
-	// if we don't have a customer, we need to create one with the email send
+	//if we don't have a customer, we need to create one with the email send
 
-	$thread  = $emailFields['thread'];
-	$from    = $emailFields['from'];
-	$subject = $emailFields['subject'];
+	$thread 	= $emailFields['thread'];
+	$from 		= $emailFields['from'];
+	$subject 	= $emailFields['subject'];
 
-	if ( $customerID == 0 ) {
-		$customer['zbsc_email']  = $from;
-		$customer['zbsc_status'] = 'Lead'; // default
-		$customerID              = zeroBS_addUpdateCustomer( -1, $customer );
+	if($customerID == 0){
+		$customer['zbsc_email'] = $from;
+		$customer['zbsc_status'] = 'Lead'; //default
+		$customerID = zeroBS_addUpdateCustomer(-1, $customer);
 	}
 
-	// then if no thread ID, try and get the thread from the sender email and the subject, if a match thread it, if not new thread
-	if ( $thread == -1 ) {
-		// strip any Re:, RE: or re:
-		$subject     = trim( str_ireplace( 're:', '', $subject ) );
-		$search_text = '%' . $subject . '%';
-		$sql         = $wpdb->prepare( 'SELECT zbsmail_sender_thread FROM ' . $ZBSCRM_t['system_mail_hist'] . " WHERE zbsmail_receiver_email = '%s' AND zbsmail_subject LIKE %s", $from, $search_text );
-		$thread      = $wpdb->get_var( $sql );
+
+	//then if no thread ID, try and get the thread from the sender email and the subject, if a match thread it, if not new thread
+	if($thread == -1){
+		//strip any Re:, RE: or re:
+		$subject = trim(str_ireplace('re:', '', $subject));
+		$search_text = "%" . $subject. "%";
+		$sql = $wpdb->prepare("SELECT zbsmail_sender_thread FROM " . $ZBSCRM_t['system_mail_hist'] . " WHERE zbsmail_receiver_email = '%s' AND zbsmail_subject LIKE %s", $from, $search_text);
+		$thread = $wpdb->get_var($sql);
 	}
 
-	// } then a new thread.
-	if ( $thread == '' ) {
-		// then we are making a new thread. Otherwise, it will be passed via the function / other send boxes
-		$sql        = 'SELECT MAX(zbsmail_sender_thread) as max_thread FROM ' . $ZBSCRM_t['system_mail_hist'];
-		$max_thread = $wpdb->get_var( $sql );
-		++$max_thread;
+	#} then a new thread.
+	if($thread == ''){
+		//then we are making a new thread. Otherwise, it will be passed via the function / other send boxes
+		$sql = "SELECT MAX(zbsmail_sender_thread) as max_thread FROM " . $ZBSCRM_t['system_mail_hist'];
+		$max_thread = $wpdb->get_var($sql);
+		$max_thread++;
 		$thread = $max_thread;
 	}
-	zeroBSCRM_mailTracking_logEmail( -1, $customerID, 0, '', -1, $subject, true, $emailFields['content'], $thread, $emailFields['from'], 'inbox' );
+	zeroBSCRM_mailTracking_logEmail(-1, $customerID, 0, '', -1, $subject,true, $emailFields['content'], $thread, $emailFields['from'], 'inbox');
 }
 
 // generate new API credentials
@@ -414,7 +412,7 @@ function jpcrm_generate_api_creds() {
 	$new_publishable_key = jpcrm_generate_api_publishable_key();
 	$zbs->DAL->updateSetting( 'api_key', $new_publishable_key );
 
-	$new_secret_key    = jpcrm_generate_api_secret_key();
+	$new_secret_key = jpcrm_generate_api_secret_key();
 	$hashed_api_secret = $zbs->encryption->hash( $new_secret_key );
 	$zbs->DAL->updateSetting( 'api_secret', $hashed_api_secret );
 
@@ -424,16 +422,18 @@ function jpcrm_generate_api_creds() {
 	);
 }
 
-// each CRM is  only given one API (for now)
-function zeroBSCRM_getAPIKey() {
+//each CRM is  only given one API (for now) 
+function zeroBSCRM_getAPIKey(){
 
 	global $zbs;
-	return $zbs->DAL->setting( 'api_key' );
+	return $zbs->DAL->setting('api_key');
+
 }
 
-// each CRM is  only given one API (for now)
-function zeroBSCRM_getAPISecret() {
+//each CRM is  only given one API (for now) 
+function zeroBSCRM_getAPISecret(){
 
 	global $zbs;
-	return $zbs->DAL->setting( 'api_secret' );
+	return $zbs->DAL->setting('api_secret');
+
 }

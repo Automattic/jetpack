@@ -1,283 +1,276 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Export Page
  * Jetpack CRM - https://jetpackcrm.com
  */
 
-	defined( 'ZEROBSCRM_PATH' ) || exit;
+  defined( 'ZEROBSCRM_PATH' ) || exit;
 
-	// permissions check
-if ( ! zeroBSCRM_permsExport() ) {
-	wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'zero-bs-crm' ) );
-}
+  // permissions check
+  if ( !zeroBSCRM_permsExport() )  {
+    wp_die( esc_html__('You do not have sufficient permissions to access this page.',"zero-bs-crm") );
+  }
 
-	/**
-	 * Export UI Preflight error
-	 **/
-function jpcrm_export_preflight_error( $message ) {
+  /**
+   * Export UI Preflight error
+   **/
+  function jpcrm_export_preflight_error( $message ) {
 
-	echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zerob-bs-crm' ) ) . '</button>';
-}
+    echo '<h2>' . esc_html( $message ) . '</h2><button class="ui blue button" onclick="history.back()">' . esc_html( __( 'Go Back', 'zerob-bs-crm' ) ) . '</button>';
 
-	/**
-	 * Export page UI
-	 **/
-function jpcrm_render_export_page() {
+  }
 
-	global $zbs;
 
-	// secondary permissions check
-	if ( ! zeroBSCRM_permsExport() ) {
+  /**
+   * Export page UI
+   **/
+  function jpcrm_render_export_page(){
 
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+    global $zbs;
 
-	}
+    // secondary permissions check
+    if ( !zeroBSCRM_permsExport() ) {
 
-	// == Retrieve objs to export =========
+      return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
 
-	// v3.0 is basic mvp, just exports based on ID's
-	// 3.0+ should take list view params + regen
+    }
 
-	$ids_to_export   = array();
-	$extra_title_str = '';
+    // == Retrieve objs to export =========
 
-	// check for obj type passed?
-	if ( ! empty( $_GET['zbstype'] ) ) {
+    // v3.0 is basic mvp, just exports based on ID's
+    // 3.0+ should take list view params + regen
 
-		$obj_type_str = sanitize_text_field( $_GET['zbstype'] );
+    $ids_to_export = array();
+    $extra_title_str = '';
 
-	} elseif ( ! empty( $_POST['objtype'] ) ) {
+    // check for obj type passed?
+    if ( !empty( $_GET['zbstype'] ) ) {
 
-		$obj_type_str = sanitize_text_field( $_POST['objtype'] );
+      $obj_type_str = sanitize_text_field( $_GET['zbstype'] );
 
-	} else {
+    } else if ( !empty( $_POST['objtype'] ) ) {
 
-		// fallback as contact
-		$obj_type_str = 'contact';
+      $obj_type_str = sanitize_text_field( $_POST['objtype'] );
 
-	}
+    } else {
 
-	// get obj type ID
-	$obj_type_id = $zbs->DAL->objTypeID( $obj_type_str );
+      // fallback as contact
+      $obj_type_str = 'contact';
 
-	// bad object type, so fail
-	if ( ! $zbs->DAL->isValidObjTypeID( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'Invalid object selected for export!' ) );
-	}
+    }
 
-	// no perms for this object
-	if ( ! zeroBSCRM_permsObjType( $obj_type_id ) ) {
-		return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
-	}
+    // get obj type ID
+    $obj_type_id = $zbs->DAL->objTypeID( $obj_type_str );
 
-	// get segment id, if exporting segment
-	// (only for contacts)
-	$potential_segment_id = -1;
-	$potential_segment    = false;
-	if ( $obj_type_id == ZBS_TYPE_CONTACT && ! empty( $_GET['segment-id'] ) ) {
+    // bad object type, so fail
+    if ( !$zbs->DAL->isValidObjTypeID($obj_type_id) ) {
+      return jpcrm_export_preflight_error( __( 'Invalid object selected for export!' ) );
+    }
 
-		// segment export
-		$potential_segment_id = sanitize_text_field( $_GET['segment-id'] );
-		$potential_segment    = $zbs->DAL->segments->getSegment( $potential_segment_id );
+    // no perms for this object
+    if ( !zeroBSCRM_permsObjType( $obj_type_id ) ) {
+      return jpcrm_export_preflight_error( __( 'You do not have permissions to access this page.' ) );
+    }
 
-	}
+    // get segment id, if exporting segment
+    // (only for contacts)
+    $potential_segment_id = -1;
+    $potential_segment = false;
+    if ( $obj_type_id == ZBS_TYPE_CONTACT && !empty( $_GET['segment-id'] ) ){
 
-	// got IDs
-	if ( ! empty( $_POST['ids'] ) ) {
+      // segment export
+      $potential_segment_id = sanitize_text_field( $_GET['segment-id'] );
+      $potential_segment = $zbs->DAL->segments->getSegment( $potential_segment_id );      
 
-		$potential_id_csv = sanitize_text_field( $_POST['ids'] );
-		$potential_ids    = explode( ',', $potential_id_csv );
+    }
 
-		foreach ( $potential_ids as $potential_id ) {
+    // got IDs
+    if ( !empty( $_POST['ids'] ) ) {
 
-			$id = (int) $potential_id;
+      $potential_id_csv = sanitize_text_field( $_POST['ids'] );
+      $potential_ids = explode( ',', $potential_id_csv );
 
-			if ( $id > 0 && ! in_array( $id, $ids_to_export ) ) {
-				$ids_to_export[] = $id;
-			}
-		}
+      foreach ( $potential_ids as $potential_id ) {
 
-		$obj_count         = count( $ids_to_export );
-		$ids_to_export_csv = implode( ',', $ids_to_export );
+        $id = (int)$potential_id;
 
-	} elseif ( is_array( $potential_segment ) ) {
+        if ($id > 0 && !in_array( $id, $ids_to_export ) ) {
+          $ids_to_export[] = $id;
+        }
 
-		// got a segment to export
-		$obj_count         = $potential_segment['compilecount'];
-		$ids_to_export_csv = 'segment';
-		$extra_title_str   = sprintf( __( ' (In Segment %s)', 'zero-bs-crm' ), $potential_segment['name'] );
+      }
 
-	} else {
+      $obj_count = count( $ids_to_export );
+      $ids_to_export_csv = implode( ',', $ids_to_export );
 
-		$obj_count         = $zbs->DAL->getObjectLayerByType( $obj_type_id )->getFullCount();
-		$ids_to_export_csv = 'all'; // :o HUGE?
+    } elseif ( is_array( $potential_segment ) ){
 
-	}
+      // got a segment to export
+      $obj_count = $potential_segment['compilecount'];
+      $ids_to_export_csv = 'segment';
+      $extra_title_str = sprintf( __( ' (In Segment %s)', 'zero-bs-crm' ), $potential_segment['name'] );
+      
+        
+    } else {
 
-	// bad object type, so fail
-	if ( $obj_count == 0 ) {
-		return jpcrm_export_preflight_error( __( 'No objects to export!' ) );
-	}
+      $obj_count = $zbs->DAL->getObjectLayerByType( $obj_type_id )->getFullCount();
+      $ids_to_export_csv = 'all'; // :o HUGE?
 
-	// == / Retrieve objs to export =======
+    }
 
-	// == Prep language + vars ============
+    // bad object type, so fail
+    if ( $obj_count == 0 ) {
+      return jpcrm_export_preflight_error( __( 'No objects to export!' ) );
+    }
 
-	// what fields do we have to export?
-	$fieldsAvailable = zeroBSCRM_export_produceAvailableFields( $obj_type_id, true );
+    // == / Retrieve objs to export =======
 
-	// obj layer
-	$objDALLayer = $zbs->DAL->getObjectLayerByType( $obj_type_id );
+    // == Prep language + vars ============
 
-	// language
-	$objTypeSingular = $zbs->DAL->typeStr( $obj_type_id, false );
-	$objTypePlural   = $zbs->DAL->typeStr( $obj_type_id, true );
+    // what fields do we have to export?
+    $fieldsAvailable = zeroBSCRM_export_produceAvailableFields($obj_type_id,true);
 
-	// basic label 'contact/contacts'
-	$exportTypeLabel = $objTypeSingular;
-	if ( $obj_count > 1 ) {
-		$exportTypeLabel = $objTypePlural;
-	}
+    // obj layer
+    $objDALLayer = $zbs->DAL->getObjectLayerByType($obj_type_id);
 
-	// == / Prep language + vars ===========
+    // language
+    $objTypeSingular = $zbs->DAL->typeStr($obj_type_id,false);
+    $objTypePlural = $zbs->DAL->typeStr($obj_type_id,true);
 
-	// == UI ==============================
+    // basic label 'contact/contacts'
+    $exportTypeLabel = $objTypeSingular;
+    if ($obj_count > 1) $exportTypeLabel = $objTypePlural;
 
-	// good to draw ?>
-	<div id="zbs-export-wrap"><form method="post">
+    // == / Prep language + vars ===========
 
-	<?php /* here we output the pre-requisites for the export (which is caught on init) */ ?>
-	<input type="hidden" name="jpcrm-export-request" value="<?php echo esc_attr( time() ); ?>" />
-	<?php wp_nonce_field( 'zbs_export_request', 'jpcrm-export-request-nonce' ); ?>
-	<input type="hidden" name="jpcrm-export-request-objtype" value="<?php echo esc_attr( $obj_type_id ); ?>" />
-	<input type="hidden" name="jpcrm-export-request-objids" value="<?php echo esc_attr( $ids_to_export_csv ); ?>" />
-	<?php if ( is_array( $potential_segment ) ) { ?>
-	<input type="hidden" name="jpcrm-export-request-segment-id" value="<?php echo esc_attr( $potential_segment_id ); ?>" />
-	<?php } ?>
+    // == UI ==============================
 
-	<h2><?php echo esc_html__( sprintf( __( 'Export %1$s %2$s %3$s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
+    // good to draw ?>
+    <div id="zbs-export-wrap"><form method="post">
 
-	<div class="ui segment" id="zbs-export-filetype-wrap">
-	<i class="file alternate outline icon"></i> <?php esc_html_e( 'Export as .CSV file', 'zero-bs-crm' ); // later offer choice (excel variant? Outlook addressbook?) ?>
-	</div>  
+    <?php /* here we output the pre-requisites for the export (which is caught on init) */ ?>
+    <input type="hidden" name="jpcrm-export-request" value="<?php echo esc_attr( time() ); ?>" />
+    <?php wp_nonce_field( 'zbs_export_request', 'jpcrm-export-request-nonce' ); ?>
+    <input type="hidden" name="jpcrm-export-request-objtype" value="<?php echo esc_attr( $obj_type_id ); ?>" />
+    <input type="hidden" name="jpcrm-export-request-objids" value="<?php echo esc_attr( $ids_to_export_csv ); ?>" />
+    <?php if ( is_array( $potential_segment ) ){ ?>
+    <input type="hidden" name="jpcrm-export-request-segment-id" value="<?php echo esc_attr( $potential_segment_id ); ?>" />
+    <?php } ?>
 
-	<div class="ui segments" id="zbs-export-fields-wrap">
-	<div class="ui segment header">
-	<?php
+    <h2><?php echo esc_html__( sprintf( __( 'Export %s %s %s', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $obj_count ), $exportTypeLabel, $extra_title_str ) ); ?></h2>
 
-	// header
-	esc_html_e( 'Export Fields:', 'zero-bs-crm' );
+    <div class="ui segment" id="zbs-export-filetype-wrap">
+    <i class="file alternate outline icon"></i> <?php esc_html_e('Export as .CSV file','zero-bs-crm'); // later offer choice (excel variant? Outlook addressbook?) ?>
+    </div>  
 
-	// select all
-	?>
-	<button type="button" class="ui blue mini button right floated all" id="zbs-export-select-all" ><span class="all"><i class="object ungroup icon"></i> <?php esc_html_e( 'Deselect All', 'zero-bs-crm' ); ?></span><span class="none" style="display:none"><i class="object group icon"></i> <?php esc_html_e( 'Select All', 'zero-bs-crm' ); ?></span></button>
+    <div class="ui segments" id="zbs-export-fields-wrap">
+    <div class="ui segment header">
+    <?php
 
-	</div>
-	<div class="ui segment" id="zbs-export-fields">
-	<?php
+    // header
+    esc_html_e('Export Fields:','zero-bs-crm');
 
-	if ( count( $fieldsAvailable ) > 0 ) {
+    // select all ?>
+    <button type="button" class="ui blue mini button right floated all" id="zbs-export-select-all" ><span class="all"><i class="object ungroup icon"></i> <?php esc_html_e('Deselect All','zero-bs-crm'); ?></span><span class="none" style="display:none"><i class="object group icon"></i> <?php esc_html_e('Select All','zero-bs-crm'); ?></span></button>
 
-		$lastArea = '';
-		$openArea = false;
+    </div>
+    <div class="ui segment" id="zbs-export-fields">
+    <?php
 
-		// if got type, retrieve fields to (potentially) export.
-		foreach ( $fieldsAvailable as $fK => $field ) {
+    if (count($fieldsAvailable) > 0){
 
-			/*
-			Semantic checkboxes bugging, working on MVP so simplified for now.
-			?>
-			<div>
-			<div class="ui checkbox">
-			<input type="checkbox" id="zbs-export-field-<?php echo $fK; ?>"  name="zbs-export-field-<?php echo $fK; ?>">
-			<label><?php echo $fLabel; ?></label>
-			</div>
-			</div>
-			<?php */
+      $lastArea = ''; $openArea = false;
 
-			// area grouping
-			if ( isset( $field['area'] ) && $field['area'] !== $lastArea ) {
+      // if got type, retrieve fields to (potentially) export.
+      foreach ($fieldsAvailable as $fK => $field){
 
-				// close any open areas
-				if ( $openArea ) {
-					echo '</div>';
-					$openArea = false;
-				}
+        /* Semantic checkboxes bugging, working on MVP so simplified for now.
+        ?>
+        <div>
+        <div class="ui checkbox">
+        <input type="checkbox" id="zbs-export-field-<?php echo $fK; ?>"  name="zbs-export-field-<?php echo $fK; ?>">
+        <label><?php echo $fLabel; ?></label>
+        </div>
+        </div>
+        <?php */
 
-				if ( $field['area'] !== '' ) {
+        // area grouping
+        if (isset($field['area']) && $field['area'] !== $lastArea){
 
-					// open 'area'
-					$openArea = true;
-					$lastArea = $field['area'];
-					?>
-			<div class="ui segment"><div class="ui small header"><?php echo esc_html( $field['area'] ); ?></div>
-					<?php
+          // close any open areas
+          if ($openArea) {
+            echo '</div>';
+            $openArea = false;
+          }
 
-				}
-			}
+          if ($field['area'] !== ''){
 
-			?>
-		<input type="checkbox" id="zbs-export-field-<?php echo esc_attr( $fK ); ?>" name="zbs-export-field-<?php echo esc_attr( $fK ); ?>" checked="checked" value="<?php echo esc_attr( $fK ); ?>" /><label for="zbs-export-field-<?php echo esc_attr( $fK ); ?>"><?php echo esc_html( $field['label'] ); ?></label><br />
-			<?php
+            // open 'area'
+            $openArea = true; $lastArea = $field['area'];
+            ?><div class="ui segment"><div class="ui small header"><?php echo esc_html( $field['area'] ); ?></div><?php
 
-		}
+          }
 
-		// close any open areas
-		if ( $openArea ) {
-			echo '</div>';
-		}
-	} else {
+        }
 
-		// nope.
-		echo zeroBSCRM_UI2_messageHTML( 'warning', __( 'No fields to export', 'zero-bs-crm' ), __( 'There were no fields found that we can export.', 'zero-bs-crm' ) . '</a>', '', 'zbs-legacy-export-tools-dialog' );
+        ?><input type="checkbox" id="zbs-export-field-<?php echo esc_attr( $fK ); ?>" name="zbs-export-field-<?php echo esc_attr( $fK ); ?>" checked="checked" value="<?php echo esc_attr( $fK ); ?>" /><label for="zbs-export-field-<?php echo esc_attr( $fK ); ?>"><?php echo esc_html( $field['label'] ); ?></label><br /><?php
 
-	}
+      }
 
-	?>
-	</div>
-	</div>
+      // close any open areas
+      if ($openArea) echo '</div>';
 
-	<div class="ui divider"></div>
+    } else {
 
-	<button class="ui green button" type="submit"><i class="download icon"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></button>
+      // nope.
+      echo zeroBSCRM_UI2_messageHTML('warning',__('No fields to export','zero-bs-crm'),__('There were no fields found that we can export.','zero-bs-crm').'</a>','','zbs-legacy-export-tools-dialog');
 
-	<script type="text/javascript">
+    }
 
-	jQuery(function(){
+    ?>
+    </div>
+    </div>
 
-		jQuery('#zbs-export-select-all').on( 'click', function(){
+    <div class="ui divider"></div>
 
-		if (jQuery(this).hasClass('none')){
+    <button class="ui green button" type="submit"><i class="download icon"></i> <?php esc_html_e('Export','zero-bs-crm'); ?></button>
 
-			// check all
-			jQuery('input:checkbox',jQuery('#zbs-export-fields')).prop( 'checked', true );
+    <script type="text/javascript">
 
-			jQuery(this).removeClass('none');
-			jQuery('span.none').hide();
-			jQuery('span.all').show();
-			jQuery(this).addClass('all');
+    jQuery(function(){
 
-		} else {
+      jQuery('#zbs-export-select-all').on( 'click', function(){
 
-			// deselect all
-			jQuery('input:checkbox',jQuery('#zbs-export-fields')).prop( 'checked', false );
+        if (jQuery(this).hasClass('none')){
 
-			jQuery(this).removeClass('all');
-			jQuery('span.all').hide();
-			jQuery('span.none').show();
-			jQuery(this).addClass('none');
+          // check all
+          jQuery('input:checkbox',jQuery('#zbs-export-fields')).prop( 'checked', true );
 
-		}
+          jQuery(this).removeClass('none');
+          jQuery('span.none').hide();
+          jQuery('span.all').show();
+          jQuery(this).addClass('all');
 
-		});
+        } else {
 
-	});
+          // deselect all
+          jQuery('input:checkbox',jQuery('#zbs-export-fields')).prop( 'checked', false );
 
-	</script>
+          jQuery(this).removeClass('all');
+          jQuery('span.all').hide();
+          jQuery('span.none').show();
+          jQuery(this).addClass('none');
 
-	</form></div>
-	<?php
+        }
 
-	// == / UI ============================
-}
+      });
+
+    });
+
+    </script>
+
+    </form></div><?php
+
+    // == / UI ============================
+
+  }

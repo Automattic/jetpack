@@ -348,32 +348,37 @@ function zeroBS_searchCustomers($args=array(),$withMoneyData=false){
 	global $zbs; return $zbs->DAL->contacts->getContacts($args);
 }
 
-/**
- * Enables or disables the client portal access for a contact, by ID.
- *
- * @param int    $contact_id The id of the CRM Contact to be enabled or disabled.
- * @param string $enable_or_disable String indicating if the selected contact should be enabled or disabled. Use 'disable' to disable, otherwise the contact will be enabled.
- *
- * @return bool True in case of success, false otherwise.
+/*
+ * Enables or disables the client portal access for a contact, by ID
  */
-function zeroBSCRM_customerPortalDisableEnable( $contact_id = -1, $enable_or_disable = 'disable' ) {
+function zeroBSCRM_customerPortalDisableEnable( $contact_id=-1, $enableOrDisable='disable' ) {
+
 	global $zbs;
 
-	if ( zeroBSCRM_permsCustomers() && ! empty( $contact_id ) ) {
-		// Verify this user can be changed.
-		// Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm.
-		$wp_user_id  = zeroBSCRM_getClientPortalUserID( $contact_id );
-		$user_object = get_userdata( $wp_user_id );
-		if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
-			if ( $enable_or_disable === 'disable' ) {
-				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			} else {
-				return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', false ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( zeroBSCRM_permsCustomers() && !empty( $contact_id ) ) {
+
+			// Verify this user can be changed
+			// (Has to have singular role of `zerobs_customer`. This helps to avoid users changing each others accounts via crm)
+    	$contact_email = $zbs->DAL->contacts->getContactEmail( $contact_id );  
+      $user_object = get_userdata( $contact_email );
+			if ( jpcrm_role_check( $user_object, array(), array(), array( 'zerobs_customer' ) ) ) {
+
+				if ( $enableOrDisable == 'disable' ) {
+
+					return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', true );
+
+				} else {
+
+					return $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, 'portal_disabled', false );
+
+				}
+
 			}
-		}
+
 	}
 
 	return false;
+
 }
 
 
@@ -2010,20 +2015,7 @@ function zeroBS_addUpdateCustomer(
 				$tags 		= $cFields['tags'];
 				#} Santize tags
 				if(is_array($tags)){
-					$customer_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
-					// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
-					// @todo Replace this with something more correct.
-					foreach ( $customer_tags as $k => $v ) {
-						$customer_tags[$k] = strtr(
-							strip_tags( $v ),
-							array(
-								"\0" => '',
-								'"' => '&#34;',
-								"'" => '&#39;',
-								"<" => '',
-							)
-						);
-					}
+					$customer_tags = filter_var_array($tags,FILTER_SANITIZE_STRING); 
 					$we_have_tags = true;
 				}
 
@@ -3056,19 +3048,21 @@ function zeroBS___________DAL30Helpers(){return;}
 			// retrieve global var name
 			$globFieldVarName = $zbs->DAL->objFieldVarName($objType);
 	    
+	    	//req.
+	    	if (!empty($globFieldVarName)) global $$globFieldVarName;
 			// should be $zbsCustomerFields etc.
 			// from 3.0 this is kind of redundant, esp when dealing with events, which have none, so we skip if this case
 			if (
-				!$zbs->isDAL3() && (empty($globFieldVarName) || $globFieldVarName == false || !isset($GLOBALS[ $globFieldVarName ]))
+				!$zbs->isDAL3() && (empty($globFieldVarName) || $globFieldVarName == false || !isset($$globFieldVarName))
 				) return $retArray;
 
 			// nope. (for events in DAL3)
 			// ... potentially can turn this off for all non DAL3? may be redundant inside next {}
-			if ($objType !== ZBS_TYPE_EVENT && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($GLOBALS[$globFieldVarName])){
+			if ($objType !== ZBS_TYPE_EVENT && $objType !== ZBS_TYPE_QUOTETEMPLATE && isset($$globFieldVarName)){
 
 		        $i=0;
 
-		        foreach ($GLOBALS[$globFieldVarName] as $fK => $fV){
+		        foreach ($$globFieldVarName as $fK => $fV){
 
 		        	$i++;
 
@@ -4001,20 +3995,7 @@ function zeroBS___________DAL30Helpers(){return;}
 
 					#} Santize tags
 					if(is_array($tags) && count($tags) > 0){
-						$company_tags = filter_var_array($tags,FILTER_UNSAFE_RAW); 
-						// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
-						// @todo Replace this with something more correct.
-						foreach ( $company_tags as $k => $v ) {
-							$company_tags[$k] = strtr(
-								strip_tags( $v ),
-								array(
-									"\0" => '',
-									'"' => '&#34;',
-									"'" => '&#39;',
-									"<" => '',
-								)
-							);
-						}
+						$company_tags = filter_var_array($tags,FILTER_SANITIZE_STRING); 
 						$we_have_tags = true;
 					}
 
@@ -4355,7 +4336,7 @@ function zeroBS___________DAL30Helpers(){return;}
 		if ($qID !== -1){
 
 	            $content = get_post_meta($qID, 'zbs_quote_content' , true ) ;
-	            $content = htmlspecialchars_decode($content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401);
+	            $content = htmlspecialchars_decode($content);
 			
 				return array(
 					'content'=>$content,
@@ -6130,20 +6111,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 				            # TAG obj (if exists) - clean etc here too 
 				            if (isset($transactionTags) && is_array($transactionTags)){
 
-									$transactionTags = filter_var_array($transactionTags,FILTER_UNSAFE_RAW); 
-									// Formerly this used FILTER_SANITIZE_STRING, which is now deprecated as it was fairly broken. This is basically equivalent.
-									// @todo Replace this with something more correct.
-									foreach ( $transactionTags as $k => $v ) {
-										$transactionTags[$k] = strtr(
-											strip_tags( $v ),
-											array(
-												"\0" => '',
-												'"' => '&#34;',
-												"'" => '&#39;',
-												"<" => '',
-											)
-										);
-									}
+									$transactionTags = filter_var_array($transactionTags,FILTER_SANITIZE_STRING); 
 
 				                	$args['data']['tags'] = array();
 									foreach($transactionTags as $tTag){
@@ -8994,10 +8962,11 @@ function zeroBSCRM_GenerateTempHash($str=-1,$length=20){
 		
 
 		// if $key isn't in switch, assume it's a slug :)
-		return esc_url_raw( admin_url( 'admin.php?page=' . $key ) );
+		return admin_url('admin.php?page='.$key);
 
 		// none? DASH then!
-		// return esc_url_raw( admin_url('admin.php?page=zerobscrm-dash') );
+		//return admin_url('admin.php?page=zerobscrm-dash');
+
 	}
 
 	#} This is run by main init :) (Installs Quote Templates etc.)

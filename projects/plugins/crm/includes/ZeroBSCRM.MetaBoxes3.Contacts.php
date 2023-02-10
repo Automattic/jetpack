@@ -540,14 +540,12 @@
                     }
 
                 }
-				// phpcs:disable WordPress.NamingConventions.ValidVariableName -- to be refactored.
-				// We have to explicitly retrieve the avatar from the DB.
-				$dataArr['avatar'] = ( $contact_id !== -1 ) ? $zbs->DAL->contacts->getContactAvatar( $contact_id ) : '';
-				//phpcs:enable WordPress.NamingConventions.ValidVariableName
+                // We have to explicitly retrieve the avatar from the DB.
+                $dataArr['avatar'] = ( $contact_id !== -1 ) ? $zbs->DAL->contacts->getContactAvatar( $contact_id ) : '';
 
                 // make a copy for IA below (just fields)
                 $contactData = $dataArr;
-                
+
                 // Company assignment?
                 if (isset($_POST['zbs_company'])) $dataArr['companies'] = array((int)sanitize_text_field($_POST['zbs_company']));
 
@@ -663,7 +661,7 @@
         /*
         * Saves the profile picture 
         */
-        public function save_profile_picture( $contact_id, $crm_contact ) {
+        public static function save_profile_picture( $contact_id, $crm_contact ) {
             global $zbs;
 
             $contact_dir_info    = jpcrm_storage_dir_info_for_contact( $contact_id );
@@ -2663,7 +2661,7 @@ class zeroBS__Metabox_Contact_Activity extends zeroBS__Metabox {
                             // long desc
                             if (isset($log['longdesc']) && !empty($log['longdesc'])){ ?>
                             <div class="jpcrm-pinned-log-longdesc">
-                                <?php echo wp_kses( html_entity_decode( $log['longdesc'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $zbs->acceptable_restricted_html ); ?>
+                                <?php echo wp_kses( html_entity_decode( $log['longdesc'] ), $zbs->acceptable_restricted_html ); ?>
                             </div>
                             <?php } ?>
 

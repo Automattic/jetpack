@@ -1,6 +1,5 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V2.99.12+
@@ -10,34 +9,30 @@
  * Date: 29/10/2019
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
+/* ======================================================
+  Breaking Checks ( stops direct access )
+   ====================================================== */
+    if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+/* ======================================================
+  / Breaking Checks
+   ====================================================== */
 
 	global $zbs;
 
 	// Assets we need specifically here
 
 	// js
-	wp_enqueue_script( 'jquery' );
+	wp_enqueue_script("jquery");
 	// not really needed. wp_enqueue_script('zbsbeforeyougojs', plugins_url('/js/before-you-go/jquery.blockUI.min.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version);
 
 	// css
-	wp_enqueue_style( 'zbsbeforeyougocssloadstyles', plugins_url( '/css/before-you-go/loadstyles.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssopensans', plugins_url( '/css/before-you-go/opensans' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssadminmin', plugins_url( '/css/before-you-go/admin.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
-	wp_enqueue_style( 'zbsbeforeyougocssexitform', plugins_url( '/css/before-you-go/zbs-exitform.min.css', ZBS_ROOTFILE ), array(), $zbs->version );
+	wp_enqueue_style('zbsbeforeyougocssloadstyles', 	plugins_url('/css/before-you-go/loadstyles.min.css',ZBS_ROOTFILE), array(), $zbs->version );
+	wp_enqueue_style('zbsbeforeyougocssopensans', 		plugins_url('/css/before-you-go/opensans'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE), array(), $zbs->version );
+	wp_enqueue_style('zbsbeforeyougocssadminmin', 		plugins_url('/css/before-you-go/admin.min.css',ZBS_ROOTFILE), array(), $zbs->version );
+	wp_enqueue_style('zbsbeforeyougocssexitform', 		plugins_url('/css/before-you-go/zbs-exitform.min.css',ZBS_ROOTFILE), array(), $zbs->version );
 
 	// dequeue anything?
-	wp_dequeue_style( 'admin-bar-css' );
+	wp_dequeue_style('admin-bar-css');
 
 ?><!DOCTYPE html>
 <html lang="en-US">
@@ -54,7 +49,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 		<div class="wc-setup-content" id="firstPage">
 			<h1><?php esc_html_e( 'Before you go...', 'zero-bs-crm' ); ?></h1>
 			<p><?php esc_html_e( 'Thank you for trying Jetpack CRM! Before you go, we\'d really love your feedback on our free CRM plugin. It\'d make our day if you could guide us to improving Jetpack CRM.', 'zero-bs-crm' ); ?> :)</p>
-			<p><?php esc_html_e( 'Just temporarily deactivating, or don\'t fancy giving feedback? No worries.', 'zero-bs-crm' ); ?><br /><?php echo wp_kses( sprintf( __( 'We\'re improving Jetpack CRM every week, so come back sometime and check us out @ <a href="%1$s">%2$s</a>', 'zero-bs-crm' ), esc_url( 'https://jetpackcrm.com' ), 'jetpackcrm.com' ), $zbs->acceptable_restricted_html ); ?></p>
+			<p><?php esc_html_e( 'Just temporarily deactivating, or don\'t fancy giving feedback? No worries.', 'zero-bs-crm' ); ?><br /><?php echo wp_kses( sprintf( __( 'We\'re improving Jetpack CRM every week, so come back sometime and check us out @ <a href="%s">%s</a>', 'zero-bs-crm' ), esc_url( 'https://jetpackcrm.com' ), 'jetpackcrm.com' ), $zbs->acceptable_restricted_html ); ?></p>
 			<p><?php esc_html_e( 'All the best', 'zero-bs-crm' ); ?></p>
 			<p><?php esc_html_e( 'Mike and Woody', 'zero-bs-crm' ); ?></p>
 			<p class="wc-setup-actions step">

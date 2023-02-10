@@ -1,6 +1,5 @@
-<?php
-/*
-!
+<?php 
+/*!
  * Jetpack CRM
  * https://jetpackcrm.com
  * V3.0
@@ -10,17 +9,13 @@
  * Date: 04/06/2019
  */
 
-/*
-======================================================
-	Breaking Checks ( stops direct access )
-	====================================================== */
-if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
-	exit;
-}
-/*
-======================================================
-	/ Breaking Checks
-	====================================================== */
+/* ======================================================
+     Breaking Checks ( stops direct access )
+   ====================================================== */
+if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
+/* ======================================================
+   / Breaking Checks
+   ====================================================== */
 
 // Check the method
 jpcrm_api_check_http_method( array( 'GET' ) );
@@ -34,4 +29,4 @@ $transactions = zeroBS_getTransactions( true, $per_page, $page );
 
 wp_send_json( $transactions );
 
-
+?>

@@ -1,13 +1,12 @@
-<?php
-/*
-!
+<?php 
+/*!
  * System Assistant: Assistant page
  */
 
 global $zbs;
 
 // render title
-jpcrm_render_system_title( __( 'System Assistant', 'zero-bs-crm' ) );
+jpcrm_render_system_title( __( 'System Assistant', 'zero-bs-crm' ) ); 
 
 // render page
 jpcrm_render_system_assistant_page();
@@ -26,6 +25,7 @@ jpcrm_render_system_assistant_page();
  *   'button_txt'      => '', // text for button that leads to the above; if omitted it defaults to 'Read Guide'
  *   'state'           => true, // condition that triggers a bool response; complete = true, incomplete = false
  * ),
+ *
  */
 function jpcrm_render_system_assistant_page() {
 
@@ -66,6 +66,8 @@ function jpcrm_render_system_assistant_page() {
 
 		);
 
+
+
 		// try invoicing
 		$job_list['try_invoicing'] = array(
 
@@ -93,6 +95,7 @@ function jpcrm_render_system_assistant_page() {
 
 			);
 
+
 		}
 
 		$job_list['add_team'] = array(
@@ -108,7 +111,7 @@ function jpcrm_render_system_assistant_page() {
 
 		$job_list = apply_filters( 'jpcrm_system_assistant_jobs', $job_list );
 
-		// WLREMOVE
+		##WLREMOVE
 		$job_list['add_extension'] = array(
 
 			'title'           => __( 'Get Tooled Up', 'zero-bs-crm' ),
@@ -120,7 +123,7 @@ function jpcrm_render_system_assistant_page() {
 			'state'           => count( zeroBSCRM_activeInstalledProExt() ) > 0,
 
 		);
-		// /WLREMOVE
+		##/WLREMOVE
 
 		// updates?
 		$has_update = false;
@@ -142,7 +145,7 @@ function jpcrm_render_system_assistant_page() {
 			'desc_complete'   => __( 'Good job, your core CRM is up to date.', 'zero-bs-crm' ),
 			'button_url'      => admin_url( 'update-core.php' ),
 			'button_txt'      => __( 'View Updates', 'zero-bs-crm' ),
-			'state'           => ! $has_update,
+			'state'           => !$has_update,
 
 		);
 
@@ -156,15 +159,17 @@ function jpcrm_render_system_assistant_page() {
 
 	</div>
 	<?php
+
 }
+
 
 /**
  * Render a single system assistant job
  */
-function jpcrm_render_system_assistant_job( $job = array() ) {
+function jpcrm_render_system_assistant_job( $job = array() ){
 
 	// if no help txt, use default:
-	if ( ! isset( $job['button_txt'] ) ) {
+	if ( !isset( $job['button_txt'] ) ) {
 
 		$job['button_txt'] = __( 'Read Guide', 'zero-bs-crm' );
 
@@ -186,4 +191,5 @@ function jpcrm_render_system_assistant_job( $job = array() ) {
 			</div>
 		</div>
 	<?php
+
 }

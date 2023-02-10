@@ -196,8 +196,9 @@ class zeroBSCRM_list{
 
             #} Centralised into ZeroBSCRM.List.Columns.php 30/7/17
             $columnVar = 'zeroBSCRM_columns_'.$this->objType; //$zeroBSCRM_columns_transaction;
-            $defaultColumns = $GLOBALS[ $columnVar ]['default'];
-            $allColumns = $GLOBALS[ $columnVar ]['all'];
+            global $$columnVar;
+            $defaultColumns = ${$columnVar}['default'];
+            $allColumns = ${$columnVar}['all'];
 
 
         global $zbs;
@@ -213,14 +214,15 @@ class zeroBSCRM_list{
         #} Filter buttons
         // load defaults (List.columns.php)
         $filterVar = 'zeroBSCRM_filterbuttons_'.$this->objType; //$zeroBSCRM_filterbuttons_transaction;
-        if ( !isset( $GLOBALS[ $filterVar ] ) ) {
-            $GLOBALS[ $filterVar ] = array( 'default'=>array(), 'all'=>array() );
+        global $$filterVar;
+        if ( !isset( $$filterVar ) ) {
+            $$filterVar = array( 'default'=>array(), 'all'=>array() );
         }
-        $defaultFilterButtons = $GLOBALS[ $filterVar ]['default'];
+        $defaultFilterButtons = ${$filterVar}['default'];
         // retrieve from customViews (as retrieved above)
         $currentFilterButtons = false; if (isset($customViews) && isset($customViews[$this->objType.'_filters'])) $currentFilterButtons = $customViews[$this->objType.'_filters'];
         if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
-        $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
+        $allFilterButtons = ${$filterVar}['all'];
 
 
 
@@ -532,11 +534,9 @@ class zeroBSCRM_list{
                                     <div id="zbs-list-view-filter-options-current" class="zbs-filter-manager-connected ui-sortable">
 
                                     <?php if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $filterButtonKey => $filterButton){
-										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-										?>
-										<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
-										<?php
-										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+                                        ?><div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div><?php
+
                                     } ?>
 
 
@@ -551,15 +551,12 @@ class zeroBSCRM_list{
                                     <div id="zbs-list-view-filter-options-available" class="zbs-filter-manager-connected ui-sortable">
 
                                     <?php foreach ($allFilterButtons as $filterButtonKey => $filterButton){
-										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-										if ( ! array_key_exists( $filterButtonKey, $currentFilterButtons ) ) {
 
-											?>
-												<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
-												<?php
+                                                if (!array_key_exists($filterButtonKey, $currentFilterButtons)){
 
-										}
-										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+                                                    ?><div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div><?php
+
+                                                }
 
                                     } ?>
 
@@ -918,15 +915,11 @@ class zeroBSCRM_list{
                         if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $buttonKey => $button){
 
                             if ($buttonCount > 0) echo ',';
-                            
-							// Hard coded, lazy
-							printf(
-								"{namestr:'%s',fieldstr:'%s'}",
-								wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
-								// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-								esc_html( $buttonKey )
-								// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							);
+                            #} Hard coded, lazy
+                            printf("{namestr:'%s',fieldstr:'%s'}",
+                                wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
+                                esc_html( $buttonKey )
+                            );
 
                             $buttonCount++;
 
