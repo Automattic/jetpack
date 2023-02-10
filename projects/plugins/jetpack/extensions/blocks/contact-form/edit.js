@@ -231,6 +231,7 @@ export function JetpackContactFormEdit( {
 						onRequestClose={ () => setIsPatternsModalOpen( false ) }
 					>
 						<BlockPatternSetup
+							initialViewMode="grid"
 							filterPatternsFn={ pattern => {
 								return pattern.content.indexOf( 'jetpack/contact-form' ) !== -1;
 							} }
