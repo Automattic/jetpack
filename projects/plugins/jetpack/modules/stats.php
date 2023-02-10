@@ -89,6 +89,20 @@ function register_endpoints_for_nudge() {
  * @return mixed
  */
 function odyssey_nudge_handler() {
+	$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
+	if ( $action === 'reset-option' ) {
+		$seconds = time() - ( 60 * 60 * 24 * 45 );
+		update_option( 'stats-odyssey-nudge-dismissed', $seconds );
+		return rest_ensure_response(
+			new WP_REST_Response(
+				array(
+					'status'     => 200,
+					'time-stamp' => $seconds,
+					'message'    => 'reset nudge',
+				)
+			)
+		);
+	}
 	// 1. Update the option.
 	$time = time();
 	update_option( 'stats-odyssey-nudge-dismissed', $time );
@@ -410,6 +424,17 @@ function stats_handle_test_button_toggle() {
 			// Hide the nudge via CSS.
 		});
 	}
+	function test_button_reset() {
+		let url = '/wp-json/jetpack/v4/stats/nudge';
+		var data = {
+			'action': 'reset-option',
+			'whatever': 1234
+		};
+		jQuery.post(url, data, function(response) {
+			alert('Got this from the server: ' + response);
+			console.log(response);
+		});
+	}
 	</script>
 	<?php
 }
@@ -531,7 +556,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
 				<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
-				<p><button id="test-button" onclick="test_button_toggle()">Toggle Nudge Option</button></p>
+				<p><button id="test-button" onclick="test_button_toggle()">Toggle Nudge Option</button><button onclick="test_button_reset()">Reset Option</button></p>
 				<?php
 				endif;
 
