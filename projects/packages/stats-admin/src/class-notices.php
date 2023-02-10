@@ -48,7 +48,7 @@ class Notices {
 	}
 
 	/**
-	 * For now, we support only one notice at a time.
+	 * Return an array of notices IDs as keys and their value to flag whther to show them.
 	 *
 	 * @return array
 	 */
@@ -64,9 +64,9 @@ class Notices {
 	}
 
 	/**
-	 * Returns the array of hidden notice IDs.
+	 * Returns the array of hidden notices.
 	 *
-	 * @return array Array of hidden notice IDs.
+	 * @return array Array of hidden notices.
 	 */
 	public function get_hidden_notices() {
 		$notices = Stats_Options::get_option( 'notices' );
