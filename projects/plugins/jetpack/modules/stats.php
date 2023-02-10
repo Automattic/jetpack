@@ -103,19 +103,28 @@ function odyssey_nudge_handler() {
 			)
 		);
 	}
-	// 1. Update the option.
-	$time = time();
-	update_option( 'stats-odyssey-nudge-dismissed', $time );
-	// 2. Return a response.
-	// The JS will then hide the nudge.
-	$r = new WP_REST_Response(
-		array(
-			'status'     => 200,
-			'time-stamp' => $time,
+	if ( $action === 'odyssey-dismiss-nudge' ) {
+		$time = time();
+		update_option( 'stats-odyssey-nudge-dismissed', $time );
+		return rest_ensure_response(
+			new WP_REST_Response(
+				array(
+					'status'     => 200,
+					'time-stamp' => $time,
+					'message'    => 'dismissed nudge',
+				)
+			)
+		);
+	}
+	// Nothing to do here. Should never be called.
+	return rest_ensure_response(
+		new WP_REST_Response(
+			array(
+				'status'  => 200,
+				'message' => 'ingored request',
+			)
 		)
 	);
-
-	return rest_ensure_response( $r );
 }
 
 /**
