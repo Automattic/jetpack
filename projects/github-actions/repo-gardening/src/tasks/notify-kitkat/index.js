@@ -35,7 +35,6 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 	return labels.includes( '[Prio] BLOCKER' );
 }
 
-
 /**
  * Send a Slack notification about a label to Team KitKat.
  *
@@ -49,44 +48,43 @@ async function notifyKitKat( payload, octokit ) {
 
 	const slackToken = getInput( 'slack_token' );
 	if ( ! slackToken ) {
-		setFailed( `notify-kitkat: Input slack_token is required but missing. Aborting.` );
+		setFailed( 'notify-kitkat: Input slack_token is required but missing. Aborting.' );
 		return;
 	}
 
 	const channel = getInput( 'slack_kitkat_channel' );
 	if ( ! channel ) {
 		setFailed(
-			`notify-editorial: Input slack_kitkat_channel is required but missing. Aborting.`
+			'notify-kitkat: Input slack_kitkat_channel is required but missing. Aborting.'
 		);
 		return;
 	}
-
 
 	// Check for a [Prio] High label.
 	const isLabeledHighPriority = await hasHighPrioLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledHighPriority ) {
 		debug(
-			`notify-kitkat: Found a [Prio] High label on issue #${ number }. Sending in Slack message.`
+			'notify-kitkat: Found a [Prio] High label on issue #${ number }. Sending in Slack message.'
 		);
 		await sendSlackMessage(
-			`New High priority bug.`,
-			channel,
-			slackToken,
-			payload
+			'New High priority bug! Please take a moment to triage this bug.',
+		    channel,
+		    slackToken,
+		    payload
 		);
 	}
 
 	// Check for a BLOCKER priority label.
-	const isLabeledBlocker = await hasLabel( octokit, ownerLogin, repo, number );
+	const isLabeledBlocker = await hasBlockerPrioLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledBlocker ) {
 		debug(
-			`notify-editorial: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
+			'notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.'
 		);
 		await sendSlackMessage(
-			`New Blocker bug!.`,
-			channel,
-			slackToken,
-			payload
+		    'New Blocker bug!  Please take a moment to triage this bug.',
+		    channel,
+		    slackToken,
+		    payload
 		);
 	}
 }
