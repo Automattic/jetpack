@@ -1,4 +1,4 @@
-export type MultipleButtonsProps = {
+type MultipleButtonsProps = {
 	/**
 	 * Indicates whether there are multiple buttons present that would imply agreement if clicked.
 	 */
@@ -10,7 +10,7 @@ export type MultipleButtonsProps = {
 	agreeButtonLabel?: undefined;
 };
 
-export type SingleButtonProps = {
+type SingleButtonProps = {
 	/**
 	 * Indicates whether there are multiple buttons present that would imply agreement if clicked.
 	 */
