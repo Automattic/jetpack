@@ -225,6 +225,15 @@ class Blaze {
 			return;
 		}
 
+		// We do not want (nor need) Blaze in the classic editor.
+		$current_screen = get_current_screen();
+		if (
+			empty( $current_screen )
+			|| ! $current_screen->is_block_editor()
+		) {
+			return;
+		}
+
 		// Bail if criteria is not met to enable Blaze features.
 		if ( ! self::should_initialize() ) {
 			return;
