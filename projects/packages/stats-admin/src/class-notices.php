@@ -71,7 +71,7 @@ class Notices {
 	public function get_hidden_notices() {
 		$notices = Stats_Options::get_option( 'notices' );
 
-		$hidden_notice_ids = array_filter(
+		$hidden_notices = array_filter(
 			$notices,
 			function ( $notice ) {
 				if ( ! isset( $notice['status'] ) ) {
@@ -89,7 +89,7 @@ class Notices {
 			ARRAY_FILTER_USE_BOTH
 		);
 
-		return $hidden_notice_ids;
+		return $hidden_notices;
 	}
 
 	/**
