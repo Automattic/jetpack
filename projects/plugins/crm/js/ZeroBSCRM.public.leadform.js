@@ -216,3 +216,7 @@ function zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl ) {
 	} ),
 		i.fail( function () {} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCRMFormsBlocker };
+}

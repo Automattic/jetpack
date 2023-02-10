@@ -1422,5 +1422,5 @@ function jpcrm_js_compare_conditions( a, b ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zeroBSCRMJS_segmentLang };
+    module.exports = { zeroBSCRMJS_segmentLang, zbsAJAXSending };
 }

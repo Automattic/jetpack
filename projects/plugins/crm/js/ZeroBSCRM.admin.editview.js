@@ -493,5 +493,6 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
 
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, zbscrmjs_events_changeCompany };
+    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, zbscrmjs_events_changeCompany,
+		zbscrmjsPageChangesSave };
 }

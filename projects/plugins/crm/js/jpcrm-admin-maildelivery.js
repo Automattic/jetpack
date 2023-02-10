@@ -1020,3 +1020,7 @@ function zeroBSCRMJS_validateSettings() {
 			break;
 	} // / switch
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRMJS_SMTPWiz, oauth_profile_key, zbsTestDelivery, zbsTestDeliveryMsg };
+}

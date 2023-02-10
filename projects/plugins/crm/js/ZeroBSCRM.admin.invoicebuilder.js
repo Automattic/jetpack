@@ -2340,3 +2340,7 @@ function zbscrm_JS_invoice_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbs_invoice, zbs_tax, zbs_tax_table, zbsInvBlocker };
+}

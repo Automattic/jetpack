@@ -185,3 +185,7 @@ function zbsJSFilterDateRangeClear() {
 	jQuery( '#zbs-crm-customerfilter-addedrange-reportrange span' ).html( '' );
 	jQuery( '#zbs-crm-customerfilter-addedrange' ).val( '' );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbscrmjsCustomerFilterRetrieving, zbscrmjsCustomerFilterHasRetrieved };
+}
