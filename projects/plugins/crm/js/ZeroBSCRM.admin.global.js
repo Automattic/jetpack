@@ -2784,7 +2784,7 @@ if ( typeof module !== 'undefined' ) {
 		zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_watchInputsAndDirty, zbscrm_JS_dirtyCatch, zbscrm_JS_delDirty, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_datepicker,
 		jpcrm_js_bind_datetimerangepicker,  jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, zbscrm_JS_infoBoxInit, zbscrm_JS_infoBoxInit,
 		zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, jpcrm_bind_typeaheads_placeholders, zbscrm_JS_clone,
-		zbscrm_JS_isEmail,  zbscrmjs_replaceAll, zeroBSCRMJS_telLinkFromNo, zeroBSCRMJS_number_format_i18n, zeroBSCRMJS_number_format, zeroBSCRMJS_htmlEncode,
+		zbscrmjs_replaceAll, zeroBSCRMJS_telLinkFromNo, zeroBSCRMJS_number_format_i18n, zeroBSCRMJS_number_format, zeroBSCRMJS_htmlEncode,
 		zeroBSCRMJS_htmlDecode, zeroBSCRMJS_newWindow, zeroBSCRMJS_newWindowCenter, parseDate, daydiff, zbsJS_semanticPercBar, zbsJS_uts, zeroBSCRMJS_bindScreenOptions,
 		zeroBSCRMJS_saveScreenOptions,  zeroBSCRMJS_buildScreenOptionsTableColumns, zeroBSCRMJS_buildScreenOptionsGenerics, zeroBSCRMJS_rest_retrieveCompany, 
 		zeroBSCRMJS_bindGlobalObjFuncs, zeroBSCRMJS_bindGlobalContactFuncs, zeroBSCRMJS_bindGlobalDismiss, zbscrm_JS_bindCloseLogs, zbscrm_JS_isCalypso, 

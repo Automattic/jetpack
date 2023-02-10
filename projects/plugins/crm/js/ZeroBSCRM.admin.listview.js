@@ -6294,7 +6294,7 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_company_bulkActionFire_delete,
 		zeroBSCRMJS_listView_company_bulkActionFire_addtag,
 		zeroBSCRMJS_listView_company_bulkActionFire_removetag,
-		zeroBSCRMJS_listView_quote_customer, zeroBSCRMJS_listView_quote_title,
+		zeroBSCRMJS_listView_quote_title,
 		zeroBSCRMJS_listView_quote_value, zeroBSCRMJS_listView_quote_status,
 		zeroBSCRMJS_listView_quote_date,
 		zeroBSCRMJS_listView_quote_bulkActionTitle_markaccepted,
@@ -6346,12 +6346,9 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_event_bulkActionFire_delete,
 		zeroBSCRMJS_listView_event_bulkActionFire_markcomplete,
 		zeroBSCRMJS_listView_event_bulkActionFire_markincomplete,
-		zeroBSCRMJS_listView_customer_editlink, zeroBSCRMJS_listView_company_editlink,
-		zeroBSCRMJS_listView_quote_editlink, zeroBSCRMJS_listView_invoice_editlink,
-		zeroBSCRMJS_listView_transaction_editlink, zeroBSCRMJS_listView_form_editlink,
 		zeroBSCRMJS_logTypeStr, zeroBSCRMJS_bindInlineEditing,
 		zeroBSCRMJS_listView_tdAttr, zeroBSCRMJS_listView_bindInlineEditSave,
-		zeroBSCRMJS_listView_saveInlineEdit, zeroBSCRMJS_listView_customer_edit_id,
+		zeroBSCRMJS_listView_saveInlineEdit,
 		zeroBSCRMJS_listView_customer_edit_status,
 		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta };
 }
