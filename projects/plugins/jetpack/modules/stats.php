@@ -378,35 +378,9 @@ function stats_reports_load() {
 		// Normal page load.  Load page content via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
-		add_action( 'admin_footer', 'my_action_javascript' );
 
 		wp_localize_script( 'my-ajax-handle', 'the_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
-}
-
-/**
- * JavaScript to trigger an alert when the doc is ready.
- *
- * @access public
- * @return void
- */
-function my_action_javascript() { ?>
-	<script type="text/javascript" >
-	jQuery(document).ready(function($) {
-
-		let url = '/wp-json/jetpack/v4/stats/nudge';
-		var data = {
-			'action': 'my_action',
-			'whatever': 1234
-		};
-
-		// since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
-		jQuery.post(url, data, function(response) {
-			alert('Got this from the server: ' + response);
-		});
-	});
-	</script>
-	<?php
 }
 
 /**
