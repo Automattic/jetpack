@@ -2,6 +2,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '../../../components';
 import type { TermsOfServiceProps } from './types';
+import './styles.scss';
 
 const Wrapper: React.FC< TermsOfServiceProps > = props => (
 	<p className="terms-of-service">
