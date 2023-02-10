@@ -48,6 +48,7 @@ function stats_load() {
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
+	add_action( 'rest_api_init', 'register_endpoints_for_nudge' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -62,6 +63,43 @@ function stats_load() {
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
+}
+
+/**
+ * Register endpoint for Odyssey nudge.
+ *
+ * @access public
+ * @return void
+ */
+function register_endpoints_for_nudge() {
+	register_rest_route(
+		'jetpack/v4',
+		'/stats/nudge',
+		array(
+			'methods'  => 'POST',
+			'callback' => 'odyssey_nudge_handler',
+		)
+	);
+}
+
+/**
+ * Handler for Odyssey nudge.
+ *
+ * @access public
+ * @return mixed
+ */
+function odyssey_nudge_handler() {
+	// 1. Update the option.
+	// update_option( 'stats-some-option-name', 'my-test-value' );
+	// 2. Return a response.
+	// The JS will then hide the nudge.
+	$r = new WP_REST_Response(
+		array(
+			'status' => 200,
+		)
+	);
+
+	return rest_ensure_response( $r );
 }
 
 /**
@@ -341,17 +379,22 @@ function stats_reports_load() {
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
 		add_action( 'admin_footer', 'my_action_javascript' );
-		add_action( 'wp_ajax_my_action', 'my_action_handler' );
 
 		wp_localize_script( 'my-ajax-handle', 'the_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 }
 
+/**
+ * JavaScript to trigger an alert when the doc is ready.
+ *
+ * @access public
+ * @return void
+ */
 function my_action_javascript() { ?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
 
-		let url = '/wp-admin/admin-ajax.php';
+		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
 			'action': 'my_action',
 			'whatever': 1234
@@ -366,12 +409,33 @@ function my_action_javascript() { ?>
 	<?php
 }
 
-function my_action_handler() {
-	// global $wpdb; // this is how you get access to the database
-
-	// update_option( 'stats-some-option-name', 'my-test-value' );
-	echo 'happy response';
-	wp_die(); // this is required to terminate immediately and return a proper response
+/**
+ * JavaScript to trigger an alert when the test button is clicked.
+ *
+ * @access public
+ * @return void
+ */
+function stats_handle_test_button_toggle() {
+	?>
+	<script type="text/javascript">
+	function test_button_toggle() {
+		// Toggle the class list (just to see something).
+		var element = document.getElementById("test-button");
+		element.classList.toggle("mystyle");
+		// Send an AJAX request.
+		let url = '/wp-json/jetpack/v4/stats/nudge';
+		var data = {
+			'action': 'my_action',
+			'whatever': 1234
+		};
+		jQuery.post(url, data, function(response) {
+			alert('Got this from the server: ' + response);
+			console.log(response);
+			// Hide the nudge via CSS.
+		});
+	}
+	</script>
+	<?php
 }
 
 /**
@@ -1146,27 +1210,6 @@ function stats_jetpack_dashboard_widget() {
 			<div style="height: 250px;"></div>
 		</div>
 	</div>
-	<?php
-}
-
-function stats_handle_test_button_toggle() {
-	?>
-<script type="text/javascript">
-/* <![CDATA[ */
-function test_button_toggle() {
-	var element = document.getElementById("test-button");
-	element.classList.toggle("mystyle");
-	// window.alert( 'hi' );
-	var data = {
-		'action': 'my_action',
-		'whatever': 1234
-	};
-	jQuery.post(ajaxurl, data, function(response) {
-		alert('Got this from the server: ' + response);
-	});
-}
-/* ]]> */
-</script>
 	<?php
 }
 
