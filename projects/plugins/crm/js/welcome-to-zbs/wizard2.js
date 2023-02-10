@@ -141,6 +141,8 @@ export function zbs_biz_select() {
 		zbs_crm_js_updatePage2();
 	}, 0 );
 }
+
+export var crm_name = '';
 /**
  *
  */
