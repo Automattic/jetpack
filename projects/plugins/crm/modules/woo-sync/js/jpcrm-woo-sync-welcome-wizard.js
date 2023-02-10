@@ -153,5 +153,5 @@ function jpcrm_woosync_update_details() {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_woo_options };
+    module.exports = { jpcrm_woo_options, jpcrm_woosync_update_details };
 }

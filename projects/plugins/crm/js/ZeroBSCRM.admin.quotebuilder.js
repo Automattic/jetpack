@@ -463,5 +463,6 @@ function jpcrm_quotes_lang( key, fallback, subkey ) {
 // ========================================================================
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { quoteTemplateBlocker };
+    module.exports = { quoteTemplateBlocker, zbscrm_appendTextToEditor, zbscrm_getTemplatedQuote,
+		jpcrm_quotes_send_email_modal, jpcrm_quotes_send_email, jpcrm_quotes_lang };
 }

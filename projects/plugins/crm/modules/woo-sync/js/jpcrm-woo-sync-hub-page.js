@@ -311,3 +311,8 @@ if ( ! String.prototype.format ) {
 		} );
 	};
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woosync_initiate_sync, jpcrm_woosync_fire_sync,
+		jpcrm_woosync_language_label };
+}

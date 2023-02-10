@@ -280,5 +280,7 @@ function zeroBSCRMJS_bindActivityStream() {
 ============================================================================================================ */
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsCurrentlyDeleting };
+    module.exports = { zbsCurrentlyDeleting, zeroBSCRMJS_initSingleView, zeroBSCRMJS_bindViewFiles,
+		zeroBSCRMJS_viewContactInit, zeroBSCRMJS_viewCompanyInit,
+		zeroBSCRMJS_bindGenericViewSettings, zeroBSCRMJS_bindActivityStream };
 }

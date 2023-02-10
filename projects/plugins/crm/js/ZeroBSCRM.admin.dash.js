@@ -246,3 +246,7 @@ jQuery( window ).on( 'resize', function () {
 		},
 	} );
 } );
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = {  jetpackcrm_draw_contact_chart  };
+}

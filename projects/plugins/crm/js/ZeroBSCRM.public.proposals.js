@@ -75,5 +75,5 @@ function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsCRM_JS_proposalBlocker };
+    module.exports = { zbsCRM_JS_proposalBlocker, zbsCRM_JS_acceptProp };
 }

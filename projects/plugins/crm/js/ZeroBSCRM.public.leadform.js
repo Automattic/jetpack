@@ -218,5 +218,6 @@ function zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbsCRMFormsBlocker };
+    module.exports = { zbsCRMFormsBlocker, zbscrm_JS_leadformcapture, zbscrm_JS_validateEmail,
+		zbscrm_JS_leadformview };
 }
