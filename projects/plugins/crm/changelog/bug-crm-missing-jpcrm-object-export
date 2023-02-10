@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Adding jpcrm variable/object to list of JS exports which is part of the migration work and doesnt impact the end user
+
+
