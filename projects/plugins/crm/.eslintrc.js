@@ -15,5 +15,14 @@ module.exports = {
 		'prettier/prettier': 0,
 		// This is not a react project.
 		'react-hooks/rules-of-hooks': 0,
+
+		// Don't require JSDoc on functions initially.
+		'jsdoc/check-tag-names': 0,
+		'jsdoc/require-jsdoc': 0,
+		'jsdoc/require-returns': 0,
+		'jsdoc/require-description': 0,
+		'jsdoc/require-property-description': 0,
+		'jsdoc/require-param-description': 0,
+		'jsdoc/require-param-type': 0,
 	},
 };
