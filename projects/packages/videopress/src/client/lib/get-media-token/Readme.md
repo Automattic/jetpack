@@ -44,7 +44,7 @@ the helper will perform a request to the server side to get it.
 After that, it generates a unique token key and stores it in the client's localStore.
 Also, it defines an expiration value that will determine the token's life cycle
 
-The next time the app request to token, the helper will check if the token is already stored in the localStorage.
+The next time the app requests the token, the helper will check if the token is already stored in the localStorage.
 If so, it compares the expiration time.
 If it's still valid, it provides it to the app.
 
