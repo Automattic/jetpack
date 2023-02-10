@@ -90,7 +90,7 @@ function register_endpoints_for_nudge() {
  */
 function odyssey_nudge_handler() {
 	$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
-	if ( $action === 'reset-option' ) {
+	if ( $action === 'odyssey-reset-nudge' ) {
 		$seconds = time() - ( 60 * 60 * 24 * 45 );
 		update_option( 'stats-odyssey-nudge-dismissed', $seconds );
 		return rest_ensure_response(
@@ -415,8 +415,7 @@ function stats_handle_test_button_toggle() {
 		// Send an AJAX request.
 		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
-			'action': 'my_action',
-			'whatever': 1234
+			'action': 'odyssey-dismiss-nudge'
 		};
 		jQuery.post(url, data, function(response) {
 			console.log(response);
@@ -425,8 +424,7 @@ function stats_handle_test_button_toggle() {
 	function test_button_reset() {
 		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
-			'action': 'reset-option',
-			'whatever': 1234
+			'action': 'odyssey-reset-nudge'
 		};
 		jQuery.post(url, data, function(response) {
 			console.log(response);
