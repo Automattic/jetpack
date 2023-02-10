@@ -427,3 +427,7 @@ function saveMetaBoxes() {
 		}
 	);
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { startedDrag, zbsjsScreenOptsBlock };
+}

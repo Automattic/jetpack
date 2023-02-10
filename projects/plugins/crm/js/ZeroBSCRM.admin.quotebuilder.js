@@ -461,3 +461,7 @@ function jpcrm_quotes_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { quoteTemplateBlocker };
+}

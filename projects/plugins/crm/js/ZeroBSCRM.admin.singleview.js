@@ -278,3 +278,7 @@ function zeroBSCRMJS_bindActivityStream() {
 /* ============================================================================================================
     / Generic helpers (view settings)
 ============================================================================================================ */
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCurrentlyDeleting };
+}

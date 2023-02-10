@@ -151,3 +151,7 @@ function jpcrm_woosync_update_details() {
 	window.jpcrm_woo_options.jpcrm_wctagcust = jQuery( '#jpcrm_wctagcust' ).is( ':checked' ) ? 1 : 0;
 	window.jpcrm_woo_options.jpcrm_wcacc = jQuery( '#jpcrm_wcacc' ).is( ':checked' ) ? 1 : 0;
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woo_options };
+}

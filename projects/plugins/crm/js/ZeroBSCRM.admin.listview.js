@@ -6210,5 +6210,5 @@ function jpcrm_get_contact_meta( contact_id ) {
 
 if ( typeof module !== 'undefined' ) {
     module.exports = { zeroBSCRMJS_listViewLang, zeroBSCRMJS_listView_editURL, zbscrmjs_sidebarState, zbscrmjs_sidebarChangeBlocker,
-		zbsDrawFilterButtonUpdateBlocker, zbsDrawFilterButtonUpdateAJAXBlocker };
+		zbsDrawFilterButtonUpdateBlocker, zbsDrawFilterButtonUpdateAJAXBlocker, zbListViewInlineEditorAJAXBlocker };
 }

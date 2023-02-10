@@ -2778,6 +2778,6 @@ if ( typeof module !== 'undefined' ) {
 		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL,
 		zeroBSCRMJS_retrieveEmails, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zbsJS_updateScreenOptions,
 		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, 
-		jpcrm_strip_scripts, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
-		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock };
+		jpcrm_strip_scripts, zbscrm_JS_DAL, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
+		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock, zbscrmjs_screenoptblock  };
 }
