@@ -54,7 +54,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 */
 	public function create_item( $request ) {
 		// Skip if the post already exists.
-		$post_exist = \post_exists(
+		$post_id = \post_exists(
 			$request['title'],
 			'',
 			$request['date'],
@@ -62,11 +62,14 @@ class Post extends \WP_REST_Posts_Controller {
 			$request['status']
 		);
 
-		if ( $post_exist ) {
-			return new \WP_Error(
-				'rest_post_exists',
+		if ( $post_id ) {
+			return \WP_Error(
+				'post_exists',
 				__( 'Cannot create existing post.', 'jetpack-import' ),
-				array( 'status' => 400 )
+				array(
+					'status'  => 400,
+					'post_id' => $post_id,
+				)
 			);
 		}
 
