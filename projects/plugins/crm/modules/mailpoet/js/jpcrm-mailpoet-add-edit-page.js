@@ -316,3 +316,7 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 		},
 	} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_segment_export_to_mailpoet };
+}
