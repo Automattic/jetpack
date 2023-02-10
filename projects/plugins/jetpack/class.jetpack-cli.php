@@ -16,6 +16,7 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
@@ -709,7 +710,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( isset( $args[1] ) && 'clear' === $args[1] ) {
 					if ( ! empty( $allow ) ) {
 						$allow = array();
-						jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+						Brute_Force_Protection_Shared_Functions::save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
 						WP_CLI::success( __( 'Cleared all IPs from the always allow list.', 'jetpack' ) );
 					} else {
 						WP_CLI::line( __( 'Always allow list is empty.', 'jetpack' ) );
@@ -721,7 +722,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				array_push( $allow, $new_ip );
 
 				// Save allow list if there are no errors.
-				$result = jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+				$result = Brute_Force_Protection_Shared_Functions::save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
 				if ( is_wp_error( $result ) ) {
 					WP_CLI::error( $result );
 				}

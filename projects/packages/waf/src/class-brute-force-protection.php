@@ -12,8 +12,7 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack;
 use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
-
-require_once __DIR__ . '/brute-force-protection/shared-functions.php';
+use WP_Error;
 
 /**
  * Brute Force Protection class.
@@ -132,15 +131,16 @@ class Brute_Force_Protection {
 		// This is a backup in case $pagenow fails for some reason.
 		add_action( 'login_form', array( $this, 'check_login_ability' ), 1 );
 
+		// Runs a script every day to clean up expired transients so they don't
+		// clog up our users' databases.
+		add_action( 'admin_init', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients_activation' ) );
+		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
+
 		// Load math fallback after math page form submission.
 		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
 
 			new Brute_Force_Protection_Math_Authenticate();
 		}
-
-		// Runs a script every day to clean up expired transients so they don't
-		// clog up our users' databases.
-		require_once __DIR__ . '/brute-force-protection/transient-cleanup.php';
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Handle discplaying a security warning.
+	 * Handle displaying a security warning.
 	 */
 	public function maybe_display_security_warning() {
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
@@ -395,10 +395,17 @@ class Brute_Force_Protection {
 		 *
 		 * @param array Information about failed login attempt
 		 *   [
-		 *     'login' => (string) Username or email used in failed login attempt
+		 *     'login'             => (string) Username or email used in failed login attempt
+		 *     'has_login_ability' => (bool) Whether the user has the ability to login based on their IP address
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
+		do_action(
+			'jpp_log_failed_attempt',
+			array(
+				'login'             => $login_user,
+				'has_login_ability' => $this->has_login_ability(),
+			)
+		);
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
@@ -514,7 +521,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		$whitelist = jetpack_protect_get_local_whitelist();
+		$whitelist = Brute_Force_Protection_Shared_Functions::get_local_whitelist();
 
 		if ( is_multisite() ) {
 			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );

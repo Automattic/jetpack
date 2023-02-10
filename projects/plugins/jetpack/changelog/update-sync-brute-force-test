@@ -1,0 +1,5 @@
+Significance: patch
+Type: compat
+Comment: Updated brute force protection sync test to remove waf package dependency.
+
+
