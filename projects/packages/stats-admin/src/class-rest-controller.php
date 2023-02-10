@@ -149,6 +149,44 @@ class REST_Controller {
 				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
 			)
 		);
+
+		// Stats notices.
+		register_rest_route(
+			static::$namespace,
+			'/stats/notices',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'id'            => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'ID of the notice',
+						'enum'        => array(
+							Notices::OPT_IN_NEW_STATS_NOTICE_ID,
+							Notices::OPT_OUT_NEW_STATS_NOTICE_ID,
+							Notices::NEW_STATS_FEEDBACK_NOTICE_ID,
+						),
+					),
+					'status'        => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Status of the notice',
+						'enum'        => array(
+							Notices::NOTICE_STATUS_DISMISSED,
+							Notices::NOTICE_STATUS_POSTPONED,
+						),
+					),
+					'postponed_for' => array(
+						'type'        => 'number',
+						'default'     => null,
+						'description' => 'Postponed for (in seconds)',
+						'minimum'     => 0,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -430,6 +468,16 @@ class REST_Controller {
 			'v1.1',
 			array( 'timeout' => 5 )
 		);
+	}
+
+	/**
+	 * Dismiss or delay stats notices.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function update_notice_status( $req ) {
+		return ( new Notices() )->update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ), $req->get_param( 'postponed_for' ) );
 	}
 
 	/**
