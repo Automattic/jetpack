@@ -104,7 +104,10 @@ class Test_Blaze extends BaseTestCase {
 			add_filter( 'jetpack_blaze_enabled', '__return_true' );
 		}
 
-		Blaze::enqueue_block_editor_assets( $hook );
+		// Set the current admin page.
+		set_current_screen( $hook );
+
+		Blaze::enqueue_block_editor_assets();
 
 		// Assert that our style, filter, and action has been added.
 		if ( $should_enqueue ) {
@@ -125,24 +128,34 @@ class Test_Blaze extends BaseTestCase {
 	 */
 	public function get_enqueue_scenarios() {
 		return array(
-			'In site editor, Blaze enabled'       => array(
-				'site-editor.php',
+			'In site editor, Blaze enabled, site admin'  => array(
+				'site-editor',
+				true,
 				true,
 				false,
 			),
-			'In post editor, Blaze disabled'      => array(
-				'post.php',
+			'In post editor, Blaze disabled, site admin' => array(
+				'post',
 				false,
+				true,
 				false,
 			),
-			'In post editor, Blaze enabled'       => array(
-				'post.php',
+			'In post editor, Blaze enabled, site admin'  => array(
+				'post',
+				true,
 				true,
 				true,
 			),
-			'In random admin page, Blaze enabled' => array(
-				'tools.php',
+			'In random admin page, Blaze enabled, site admin' => array(
+				'tools',
 				true,
+				true,
+				false,
+			),
+			'In post editor, Blaze enabled, editor role' => array(
+				'post',
+				true,
+				false,
 				false,
 			),
 		);

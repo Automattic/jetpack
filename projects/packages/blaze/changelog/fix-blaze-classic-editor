@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Do not load the Blaze script in the classic editor.
