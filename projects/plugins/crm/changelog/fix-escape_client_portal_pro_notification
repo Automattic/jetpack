@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM:  fix the escape used in the "Bundle holder" notification when uploading files to a contact
