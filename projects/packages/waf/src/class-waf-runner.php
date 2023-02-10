@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
 
 /**
  * Executes the WAF.
