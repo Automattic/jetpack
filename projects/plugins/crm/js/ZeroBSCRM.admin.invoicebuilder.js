@@ -2356,8 +2356,7 @@ if ( typeof module !== 'undefined' ) {
 		zbscrm_JS_calc_grandtotal, zbscrm_JS_calc_amount_due,
 		zbscrm_JS_bind_change_actions, zbscrm_JS_calculatediscount,
 		zbscrm_JS_invoice_typeahead_bind, zbscrm_JS_bindInitialLearnLinks,
-		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_bindContactLinkIf,
-		zeroBSCRMJS_bindCompanyLinkIf, zeroBSCRMJS_showCompanyLinkIf,
+		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_showCompanyLinkIf,
 		zbscrm_JS_bind_invoice_actions, zbscrmJS_sendInvoiceModal,
 		zbscrmJS_sendInvoiceEmail, zbscrm_JS_transaction_edit_URL,
 		zeroBSCRMJS_invEditLang, zbscrm_JS_calcTotals, zbscrm_JS_invoice_lang };

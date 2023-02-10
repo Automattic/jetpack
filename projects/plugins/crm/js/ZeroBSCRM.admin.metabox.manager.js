@@ -430,7 +430,7 @@ function saveMetaBoxes() {
 
 if ( typeof module !== 'undefined' ) {
     module.exports = { startedDrag, zbsjsScreenOptsBlock, zerobscrmJS_bindMetaboxManager,
-		zeroBSCRMJS_metaboxManagerSwitchMode, zeroBSCRMJS_initialiseTabbedMetaboxes,
+		zeroBSCRMJS_initialiseTabbedMetaboxes,
 		zeroBSCRMJS_saveScreenOptionsMetaboxes, zeroBSCRMJS_buildScreenOptionsMetaboxes,
 		saveMetaBoxes };
 }
