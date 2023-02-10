@@ -103,6 +103,11 @@ class Waf_Runner {
 			return false;
 		}
 
+		// Do not run on the VIP platform
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
 		return true;
 	}
 
