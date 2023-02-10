@@ -5,11 +5,11 @@ import {
 	Col,
 	PricingCard,
 } from '@automattic/jetpack-components';
-import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import connectImage from '../../../../images/connect.png';
+import { Migration } from '../migration';
 import styles from './styles.module.scss';
 
 const Admin = () => {
@@ -19,18 +19,24 @@ const Admin = () => {
 	);
 	const { isUserConnected, isRegistered } = connectionStatus;
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
 
 	return (
 		<AdminPage
 			moduleName={ __( `Move to WordPress.com`, 'jetpack-migration' ) }
 			showBackground={ false }
-			header={ <></> }
+			showHeader={ false }
+			showFooter={ false }
 		>
 			<AdminSectionHero>
 				{ showConnectionCard ? (
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col sm={ 4 } md={ 8 } lg={ 12 }>
-							<ConnectionSection />
+							<Migration
+								apiRoot={ apiRoot }
+								apiNonce={ apiNonce }
+								registrationNonce={ registrationNonce }
+							/>
 						</Col>
 					</Container>
 				) : (
@@ -69,43 +75,3 @@ const Admin = () => {
 };
 
 export default Admin;
-
-const ConnectionSection = () => {
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
-	return (
-		<ConnectScreen
-			buttonLabel={ __( 'Get Started', 'jetpack-migration' ) }
-			title={ __( 'WordPress.com Migration', 'jetpack-migration' ) }
-			apiRoot={ apiRoot }
-			apiNonce={ apiNonce }
-			registrationNonce={ registrationNonce }
-			from="jetpack-migration"
-			redirectUri="admin.php?page=jetpack-migration"
-			images={ [ connectImage ] }
-		>
-			<p>
-				{ __(
-					"Whether the result of poor performance, lack of support or limited bandwidth, migrating your site to WordPress.com shouldn't be hard. That's our job! Migrate your site now and get managed by experienced, dedicated and specailists on WordPress professionals.",
-					'jetpack-migration'
-				) }
-			</p>
-			<ul>
-				<li>
-					{ __(
-						'No need to worry about budget - this is a free migration service offically provided by WordPress.com.',
-						'jetpack-migration'
-					) }
-				</li>
-				<li>
-					{ __(
-						'This is seamless and automated process. It takes one click to back-up and migrate your entire site to WordPress.com',
-						'jetpack-migration'
-					) }
-				</li>
-				<li>
-					{ __( 'WordPress.com Migration provides low to zero downtime.', 'jetpack-migration' ) }
-				</li>
-			</ul>
-		</ConnectScreen>
-	);
-};

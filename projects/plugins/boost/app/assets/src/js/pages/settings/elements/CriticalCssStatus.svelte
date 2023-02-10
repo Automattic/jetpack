@@ -18,7 +18,7 @@
 
 <div class="jb-critical-css__meta">
 	<div class="summary">
-		{#if $criticalCssStatus.success_count === 0}
+		{#if ! $criticalCssStatus.success_count}
 			<div class="generating">{generateText}</div>
 		{:else}
 			<div class="successes">
@@ -27,10 +27,10 @@
 					_n(
 						'%d file generated',
 						'%d files generated',
-						$criticalCssStatus.success_count,
+						$criticalCssStatus.success_count || 0,
 						'jetpack-boost'
 					),
-					$criticalCssStatus.success_count
+					$criticalCssStatus.success_count || 0
 				)}
 				{#if $criticalCssStatus.updated}
 					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
