@@ -148,15 +148,11 @@
 	align-items: center;
 
 	width: 100%;
-	max-width: 600px;
+	max-width: 200px;
 	margin: 24px 0 32px;
 	border-radius: var(--jp-border-radius);
 
 	background: var(--jp-black);
 	color: var(--jp-white);
 	font-weight: 500;
-
-	@include breakpoint(md) {
-		max-width: 445px;
-	}
 }
