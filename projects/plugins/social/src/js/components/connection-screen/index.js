@@ -1,4 +1,4 @@
-import { Dialog, ProductOffer, TermsOfService, Text } from '@automattic/jetpack-components';
+import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -30,12 +30,6 @@ const ConnectionScreen = () => {
 
 	const buttonText = __( 'Get Started', 'jetpack-social' );
 
-	const getButtonDisclaimer = () => (
-		<Text variant="body-small" className={ styles.tos } mt={ 3 }>
-			<TermsOfService agreeButtonLabel={ buttonText } />
-		</Text>
-	);
-
 	return (
 		<Dialog
 			className={ styles.card }
@@ -60,7 +54,12 @@ const ConnectionScreen = () => {
 						buttonText={ buttonText }
 						icon="social"
 						isLoading={ siteIsRegistering || userIsConnecting }
-						buttonDisclaimer={ getButtonDisclaimer() }
+						buttonDisclaimer={
+							<TermsOfService
+								className={ styles[ 'terms-of-service' ] }
+								agreeButtonLabel={ buttonText }
+							/>
+						}
 						error={
 							registrationError
 								? __( 'An error occurred. Please try again.', 'jetpack-social' )
