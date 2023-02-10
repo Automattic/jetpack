@@ -2772,10 +2772,10 @@ var jpcrm = {
 	},
 };
 
-if ( module ) {
+if ( typeof module !== 'undefined' ) {
     module.exports = { zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
 		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, zeroBSCRMJS_ucwords,
 		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, 
 		zeroBSCRMJS_retrieveEmails, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zbsJS_updateScreenOptions,
-		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang };
+		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, jpcrm_strip_scripts };
 }

@@ -490,3 +490,8 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
     / Edit task specific JS
 
 ============================================================================================================ */
+
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, zbscrmjs_events_changeCompany };
+}

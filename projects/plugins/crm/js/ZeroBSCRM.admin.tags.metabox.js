@@ -368,3 +368,7 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 			}
 		} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRMJS_buildTags, zeroBSCRMJS_buildTagsInput, zbsJS_bindTagManagerInit };
+}
