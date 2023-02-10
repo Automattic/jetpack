@@ -7,8 +7,8 @@
  *
  * Date: 17/06/2016
  */
-const zbscrmjsCustomerFilterRetrieving = false;
-const zbscrmjsCustomerFilterHasRetrieved = false;
+var zbscrmjsCustomerFilterRetrieving = false;
+var zbscrmjsCustomerFilterHasRetrieved = false;
 
 // Following was first used in mail campaigns v1.0
 // it auto-initiates on any zbs customfilter ajax setups :)
@@ -74,7 +74,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 				//Debug console.log("zbs-ajax-customer-filters:");
 
 				// postbag!
-				const data = {
+				var data = {
 					action: 'filterCustomers',
 					sec: window.zbscrmjs_secToken,
 					// rest is filter data, added below
