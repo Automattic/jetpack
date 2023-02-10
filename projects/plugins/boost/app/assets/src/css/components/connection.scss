@@ -129,16 +129,6 @@
 	}
 }
 
-/* Emulate .jp-connection__connect-screen-required-plan__tos-info */
-.jb-connection__terms-of-service {
-	margin-bottom: 8px;
-	margin-top: 16px;
-	font-size: var(--font-label);
-	line-height: 20px;
-	letter-spacing: -0.02em;
-	color: var(--jp-gray-60);
-}
-
 /* Emulate .jp-components__pricing-card__button */
 .jb-connection .components-button.is-jb-primary {
 	align-self: center;

@@ -56,12 +56,10 @@
 			{/if}
 
 			<div class="jb-connection-overlay">
-				<p class="jb-connection__terms-of-service">
-					<ReactComponent
-						this={TermsOfService}
-						agreeButtonLabel={__( 'Get Started', 'jetpack-boost' )}
-					/>
-				</p>
+				<ReactComponent
+					this={TermsOfService}
+					agreeButtonLabel={__( 'Get Started', 'jetpack-boost' )}
+				/>
 			</div>
 
 			<button
