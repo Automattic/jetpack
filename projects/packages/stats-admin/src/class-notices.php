@@ -33,7 +33,7 @@ class Notices {
 	 * @param int   $postponed_for Postponed for how many seconds.
 	 * @return bool
 	 */
-	public function update_notice( $id, $status, $postponed_for = self::POSTPONE_FEEDBACK_DAYS * DAY_IN_SECONDS ) {
+	public function update_notice( $id, $status, $postponed_for = 0 ) {
 		$notices        = Stats_Options::get_option( 'notices' );
 		$notices[ $id ] = array(
 			'status'       => $status,
@@ -41,8 +41,8 @@ class Notices {
 			'dismissed_at' => time(),
 		);
 		// Set the next show time if the notice is postponed.
-		if ( $status === self::NOTICE_STATUS_POSTPONED && $postponed_for > 0 ) {
-			$notices[ $id ]['next_show_at'] = time() + $postponed_for;
+		if ( $status === self::NOTICE_STATUS_POSTPONED ) {
+			$notices[ $id ]['next_show_at'] = time() + ( $postponed_for > 0 ? $postponed_for : self::POSTPONE_FEEDBACK_DAYS * DAY_IN_SECONDS );
 		}
 		return Stats_Options::set_option( 'notices', $notices );
 	}
@@ -69,7 +69,6 @@ class Notices {
 	 * @return array Array of hidden notice IDs.
 	 */
 	public function get_hidden_notices() {
-		static $hidden_notice_ids;
 		$notices = Stats_Options::get_option( 'notices' );
 
 		$hidden_notice_ids = array_filter(
@@ -79,10 +78,10 @@ class Notices {
 					return false;
 				}
 				switch ( $notice['status'] ) {
-					case 'dismissed':
+					case self::NOTICE_STATUS_DISMISSED:
 						return true;
-					case 'postponed':
-						return $notice['next_show_at'] === 0 || $notice['next_show_at'] > time();
+					case self::NOTICE_STATUS_POSTPONED:
+						return empty( $notice['next_show_at'] ) || $notice['next_show_at'] > time();
 					default:
 						return false;
 				}
