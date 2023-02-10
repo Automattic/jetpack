@@ -25,7 +25,6 @@ class Test_Status extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		Protect_Status::$status = null;
 	}
 
@@ -138,6 +137,15 @@ class Test_Status extends BaseTestCase {
 				'last_checked' => '',
 			)
 		);
+	}
+
+	/**
+	 * Get a sample invalid response
+	 *
+	 * @return string
+	 */
+	public function get_sample_invalid_response() {
+		return 'Invalid response';
 	}
 
 	/**
@@ -409,15 +417,19 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function get_cache_end_date_by_status_data() {
 		return array(
-			'null'  => array(
+			'null'    => array(
 				'initial',
 				null,
 			),
-			'empty' => array(
+			'empty'   => array(
 				'initial',
 				$this->get_sample_empty_response(),
 			),
-			'full'  => array(
+			'invalid' => array(
+				'initial',
+				$this->get_sample_invalid_response(),
+			),
+			'full'    => array(
 				'full',
 				$this->get_sample_response(),
 			),
@@ -433,10 +445,10 @@ class Test_Status extends BaseTestCase {
 	 */
 	public function test_get_cache_end_date_by_status( $check_type, $status ) {
 		$timestamp = Protect_Status::get_cache_end_date_by_status( $status );
-		if ( 'initial' === $check_type ) {
+		if ( ! is_object( $status ) || 'initial' === $check_type ) {
 			$this->assertSame( time() + Protect_Status::INITIAL_OPTION_EXPIRES_AFTER, $timestamp );
 		}
-		if ( 'full' === $check_type ) {
+		if ( is_object( $status ) && 'full' === $check_type ) {
 			$this->assertSame( time() + Protect_Status::OPTION_EXPIRES_AFTER, $timestamp );
 		}
 	}

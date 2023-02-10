@@ -285,10 +285,10 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_calypso_stats' ) || isset( $_GET['noheader'] ) ) {
+	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
 		// Show old Jetpack Stats interface for:
 		// - Atomic sites.
-		// - When the "enable_calypso_stats" option is disabled.
+		// - When the "enable_odyssey_stats" option is disabled.
 		// - When being shown in the adminbar outside of wp-admin.
 		$hook = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', 'jetpack_admin_ui_stats_report_page_wrapper' );
 		add_action( "load-$hook", 'stats_reports_load' );
@@ -1155,12 +1155,22 @@ function stats_dashboard_widget_content() {
 <div class="clear"></div>
 <div class="stats-view-all">
 	<?php
-	$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
-	printf(
-		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-		esc_url( $stats_day_url ),
-		esc_html__( 'View all stats', 'jetpack' )
-	);
+	$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
+	if ( ! $new_stats_enabled ) {
+		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
+		printf(
+			'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
+			esc_url( $stats_day_url ),
+			esc_html__( 'View all stats', 'jetpack' )
+		);
+	} else {
+		printf(
+			'<a class="button" href="%1$s">%2$s</a>',
+			esc_url( menu_page_url( 'stats', false ) ),
+			esc_html__( 'View all stats', 'jetpack' )
+		);
+
+	}
 	?>
 </div>
 <div class="clear"></div>

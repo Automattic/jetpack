@@ -19,7 +19,7 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
+import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
@@ -44,8 +44,14 @@ import type React from 'react';
 import './editor.scss';
 
 const debug = debugFactory( 'videopress:video:edit' );
-const { myJetpackConnectUrl } = window?.videoPressEditorState || {};
-const isUserConnected = getIsUserConnected();
+const { myJetpackConnectUrl, jetpackVideoPressSettingUrl } = window?.videoPressEditorState || {};
+
+/**
+ * It considers VideoPress active
+ * if the user is connected and the module is active.
+ */
+const isStandalonePluginActive = isStandaloneActive();
+const isActive = isVideoPressActive();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -117,13 +123,6 @@ export default function VideoPressEdit( {
 		caption,
 		isExample,
 	} = attributes;
-
-	/*
-	 * Force className cleanup.
-	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
-	 * when transforming from embed block.
-	 */
-	delete attributes.className;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -426,10 +425,13 @@ export default function VideoPressEdit( {
 			<div { ...blockProps } className={ blockMainClassName }>
 				<>
 					<ConnectBanner
-						isConnected={ isUserConnected }
+						isConnected={ isActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
+							if ( ! isStandalonePluginActive ) {
+								return ( window.location.href = jetpackVideoPressSettingUrl );
+							}
 							window.location.href = myJetpackConnectUrl;
 						} }
 					/>
@@ -580,10 +582,14 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
-				isConnected={ isUserConnected }
+				isConnected={ isActive }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {
 					setIsRedirectingToMyJetpack( true );
+					if ( ! isStandalonePluginActive ) {
+						return ( window.location.href = jetpackVideoPressSettingUrl );
+					}
+
 					window.location.href = myJetpackConnectUrl;
 				} }
 			/>

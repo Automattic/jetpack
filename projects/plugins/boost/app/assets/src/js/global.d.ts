@@ -29,7 +29,10 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
-		criticalCssStatus?: CriticalCssStatus;
+		criticalCSS?: {
+			status: CriticalCssStatus;
+			suggestRegenerate: boolean;
+		};
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
 		criticalCssDismissedRecommendations: string[];

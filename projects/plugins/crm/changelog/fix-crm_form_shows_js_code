@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: add a missing < which prevented a <script> tag from being opened.
