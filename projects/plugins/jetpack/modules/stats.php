@@ -522,6 +522,7 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
 function stats_reports_page( $main_chart_only = false ) {
 	// TODO: Replace or remove "View stats on WordPress.com right now" link.
 	// Probably makes more sense to have advertise Odyssey here.
+	// TODO: Remove DIV with debug tools.
 
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
@@ -550,8 +551,10 @@ function stats_reports_page( $main_chart_only = false ) {
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-				<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
-				<p><button onclick="test_button_reset()">Reset Option</button></p>
+				<div style="display: none;">
+					<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
+					<p><button onclick="test_button_reset()">Reset Option</button></p>
+				</div>
 				<?php
 				endif;
 
