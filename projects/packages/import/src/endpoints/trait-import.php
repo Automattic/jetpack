@@ -62,7 +62,18 @@ trait Import {
 	public function create_item( $request ) {
 		$response = parent::create_item( $request );
 
-		// Skip if there resource has not been added.
+		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
+	 * Add the import unique ID to the resource metadata.
+	 *
+	 * @param WP_REST_Request  $request Full details about the request.
+	 * @param WP_REST_Response $response Response object.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	protected function add_import_id_metadata( $request, $response ) {
+		// Skip on error.
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}

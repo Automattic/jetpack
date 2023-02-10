@@ -53,6 +53,7 @@ class Post extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Skip if the post already exists.
 		$post_exist = \post_exists(
 			$request['title'],
 			'',
@@ -69,7 +70,9 @@ class Post extends \WP_REST_Posts_Controller {
 			);
 		}
 
-		return parent::create_item( $request );
+		$response = parent::create_item( $request );
+
+		return $this->add_import_id_metadata( $request, $response );
 	}
 
 	/**
