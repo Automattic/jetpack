@@ -409,7 +409,7 @@ function stats_handle_test_button_toggle() {
 	?>
 	<script type="text/javascript">
 	function test_button_toggle() {
-		// Toggle the class list (just to see something).
+		// Hide the nudge UI, effectively dismissing it.
 		var element = document.getElementById( "stats-odyssey-nudge-main" );
 		element.classList.toggle( "is-hidden" );
 		// Send an AJAX request.
@@ -419,9 +419,7 @@ function stats_handle_test_button_toggle() {
 			'whatever': 1234
 		};
 		jQuery.post(url, data, function(response) {
-			alert('Got this from the server: ' + response);
 			console.log(response);
-			// Hide the nudge via CSS.
 		});
 	}
 	function test_button_reset() {
@@ -431,7 +429,6 @@ function stats_handle_test_button_toggle() {
 			'whatever': 1234
 		};
 		jQuery.post(url, data, function(response) {
-			alert('Got this from the server: ' + response);
 			console.log(response);
 		});
 	}
