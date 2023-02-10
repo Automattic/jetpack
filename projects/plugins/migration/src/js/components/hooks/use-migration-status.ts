@@ -1,28 +1,44 @@
-import { useState, useEffect, useCallback } from 'react';
-import { MigrationStatus } from '../migration/types';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { ErrorResponse, MigrationStatus } from '../migration/types';
 
 /**
  * Get migration status
  *
  * @param {object} restApi - Configured restApi
+ * @param {restApi.fetchMigrationStatus} restApi.fetchMigrationStatus - Fetch status method
  * @returns {MigrationStatus} - MigrationStatus object
  */
-export function useMigrationstatus( restApi ): MigrationStatus {
+export function useMigrationstatus( restApi: {
+	fetchMigrationStatus: () => Promise< MigrationStatus >;
+} ): MigrationStatus {
 	const FETCH_INTERVAL = 3000;
+	const activeIntervalId = useRef();
 	const [ migrationStatus, setMigrationStatus ] = useState( { status: 'inactive' } );
 
+	const clearActiveInterval = () => {
+		clearInterval( activeIntervalId.current );
+	};
+
 	const checkMigrationStatus = useCallback( () => {
-		restApi.fetchMigrationStatus().then( ( status: MigrationStatus ) => {
-			setMigrationStatus( status );
-		} );
+		restApi
+			.fetchMigrationStatus()
+			.then( ( status: MigrationStatus ) => {
+				setMigrationStatus( status );
+			} )
+			.catch( ( e: { response: ErrorResponse } ) => {
+				switch ( e.response?.code ) {
+					// Jetpack connection is not established
+					// doesn't need to ping for status anymore
+					case 'missing_token':
+						clearActiveInterval();
+				}
+			} );
 	}, [ restApi ] );
 
 	useEffect( () => {
-		const interval = setInterval( checkMigrationStatus, FETCH_INTERVAL );
+		activeIntervalId.current = setInterval( () => checkMigrationStatus(), FETCH_INTERVAL );
 
-		return () => {
-			clearInterval( interval );
-		};
+		return clearActiveInterval;
 	}, [ checkMigrationStatus ] );
 
 	return migrationStatus;

@@ -7,3 +7,9 @@ export type MigrationStatus = {
 	last_modified?: string;
 	is_atomic?: boolean;
 };
+
+export type ErrorResponse = {
+	code: string;
+	data: null | object;
+	message: string;
+};
