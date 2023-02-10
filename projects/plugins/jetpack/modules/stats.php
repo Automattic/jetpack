@@ -539,7 +539,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$blog_id   = Stats_Options::get_option( 'blog_id' );
 	$stats_url = Redirect::get_url( 'calypso-stats' );
-	$nudge     = stats_should_show_odyssey_nudge_debug();
+	$n_debug   = stats_odyssey_nudge_debug_status();
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -561,8 +561,8 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
 				<div style="display: none;">
-					<p>Values: <?php echo esc_html( json_encode( $nudge ) ); ?></p>
-					<p><button onclick="test_button_reset()">Reset Option</button></p>
+					<p>Nudge Status: <?php echo esc_html( json_encode( $n_debug ) ); ?></p>
+					<p><button onclick="test_button_reset()">Reset Nudge</button></p>
 				</div>
 				<?php
 				endif;
@@ -794,7 +794,7 @@ function stats_parse_content_section( $html ) {
  * @access public
  * @return boolean
  */
-function stats_should_show_odyssey_nudge_debug() {
+function stats_odyssey_nudge_debug_status() {
 	// TODO: Remove me!
 	$value = get_option( 'stats-odyssey-nudge-dismissed' );
 	// Get the number of seconds in 30 days.
@@ -805,11 +805,10 @@ function stats_should_show_odyssey_nudge_debug() {
 	$aa   = $now - $time;
 	$bb   = ( $now - $time > $x ) ? 'true' : 'false';
 	return array(
-		'value'      => $value,
-		'type'       => gettype( $value ),
-		'x'          => $x,
+		'time'       => $value,
 		'now'        => $now,
-		'seconds'    => $aa,
+		'sleep'      => $x,
+		'lapsed'     => $aa,
 		'show-nudge' => $bb,
 	);
 }
