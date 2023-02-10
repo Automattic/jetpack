@@ -34,10 +34,10 @@ jQuery( document ).ready( function () {
 	jQuery( '.choose .btn' ).on( 'click', function () {
 		window.jpcrm_woo_options.jpcrm_wcsetuptype = jQuery( this ).data( 'setup' );
 
-		jQuery( '#jpcrm-woo-setup-' + jpcrm_woo_options.jpcrm_wcsetuptype + ' .selected' ).show();
-		jQuery( '#jpcrm-woo-setup-' + jpcrm_woo_options.jpcrm_wcsetuptype + ' .choose' ).hide();
+		jQuery( '#jpcrm-woo-setup-' + window.jpcrm_woo_options.jpcrm_wcsetuptype + ' .selected' ).show();
+		jQuery( '#jpcrm-woo-setup-' + window.jpcrm_woo_options.jpcrm_wcsetuptype + ' .choose' ).hide();
 
-		if ( jpcrm_woo_options.jpcrm_wcsetuptype == 1 ) {
+		if ( window.jpcrm_woo_options.jpcrm_wcsetuptype == 1 ) {
 			jQuery( '#jpcrm-woo-setup-0 .choose' ).show();
 			jQuery( '#jpcrm-woo-setup-0 .selected' ).hide();
 			jQuery( '#sc-0' ).removeClass( 'setup-selected' );
