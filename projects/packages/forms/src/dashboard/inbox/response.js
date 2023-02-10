@@ -17,12 +17,14 @@ const InboxResponse = () => {
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
-					alt={ __( `Respondent's gravatar`, 'jetpack-forms' ) }
+					alt={ __( 'Respondent’s gravatar', 'jetpack-forms' ) }
 				/>
 			</div>
 
-			<h3 className={ titleClasses }>{ 'Bill Suitor' }</h3>
-			<p className="jp-forms__inbox-response-subtitle">{ 'bill@la84.com' }</p>
+			<h3 className={ titleClasses }>{ __( 'Bill Suitor', 'jetpack-forms' ) }</h3>
+			<p className="jp-forms__inbox-response-subtitle">
+				{ __( 'bill@la84.com', 'jetpack-forms' ) }
+			</p>
 
 			<div className="jp-forms__inbox-response-meta">
 				<div className="jp-forms__inbox-response-meta-label">
@@ -30,7 +32,8 @@ const InboxResponse = () => {
 				</div>
 				<div className="jp-forms__inbox-response-meta-value">
 					{ sprintf(
-						'%1$s at %2$s',
+						/* Translators: %1$s is the date, %2$s is the time. */
+						__( '%1$s at %2$s', 'jetpack-forms' ),
 						dateI18n( getDateSettings().formats.date, new Date().getTime() ),
 						dateI18n( getDateSettings().formats.time, new Date().getTime() )
 					) }
@@ -48,10 +51,18 @@ const InboxResponse = () => {
 			<div className="jp-forms__inbox-response-separator" />
 
 			<div className="jp-forms__inbox-response-data">
-				<div className="jp-forms__inbox-response-data-label">{ 'Name:' }</div>
-				<div className="jp-forms__inbox-response-data-value">{ 'Bill Suitor' }</div>
-				<div className="jp-forms__inbox-response-data-label">{ 'Email:' }</div>
-				<div className="jp-forms__inbox-response-data-value">{ 'bill@la84.com' }</div>
+				<div className="jp-forms__inbox-response-data-label">
+					{ __( 'Name:', 'jetpack-forms' ) }
+				</div>
+				<div className="jp-forms__inbox-response-data-value">
+					{ __( 'Bill Suitor', 'jetpack-forms' ) }
+				</div>
+				<div className="jp-forms__inbox-response-data-label">
+					{ __( 'Email:', 'jetpack-forms' ) }
+				</div>
+				<div className="jp-forms__inbox-response-data-value">
+					{ __( 'bill@la84.com', 'jetpack-forms' ) }
+				</div>
 			</div>
 		</div>
 	);
