@@ -5,6 +5,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect } from 'react';
+import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo } from '../illustrations';
 import migrationImage2 from './../../../../images/migration-2.png';
 import './styles.module.scss';
@@ -12,6 +13,7 @@ import './styles.module.scss';
 interface Props {
 	apiRoot: string;
 	apiNonce: string;
+	sourceSiteSlug: string;
 }
 /**
  * Migration progress screen
@@ -20,7 +22,7 @@ interface Props {
  * @returns {React.ReactElement} JSX Element
  */
 export function MigrationProgress( props: Props ) {
-	const { apiRoot, apiNonce } = props;
+	const { apiRoot, apiNonce, sourceSiteSlug } = props;
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -45,9 +47,7 @@ export function MigrationProgress( props: Props ) {
 				<Button
 					isSecondary={ true }
 					target={ '_blank' }
-					href={ getRedirectUrl(
-						'https://wordpress.com/support/import/import-an-entire-wordpress-site/'
-					) }
+					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
 				>
 					{ __( 'Check your migration progress', 'jetpack-migration' ) }
 				</Button>

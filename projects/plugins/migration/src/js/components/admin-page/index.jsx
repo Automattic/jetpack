@@ -6,6 +6,7 @@ import { useMigrationstatus } from '../hooks/use-migration-status';
 import { Migration, MigrationLoading, MigrationProgress } from '../migration';
 
 const Admin = () => {
+	const sourceSiteSlug = window?.location?.host;
 	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
 
 	const configureApi = useCallback( () => {
@@ -28,7 +29,13 @@ const Admin = () => {
 				/>
 			);
 		}
-		return <MigrationProgress apiRoot={ apiRoot } apiNonce={ apiNonce } />;
+		return (
+			<MigrationProgress
+				apiRoot={ apiRoot }
+				apiNonce={ apiNonce }
+				sourceSiteSlug={ sourceSiteSlug }
+			/>
+		);
 	};
 
 	return (
