@@ -396,8 +396,8 @@ function stats_handle_test_button_toggle() {
 	<script type="text/javascript">
 	function test_button_toggle() {
 		// Toggle the class list (just to see something).
-		var element = document.getElementById("test-button");
-		element.classList.toggle("mystyle");
+		var element = document.getElementById( "stats-odyssey-nudge-main" );
+		element.classList.toggle( "is-hidden" );
 		// Send an AJAX request.
 		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
@@ -829,8 +829,11 @@ function stats_print_odyssey_nudge( $html ) {
 		.stats-odyssey-nudge--content {
 			margin-bottom: 0;
 		}
+		.is-hidden {
+			display: none;
+		}
 	</style>
-	<div class="stats-odyssey-nudge dops-card">
+	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
 		<div class="stats-odyssey-nudge--content">
 			<h1>Explore the new Jetpack Stats</h1>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
