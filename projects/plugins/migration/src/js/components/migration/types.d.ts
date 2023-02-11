@@ -1,5 +1,6 @@
 export type MigrationStatus = {
-	status: 'inactive' | 'backing-up' | string;
+	status: 'inactive' | 'backing-up' | 'restoring' | 'error';
+	errorCode?: string;
 	source_blog_id?: string;
 	target_blog_id?: string;
 	percent?: number;

@@ -3,7 +3,7 @@ import { AdminPage, AdminSectionHero, Container, Col } from '@automattic/jetpack
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useCallback } from 'react';
 import { useMigrationstatus } from '../hooks/use-migration-status';
-import { Migration, MigrationLoading, MigrationProgress } from '../migration';
+import { Migration, MigrationError, MigrationLoading, MigrationProgress } from '../migration';
 
 const Admin = () => {
 	const sourceSiteSlug = window?.location?.host;
@@ -20,6 +20,8 @@ const Admin = () => {
 	const renderContent = () => {
 		if ( ! migrationStatus ) {
 			return <MigrationLoading />;
+		} else if ( migrationStatus.status === 'error' ) {
+			return <MigrationError />;
 		} else if ( migrationStatus.status === 'inactive' ) {
 			return (
 				<Migration

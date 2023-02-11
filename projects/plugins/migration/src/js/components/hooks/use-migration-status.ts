@@ -31,6 +31,10 @@ export function useMigrationstatus( restApi: {
 					case 'unavailable_site_id':
 						setMigrationStatus( { status: 'inactive' } );
 						break;
+
+					case 'rest_forbidden':
+						setMigrationStatus( { status: 'error', errorCode: e.response?.code } );
+						break;
 				}
 			} );
 	}, [ restApi ] );
