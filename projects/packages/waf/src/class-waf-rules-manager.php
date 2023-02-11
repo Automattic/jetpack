@@ -73,7 +73,7 @@ class Waf_Rules_Manager {
 	public static function update_rules_cron() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			return new WP_Error( 'waf_cron_update_failed', 'Invalid firewall mode.' );
 		}
 
 		try {
