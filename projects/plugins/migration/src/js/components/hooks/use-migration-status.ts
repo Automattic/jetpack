@@ -27,10 +27,10 @@ export function useMigrationstatus( restApi: {
 			} )
 			.catch( ( e: { response: ErrorResponse } ) => {
 				switch ( e.response?.code ) {
-					// Jetpack connection is not established
-					// doesn't need to ping for status anymore
 					case 'missing_token':
-						clearActiveInterval();
+					case 'unavailable_site_id':
+						setMigrationStatus( { status: 'inactive' } );
+						break;
 				}
 			} );
 	}, [ restApi ] );
