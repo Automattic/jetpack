@@ -91,12 +91,12 @@ class Waf_Rules_Manager {
 	/**
 	 * Updates the rule set if rules version has changed
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_if_changed() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
@@ -110,6 +110,8 @@ class Waf_Rules_Manager {
 				return new WP_Error( 'waf_update_failed', $e->getMessage() );
 			}
 		}
+
+		return true;
 	}
 
 	/**

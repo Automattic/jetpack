@@ -271,8 +271,9 @@ class Waf_Runner {
 	public static function activate() {
 		Waf_Constants::define_mode();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			new WP_Error( 'waf_activation_failed', 'Invalid firewall mode.' );
 		}
+
 		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 		if ( ! $version ) {
 			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );

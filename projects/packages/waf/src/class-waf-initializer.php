@@ -132,14 +132,14 @@ class Waf_Initializer {
 				try {
 					( new Waf_Standalone_Bootstrap() )->generate();
 				} catch ( \Exception $e ) {
-					return;
+					return new WP_Error( 'waf_update_failed', $e->getMessage() );
 				}
-				return;
+				return true;
 			}
 
 			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-				return;
+				return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );
 			}
 
 			try {
