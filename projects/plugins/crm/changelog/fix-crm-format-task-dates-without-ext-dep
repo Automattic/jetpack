@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: We used to depend on "strftime" before migrating into the monorepo which does not require ext-intl to be installed which we now match by using date instead of IntlDateFormatter
+
+
