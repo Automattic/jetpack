@@ -6,6 +6,11 @@
 	&__label {
 		font-size: 14px;
 		margin-bottom: 16px;
+
+		svg {
+			margin-right: 6px;
+			vertical-align: bottom;
+		}
 	}
 
 	&__prompt {
