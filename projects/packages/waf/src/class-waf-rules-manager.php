@@ -137,7 +137,7 @@ class Waf_Rules_Manager {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			throw new \Exception( 'API connection failed.', $response_code );
+			throw new \Exception( 'API connection failed.', (int) $response_code );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );
