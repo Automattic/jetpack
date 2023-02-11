@@ -726,51 +726,30 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 
 }
 
+/**
+ * The date picker UI
+ *
+ * @param array $task_object The task array that contains the date(s).
+ * @return string
+ */
+function zeroBSCRM_task_ui_date( $task_object = array() ) {
+	if ( ! isset( $task_object['start'] ) ) {
+		// starting date
+		// wh modified to now + 1hr - 2hr
+		// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$start_d = date( 'd F Y H:i:s', ( time() + 3600 ) );
+		// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$end_d = date( 'd F Y H:i:s', ( time() + 3600 + 3600 ) );
+	} else {
+		$start_d = zeroBSCRM_date_forceEN( $task_object['start'] );
+		$end_d   = zeroBSCRM_date_forceEN( $task_object['end'] );
+	}
 
-#} the date picker UI
-function zeroBSCRM_task_ui_date($taskObject = array()){
+	$html  = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d . '" autocomplete="zbs-' . time() . '-task-date" /></div>';
+	$html .= '<input type="hidden" id="zbs_from" name="zbse_start" value="' . $start_d . '"/>';
+	$html .= '<input type="hidden" id="zbs_to" name="zbse_end" value="' . $end_d . '"/>';
 
-    $html = "<div class='no-task-date'><i class='ui icon calendar outline'></i> ". __('Date','zero-bs-crm') ." </div>";
-
-    if (!isset($taskObject['start'])){
-
-        // starting date
-        //$start_d = date('m/d/Y H') . ":00:00";
-        //$end_d =  date('m/d/Y H') . ":00:00";
-        // wh modified to now + 1hr - 2hr
-        $start_d = date('d F Y H:i:s',(time()+3600));
-        $end_d =  date('d F Y H:i:s',(time()+3600+3600));
-
-
-    } else {
-
-
-        // temp pre v3.0 fix, forcing english en for this datepicker only. 
-        // requires js mod: search #forcedlocaletasks
-        // (Month names are localised, causing a mismatch here (Italian etc.)) 
-        // ... so we translate:
-        //      d F Y H:i:s (date - not locale based)
-        // https://www.php.net/manual/en/function.date.php
-        // ... into
-        //      dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
-        // (https://www.php.net/manual/en/class.intldateformatter.php)
-
-        /*
-        $start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-        $end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-        */
-
-        $fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
-        $fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
-        $start_d = $fmt->format($taskObject['start']);
-        $end_d =  $fmt->format($taskObject['end']);
-    }
-
-    $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
-    $html .= '<input type="hidden" id="zbs_from" name="zbse_start" value="' . $start_d .'"/>';
-    $html .= '<input type="hidden" id="zbs_to" name="zbse_end" value="' . $end_d . '"/>';
-    
-    return $html;
+	return $html;
 }
 
 #} save UI button

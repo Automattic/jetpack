@@ -305,7 +305,6 @@ function zeroBSCRM_date_defaultFormat() {
 function zeroBSCRM_date_forceEN( $time = -1 ) {
 
 	if ( $time > 0 ) {
-
 		// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
 		// ... we functionised in Core.Localisation.php to keep it DRY
 
@@ -314,17 +313,18 @@ function zeroBSCRM_date_forceEN( $time = -1 ) {
 		// (Month names are localised, causing a mismatch here (Italian etc.))
 		// ... so we translate:
 		// d F Y H:i:s (date - not locale based)
-		// https://www.php.net/manual/en/function.date.php
 		// ... into
-		// dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
-		// (https://www.php.net/manual/en/class.intldateformatter.php)
+		// d F Y H:i:s (date - locale based date)
+		// (https://www.php.net/manual/en/function.date.php)
 
-		$fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
-		$fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
-		$r = $fmt->format( $time );
+		zeroBSCRM_locale_setServerLocale( 'en_US' );
+		// We specifically use "date" instead of "gmdate" because "date" is affected
+		// by runtime timezone changes.
+		// phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
+		$r = date( 'd F Y H:i:s', $time );
+		zeroBSCRM_locale_resetServerLocale();
 
 		return $r;
-
 	}
 
 	return false;
