@@ -3,6 +3,7 @@ import { ConnectScreenLayout, useConnection } from '@automattic/jetpack-connecti
 import { Button, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
@@ -33,6 +34,7 @@ interface Props {
 	apiRoot: string;
 	apiNonce: string;
 	registrationNonce: string;
+	sourceSiteSlug: string;
 }
 /**
  * Migration screen - Get start migration
@@ -42,7 +44,7 @@ interface Props {
  */
 export function Migration( props: Props ) {
 	const pluginName = 'jetpack-migration';
-	const { apiRoot, apiNonce, registrationNonce } = props;
+	const { apiRoot, apiNonce, registrationNonce, sourceSiteSlug } = props;
 	const redirectUri = 'admin.php?page=jetpack-migration';
 	const autoTrigger = false;
 	const skipUserConnection = false;
@@ -52,6 +54,8 @@ export function Migration( props: Props ) {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isRegistered,
+		isUserConnected,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -63,6 +67,14 @@ export function Migration( props: Props ) {
 	} );
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
+	const isFullyConnected = isRegistered && isUserConnected;
+
+	const onGetStartedClick = ( e: Event ) => {
+		// If it's fully connected, href attribute is the final destination
+		if ( ! isFullyConnected ) {
+			handleRegisterSite( e );
+		}
+	};
 
 	return (
 		<ConnectScreenLayout
@@ -103,7 +115,8 @@ export function Migration( props: Props ) {
 					isPrimary={ true }
 					isBusy={ buttonIsLoading }
 					disabled={ buttonIsLoading }
-					onClick={ handleRegisterSite }
+					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
+					onClick={ onGetStartedClick }
 				>
 					{ __( 'Get started', 'jetpack-migration' ) }
 				</Button>

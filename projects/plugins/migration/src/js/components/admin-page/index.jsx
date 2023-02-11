@@ -28,6 +28,7 @@ const Admin = () => {
 					apiRoot={ apiRoot }
 					apiNonce={ apiNonce }
 					registrationNonce={ registrationNonce }
+					sourceSiteSlug={ sourceSiteSlug }
 				/>
 			);
 		}
