@@ -26,14 +26,21 @@ export function useMigrationstatus( restApi: {
 				setMigrationStatus( status );
 			} )
 			.catch( ( e: { response: ErrorResponse } ) => {
+				if ( ! e.response?.code ) {
+					return;
+				}
 				switch ( e.response?.code ) {
 					case 'missing_token':
 					case 'unavailable_site_id':
 						setMigrationStatus( { status: 'inactive' } );
 						break;
 
-					case 'rest_forbidden':
-						setMigrationStatus( { status: 'error', errorCode: e.response?.code } );
+					default:
+						setMigrationStatus( {
+							status: 'error',
+							errorCode: e.response?.code,
+							message: e.response?.message,
+						} );
 						break;
 				}
 			} );

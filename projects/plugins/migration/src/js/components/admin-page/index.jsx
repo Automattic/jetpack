@@ -21,7 +21,7 @@ const Admin = () => {
 		if ( ! migrationStatus ) {
 			return <MigrationLoading />;
 		} else if ( migrationStatus.status === 'error' ) {
-			return <MigrationError />;
+			return <MigrationError message={ migrationStatus.message } />;
 		} else if ( migrationStatus.status === 'inactive' ) {
 			return (
 				<Migration
