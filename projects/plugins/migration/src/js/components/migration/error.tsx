@@ -18,7 +18,7 @@ export function MigrationError( props: Props ) {
 	const { message } = props;
 	const renderErrorMessages = () => {
 		if ( message ) {
-			/* translators: %s: Error message from the server e.g: "There's a problem getting your import's status." */
+			/* translators: %s: message from the server e.g: "There's a problem getting your import's status." */
 			return sprintf( __( 'Error: %s', 'jetpack-migration' ), message );
 		}
 		return __( "Sorry, there's a problem getting your import's status.", 'jetpack-migration' );
