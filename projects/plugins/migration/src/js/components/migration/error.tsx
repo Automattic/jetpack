@@ -5,14 +5,17 @@ import { WordPressLogo } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import './styles.module.scss';
 
+interface Props {
+	message?: string;
+}
 /**
  * Migration error screen
  *
- * @param root0
- * @param root0.message
+ * @param {object} props - Props
  * @returns {React.ReactElement} JSX Element
  */
-export function MigrationError( { message } ) {
+export function MigrationError( props: Props ) {
+	const { message } = props;
 	const renderErrorMessages = () => {
 		if ( message ) {
 			/* translators: %s: Error message from the server e.g: "There's a problem getting your import's status." */

@@ -3,6 +3,7 @@ import { ConnectScreenLayout, useConnection } from '@automattic/jetpack-connecti
 import { Button, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
@@ -69,12 +70,15 @@ export function Migration( props: Props ) {
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const isFullyConnected = isRegistered && isUserConnected;
 
-	const onGetStartedClick = ( e: Event ) => {
-		// If it's fully connected, href attribute is the final destination
-		if ( ! isFullyConnected ) {
-			handleRegisterSite( e );
-		}
-	};
+	const onGetStartedClick = useCallback(
+		( e: Event ) => {
+			// If it's fully connected, href attribute is the final destination
+			if ( ! isFullyConnected ) {
+				handleRegisterSite( e );
+			}
+		},
+		[ isFullyConnected, handleRegisterSite ]
+	);
 
 	return (
 		<ConnectScreenLayout
