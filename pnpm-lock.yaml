@@ -968,6 +968,7 @@ importers:
       '@wordpress/babel-plugin-import-jsx-pragma': 4.9.0
       '@wordpress/block-editor': 11.3.0
       '@wordpress/blocks': 12.3.0
+      '@wordpress/browserslist-config': 5.9.0
       '@wordpress/components': 23.3.0
       '@wordpress/compose': 6.3.0
       '@wordpress/data': 8.3.0
@@ -1034,6 +1035,7 @@ importers:
       '@babel/runtime': 7.20.7
       '@wordpress/api-fetch': 6.23.0
       '@wordpress/babel-plugin-import-jsx-pragma': 4.9.0_@babel+core@7.20.7
+      '@wordpress/browserslist-config': 5.9.0
       '@wordpress/components': 23.3.0_7xlrwlvvs7cv2obrs6a5y6oxxq
       autoprefixer: 10.4.12_postcss@8.4.21
       concurrently: 6.4.0
@@ -1225,6 +1227,7 @@ importers:
   projects/packages/publicize:
     specifiers:
       '@automattic/jetpack-webpack-config': workspace:*
+      '@wordpress/browserslist-config': 5.9.0
       '@wordpress/i18n': 4.26.0
       concurrently: 7.4.0
       webpack: 5.72.1
@@ -1233,6 +1236,7 @@ importers:
       '@wordpress/i18n': 4.26.0
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
+      '@wordpress/browserslist-config': 5.9.0
       concurrently: 7.4.0
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
