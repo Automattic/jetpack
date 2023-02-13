@@ -22,9 +22,12 @@
 		display: none;
 	}
 
-	.terms-of-service {
-		margin-top: calc(var(--spacing-base) * 4);
-		margin-bottom: var(--spacing-base);
+	/** There's a header above this list, which makes the top spacing
+	  * look a bit taller than it actually is
+	  */
+	ul.jp-product-promote {
+		margin-block-start: calc(var(--spacing-base) * 3);
+		margin-block-end: calc(var(--spacing-base) * 4);
 	}
 
 	&__pricing-card {
@@ -50,6 +53,11 @@
 			margin: 24px 0px 32px;
 			justify-content: center;
 			align-items: center;
+		}
+
+		.terms-of-service {
+			margin-top: calc(var(--spacing-base) * 4);
+			margin-bottom: var(--spacing-base);
 		}
 	}
 
