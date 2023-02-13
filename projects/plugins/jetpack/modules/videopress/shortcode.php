@@ -163,7 +163,7 @@ class VideoPress_Shortcode {
 				'controls'        => $attr['controls'],
 				'playsinline'     => $attr['playsinline'],
 				'useAverageColor' => (bool) $attr['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
-				'preloadContent'  => $attr['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
+				'preloadContent'  => $attr['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects preloadContent
 			// accessible via the `videopress_shortcode_options` filter.
 			)
 		);
