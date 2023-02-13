@@ -36,6 +36,21 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 }
 
 /**
+ * Check for a Kitkat Input Requested label on a PR.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - PR number.
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+	// We're only interested in the Escalated to Kitkat label.
+	return labels.includes( '[Status] Escalated to Kitkat' );
+}
+
+/**
  * Send a Slack notification about a label to Team KitKat.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -55,6 +70,13 @@ async function notifyKitKat( payload, octokit ) {
 	const channel = getInput( 'slack_kitkat_channel' );
 	if ( ! channel ) {
 		setFailed( 'notify-kitkat: Input slack_kitkat_channel is required but missing. Aborting.' );
+		return;
+	}
+
+	// Check if Kitkat input was already requested for that issue.
+	const hasBeenRequested = await hasKitkatSignalLabel( octokit, ownerLogin, repo, number );
+	if ( hasBeenRequested ) {
+		debug( `notify-kitkat: Kitkat input was already requested for issue #${ number }. Aborting.` );
 		return;
 	}
 
@@ -84,6 +106,16 @@ async function notifyKitKat( payload, octokit ) {
 			slackToken,
 			payload
 		);
+	}
+
+	if ( isLabeledHighPriority || isLabeledBlocker ) {
+		debug( `notify-kitkat: Adding a label to issue #${ number } to show that Kitkat was warned.` );
+		await octokit.rest.issues.addLabels( {
+			owner: ownerLogin,
+			repo,
+			issue_number: number,
+			labels: [ '[Status] Escalated to Kitkat' ],
+		} );
 	}
 }
 
