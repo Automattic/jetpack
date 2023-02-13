@@ -63,7 +63,7 @@ class Post extends \WP_REST_Posts_Controller {
 		);
 
 		if ( $post_id ) {
-			return \WP_Error(
+			return new \WP_Error(
 				'post_exists',
 				__( 'Cannot create existing post.', 'jetpack-import' ),
 				array(
