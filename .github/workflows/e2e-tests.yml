@@ -197,7 +197,7 @@ jobs:
   test-report:
     name: "Test report"
     runs-on: ubuntu-latest
-    if: ${{ ! cancelled() }}
+    if: ${{ needs.e2e-tests.result == 'success' || needs.e2e-tests.result == 'failure' }}
     needs: [e2e-tests]
 
     steps:
@@ -236,7 +236,7 @@ jobs:
   slack-notification:
     name: "Slack notification"
     runs-on: ubuntu-latest
-    if: ${{ ! cancelled() }} # need to run on failure and also on success, so it can send notifications when tests passed on re-runs
+    if: ${{ needs.e2e-tests.result == 'success' || needs.e2e-tests.result == 'failure' }}
     needs: [e2e-tests]
 
     steps:
