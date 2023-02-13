@@ -53,6 +53,9 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	rating?: string;
 
 	isPrivate?: boolean;
+
+	// CSS classes
+	className?: string;
 };
 
 export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;

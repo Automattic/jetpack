@@ -111,6 +111,13 @@ class Waf_Initializer {
 	 */
 	public static function check_for_waf_update() {
 		if ( get_option( self::NEEDS_UPDATE_OPTION_NAME ) ) {
+			// Compatiblity patch for cases where an outdated WAF_Constants class has been
+			// autoloaded by the standalone bootstrap execution at the beginning of the current request.
+			if ( ! method_exists( Waf_Constants::class, 'define_mode' ) ) {
+				( new Waf_Standalone_Bootstrap() )->generate();
+				return;
+			}
+
 			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 				return;

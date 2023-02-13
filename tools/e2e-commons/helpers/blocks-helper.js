@@ -11,7 +11,7 @@ export async function waitForBlock( blockSlug, page ) {
 		// eslint-disable-next-line
 		await page.waitForTimeout( 1000 );
 		await page.reload( { waitUntil: 'domcontentloaded' } );
-		block = await findAvailableBlock( blockSlug );
+		block = await findAvailableBlock( blockSlug, page );
 		count += 1;
 	}
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Build: Check blocks' view scripts for unexpected dependencies.
