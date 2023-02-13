@@ -1422,5 +1422,14 @@ function jpcrm_js_compare_conditions( a, b ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zeroBSCRMJS_segmentLang };
+    module.exports = { zbsAJAXSending, zeroBSCRMJS_segment_bindPostRender,
+		zeroBSCRMJS_segment_buildConditions, zeroBSCRMJS_segment_buildConditionLine,
+		zeroBSCRMJS_segment_buildConditionCascades,
+		zeroBSCRMJS_segment_buildConditionCascadesForEle,
+		zeroBSCRMJS_segment_buildConditionCascades2,
+		zeroBSCRMJS_segment_previewAudience, zeroBSCRMJS_segment_saveSegmentAct,
+		zeroBSCRMJS_genericCheckNotEmptySemantic, zeroBSCRMJS_segment_saveSegment,
+		zeroBSCRMJS_segment_previewSegment, jpcrm_js_show_condition_info,
+		jpcrm_js_hide_condition_info, zeroBSCRMJS_segmentLang,
+		jpcrm_js_compare_conditions };
 }

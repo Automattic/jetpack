@@ -2773,9 +2773,20 @@ var jpcrm = {
 };
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
+    module.exports = { jpcrm, zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
 		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, zeroBSCRMJS_ucwords,
-		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, 
+		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL,
 		zeroBSCRMJS_retrieveEmails, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zbsJS_updateScreenOptions,
-		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, jpcrm_strip_scripts };
+		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, 
+		jpcrm_strip_scripts, zbscrm_JS_DAL, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
+		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock, zbscrmjs_screenoptblock, zbscrm_JS_addDirty, jpcrm_dismiss_woo_notice,
+		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_compatClasses, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
+		zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_watchInputsAndDirty, zbscrm_JS_dirtyCatch, zbscrm_JS_delDirty, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_datepicker,
+		jpcrm_js_bind_datetimerangepicker,  jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, zbscrm_JS_infoBoxInit, zbscrm_JS_infoBoxInit,
+		zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, jpcrm_bind_typeaheads_placeholders, zbscrm_JS_clone,
+		zbscrmjs_replaceAll, zeroBSCRMJS_telLinkFromNo, zeroBSCRMJS_number_format_i18n, zeroBSCRMJS_number_format, zeroBSCRMJS_htmlEncode,
+		zeroBSCRMJS_htmlDecode, zeroBSCRMJS_newWindow, zeroBSCRMJS_newWindowCenter, parseDate, daydiff, zbsJS_semanticPercBar, zbsJS_uts, zeroBSCRMJS_bindScreenOptions,
+		zeroBSCRMJS_saveScreenOptions,  zeroBSCRMJS_buildScreenOptionsTableColumns, zeroBSCRMJS_buildScreenOptionsGenerics, zeroBSCRMJS_rest_retrieveCompany, 
+		zeroBSCRMJS_bindGlobalObjFuncs, zeroBSCRMJS_bindGlobalContactFuncs, zeroBSCRMJS_bindGlobalDismiss, zbscrm_JS_bindCloseLogs, zbscrm_JS_isCalypso, 
+		jpcrm_bind_licensing_modals, jpcrm_bind_customfield_csv_builders, jpcrm_bind_generic_window_opening };
 }
