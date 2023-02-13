@@ -33,8 +33,8 @@ const requiredProps = {
 	analytics: analytics,
 };
 
-let locationAssignSpy;
-let recordEventStub;
+const locationAssignSpy = jest.spyOn( window.location, 'assign' );
+const recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' );
 let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
@@ -42,8 +42,8 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		locationAssignSpy = jest.spyOn( window.location, 'assign' ).mockReset();
-		recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' ).mockReset();
+		locationAssignSpy.mockReset().mockReturnValue();
+		recordEventStub.mockReset().mockReturnValue();
 		stubGetConnectionStatus = jest
 			.spyOn( storeSelect, 'getConnectionStatus' )
 			.mockReset()
