@@ -72,6 +72,7 @@ class Jetpack_Mastodon_Modal {
 	<meta charset="<?php bloginfo( 'charset' ); ?>" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<meta name="robots" content="noindex,follow" />
+	<meta name="referrer" content="no-referrer">
 		<?php rel_canonical(); ?>
 	<title><?php esc_html_e( 'Share to Mastodon', 'jetpack' ); ?></title>
 	<style type="text/css">
