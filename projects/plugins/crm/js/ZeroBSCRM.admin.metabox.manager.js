@@ -427,3 +427,10 @@ function saveMetaBoxes() {
 		}
 	);
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { startedDrag, zbsjsScreenOptsBlock, zerobscrmJS_bindMetaboxManager,
+		zeroBSCRMJS_initialiseTabbedMetaboxes,
+		zeroBSCRMJS_saveScreenOptionsMetaboxes, zeroBSCRMJS_buildScreenOptionsMetaboxes,
+		saveMetaBoxes };
+}
