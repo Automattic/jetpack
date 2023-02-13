@@ -45,7 +45,7 @@
 	}
 
 	&__with-subscription {
-		margin-top: 38px;
+		margin-top: calc(var(--spacing-base) * 4);
 
 		.jp-action-button {
 			display: inline;
