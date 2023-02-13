@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.7.1
+Stable tag: 11.8
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -242,43 +242,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8 - 2023-02-07
-#### Enhancements
-- Contact Form: improve file naming when exporting form responses.
-- Contact form: UI improvements for the dropdown field.
-- Contact Form: update column names when exporting Contact Form responses to CSV for clarity.
-- Form block: add relevant keywords to the 'Newsletter Sign-up' block variation.
-- Form block: add styling of input fields.
-- Form block: update form block variation icons.
-- VideoPress: show VideoPress block availability based on site plan.
-- WAF: various updates to the WAF package.
-- Widgets: add Mastodon to Social Icons Widget and Social Menu.
-
-#### Improved compatibility
-- Blaze: update logic for showing the Advertising menu on Jetpack sites.
-- Connection: add support for 'connection_disabled' error code.
-- General: migrated to new Web Fonts API from Gutenberg.
-- oEmbeds: add new URL scheme for iCloud Keynote embeds.
-- Revue block: add a direct link to the WordPress.com subscriber import page.
-- Use `flex-start` instead of `start` for better browser compatibility.
-- Use `wp_theme_has_theme_json` instead of `WP_Theme_JSON_Resolver::theme_has_support` when available for WordPress 6.2 compat.
-- VideoPress: do not add block transform to v6 when video is not a VideoPress video.
-
+### 11.8.1 - 2023-02-13
 #### Bug fixes
-- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active.
-- Dashboard: do not register the VaultPress and Scan submenu items without having Backup/Scan state.
-- Dashboard: fix the price display and description for products with intro offers for the first month.
-- Dashboard: show Boost in My Plans dashboard when added to a site.
-- Infinite Scroll: fix an AMP related bug.
-- Modules: allow for deactivating multiple plugins when activating a module.
-- Related Posts: fix Related Posts options saving.
-- Reverts PR #27958 as it conflicts with the way WooCommerce updates submenus.
-- Sharing: do not include the sharing buttons in REST API responses.
-- Slideshow: fix slideshow loading excessive dependencies on every page view.
-- Subscriptions: add a null check to a $post reference.
-- Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages.
-- VideoPress: fix the fullscreen control when using VideoPress shortcodes.
-- Widgets: avoid errors with the Top Posts Widget when activating Offline mode on a site.
+- Add filter to prevent contact-form-styles script from being concatenated
+- Fix premium content block where it would only allow access to site subscribers
+- Prevent Forms blur effect on AMP pages
 
 --------
 

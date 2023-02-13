@@ -17,7 +17,7 @@
 		"automattic/jetpack-assets": "^1.17.30",
 		"automattic/jetpack-autoloader": "^2.11.15",
 		"automattic/jetpack-backup": "^1.12.1",
-		"automattic/jetpack-blaze": "^0.5.1",
+		"automattic/jetpack-blaze": "0.5.1.1",
 		"automattic/jetpack-blocks": "^1.4.19",
 		"automattic/jetpack-compat": "^1.7.5",
 		"automattic/jetpack-composer-plugin": "^1.1.9",
@@ -26,7 +26,7 @@
 		"automattic/jetpack-constants": "^1.6.20",
 		"automattic/jetpack-device-detection": "^1.4.23",
 		"automattic/jetpack-error": "^1.3.18",
-		"automattic/jetpack-forms": "^0.2.0",
+		"automattic/jetpack-forms": "0.2.1",
 		"automattic/jetpack-google-fonts-provider": "^0.5.0",
 		"automattic/jetpack-identity-crisis": "^0.8.35",
 		"automattic/jetpack-jitm": "^2.2.41",
@@ -45,7 +45,7 @@
 		"automattic/jetpack-stats-admin": "^0.4.1",
 		"automattic/jetpack-status": "^1.16.1",
 		"automattic/jetpack-sync": "^1.47.1",
-		"automattic/jetpack-videopress": "^0.10.8",
+		"automattic/jetpack-videopress": "0.10.8.1",
 		"automattic/jetpack-waf": "^0.9.0",
 		"automattic/jetpack-wordads": "^0.2.29",
 		"nojimage/twitter-text-php": "3.1.2"
@@ -95,7 +95,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_8",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_8_1",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8.1 - 2023-02-13
+### Bug fixes
+- Add filter to prevent contact-form-styles script from being concatenated [#28905]
+- Fix premium content block where it would only allow access to site subscribers [#28912]
+- Prevent Forms blur effect on AMP pages [#28926]
+
 ## 11.8 - 2023-02-07
 ### Enhancements
 - Form block: add styling of input fields. [#27837]
