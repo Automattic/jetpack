@@ -7,7 +7,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import { buildVideoPressURL, pickGUIDFromUrl } from '../../../../lib/url';
 
-const transfromFromCoreEmbed = {
+const transformFromCoreEmbed = {
 	type: 'block',
 	blocks: [ 'core/embed' ],
 	isMatch: attrs => attrs.providerNameSlug === 'videopress' && pickGUIDFromUrl( attrs?.url ),
@@ -16,7 +16,7 @@ const transfromFromCoreEmbed = {
 		const guid = pickGUIDFromUrl( src );
 
 		/*
-		 * Do transform when the block
+		 * Don't transform when the block
 		 * is not a core/embed VideoPress block variation
 		 */
 		const isCoreEmbedVideoPressVariation = providerNameSlug === 'videopress' && !! guid;
@@ -24,11 +24,18 @@ const transfromFromCoreEmbed = {
 			return createBlock( 'core/embed', attrs );
 		}
 
+		/*
+		 * Force className cleanup.
+		 * It adds aspect ratio classes when transforming from embed block.
+		 */
+		const classRegex = /(wp-embed-aspect-\d+-\d+)|(wp-has-aspect-ratio)/g;
+		attrs.className = attrs.className?.replace( classRegex, '' ).trim();
+
 		return createBlock( 'videopress/video', { guid, src } );
 	},
 };
 
-const transfromToCoreEmbed = {
+const transformToCoreEmbed = {
 	type: 'block',
 	blocks: [ 'core/embed' ],
 	isMatch: attrs => attrs?.src || attrs?.guid,
@@ -53,7 +60,7 @@ const transfromToCoreEmbed = {
 	},
 };
 
-const from = [ transfromFromCoreEmbed ];
-const to = [ transfromToCoreEmbed ];
+const from = [ transformFromCoreEmbed ];
+const to = [ transformToCoreEmbed ];
 
 export default { from, to };

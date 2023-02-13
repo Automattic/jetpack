@@ -4,7 +4,7 @@ Tags: social-media, publicize, social-media-manager, social-networking, social m
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,13 +91,13 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.6.0 - 2023-01-10
+### 1.7.0 - 2023-02-07
 #### Added
-- Add a review request prompt for Jetpack Social plugin.
-- Add simple JS React test.
-- Add the adminUrl to the initial editor state.
-- Redirect to admin page on plugin activation, and add link to admin page from plugins page.
+- Added Advanced Social plan to pricing table
 
 #### Changed
+- Moved resharing to be available in the free plan
 - Updated package dependencies.
+- Update playwright dependency
+- Use `flex-end` instead of `end` for better browser compatibility.
 

@@ -241,9 +241,15 @@ class Data {
 				$media_details      = $video['media_details'];
 				$jetpack_videopress = $video['jetpack_videopress'];
 
-				// Check if video is already uploaded to VideoPress.
-				$uploader                  = new Uploader( $id );
-				$is_uploaded_to_videopress = $uploader->is_uploaded();
+				// Check if video is already uploaded to VideoPress or has some error.
+				try {
+					$uploader                  = new Uploader( $id );
+					$is_uploaded_to_videopress = $uploader->is_uploaded();
+					$read_error                = null;
+				} catch ( Upload_Exception $e ) {
+					$is_uploaded_to_videopress = false;
+					$read_error                = $e->getCode();
+				}
 
 				$upload_date = $video['date'];
 				$url         = $video['source_url'];
@@ -267,6 +273,7 @@ class Data {
 					'uploadDate'             => $upload_date,
 					'duration'               => $duration,
 					'isUploadedToVideoPress' => $is_uploaded_to_videopress,
+					'readError'              => $read_error,
 				);
 			},
 			$local_videos_data['videos']

@@ -299,11 +299,11 @@ function jpcrm_export_process_file_export() {
 
 				} elseif ( $extraParams['segment'] ) {
 
-					// retrieve segment
+					// Retrieve segment.
 					$availObjs = $zbs->DAL->segments->getSegmentAudience(
 						$extraParams['segment']['id'],
-						-1, // all, no paging
-						-1 // all, no paging
+						-1, // All, no paging.
+						-1 // All, no paging.
 					);
 
 				} else {
