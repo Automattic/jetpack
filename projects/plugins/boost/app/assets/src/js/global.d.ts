@@ -16,7 +16,7 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
-	const Jetpack_Boost: {
+	const Jetpack_Boost: Refactoring_Critical_CSS_Recommendations & {
 		preferences: {
 			showRatingPrompt: boolean;
 			showScorePrompt: boolean;
@@ -30,7 +30,8 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCSS?: {
-			status: CriticalCssStatus;
+			// @TODO REFACTORING IN PROGRESS 🍟
+			status: Critical_CSS_Recommendations & CriticalCssStatus;
 			suggestRegenerate: boolean;
 		};
 		showRatingPromptNonce?: string;

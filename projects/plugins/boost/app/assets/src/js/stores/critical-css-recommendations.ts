@@ -4,7 +4,7 @@ import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { CriticalCssErrorDetails, criticalCssStatus } from './critical-css-status';
+import { CriticalCssErrorDetails } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 
 const importantProviders = [
@@ -14,8 +14,32 @@ const importantProviders = [
 	'singular_post',
 ];
 
+export type Critical_CSS_Recommendations = {
+	providers_errors?: {
+		[ providerKey: string ]: {
+			[ url: string ]: CriticalCssErrorDetails;
+		};
+	};
+	provider_key_labels?: { [ name: string ]: string };
+};
+
+// @TODO REFACTORING IN PROGRESS 🍟 - Move options to wp-js-async-store
+const initialRecommendations: Critical_CSS_Recommendations =
+	Jetpack_Boost.criticalCSS?.status || {};
 const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
+
+const recommendationStore = writable< Critical_CSS_Recommendations >( initialRecommendations );
 const dismissed = writable< string[] >( initialState );
+const dismissalErrorStore = writable( null );
+export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
+
+/**
+ * Derived datastore: contains the number of provider keys which failed in the
+ * latest Critical CSS generation run.
+ */
+export const failedProviderKeyCount = derived( recommendationStore, state =>
+	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
+);
 
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.
@@ -42,7 +66,7 @@ type Recommendation = {
  * Derived store containing Critical CSS recommendations based on Critical CSS
  * status and the provider key errors inside.
  */
-export const recommendations = derived( criticalCssStatus, state => {
+export const recommendations = derived( recommendationStore, state => {
 	if ( ! state.providers_errors ) {
 		return [];
 	}
@@ -84,12 +108,6 @@ export const primaryErrorSet = derived( recommendations, recommends => {
 
 	return undefined;
 } );
-
-/**
- * Store used to track Critical CSS Recommendations dismissal error.
- */
-const dismissalErrorStore = writable( null );
-export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
 
 /**
  * Set the dismissal error if something wrong occurred

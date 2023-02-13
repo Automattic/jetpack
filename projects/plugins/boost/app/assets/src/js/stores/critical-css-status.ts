@@ -24,12 +24,6 @@ export interface CriticalCssStatus {
 	core_providers?: string[];
 	core_providers_status?: string;
 	status_error?: Error | string;
-	providers_errors?: {
-		[ providerKey: string ]: {
-			[ url: string ]: CriticalCssErrorDetails;
-		};
-	};
-	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
 	viewports?: Viewport[];
@@ -57,14 +51,6 @@ subscribe( state => ( status = state ) );
 export function getStatus() {
 	return status;
 }
-
-/**
- * Derived datastore: contains the number of provider keys which failed in the
- * latest Critical CSS generation run.
- */
-export const failedProviderKeyCount = derived( { subscribe }, state =>
-	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
-);
 
 /**
  * Derived datastore: Returns true if the Critical CSS status indicates the process
