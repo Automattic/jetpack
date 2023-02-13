@@ -103,7 +103,15 @@ require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
  * JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN=true will load the package via the Jetpack Beta Tester plugin, not wpcomsh.
  */
 if ( ! defined( 'JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN' ) || ! JETPACK_MU_WPCOM_LOAD_VIA_BETA_PLUGIN ) {
-	if ( class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
+	/**
+	 * If an older version of the FSE plugin is active, it could cause a fatal redeclaration error.
+	 * On WoA sites, users may not be using the updated symlinked copy of FSE.
+	 *
+	 * Todo: move this check to the Jetpack_Mu_Wpcom class for cleanliness.
+	 */
+	$invalid_fse_version_active = is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) && version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php' )['Version'], '3.56084', '<' );
+
+	if ( ! $invalid_fse_version_active && class_exists( 'Automattic\Jetpack\Jetpack_Mu_Wpcom' ) ) {
 		Automattic\Jetpack\Jetpack_Mu_Wpcom::init();
 	}
 }
