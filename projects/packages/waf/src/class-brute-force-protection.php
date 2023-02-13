@@ -13,6 +13,7 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * Brute force protection class.
