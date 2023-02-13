@@ -17,10 +17,7 @@ class Minify implements Feature {
 			exit;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$disable = isset( $_GET['jb-disable-minify'] ) || jetpack_boost_page_optimize_bail();
-
-		if ( $disable ) {
+		if ( jetpack_boost_page_optimize_bail() ) {
 			return;
 		}
 
