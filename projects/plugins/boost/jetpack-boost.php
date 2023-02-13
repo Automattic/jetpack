@@ -176,10 +176,6 @@ function include_compatibility_files() {
 	if ( function_exists( 'wp_cache_is_enabled' ) ) {
 		require_once __DIR__ . '/compatibility/wp-super-cache.php';
 	}
-
-	if ( function_exists( 'page_optimize_init' ) ) {
-		require_once __DIR__ . '/compatibility/page-optimize.php';
-	}
 }
 
 add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files' );
