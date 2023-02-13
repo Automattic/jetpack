@@ -88,7 +88,8 @@ export const primaryErrorSet = derived( recommendations, recommends => {
 /**
  * Store used to track Critical CSS Recommendations dismissal error.
  */
-export const dismissalError = writable( null );
+const dismissalErrorStore = writable( null );
+export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
 
 /**
  * Set the dismissal error if something wrong occurred
@@ -98,8 +99,8 @@ export const dismissalError = writable( null );
  * @param {string} title Error display title.
  * @param {Object} error Error.
  */
-export function setDismissalError( title: string, error: JSONObject ): void {
-	dismissalError.set( {
+function setDismissalError( title: string, error: JSONObject ): void {
+	dismissalErrorStore.set( {
 		title,
 		error,
 	} );
