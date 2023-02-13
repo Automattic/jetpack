@@ -136,7 +136,7 @@ class REST_Controller {
 
 		register_rest_route(
 			'jetpack-protect/v1',
-			'toggle-brute_force_protection',
+			'toggle-brute-force-protection',
 			array(
 				'methods'             => \WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::api_toggle_brute_force_protection',
