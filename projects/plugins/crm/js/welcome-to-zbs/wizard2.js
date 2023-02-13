@@ -12,7 +12,7 @@
                 zbs_crm_share_ess: zbsOptions.zbs_crm_share_essentials,
                 security: jQuery( '#zbswf-ajax-nonce' ).val()
             };*/
-const zbsOptions = {
+export var zbsOptions = {
 	zbs_crm_name: 'Jetpack CRM',
 	zbs_crm_type: '',
 	zbs_crm_other: '',
@@ -36,14 +36,14 @@ jQuery( function () {
 	zbs_crm_js_updatePage2();
 
 	jQuery( '.zbs-menu-opt' ).on( 'click', function () {
-		const sel = jQuery( this ).attr( 'data-select' );
+		var sel = jQuery( this ).attr( 'data-select' );
 		jQuery( '#' + sel ).prop( 'checked', true );
 	} );
 
 	jQuery( '#zbs_crm_name' ).on( 'keyup', function ( event ) {
 		zbs_crm_name_change();
 	} );
-	const navListItems = jQuery( 'div.setup-panel div a' ),
+	var navListItems = jQuery( 'div.setup-panel div a' ),
 		allWells = jQuery( '.setup-content' ),
 		allNextBtn = jQuery( '.nextBtn' ),
 		alBackBtn = jQuery( '.backBtn' ),
@@ -51,7 +51,7 @@ jQuery( function () {
 	allWells.hide();
 	navListItems.on( 'click', function ( e ) {
 		e.preventDefault();
-		const jQuerytarget = jQuery( jQuery( this ).attr( 'href' ) ),
+		var jQuerytarget = jQuery( jQuery( this ).attr( 'href' ) ),
 			jQueryitem = jQuery( this );
 		if ( ! jQueryitem.hasClass( 'disabled' ) ) {
 			navListItems.removeClass( 'btn-primary' ).addClass( 'btn-default' );
@@ -97,7 +97,7 @@ jQuery( function () {
 			}
 			jQuery( this ).addClass( 'disabled' );
 
-			const t = window.zbsOptions;
+			var t = window.zbsOptions;
 			t.action = 'zbs_wizard_fin';
 			t.security = jQuery( '#zbswf-ajax-nonce' ).val();
 
@@ -126,7 +126,7 @@ jQuery( function () {
 /**
  *
  */
-function zbs_biz_select() {
+export function zbs_biz_select() {
 	if ( jQuery( '#zbs_crm_type' ).val() == 'Other' ) {
 		jQuery( '#zbs_other_details' ).show();
 		jQuery( '#zbs_other_label' ).removeClass( 'hide' );
@@ -144,7 +144,7 @@ function zbs_biz_select() {
 /**
  *
  */
-function zbs_crm_name_change() {
+export function zbs_crm_name_change() {
 	crm_name = jQuery( '#zbs_crm_name' ).val();
 
 	if ( crm_name != '' ) {
@@ -157,8 +157,8 @@ function zbs_crm_name_change() {
  *
  */
 function zbs_crm_js_updatePage2() {
-	const b2bMode = jQuery( '#zbs_b2b' ).is( ':checked' );
-	const userType = jQuery( '#zbs_crm_type' ).val();
+	var b2bMode = jQuery( '#zbs_b2b' ).is( ':checked' );
+	var userType = jQuery( '#zbs_crm_type' ).val();
 	let userArea = 'smallbiz';
 
 	switch ( userType ) {
@@ -232,3 +232,4 @@ function zbsJS_welcomeWizard_update_deets() {
 	window.zbsOptions.zbs_crm_email = jQuery( '#zbs_crm_email' ).val();
 	window.zbsOptions.zbs_crm_subscribed = jQuery( '#zbs_sub' ).is( ':checked' ) ? 1 : 0;
 }
+
