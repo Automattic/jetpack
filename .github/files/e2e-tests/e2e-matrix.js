@@ -154,4 +154,4 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 }
 
 // eslint-disable-next-line no-console
-console.log( JSON.stringify( matrix, null, 2 ) );
+console.log( JSON.stringify( matrix ) );
