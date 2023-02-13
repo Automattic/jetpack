@@ -36,12 +36,12 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 }
 
 /**
- * Check for a Kitkat Input Requested label on a PR.
+ * Check for a Kitkat Input Requested label on an issue.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
- * @param {string} number  - PR number.
+ * @param {string} number  - Issue number.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
 async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
@@ -57,7 +57,10 @@ async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function notifyKitKat( payload, octokit ) {
-	const { number, repository } = payload;
+	const {
+		issue: { number },
+		repository,
+	} = payload;
 	const { owner, name: repo } = repository;
 	const ownerLogin = owner.login;
 
