@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Inject an inline style to remove blurring from forms on AMP renders
