@@ -208,7 +208,8 @@ body.highlander-dark h3.sd-title:before {
 /* Text + icon & Official */
 .sd-social-icon-text .sd-content ul li a span,
 .sd-social-official .sd-content ul li a.sd-button span,
-.sd-content ul li.preview-item a.sd-button span {
+.sd-content ul li.preview-item a.sd-button span,
+.sd-content ul li.advanced .share-more span {
 	margin-left: 6px;
 }
 .sd-content ul li.preview-item.no-icon a.sd-button span {
