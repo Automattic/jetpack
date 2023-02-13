@@ -16,8 +16,8 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  */
 async function hasHighPrioLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in the [Prio] High label.
-	return labels.includes( '[Prio] High' );
+	// We're only interested in the [Pri] High label.
+	return labels.includes( '[Pri] High' );
 }
 
 /**
@@ -31,15 +31,15 @@ async function hasHighPrioLabel( octokit, owner, repo, number ) {
  */
 async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in the [Prio] BLOCKER label.
-	return labels.includes( '[Prio] BLOCKER' );
+	// We're only interested in the [Pri] BLOCKER label.
+	return labels.includes( '[Pri] BLOCKER' );
 }
 
 /**
  * Send a Slack notification about a label to Team KitKat.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
- * @param {GitHub}                    octokit - Initialized Octokit REST client.
+ * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function notifyKitKat( payload, octokit ) {
 	const { number, repository } = payload;
@@ -54,23 +54,21 @@ async function notifyKitKat( payload, octokit ) {
 
 	const channel = getInput( 'slack_kitkat_channel' );
 	if ( ! channel ) {
-		setFailed(
-			'notify-kitkat: Input slack_kitkat_channel is required but missing. Aborting.'
-		);
+		setFailed( 'notify-kitkat: Input slack_kitkat_channel is required but missing. Aborting.' );
 		return;
 	}
 
-	// Check for a [Prio] High label.
+	// Check for a [Pri] High label.
 	const isLabeledHighPriority = await hasHighPrioLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledHighPriority ) {
 		debug(
-			'notify-kitkat: Found a [Prio] High label on issue #${ number }. Sending in Slack message.'
+			'notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.'
 		);
 		await sendSlackMessage(
 			'New High priority bug! Please take a moment to triage this bug.',
-		    channel,
-		    slackToken,
-		    payload
+			channel,
+			slackToken,
+			payload
 		);
 	}
 
@@ -81,10 +79,10 @@ async function notifyKitKat( payload, octokit ) {
 			'notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.'
 		);
 		await sendSlackMessage(
-		    'New Blocker bug!  Please take a moment to triage this bug.',
-		    channel,
-		    slackToken,
-		    payload
+			'New Blocker bug!  Please take a moment to triage this bug.',
+			channel,
+			slackToken,
+			payload
 		);
 	}
 }
