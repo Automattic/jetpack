@@ -80,13 +80,8 @@ export default function MediaPicker( {
 			<div className={ styles.container }>
 				{ ! mediaId ? (
 					<>
-						<Button
-							variant="secondary"
-							size="small"
-							className={ mediaId && styles.preview }
-							onClick={ open }
-						>
-							{ ! mediaId && buttonLabel }
+						<Button variant="secondary" size="small" className={ styles.preview } onClick={ open }>
+							{ buttonLabel }
 						</Button>
 						{ subTitle && <span>{ subTitle }</span> }
 					</>

@@ -16,7 +16,6 @@
 	width: 100%;
 	min-height: 130px;
 	border-radius: calc( var( --jp-border-radius ) * 0.5 );
-	// overflow: hidden;
 
 	> * {
 		justify-self: center;
@@ -100,6 +99,8 @@
 
 .remove-loading {
 	@extend .remove;
+	// This is to make the close button appear in the right place when we are loading the image.
+	// With this it is possible to close/stop loading images if the request takes too long.
 	top: -56px;
 	right: -5px;
 }

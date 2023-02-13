@@ -85,14 +85,6 @@ const MediaPickerMock = ( { detailsMock = {}, mediaIdMock = null, onChangeMock =
 );
 
 describe( 'MediaPicker', () => {
-	// beforeAll( () => {
-	// 	setupMocks();
-	// } );
-
-	it( 'should define the component', () => {
-		expect( 'MediaSection' ).toBeDefined();
-	} );
-
 	it( 'should render the picker if media is not selected', async () => {
 		render( <MediaPickerMock /> );
 
@@ -109,6 +101,7 @@ describe( 'MediaPicker', () => {
 		await expect( screen.findByRole( 'img' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /Choose Media/i ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Add an image or video/i ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'spinner' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should render a spinner while mediaDetails is absent', async () => {
