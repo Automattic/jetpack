@@ -51,6 +51,67 @@ async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
 }
 
 /**
+ * Build an object containing the slack message and its formatting to send to Slack.
+ *
+ * @param {WebhookPayloadIssue} payload - Issue event payload.
+ * @param {string}              channel - Slack channel ID.
+ * @param {string}              message - Basic message (without the formatting).
+ * @returns {object} Object containing the slack message and its formatting.
+ */
+function formatSlackMessage( payload, channel, message ) {
+	const { issue } = payload;
+	const { html_url, title } = issue;
+
+	return {
+		channel,
+		blocks: [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: message,
+				},
+			},
+			{
+				type: 'divider',
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `Could you take a look at it, triage, ping, and escalate to the right team if you think that's necessary. Once you've done so, please mark this message as :done:. Thank you!`,
+				},
+			},
+			{
+				type: 'divider',
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `<${ html_url }|${ title }>`,
+				},
+				accessory: {
+					type: 'button',
+					text: {
+						type: 'plain_text',
+						text: 'View',
+						emoji: true,
+					},
+					value: 'click_review',
+					url: `${ html_url }`,
+					action_id: 'button-action',
+				},
+			},
+		],
+		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
+		mrkdwn: true, // Formatting of the fallback text.
+		unfurl_links: false,
+		unfurl_media: false,
+	};
+}
+
+/**
  * Send a Slack notification about a label to Team KitKat.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -89,12 +150,9 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
-		await sendSlackMessage(
-			'New High priority bug! Please take a moment to triage this bug.',
-			channel,
-			slackToken,
-			payload
-		);
+		const message = `:warning: New High priority bug! Please take a moment to triage this bug.`;
+		const slackMessageFormat = formatSlackMessage( payload, channel, message );
+		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
 
 	// Check for a BLOCKER priority label.
@@ -103,12 +161,9 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
-		await sendSlackMessage(
-			'New Blocker bug!  Please take a moment to triage this bug.',
-			channel,
-			slackToken,
-			payload
-		);
+		const message = `:warning: New Blocker bug!  Please take a moment to triage this bug.`;
+		const slackMessageFormat = formatSlackMessage( payload, channel, message );
+		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
 
 	if ( isLabeledHighPriority || isLabeledBlocker ) {
