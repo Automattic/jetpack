@@ -77,9 +77,11 @@ export default function SubscribePanels() {
 				title={
 					<>
 						{ __( 'Newsletter:', 'jetpack' ) }
-						<span className={ 'editor-post-publish-panel__link' }>
-							{ accessOptions[ accessLevel ].label }
-						</span>
+						{ accessLevel && (
+							<span className={ 'editor-post-publish-panel__link' }>
+								{ accessOptions[ accessLevel ].label }
+							</span>
+						) }
 					</>
 				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
