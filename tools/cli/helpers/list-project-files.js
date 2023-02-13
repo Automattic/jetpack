@@ -66,8 +66,5 @@ export async function* listProjectFiles( src, spawn ) {
 
 	yield* rl;
 
-	if ( output ) {
-		output( `D: Awaiting processes.\n` );
-	}
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
 }
