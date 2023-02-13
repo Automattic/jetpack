@@ -13,4 +13,5 @@ Once sent, the requester will check data to validate the authenticity.
 
 ## Flush token workflow
 
-If the bridge identifies that the client is requesting the token twice or more, it will flush storage to get and prove a fresh token to the client.
+If the bridge identifies that the client is requesting the token twice or more,
+it will flush storage to get and provide a fresh token to the client.
