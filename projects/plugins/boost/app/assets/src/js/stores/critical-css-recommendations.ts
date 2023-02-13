@@ -106,20 +106,6 @@ export function setDismissalError( title: string, error: JSONObject ): void {
 }
 
 /**
- * Dismiss the recommendation associated with the given provider key. Calls the
- * API to update the back end in lock-step.
- *
- * @param {string} key Key of recommendation to dismiss.
- */
-export async function dismissRecommendation( key: string ): Promise< void > {
-	await api.post( '/recommendations/dismiss', {
-		providerKey: key,
-		nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
-	} );
-	dismissed.update( keys => [ ...keys, key ] );
-}
-
-/**
  * Clear all the dismissed recommendations.
  */
 export async function clearDismissedRecommendations(): Promise< void > {
@@ -173,13 +159,18 @@ export function groupKey( error: CriticalCssErrorDetails ) {
 }
 
 /**
- * Dismisses a recommendation by key.
+ * Dismiss the recommendation associated with the given provider key. Calls the
+ * API to update the back end in lock-step.
  *
- * @param {string} key Recommendation key to dismiss.
+ * @param {string} key Key of recommendation to dismiss.
  */
-export async function dismiss( key ) {
+export async function dismissRecommendation( key: string ): Promise< void > {
+	dismissed.update( keys => [ ...keys, key ] );
 	try {
-		await dismissRecommendation( key );
+		await api.post( '/recommendations/dismiss', {
+			providerKey: key,
+			nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
+		} );
 	} catch ( error ) {
 		setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
 	}

@@ -9,7 +9,7 @@
 		dismissedRecommendations,
 		dismissalError,
 		showDismissedRecommendations,
-		dismiss,
+		dismissRecommendation,
 	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
@@ -79,7 +79,7 @@
 
 	{#each $activeRecommendations as recommendation (recommendation.key)}
 		<div class="panel" transition:slide|local>
-			<CloseButton on:click={() => dismiss( recommendation.key )} />
+			<CloseButton on:click={() => dismissRecommendation( recommendation.key )} />
 
 			<h4>
 				<InfoIcon />
