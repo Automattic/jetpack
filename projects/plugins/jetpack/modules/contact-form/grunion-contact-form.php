@@ -387,6 +387,9 @@ class Grunion_Contact_Form_Plugin {
 		 *  add_action('wp_print_styles', 'remove_grunion_style');
 		 */
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
+		if ( function_exists( 'is_amp_request' ) && is_amp_request() ) {
+			wp_add_inline_style( 'grunion.css', '.wp-block-jetpack-contact-form-container {filter: blur(0px) !important;}' );
+		}
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		self::enqueue_contact_forms_style_script();
