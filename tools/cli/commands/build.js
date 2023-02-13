@@ -4,7 +4,7 @@ import { once } from 'node:events';
 import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
-import execa from 'execa';
+import { execa } from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
 import ListrState from 'listr/lib/state.js';
