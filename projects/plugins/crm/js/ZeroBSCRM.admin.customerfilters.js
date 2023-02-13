@@ -188,5 +188,5 @@ function zbsJSFilterDateRangeClear() {
 
 if ( typeof module !== 'undefined' ) {
     module.exports = { zbscrmjsCustomerFilterRetrieving, zbscrmjsCustomerFilterHasRetrieved, zbscrmJS_customfilters_bindDateRange,
-		zbscrmJS_customfilters_bindAjaxButton, zbsJSFilterDateRangeCallback, zbsJSFilterDateRangeClear};
+		zbscrmJS_customfilters_bindAjaxButton, zbsJSFilterDateRangeCallback, zbsJSFilterDateRangeClear };
 }
