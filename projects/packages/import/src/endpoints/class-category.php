@@ -41,6 +41,42 @@ class Category extends \WP_REST_Terms_Controller {
 	}
 
 	/**
+	 * Adds the schema from additional fields to a schema array.
+	 *
+	 * The type of object is inferred from the passed schema.
+	 *
+	 * @param array $schema Schema array.
+	 * @return array Modified Schema array.
+	 */
+	public function add_additional_fields_schema( $schema ) {
+		// Parent term is saved like a slug in WXR so we have to rewrite the schema.
+		$schema['properties']['parent']['description'] = __( 'The parent category slug.', 'jetpack-import' );
+		$schema['properties']['parent']['type']        = 'string';
+
+		// Add the import unique ID to the schema.
+		return $this->add_unique_identifier_to_schema( $schema );
+	}
+
+	/**
+	 * Creates a single category.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		if ( isset( $request['parent'] ) ) {
+			$parent = get_term_by( 'slug', $request['parent'], 'category' );
+
+			// Overwrite the parent ID with the parent term ID found using the slug.
+			$request['parent'] = $parent ? $parent->term_id : 0;
+		}
+
+		$response = parent::create_item( $request );
+
+		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
 	 * Update the category parent ID.
 	 *
 	 * @param int $resource_id      The resource ID.

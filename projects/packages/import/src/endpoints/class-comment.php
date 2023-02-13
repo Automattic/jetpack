@@ -41,6 +41,18 @@ class Comment extends \WP_REST_Comments_Controller {
 	}
 
 	/**
+	 * Creates a comment.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or error object on failure.
+	 */
+	public function create_item( $request ) {
+		$response = parent::create_item( $request );
+
+		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
 	 * Update the comment parent ID.
 	 *
 	 * @param int $resource_id      The resource ID.

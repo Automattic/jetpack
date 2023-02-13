@@ -43,14 +43,7 @@ trait Import {
 	 */
 	public function add_additional_fields_schema( $schema ) {
 		// Add the import unique ID to the schema.
-		$schema['properties'][ $this->import_id_field_name ] = array(
-			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
-			'type'        => 'integer',
-			'context'     => array( 'view', 'embed', 'edit' ),
-			'required'    => true,
-		);
-
-		return $schema;
+		return $this->add_unique_identifier_to_schema( $schema );
 	}
 
 	/**
@@ -63,6 +56,24 @@ trait Import {
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
+	 * Adds the unique identifier to the schema array.
+	 *
+	 * @param array $schema Schema array.
+	 * @return array Modified Schema array.
+	 */
+	protected function add_unique_identifier_to_schema( $schema ) {
+		// Add the import unique ID to the schema.
+		$schema['properties'][ $this->import_id_field_name ] = array(
+			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
+			'type'        => 'integer',
+			'context'     => array( 'view', 'embed', 'edit' ),
+			'required'    => true,
+		);
+
+		return $schema;
 	}
 
 	/**
