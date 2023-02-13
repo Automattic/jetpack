@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
 
 /**
  * Executes the WAF.
@@ -270,13 +271,14 @@ class Waf_Runner {
 	/**
 	 * Activates the WAF by generating the rules script and setting the version
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if the WAF was activated sucessfully, WP_Error if not.
 	 */
 	public static function activate() {
 		Waf_Constants::define_mode();
 		if ( ! self::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			new WP_Error( 'waf_activation_failed', 'Invalid firewall mode.' );
 		}
+
 		$version = get_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 		if ( ! $version ) {
 			add_option( Waf_Rules_Manager::VERSION_OPTION_NAME, Waf_Rules_Manager::RULES_VERSION );
@@ -284,11 +286,17 @@ class Waf_Runner {
 
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
-		self::initialize_filesystem();
-		Waf_Rules_Manager::generate_automatic_rules();
-		Waf_Rules_Manager::generate_ip_rules();
-		self::create_blocklog_table();
-		Waf_Rules_Manager::generate_rules();
+		try {
+			self::initialize_filesystem();
+			Waf_Rules_Manager::generate_automatic_rules();
+			Waf_Rules_Manager::generate_ip_rules();
+			self::create_blocklog_table();
+			Waf_Rules_Manager::generate_rules();
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'waf_activation_failed', $e->getMessage() );
+		}
+
+		return true;
 	}
 
 	/**
@@ -369,7 +377,13 @@ class Waf_Runner {
 		Waf_Rules_Manager::update_rules_if_changed();
 		// Re-generate the standalone bootstrap file on every update
 		// TODO: We may consider only doing this when the WAF version changes
-		( new Waf_Standalone_Bootstrap() )->generate();
+		try {
+			( new Waf_Standalone_Bootstrap() )->generate();
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'waf_update_failed', $e->getMessage() );
+		}
+
+		return true;
 	}
 
 	/**
@@ -387,7 +401,13 @@ class Waf_Runner {
 
 		// Validate that the automatic rules file exists and is not empty.
 		global $wp_filesystem;
-		self::initialize_filesystem();
+
+		try {
+			self::initialize_filesystem();
+		} catch ( \Exception $e ) {
+			return false;
+		}
+
 		$automatic_rules_file_contents = $wp_filesystem->get_contents( self::get_waf_file_path( Waf_Rules_Manager::AUTOMATIC_RULES_FILE ) );
 
 		// If the automatic rules file was removed or is now empty, return false.
