@@ -471,5 +471,11 @@ function zeroBSCRMJS_transEditLang( key, fallback ) {
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_transaction_unsetCustomer, zbscrmjs_transaction_unsetCompany, zbscrmjs_transaction_setCustomer, zbscrmjs_transaction_setCompany };
+    module.exports = { zbscrmjs_transaction_unsetCustomer, zbscrmjs_transaction_unsetCompany,
+		zbscrmjs_transaction_setCustomer, zbscrmjs_transaction_setCompany,
+		zbscrmjs_build_custInv_dropdown, zeroBSCRMJS_bindInvSelect,
+		zeroBSCRMJS_showInvLinkIf, zeroBSCRMJS_bindInvLinkIf,
+		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_bindContactLinkIf,
+		zeroBSCRMJS_showCompanyLinkIf, zeroBSCRMJS_bindCompanyLinkIf,
+		zeroBSCRMJS_transEditLang };
 }

@@ -73,3 +73,7 @@ function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 		timeout: 20000,
 	} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCRM_JS_proposalBlocker, zbsCRM_JS_acceptProp };
+}

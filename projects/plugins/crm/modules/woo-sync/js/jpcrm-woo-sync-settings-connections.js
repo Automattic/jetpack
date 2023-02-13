@@ -169,3 +169,7 @@ function jpcrm_woosync_bind_add_connection_inputchange() {
 		}
 	} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woosync_bind_add_connection, jpcrm_woosync_bind_add_connection_inputchange };
+}

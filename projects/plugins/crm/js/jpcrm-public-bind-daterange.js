@@ -45,3 +45,7 @@ function jpcrm_js_client_portal_bind_daterangepicker() {
 		} );
 	}
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_js_client_portal_bind_daterangepicker };
+}
