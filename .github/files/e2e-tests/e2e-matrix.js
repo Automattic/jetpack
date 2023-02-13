@@ -77,6 +77,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		);
 
 		for ( const project of projects ) {
+			// a test comment
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
 				matrix.push( project );
