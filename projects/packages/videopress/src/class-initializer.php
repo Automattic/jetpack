@@ -127,7 +127,6 @@ class Initializer {
 			Admin_UI::init();
 		}
 
-		/* require_once __DIR__ . '/class-divi.php'; */
 		Divi::init();
 	}
 
