@@ -1,4 +1,5 @@
 import { writable, derived } from 'svelte/store';
+import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { objectFilter } from '../utils/object-filter';
@@ -159,7 +160,7 @@ function groupErrorsByFrequency( errors: {
  *
  * @param {CriticalCssErrorDetails} error
  */
-function groupKey( error: CriticalCssErrorDetails ) {
+export function groupKey( error: CriticalCssErrorDetails ) {
 	if ( error.type === 'HttpError' ) {
 		return error.type + '-' + castToString( error.meta.code, '' );
 	}
@@ -169,4 +170,30 @@ function groupKey( error: CriticalCssErrorDetails ) {
 	}
 
 	return error.type;
+}
+
+/**
+ * Dismisses a recommendation by key.
+ *
+ * @param {string} key Recommendation key to dismiss.
+ */
+export async function dismiss( key ) {
+	try {
+		await dismissRecommendation( key );
+	} catch ( error ) {
+		setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
+	}
+}
+/**
+ * Show the previously dismissed recommendations.
+ */
+export async function showDismissedRecommendations() {
+	try {
+		await clearDismissedRecommendations();
+	} catch ( error ) {
+		setDismissalError(
+			__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
+			error
+		);
+	}
 }

@@ -5,12 +5,11 @@
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
-		dismissRecommendation,
 		activeRecommendations,
 		dismissedRecommendations,
-		clearDismissedRecommendations,
 		dismissalError,
-		setDismissalError,
+		showDismissedRecommendations,
+		dismiss,
 	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
@@ -23,32 +22,6 @@
 	function onRetry() {
 		generateCriticalCss();
 		navigate( -1 );
-	}
-
-	/**
-	 * Dismisses a recommendation by key.
-	 *
-	 * @param {string} key Recommendation key to dismiss.
-	 */
-	async function dismiss( key ) {
-		try {
-			await dismissRecommendation( key );
-		} catch ( error ) {
-			setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
-		}
-	}
-	/**
-	 * Show the previously dismissed recommendations.
-	 */
-	async function showDismissedRecommendations() {
-		try {
-			await clearDismissedRecommendations();
-		} catch ( error ) {
-			setDismissalError(
-				__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
-				error
-			);
-		}
 	}
 
 	/**
