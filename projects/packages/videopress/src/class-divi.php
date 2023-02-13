@@ -26,9 +26,9 @@ class Divi {
 	private $running = false;
 
 	/**
-	 * Initializes the Admin UI of VideoPress
+	 * Initializes VideoPress/Divi integration.
 	 *
-	 * This method is called only once by the Initializer class
+	 * Called only once by the Initializer class
 	 *
 	 * @return self
 	 */
@@ -59,14 +59,14 @@ class Divi {
 		}
 
 		$this->running = true;
-		add_action( 'divi_extensions_init', array( $this, 'vidi_initialize_extension' ) );
+		add_action( 'divi_extensions_init', array( $this, 'initialize_extension' ) );
 		return $this;
 	}
 
 	/**
 	 * Creates the extension's main class instance.
 	 */
-	public function vidi_initialize_extension() {
+	public function initialize_extension() {
 		require_once plugin_dir_path( __FILE__ ) . 'videopress-divi/class-videopress-divi-extension.php';
 		$this->vidi_extension = new \VideoPress_Divi_Extension();
 	}
