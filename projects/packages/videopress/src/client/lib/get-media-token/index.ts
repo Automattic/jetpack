@@ -155,22 +155,22 @@ async function getMediaToken(
 		}
 	}
 
-	const token = await requestMediaToken( scope, args );
+	const tokenData = await requestMediaToken( scope, args );
 
-	// Only store playback tokens.
-	if ( 'playback' === scope ) {
+	// Only store valid playback tokens.
+	if ( 'playback' === scope && tokenData?.token ) {
 		debug( '(%s) Storing %o token', context, key );
 		localStorage.setItem(
 			key,
 			JSON.stringify( {
-				data: token,
+				data: tokenData,
 				expire: Date.now() + TOKEN_LIFETIME,
 			} )
 		);
 	}
 
 	debug( '(%s) Providing %o token from request/response', context, key );
-	return token;
+	return tokenData;
 }
 
 export default getMediaToken;

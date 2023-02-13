@@ -76,7 +76,7 @@ export async function tokenBridgeHandler(
 		return;
 	}
 
-	debug( '(%s) Request accepted: %o | %o | %o', context, guid, postId, requestId );
+	debug( '(%s) Token request accepted: %o | %o | %o', context, guid, postId, requestId );
 
 	/*
 	 * Acknowledge receipt of message so player knows
@@ -84,7 +84,7 @@ export async function tokenBridgeHandler(
 	 * Important for situations where the iframe
 	 * loads prior to the bridge being ready.
 	 */
-	debug( '(%s) Send acknowledge-receipt requested', context );
+	debug( '(%s) Send acknowledge receipt requested', context );
 	tokenRequester.postMessage(
 		{
 			event: 'videopress_token_request_ack',
@@ -113,7 +113,7 @@ export async function tokenBridgeHandler(
 		return;
 	}
 
-	debug( '(%s) Send token', context );
+	debug( '(%s) sending token', context );
 	tokenRequester.postMessage(
 		{
 			event: 'videopress_token_received',
