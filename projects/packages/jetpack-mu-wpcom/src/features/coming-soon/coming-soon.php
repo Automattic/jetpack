@@ -209,6 +209,7 @@ add_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_o
  */
 function add_option_to_new_site( $blog_id, $user_id, $domain, $path, $network_id, $meta ) {
 	if ( 0 === $meta['public']
+		&& array_key_exists( 'options', $meta )
 		&& array_key_exists( 'wpcom_public_coming_soon', $meta['options'] )
 		&& 1 === (int) $meta['options']['wpcom_public_coming_soon']
 	) {
