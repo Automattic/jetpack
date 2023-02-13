@@ -64,12 +64,12 @@ Quickly customize your site to make it stand out — no coding needed.
 = INTEGRATIONS =
 Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
 
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores
+* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal
+* Better understand your customers and marketing with Google Analytics (GA) integration.
+* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
+* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
