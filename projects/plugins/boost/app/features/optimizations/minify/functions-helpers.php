@@ -51,12 +51,12 @@ function jetpack_boost_page_optimize_uninstall() {
 	jetpack_boost_page_optimize_deactivate();
 
 	// JS
-	delete_option( 'jetpack_boost_page_optimize-js' );
-	delete_option( 'jetpack_boost_page_optimize-load-mode' );
-	delete_option( 'jetpack_boost_page_optimize-js-exclude' );
+	delete_option( 'page_optimize-js' );
+	delete_option( 'page_optimize-load-mode' );
+	delete_option( 'page_optimize-js-exclude' );
 	// CSS
-	delete_option( 'jetpack_boost_page_optimize-css' );
-	delete_option( 'jetpack_boost_page_optimize-css-exclude' );
+	delete_option( 'page_optimize-css' );
+	delete_option( 'page_optimize-css-exclude' );
 
 }
 
@@ -70,7 +70,7 @@ function jetpack_boost_page_optimize_should_concat_js() {
 		return $_GET['concat-js'] !== '0';
 	}
 
-	return (bool) get_option( 'jetpack_boost_page_optimize-js', jetpack_boost_page_optimize_js_default() );
+	return (bool) get_option( 'page_optimize-js', jetpack_boost_page_optimize_js_default() );
 }
 
 // TODO: Support JS load mode regardless of whether concat is enabled
@@ -79,7 +79,7 @@ function jetpack_boost_page_optimize_load_mode_js() {
 	if ( ! empty( $_GET['load-mode-js'] ) ) {
 		$load_mode = jetpack_boost_page_optimize_sanitize_js_load_mode( $_GET['load-mode-js'] );
 	} else {
-		$load_mode = jetpack_boost_page_optimize_sanitize_js_load_mode( get_option( 'jetpack_boost_page_optimize-load-mode', jetpack_boost_page_optimize_js_load_mode_default() ) );
+		$load_mode = jetpack_boost_page_optimize_sanitize_js_load_mode( get_option( 'page_optimize-load-mode', jetpack_boost_page_optimize_js_load_mode_default() ) );
 	}
 
 	return $load_mode;
@@ -91,7 +91,7 @@ function jetpack_boost_page_optimize_should_concat_css() {
 		return $_GET['concat-css'] !== '0';
 	}
 
-	return (bool) get_option( 'jetpack_boost_page_optimize-css', jetpack_boost_page_optimize_css_default() );
+	return (bool) get_option( 'page_optimize-css', jetpack_boost_page_optimize_css_default() );
 }
 
 function jetpack_boost_page_optimize_js_default() {
@@ -107,7 +107,7 @@ function jetpack_boost_page_optimize_js_load_mode_default() {
 }
 
 function jetpack_boost_page_optimize_js_exclude_list() {
-	$exclude_list = get_option( 'jetpack_boost_page_optimize-js-exclude' );
+	$exclude_list = get_option( 'page_optimize-js-exclude' );
 	if ( false === $exclude_list ) {
 		// Use the default since the option is not set
 		return jetpack_boost_page_optimize_js_exclude_list_default();
@@ -125,7 +125,7 @@ function jetpack_boost_page_optimize_js_exclude_list_default() {
 }
 
 function jetpack_boost_page_optimize_css_exclude_list() {
-	$exclude_list = get_option( 'jetpack_boost_page_optimize-css-exclude' );
+	$exclude_list = get_option( 'page_optimize-css-exclude' );
 	if ( false === $exclude_list ) {
 		// Use the default since the option is not set
 		return jetpack_boost_page_optimize_css_exclude_list_default();
