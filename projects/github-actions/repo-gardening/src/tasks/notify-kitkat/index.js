@@ -62,7 +62,7 @@ async function notifyKitKat( payload, octokit ) {
 	const isLabeledHighPriority = await hasHighPrioLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledHighPriority ) {
 		debug(
-			'notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.'
+			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
 		await sendSlackMessage(
 			'New High priority bug! Please take a moment to triage this bug.',
@@ -76,7 +76,7 @@ async function notifyKitKat( payload, octokit ) {
 	const isLabeledBlocker = await hasBlockerPrioLabel( octokit, ownerLogin, repo, number );
 	if ( isLabeledBlocker ) {
 		debug(
-			'notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.'
+			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
 		await sendSlackMessage(
 			'New Blocker bug!  Please take a moment to triage this bug.',
