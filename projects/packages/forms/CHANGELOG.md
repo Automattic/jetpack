@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0.1] - 2023-02-13
+## [0.2.1] - 2023-02-13
 ### Fixed
 - Add filter to prevent contact-form-styles script from being concatenated [#28905]
 - Prevent Forms blur effect on AMP pages [#28926]
