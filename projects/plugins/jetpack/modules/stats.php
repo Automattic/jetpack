@@ -23,6 +23,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
+use Automattic\Jetpack\Stats_Admin\Notices as StatsNotices;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -90,9 +91,15 @@ function register_endpoints_for_nudge() {
  */
 function odyssey_nudge_handler() {
 	$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
+	$stats_notices = new StatsNotices();
 	if ( $action === 'odyssey-reset-nudge' ) {
+		$stats_notices->update_notice(
+			StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID,
+			StatsNotices::NOTICE_STATUS_POSTPONED,
+			25
+		);
 		$seconds = time() - ( 60 * 60 * 24 * 45 );
-		update_option( 'stats-odyssey-nudge-dismissed', $seconds );
+		// update_option( 'stats-odyssey-nudge-dismissed', $seconds );
 		return rest_ensure_response(
 			new WP_REST_Response(
 				array(
@@ -104,8 +111,13 @@ function odyssey_nudge_handler() {
 		);
 	}
 	if ( $action === 'odyssey-dismiss-nudge' ) {
+		$stats_notices->update_notice(
+			StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID,
+			StatsNotices::NOTICE_STATUS_POSTPONED
+		);
+
 		$time = time();
-		update_option( 'stats-odyssey-nudge-dismissed', $time );
+		// update_option( 'stats-odyssey-nudge-dismissed', $time );
 		return rest_ensure_response(
 			new WP_REST_Response(
 				array(
@@ -820,17 +832,10 @@ function stats_odyssey_nudge_debug_status() {
  * @return boolean
  */
 function stats_should_show_odyssey_nudge() {
-	$value = get_option( 'stats-odyssey-nudge-dismissed' );
-	if ( $value === false ) {
-		return true;
-	}
-	// Get the number of seconds in 30 days.
-	// $x    = 60 * 60 * 24 * 30;
-	$x    = 60 * 5;
-	$now  = time();
-	$time = intval( $value );
-	$aa   = $now - $time;
-	return ( $aa > $x );
+	$stats_notices = new StatsNotices();
+	$is_hidden     = $stats_notices->is_notice_hidden( StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID );
+	// echo( $is_hidden ? 'is_hidden: true' : 'is_hidden: false' );
+	return ! $is_hidden;
 }
 
 /**
