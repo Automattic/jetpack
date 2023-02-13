@@ -76,7 +76,7 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		// 	execSync( '.github/files/list-changed-projects.sh' ).toString()
 		// );
 
-		const changedProjects = { 'plugins/crm': true };
+		const changedProjects = { monorepo: true };
 
 		for ( const project of projects ) {
 			// a test comment
