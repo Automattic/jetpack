@@ -56,9 +56,11 @@
 	&__with-subscription {
 		margin-top: calc(var(--spacing-base) * 4);
 
-		.jp-action-button {
-			display: inline;
-		}
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: flex-start;
+		gap: 1ch;
+		line-height: 1;
 
 		.jp-action-button--button.components-button.is-primary {
 			display: inline;
