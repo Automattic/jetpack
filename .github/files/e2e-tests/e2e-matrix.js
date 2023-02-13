@@ -72,11 +72,9 @@ const matrix = [];
 switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
-		// const changedProjects = JSON.parse(
-		// 	execSync( '.github/files/list-changed-projects.sh' ).toString()
-		// );
-
-		const changedProjects = { monorepo: true };
+		const changedProjects = JSON.parse(
+			execSync( '.github/files/list-changed-projects.sh' ).toString()
+		);
 
 		for ( const project of projects ) {
 			// a test comment
