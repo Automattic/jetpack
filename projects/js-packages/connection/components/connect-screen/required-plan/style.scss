@@ -2,8 +2,13 @@
 @import '@wordpress/base-styles/mixins';
 
 .jp-connection__connect-screen-layout__left {
+	/**
+	  * Start with 100% width;
+	  * then account for a 384px pricing card that floats to the right;
+	  * finally give 32px of padding between content and the pricing card
+	  */
 	@include break-xlarge {
-		width: 70%;
+		width: calc(100% - 384px - var(--spacing-base) * 4);
 	}
 }
 
@@ -23,10 +28,14 @@
 	}
 
 	&__pricing-card {
+		/** Line up with the top of the product logo,
+		  * and mirror 96px horizontal padding seen in
+		  * .jp-connection__connect-screen-layout__left
+		 */
 		@include break-xlarge {
 			position: absolute;
-			top: 14%;
-			left: 62%;
+			top: calc(var(--spacing-base) * 8);
+			right: calc(var(--spacing-base) * 12);
 		}
 
 		.jp-action-button--button.components-button {
