@@ -1,1 +1,3 @@
-import './blocks/video/index';
+import registerVideoPressBlock from './blocks/video/index';
+
+registerVideoPressBlock();
