@@ -7,7 +7,7 @@
  *
  * Date: 19/01/2017
  */
-const zbsCRM_JS_proposalBlocker = false;
+var zbsCRM_JS_proposalBlocker = false;
 jQuery( function () {
 	jQuery( '#zbs-proposal-accept' ).on( 'click', function () {
 		// do smt?
@@ -19,8 +19,8 @@ jQuery( function () {
 		window.zbsCRM_JS_proposalBlocker = true;
 
 		// retrieve id
-		const quoteID = parseInt( window.jpcrm_proposal_data.quote_id );
-		const quoteHash = window.jpcrm_proposal_data.quote_hash;
+		var quoteID = parseInt( window.jpcrm_proposal_data.quote_id );
+		var quoteHash = window.jpcrm_proposal_data.quote_hash;
 
 		// Got a potential quote id?
 		if ( quoteID > 0 ) {
@@ -55,7 +55,7 @@ jQuery( function () {
  */
 function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 	// postbag!
-	const data = {
+	var data = {
 		action: 'zbs_quotes_accept_quote',
 		sec: window.jpcrm_proposal_data.proposal_nonce,
 		// data
@@ -72,4 +72,8 @@ function zbsCRM_JS_acceptProp( quoteHash, quoteID ) {
 		dataType: 'json',
 		timeout: 20000,
 	} );
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCRM_JS_proposalBlocker, zbsCRM_JS_acceptProp };
 }
