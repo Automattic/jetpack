@@ -13,7 +13,7 @@ const projects = [
 		project: 'Jetpack pre-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
-		targets: [ 'plugins/jetpack' ],
+		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 	},
 	{
@@ -27,7 +27,7 @@ const projects = [
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync', '--retries=1' ],
-		targets: [ 'plugins/jetpack' ],
+		targets: [ 'packages/sync' ],
 		suite: '',
 	},
 	{
@@ -72,9 +72,11 @@ const matrix = [];
 switch ( process.env.GITHUB_EVENT_NAME ) {
 	case 'pull_request':
 	case 'push': {
-		const changedProjects = JSON.parse(
-			execSync( '.github/files/list-changed-projects.sh' ).toString()
-		);
+		// const changedProjects = JSON.parse(
+		// 	execSync( '.github/files/list-changed-projects.sh' ).toString()
+		// );
+
+		const changedProjects = { 'plugins/crm': true };
 
 		for ( const project of projects ) {
 			// a test comment
