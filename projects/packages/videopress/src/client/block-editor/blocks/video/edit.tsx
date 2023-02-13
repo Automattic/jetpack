@@ -171,11 +171,13 @@ export default function VideoPressEdit( {
 			return;
 		}
 
-		const queryString = token
-			? `?${ new URLSearchParams( { metadata_token: token } ).toString() }`
-			: '';
+		let queryString = '';
+		if ( token ) {
+			queryString = '?' + new URLSearchParams( { metadata_token: token } ).toString();
+		}
 
-		const chapterUrl = `https://videos.files.wordpress.com/${ guid }/${ chapter.src }${ queryString }`;
+		const chapterUrl =
+			'https://videos.files.wordpress.com/' + guid + '/' + chapter.src + queryString;
 
 		try {
 			fetch( chapterUrl )
