@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Dependency_Path_Mapping;
+use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
 	return array(
@@ -92,8 +93,6 @@ function jetpack_boost_page_optimize_service_request() {
 function jetpack_boost_page_optimize_build_output() {
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
-	require_once __DIR__ . '/cssmin/cssmin.php';
-
 	/* Config */
 	$concat_max_files = 150;
 	$concat_unique    = true;
@@ -159,7 +158,7 @@ function jetpack_boost_page_optimize_build_output() {
 	$should_minify_css = Config::is_css_minify_enabled();
 
 	if ( $should_minify_css ) {
-		$css_minify = new tubalmartin\CssMin\Minifier();
+		$css_minify = new CssMin\Minifier();
 	}
 
 	foreach ( $args as $uri ) {
