@@ -229,37 +229,42 @@ class Test_REST_Controller extends Stats_Test_Case {
 		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
 		$get_wp_error->setAccessible( true );
 
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'error'   => 'err1',
+				'message' => 'msg1',
+			),
+			500
+		);
 		$this->assertEquals(
 			'err1',
-			( $get_wp_error->invoke(
-				$this->rest_controller,
-				array(
-					'error'   => 'err1',
-					'message' => 'msg1',
-				),
-				500
-			) )->get_error_code()
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code'    => 'err2',
+				'message' => 'msg1',
+			),
+			500
 		);
 		$this->assertEquals(
 			'err2',
-			( $get_wp_error->invoke(
-				$this->rest_controller,
-				array(
-					'code'    => 'err2',
-					'message' => 'msg1',
-				),
-				500
-			) )->get_error_code()
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code' => 'err2',
+			),
+			500
 		);
 		$this->assertEquals(
 			'unknown remote error',
-			( $get_wp_error->invoke(
-				$this->rest_controller,
-				array(
-					'code' => 'err2',
-				),
-				500
-			) )->get_error_message()
+			$error->get_error_message()
 		);
 	}
 }
