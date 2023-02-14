@@ -225,7 +225,6 @@ export const settings = {
 			</Modal>
 		);
 
-		// TODO: Debug why showFirstPostPublishedModal isn't true when publishing first post
 		if ( firstPostPublishedModalOpen ) {
 			return firstPostPublishedModal;
 		} else if ( showModal ) {
