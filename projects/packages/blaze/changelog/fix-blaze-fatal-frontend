@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blaze: prevent fatals on frontend-loaded Gutenberg + bail early if Jetpack is not connected
