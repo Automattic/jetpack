@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix goodreads custom widget not finding the target HTML element and appending another after its script tag.
