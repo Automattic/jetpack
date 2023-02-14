@@ -2,13 +2,13 @@
 
 Utilities for working with IP addresses.
 
-## How to install IP
+## Usage
 
-### Installation From Git Repo
+```php
+use Automattic\Jetpack\IP\Utils;
 
-## Contribute
-
-## Get Help
+echo "Your IP address is: " . Utils::get_ip();
+```
 
 ## Security
 
