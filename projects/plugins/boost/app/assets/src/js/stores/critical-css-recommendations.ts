@@ -7,12 +7,6 @@ import { sortByFrequency } from '../utils/sort-by-frequency';
 import { CriticalCssErrorDetails } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 
-const importantProviders = [
-	'core_front_page',
-	'core_posts_page',
-	'singular_page',
-	'singular_post',
-];
 
 export type Critical_CSS_Recommendations = {
 	providers_errors?: {
@@ -99,6 +93,13 @@ export const activeRecommendations = derived(
  * Used for displaying the most important error as a showstopper if no URLS succeeded.
  */
 export const primaryErrorSet = derived( recommendations, recommends => {
+	const importantProviders = [
+		'core_front_page',
+		'core_posts_page',
+		'singular_page',
+		'singular_post',
+	];
+
 	for ( const key of importantProviders ) {
 		const recommendation = recommends.find( r => r.key === key );
 		if ( recommendation ) {
