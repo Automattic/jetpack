@@ -215,10 +215,10 @@ class Blaze {
 	 */
 	public static function enqueue_block_editor_assets() {
 		/*
-		* We do not want (nor need) Blaze in the site editor, or the widget editor, or the classic editor.
-		* We only want it in the post editor.
-		* Enqueueing the script in those editors would cause a fatal error.
-		* See #20357 for more info.
+		 * We do not want (nor need) Blaze in the site editor, or the widget editor, or the classic editor.
+		 * We only want it in the post editor.
+		 * Enqueueing the script in those editors would cause a fatal error.
+		 * See #20357 for more info.
 		*/
 		if ( ! function_exists( 'get_current_screen' ) ) { // When Gutenberg is loaded in the frontend.
 			return;
