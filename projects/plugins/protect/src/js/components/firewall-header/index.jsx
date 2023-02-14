@@ -129,7 +129,7 @@ const FirewallHeader = ( {
 				<span>{ __( 'Last 24 hours', 'jetpack-protect' ) }</span>
 			</span>
 		),
-		value: hasRequiredPlan ? oneDayStats : 0,
+		value: oneDayStats ? oneDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
@@ -153,7 +153,7 @@ const FirewallHeader = ( {
 				<span>{ __( 'Last 30 days', 'jetpack-protect' ) }</span>
 			</span>
 		),
-		value: hasRequiredPlan ? thirtyDayStats : 0,
+		value: thirtyDayStats ? thirtyDayStats : 0,
 		variant: isSmall ? 'horizontal' : 'square',
 	};
 
