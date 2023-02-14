@@ -397,8 +397,6 @@ class Grunion_Contact_Form_Plugin {
 	 * Enqueue scripts responsible for handling contact form styles.
 	 */
 	private static function enqueue_contact_forms_style_script() {
-		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
-
 		wp_enqueue_script(
 			'contact-form-styles',
 			plugins_url( 'js/form-styles.js', __FILE__ ),
@@ -406,19 +404,6 @@ class Grunion_Contact_Form_Plugin {
 			JETPACK__VERSION,
 			true
 		);
-	}
-
-	/**
-	 * Prevent 'contact-form-styles' script from being concatenated.
-	 *
-	 * @param array  $do_concat - the concatenation flag.
-	 * @param string $handle - script name.
-	 */
-	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
-			$do_concat = false;
-		}
-		return $do_concat;
 	}
 
 	/**
