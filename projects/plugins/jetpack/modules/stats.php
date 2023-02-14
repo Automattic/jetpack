@@ -410,9 +410,28 @@ function stats_reports_load() {
 		// Normal page load.  Load page content via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
+		add_action( 'admin_footer', 'stats_reset_nudge_handler' );
 
 		wp_localize_script( 'my-ajax-handle', 'the_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
+}
+
+function stats_reset_nudge_handler() {
+	?>
+	<script type="text/javascript" >
+	jQuery(document).ready(function($) {
+		let url = '/wp-json/jetpack/v4/stats/nudge';
+		var data = {
+			'action': 'odyssey-reset-nudge',
+		};
+		jQuery('#test-button-reset-nudge').click(function() {
+			jQuery.post(url, data, function(response) {
+				console.log(response);
+			});
+		});
+	});
+	</script>
+	<?php
 }
 
 /**
@@ -432,15 +451,6 @@ function stats_handle_test_button_toggle() {
 		let url = '/wp-json/jetpack/v4/stats/nudge';
 		var data = {
 			'action': 'odyssey-dismiss-nudge'
-		};
-		jQuery.post(url, data, function(response) {
-			console.log(response);
-		});
-	}
-	function test_button_reset() {
-		let url = '/wp-json/jetpack/v4/stats/nudge';
-		var data = {
-			'action': 'odyssey-reset-nudge'
 		};
 		jQuery.post(url, data, function(response) {
 			console.log(response);
@@ -569,7 +579,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				</a>
 				<div style="display: none;">
 					<p>Nudge Status: <?php echo esc_html( json_encode( $n_debug ) ); ?></p>
-					<p><button onclick="test_button_reset()">Reset Nudge</button></p>
+					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
 				</div>
 				<?php
 				endif;
