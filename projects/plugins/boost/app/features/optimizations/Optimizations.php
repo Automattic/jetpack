@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 
 class Optimizations implements Has_Setup {
@@ -103,7 +104,7 @@ class Optimizations implements Has_Setup {
 				continue;
 			}
 
-			$optimization->feature->do_setup();
+			Setup::add( $optimization->feature );
 
 			$this->register_endpoints( $optimization->feature );
 
