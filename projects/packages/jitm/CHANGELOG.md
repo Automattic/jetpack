@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.41] - 2023-02-06
+### Fixed
+- JITM: minor fix for styles on Safari browser.
+
+## [2.2.40] - 2023-01-30
+### Changed
+- Updated styles for Just in Time Messages (notices) [#27515]
+
+## [2.2.39] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [2.2.38] - 2023-01-23
+### Fixed
+- Prevent the activation page from displaying the JP License Activation JITM. [#27959]
+
+## [2.2.37] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
 ## [2.2.36] - 2022-12-27
 ### Removed
 - Remove src/js files from final bundle [#27930]
@@ -518,6 +538,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Update Jetpack to use new JITM package
 
+[2.2.41]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.40...v2.2.41
+[2.2.40]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.39...v2.2.40
+[2.2.39]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.38...v2.2.39
+[2.2.38]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.37...v2.2.38
+[2.2.37]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.36...v2.2.37
 [2.2.36]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.35...v2.2.36
 [2.2.35]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.34...v2.2.35
 [2.2.34]: https://github.com/Automattic/jetpack-jitm/compare/v2.2.33...v2.2.34

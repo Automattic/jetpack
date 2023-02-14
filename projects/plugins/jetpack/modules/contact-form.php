@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Module Name: Contact Form
  * Module Description: Add a customizable contact form to any post or page using the Jetpack Form Block.
@@ -17,6 +19,21 @@
  * Feature: Writing
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
+
+/**
+ * Whether to load the newer Jetpack Forms package.
+ *
+ * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
+ * @module contact-form
+ *
+ * @since 11.8
+ *
+ * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
+ */
+if ( apply_filters( 'jetpack_contact_form_use_package', false ) ) {
+	Jetpack_Forms::load_contact_form();
+	return true; // Not returning true will cause the module to become deactivated.
+}
 
 require_once __DIR__ . '/contact-form/grunion-contact-form.php';
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reassert scheduled cron-job whenever the interval setting is updated

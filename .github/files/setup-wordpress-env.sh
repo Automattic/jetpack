@@ -10,7 +10,7 @@
 # - WP_BRANCH: Version of WordPress to check out.
 #
 # Other:
-# - GITHUB_PATH: File written to if set to propagate composer path.
+# - GITHUB_ENV: File written to to set environment variables for later steps.
 
 set -eo pipefail
 
@@ -51,6 +51,11 @@ git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordp
 rm -rf "/tmp/wordpress-$WP_BRANCH/src"
 git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
+
+if [[ -n "$GITHUB_ENV" ]]; then
+	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
+	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
+fi
 
 # Don't symlink, it breaks when copied later.
 export COMPOSER_MIRROR_PATH_REPOS=true

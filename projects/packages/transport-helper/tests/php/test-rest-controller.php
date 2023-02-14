@@ -129,7 +129,7 @@ class Test_REST_Controller extends TestCase {
 		$this->assertArrayHasKey( 'path', $response_data );
 
 		// Cleanup.
-		unlink( $response_data['path'] );
+		wp_delete_file( $response_data['path'] );
 	}
 
 	/**

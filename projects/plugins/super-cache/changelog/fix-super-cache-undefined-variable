@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix undefined PHP variable when trying to delete a protected folder.

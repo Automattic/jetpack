@@ -34,7 +34,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'widgets',
 	keywords: [],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.

@@ -73,9 +73,7 @@ $matrix[] = array(
 	'timeout'             => 20, // 2022-12-19: The WorDBless WP version bump adds up to ~30s extra per project using it, which adds up.
 	'force-package-tests' => true,
 );
-// Uncomment this once WP trunk finally works with 8.2. Then merge into the above once WP latest does and we've cleaned up any problems in our own code.
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
-/*
+// Merge this into the above once we decide PHP 8.2 is stable and WP latest works with 8.2.
 $matrix[] = array(
 	'name'                => 'PHP tests: PHP 8.2 WP trunk',
 	'script'              => 'test-php',
@@ -83,9 +81,7 @@ $matrix[] = array(
 	'wp'                  => 'trunk',
 	'timeout'             => 20, // 2022-12-19: The WorDBless WP version bump adds up to ~30s extra per project using it, which adds up.
 	'force-package-tests' => true,
-	'experimental'        => true,
 );
-*/
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
@@ -101,14 +97,6 @@ $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
 	'timeout' => 15, // 2021-01-18: Successful runs seem to take ~5 minutes.
-);
-
-// Add Coverage tests.
-$matrix[] = array(
-	'name'    => 'Code coverage',
-	'script'  => 'test-coverage',
-	'wp'      => 'latest',
-	'timeout' => 30, // 2021-01-18: Successful runs seem to take ~20 minutes
 );
 
 // END matrix definitions.

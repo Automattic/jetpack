@@ -10,6 +10,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * WPCOM_social_media_icons_widget class.
  *

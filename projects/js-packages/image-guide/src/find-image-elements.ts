@@ -48,6 +48,7 @@ export function backgroundImageSource( node: HTMLElement ) {
 	if ( url && url[ 1 ] && imageLikeURL( url[ 1 ] ) ) {
 		return url[ 1 ];
 	}
+	return null;
 }
 
 /**

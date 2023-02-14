@@ -216,6 +216,8 @@ export function SpeakerEditControl( {
 		} else {
 			setEditingMode( EDIT_MODE_ADDING );
 		}
+
+		return null;
 	}
 
 	// Keep autocomplete options udated.

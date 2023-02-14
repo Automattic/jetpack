@@ -54,6 +54,7 @@ class Jetpack_CRM_Data {
 		$response['can_activate_crm'] = $response['crm_active'] ? false : current_user_can( 'activate_plugins' );
 
 		if ( $response['crm_active'] && function_exists( 'zeroBSCRM_extension_install_jetpackforms' ) ) {
+			// phpcs:ignore WordPress.WP.Capabilities.Unknown
 			$response['can_activate_extension'] = current_user_can( 'admin_zerobs_manage_options' );
 		}
 

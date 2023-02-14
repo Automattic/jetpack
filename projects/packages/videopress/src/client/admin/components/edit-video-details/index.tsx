@@ -11,8 +11,14 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
+import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, chevronRightSmall, arrowLeft } from '@wordpress/icons';
+import {
+	Icon,
+	chevronRightSmall,
+	arrowLeft,
+	globe as siteDefaultPrivacyIcon,
+} from '@wordpress/icons';
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
@@ -20,7 +26,17 @@ import { useHistory, Prompt } from 'react-router-dom';
  * Internal dependencies
  */
 import { Link } from 'react-router-dom';
+import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
+import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import {
+	VIDEO_PRIVACY_LEVEL_PRIVATE,
+	VIDEO_PRIVACY_LEVEL_PUBLIC,
+	VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+	VIDEO_RATING_G,
+	VIDEO_RATING_PG_13,
+	VIDEO_RATING_R_17,
+} from '../../../state/constants';
 import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
@@ -144,6 +160,10 @@ const EditVideoDetails = () => {
 		height,
 		title,
 		description,
+		rating,
+		privacySetting,
+		allowDownload,
+		displayEmbed,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -155,6 +175,10 @@ const EditVideoDetails = () => {
 		// Metadata
 		setTitle,
 		setDescription,
+		setRating,
+		setPrivacySetting,
+		setAllowDownload,
+		setDisplayEmbed,
 		processing,
 		// Poster Image
 		useVideoAsThumbnail,
@@ -261,6 +285,79 @@ const EditVideoDetails = () => {
 								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
 							/>
+							<div className={ styles[ 'side-fields' ] }>
+								<SelectControl
+									className={ styles.field }
+									value={ privacySetting }
+									label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+									onChange={ value => setPrivacySetting( value ) }
+									prefix={
+										// Casting for unknown since allowing only a string is a mistake
+										// at WP Components
+										( (
+											<div className={ styles[ 'privacy-icon' ] }>
+												<Icon
+													icon={
+														( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC &&
+															publicPrivacyIcon ) ||
+														( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
+															privatePrivacyIcon ) ||
+														( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
+															siteDefaultPrivacyIcon )
+													}
+												/>
+											</div>
+										 ) as unknown ) as string
+									}
+									options={ [
+										{
+											label: __( 'Site default', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+										},
+										{
+											label: __( 'Public', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_PUBLIC,
+										},
+										{
+											label: __( 'Private', 'jetpack-videopress-pkg' ),
+											value: VIDEO_PRIVACY_LEVEL_PRIVATE,
+										},
+									] }
+								/>
+								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+									{ __( 'Share', 'jetpack-videopress-pkg' ) }
+								</Text>
+								<CheckboxControl
+									checked={ displayEmbed }
+									label={ __(
+										'Display share menu and allow viewers to copy a link or embed this video',
+										'jetpack-videopress-pkg'
+									) }
+									onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
+								/>
+								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+									{ __( 'Download', 'jetpack-videopress-pkg' ) }
+								</Text>
+								<CheckboxControl
+									checked={ allowDownload }
+									label={ __(
+										'Display download option and allow viewers to download this video',
+										'jetpack-videopress-pkg'
+									) }
+									onChange={ value => setAllowDownload( value ? 1 : 0 ) }
+								/>
+								<RadioControl
+									className={ classnames( styles.field, styles.rating ) }
+									label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
+									selected={ rating }
+									options={ [
+										{ label: __( 'G', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_G },
+										{ label: __( 'PG-13', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_PG_13 },
+										{ label: __( 'R', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_R_17 },
+									] }
+									onChange={ setRating }
+								/>
+							</div>
 						</Col>
 					</Container>
 				</AdminSection>

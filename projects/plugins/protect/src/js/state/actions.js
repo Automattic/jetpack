@@ -28,6 +28,7 @@ const SET_WAF_IS_ENABLED = 'SET_WAF_IS_ENABLED';
 const SET_WAF_IS_UPDATING = 'SET_WAF_IS_UPDATING';
 const SET_WAF_IS_TOGGLING = 'SET_WAF_IS_TOGGLING';
 const SET_WAF_CONFIG = 'SET_WAF_CONFIG';
+const SET_WAF_STATS = 'SET_WAF_STATS';
 
 const setStatus = status => {
 	return { type: SET_STATUS, status };
@@ -390,6 +391,10 @@ const setWafConfig = config => {
 	return { type: SET_WAF_CONFIG, config };
 };
 
+const setWafStats = stats => {
+	return { type: SET_WAF_STATS, stats };
+};
+
 const actions = {
 	checkCredentials,
 	setCredentials,
@@ -420,6 +425,7 @@ const actions = {
 	setWafIsUpdating,
 	setWafIsToggling,
 	setWafConfig,
+	setWafStats,
 };
 
 export {
@@ -448,5 +454,6 @@ export {
 	SET_WAF_IS_UPDATING,
 	SET_WAF_IS_TOGGLING,
 	SET_WAF_CONFIG,
+	SET_WAF_STATS,
 	actions as default,
 };

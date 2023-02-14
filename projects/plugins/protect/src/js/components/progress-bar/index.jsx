@@ -16,7 +16,7 @@ const ProgressBar = ( { className, total = 100, value } ) => {
 	}
 
 	// The percentage should not be allowed to be more than 100
-	const progress = Math.min( ( value / total ) * 100, 100 );
+	const progress = Math.min( Math.round( ( value / total ) * 100 ), 100 );
 
 	const style = {
 		width: `${ progress }%`,

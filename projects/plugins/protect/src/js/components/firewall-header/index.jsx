@@ -90,7 +90,12 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan } ) => {
+const FirewallHeader = ( {
+	status,
+	hasRequiredPlan,
+	automaticRulesEnabled,
+	automaticRulesAvailable,
+} ) => {
 	return (
 		<AdminSectionHero>
 			<Container
@@ -105,10 +110,10 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ hasRequiredPlan
+								{ automaticRulesEnabled
 									? __( 'Automatic firewall is on', 'jetpack-protect' )
 									: __(
-											'Jetpack firewall is on',
+											'Firewall is on',
 											'jetpack-protect',
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
@@ -122,7 +127,13 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 								{ __( 'Inactive', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
+								{ automaticRulesAvailable
+									? __( 'Automatic firewall is off', 'jetpack-protect' )
+									: __(
+											'Firewall is off',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
 							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
@@ -148,14 +159,19 @@ const FirewallHeader = ( { status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, isToggling } = useWafData();
+	const {
+		config: { jetpackWafAutomaticRules, jetpackWafIpList, automaticRulesAvailable },
+		isToggling,
+	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus = isEnabled ? 'on' : 'off';
+	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
+			automaticRulesEnabled={ jetpackWafAutomaticRules }
+			automaticRulesAvailable={ automaticRulesAvailable }
 		/>
 	);
 };

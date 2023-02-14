@@ -11,8 +11,9 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink, Popover } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { Icon, arrowLeft, closeSmall } from '@wordpress/icons';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import API from '../../api';
@@ -60,11 +61,13 @@ const FirewallPage = () => {
 		displayUpgradeBadge,
 		isSupported,
 		isUpdating,
+		stats,
 		toggleAutomaticRules,
 		toggleManualRules,
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
+	const { ipAllowListCount, ipBlockListCount, rulesVersion, automaticRulesLastUpdated } = stats;
 	const { hasRequiredPlan } = useProtectData();
 	const { run: runCheckoutWorkflow } = useProductCheckoutWorkflow( {
 		productSlug: JETPACK_SCAN_SLUG,
@@ -73,6 +76,13 @@ const FirewallPage = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 
 	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
+
+	/**
+	 * Automatic Rules Installation Error State
+	 *
+	 * @member {boolean} automaticRulesInstallationError - Whether or not automatic rules installation failed.
+	 */
+	const [ automaticRulesInstallationError, setAutomaticRulesInstallationError ] = useState( false );
 
 	/**
 	 * Form State
@@ -167,7 +177,8 @@ const FirewallPage = () => {
 			jetpack_waf_automatic_rules: newValue,
 		} );
 		toggleAutomaticRules()
-			.then( () =>
+			.then( () => {
+				setAutomaticRulesInstallationError( false );
 				setNotice( {
 					type: 'success',
 					duration: SUCCESS_NOTICE_DURATION,
@@ -178,8 +189,8 @@ const FirewallPage = () => {
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
-				} )
-			)
+				} );
+			} )
 			.then( () => {
 				if ( ! upgradeIsSeen ) {
 					setWafUpgradeIsSeen( true );
@@ -187,6 +198,7 @@ const FirewallPage = () => {
 				}
 			} )
 			.catch( () => {
+				setAutomaticRulesInstallationError( true );
 				setNotice( {
 					type: 'error',
 					message: errorMessage,
@@ -384,6 +396,52 @@ const FirewallPage = () => {
 							'jetpack-protect'
 						) }
 					</Text>
+					<div className={ styles[ 'toggle-section__details' ] }>
+						{ jetpackWafAutomaticRules && ! automaticRulesInstallationError && (
+							<div className={ styles[ 'automatic-rules-stats' ] }>
+								{ rulesVersion && (
+									<Text
+										className={ styles[ 'automatic-rules-stats__version' ] }
+										variant={ 'body-small' }
+									>
+										{ sprintf(
+											// translators: placeholder is the latest rules version i.e. "v2.0".
+											__( 'Automatic security rules v%s installed.', 'jetpack-protect' ),
+											rulesVersion
+										) }
+									</Text>
+								) }
+								{ automaticRulesLastUpdated && (
+									<Text
+										className={ styles[ 'automatic-rules-stats__last-updated' ] }
+										variant={ 'body-small' }
+									>
+										{ sprintf(
+											// translators: placeholder is the date latest rules were updated i.e. "September 23, 2022".
+											__( 'Last updated on %s.', 'jetpack-protect' ),
+											moment.unix( automaticRulesLastUpdated ).format( 'MMMM D, YYYY' )
+										) }
+									</Text>
+								) }
+							</div>
+						) }
+						{ automaticRulesInstallationError && (
+							<>
+								<Text
+									className={ styles[ 'automatic-rules-stats__failed-install' ] }
+									variant={ 'body-small' }
+									mt={ 2 }
+								>
+									{ __( 'Failed to install automatic rules.', 'jetpack-protect' ) }
+								</Text>
+								<Button variant={ 'link' } href={ PLUGIN_SUPPORT_URL }>
+									<Text variant={ 'body-small' }>
+										{ __( 'Contact support', 'jetpack-protect' ) }
+									</Text>
+								</Button>
+							</>
+						) }
+					</div>
 				</div>
 			</div>
 			{ ! hasRequiredPlan && (
@@ -436,12 +494,54 @@ const FirewallPage = () => {
 						) }
 					</Text>
 					{ jetpackWafIpList && (
-						<div className={ styles[ 'edit-manual-rules-section' ] }>
-							<Text variant={ 'body-small' } mt={ 2 }>
-								{ '' === jetpackWafIpAllowList &&
-									'' === jetpackWafIpBlockList &&
-									__( 'No manual rules are being applied.', 'jetpack-protect' ) }
-							</Text>
+						<div className={ styles[ 'toggle-section__details' ] }>
+							<div className={ styles[ 'manual-rules-stats' ] }>
+								{ ipAllowListCount === 0 && ipBlockListCount === 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__no-rules' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ __( 'No manual rules are being applied.', 'jetpack-protect' ) }
+									</Text>
+								) }
+								{ ipBlockListCount > 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__block-list-count' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ sprintf(
+											// translators: placeholder is a number of blocked IP addresses i.e. "5 IPs are being blocked".
+											_n(
+												'%s IP is being blocked. ',
+												'%s IPs are being blocked. ',
+												ipBlockListCount,
+												'jetpack-protect'
+											),
+											ipBlockListCount === 1 ? 'One' : ipBlockListCount
+										) }
+									</Text>
+								) }
+								{ ipAllowListCount > 0 && (
+									<Text
+										className={ styles[ 'manual-rules-stats__allow-list-count' ] }
+										variant={ 'body-small' }
+										mt={ 2 }
+									>
+										{ sprintf(
+											// translators: placeholder is a number of allowed IP addresses i.e. "5 IPs are being allowed".
+											_n(
+												'%s IP is being allowed.',
+												'%s IPs are being allowed.',
+												ipAllowListCount,
+												'jetpack-protect'
+											),
+											ipAllowListCount === 1 ? 'One' : ipAllowListCount
+										) }
+									</Text>
+								) }
+							</div>
 							<Button variant={ 'link' } disabled={ ! isEnabled }>
 								<Text variant={ 'body-small' } onClick={ handleShowManualRulesClick }>
 									{ __( 'Edit manual rules', 'jetpack-protect' ) }
@@ -458,7 +558,7 @@ const FirewallPage = () => {
 	 * Manual Rules Settings
 	 */
 	const manualRulesSettings = (
-		<div className={ styles[ 'manual-rule-wrapper' ] }>
+		<div>
 			<Button
 				className={ styles[ 'go-back-button' ] }
 				variant={ 'icon' }
@@ -476,7 +576,7 @@ const FirewallPage = () => {
 					'jetpack-protect'
 				) }
 			</Text>
-			<div className={ styles[ 'manual-rule-section' ] }>
+			<div className={ styles[ 'manual-rules-section' ] }>
 				<Textarea
 					id="jetpack_waf_ip_block_list"
 					label={ __( 'Blocked IP addresses', 'jetpack-protect' ) }
@@ -487,7 +587,7 @@ const FirewallPage = () => {
 					disabled={ formIsSubmitting }
 				/>
 			</div>
-			<div className={ styles[ 'manual-rule-section' ] }>
+			<div className={ styles[ 'manual-rules-section' ] }>
 				<Textarea
 					id="jetpack_waf_ip_allow_list"
 					label={ __( 'Always allowed IP addresses', 'jetpack-protect' ) }

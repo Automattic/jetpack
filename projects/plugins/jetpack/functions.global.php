@@ -428,3 +428,38 @@ function jetpack_is_frontend() {
 	 */
 	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
 }
+
+/**
+ * Build a list of Mastodon instance hosts.
+ * That list can be extended via a filter.
+ *
+ * @since 11.8
+ *
+ * @return array
+ */
+function jetpack_mastodon_get_instance_list() {
+	$mastodon_instance_list = array(
+		// Regex pattern to match any .tld for the mastodon host name.
+		'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
+		// Regex pattern to match any .tld for the mstdn host name.
+		'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
+		'counter.social',
+		'fosstodon.org',
+		'gc2.jp',
+		'hachyderm.io',
+		'infosec.exchange',
+		'mas.to',
+		'pawoo.net',
+	);
+
+	/**
+	 * Filter the list of Mastodon instances.
+	 *
+	 * @since 11.8
+	 *
+	 * @module widgets, theme-tools
+	 *
+	 * @param array $mastodon_instance_list Array of Mastodon instances.
+	 */
+	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+}

@@ -18,6 +18,8 @@
  * possible future work to recombine the front-ends.
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 
 Assets::add_resource_hint(

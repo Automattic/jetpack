@@ -14,7 +14,9 @@ import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
-const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
+const cssGenPath = path.dirname(
+	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
+);
 
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
@@ -65,10 +67,6 @@ if ( ! production ) {
 }
 
 const GUIDE_PATH = `app/features/image-guide`;
-/**
- * Replace the variable with `production` when publishing.
- */
-const imageGuideProduction = false;
 
 export default [
 	/**
@@ -168,7 +166,6 @@ export default [
 					'createPortal',
 					'findDOMNode',
 					'render',
-					'unmountComponentAtNode',
 					'createRef',
 					'memo',
 					'useImperativeHandle',
@@ -215,11 +212,15 @@ export default [
 	{
 		input: `${ GUIDE_PATH }/src/index.ts`,
 		output: {
-			sourcemap: ! imageGuideProduction,
+			sourcemap: ! production,
 			format: 'iife',
 			name: 'app',
 			file: `${ GUIDE_PATH }/dist/guide.js`,
+			globals: {
+				'@wordpress/components': 'wp.components',
+			},
 		},
+		external: [ '@wordpress/components' ],
 		plugins: [
 			replace( {
 				preventAssignment: true,
@@ -251,21 +252,21 @@ export default [
 			postcss( {
 				extensions: [ '.css', '.sss', '.pcss', '.sass', '.scss' ],
 				extract: path.resolve( `${ GUIDE_PATH }/dist/guide.css` ),
-				minimize: imageGuideProduction,
+				minimize: production,
 			} ),
 
 			svelteSVG(),
 			svelte( {
-				preprocess: sveltePreprocess( { sourceMap: ! imageGuideProduction } ),
+				preprocess: sveltePreprocess( { sourceMap: ! production } ),
 				compilerOptions: {
 					// enable run-time checks when not in production
-					dev: ! imageGuideProduction,
+					dev: ! production,
 				},
 			} ),
 
 			typescript( {
-				sourceMap: ! imageGuideProduction,
-				inlineSources: ! imageGuideProduction,
+				sourceMap: ! production,
+				inlineSources: ! production,
 				// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
 				// we need to include those here and pass the custom tsconfig as well
 				include: tsconfig.include,

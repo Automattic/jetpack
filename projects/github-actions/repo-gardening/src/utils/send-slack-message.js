@@ -9,7 +9,7 @@ const fetch = require( 'node-fetch' );
  * @param {string}                    channel             - Slack channel ID.
  * @param {string}                    token               - Slack token.
  * @param {WebhookPayloadPullRequest} payload             - Pull request event payload.
- * @param {Object}                    customMessageFormat - Custom message formatting. If defined, takes over from message completely.
+ * @param {object}                    customMessageFormat - Custom message formatting. If defined, takes over from message completely.
  * @returns {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
  */
 async function sendSlackMessage( message, channel, token, payload, customMessageFormat = {} ) {

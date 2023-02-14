@@ -1069,7 +1069,15 @@ abstract class Publicize_Base {
 						'attached_media' => array(
 							'type'  => 'array',
 							'items' => array(
-								'type' => 'number',
+								'type'       => 'object',
+								'properties' => array(
+									'id'  => array(
+										'type' => 'number',
+									),
+									'url' => array(
+										'type' => 'string',
+									),
+								),
 							),
 						),
 					),
@@ -1594,6 +1602,8 @@ abstract class Publicize_Base {
 		return $has_paid_plan;
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Get Calypso URL for Publicize connections.

@@ -11,10 +11,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
+use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
-const FEATURE_NAME = 'subscriptions';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+require_once __DIR__ . '/constants.php';
 
 /**
  * These block defaults should match ./constants.js
@@ -49,8 +49,63 @@ function register_block() {
 			)
 		);
 	}
+
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+	) {
+		return; // Stop here if our Paid Newsletter feature is not enabled.
+	}
+
+	register_post_meta(
+		'post',
+		META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+		array(
+			'show_in_rest'  => true,
+			'single'        => true,
+			'type'          => 'string',
+			'auth_callback' => function () {
+				return wp_get_current_user()->has_cap( 'edit_posts' );
+			},
+		)
+	);
+
+	// This ensures Jetpack will sync this post meta to WPCOM.
+	add_filter(
+		'jetpack_sync_post_meta_whitelist',
+		function ( $allowed_meta ) {
+			return array_merge( $allowed_meta, array( META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ) );
+		}
+	);
+
+	// Hide the content
+	add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
+
+	// Close comments on the front-end
+	add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments', 10, 2 );
+	add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments', 10, 2 );
+
+	// Hide existing comments
+	add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
+
+	// Gate the excerpt for a post
+	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
+
+/**
+ * Check if Newsletter plans are available for a site
+ *
+ * @return bool - Default to false.
+ */
+function has_newsletter_plans() {
+	return (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		&& class_exists( 'Jetpack_Memberships' )
+		&& Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
+	);
+}
 
 /**
  * Returns true when in a WP.com environment.
@@ -306,13 +361,21 @@ function get_element_styles_from_attributes( $attributes ) {
 /**
  * Subscriptions block render callback.
  *
- * @param array  $attributes Array containing the block attributes.
- * @param string $content    String containing the block content.
+ * @param array $attributes Array containing the block attributes.
  *
  * @return string
  */
-function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+function render_block( $attributes ) {
+	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+	if ( has_newsletter_plans() ) {
+		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
+		if ( ! wp_style_is( 'enqueued' ) ) {
+			wp_enqueue_style( 'thickbox' );
+		}
+	} else {
+		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
+	}
 
 	$subscribe_email = '';
 
@@ -362,6 +425,23 @@ function render_block( $attributes, $content ) { // phpcs:ignore VariableAnalysi
 }
 
 /**
+ * Generates the source parameter to pass to the iframe
+ *
+ * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+ */
+function get_post_access_level() {
+	$post_id = get_the_ID();
+	if ( ! $post_id ) {
+		return 'everybody';
+	}
+	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+	if ( empty( $meta ) ) {
+		$meta = 'everybody';
+	}
+	return $meta;
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -384,6 +464,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="wp-block-jetpack-subscriptions__container">
@@ -391,6 +473,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 				action="<?php echo esc_url( $url ); ?>"
 				method="post"
 				accept-charset="utf-8"
+				data-blog="<?php echo esc_attr( get_current_blog_id() ); ?>"
+				data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
 				id="<?php echo esc_attr( $form_id ); ?>"
 			>
 				<?php
@@ -417,8 +501,8 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 							%1$s
 							style="%2$s"
 							placeholder="%3$s"
-							value=""
-							id="%4$s"
+							value="%4$s"
+							id="%5$s"
 						/>',
 						( ! empty( $classes['email_field'] )
 							? 'class="' . esc_attr( $classes['email_field'] ) . '"'
@@ -429,6 +513,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 							: 'width: 95%; padding: 1px 10px'
 						),
 						esc_attr( $data['subscribe_placeholder'] ),
+						esc_attr( $data['subscribe_email'] ),
 						esc_attr( $email_field_id )
 					);
 					?>
@@ -497,11 +582,21 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
+	$blog_id           = \Jetpack_Options::get_option( 'id' );
+	$post_access_level = get_post_access_level();
+
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
 		<div class="jetpack_subscription_widget">
 			<div class="wp-block-jetpack-subscriptions__container">
-				<form action="#" method="post" accept-charset="utf-8" id="<?php echo esc_attr( $form_id ); ?>">
+				<form
+					action="#"
+					method="post"
+					accept-charset="utf-8"
+					data-blog="<?php echo esc_attr( $blog_id ); ?>"
+					data-post_access_level="<?php echo esc_attr( $post_access_level ); ?>"
+					id="<?php echo esc_attr( $form_id ); ?>"
+				>
 					<p id="subscribe-email">
 						<label id="jetpack-subscribe-label"
 							class="screen-reader-text"
@@ -527,6 +622,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 						<?php endif; ?>
 					>
 						<input type="hidden" name="action" value="subscribe"/>
+						<input type="hidden" name="blog_id" value="<?php echo (int) $blog_id; ?>"/>
 						<input type="hidden" name="source" value="<?php echo esc_url( $data['referer'] ); ?>"/>
 						<input type="hidden" name="sub-type" value="<?php echo esc_attr( $data['source'] ); ?>"/>
 						<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $form_id ); ?>"/>
@@ -568,4 +664,94 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	<?php
 
 	return ob_get_clean();
+}
+
+/**
+ * Filter excerpts looking for subscription data.
+ *
+ * @param string   $excerpt The extrapolated excerpt string.
+ * @param \WP_Post $post    The current post being processed (in `get_the_excerpt`).
+ *
+ * @return mixed
+ */
+function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
+	// The blogmagazine theme is overriding WP core `get_the_excerpt` filter and only passing the excerpt
+	// TODO: Until this is fixed, return the excerpt without gating. See https://github.com/Automattic/jetpack/pull/28102#issuecomment-1369161116
+	if ( $post && false !== strpos( $post->post_content, '<!-- wp:jetpack/subscriptions -->' ) ) {
+		$excerpt .= sprintf(
+			// translators: %s is the permalink url to the current post.
+			__( "<p><a href='%s'>View post</a> to subscribe to site newsletter.</p>", 'jetpack' ),
+			get_post_permalink()
+		);
+	}
+	return $excerpt;
+}
+
+/**
+ * Gate access to posts
+ *
+ * @param string $the_content Post content.
+ *
+ * @return string
+ */
+function maybe_get_locked_content( $the_content ) {
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $the_content;
+	}
+	return get_locked_content_placeholder_text();
+}
+
+/**
+ * Gate access to comments. We want to close comments on private sites.
+ *
+ * @param bool $default_comments_open Default state of the comments_open filter.
+ * @param int  $post_id Current post id.
+ *
+ * @return bool
+ */
+function maybe_close_comments( $default_comments_open, $post_id ) {
+	if ( ! $default_comments_open || ! $post_id ) {
+		return $default_comments_open;
+	}
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	return Jetpack_Memberships::user_can_view_post();
+}
+
+/**
+ * Gate access to exisiting comments
+ *
+ * @param string $comment The comment.
+ *
+ * @return string
+ */
+function maybe_gate_existing_comments( $comment ) {
+	if ( empty( $comment ) ) {
+		return $comment;
+	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+	if ( Jetpack_Memberships::user_can_view_post() ) {
+		return $comment;
+	}
+	return '';
+}
+
+/**
+ * Placeholder text for non-subscribers
+ *
+ * @return string
+ */
+function get_locked_content_placeholder_text() {
+	return do_blocks(
+		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
+			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
+			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' . esc_html__( 'This post is for paid subscribers', 'jetpack' ) . '</h2>
+			<!-- /wp:heading -->
+
+			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
+			</div>
+		<!-- /wp:group -->'
+	);
 }

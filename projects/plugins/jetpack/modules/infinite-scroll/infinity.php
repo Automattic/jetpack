@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -369,7 +371,7 @@ class The_Neverending_Home_Page {
 		 * @param object    self::wp_query()     WP_Query object for current request
 		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
-		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() ); // phpcs:ignore WordPress.WP.ClassNameCase.Incorrect -- False positive.
 		if ( is_bool( $override ) ) {
 			return $override;
 		}
@@ -1857,7 +1859,7 @@ class The_Neverending_Home_Page {
 			add_action( 'template_redirect', array( $this, 'amp_start_output_buffering' ), 0 );
 			add_action( 'shutdown', array( $this, 'amp_output_buffer' ), 1 );
 
-			if ( is_callable( "amp_{$template}_hooks" ) ) {
+			if ( is_string( $template ) && strpos( $template, '::' ) === false && is_callable( "amp_{$template}_hooks" ) ) {
 				call_user_func( "amp_{$template}_hooks" );
 			}
 

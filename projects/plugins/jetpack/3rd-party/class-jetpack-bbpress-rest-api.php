@@ -124,7 +124,7 @@ class Jetpack_BbPress_REST_API {
 			$caps[] = 'do_not_allow';
 
 			// Moderators can always edit meta.
-		} elseif ( user_can( $user_id, 'moderate' ) ) {
+		} elseif ( user_can( $user_id, 'moderate' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
 			$caps[] = 'moderate';
 
 			// Unknown so map to edit_posts.

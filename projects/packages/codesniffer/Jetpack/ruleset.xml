@@ -15,7 +15,6 @@
 	<rule ref="MediaWiki.PHPUnit.AssertEquals" />
 	<rule ref="MediaWiki.PHPUnit.AssertionOrder" />
 	<rule ref="MediaWiki.PHPUnit.SpecificAssertions" />
-	<rule ref="MediaWiki.Usage.DirUsage" />
 	<rule ref="MediaWiki.Usage.DoubleNotOperator" />
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
@@ -39,6 +38,11 @@
 	<!-- Redundant to MediaWiki.WhiteSpace.MultipleEmptyLines, which checks more locations. -->
 	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines">
 		<exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines" />
+	</rule>
+
+	<!-- Redundant to VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable, which checks more locations. -->
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<exclude name="Generic.CodeAnalysis.UnusedFunctionParameter" />
 	</rule>
 
 	<!-- Only include select VIP rules -->
@@ -73,6 +77,11 @@
 	<!-- This rule, while useful, is not one we'd want to run automatically in a pre-commit hook. -->
 	<rule ref="WordPress.WP.CapitalPDangit" phpcbf-only="true">
 		<exclude name="WordPress.WP.CapitalPDangit" />
+	</rule>
+
+	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 5.6! -->
+	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
+		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>
 
 </ruleset>

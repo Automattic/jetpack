@@ -22,7 +22,7 @@ class Waf_Compatibility {
 	 * @return void
 	 */
 	public static function add_compatibility_hooks() {
-		add_filter( 'default_option_' . Waf_Runner::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
+		add_filter( 'default_option_' . Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, __CLASS__ . '::default_option_waf_automatic_rules', 10, 3 );
 		add_filter( 'default_option_' . Waf_Initializer::NEEDS_UPDATE_OPTION_NAME, __CLASS__ . '::default_option_waf_needs_update', 10, 3 );
 	}
 
@@ -30,7 +30,7 @@ class Waf_Compatibility {
 	 * Provides a default value for sites that installed the WAF
 	 * before the automatic rules option was introduced.
 	 *
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 *
 	 * @param mixed  $default         The default value to return if the option does not exist in the database.
 	 * @param string $option          Option name.
@@ -51,7 +51,7 @@ class Waf_Compatibility {
 	 * If the option is not available, use the WAF module status
 	 * to determine whether or not to run automatic rules.
 	 *
-	 * @since 0.8.0
+	 * @since 0.9.0
 	 *
 	 * @return bool The default value for automatic rules.
 	 */

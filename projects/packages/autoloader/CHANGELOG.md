@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.15] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
 ## [2.11.14] - 2022-12-19
 ### Changed
 - Use `Composer\ClassMapGenerator\ClassMapGenerator` when available (i.e. with composer 2.4). [#27812]
@@ -292,6 +296,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.15]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.14...v2.11.15
 [2.11.14]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.13...v2.11.14
 [2.11.13]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.12...v2.11.13
 [2.11.12]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.11...v2.11.12

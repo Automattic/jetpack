@@ -1,6 +1,5 @@
-import PageActions from '../../page-actions.js';
-
-export default class WordAdsBlock extends PageActions {
+import EditorCanvas from './editor-canvas.js';
+export default class WordAdsBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Ad block' );
 		this.blockTitle = WordAdsBlock.title();
@@ -27,7 +26,7 @@ export default class WordAdsBlock extends PageActions {
 	}
 
 	async focus() {
-		return await this.click( this.getSelector( '.wp-block-jetpack-wordads' ) );
+		return await this.canvas().click( this.getSelector( '.wp-block-jetpack-wordads' ) );
 	}
 
 	/**
@@ -37,7 +36,7 @@ export default class WordAdsBlock extends PageActions {
 	 */
 	static async isRendered( page ) {
 		// We check for either the ads placeholder div, or the iframes if the ads are loaded.
-		const containerSelector = ".entry-content iframe[src*='wordads'],article .wpa";
+		const containerSelector = ".entry-content iframe[src*='wordads'],main .wpa .wpa-about";
 		await page.waitForSelector( containerSelector );
 	}
 }

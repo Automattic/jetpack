@@ -6,7 +6,11 @@
  *
  * @package automattic/jetpack
  */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+
 /**
  * Disable direct access/execution to/of the widget code.
  */

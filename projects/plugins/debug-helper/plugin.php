@@ -89,6 +89,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Jetpack Scan Helper',
 		'description' => '',
 	),
+	'cookie-state'       => array(
+		'file'        => 'class-cookie-state.php',
+		'name'        => 'Cookie State Faker',
+		'description' => '',
+	),
 );
 
 require_once __DIR__ . '/class-admin.php';

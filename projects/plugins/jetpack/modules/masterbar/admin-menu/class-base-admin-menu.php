@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 
 /**
  * Class Base_Admin_Menu
@@ -278,7 +277,6 @@ abstract class Base_Admin_Menu {
 			array(
 				'upsellNudgeJitm'  => wp_create_nonce( 'upsell_nudge_jitm' ),
 				'jitmDismissNonce' => wp_create_nonce( 'jitm_dismiss' ),
-				'isAtomic'         => ( new Host() )->is_woa_site(),
 			)
 		);
 	}

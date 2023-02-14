@@ -493,9 +493,12 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-update-cmd' ] =
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
+		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+		composerJson.config = composerJson.config || {};
+		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
+		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
 	}
 
 	try {
@@ -723,7 +726,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -733,6 +736,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 

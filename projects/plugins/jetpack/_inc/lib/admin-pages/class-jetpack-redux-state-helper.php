@@ -186,7 +186,10 @@ class Jetpack_Redux_State_Helper {
 				'support'   => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'widgets'         => current_theme_supports( 'widgets' ),
-					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
+					'webfonts'        => (
+						// @todo Remove conditional once we drop support for WordPress 6.1
+						function_exists( 'wp_theme_has_theme_json' ) ? wp_theme_has_theme_json() : WP_Theme_JSON_Resolver::theme_has_support()
+					) && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -215,6 +218,7 @@ class Jetpack_Redux_State_Helper {
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
+			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
 		);
 	}
 
@@ -401,6 +405,8 @@ class Jetpack_Redux_State_Helper {
 		return wp_generate_password( 12, false );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Gather data about the current user.

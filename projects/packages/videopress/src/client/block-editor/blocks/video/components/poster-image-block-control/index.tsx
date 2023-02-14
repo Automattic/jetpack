@@ -6,10 +6,10 @@ import { ToolbarButton, Dropdown, NavigableMenu, MenuItem } from '@wordpress/com
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import { VideoControlProps } from '../../types';
+import styles from './style.module.scss';
 /**
  * Internal dependencies
  */
-import styles from './style.module.scss';
 import { VideoPosterCardProsp } from './types';
 import type React from 'react';
 

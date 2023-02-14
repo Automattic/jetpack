@@ -81,7 +81,6 @@ class Search extends Module {
 		'jetpack-search-meta9'                   => array( 'searchable_in_all_content' => true ),
 
 		// woocommerce.
-		'entity_types'                           => array(),
 		'exclude_product_categories'             => array(),
 		'exclude_product_ids'                    => array(),
 		'free_shipping'                          => array(),
@@ -468,7 +467,6 @@ class Search extends Module {
 		'_manage_stock'                              => array(),
 		'_product_image_gallery'                     => array(),
 		'_purchase_note'                             => array(),
-		'_recorded_coupon_usage_counts'              => array(),
 		'_recorded_sales'                            => array(),
 		'_sold_individually'                         => array(),
 		'_stock'                                     => array(),
@@ -656,7 +654,6 @@ class Search extends Module {
 		'_VenueVenue'                                => array(),
 		'_VenueVenueID'                              => array(),
 		'_VenueZip'                                  => array(),
-		'_default_attributes'                        => array(),
 		'_description'                               => array(),
 		'_edit_last'                                 => array(),
 		'_feedback_all_fields'                       => array(),
@@ -666,7 +663,6 @@ class Search extends Module {
 		'_feedback_contact_form_url'                 => array(),
 		'_feedback_ip'                               => array(),
 		'_feedback_subject'                          => array(),
-		'_file_paths'                                => array(),
 		'_layout'                                    => array(),
 		'_links_to'                                  => array(),
 		'_links_to_target'                           => array(),

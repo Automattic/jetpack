@@ -98,17 +98,16 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content>ul>li .digg_button >a {		/* official Digg button no longer works, needs cleaning */
 	text-decoration: none !important;
 	display: inline-block;
-	font-size: 12px;
+	font-size: 13px;
 	font-family: "Open Sans", sans-serif;
-	font-weight: normal;
-	border-radius: 3px;
-	color: #656565 !important;
-	background: #f8f8f8;
-	border: 1px solid #cccccc;
-	box-shadow: 0 1px 0 rgba(0,0,0,.08);
+	font-weight: 500;
+	border-radius: 4px;
+	color: #2C3338 !important;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
 	text-shadow: none;
 	line-height: 23px;
-	padding: 1px 8px 0px 5px;
+	padding: 5px 11px 4px 9px;
 }
 
 .sd-social-text .sd-content ul li a.sd-button span,
@@ -154,9 +153,7 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content>ul>li>a.sd-button:active,
 .sd-social-official .sd-content>ul>li .digg_button>a:hover,
 .sd-social-official .sd-content>ul>li .digg_button>a:active {
-	color: #555;
-	background: #f6f7f7;
-	border: 1px solid #999999;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 .sd-social-icon .sd-content ul li a.sd-button:active,
@@ -202,7 +199,7 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	margin: 0 5px 5px 0;
+	margin: 0 8px 8px 0;
 	padding: 0;
 }
 /* Add more pading on touch devices */
@@ -211,8 +208,9 @@ body.highlander-dark h3.sd-title:before {
 /* Text + icon & Official */
 .sd-social-icon-text .sd-content ul li a span,
 .sd-social-official .sd-content ul li a.sd-button span,
-.sd-content ul li.preview-item a.sd-button span {
-	margin-left: 3px;
+.sd-content ul li.preview-item a.sd-button span,
+.sd-content ul li.advanced .share-more span {
+	margin-left: 6px;
 }
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;

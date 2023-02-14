@@ -268,6 +268,8 @@ class Autoloader_Debug_Helper {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 add_action( 'plugins_loaded', 'register_autoloader_debug_helper', 1000 );
 
 /**

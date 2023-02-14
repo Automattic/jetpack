@@ -33,13 +33,13 @@ const requiredProps = {
 	analytics: analytics,
 };
 
-let locationAssignSpy;
-let recordEventStub;
+const locationAssignSpy = jest.spyOn( window.location, 'assign' );
+const recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' );
 
 describe( 'RedeemPartnerCouponPostConnection', () => {
 	beforeEach( () => {
-		locationAssignSpy = jest.spyOn( window.location, 'assign' ).mockReset();
-		recordEventStub = jest.spyOn( analytics.tracks, 'recordEvent' ).mockReset();
+		locationAssignSpy.mockReset().mockReturnValue();
+		recordEventStub.mockReset().mockReturnValue();
 	} );
 
 	it( 'shows partner logo', () => {

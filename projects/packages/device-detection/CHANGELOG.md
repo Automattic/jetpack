@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.23] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
 ## [1.4.22] - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27688]
@@ -143,6 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moving jetpack_is_mobile into a package
 
+[1.4.23]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.22...v1.4.23
 [1.4.22]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.21...v1.4.22
 [1.4.21]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.20...v1.4.21
 [1.4.20]: https://github.com/Automattic/jetpack-device-detection/compare/v1.4.19...v1.4.20

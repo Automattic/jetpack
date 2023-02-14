@@ -54,6 +54,7 @@ gb_setup() {
 }
 
 configure_wp_env() {
+	$BASE_CMD exec-silent -- chown -R www-data:www-data /var/www/html/wp-content/uploads
 	$BASE_CMD wp plugin status
 
 	$BASE_CMD wp plugin activate jetpack
@@ -69,7 +70,6 @@ configure_wp_env() {
 	fi
 	$BASE_CMD wp option set permalink_structure ""
 	$BASE_CMD wp jetpack module deactivate sso
-	$BASE_CMD wp theme activate twentytwentyone
 
 	echo
 	$BASE_CMD wp plugin status

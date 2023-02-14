@@ -194,7 +194,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				list: [
 					__( 'Visit the link and check for an error.', 'jetpack-boost' ),
 					__(
-						'<retry>Try to generate Critical CSS again<retry>, in case the error was intermittent.',
+						'<retry>Try to generate Critical CSS again</retry>, in case the error was intermittent.',
 						'jetpack-boost'
 					),
 					sprintf(

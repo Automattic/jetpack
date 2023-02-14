@@ -24,7 +24,7 @@
  *     jetpack_publicize_feature_enabled: (boolean) Is this publicize feature enabled?
  *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
  *     jetpack_social_options: {
- *       attached_media: (array) List of media IDs that will be attached to the social media post.
+ *       attached_media: (array) List of media that will be attached to the social media post.
  *     }
  *   ...
  * }

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
@@ -840,7 +841,7 @@ class Helper {
 		}
 
 		$is_wpcom                  = static::is_wpcom();
-		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_private_site           = ( new Status() )->is_private_site();
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(

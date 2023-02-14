@@ -1,3 +1,5 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { ExternalLink, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import icon from './icon';
@@ -6,8 +8,9 @@ import './view.scss';
 
 // eslint-disable-next-line jsdoc/require-jsdoc
 export default function RevueEdit( { className } ) {
-	const migrationLink = 'https://wordpress.com/go/digital-marketing/migrate-from-revue-newsletter/';
-
+	const migrationLink = getRedirectUrl( 'revue-block-follower-migration', {
+		site: getSiteFragment(),
+	} );
 	return (
 		<div className={ className }>
 			{
@@ -20,11 +23,16 @@ export default function RevueEdit( { className } ) {
 					label={ __( 'Revue', 'jetpack' ) }
 				>
 					<div className={ `components-placeholder__learn-more` }>
-						<ExternalLink href={ migrationLink }>
+						<ExternalLink href={ getRedirectUrl( 'revue-block-migration-info' ) }>
 							{ __(
 								'You can migrate from Revue to the WordPress.com Newsletter - find out more here.',
 								'jetpack'
 							) }
+						</ExternalLink>
+						<br />
+						<br />
+						<ExternalLink href={ migrationLink }>
+							{ __( 'Import your subscribers to WordPress.com here.', 'jetpack' ) }
 						</ExternalLink>
 					</div>
 				</Placeholder>
