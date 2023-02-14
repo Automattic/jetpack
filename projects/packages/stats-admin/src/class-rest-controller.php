@@ -554,9 +554,7 @@ class REST_Controller {
 		unset( $params['rest_route'] );
 		if ( ! empty( $keys_to_unset ) && is_array( $keys_to_unset ) ) {
 			foreach ( $keys_to_unset as $key ) {
-				if ( isset( $params[ $key ] ) ) {
-					unset( $params[ $key ] );
-				}
+				unset( $params[ $key ] );
 			}
 		}
 		return http_build_query( $params );
