@@ -82,8 +82,8 @@ export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
  */
-export const failedProviderKeyCount = derived( recommendationStore, state =>
-	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
+export const failedProviderKeyCount = derived( issuesStore, $issues =>
+	$issues.reduce((acc, curr) => curr.errors.length > 0 ? acc + 1 : acc, 0)
 );
 
 /**
