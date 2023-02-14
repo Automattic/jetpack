@@ -290,8 +290,9 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
+				$this->filte_and_build_query_string(
+					$req->get_params(),
+					array( 'resource_id' )
 				)
 			),
 			array( 'timeout' => 5 )
@@ -385,7 +386,7 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query( $params )
+				$this->filte_and_build_query_string( $params, array( 'resource_id' ) )
 			),
 			array( 'timeout' => 5 )
 		);
@@ -419,7 +420,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/site-has-never-published-post?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filte_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -441,7 +442,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/wordads/earnings?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filte_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -461,7 +462,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/wordads/stats?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filte_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -540,5 +541,24 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Filter and build query string from all the requested params.
+	 *
+	 * @param array $params The params to filter.
+	 * @param array $keys_to_unset The keys to unset from the params array.
+	 * @return string The filtered and built query string.
+	 */
+	protected function filte_and_build_query_string( $params, $keys_to_unset = array() ) {
+		unset( $params['rest_route'] );
+		if ( ! empty( $keys_to_unset ) && is_array( $keys_to_unset ) ) {
+			foreach ( $keys_to_unset as $key ) {
+				if ( isset( $params[ $key ] ) ) {
+					unset( $params[ $key ] );
+				}
+			}
+		}
+		return http_build_query( $params );
 	}
 }
