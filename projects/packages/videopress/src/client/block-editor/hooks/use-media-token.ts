@@ -9,7 +9,7 @@ import getMediaToken from '../../lib/get-media-token';
 import { MediaTokenScopeProps } from '../../lib/get-media-token/types';
 import { VideoGUID, VideoId } from '../blocks/video/types';
 
-export type UseMediaTokenArgs = {
+type UseMediaTokenArgs = {
 	id?: VideoId;
 	guid?: VideoGUID;
 	isPrivate: boolean;
