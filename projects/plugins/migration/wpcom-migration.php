@@ -38,7 +38,7 @@ define( 'WPCOM_MIGRATION_ROOT_FILE', __FILE__ );
 define( 'WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'WPCOM_MIGRATION_SLUG', 'wpcom-migration' );
 define( 'WPCOM_MIGRATION_NAME', 'Move to WordPress.com' );
-define( 'WPCOM_MIGRATION_URI', 'https://wordpress.com/wpcom-migration' );
+define( 'WPCOM_MIGRATION_URI', 'https://wordpress.com/' );
 define( 'WPCOM_MIGRATION_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 // Jetpack Autoloader.
