@@ -74,6 +74,8 @@
 				{#if $isEnabled}
 					<slot name="meta" />
 				{/if}
+
+				<slot name="notice" />
 			</div>
 		</div>
 	</div>

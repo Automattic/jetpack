@@ -1,5 +1,3 @@
-import { writable } from 'svelte/store';
-
-const store = writable( 1 );
-
-export default store;
+export { API } from './API';
+export { SyncedStore } from './SyncedStore';
+export { initializeClient } from './initializeClient';

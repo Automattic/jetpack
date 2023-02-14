@@ -42,8 +42,8 @@ jQuery( function ( $ ) {
 
 		$( '.mark-complete-task button' ).addClass( 'disabled' );
 
-		const ourButton = $( this );
-		let completeBlocker = true;
+		var ourButton = $( this );
+		var completeBlocker = true;
 
 		if ( completeBlocker ) {
 			completeBlocker = false;

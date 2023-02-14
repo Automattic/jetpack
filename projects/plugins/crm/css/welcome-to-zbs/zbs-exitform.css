@@ -526,7 +526,7 @@ ul.zbscrm-wizard-payment-gateways li.zbscrm-wizard-gateway .zbscrm-wizard-gatewa
         float:left;
         margin-right:15px;
     }
-    .ph-addon-list .phclear
+    .ph-addon-list .phclear {
         clear:both;
     }
     .ph-des ul{
