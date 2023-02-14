@@ -1114,7 +1114,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	    	// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
 	    	// ... we functionised in Core.Localisation.php to keep it DRY
 
-			// phpcs:disable
+	        // phpcs:disable
 	        // temp pre v3.0 fix, forcing english en for this datepicker only. 
 	        // requires js mod: search #forcedlocaletasks
 	        // (Month names are localised, causing a mismatch here (Italian etc.)) 
@@ -1122,7 +1122,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	        //      d F Y H:i:s (date - not locale based)
 	        // https://www.php.net/manual/en/function.date.php
 	        // ... into
-            //      %d %B %Y %H:%M:%S (strfttime - locale based date)
+	        //      %d %B %Y %H:%M:%S (strfttime - locale based date)
 	        // (https://www.php.net/manual/en/function.strftime.php)
 
 	        /*
@@ -1135,7 +1135,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	        $start_d = strftime("%d %B %Y %H:%M:%S",$task['start']);
 	        $end_d =  strftime("%d %B %Y %H:%M:%S",$task['end']);
 	        zeroBSCRM_locale_resetServerLocale();
-			// phpcs:enable
+	        // phpcs:enable
 	        */
 
 	        $start_d = zeroBSCRM_date_forceEN($task['start']);
