@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d5490f1aee3f1b1f368eccd187a37076",
+    "content-hash": "945164e5252332ec45fe7084204373aa",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -801,16 +801,16 @@
         },
         {
             "name": "automattic/jetpack-forms",
-            "version": "v0.2.1",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-forms.git",
-                "reference": "d4b295b113f68e9fb1749472c47a114a941e1844"
+                "reference": "04e5208e40fbef110187281c347444ef2be9329d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/d4b295b113f68e9fb1749472c47a114a941e1844",
-                "reference": "d4b295b113f68e9fb1749472c47a114a941e1844",
+                "url": "https://api.github.com/repos/Automattic/jetpack-forms/zipball/04e5208e40fbef110187281c347444ef2be9329d",
+                "reference": "04e5208e40fbef110187281c347444ef2be9329d",
                 "shasum": ""
             },
             "require-dev": {
@@ -844,9 +844,9 @@
             ],
             "description": "Jetpack Forms",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-forms/tree/v0.2.1"
+                "source": "https://github.com/Automattic/jetpack-forms/tree/v0.2.0"
             },
-            "time": "2023-02-13T20:22:24+00:00"
+            "time": "2023-01-26T20:35:54+00:00"
         },
         {
             "name": "automattic/jetpack-google-fonts-provider",

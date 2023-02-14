@@ -26,7 +26,7 @@
 		"automattic/jetpack-constants": "^1.6.20",
 		"automattic/jetpack-device-detection": "^1.4.23",
 		"automattic/jetpack-error": "^1.3.18",
-		"automattic/jetpack-forms": "^0.2.1",
+		"automattic/jetpack-forms": "^0.2.0",
 		"automattic/jetpack-google-fonts-provider": "^0.5.0",
 		"automattic/jetpack-identity-crisis": "^0.8.35",
 		"automattic/jetpack-jitm": "^2.2.41",
@@ -95,7 +95,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_8_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_8_3",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

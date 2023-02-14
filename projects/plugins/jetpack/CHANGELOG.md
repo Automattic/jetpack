@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8.3 - 2023-02-14
+### Bug fixes
+- Forms block: downgraded package version.
+
 ## 11.8.2 - 2023-02-14
 ### Bug fixes
 - Packages: fixed package versions.
