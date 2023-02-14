@@ -27,8 +27,9 @@
 	font-size: $font-body-small;
 }
 
-	.jetpack-pagestyles a {
+	.jetpack-pagestyles a:not(.dops-button):not(.jitm-button) {
 		text-decoration: none;
+		color: var(--jp-green-50);
 	}
 
 	// Hello Dolly positioning overwrite
