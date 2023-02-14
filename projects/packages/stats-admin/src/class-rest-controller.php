@@ -290,8 +290,9 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
+				$this->filter_and_build_query_string(
+					$req->get_params(),
+					array( 'resource_id' )
 				)
 			),
 			array( 'timeout' => 5 )
@@ -385,7 +386,7 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query( $params )
+				$this->filter_and_build_query_string( $params, array( 'resource_id' ) )
 			),
 			array( 'timeout' => 5 )
 		);
@@ -419,7 +420,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/site-has-never-published-post?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -441,7 +442,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/wordads/earnings?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -461,7 +462,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/wordads/stats?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -518,11 +519,7 @@ class REST_Controller {
 		}
 
 		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
-				array( 'status' => $response_code )
-			);
+			return $this->get_wp_error( $response_body, $response_code );
 		}
 
 		// Cache the successful JSON response for 5 minutes.
@@ -540,5 +537,51 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Filter and build query string from all the requested params.
+	 *
+	 * @param array $params The params to filter.
+	 * @param array $keys_to_unset The keys to unset from the params array.
+	 * @return string The filtered and built query string.
+	 */
+	protected function filter_and_build_query_string( $params, $keys_to_unset = array() ) {
+		if ( isset( $params['rest_route'] ) ) {
+			unset( $params['rest_route'] );
+		}
+		if ( ! empty( $keys_to_unset ) && is_array( $keys_to_unset ) ) {
+			foreach ( $keys_to_unset as $key ) {
+				if ( isset( $params[ $key ] ) ) {
+					unset( $params[ $key ] );
+				}
+			}
+		}
+		return http_build_query( $params );
+	}
+
+	/**
+	 * Build error object from remote response body and status code.
+	 *
+	 * @param array $response_body Remote response body.
+	 * @param int   $response_code Http response code.
+	 * @return WP_Error
+	 */
+	protected function get_wp_error( $response_body, $response_code = 500 ) {
+		$error_code = 'remote-error';
+		foreach ( array( 'code', 'error' ) as $error_code_key ) {
+			if ( isset( $response_body[ $error_code_key ] ) ) {
+				$error_code = $response_body[ $error_code_key ];
+				break;
+			}
+		}
+
+		$error_message = isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error';
+
+		return new WP_Error(
+			$error_code,
+			$error_message,
+			array( 'status' => $response_code )
+		);
 	}
 }

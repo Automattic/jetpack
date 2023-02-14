@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix subscribe-block button to behave the same as in the fronted with regards to white-space and min-width rules applied to RichText by Gutenberg with the useDefaultStyles hook

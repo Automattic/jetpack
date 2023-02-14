@@ -81,19 +81,26 @@ body.settings_page_sharing ul.services-hidden {
 
 /* Generic style */
 #available-services .service, #enabled-services .service {
-	margin-right: 10px;
-	padding: 5px 10px 5px 5px;
-	border-radius: 3px;
-	border: 1px solid #bbb;
-	background: #f8f8f8;
-	background-repeat: no-repeat;
-	background-position: center center;
+	color: #2C3338 !important;
+	display: inline-block;
+	font-family: "Open Sans", sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	line-height: 23px;
+	margin: 0 8px 8px 0;
+	padding: 4px 11px 5px 9px;
+	border-radius: 4px;
+	background: #fff;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+#available-services .service .options-left, #enabled-services .service .options-left {
+	align-items: center;
+	display: flex;
 }
 
 #available-services .service:hover, #enabled-services .service:hover {
-	background: #fff;
-	border: 1px solid #bbb;
-	box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.22);
 }
 
 #available-services .service.share-deprecated,
@@ -109,17 +116,13 @@ body.settings_page_sharing ul.services-hidden {
 
 /* Generic style icons */
 li.service span:before {
-	color: #555;
-	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	font: normal 18px/1 'social-logos';
-	vertical-align: top;
 	position: relative;
-	top: 1px;
-	margin-right: 3px;
+	top: -1px;
+	margin-right: 6px;
 	width: 16px;
 	height: 16px;
-	text-align: center;
 }
 li.service.share-print span:before {
 	content: '\f469';
