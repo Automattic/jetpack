@@ -198,7 +198,7 @@ class Backup extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_plugin_active() ) {
+		if ( static::is_plugin_active() || static::has_required_plan() ) {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
@@ -209,6 +209,6 @@ class Backup extends Product {
 	 * @return boolean
 	 */
 	public static function is_active() {
-		return parent::is_active() && static::has_required_plan();
+		return static::is_plugin_active() || static::has_required_plan();
 	}
 }

@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
-use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Redirect;
 use Jetpack_Core_Json_Api_Endpoints;
 
@@ -54,6 +54,9 @@ class Admin_Sidebar_Link {
 	 * Adds action hooks.
 	 */
 	public function init_hooks() {
+		if ( $this->should_show_backup() ) {
+			\Jetpack_Backup::initialize();
+		}
 		add_action( 'jetpack_admin_menu', array( $this, 'maybe_add_admin_link' ), 99 );
 		add_action( self::SCHEDULE_ACTION_HOOK, array( $this, 'refresh_state_cache' ) );
 	}
@@ -69,12 +72,6 @@ class Admin_Sidebar_Link {
 		if ( $this->should_show_scan() ) {
 			$menu_label = __( 'Scan', 'jetpack' );
 			$url        = Redirect::get_url( 'calypso-scanner' );
-			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
-		}
-
-		if ( $this->should_show_backup() ) {
-			$menu_label = __( 'VaultPress', 'jetpack' );
-			$url        = Redirect::get_url( 'calypso-backups' );
 			add_submenu_page( 'jetpack', $menu_label, esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>', 'manage_options', esc_url( $url ), null, $this->get_link_offset() );
 		}
 	}
@@ -199,7 +196,7 @@ class Admin_Sidebar_Link {
 	 * @return boolean
 	 */
 	private function has_backup_plugin() {
-		return Backup::is_active();
+		return Plugins_Installer::is_plugin_active( 'backup' );
 	}
 
 	/**
