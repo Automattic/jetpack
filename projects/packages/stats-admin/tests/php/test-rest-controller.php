@@ -221,4 +221,45 @@ class Test_REST_Controller extends Stats_Test_Case {
 			)
 		);
 	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_get_wp_error() {
+		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
+		$get_wp_error->setAccessible( true );
+
+		$this->assertEquals(
+			'err1',
+			( $get_wp_error->invoke(
+				$this->rest_controller,
+				array(
+					'error'   => 'err1',
+					'message' => 'msg1',
+				),
+				500
+			) )->get_error_code()
+		);
+		$this->assertEquals(
+			'err2',
+			( $get_wp_error->invoke(
+				$this->rest_controller,
+				array(
+					'code'    => 'err2',
+					'message' => 'msg1',
+				),
+				500
+			) )->get_error_code()
+		);
+		$this->assertEquals(
+			'unknown remote error',
+			( $get_wp_error->invoke(
+				$this->rest_controller,
+				array(
+					'code' => 'err2',
+				),
+				500
+			) )->get_error_message()
+		);
+	}
 }
