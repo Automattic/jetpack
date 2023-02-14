@@ -24,8 +24,12 @@
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@wordpress/browserslist-config": "5.9.0",
 		"concurrently": "7.4.0",
 		"webpack": "5.72.1",
 		"webpack-cli": "4.9.1"

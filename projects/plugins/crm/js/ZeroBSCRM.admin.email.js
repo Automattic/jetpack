@@ -92,9 +92,9 @@ jQuery( function ( $ ) {
 			.then( function ( result ) {
 				if ( result.value ) {
 					// ajax remove
-					const emailid = window.zbs_star_id;
+					var emailid = window.zbs_star_id;
 
-					const data = {
+					var data = {
 						action: 'zbs_delete_email_thread',
 						// don't need, is unique id 'objtype': <?php echo $this->typeInt; ?>,
 						emid: emailid,
@@ -169,7 +169,7 @@ jQuery( function ( $ ) {
 
 		$( '.spinner-gif' ).show();
 		// postbag!
-		const data = {
+		var data = {
 			action: 'zbs_email_customer_panel',
 			cid: $( this ).data( 'cid' ),
 			emid: $( this ).data( 'emid' ),
@@ -194,9 +194,9 @@ jQuery( function ( $ ) {
 
 				$( '.the-tasks' ).html( '' );
 
-				let completed_tasks = 0;
-				let progress_tasks = 0;
-				let total_tasks = 0;
+				var completed_tasks = 0;
+				var progress_tasks = 0;
+				var total_tasks = 0;
 				$.each( response.tasks, function ( k, v ) {
 					total_tasks++;
 					if ( v.complete == 1 ) {
@@ -341,7 +341,7 @@ jQuery( function ( $ ) {
 		the_customer_id = window.zbs_cid;
 		the_thread_subject = $( '.em-sub-0' ).html();
 
-		const data = {
+		var data = {
 			action: 'zbs_email_send_thread_ui',
 			emid: the_thread_id,
 			cid: the_customer_id,
@@ -382,4 +382,8 @@ function zbscrmjs_customer_setCustomerEmail( obj ) {
 			.getElementById( 'email_contact_selector' )
 			.classList.toggle( 'hidden', obj.email != '' );
 	}
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbscrmjs_customer_setCustomerEmail };
 }

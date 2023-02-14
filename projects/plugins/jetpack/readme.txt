@@ -1,5 +1,5 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 11.8
 Requires at least: 6.0
@@ -17,7 +17,7 @@ WordPress security, performance, marketing, and design tools — Jetpack is made
 = 24/7 AUTO SITE SECURITY =
 We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
 
-* Back up your site automatically in real time and restore to any point with one click. Unlimited storage for your backup. Great for eCommerce stores especially Woo.
+* Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
 * See every site change and who made it with the activity log, great for coordination, debug, maintenance, or troubleshooting.
 * Automatically perform malware scans and security scans for other code threats. One click fix to restore your site for malware.
@@ -26,6 +26,8 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Monitor your site uptime / downtime and get an instant alert of any change by email.
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
+
+You can purchase all of Jetpack’s security features in our Security bundle, or VaultPress Backup, Scan, and Akismet Anti-spam can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
 Get blazing fast site speed with Jetpack, the premier WP plugin built to leverage the power of AMP, a tool that helps optimize your site on mobile devices. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
@@ -62,12 +64,12 @@ Quickly customize your site to make it stand out — no coding needed.
 = INTEGRATIONS =
 Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
 
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores
+* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal
+* Better understand your customers and marketing with Google Analytics (GA) integration.
+* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
+* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
