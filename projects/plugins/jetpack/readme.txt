@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.6
+Stable tag: 11.8
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -17,7 +17,7 @@ WordPress security, performance, marketing, and design tools — Jetpack is made
 = 24/7 AUTO SITE SECURITY =
 We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
 
-* Back up your site automatically in real time and restore to any point with one click. Unlimited storage for your backup. Great for eCommerce stores especially Woo.
+* Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
 * See every site change and who made it with the activity log, great for coordination, debug, maintenance, or troubleshooting.
 * Automatically perform malware scans and security scans for other code threats. One click fix to restore your site for malware.
@@ -26,6 +26,8 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Monitor your site uptime / downtime and get an instant alert of any change by email.
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
+
+You can purchase all of Jetpack’s security features in our Security bundle, or VaultPress Backup, Scan, and Akismet Anti-spam can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
 Get blazing fast site speed with Jetpack, the premier WP plugin built to leverage the power of AMP, a tool that helps optimize your site on mobile devices. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
@@ -62,12 +64,12 @@ Quickly customize your site to make it stand out — no coding needed.
 = INTEGRATIONS =
 Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
 
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores
+* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal
+* Better understand your customers and marketing with Google Analytics (GA) integration.
+* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
+* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
@@ -242,69 +244,22 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.7-beta - 2023-01-02
-#### Major Enhancements
-- Blocks: add launchpad on save modal.
-- Revue block: remove functionality due to Revue shutting down, add placeholder messaging instead.
-
+### 11.9-a.1 - 2023-02-08
 #### Enhancements
-- Assistant: update Akismet and Backup names.
-- Blaze: enable functionality within the Jetpack plugin.
-- Block editor: add a new panel that gives the ability to promote posts after publishing them.
-- Contact form: move responses export to a modal triggered by a single "Export" button.
-- Dashboard: activate license key dropdown selector in the main Jetpack dashboard licenses activation page.
-- Dashboard: hide agencies module on Jetpack dashboard if site is WoA.
-- Dashboard: update Backup, Anti-spam, and VideoPress logos.
-- Dashboard: use minimized CSS for the stats widget.
-- Form block: styling adjustments including placeholder icon and link color adjustments, placeholder background color, placeholder styles and form fields styles updated to comply with WYSIWYG.
-- Form block: allow the required field text to be changed.
-- Form block: move contact-form/salesforce-lead-form out of beta blocks and into production. Add beta badge on settings.
-- Form block: simplify Form block sidebar to make the UI easier to use.
-- Form block: update Form blocks descriptions and child blocks icons.
-- Form block: update the default labels logic to allow fields without any label.
-- Global Styles: add new fonts for better i18n.
-- Google fonts: add new fonts to Global Style options.
-- Slideshow block: implement pagination styles when a gallery has more than five images.
-- Slideshow block: reduce bullet size and change the CSS justify-content to flex-start, plus replace pencil icon with edit text.
-- Slideshow block: update block description.
-- Stats: make the toggle for enabling Odyssey Stats visible for all users.
-- Subscription / Premium Content block: restrict posts to either paid subscribers or email subscribers (available with a Beta filter only), and add option for subscribers to pay while subscribing via the Subscription block, if the site owner creates one or more "newsletter" paid plans.
-- Subscription block: add a checkbox to include/exclude social followers.
-- Subscriptions block: change the label "email subscribers" to "subscribers" in the pre/post publish panel, as it also includes followers.
-- VideoPress: do not convert core/embed to videopress/video on-the-fly (WordPress.com sites).
-- VideoPress: fix cover attribute on player and add muted attribute on video shortcode.
-- Writing prompts: add a writing setting to disable showing prompts when starting a new post.
-- Writing prompts: add context to blogging prompt placeholder.
-- Writing prompts: add filter for whether prompts are enabled or not
+- Contact form: add a blur effect while the form is loading the styles.
+- Form block: include style variations.
+- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
+- VideoPress: add transform control from video block to videopress/video block.
 
 #### Improved compatibility
-- Launchpad: Sync Launchpad-related options: `launchpad_screen` and `launchpad_checklist_tasks_statuses`.
-- Site Editor: dashboard link points to wordpress.com.
-- Styling: Replaced custom maybe_inline_style() with wp_maybe_inline_styles() which is available in WP core since 5.8.0. [#27965, #27983]
-- VideoPress: make sure the Videopress shortcode is not registered if standalone VideoPress plugin already registered it.
-- Writing prompts: hide placeholder prompts by default.
+- Donations block: remove dependencies on lodash and @wordpress/keycodes
+- Podcast player block: remove dependency on wp-components from the frontend code
+- Slideshow block: remove dependency on Lodash
+- Subscriptions: update subscribe block description.
 
 #### Bug fixes
-- Admin Page: avoid querying for WAF settings when the feature is not active.
-- Dashboard: add translation context to Security product name.
-- Form block: add line breaks back to plain text email submissions.
-- Form block: adjust Form placeholder footer links style to prevent theme clashes.
-- Form block: fix contact form view responses URL.
-- Form block: fix email formatting for contact form submissions.
-- Form block: fix patterns modal scrollbar behavior and filter query.
-- General: Fix deprecation warnings when running with PHP 8.2.
-- Hovercards: fix minor Hovercards & AMP compatibility bug
-- Internationalization: fix context for translated product name.
-- Payment block: fix the upgrade nudge for Payment blocks in the Site Editor on WordPress.com sites.
-- Premium Content block: fix bug in JWT library encode() method.
-- Premium subscriptions / paid newsletters: Reverting previously merged changes which caused fatal errors in production.
-- Shortcodes: update the Mixcloud oEmbed API Endpoint to the new version.
-- Subscription block: ensure custom button spacing is correct when the button is on its own line.
-- Subscription block: fix PHP Warning.
-- VideoPress block: fix video player issue in some VideoMaker theme patterns.
-- WAF: fix Jetpack Settings WAF module plan check, and initialization of the firewall.
-- WAF: fix WPA click tracking in Agencies card.
-- Writing Prompts: do not display within mobile app.
+- Subscriptions: fix rendering of subscriber email in .com.
+- Custom CSS: scope Additional CSS submenus to site with a connected owner.
 
 --------
 

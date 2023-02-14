@@ -451,24 +451,6 @@ final class WafRuntimeTargetsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
-	 * Test using REMOTE_ADDR target
-	 */
-	public function testNormalizeRemoteAddr() {
-		$request = $this->mock_request( array( 'remote_addr' => 'test_remote_addr' ) );
-		$runtime = new Waf_Runtime( new Waf_Transforms(), new Waf_Operators(), $request );
-		$values  = $runtime->normalize_targets( array( 'remote_addr' => array() ) );
-		$this->assertCount( 1, $values );
-		$this->assertContains(
-			array(
-				'name'   => 'remote_addr',
-				'value'  => 'test_remote_addr',
-				'source' => 'remote_addr',
-			),
-			$values
-		);
-	}
-
-	/**
 	 * Test using REQUEST_BODY target
 	 */
 	public function testNormalizeRequestBody() {

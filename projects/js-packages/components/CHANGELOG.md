@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.27.4 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## 0.27.3 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.27.2 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.27.1 - 2023-01-23
+### Fixed
+- Components: Fix usage of box-sizing across the elements [#28489]
+
+## 0.27.0 - 2023-01-18
+### Added
+- Added Advanced Social plan to pricing table [#28258]
+
+## 0.26.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
 ## 0.26.4 - 2022-12-19
 ### Added
 - Add Jetpack VaultPress Backup Logo [#27802]

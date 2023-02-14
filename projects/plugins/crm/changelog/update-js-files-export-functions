@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: Adding exports to functions called externally, in all JS fiiles where it is needed.

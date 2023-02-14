@@ -34,6 +34,7 @@ require_once $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint
 require_once $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-get-term-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php';
+require_once $json_endpoints_dir . 'class.wpcom-json-api-list-dropdown-pages-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-post-types-endpoint.php';
 require_once $json_endpoints_dir . 'class.wpcom-json-api-list-post-type-taxonomies-endpoint.php';

@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.14.9 - 2023-01-25
+### Changed
+- Change the web application firewall to run automatic and manual rules independently. [#27726]
+
 ## 0.14.8 - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27696]

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Added a filter to allow users to control post-editing cache-clearing behavior

@@ -64,7 +64,6 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	const isFreePlan = useSelect( select => select( STORE_ID ).isFreePlan() );
 	const isOverLimit = useSelect( select => select( STORE_ID ).isOverLimit() );
-	const isDisabledFromOverLimitOnFreePlan = isOverLimit && isFreePlan;
 
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 	const isInstantSearchPromotionActive = useSelect( select =>
@@ -146,7 +145,7 @@ export default function DashboardPage( { isLoading = false } ) {
 							siteAdminUrl={ siteAdminUrl }
 							updateOptions={ updateOptions }
 							domain={ domain }
-							isDisabledFromOverLimit={ isDisabledFromOverLimitOnFreePlan }
+							isDisabledFromOverLimit={ isOverLimit }
 							isInstantSearchPromotionActive={ isInstantSearchPromotionActive }
 							supportsOnlyClassicSearch={ supportsOnlyClassicSearch }
 							supportsSearch={ supportsSearch }

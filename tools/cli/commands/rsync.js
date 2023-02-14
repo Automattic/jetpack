@@ -3,7 +3,7 @@ import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
 import Configstore from 'configstore';
-import execa from 'execa';
+import { execa } from 'execa';
 import inquirer from 'inquirer';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';
@@ -165,7 +165,13 @@ async function buildFilterRules( source, prefix, filters ) {
 				process.cwd(),
 				path.join( path.dirname( fullpath ), await fs.readlink( fullpath ) )
 			);
-			if ( target.startsWith( 'projects/' ) ) {
+			if (
+				target.startsWith( 'projects/' ) &&
+				( await fs.access( target ).then(
+					() => true,
+					() => false
+				) )
+			) {
 				await buildFilterRules( target, file, filters );
 				continue;
 			}

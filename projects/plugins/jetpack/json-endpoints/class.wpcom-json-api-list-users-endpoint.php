@@ -16,13 +16,13 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 		),
 
 		'query_parameters'     => array(
-			'number'         => '(int=20) Limit the total number of authors returned.',
-			'offset'         => '(int=0) The first n authors to be skipped in the returned array.',
-			'order'          => array(
+			'number'          => '(int=20) Limit the total number of authors returned.',
+			'offset'          => '(int=0) The first n authors to be skipped in the returned array.',
+			'order'           => array(
 				'DESC' => 'Return authors in descending order.',
 				'ASC'  => 'Return authors in ascending order.',
 			),
-			'order_by'       => array(
+			'order_by'        => array(
 				'ID'           => 'Order by ID (default).',
 				'login'        => 'Order by username.',
 				'nicename'     => 'Order by nicename.',
@@ -32,11 +32,12 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 				'display_name' => 'Order by display name.',
 				'post_count'   => 'Order by number of posts published.',
 			),
-			'authors_only'   => '(bool) Set to true to fetch authors only',
-			'type'           => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
-			'search'         => '(string) Find matching users.',
-			'search_columns' => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
-			'role'           => '(string) Specify a specific user role to fetch.',
+			'authors_only'    => '(bool) Set to true to fetch authors only',
+			'include_viewers' => '(bool) Set to true to include viewers for Simple sites',
+			'type'            => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+			'search'          => '(string) Find matching users.',
+			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
+			'role'            => '(string) Specify a specific user role to fetch.',
 		),
 
 		'response_format'      => array(
@@ -162,11 +163,38 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
+		$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$include_viewers = (bool) isset( $args['include_viewers'] ) && $args['include_viewers'] && $is_wpcom;
+
+		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
+		$viewers = $include_viewers ? get_private_blog_users(
+			$blog_id,
+			array(
+				'page'     => $page,
+				'per_page' => $args['number'],
+			)
+		) : array();
+		$viewers = array_map( array( $this, 'get_author' ), $viewers );
+
+		// we restrict search field to name when include_viewers is true.
+		if ( $include_viewers && ! empty( $args['search'] ) ) {
+			$viewers = array_filter(
+				$viewers,
+				function ( $viewer ) use ( $args ) {
+					// remove special database search characters from search term
+					$search_term = str_replace( '*', '', $args['search'] );
+					return strpos( $viewer->name, $search_term ) !== false;
+				}
+			);
+		}
+
 		$return = array();
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found':
-					$return[ $key ] = (int) $user_query->get_total();
+					$user_count     = (int) $user_query->get_total();
+					$viewer_count   = $include_viewers ? count( $viewers ) : 0;
+					$return[ $key ] = $user_count + $viewer_count;
 					break;
 				case 'users':
 					$users        = array();
@@ -183,7 +211,19 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					}
 
-					$return[ $key ] = $users;
+					$combined_users = array_merge( $users, $viewers );
+
+					// When viewers are included, we ignore the order & orderby parameters.
+					if ( $include_viewers ) {
+						usort(
+							$combined_users,
+							function ( $a, $b ) {
+								return strcmp( strtolower( $a->name ), strtolower( $b->name ) );
+							}
+						);
+					}
+
+					$return[ $key ] = $combined_users;
 					break;
 			}
 		}

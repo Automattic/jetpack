@@ -121,6 +121,7 @@ export const VideoRow = ( {
 	disableActionButton = false,
 	disabled = false,
 	uploadProgress,
+	isLocalVideo = false,
 }: VideoRowProps ) => {
 	const textRef = useRef( null );
 	const checkboxRef = useRef( null );
@@ -320,9 +321,15 @@ export const VideoRow = ( {
 				) }
 			</div>
 
-			<PublishFirstVideoPopover id={ id } anchor={ anchor } position="top center" />
+			{ ! isLocalVideo && (
+				<PublishFirstVideoPopover id={ id } anchor={ anchor } position="top center" />
+			) }
 		</div>
 	);
+};
+
+export const LocalVideoRow = ( props: VideoRowProps ) => {
+	return <VideoRow isLocalVideo={ true } { ...props } />;
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {

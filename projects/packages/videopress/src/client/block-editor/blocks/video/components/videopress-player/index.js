@@ -17,7 +17,12 @@ const globalScripts = [];
 // Populate scripts array with videopresAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
 	const videopresAjaxURLBlob = new Blob(
-		[ `var videopressAjax = ${ JSON.stringify( window.videopressAjax ) };` ],
+		[
+			`var videopressAjax = ${ JSON.stringify( {
+				...window.videopressAjax,
+				context: 'sandbox',
+			} ) };`,
+		],
 		{
 			type: 'text/javascript',
 		}
@@ -95,7 +100,7 @@ export default function VideoPressPlayer( {
 		}
 
 		// Once the video is loaded, delegate the height to the player (iFrame)
-		if ( preview ) {
+		if ( preview.html ) {
 			// Hack to mitigate the flickr when the player is
 			setTimeout( () => {
 				setVideoPlayerTemporaryHeightState( 'auto' );
@@ -126,6 +131,7 @@ export default function VideoPressPlayer( {
 	// Set video is loaded as False when `html` is not available.
 	useEffect( () => {
 		if ( html ) {
+			setIsVideoPlayerLoaded( true );
 			return;
 		}
 

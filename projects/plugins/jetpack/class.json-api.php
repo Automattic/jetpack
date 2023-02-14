@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
 	define( 'WPCOM_JSON_API__DEBUG', false );
 }
@@ -905,7 +907,7 @@ class WPCOM_JSON_API {
 		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
 		 * 2. In case of site based authentication, make sure the endpoint accepts it.
 		 */
-		if ( -1 === (int) get_option( 'blog_public' ) &&
+		if ( ( new Status() )->is_private_site() &&
 			! current_user_can( 'read' ) &&
 			! $this->endpoint->accepts_site_based_authentication()
 		) {

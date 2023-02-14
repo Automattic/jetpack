@@ -1196,7 +1196,7 @@ class Jetpack {
 			wp_register_script(
 				'jetpack-twitter-timeline',
 				Assets::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
-				array( 'jquery' ),
+				array(),
 				'4.0.0',
 				true
 			);
@@ -6012,6 +6012,14 @@ endif;
 			'sharing_services_email'                       => array(
 				'replacement' => null,
 				'version'     => 'jetpack-11.0.0',
+			),
+			'jetpack_dsp_promote_posts_enabled'            => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
+			),
+			'jetpack_are_blogging_prompts_enabled'         => array(
+				'replacement' => null,
+				'version'     => 'jetpack-11.8.0',
 			),
 		);
 

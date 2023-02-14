@@ -364,6 +364,17 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-jetpack-boost-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Jetpack Boost gives your site the same performance advantages as the world’s leading websites, no developer required.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Boost', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
@@ -388,7 +399,6 @@ class MyPlanHeader extends React.Component {
 		if ( isEmpty( this.props.activeProducts ) ) {
 			return null;
 		}
-
 		return (
 			<Card compact>
 				{ this.renderHeader( __( 'My Products', 'jetpack' ) ) }

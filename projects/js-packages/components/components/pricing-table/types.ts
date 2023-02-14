@@ -17,6 +17,11 @@ export type PricingTableProps = {
 	 * The columns to add to the table.
 	 */
 	children: React.ReactNode;
+
+	/**
+	 * Whether to show the intro offer disclaimer text with the ToS.
+	 */
+	showIntroOfferDisclaimer?: boolean;
 };
 
 export type PricingTableColumnProps = {
@@ -43,6 +48,11 @@ export type PricingTableItemProps = {
 	 * Whether or not the item is included in the column.
 	 */
 	isIncluded: boolean;
+
+	/**
+	 * Whether the feature is coming soon. Takes precedence over isIncluded.
+	 */
+	isComingSoon?: boolean;
 
 	/**
 	 * A custom label to display instead of the default one.

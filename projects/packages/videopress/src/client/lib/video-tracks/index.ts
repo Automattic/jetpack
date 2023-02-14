@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -17,13 +16,14 @@ export const TRACK_KIND_OPTIONS = [
 	'metadata',
 ] as const;
 
-const shouldUseJetpackVideoFetch = () => ! ( isSimpleSite() || isAtomicSite() );
+const { siteType = '' } = window?.videoPressEditorState || {};
+const shouldUseJetpackVideoFetch = siteType !== 'simple';
 
 const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: string ) {
 	return new Promise( function ( resolve, reject ) {
 		const { kind, srcLang, label, tmpFile: vttFile } = track;
 
-		getMediaToken( 'upload' ).then( ( { token, blogId } ) => {
+		getMediaToken( 'upload', { filename: vttFile.name } ).then( ( { token, blogId } ) => {
 			const body = new FormData();
 			body.append( 'kind', kind );
 			body.append( 'srclang', srcLang );
@@ -63,7 +63,7 @@ const videoPressUploadTrack = function ( track: UploadTrackDataProps, guid: stri
 export const uploadTrackForGuid = ( track: UploadTrackDataProps, guid: string ) => {
 	const { kind, srcLang, label, tmpFile } = track;
 
-	if ( shouldUseJetpackVideoFetch() ) {
+	if ( shouldUseJetpackVideoFetch ) {
 		return videoPressUploadTrack( { kind, srcLang, label, tmpFile }, guid );
 	}
 
@@ -136,7 +136,7 @@ const videoPressDeleteTrack = function ( { kind, srcLang }, guid ) {
 export const deleteTrackForGuid = ( track: DeleteTrackDataProps, guid: string ) => {
 	const { kind, srcLang } = track;
 
-	if ( shouldUseJetpackVideoFetch() ) {
+	if ( shouldUseJetpackVideoFetch ) {
 		return videoPressDeleteTrack( { kind, srcLang }, guid );
 	}
 

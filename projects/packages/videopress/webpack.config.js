@@ -6,15 +6,10 @@ module.exports = [
 	{
 		entry: {
 			// Video block
-			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.js',
-			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.js',
+			'block-editor/blocks/video/index': './src/client/block-editor/blocks/video/index.ts',
+			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
-			// Video Chapters block
-			'block-editor/blocks/video-chapters/index':
-				'./src/client/block-editor/blocks/video-chapters/index.js',
-			'block-editor/blocks/video-chapters/view':
-				'./src/client/block-editor/blocks/video-chapters/view.js',
-
+			'lib/token-bridge': './src/client/lib/token-bridge/index.ts',
 			'lib/videopress-token-bridge': './src/client/lib/videopress-token-bridge.js',
 
 			// VideoPress dashboard page

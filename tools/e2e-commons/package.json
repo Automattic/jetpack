@@ -20,7 +20,7 @@
 		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.26.0",
+		"@playwright/test": "1.29.1",
 		"@slack/web-api": "6.7.2",
 		"allure-playwright": "2.0.0-beta.19",
 		"axios": "0.27.2",
@@ -32,10 +32,10 @@
 		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
 		"winston": "3.8.1",
-		"yargs": "17.5.1"
+		"yargs": "17.6.2"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],

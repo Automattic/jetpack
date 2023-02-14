@@ -5,6 +5,7 @@
  * @package automattic/jetpack-waf
  */
 
+use Automattic\Jetpack\Waf\Waf_Constants;
 use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
@@ -17,7 +18,7 @@ final class WafRunnerTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function testDefineModeSetsDefinition() {
 		add_test_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
-		Waf_Runner::define_mode();
+		Waf_Constants::define_mode();
 		$this->assertSame( 'normal', JETPACK_WAF_MODE );
 	}
 

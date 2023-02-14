@@ -580,6 +580,8 @@ class Broken_Token {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 add_action( 'plugins_loaded', 'register_broken_token', 1000 );
 
 /**

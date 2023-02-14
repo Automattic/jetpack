@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.9] - 2023-01-25
+### Changed
+- Minor internal updates.
+
 ## [0.2.8] - 2022-12-02
 ### Changed
 - Updated package dependencies. [#27688]
@@ -66,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 - Moved the options class into Connection. [#24095]
 
+[0.2.9]: https://github.com/Automattic/jetpack-plans/compare/v0.2.8...v0.2.9
 [0.2.8]: https://github.com/Automattic/jetpack-plans/compare/v0.2.7...v0.2.8
 [0.2.7]: https://github.com/Automattic/jetpack-plans/compare/v0.2.6...v0.2.7
 [0.2.6]: https://github.com/Automattic/jetpack-plans/compare/v0.2.5...v0.2.6

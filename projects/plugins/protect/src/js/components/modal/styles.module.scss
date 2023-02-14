@@ -6,7 +6,7 @@
     left: 0;
     display: flex;
     justify-content: center;
-    align-items: start;
+    align-items: flex-start;
     padding-top: calc( var( --spacing-base ) * 12 + 2px ); // 98px
     background-color: rgba(0, 0, 0, 0.25);
     z-index: 999999;

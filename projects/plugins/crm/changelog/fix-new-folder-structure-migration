@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+adds the necessary migration to move all files that were inside the zbscrm-store folder with a flat struture to the new jpcrm-storage folder that uses a hierarchical structure

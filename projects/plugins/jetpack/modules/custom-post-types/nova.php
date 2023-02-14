@@ -26,6 +26,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Roles;
 
 /**
  * Create the new Nova CPT.
@@ -414,7 +415,8 @@ class Nova_Restaurant {
 	public function add_to_dashboard() {
 		$number_menu_items = wp_count_posts( self::MENU_ITEM_POST_TYPE );
 
-		if ( current_user_can( 'administrator' ) ) {
+		$roles = new Roles();
+		if ( current_user_can( $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			$number_menu_items_published = sprintf(
 				'<a href="%1$s">%2$s</a>',
 				esc_url(

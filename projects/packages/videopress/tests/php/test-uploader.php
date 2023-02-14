@@ -75,7 +75,6 @@ class Test_Uploader extends BaseTestCase {
 	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		$user_id = wp_insert_user(
 			array(

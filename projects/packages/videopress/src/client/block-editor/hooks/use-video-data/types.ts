@@ -7,7 +7,8 @@ import { VideoGUID, VideoId } from '../../blocks/video/types';
 export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
-	isPrivate?: boolean;
+	skipRatingControl: boolean;
+	maybeIsPrivate: boolean;
 };
 
 export type VideoDataProps = {
@@ -19,6 +20,7 @@ export type VideoDataProps = {
 	is_private?: boolean;
 	post_id?: number;
 	privacy_setting?: PrivacySettingProp;
+	private_enabled_for_site?: boolean;
 	rating?: RatingProp;
 	title?: string;
 	tracks?: VideoTracksResponseBodyProps;

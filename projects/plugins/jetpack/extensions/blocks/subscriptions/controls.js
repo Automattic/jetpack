@@ -26,6 +26,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import PaidPlanPanel from './paid-plan';
+import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -54,6 +56,7 @@ export default function SubscriptionControls( {
 } ) {
 	return (
 		<>
+			{ isNewsletterFeatureEnabled() && <PaidPlanPanel /> }
 			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
@@ -67,7 +70,7 @@ export default function SubscriptionControls( {
 							),
 							numberFormat( subscriberCount )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }

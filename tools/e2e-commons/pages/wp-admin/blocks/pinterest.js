@@ -1,6 +1,6 @@
-import PageActions from '../../page-actions.js';
+import EditorCanvas from './editor-canvas.js';
 
-export default class PinterestBlock extends PageActions {
+export default class PinterestBlock extends EditorCanvas {
 	constructor( blockId, page, pinId ) {
 		super( page, 'Pinterest block' );
 		this.blockTitle = PinterestBlock.title();
@@ -25,12 +25,9 @@ export default class PinterestBlock extends PageActions {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await this.fill( inputSelector, this.embedUrl() );
-		await this.click( descriptionSelector );
-		await this.waitForElementToBeVisible(
-			'.wp-block-jetpack-pinterest .components-sandbox',
-			30000
-		);
+		await this.canvas().fill( inputSelector, this.embedUrl() );
+		await this.canvas().click( descriptionSelector );
+		await this.canvas().waitForSelector( '.wp-block-jetpack-pinterest .components-sandbox' );
 	}
 
 	getSelector( selector ) {

@@ -1,0 +1,57 @@
+<div class="container" style="max-width:1200px;margin-left:auto;margin-right:auto">
+  <div id="zbs_top_wrapper">
+      <div id="zbs_invoice_logos" style="width:50%;float:left">
+          <div class="wh-logo-set ##LOGO-CLASS##">
+              <img id="wh-logo-set-img" src="##LOGO-URL##" style="max-width:50%" />
+          </div>
+      </div>
+      <div class="zbs-invoice-topper" style="width: 50%;float: right;text-align: right">
+          <table class="form-table" style="text-align: right;float: right">
+          <tr class="wh-large">
+              <td><strong><label>##INVOICE-LABEL-INV-REF##</label></strong></td>
+              <td>##INVOICE-REF##</td>
+          </tr>
+          <tr class="wh-large">
+              <td><strong><label>##INVOICE-LABEL-INV-DATE##</label></strong></td>
+              <td>##INVOICE-DATE##</td>
+          </tr>
+          <tr class="wh-large">
+              <td><strong><label>##INVOICE-LABEL-DUE-DATE##</label></strong></td>
+              <td>##INVOICE-DUE-DATE##</td>
+          </tr>
+       </table>
+      </div>
+  </div>
+  <div class="clear" style="clear:both"></div>
+  <table style="width:100%">
+    <tr>
+      <td style="width:50%">
+        <div id="zbs-business-info-wrapper">
+            <div class="business-info ##INVOICE-BIZ-CLASS##">
+                ##BIZ-INFO##
+            </div>
+        </div>
+      </td>
+      <td style="width:50%">
+        <div id="zbs-customer-info-wrapper">
+            <div class="customer-info">
+                ##INVOICE-CUSTOMER-INFO##
+            </div>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div class="clear"></div>
+  <div id="zbs-invoice-items" style="margin-top:2em">
+      <table class="table" style="width:100%">
+          <thead style="border:1px solid #ccc;background:#f5f5f5;padding: 20px;line-height: 30px;font-weight: 100">
+              ##INVOICE-TABLE-HEADERS##
+          </thead>
+          <div class="zbs-table-block">
+              ##INVOICE-LINE-ITEMS##
+          </div>
+      </table>
+  </div>
+  ##INVOICE-TOTALS-TABLE##
+  </div>
+  ##PORTAL-VIEW-BUTTON##

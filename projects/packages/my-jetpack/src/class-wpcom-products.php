@@ -174,11 +174,13 @@ class Wpcom_Products {
 		$cost                  = $product->cost;
 		$discount_price        = $cost;
 		$is_introductory_offer = false;
+		$introductory_offer    = null;
 
 		// Get/compute the discounted price.
 		if ( isset( $product->introductory_offer->cost_per_interval ) ) {
 			$discount_price        = $product->introductory_offer->cost_per_interval;
 			$is_introductory_offer = true;
+			$introductory_offer    = $product->introductory_offer;
 		}
 
 		$pricing = array(
@@ -186,6 +188,7 @@ class Wpcom_Products {
 			'full_price'            => $cost,
 			'discount_price'        => $discount_price,
 			'is_introductory_offer' => $is_introductory_offer,
+			'introductory_offer'    => $introductory_offer,
 		);
 
 		return self::populate_with_discount( $product, $pricing, $discount_price );

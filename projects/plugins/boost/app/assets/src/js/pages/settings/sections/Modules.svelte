@@ -1,8 +1,12 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { isModuleAvailableStore, modules } from '../../../stores/modules';
+	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
 		pollCloudCssStatus,
@@ -19,11 +23,11 @@
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
-	const lazyLoadlink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
-	const isImageGuideActive = isModuleAvailableStore( 'image-guide' );
+
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 </script>
 
@@ -52,6 +56,13 @@
 
 		<div slot="meta">
 			<CriticalCssMeta />
+		</div>
+
+		<div slot="notice">
+			<ReactComponent
+				this={RegenerateCriticalCssSuggestion}
+				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
+			/>
 		</div>
 	</Module>
 
@@ -102,28 +113,27 @@
 					`Improve page loading speed by only loading images when they are required. Read more on <link>web.dev</link>.`,
 					'jetpack-boost'
 				)}
-				vars={externalLinkTemplateVar( lazyLoadlink )}
+				vars={externalLinkTemplateVar( lazyLoadLink )}
 			/>
 		</p>
 	</Module>
 
-	{#if $isImageGuideActive}
-		<div class="settings">
-			<Module slug={'image-guide'}>
-				<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
-				<p slot="description">
-					{__(
-						`This feature helps you discover the images are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
-						'jetpack-boost'
-					)}
-				</p>
-				<!-- svelte-ignore missing-declaration -->
-				{#if false === Jetpack_Boost.site.canResizeImages}
-					<ResizingUnavailable />
-				{/if}
-			</Module>
-		</div>
-	{/if}
+	<div class="settings">
+		<Module slug={'image-guide'}>
+			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+			<p slot="description">
+				{__(
+					`This feature helps you discover images that are too large. When you browse your site, the image guide will show you an overlay with information about each image's size.`,
+					'jetpack-boost'
+				)}
+			</p>
+			<!-- svelte-ignore missing-declaration -->
+			{#if false === Jetpack_Boost.site.canResizeImages}
+				<ResizingUnavailable />
+			{/if}
+		</Module>
+	</div>
+
 	<SuperCacheInfo />
 </div>
 
@@ -141,5 +151,9 @@
 		margin-left: 10px;
 		transform: translateY( -4.5px );
 		display: inline-block;
+	}
+
+	[slot='notice'] {
+		margin-top: 1rem;
 	}
 </style>

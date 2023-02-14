@@ -5,11 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.6.0-beta - 2023-01-02
+## 1.7.0 - 2023-02-07
+### Added
+- Added Advanced Social plan to pricing table [#28258]
+
+### Changed
+- Moved resharing to be available in the free plan [#28661]
+- Updated package dependencies.
+- Update playwright dependency [#28094]
+- Use `flex-end` instead of `end` for better browser compatibility. [#28530]
+
+## 1.6.0 - 2023-01-10
 ### Added
 - Add a review request prompt for Jetpack Social plugin. [#28072]
-- Add the adminUrl to the initial editor state. [#27617]
 - Add simple JS React test. [#27122]
+- Add the adminUrl to the initial editor state. [#27617]
 - Redirect to admin page on plugin activation, and add link to admin page from plugins page. [#24586]
 
 ### Changed

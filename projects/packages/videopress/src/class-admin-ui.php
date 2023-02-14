@@ -140,6 +140,7 @@ class Admin_UI {
 		);
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 
+		// Required for Media Library access
 		wp_enqueue_media();
 
 		// Required for Analytics.

@@ -6,6 +6,8 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	function jetpack_foo_full_sync_callable() {
 		return 'the value';

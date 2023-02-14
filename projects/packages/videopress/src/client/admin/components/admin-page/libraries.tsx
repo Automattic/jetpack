@@ -11,7 +11,7 @@ import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import useQueryStringPages from '../../hooks/use-query-string-pages';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useVideos from '../../hooks/use-videos';
 import { SearchInput } from '../input';
 import { ConnectLocalPagination, ConnectPagination } from '../pagination';
@@ -50,16 +50,25 @@ const VideoLibraryWrapper = ( {
 	title?: string;
 	disabled?: boolean;
 } ) => {
-	const { setSearch, search, isFetching } = useVideos();
-	const { setPageOnURL } = useQueryStringPages();
+	const { isFetching } = useVideos();
+	const searchParams = useSearchParams();
 
 	const onSearchHandler = searchQuery => {
 		// clear the pagination, setting it back to page 1
-		setPageOnURL( 1 );
-		setSearch( searchQuery );
+		searchParams.deleteParam( 'page' );
+
+		if ( searchQuery ) {
+			searchParams.setParam( 'q', searchQuery );
+		} else {
+			searchParams.deleteParam( 'q' );
+		}
+
+		searchParams.update();
 	};
 
-	const [ searchQuery, setSearchQuery ] = useState( search );
+	const searchParamsSearchQuery = searchParams.getParam( 'q', '' );
+	const [ searchQuery, setSearchQuery ] = useState( searchParamsSearchQuery );
+
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	const [ isFilterActive, setIsFilterActive ] = useState( false );

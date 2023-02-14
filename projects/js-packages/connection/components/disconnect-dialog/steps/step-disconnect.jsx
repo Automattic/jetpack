@@ -93,7 +93,7 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @returns {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
 		const hasOtherConnectedPlugins =
@@ -111,6 +111,8 @@ const StepDisconnect = props => {
 				</div>
 			);
 		}
+
+		return undefined;
 	};
 
 	return (

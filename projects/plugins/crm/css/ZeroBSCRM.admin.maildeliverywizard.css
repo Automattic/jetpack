@@ -1,0 +1,53 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.2+
+ *
+ * Copyright 2017, ZeroBSCRM.com
+ *
+ * Date: 12/09/2017
+ */
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ * V2.2+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 12/09/2017
+ */
+#zbs-mail-delivery-wrap #zbs-mail-delivery-account-list-wrap table {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-account-list-wrap .zbs-mail-delivery-detail {
+  color: #CCC;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-wrap .ui.inverted.zbsdarkgradient.segment {
+  background: #2185D0;
+  background-image: linear-gradient(-134deg, #464C5A 0, #28263A 100%);
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-steps-wrap .zbs-step {
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2em;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-steps-wrap h1.ui.header {
+  text-align: center;
+  margin-top: 0.8em;
+  margin-bottom: 0.6em;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-steps-wrap .ui.very.padded.borderless.segment p {
+  font-size: 1.3em;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-steps-wrap #zbs-mail-delivery-wizard-validate-console-wrap {
+  padding-top: 1em;
+  font-size: 1.2em;
+}
+#zbs-mail-delivery-wrap #zbs-mail-delivery-wizard-steps-wrap .zbs-validated {
+  color: green;
+  text-align: center;
+  font-size: 1.1em;
+}

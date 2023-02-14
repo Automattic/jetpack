@@ -99,7 +99,14 @@ const UpgradePrompt = () => {
 	);
 };
 
-const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats } ) => {
+const FirewallHeader = ( {
+	status,
+	hasRequiredPlan,
+	automaticRulesEnabled,
+	automaticRulesAvailable,
+	oneDayStats,
+	thirtyDayStats,
+} ) => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 
 	// TODO: Fix mobile display when value is too large
@@ -164,10 +171,10 @@ const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats 
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ hasRequiredPlan
+								{ automaticRulesEnabled
 									? __( 'Automatic firewall is on', 'jetpack-protect' )
 									: __(
-											'Jetpack firewall is on',
+											'Firewall is on',
 											'jetpack-protect',
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
@@ -181,7 +188,13 @@ const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats 
 								{ __( 'Inactive', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
+								{ automaticRulesAvailable
+									? __( 'Automatic firewall is off', 'jetpack-protect' )
+									: __(
+											'Firewall is off',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
 							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
@@ -210,16 +223,22 @@ const FirewallHeader = ( { status, hasRequiredPlan, oneDayStats, thirtyDayStats 
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, isToggling, stats } = useWafData();
+	const {
+		config: { jetpackWafAutomaticRules, jetpackWafIpList, automaticRulesAvailable },
+		isToggling,
+		stats,
+	} = useWafData();
 	const { blockedRequests } = stats;
 	const { oneDayStats, thirtyDayStats } = blockedRequests;
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus = isEnabled ? 'on' : 'off';
+	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
 
 	return (
 		<FirewallHeader
 			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
+			automaticRulesEnabled={ jetpackWafAutomaticRules }
+			automaticRulesAvailable={ automaticRulesAvailable }
 			oneDayStats={ oneDayStats }
 			thirtyDayStats={ thirtyDayStats }
 		/>

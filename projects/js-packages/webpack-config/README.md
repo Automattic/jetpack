@@ -169,7 +169,7 @@ This provides an instance of [@automattic/webpack-rtl-plugin](https://www.npmjs.
 
 ##### `DuplicatePackageCheckerPlugin( options )`
 
-This provides an instance of [duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
+This provides an instance of [@cerner/duplicate-package-checker-webpack-plugin](https://www.npmjs.com/package/@cerner/duplicate-package-checker-webpack-plugin). The `options` are passed to the plugin.
 
 ##### `DependencyExtractionPlugin( options )`
 

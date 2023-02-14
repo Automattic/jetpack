@@ -219,7 +219,7 @@ function findClosestConfigFile( configFileName, searchPath ) {
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
  * @param {Array} files - The set of files to divide by relevant config file.
- * @returns {Object} - An object mapping config files to the files which should use them.
+ * @returns {object} - An object mapping config files to the files which should use them.
  */
 function groupByClosestConfig( configFileName, files ) {
 	return files.reduce( ( groupedFiles, file ) => {

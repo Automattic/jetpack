@@ -223,7 +223,14 @@ jQuery( document ).ready( function ( $ ) {
 			var hash = location.hash;
 
 			hash = hash.replace( /#\//, '_' );
-			if ( '_dashboard' !== hash ) {
+
+			// We always include the hash if this is My Jetpack page
+			if ( message_path.includes( 'jetpack_page_my-jetpack' )) {
+				message_path = message_path.replace(
+					'jetpack_page_my-jetpack',
+					'jetpack_page_my-jetpack' + hash
+				);
+			} else if ( '_dashboard' !== hash ) {
 				message_path = message_path.replace(
 					'toplevel_page_jetpack',
 					'toplevel_page_jetpack' + hash
@@ -256,9 +263,10 @@ jQuery( document ).ready( function ( $ ) {
 	reFetch();
 
 	$( window ).on( 'hashchange', function ( e ) {
-		var newURL = e.originalEvent.newURL;
+		const newURL = e.originalEvent.newURL;
+		const isJetpackPage = newURL.indexOf( 'jetpack#/' ) >= 0 || newURL.indexOf( 'my-jetpack' ) >= 0;
 
-		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );
 			if ( jitm_card ) {
 				jitm_card.remove();

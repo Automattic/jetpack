@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Do not load the Blaze panel in the site editor or the widget editor.
