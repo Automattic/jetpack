@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: For textarea fields, we are encoding special characters into HTML entities before store it on the DB
