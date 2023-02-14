@@ -60,7 +60,9 @@
 	],
 	"minimum-stability": "dev",
 	"extra": {
-		"autotagger": true,
+		"autotagger": {
+			"v": false
+		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
