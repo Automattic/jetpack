@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add filter to prevent contact-form-styles script from being concatenated

@@ -86,6 +86,12 @@ class Dashboard {
 	 * Override render funtion
 	 */
 	public function render() {
+		// Record the number of views of the stats dashboard on the initial several loads for the purpose of showing feedback notice.
+		$views = intval( Stats_Options::get_option( 'views' ) ) + 1;
+		if ( $views <= Notices::VIEWS_TO_SHOW_FEEDBACK ) {
+			Stats_Options::set_option( 'views', $views );
+		}
+
 		?>
 		<div id="wpcom" class="jp-stats-dashboard" style="min-height: calc(100vh - 100px);">
 			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats dashboard requires JavaScript to function properly.', 'jetpack-stats-admin' ); ?></div>
@@ -249,7 +255,7 @@ class Dashboard {
 								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url' => admin_url(),
 							),
-							'stats_notices' => array( 'opt_out_new_stats' => self::has_opt_out_new_stats_notice() ),
+							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => self::get_plan_features() ) ),
@@ -326,7 +332,7 @@ class Dashboard {
 	 * @return bool
 	 */
 	protected static function has_opt_out_new_stats_notice() {
-		$new_stats_enabled = Stats_Options::get_option( 'enable_calypso_stats' );
+		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
 		$hidden_jitms      = \Jetpack_Options::get_option( 'hide_jitm' );
 		return $new_stats_enabled && ! isset( $hidden_jitms[ self::OPT_OUT_NEW_STATS_FEATURE_CLASS ] );
 	}

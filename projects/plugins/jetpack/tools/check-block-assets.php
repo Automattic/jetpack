@@ -62,13 +62,6 @@ $allowed = array(
 	'dialogue'       => array(
 		'wp-data',
 	),
-	'map'            => array(
-		'lodash',
-		'react',
-		'react-dom',
-		'wp-components',
-		'wp-element',
-	),
 	'podcast-player' => array(
 		'lodash',
 		'react',
