@@ -142,6 +142,7 @@ export const VideoRow = ( {
 	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
+		showActions &&
 		! loading &&
 		( showActionButton ||
 			Boolean( duration ) ||
