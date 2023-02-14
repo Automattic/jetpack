@@ -22,12 +22,13 @@ export const { name, title, description, attributes } = metadata;
  */
 export default function registerVideoPressBlock() {
 	const { available } = getJetpackExtensionAvailability( name );
+	const isDev = 'production' !== process.env.NODE_ENV;
 
 	if ( ! available ) {
-		if ( 'production' !== process.env.NODE_ENV ) {
+		isDev &&
 			// eslint-disable-next-line no-console
 			console.warn( `Block videopress/video couldn't be registered because it is unavailable.` );
-		}
+
 		return false;
 	}
 
@@ -40,10 +41,8 @@ export default function registerVideoPressBlock() {
 		transforms,
 	} );
 
-	if ( 'production' !== process.env.NODE_ENV ) {
-		// eslint-disable-next-line no-console
-		console.log( `Block videopress/video registered.` );
-	}
+	// eslint-disable-next-line no-console
+	isDev && console.log( `Block videopress/video registered.` );
 
 	return result;
 }
