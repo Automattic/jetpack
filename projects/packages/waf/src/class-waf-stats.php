@@ -72,6 +72,7 @@ class Waf_Stats {
 	 * @return array
 	 */
 	public static function get_blocked_requests_from_api() {
+		// TODO: Remove the following
 		$default_data = array(
 			'one_day_stats'    => 15,
 			'thirty_day_stats' => 300,
@@ -95,6 +96,7 @@ class Waf_Stats {
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
 			// return new WP_Error( 'failed_fetching_stats', 'Failed to fetch WAF stats from the server', array( 'status' => $response_code ) );
+			// TODO: Reapply the above error and remove the following
 			self::update_option( $default_data );
 			return $default_data;
 		}
