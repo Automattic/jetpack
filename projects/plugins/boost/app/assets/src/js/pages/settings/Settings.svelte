@@ -3,7 +3,9 @@
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
+	import { connection } from '../../stores/connection';
 	import { Router, Route } from '../../utils/router';
+	import Connection from '../connection/Connection.svelte';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
 	import Score from './sections/Score.svelte';
@@ -12,26 +14,30 @@
 </script>
 
 <ReRouter to="/getting-started" when={$config.site.getStarted}>
-	<div id="jb-settings" class="jb-settings jb-settings--main">
-		<div class="jb-container">
-			<Header />
-		</div>
-
-		<div class="jb-section jb-section--alt jb-section--scores">
-			<Score />
-		</div>
-
-		<Router>
-			<div class="jb-section jb-section--main">
-				<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
-				<Route path="/" component={Modules} />
+	{#if $connection.connected || ! $config.site.online}
+		<div id="jb-settings" class="jb-settings jb-settings--main">
+			<div class="jb-container">
+				<Header />
 			</div>
-		</Router>
 
-		<Tips />
+			<div class="jb-section jb-section--alt jb-section--scores">
+				<Score />
+			</div>
 
-		<Support />
+			<Router>
+				<div class="jb-section jb-section--main">
+					<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+					<Route path="/" component={Modules} />
+				</div>
+			</Router>
 
-		<Footer />
-	</div>
+			<Tips />
+
+			<Support />
+
+			<Footer />
+		</div>
+	{:else}
+		<Connection />
+	{/if}
 </ReRouter>
