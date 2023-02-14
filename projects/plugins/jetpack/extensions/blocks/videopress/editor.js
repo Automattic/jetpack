@@ -507,9 +507,6 @@ function mapV6AttributesToV5( attributes ) {
 		delete newAttributes.classNames;
 	}
 
-	// Set default value of fileForImmediateUpload to null.
-	newAttributes.fileForImmediateUpload = null;
-
 	// Clean the rest of the attributes.
 	delete newAttributes.title;
 	delete newAttributes.description;
