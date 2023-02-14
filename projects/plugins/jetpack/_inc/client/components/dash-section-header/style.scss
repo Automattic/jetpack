@@ -59,7 +59,6 @@
 
 .jp-dash-section-header__external-link {
 	align-self: center;
-	font-style: italic;
 
 	@include breakpoint( "<660px" ) {
 		margin-top: rem( 4px );
