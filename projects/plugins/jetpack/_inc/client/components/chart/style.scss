@@ -174,7 +174,7 @@
 
 .dops-chart__bar-section {
 	display: inline-block;
-	background-color: $blue-wordpress;
+	background-color: var(--jp-green-50);
 	position: absolute;
 		top: 0; // 2
 		right: 16%; // 1
@@ -183,7 +183,7 @@
 	z-index: z-index( 'root', '.dops-chart__bar-section' );
 
 	.dops-chart__bar:hover &.is-bar {
-		background-color: $blue-medium;
+		background-color: var(--jp-green-20);
 	}
 
 	.dops-chart__bar.is-selected &.is-bar {
