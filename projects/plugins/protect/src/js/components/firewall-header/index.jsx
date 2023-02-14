@@ -115,7 +115,7 @@ const FirewallHeader = ( {
 		icon: (
 			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ shield } />
-				{ ! hasRequiredPlan && (
+				{ ! isSmall && ! hasRequiredPlan && (
 					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
 			</span>
@@ -139,7 +139,7 @@ const FirewallHeader = ( {
 		icon: (
 			<span className={ styles[ 'stat-card-icon' ] }>
 				<Icon icon={ chartBar } />
-				{ ! hasRequiredPlan && (
+				{ ! isSmall && ! hasRequiredPlan && (
 					<Text variant={ 'label' }>{ __( 'Paid feature', 'jetpack-protect' ) }</Text>
 				) }
 			</span>
