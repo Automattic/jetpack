@@ -6,6 +6,61 @@ import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import type { JSONObject } from '../utils/json-types';
 
+type Critical_CSS_Error_Types =
+	| 'SuccessTargetError'
+	| 'UrlError'
+	| 'HttpError'
+	| 'UnknownError'
+	| 'CrossDomainError'
+	| 'LoadTimeoutError'
+	| 'RedirectError'
+	| 'UrlVerifyError'
+	| 'EmptyCSSError'
+	| 'XFrameDenyError';
+
+interface CriticalCssErrorDetails {
+	message: string;
+	type: Critical_CSS_Error_Types;
+	meta: JSONObject;
+}
+
+type Critical_CSS_Issue = {
+	provider_name: string;
+	key: string;
+	errors: {
+		url: string;
+		message: string;
+		type: Critical_CSS_Error_Types;
+		meta: JSONObject;
+	}[];
+};
+
+const { criticalCSS } = Jetpack_Boost;
+const initialIssues: Critical_CSS_Issue[] = criticalCSS?.status
+	? Object.entries( criticalCSS.status.providers_errors ).reduce< Critical_CSS_Issue[] >(
+			( issues, [ providerKey, urlErrors ] ) => {
+				const { provider_key_labels } = criticalCSS.status;
+				const providerName = provider_key_labels?.[ providerKey ] ?? providerKey;
+				const existingIssue = issues.find( issue => issue.provider_name === providerName );
+				const errors = Object.entries( urlErrors ).map( ( [ url, error ] ) => ( {
+					url,
+					message: error.message,
+					type: error.type,
+					meta: error.meta,
+				} ) );
+				if ( existingIssue ) {
+					existingIssue.errors.push( ...errors );
+				} else {
+					issues.push( { provider_name: providerName, key: providerKey, errors } );
+				}
+				return issues;
+			},
+			[]
+	  )
+	: [];
+console.log(initialIssues);
+
+const issuesStore = writable< Critical_CSS_Issue[] >( initialIssues );
 
 export type Critical_CSS_Recommendations = {
 	providers_errors?: {
@@ -14,18 +69,10 @@ export type Critical_CSS_Recommendations = {
 		};
 	};
 	provider_key_labels?: { [ name: string ]: string };
-interface CriticalCssErrorDetails {
-	message: string;
-	type: Critical_CSS_Error_Types;
-	meta: JSONObject;
-}
 };
-
-// @TODO REFACTORING IN PROGRESS 🍟 - Move options to wp-js-async-store
 const initialRecommendations: Critical_CSS_Recommendations =
 	Jetpack_Boost.criticalCSS?.status || {};
 const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
-
 const recommendationStore = writable< Critical_CSS_Recommendations >( initialRecommendations );
 const dismissed = writable< string[] >( initialState );
 const dismissalErrorStore = writable( null );

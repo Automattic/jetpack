@@ -36,7 +36,6 @@ declare global {
 		};
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
-		criticalCssDismissedRecommendations: string[];
 		dismissedScorePrompts: string[];
 		superCache: {
 			pluginActive: boolean;
