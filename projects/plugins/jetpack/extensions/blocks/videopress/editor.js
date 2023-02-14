@@ -639,6 +639,10 @@ const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
 				return;
 			}
 
+			if ( attributes?.originalName !== 'videopress/video' ) {
+				return;
+			}
+
 			try {
 				const parsedData = parse( attributes.originalContent );
 				const originalBlock = parsedData?.[ 0 ];
