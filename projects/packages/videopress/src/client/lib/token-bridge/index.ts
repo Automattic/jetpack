@@ -26,6 +26,7 @@ type TokenBrigeEventProps = {
 	guid: VideoGUID;
 	requestId: string;
 	origin: Origin;
+	isRetry?: boolean;
 };
 
 /**
@@ -49,7 +50,7 @@ export async function tokenBridgeHandler(
 
 	const { context = 'main' } = videopressAjax;
 
-	const { guid, requestId } = event.data;
+	const { guid, requestId, isRetry } = event.data;
 	if ( ! guid || ! requestId ) {
 		debug( '(%s) Invalid request', context );
 		return;
@@ -98,6 +99,7 @@ export async function tokenBridgeHandler(
 		id: Number( postId ),
 		guid,
 		adminAjaxAPI: videopressAjax.ajaxUrl,
+		flushToken: isRetry, // flush the token if it's a retry
 	} );
 
 	if ( ! tokenData?.token ) {
