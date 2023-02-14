@@ -1122,7 +1122,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	        //      d F Y H:i:s (date - not locale based)
 	        // https://www.php.net/manual/en/function.date.php
 	        // ... into
-			//      %d %B %Y %H:%M:%S (strfttime - locale based date)
+            //      %d %B %Y %H:%M:%S (strfttime - locale based date)
 	        // (https://www.php.net/manual/en/function.strftime.php)
 
 	        /*

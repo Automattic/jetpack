@@ -744,7 +744,7 @@ function zeroBSCRM_task_ui_date($taskObject = array()){
 
     } else {
 
-		// phpcs:disable
+        // phpcs:disable
         // temp pre v3.0 fix, forcing english en for this datepicker only. 
         // requires js mod: search #forcedlocaletasks
         // (Month names are localised, causing a mismatch here (Italian etc.)) 
@@ -752,7 +752,7 @@ function zeroBSCRM_task_ui_date($taskObject = array()){
         //      d F Y H:i:s (date - not locale based)
         // https://www.php.net/manual/en/function.date.php
         // ... into
-		//      %d %B %Y %H:%M:%S (strfttime - locale based date)
+        //      %d %B %Y %H:%M:%S (strfttime - locale based date)
         // (https://www.php.net/manual/en/function.strftime.php)
 
         /*
@@ -764,7 +764,7 @@ function zeroBSCRM_task_ui_date($taskObject = array()){
         $start_d = strftime("%d %B %Y %H:%M:%S",$taskObject['start']);
         $end_d =  strftime("%d %B %Y %H:%M:%S",$taskObject['end']);
         zeroBSCRM_locale_resetServerLocale();
-		// phpcs:enable
+        // phpcs:enable
     }
 
     $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
