@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import editorImageURL from '../../../../utils/editor-image-url';
 import { VideoBlockColorAttributesProps, VideoControlProps } from '../../types';
 import dynamicColorsImage from './dynamic-colors.png';
 import './style.scss';
@@ -55,7 +56,7 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 						) }
 						<img
 							className="videopress-dynamic-color-example"
-							src={ dynamicColorsImage }
+							src={ editorImageURL( dynamicColorsImage ) }
 							alt={ __( 'Dynamic colors example', 'jetpack-videopress-pkg' ) }
 						></img>
 					</>

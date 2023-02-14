@@ -82,8 +82,8 @@ function register_block() {
 	add_action( 'the_content', __NAMESPACE__ . '\maybe_get_locked_content' );
 
 	// Close comments on the front-end
-	add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments' );
-	add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments' );
+	add_filter( 'comments_open', __NAMESPACE__ . '\maybe_close_comments', 10, 2 );
+	add_filter( 'pings_open', __NAMESPACE__ . '\maybe_close_comments', 10, 2 );
 
 	// Hide existing comments
 	add_filter( 'get_comment', __NAMESPACE__ . '\maybe_gate_existing_comments' );
@@ -704,11 +704,17 @@ function maybe_get_locked_content( $the_content ) {
 }
 
 /**
- * Gate access to comments
+ * Gate access to comments. We want to close comments on private sites.
+ *
+ * @param bool $default_comments_open Default state of the comments_open filter.
+ * @param int  $post_id Current post id.
  *
  * @return bool
  */
-function maybe_close_comments() {
+function maybe_close_comments( $default_comments_open, $post_id ) {
+	if ( ! $default_comments_open || ! $post_id ) {
+		return $default_comments_open;
+	}
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 	return Jetpack_Memberships::user_can_view_post();
 }

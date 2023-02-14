@@ -80,7 +80,10 @@ export const isFinished = derived( { subscribe }, state =>
  */
 export const showError = derived(
 	{ subscribe },
-	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+	state =>
+		state.status === 'error' ||
+		state.success_count === undefined ||
+		( state.status === 'success' && state.success_count === 0 )
 );
 
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {

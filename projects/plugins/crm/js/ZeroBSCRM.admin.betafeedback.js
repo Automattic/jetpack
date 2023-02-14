@@ -21,7 +21,7 @@ function zerobscrmJS_bindBetaFeedback() {
 	if ( typeof window.zbsBetaFeedback !== 'undefined' ) {
 		if ( typeof window.zbsBetaFeedback.title !== 'undefined' ) {
 			// modal
-			let html = '<div class="ui large modal" id="zbs-beta-feedback">';
+			var html = '<div class="ui large modal" id="zbs-beta-feedback">';
 			html += '  <div class="header">' + window.zbsBetaFeedback.title + '</div>';
 			html += '  <div class="content">';
 			html +=
@@ -136,7 +136,7 @@ function zerobscrmJS_bindBetaFeedback() {
 	}
 }
 
-const zbsBetaFeedbackInTube = false;
+var zbsBetaFeedbackInTube = false;
 /**
  * @param successcb
  * @param errcb
@@ -150,17 +150,17 @@ function zerobscrmJS_sendBetaFeedback( successcb, errcb ) {
 		window.zbsBetaFeedbackInTube = true;
 
 		// page if present
-		let page = '';
+		var page = '';
 		if ( typeof window.zbsPageKey !== 'undefined' ) {
 			page = window.zbsPageKey;
 		}
-		let area = '';
+		var area = '';
 		if ( typeof window.zbsBetaFeedback.area !== 'undefined' ) {
 			area = window.zbsBetaFeedback.area;
 		}
 
 		// postbag!
-		const data = {
+		var data = {
 			action: 'zbsbfeedback',
 			sec: window.zbs_root.zbsnonce,
 			comm: jQuery( '#zbs-beta-feedback-comment' ).val(),
@@ -206,4 +206,8 @@ function zerobscrmJS_sendBetaFeedback( successcb, errcb ) {
 			},
 		} );
 	} // / not blocked
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zerobscrmJS_bindBetaFeedback, zerobscrmJS_sendBetaFeedback, zbsBetaFeedbackInTube, zbsBetaFeedbackInTube };
 }

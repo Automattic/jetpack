@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed numeric fields, date fields, and textareas in the Client Portal

@@ -155,12 +155,17 @@ class Options {
 	 */
 	protected static function get_defaults() {
 		return array(
-			'admin_bar'    => true,
-			'roles'        => array( 'administrator' ),
-			'count_roles'  => array(),
-			'do_not_track' => true, // @todo
-			'blog_id'      => Jetpack_Options::get_option( 'id' ),
-			'version'      => Main::STATS_VERSION,
+			'admin_bar'                => true,
+			'roles'                    => array( 'administrator' ),
+			'count_roles'              => array(),
+			'do_not_track'             => true, // @todo
+			'blog_id'                  => Jetpack_Options::get_option( 'id' ),
+			'version'                  => Main::STATS_VERSION,
+			'collapse_nudges'          => false,
+			'enable_odyssey_stats'     => true,
+			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
+			'views'                    => 0,
 		);
 	}
 }

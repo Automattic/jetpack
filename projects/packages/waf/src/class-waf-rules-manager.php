@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class for generating and working with firewall rule files.
@@ -67,37 +68,50 @@ class Waf_Rules_Manager {
 	/**
 	 * Tries periodically to update the rules using our API.
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_cron() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			return new WP_Error( 'waf_cron_update_failed', 'Invalid firewall mode.' );
 		}
 
-		self::generate_automatic_rules();
-		self::generate_ip_rules();
-		self::generate_rules();
+		try {
+			self::generate_automatic_rules();
+			self::generate_ip_rules();
+			self::generate_rules();
+		} catch ( \Exception $e ) {
+			return new WP_Error( 'waf_cron_update_failed', $e->getMessage() );
+		}
+
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
+		return true;
 	}
 
 	/**
 	 * Updates the rule set if rules version has changed
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
 	 */
 	public static function update_rules_if_changed() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return;
+			return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
 			update_option( self::VERSION_OPTION_NAME, self::RULES_VERSION );
-			self::generate_automatic_rules();
-			self::generate_ip_rules();
-			self::generate_rules();
+
+			try {
+				self::generate_automatic_rules();
+				self::generate_ip_rules();
+				self::generate_rules();
+			} catch ( \Exception $e ) {
+				return new WP_Error( 'waf_update_failed', $e->getMessage() );
+			}
 		}
+
+		return true;
 	}
 
 	/**
@@ -125,7 +139,7 @@ class Waf_Rules_Manager {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			throw new \Exception( 'API connection failed.', $response_code );
+			throw new \Exception( 'API connection failed.', (int) $response_code );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );

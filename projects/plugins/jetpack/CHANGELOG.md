@@ -4,37 +4,37 @@
 
 ## 11.9-a.1 - 2023-02-08
 ### Enhancements
-- Add a blur effect while the form is loading the styles [#28212]
-- Add New badge for Odyssey Stats toggle [#28662]
-- Display backend user error [#28617]
-- Donations block: remove dependencies on lodash and @wordpress/keycodes [#28667]
-- Include style variations for the Form block [#28212]
-- Podcast player block: remove dependency on wp-components from the frontend code [#28740]
-- Reorder export columns in 3 groups: response meta (title, source, date), response field values, response extra (consent, ip address) [#28678]
-- Slideshow block: remove dependency on Lodash [#28665]
-- Update paywall placeholder design for Subscriptions [#28813]
-- Update subscribe block description [#28742]
-- VideoPress: Add transform control from video block to videopress/video block [#28691]
+- Contact form: add a blur effect while the form is loading the styles. [#28212]
+- Form block: add two new style variations. [#28212]
+- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra. [#28678]
+- VideoPress: add transform control from video block to videopress/video block. [#28691]
 
 ### Improved compatibility
-- Add "watch" entries for both composer and package .json files [#28704]
-- Put legacy contact-form blocks registration behind a flag [#28630]
+- Donations block: remove dependencies on lodash and @wordpress/keycodes [#28667]
+- Podcast player block: remove dependency on wp-components from the frontend code [#28740]
+- Slideshow block: remove dependency on Lodash [#28665]
+- Subscriptions: update subscribe block description. [#28742]
 
 ### Bug fixes
-- Fix rendering of subscriber email in .com as default value for the subscribe block input in wpcom [#28761]
-- Scope Additional CSS submenus to site with a connected owner [#28757]
+- Subscriptions: fix rendering of subscriber email on WPcom. [#28761]
+- Custom CSS: scope Additional CSS submenus to site with a connected owner. [#28757]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Added a new `site_source_slug` option to help resuming on copy site feature [#28768]
-- Add tooling for building the Jetpack Forms Dashboard [#28689]
+- Admin: add New badge for Odyssey Stats toggle. [#28662]
+- WPcom: AI Block display backend user error. [#28617]
+- API: added a new `site_source_slug` option to help resuming on copy site feature. [#28768]
 - API: Fix PHP warning [#28750]
 - API: Fix PHP warning [#28806]
+- Contact form: put legacy contact-form blocks registration behind a flag. [#28630]
+- Forms block: add "watch" entries for both composer and package .json files. [#28704]
+- Forms block: add tooling for building the Jetpack Forms Dashboard. [#28689]
 - Build: Check blocks' view scripts for unexpected dependencies. [#28626]
-- General: update wrong return types [#28744]
+- General: update wrong return types. [#28744]
 - Masterbar: Fix PHP warning [#28799]
-- Protect: update wording in error message [#28554]
+- Protect: update wording in error message. [#28554]
 - Social Logos: update dependency [#28685]
-- Update composer lockfile [#28733]
+- Subscriptions: update paywall placeholder design for Subscriptions. [#28813]
+- Update composer lockfile. [#28733]
 - Updated package dependencies. [#28682]
 - WordPress.com REST API: fix notice. [#28745]
 

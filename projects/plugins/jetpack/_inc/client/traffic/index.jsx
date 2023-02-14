@@ -110,6 +110,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
@@ -119,7 +120,6 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }
