@@ -20,18 +20,18 @@ export function MigrationError( props: Props ) {
 		if ( message ) {
 			return sprintf(
 				/* translators: %s: Message from the server e.g: "There's a problem getting your import's status." */
-				__( 'Error: %s', 'jetpack-migration' ),
+				__( 'Error: %s', 'wpcom-migration' ),
 				message
 			);
 		}
-		return __( "Sorry, there's a problem getting your import's status.", 'jetpack-migration' );
+		return __( "Sorry, there's a problem getting your import's status.", 'wpcom-migration' );
 	};
 
 	return (
 		<ConnectScreenLayout
 			className={ 'wordpress-branding' }
 			logo={ <WordPressLogo /> }
-			title={ __( 'Oops, something went wrong…', 'jetpack-migration' ) }
+			title={ __( 'Oops, something went wrong…', 'wpcom-migration' ) }
 			images={ [ migrationImage1 ] }
 		>
 			<p> { renderErrorMessages() } </p>

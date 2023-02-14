@@ -77,6 +77,13 @@ class Jetpack_Memberships {
 	private static $instance;
 
 	/**
+	 * Cached results of user_can_view_post() method.
+	 *
+	 * @var array
+	 */
+	private static $user_can_view_post_cache = array();
+
+	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
 	 *
 	 * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
@@ -445,11 +452,31 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Determines whether the post can be viewed based on the newsletter access level
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
 	 *
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post() {
+		$user_id   = get_current_user_id();
+		$post_id   = get_the_ID() || 0;
+		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
+
+		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
+			return self::$user_can_view_post_cache[ $cache_key ];
+		}
+
+		$value                                        = self::user_can_view_post_nocache();
+		self::$user_can_view_post_cache[ $cache_key ] = $value;
+		return $value;
+	}
+
+	/**
+	 * Determines whether the post can be viewed based on the newsletter access level
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_can_view_post_nocache() {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 		$newsletter_access_level = self::get_newsletter_access_level();
