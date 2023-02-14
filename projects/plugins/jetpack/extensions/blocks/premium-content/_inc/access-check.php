@@ -75,6 +75,7 @@ function current_visitor_can_access( $attributes, $block ) {
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
 	 */
+
 	if ( current_user_can_edit() ) {
 		return true;
 	}

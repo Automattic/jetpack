@@ -10,8 +10,10 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 	protected $regular_subscriber_id;
 	protected $paid_subscriber_id;
 	protected $admin_user_id;
-	protected $plan_id;
+
 	protected $product_id = 1234;
+
+	protected $plan_id;
 
 	public function set_up() {
 		parent::set_up();
@@ -28,11 +30,6 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 	}
 
 	private function set_up_users() {
-		$this->regular_non_subscriber_id = $this->factory->user->create(
-			array(
-				'user_email' => 'test@example.com',
-			)
-		);
 
 		$this->regular_subscriber_id = $this->factory->user->create(
 			array(
@@ -54,10 +51,11 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 		get_user_by( 'id', $this->admin_user_id )->add_role( 'administrator' );
 	}
 
-	public function test_access_chec_current_visitor_can_access() {
-		$post_id = $this->factory->post->create();
-		wp_publish_post( $post_id );
-		$this->assertEmpty( get_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true ) );
+	public function test_access_check_current_visitor_can_access() {
+		$post_id         = $this->factory->post->create();
+		$GLOBALS['post'] = get_post( $post_id );
+		wp_set_current_user( $this->admin_user_id );
+		$this->assertTrue( Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access( array(), array() ) );
 	}
 }
 
