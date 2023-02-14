@@ -35,6 +35,28 @@ type Critical_CSS_Issue = {
 	}[];
 };
 
+/**
+ * Specification for a set of errors that can appear as a part of a recommendation.
+ * Every error in the set is of the same type.
+ */
+export type ErrorSet = {
+	type: string; // Type of errors in this set.
+	firstMeta: JSONObject; // Meta from the first error, for convenience.
+	byUrl: {
+		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
+	};
+};
+
+/**
+ * Specification of the Recommendation data structure used for display.
+ */
+type Recommendation = {
+	key: string; // Provider Key associated with this recommendation.
+	label: string; // Label for the Provider Key.
+	errors: ErrorSet[]; // Sets of errors grouped for display. Mostly grouped by error type, but can also group by HTTP error code.
+};
+
+
 const { criticalCSS } = Jetpack_Boost;
 const initialIssues: Critical_CSS_Issue[] = criticalCSS?.status
 	? Object.entries( criticalCSS.status.providers_errors ).reduce< Critical_CSS_Issue[] >(
@@ -58,6 +80,8 @@ const initialIssues: Critical_CSS_Issue[] = criticalCSS?.status
 			[]
 	  )
 	: [];
+
+
 console.log(initialIssues);
 
 const issuesStore = writable< Critical_CSS_Issue[] >( initialIssues );
@@ -84,26 +108,6 @@ export const failedProviderKeyCount = derived( issuesStore, $issues =>
 	$issues.reduce((acc, curr) => curr.errors.length > 0 ? acc + 1 : acc, 0)
 );
 
-/**
- * Specification for a set of errors that can appear as a part of a recommendation.
- * Every error in the set is of the same type.
- */
-export type ErrorSet = {
-	type: string; // Type of errors in this set.
-	firstMeta: JSONObject; // Meta from the first error, for convenience.
-	byUrl: {
-		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
-	};
-};
-
-/**
- * Specification of the Recommendation data structure used for display.
- */
-type Recommendation = {
-	key: string; // Provider Key associated with this recommendation.
-	label: string; // Label for the Provider Key.
-	errors: ErrorSet[]; // Sets of errors grouped for display. Mostly grouped by error type, but can also group by HTTP error code.
-};
 
 /**
  * Derived store containing Critical CSS recommendations based on Critical CSS
