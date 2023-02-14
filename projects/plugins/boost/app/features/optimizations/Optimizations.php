@@ -103,7 +103,7 @@ class Optimizations implements Has_Setup {
 				continue;
 			}
 
-			add_action( $optimization->feature->setup_trigger(), array( $optimization->feature, 'setup' ) );
+			$optimization->feature->do_setup();
 
 			$this->register_endpoints( $optimization->feature );
 
@@ -134,8 +134,10 @@ class Optimizations implements Has_Setup {
 	/**
 	 * @inheritDoc
 	 */
-	public function setup_trigger() {
-		return 'plugins_loaded';
+	public function do_setup() {
+		add_action( 'plugins_loaded', array( $this, 'setup' ) );
+
+		return $this;
 	}
 
 }

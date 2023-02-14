@@ -36,10 +36,12 @@ class Setup_Prompt implements Has_Setup {
 	}
 
 	/**
-	 * Get the action hoot that defines when to setup the prompt.
+	 * @inheritDoc
 	 */
-	public function setup_trigger() {
-		return 'admin_init';
+	public function do_setup() {
+		add_action( 'admin_init', array( $this, 'setup' ) );
+
+		return $this;
 	}
 
 	public function connection_prompt() {

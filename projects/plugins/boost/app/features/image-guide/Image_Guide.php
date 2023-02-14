@@ -46,8 +46,10 @@ class Image_Guide implements Feature {
 		return 'image-guide';
 	}
 
-	public function setup_trigger() {
-		return 'plugins_loaded';
+	public function do_setup() {
+		add_action( 'plugins_loaded', array( $this, 'setup' ), 14 );
+
+		return $this;
 	}
 
 	public function enqueue_assets() {

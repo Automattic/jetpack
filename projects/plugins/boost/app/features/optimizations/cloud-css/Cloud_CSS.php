@@ -64,8 +64,10 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	/**
 	 * @inheritDoc
 	 */
-	public function setup_trigger() {
-		return 'plugins_loaded';
+	public function do_setup() {
+		add_action( 'plugins_loaded', array( $this, 'setup' ), 11 );
+
+		return $this;
 	}
 
 	public function display_critical_css() {

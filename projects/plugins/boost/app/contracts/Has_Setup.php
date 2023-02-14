@@ -20,10 +20,14 @@ interface Has_Setup {
 	public function setup();
 
 	/**
-	 * Return a string - which action should the setup method be run on?
-	 * Typically, this should return `init` or `admin_init`
+	 * Example: add_action( 'init', array( $this, 'setup' ), 15 );
 	 *
-	 * @return string
+	 * Allows for greater flexibility when initializing a feature.
+	 *
+	 * Should return the feature's instance
+	 * and hook its setup.
+	 *
+	 * @return Has_Setup Instance of the feature.
 	 */
-	public function setup_trigger();
+	public function do_setup();
 }

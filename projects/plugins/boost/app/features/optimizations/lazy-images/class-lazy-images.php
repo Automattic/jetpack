@@ -15,7 +15,9 @@ class Lazy_Images implements Feature {
 		return 'lazy-images';
 	}
 
-	public function setup_trigger() {
-		return 'plugins_loaded';
+	public function do_setup() {
+		add_action( 'plugins_loaded', array( $this, 'setup' ), 12 );
+
+		return $this;
 	}
 }

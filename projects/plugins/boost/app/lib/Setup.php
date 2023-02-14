@@ -27,10 +27,7 @@ class Setup {
 	 * @return void
 	 */
 	public static function add( Has_Setup $instance ) {
-		$action = $instance->setup_trigger();
-
-		self::$instances[] = $instance;
-		add_action( $action, array( $instance, 'setup' ) );
+		self::$instances[] = $instance->do_setup();
 	}
 
 	public function get_instances() {
