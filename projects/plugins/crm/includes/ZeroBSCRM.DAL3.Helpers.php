@@ -3112,13 +3112,6 @@ function zeroBS___________DAL30Helpers(){return;}
 		                        $retArray[$outputPrefix.$fK] = intval($retArray[$outputPrefix.$fK]);
 		                        break;
 
-
-		                    case 'textarea':
-
-		                        $retArray[$outputPrefix.$fK] = zeroBSCRM_textProcess($arraySource[$fieldPrefix.$fK]);
-
-		                        break;
-
 		                    case 'date':
 
 		                        $retArray[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
