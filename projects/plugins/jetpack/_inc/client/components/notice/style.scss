@@ -4,15 +4,17 @@
 @import '../../scss/mixin_icons';
 
 .dops-notice {
+	background: var(--jp-white);
+	color: vaj(--jp-black);
+	border-radius: var(--jp-border-radius);
+	box-shadow: 0px 1px 2px 0px #0000000F;
+	box-shadow: 0px 4px 8px 0px #00000008;
 	display: flex;
 	position: relative;
 	width: 100%;
 	margin-bottom: 24px;
 	box-sizing: border-box;
 	animation: appear .3s ease-in-out;
-	background: $gray-dark;
-	color: $white;
-	border-radius: 3px;
 	line-height: 1.5;
 
 	// Success!
@@ -62,7 +64,7 @@
 }
 
 .dops-notice__icon-wrapper {
-	background: $gray-text-min;
+	background: var(--jp-black);
 	color: $white;
 	display: flex;
 	align-items: baseline;
