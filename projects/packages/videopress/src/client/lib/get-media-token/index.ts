@@ -21,7 +21,7 @@ import type {
 const debug = debugFactory( 'videopress:get-media-token' );
 
 // Lifetime of the token in milliseconds.
-const TOKEN_LIFETIME = 1000 * 60 * 60 * 12; // 12 hours
+const TOKEN_LIFETIME = 1000 * 60 * 60 * 24; // 24 hours
 
 /**
  * Request media token data hiting the admin-ajax endpoint.
