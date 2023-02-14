@@ -458,5 +458,5 @@ add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'edit_attachment', 'sharing_meta_box_save' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
-add_action( 'plugin_action_links_' . basename( __DIR__ ) . '/' . basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
+add_filter( 'plugin_action_links_' . basename( __DIR__ ) . '/' . basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
