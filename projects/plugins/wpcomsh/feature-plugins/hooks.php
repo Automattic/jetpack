@@ -126,10 +126,11 @@ function wpcomsh_is_woocommerce_payment_gateway_request() {
 		return true;
 	}
 
-	// Check if we're trying to perform a payment gateway install from the WooCommerce payments setup task.
+	// Check if we're trying to perform a payment gateway install from WooCommerce admin pages that offer gateway suggestions.
 	$wp_referer = wp_get_referer();
 	if (
 		wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/plugins/install@', 'POST' )
+		&& ! empty( $wp_referer )
 		&& (
 			// User is trying to install from the WooCommerce Payments task page
 			$wp_referer === admin_url( 'admin.php?page=wc-admin&task=woocommerce-payments' )
@@ -137,6 +138,8 @@ function wpcomsh_is_woocommerce_payment_gateway_request() {
 			|| $wp_referer === admin_url( 'admin.php?page=wc-admin&task=payments' )
 			// User is retrying install from the payment gateway install/setup page
 			|| str_starts_with( $wp_referer, admin_url( 'admin.php?page=wc-admin&task=payments&id=' ) )
+			// User is trying to install from suggestions in Settings -> Payments tab
+			|| $wp_referer === admin_url( 'admin.php?page=wc-settings&tab=checkout' )
 		) ) {
 		return true;
 	}
