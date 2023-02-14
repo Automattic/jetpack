@@ -98,13 +98,11 @@ function odyssey_nudge_handler() {
 			StatsNotices::NOTICE_STATUS_POSTPONED,
 			25
 		);
-		$seconds = time() - ( 60 * 60 * 24 * 45 );
-		// update_option( 'stats-odyssey-nudge-dismissed', $seconds );
 		return rest_ensure_response(
 			new WP_REST_Response(
 				array(
 					'status'     => 200,
-					'time-stamp' => $seconds,
+					'time-stamp' => time(),
 					'message'    => 'reset nudge',
 				)
 			)
@@ -115,14 +113,11 @@ function odyssey_nudge_handler() {
 			StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID,
 			StatsNotices::NOTICE_STATUS_POSTPONED
 		);
-
-		$time = time();
-		// update_option( 'stats-odyssey-nudge-dismissed', $time );
 		return rest_ensure_response(
 			new WP_REST_Response(
 				array(
 					'status'     => 200,
-					'time-stamp' => $time,
+					'time-stamp' => time(),
 					'message'    => 'dismissed nudge',
 				)
 			)
