@@ -94,7 +94,7 @@ class Waf_Stats {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response['body'] ) ) {
-			return new WP_Error( 'failed_fetching_stats', 'Failed to fetch WAF stats from the server', array( 'status' => $response_code ) );
+			// return new WP_Error( 'failed_fetching_stats', 'Failed to fetch WAF stats from the server', array( 'status' => $response_code ) );
 			self::update_option( $default_data );
 			return $default_data;
 		}
