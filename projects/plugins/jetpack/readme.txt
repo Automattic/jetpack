@@ -242,11 +242,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.8.1 - 2023-02-13
+### 11.8.2 - 2023-02-14
 #### Bug fixes
-- Add filter to prevent contact-form-styles script from being concatenated
-- Fix premium content block where it would only allow access to site subscribers
-- Prevent Forms blur effect on AMP pages
+- Packages: fixed package versions.
 
 --------
 
