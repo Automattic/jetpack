@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { MediaPlaceholder, VideoPlayer } from '@wordpress/block-editor';
+import { MediaPlaceholder } from '@wordpress/block-editor';
 /**
  * External dependencies
  */
@@ -20,20 +20,13 @@ import style from './style.scss';
  * @param {object} props                 - Component props.
  * @param {object} props.attributes      - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected     - Whether the block is selected.
  * @returns {React.ReactNode}            - React component.
  */
-export default function VideoPressEdit( {
-	attributes,
-	setAttributes,
-	isSelected,
-} ): React.ReactNode {
+export default function VideoPressEdit( { attributes, setAttributes } ): React.ReactNode {
 	/**
 	 * TODO: The current components are intended to act as placeholders while block is in development.
 	 * They should eventually be edited or replaced to support VideoPress.
 	 */
-
-	const { src } = attributes;
 
 	/**
 	 * Function to set attributes upon media upload
@@ -60,12 +53,7 @@ export default function VideoPressEdit( {
 
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
-			<VideoPlayer
-				isSelected={ isSelected }
-				style={ style[ 'wp-block-jetpack-videopress__video-player' ] }
-				source={ { uri: src } }
-				paused={ true }
-			/>
+			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
 		</View>
 	);
 }
