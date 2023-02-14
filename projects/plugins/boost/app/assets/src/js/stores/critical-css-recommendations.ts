@@ -70,10 +70,8 @@ export type Critical_CSS_Recommendations = {
 	};
 	provider_key_labels?: { [ name: string ]: string };
 };
-const initialRecommendations: Critical_CSS_Recommendations =
-	Jetpack_Boost.criticalCSS?.status || {};
+
 const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
-const recommendationStore = writable< Critical_CSS_Recommendations >( initialRecommendations );
 const dismissed = writable< string[] >( initialState );
 const dismissalErrorStore = writable( null );
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
@@ -111,19 +109,48 @@ type Recommendation = {
  * Derived store containing Critical CSS recommendations based on Critical CSS
  * status and the provider key errors inside.
  */
-export const recommendations = derived( recommendationStore, state => {
-	if ( ! state.providers_errors ) {
+export const recommendations = derived( issuesStore, state => {
+	if ( ! state.length ) {
 		return [];
 	}
 
-	return Object.entries( state.providers_errors ).map< Recommendation >(
-		( [ key, urlErrors ] ) => ( {
-			key,
-			label: state.provider_key_labels[ key ] || key,
-			errors: groupErrorsByFrequency( urlErrors ),
-		} )
+	const { provider_key_labels } = Jetpack_Boost.criticalCSS?.status || {};
+
+	const urlErrors = state.reduce(
+		(acc, curr) => {
+			curr.errors.forEach(error => {
+				const { type, meta, url } = error;
+				const key = curr.key;
+
+				if (!acc[key]) {
+					acc[key] = {};
+				}
+
+				if (!acc[key][url]) {
+					acc[key][url] = {
+						message: error.message,
+						type,
+						meta,
+					};
+				}
+			});
+
+			return acc;
+		},
+		{} as {
+			[providerKey: string]: {
+				[url: string]: CriticalCssErrorDetails;
+			};
+		}
 	);
-} );
+
+	return Object.entries(urlErrors).map<Recommendation>(([key, errors]) => ({
+		key,
+		label: provider_key_labels?.[key] ?? key,
+		errors: groupErrorsByFrequency(errors),
+	}));
+});
+
 
 /**
  * Store used to track Critical CSS Recommendations which have been dismissed.
