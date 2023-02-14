@@ -12,6 +12,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\VideoPress;
+
 /**
  * Require the VideoPress files.
  */
@@ -26,3 +28,5 @@ if ( is_admin() ) {
 	include_once __DIR__ . '/videopress/editor-media-view.php';
 	include_once __DIR__ . '/videopress/class.videopress-edit-attachment.php';
 }
+
+VideoPress\Admin_UI::init();

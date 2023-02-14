@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -143,9 +144,19 @@ class Videopress extends Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() ) {
+		if ( static::is_active() ) {
 			return \Automattic\Jetpack\VideoPress\Admin_UI::get_admin_page_url();
 		}
+	}
+
+	/**
+	 * Is VideoPress active?
+	 * It could mean the standalone plugin or the module in Jetpack.
+	 *
+	 * @return bool
+	 */
+	public static function is_active() {
+		return ( new Modules() )->is_active( 'videopress' ) || ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'should_initialize_admin_ui' ) && \Automattic\Jetpack\VideoPress\Initializer::should_initialize_admin_ui() );
 	}
 
 }
