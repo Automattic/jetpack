@@ -11,6 +11,7 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Bl
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Optimizations implements Has_Setup {
 
@@ -91,6 +92,8 @@ class Optimizations implements Has_Setup {
 		if ( empty( $feature->get_endpoints() ) ) {
 			return false;
 		}
+
+		REST_API::register( $feature->get_endpoints() );
 	}
 
 	/**
