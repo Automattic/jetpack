@@ -47,6 +47,23 @@ class Post extends \WP_REST_Posts_Controller {
 	}
 
 	/**
+	 * Adds the schema from additional fields to a schema array.
+	 *
+	 * The type of object is inferred from the passed schema.
+	 *
+	 * @param array $schema Schema array.
+	 * @return array Modified Schema array.
+	 */
+	public function add_additional_fields_schema( $schema ) {
+		// WXR saves terms as slugs, so we need to overwrite the schema.
+		$schema['properties']['categories']['items']['type'] = 'string';
+		$schema['properties']['tags']['items']['type']       = 'string';
+
+		// Add the import unique ID to the schema.
+		return $this->add_unique_identifier_to_schema( $schema );
+	}
+
+	/**
 	 * Creates a single post / page.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -71,6 +88,26 @@ class Post extends \WP_REST_Posts_Controller {
 					'post_id' => $post_id,
 				)
 			);
+		}
+
+		// WXR saves terms as slugs, so we need to convert them to IDs before send the data to the legacy endpoint.
+		foreach ( array( 'categories', 'tags' ) as $taxonomy ) {
+			$request[ $taxonomy ] = is_array( $request[ $taxonomy ] ) ? $request[ $taxonomy ] : array();
+
+			if ( count( $request[ $taxonomy ] ) ) {
+				$ids = get_terms(
+					array(
+						'fields'     => 'ids',
+						'hide_empty' => false,
+						'slug'       => $request[ $taxonomy ],
+						'taxonomy'   => $taxonomy === 'tags' ? 'post_tag' : 'category',
+					)
+				);
+
+				if ( is_array( $ids ) ) {
+					$request[ $taxonomy ] = $ids;
+				}
+			}
 		}
 
 		$response = parent::create_item( $request );
