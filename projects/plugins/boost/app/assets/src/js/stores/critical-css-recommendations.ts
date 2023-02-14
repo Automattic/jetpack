@@ -4,7 +4,6 @@ import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { CriticalCssErrorDetails } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 
 
@@ -15,6 +14,11 @@ export type Critical_CSS_Recommendations = {
 		};
 	};
 	provider_key_labels?: { [ name: string ]: string };
+interface CriticalCssErrorDetails {
+	message: string;
+	type: Critical_CSS_Error_Types;
+	meta: JSONObject;
+}
 };
 
 // @TODO REFACTORING IN PROGRESS 🍟 - Move options to wp-js-async-store

@@ -5,12 +5,6 @@ import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-c
 import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
 
-export interface CriticalCssErrorDetails {
-	message: string;
-	type: string;
-	meta: JSONObject;
-}
-
 export interface CriticalCssStatus {
 	progress: number;
 	retried_show_stopper?: boolean;
