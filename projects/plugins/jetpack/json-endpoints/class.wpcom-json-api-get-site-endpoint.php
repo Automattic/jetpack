@@ -195,6 +195,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'blogging_prompts_settings',
 		'launchpad_screen',
 		'launchpad_checklist_tasks_statuses',
+		'github_hosting_repo_name',
+		'github_hosting_branch_name',
+		'github_hosting_base_path',
 	);
 
 	/**
@@ -257,6 +260,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_cloud_eligible',
 		'videopress_storage_used',
 		'blogging_prompts_settings',
+		'github_hosting_repo_name',
+		'github_hosting_branch_name',
+		'github_hosting_base_path',
 	);
 
 	/**
@@ -852,6 +858,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
+					break;
+				case 'github_hosting_repo_name':
+					$options[ $key ] = $site->get_github_hosting_repo_name();
+					break;
+				case 'github_hosting_branch_name':
+					$options[ $key ] = $site->get_github_hosting_branch_name();
+					break;
+				case 'github_hosting_base_path':
+					$options[ $key ] = $site->get_github_hosting_base_path();
 					break;
 			}
 		}
