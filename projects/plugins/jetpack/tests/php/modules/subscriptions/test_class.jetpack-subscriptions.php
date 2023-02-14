@@ -285,7 +285,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$payload            = $this->get_payload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
 
 		$post_id = $this->setup_jetpack_paid_newsletters();
-		$this->setReturnedSubscriptions( $payload );
+		$this->set_returned_subscriptions( $payload );
 
 		$GLOBALS['post'] = get_post( $post_id );
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
@@ -348,7 +348,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param array $payload .
 	 * @return WPCOM_Online_Subscription_Service
 	 */
-	private function setReturnedSubscriptions( $payload ) {
+	private function set_returned_subscriptions( $payload ) {
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		$paid_subscriber_id = $this->paid_subscriber_id;
 		add_filter(
