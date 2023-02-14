@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+WPCOM + GitHub integration: add site options for connect GitHub repo & branch, and base path.
