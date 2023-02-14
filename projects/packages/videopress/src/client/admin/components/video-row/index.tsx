@@ -312,7 +312,7 @@ export const VideoRow = ( {
 							loading={ loading }
 						/>
 
-						{ isSmall && (
+						{ isSmall && showActions && (
 							<div className={ styles[ 'mobile-actions' ] }>
 								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
