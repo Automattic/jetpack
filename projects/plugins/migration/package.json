@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"description": "A WordPress plugin that helps users to migrate their sites to WordPress.com.",
-	"homepage": "https://jetpack.com",
+	"homepage": "https://wordpress.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Migration"
 	},

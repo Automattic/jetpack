@@ -6,7 +6,7 @@
  * Description: A WordPress plugin that helps users to migrate their sites to WordPress.com.
  * Version: 0.1.0-alpha
  * Author: Automattic
- * Author URI: https://jetpack.com/
+ * Author URI: https://wordpress.com/
  * License: GPLv2 or later
  * Text Domain: wpcom-migration
  *
@@ -38,7 +38,7 @@ define( 'WPCOM_MIGRATION_ROOT_FILE', __FILE__ );
 define( 'WPCOM_MIGRATION_ROOT_FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'WPCOM_MIGRATION_SLUG', 'wpcom-migration' );
 define( 'WPCOM_MIGRATION_NAME', 'Move to WordPress.com' );
-define( 'WPCOM_MIGRATION_URI', 'https://jetpack.com/wpcom-migration' );
+define( 'WPCOM_MIGRATION_URI', 'https://wordpress.com/wpcom-migration' );
 define( 'WPCOM_MIGRATION_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
 
 // Jetpack Autoloader.
