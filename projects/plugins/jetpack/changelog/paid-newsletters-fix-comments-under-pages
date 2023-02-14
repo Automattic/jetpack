@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fix a bug where comments would be open under pages

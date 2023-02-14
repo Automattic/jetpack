@@ -33,308 +33,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
     protected $objectDBPrefix = 'zbsc_';
     protected $objectIncludesAddresses = true;
     protected $include_in_templating = true;
-    protected $objectModel = array(
-
-            // ID
-            'ID' => array('fieldname' => 'ID', 'format' => 'int'),
-
-            // site + team generics
-            'zbs_site' => array('fieldname' => 'zbs_site', 'format' => 'int'),
-            'zbs_team' => array('fieldname' => 'zbs_team', 'format' => 'int'),
-            'zbs_owner'=> array('fieldname' => 'zbs_owner', 'format' => 'int'),
-
-            // other fields
-            'status'            => array(
-                // db model:
-                'fieldname' => 'zbsc_status', 'format' => 'str',
-                // output model
-                'input_type' => 'select',
-                'label' => 'Status',
-                'placeholder'=>'',
-                'options'=>array('Lead','Customer','Refused','Blacklisted'),
-                'essential' => true,
-                'max_len' => 100,
-                'do_not_show_on_portal' => true
-            ),
-            'email'             => array(
-                // db model:
-                'fieldname' => 'zbsc_email', 'format' => 'str',
-                // output model
-                'input_type' => 'email',
-                'label' => 'Email',
-                'placeholder'=>'e.g. john@gmail.com',
-                'essential' => true,
-                'force_unique' => true, // must be unique. This is required and breaking if true
-                'can_be_blank' => true,
-                'max_len' => 200,
-                // removed due to some users using mobile/other as unique field? see #gh-153 
-                //'not_empty' => true,
-                'do_not_show_on_portal' => true
-            ),
-            'prefix'            => array(
-                // db model:
-                'fieldname' => 'zbsc_prefix', 'format' => 'str',
-                // output model
-                'input_type' => 'select',
-                'label' => 'Prefix',
-                'placeholder'=>'',
-                'options'=>array('Mr', 'Mrs', 'Ms', 'Miss', 'Mx', 'Dr', 'Prof','Mr & Mrs'),
-                'essential' => true,
-                'max_len' => 30
-            ),
-            'fname'             => array(
-                // db model:
-                'fieldname' => 'zbsc_fname', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'First Name',
-                'placeholder'=> 'e.g. John',
-                'essential' => true,
-                'max_len' => 100
-            ),
-            'lname'             => array(
-                // db model:
-                'fieldname' => 'zbsc_lname', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Last Name',
-                'placeholder'=> 'e.g. Doe',
-                'essential' => true,
-                'max_len' => 100
-            ),
-
-            'addr1'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr1', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 1',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'addr2'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr2', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 2',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'city'              => array(
-                // db model:
-                'fieldname' => 'zbsc_city', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'City',
-                'placeholder'=> 'e.g. New York',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 100
-            ),
-            'county'            => array(
-                // db model:
-                'fieldname' => 'zbsc_county', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'County',
-                'placeholder'=> 'e.g. Kings County',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'postcode'          => array(
-                // db model:
-                'fieldname' => 'zbsc_postcode', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Post Code',
-                'placeholder'=> 'e.g. 10019',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 50
-            ),
-            'country'           => array(
-                // db model:
-                'fieldname' => 'zbsc_country', 'format' => 'str',
-                // output model
-                'input_type' => 'selectcountry',
-                'label' => 'Country',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-
-
-            'secaddr1'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr1', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 1',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_addr1' // previous field name
-            ),
-            'secaddr2'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr2', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 2',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_addr2' // previous field name
-            ),
-            'seccity'              => array(
-                // db model:
-                'fieldname' => 'zbsc_city', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'City',
-                'placeholder'=> 'e.g. Los Angeles',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 100,
-                'dal1key' => 'secaddr_city' // previous field name
-            ),
-            'seccounty'            => array(
-                // db model:
-                'fieldname' => 'zbsc_county', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'County',
-                'placeholder'=> 'e.g. Los Angeles',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_county' // previous field name
-            ),
-            'secpostcode'          => array(
-                // db model:
-                'fieldname' => 'zbsc_postcode', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Post Code',
-                'placeholder'=> 'e.g. 90001',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 50,
-                'dal1key' => 'secaddr_postcode' // previous field name
-            ),
-            'seccountry'           => array(
-                // db model:
-                'fieldname' => 'zbsc_country', 'format' => 'str',
-                // output model
-                'input_type' => 'selectcountry',
-                'label' => 'Country',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_country' // previous field name
-            ),
-
-
-
-            'hometel'           => array(
-                // db model:
-                'fieldname' => 'zbsc_hometel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Home Telephone',
-                'placeholder'=> 'e.g. 877 2733049',
-                'max_len' => 40
-            ),
-            'worktel'           => array(
-                // db model:
-                'fieldname' => 'zbsc_worktel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Work Telephone',
-                'placeholder'=> 'e.g. 877 2733049',
-                'max_len' => 40
-            ),
-            'mobtel'            => array(
-                // db model:
-                'fieldname' => 'zbsc_mobtel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Mobile Telephone',
-                'placeholder'=> 'e.g. 877 2733050',
-                'max_len' => 40
-            ),
-
-            // ... just removed for DAL3 :) should be custom field anyway by this point 
-
-            'wpid'              => array(
-                // db model:
-                'fieldname' => 'zbsc_wpid', 'format' => 'int',
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'avatar'            => array(
-                // db model:
-                'fieldname' => 'zbsc_avatar', 'format' => 'str',
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'tw'                => array(
-                // db model:
-                'fieldname' => 'zbsc_tw', 'format' => 'str',
-                'max_len' => 100
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'li'                => array(
-                // db model:
-                'fieldname' => 'zbsc_li', 'format' => 'str',
-                'max_len' => 300
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'fb'                => array(
-                // db model:
-                'fieldname' => 'zbsc_fb', 'format' => 'str',
-                'max_len' => 200
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'created'           => array(
-                // db model:
-                'fieldname' => 'zbsc_created', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            ),
-            'lastupdated'       => array(
-                // db model:
-                'fieldname' => 'zbsc_lastupdated', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            ),
-            'lastcontacted'     => array(
-                // db model:
-                'fieldname' => 'zbsc_lastcontacted', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            )
-        );
-
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase, Squiz.Commenting.VariableComment.Missing -- to be refactored.
+	protected $objectModel = array();
 
         // hardtyped list of types this object type is commonly linked to
         protected $linkedToObjectTypes = array(
@@ -343,9 +43,342 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         );
 
+		// phpcs:ignore Squiz.Commenting.FunctionComment.Missing, Squiz.Scope.MethodScope.Missing -- to be refactored.
+		function __construct( $args = array() ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
+			$this->objectModel = array(
+				// ID
+				'ID'            => array(
+					'fieldname' => 'ID',
+					'format'    => 'int',
+				),
+				// site + team generics
+				'zbs_site'      => array(
+					'fieldname' => 'zbs_site',
+					'format'    => 'int',
+				),
+				'zbs_team'      => array(
+					'fieldname' => 'zbs_team',
+					'format'    => 'int',
+				),
+				'zbs_owner'     => array(
+					'fieldname' => 'zbs_owner',
+					'format'    => 'int',
+				),
+				// other fields
+				'status'        => array(
+					// db model:
+					'fieldname'             => 'zbsc_status',
+					'format'                => 'str',
+					// output model
+					'input_type'            => 'select',
+					'label'                 => __( 'Status', 'zero-bs-crm' ),
+					'placeholder'           => '',
+					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'essential'             => true,
+					'max_len'               => 100,
+					'do_not_show_on_portal' => true,
+				),
+				'email'         => array(
+					// db model:
+					'fieldname'             => 'zbsc_email',
+					'format'                => 'str',
+					// output model
+					'input_type'            => 'email',
+					'label'                 => __( 'Email', 'zero-bs-crm' ),
+					'placeholder'           => 'e.g. john@gmail.com',
+					'essential'             => true,
+					'force_unique'          => true, // must be unique. This is required and breaking if true
+					'can_be_blank'          => true,
+					'max_len'               => 200,
+					// removed due to some users using mobile/other as unique field? see #gh-153
+					// 'not_empty' => true,
+					'do_not_show_on_portal' => true,
+				),
+				'prefix'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_prefix',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'select',
+					'label'       => __( 'Prefix', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'options'     => array( 'Mr', 'Mrs', 'Ms', 'Miss', 'Mx', 'Dr', 'Prof', 'Mr & Mrs' ),
+					'essential'   => true,
+					'max_len'     => 30,
+				),
+				'fname'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_fname',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'First Name', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. John',
+					'essential'   => true,
+					'max_len'     => 100,
+				),
+				'lname'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_lname',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Last Name', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Doe',
+					'essential'   => true,
+					'max_len'     => 100,
+				),
 
-    function __construct($args=array()) {
+				'addr1'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr1',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 1', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'addr2'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr2',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 2', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'city'          => array(
+					// db model:
+					'fieldname'   => 'zbsc_city',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'City', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. New York',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 100,
+				),
+				'county'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_county',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'County', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Kings County',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'postcode'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_postcode',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Post Code', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 10019',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 50,
+				),
+				'country'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_country',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'selectcountry',
+					'label'       => __( 'Country', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'secaddr1'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr1',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 1', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_addr1', // previous field name
+				),
+				'secaddr2'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr2',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 2', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_addr2', // previous field name
+				),
+				'seccity'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_city',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'City', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Los Angeles',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 100,
+					'dal1key'     => 'secaddr_city', // previous field name
+				),
+				'seccounty'     => array(
+					// db model:
+					'fieldname'   => 'zbsc_county',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'County', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Los Angeles',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_county', // previous field name
+				),
+				'secpostcode'   => array(
+					// db model:
+					'fieldname'   => 'zbsc_postcode',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Post Code', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 90001',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 50,
+					'dal1key'     => 'secaddr_postcode', // previous field name
+				),
+				'seccountry'    => array(
+					// db model:
+					'fieldname'   => 'zbsc_country',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'selectcountry',
+					'label'       => __( 'Country', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_country', // previous field name
+				),
+				'hometel'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_hometel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Home Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733049',
+					'max_len'     => 40,
+				),
+				'worktel'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_worktel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Work Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733049',
+					'max_len'     => 40,
+				),
+				'mobtel'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_mobtel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Mobile Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733050',
+					'max_len'     => 40,
+				),
 
+				// ... just removed for DAL3 :) should be custom field anyway by this point
+
+				'wpid'          => array(
+					// db model:
+					'fieldname' => 'zbsc_wpid',
+					'format'    => 'int',
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'avatar'        => array(
+					// db model:
+					'fieldname' => 'zbsc_avatar',
+					'format'    => 'str',
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'tw'            => array(
+					// db model:
+					'fieldname' => 'zbsc_tw',
+					'format'    => 'str',
+					'max_len'   => 100,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'li'            => array(
+					// db model:
+					'fieldname' => 'zbsc_li',
+					'format'    => 'str',
+					'max_len'   => 300,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'fb'            => array(
+					// db model:
+					'fieldname' => 'zbsc_fb',
+					'format'    => 'str',
+					'max_len'   => 200,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'created'       => array(
+					// db model:
+					'fieldname' => 'zbsc_created',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+				'lastupdated'   => array(
+					// db model:
+					'fieldname' => 'zbsc_lastupdated',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+				'lastcontacted' => array(
+					// db model:
+					'fieldname' => 'zbsc_lastcontacted',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+			);
 
         #} =========== LOAD ARGS ==============
         $defaultArgs = array(

@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactored media picker into seperate componetn
