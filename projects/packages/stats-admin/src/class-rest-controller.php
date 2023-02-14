@@ -551,10 +551,12 @@ class REST_Controller {
 	 * @return string The filtered and built query string.
 	 */
 	protected function filter_and_build_query_string( $params, $keys_to_unset = array() ) {
-		unset( $params['rest_route'] );
 		if ( ! empty( $keys_to_unset ) && is_array( $keys_to_unset ) ) {
+			$keys_to_unset[] = 'rest_route';
 			foreach ( $keys_to_unset as $key ) {
-				unset( $params[ $key ] );
+				if ( isset( $params[ $key ] ) ) {
+					unset( $params[ $key ] );
+				}
 			}
 		}
 		return http_build_query( $params );
