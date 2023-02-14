@@ -6,10 +6,9 @@ import FilterStream from './filter-stream.js';
  *
  * @param {string} src - Source directory.
  * @param {Function} spawn - `execa` spawn function.
- * @param {Function|undefined} output - Debug output function (temporary).
  * @yields {string} File name.
  */
-export async function* listProjectFiles( src, spawn, output = undefined ) {
+export async function* listProjectFiles( src, spawn ) {
 	// Lots of process plumbing going on here.
 	//  {
 	//    ls-files
@@ -65,16 +64,19 @@ export async function* listProjectFiles( src, spawn, output = undefined ) {
 		crlfDelay: Infinity,
 	} );
 
-	if ( output ) {
-		output( 'D: Yielding list of files\n' );
+	// Apparently if any of the execa promises reject during the `yield*`, node will decide they're "unhandled" and exit ignoring any
+	// parent catch. So we need to catch any errors manually, then re-throw them after.
+	let err;
+	for ( const proc of [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] ) {
+		proc.catch( e => ( err ||= e ) );
 	}
+
+	// Return each line from the generator.
 	yield* rl;
 
-	if ( output ) {
-		output( `D: Awaiting processes.\n` );
-	}
+	// Wait for processes, then rethrow any error.
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
-	if ( output ) {
-		output( 'D: Finished listProjectFiles\n' );
+	if ( err ) {
+		throw err;
 	}
 }
