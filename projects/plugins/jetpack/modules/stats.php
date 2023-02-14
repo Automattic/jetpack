@@ -556,7 +556,6 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$blog_id   = Stats_Options::get_option( 'blog_id' );
 	$stats_url = Redirect::get_url( 'calypso-stats' );
-	$n_debug   = stats_odyssey_nudge_debug_status();
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -577,7 +576,6 @@ function stats_reports_page( $main_chart_only = false ) {
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-					<p>Nudge Status: <?php echo esc_html( json_encode( $n_debug ) ); ?></p>
 				<div style="display: visible;">
 					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
 				</div>
@@ -803,31 +801,6 @@ function stats_parse_content_section( $html ) {
 	// Doesn't make sense to push users to Calypso once Odyssey is ready.
 	$b = stats_content_marker();
 	return strstr( $html, $b );
-}
-
-/**
- * Legacy Stats: Determine if we need to show the Odyssey upgrade nudge.
- *
- * @access public
- * @return boolean
- */
-function stats_odyssey_nudge_debug_status() {
-	// TODO: Remove me!
-	$value = get_option( 'stats-odyssey-nudge-dismissed' );
-	// Get the number of seconds in 30 days.
-	// $x    = 60 * 60 * 24 * 30;
-	$x    = 60 * 5;
-	$now  = time();
-	$time = intval( $value );
-	$aa   = $now - $time;
-	$bb   = ( $now - $time > $x ) ? 'true' : 'false';
-	return array(
-		'time'       => $value,
-		'now'        => $now,
-		'sleep'      => $x,
-		'lapsed'     => $aa,
-		'show-nudge' => $bb,
-	);
 }
 
 /**
