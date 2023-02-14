@@ -99,6 +99,8 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
 			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
+			'views'                    => 0,
 			'host'                     => 'example.org',
 			'path'                     => '/',
 			'blogname'                 => false,
