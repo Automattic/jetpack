@@ -115,7 +115,7 @@ export default function ProductInterstitial( {
 								<ProductDetailCard
 									slug={ bundle }
 									trackButtonClick={ trackBundleClick }
-									onClick={ installsPlugin ? clickHandler : undefined }
+									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
 								/>
 							) : (
