@@ -33,13 +33,13 @@ export function MigrationProgress( props: Props ) {
 		<ConnectScreenLayout
 			className={ 'wordpress-branding' }
 			logo={ <WordPressLogo /> }
-			title={ __( 'Migrating your site..', 'jetpack-migration' ) }
+			title={ __( 'Migrating your site..', 'wpcom-migration' ) }
 			images={ [ migrationImage2 ] }
 		>
 			<p>
 				{ __(
 					"We're safely gathering your data, which can take a few minutes to a few hours. Once the migration is done, we'll notify you, and you can visit your brand-new WordPress.com Dashboard!",
-					'jetpack-migration'
+					'wpcom-migration'
 				) }
 			</p>
 
@@ -49,12 +49,12 @@ export function MigrationProgress( props: Props ) {
 					target={ '_blank' }
 					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
 				>
-					{ __( 'Check your migration progress', 'jetpack-migration' ) }
+					{ __( 'Check your migration progress', 'wpcom-migration' ) }
 				</Button>
 			</div>
 			<p className={ 'get-started-help' }>
 				{ createInterpolateElement(
-					__( 'Do you need help? <Button>Contact us.</Button>', 'jetpack-migration' ),
+					__( 'Do you need help? <Button>Contact us.</Button>', 'wpcom-migration' ),
 					{
 						Button: (
 							<Button

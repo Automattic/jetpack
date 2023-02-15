@@ -11,7 +11,7 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
-import { getRedirectUrl } from '../../../components';
+import getRedirectUrl from '../../../components/tools/jp-redirect';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
 import Text from '../text';

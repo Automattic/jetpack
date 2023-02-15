@@ -1111,32 +1111,34 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 
 	    } else {
 
-	    	// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
-	    	// ... we functionised in Core.Localisation.php to keep it DRY
+			// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
+			// ... we functionised in Core.Localisation.php to keep it DRY
 
-	        // temp pre v3.0 fix, forcing english en for this datepicker only. 
-	        // requires js mod: search #forcedlocaletasks
-	        // (Month names are localised, causing a mismatch here (Italian etc.)) 
-	        // ... so we translate:
-	        //      d F Y H:i:s (date - not locale based)
-	        // https://www.php.net/manual/en/function.date.php
-	        // ... into
-	        //      dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
-	        // (https://www.php.net/manual/en/class.intldateformatter.php)
+			// temp pre v3.0 fix, forcing english en for this datepicker only.
+			// requires js mod: search #forcedlocaletasks
+			// (Month names are localised, causing a mismatch here (Italian etc.))
+			// ... so we translate:
+			// d F Y H:i:s (date - not locale based)
+			// https://www.php.net/manual/en/function.date.php
+			// ... into
+			// %d %B %Y %H:%M:%S (strfttime - locale based date)
+			// (https://www.php.net/manual/en/function.strftime.php)
 
-	        /*
-	        $start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-	        $end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-	        */
+			// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
 
-	        /*
+			/*
+			$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
+			$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
+			*/
 
-	        $fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
-	        $fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
-	        $start_d = $fmt->format($task['start']);
-	        $end_d =  $fmt->format($task['end']);
-
-	        */
+			/*
+			@todo - this is to be refactored.
+			zeroBSCRM_locale_setServerLocale('en_US');
+			$start_d = strftime("%d %B %Y %H:%M:%S",$task['start']);
+			$end_d =  strftime("%d %B %Y %H:%M:%S",$task['end']);
+			zeroBSCRM_locale_resetServerLocale();
+			*/
+			// phpcs:enable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
 
 	        $start_d = zeroBSCRM_date_forceEN($task['start']);
 	        $end_d = zeroBSCRM_date_forceEN($task['end']);
@@ -1146,6 +1148,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	    return $start_d . ' - ' . $end_d;
 	}
 
+	// phpcs:disable
 /* ======================================================
   /	Tasks
    ====================================================== */
@@ -1957,3 +1960,4 @@ function zeroBSCRM_outputEmailHistory($userID = -1){
    		return $migrationName;
    		
    }
+// phpcs: enable
