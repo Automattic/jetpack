@@ -14,7 +14,8 @@ use Automattic\Jetpack\Assets;
  */
 class Initializer {
 
-	const JETPACK_VIDEOPRESS_VIDEO_HANDLER = 'jetpack-videopress-video-block';
+	const JETPACK_VIDEOPRESS_VIDEO_HANDLER      = 'jetpack-videopress-video-block';
+	const JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER = 'jetpack-videopress-video-block-view';
 
 	/**
 	 * Initialization optinos
@@ -205,6 +206,7 @@ class Initializer {
 			return;
 		}
 
+		// Register script used by the VideoPress video block in the editor.
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
 			'../build/block-editor/blocks/video/index.js',
@@ -216,5 +218,16 @@ class Initializer {
 		);
 
 		register_block_type( $videopress_video_metadata_file );
+
+		// Register script used by the VideoPress video block in the front-end.
+		Assets::register_script(
+			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
+			'../build/block-editor/blocks/video/view.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
+		);
 	}
 }
