@@ -106,6 +106,12 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 			)
 		);
 
+		$non_subscriber_id = $this->factory->user->create(
+			array(
+				'user_email' => 'test@example.com',
+			)
+		);
+
 		// We create a plan
 		$plan_id = $this->factory->post->create(
 			array(
@@ -129,32 +135,39 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 			2
 		);
 
-		return array( $regular_subscriber_id, $paid_subscriber_id, $plan_id );
+		return array( $non_subscriber_id, $regular_subscriber_id, $paid_subscriber_id, $plan_id );
 	}
 
 	public function test_access_check_current_visitor_can_access_regular_users() {
 		$users_plans           = $this->set_up_users_and_plans();
-		$regular_subscriber_id = $users_plans[0];
-		$paid_subscriber_id    = $users_plans[1];
-		$plan_id               = $users_plans[2];
+		$non_subscriber_id     = $users_plans[0];
+		$regular_subscriber_id = $users_plans[1];
+		$paid_subscriber_id    = $users_plans[2];
+		$plan_id               = $users_plans[3];
+
+		// We setup the token for the regular user
+		wp_set_current_user( $non_subscriber_id );
+		$payload = $this->get_payload( false, false );
+		$this->set_returned_token( $payload );
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
+
+		// We setup the token for the regular subscriber
+		wp_set_current_user( $regular_subscriber_id );
+		$payload = $this->get_payload( true, false );
+		$this->set_returned_token( $payload );
+		$this->assertFalse( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
 
 		// We setup the token for the paid user
 		wp_set_current_user( $paid_subscriber_id );
 		$payload = $this->get_payload( true, true );
 		$this->set_returned_token( $payload );
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
-
-		// We setup the token for the regular user
-		wp_set_current_user( $regular_subscriber_id );
-		$payload = $this->get_payload( true, false );
-		$this->set_returned_token( $payload );
-		$this->assertFalse( current_visitor_can_access( array(), array() ) );
 	}
 
 	public function test_access_check_current_visitor_can_access_passing_plan_id() {
 		$users_plans        = $this->set_up_users_and_plans();
-		$paid_subscriber_id = $users_plans[1];
-		$plan_id            = $users_plans[2];
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
 		$payload = $this->get_payload( true, true );
