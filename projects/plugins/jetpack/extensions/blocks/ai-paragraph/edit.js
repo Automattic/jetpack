@@ -1,5 +1,6 @@
 import './editor.scss';
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
@@ -104,6 +105,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
+	const { tracks } = useAnalytics();
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -159,6 +161,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setIsLoadingCategories( loading );
 	}, [ loading ] );
 
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
 		.map( ( { name } ) => name )
@@ -193,6 +196,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const data = {
 			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
 		};
+
+		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+			post_id: postId,
+		} );
+
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
