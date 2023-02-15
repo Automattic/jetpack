@@ -11,6 +11,7 @@ const initialState = {
 	minDaysOfBackupsAllowed: null,
 	daysOfBackupsAllowed: null,
 	daysOfBackupsSaved: null,
+	retentionDays: null,
 };
 
 const siteBackupSize = ( state = initialState, action ) => {
