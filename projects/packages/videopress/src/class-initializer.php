@@ -212,7 +212,7 @@ class Initializer {
 			'../build/block-editor/blocks/video/index.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
+				'in_footer'  => false,
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
