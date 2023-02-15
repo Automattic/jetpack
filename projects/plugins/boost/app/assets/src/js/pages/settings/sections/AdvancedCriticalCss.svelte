@@ -10,6 +10,7 @@
 		dismissalError,
 		showDismissedRecommendations,
 		dismissRecommendation,
+		groupErrorsByFrequency,
 	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
@@ -77,20 +78,21 @@
 		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
 	{/if}
 
-	{#each $activeRecommendations as recommendation (recommendation.key)}
+	{#each $activeRecommendations as issue (issue.key)}
 		<div class="panel" transition:slide|local>
-			<CloseButton on:click={() => dismissRecommendation( recommendation.key )} />
+			<CloseButton on:click={() => dismissRecommendation( issue.key )} />
 
 			<h4>
 				<InfoIcon />
-				{recommendation.label}
+				{issue.provider_name}
 			</h4>
 
-			{#each [ recommendation.errors[ 0 ] ] as errorSet}
-				<div class="problem">
-					<CriticalCssErrorDescription {errorSet} on:retry={onRetry} />
-				</div>
-			{/each}
+			<div class="problem">
+				<CriticalCssErrorDescription
+					errorSet={groupErrorsByFrequency( issue )[ 0 ]}
+					on:retry={onRetry}
+				/>
+			</div>
 		</div>
 	{/each}
 </div>

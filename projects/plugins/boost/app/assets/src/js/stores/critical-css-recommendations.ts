@@ -6,7 +6,7 @@ import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import type { JSONObject } from '../utils/json-types';
 
-type Critical_CSS_Error_Types =
+type Critical_CSS_Error_Type =
 	| 'SuccessTargetError'
 	| 'UrlError'
 	| 'HttpError'
@@ -19,20 +19,16 @@ type Critical_CSS_Error_Types =
 	| 'XFrameDenyError';
 
 interface CriticalCssErrorDetails {
+	url: string;
 	message: string;
-	type: Critical_CSS_Error_Types;
 	meta: JSONObject;
 }
 
 type Critical_CSS_Issue = {
 	provider_name: string;
 	key: string;
-	errors: {
-		url: string;
-		message: string;
-		type: Critical_CSS_Error_Types;
-		meta: JSONObject;
-	}[];
+	type: Critical_CSS_Error_Type;
+	errors: CriticalCssErrorDetails[]
 };
 
 /**
@@ -40,10 +36,10 @@ type Critical_CSS_Issue = {
  * Every error in the set is of the same type.
  */
 export type ErrorSet = {
-	type: string; // Type of errors in this set.
+	type: Critical_CSS_Error_Type; // Type of errors in this set.
 	firstMeta: JSONObject; // Meta from the first error, for convenience.
 	byUrl: {
-		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
+		[url: string]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};
 };
 
@@ -57,103 +53,54 @@ type Recommendation = {
 };
 
 
-const { criticalCSS } = Jetpack_Boost;
-const initialIssues: Critical_CSS_Issue[] = criticalCSS?.status
-	? Object.entries( criticalCSS.status.providers_errors ).reduce< Critical_CSS_Issue[] >(
-			( issues, [ providerKey, urlErrors ] ) => {
-				const { provider_key_labels } = criticalCSS.status;
-				const providerName = provider_key_labels?.[ providerKey ] ?? providerKey;
-				const existingIssue = issues.find( issue => issue.provider_name === providerName );
-				const errors = Object.entries( urlErrors ).map( ( [ url, error ] ) => ( {
-					url,
-					message: error.message,
-					type: error.type,
-					meta: error.meta,
-				} ) );
-				if ( existingIssue ) {
-					existingIssue.errors.push( ...errors );
-				} else {
-					issues.push( { provider_name: providerName, key: providerKey, errors } );
-				}
-				return issues;
-			},
-			[]
-	  )
-	: [];
+const initialIssues: Critical_CSS_Issue[] = [];
+if (Jetpack_Boost.criticalCSS.status?.providers_errors) {
+	const global_providers_errors = Jetpack_Boost.criticalCSS.status.providers_errors;
+	const global_provider_labels = Jetpack_Boost.criticalCSS.status.provider_key_labels;
+	const results: Critical_CSS_Issue[] = Object.entries(global_providers_errors).reduce<Critical_CSS_Issue[]>(
+		(issues, [providerKey, urlErrors]) => {
+			const providerName = global_provider_labels?.[providerKey] ?? providerKey;
+			const existingIssue = issues.find(issue => issue.provider_name === providerName);
+			const errors = Object.entries(urlErrors).map(([url, error]) => ({
+				url,
+				message: error.message,
+				type: error.type,
+				meta: error.meta,
+			}));
+			if (existingIssue) {
+				existingIssue.errors.push(...errors);
+			} else {
+				issues.push({
+					provider_name: providerName,
+					key: providerKey,
+					type: 'UnknownError',
+					errors,
+				});
+			}
+			return issues;
+		},
+		[]
+	)
+	initialIssues.push(...results);
+}
 
 
 console.log(initialIssues);
 
-const issuesStore = writable< Critical_CSS_Issue[] >( initialIssues );
-
-export type Critical_CSS_Recommendations = {
-	providers_errors?: {
-		[ providerKey: string ]: {
-			[ url: string ]: CriticalCssErrorDetails;
-		};
-	};
-	provider_key_labels?: { [ name: string ]: string };
-};
+const issuesStore = writable<Critical_CSS_Issue[]>(initialIssues);
 
 const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
-const dismissed = writable< string[] >( initialState );
-const dismissalErrorStore = writable( null );
+const dismissed = writable<string[]>(initialState);
+const dismissalErrorStore = writable(null);
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
 
 /**
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
  */
-export const failedProviderKeyCount = derived( issuesStore, $issues =>
+export const failedProviderKeyCount = derived(issuesStore, $issues =>
 	$issues.reduce((acc, curr) => curr.errors.length > 0 ? acc + 1 : acc, 0)
 );
-
-
-/**
- * Derived store containing Critical CSS recommendations based on Critical CSS
- * status and the provider key errors inside.
- */
-export const recommendations = derived( issuesStore, state => {
-	if ( ! state.length ) {
-		return [];
-	}
-
-	const { provider_key_labels } = Jetpack_Boost.criticalCSS?.status || {};
-
-	const urlErrors = state.reduce(
-		(acc, curr) => {
-			curr.errors.forEach(error => {
-				const { type, meta, url } = error;
-				const key = curr.key;
-
-				if (!acc[key]) {
-					acc[key] = {};
-				}
-
-				if (!acc[key][url]) {
-					acc[key][url] = {
-						message: error.message,
-						type,
-						meta,
-					};
-				}
-			});
-
-			return acc;
-		},
-		{} as {
-			[providerKey: string]: {
-				[url: string]: CriticalCssErrorDetails;
-			};
-		}
-	);
-
-	return Object.entries(urlErrors).map<Recommendation>(([key, errors]) => ({
-		key,
-		label: provider_key_labels?.[key] ?? key,
-		errors: groupErrorsByFrequency(errors),
-	}));
-});
 
 
 /**
@@ -166,15 +113,15 @@ export const dismissedRecommendations = { subscribe: dismissed.subscribe };
  * Derived store containing Critical CSS recommendations which have not been dismissed.
  */
 export const activeRecommendations = derived(
-	[ recommendations, dismissedRecommendations ],
-	( [ recommends, dismisses ] ) => recommends.filter( r => ! dismisses.includes( r.key ) )
+	[issuesStore, dismissedRecommendations],
+	([recommends, dismisses]) => recommends.filter(r => !dismisses.includes(r.key))
 );
 
 /**
  * Derived datastore: Returns the most important Set of errors among the recommendations.
  * Used for displaying the most important error as a showstopper if no URLS succeeded.
  */
-export const primaryErrorSet = derived( recommendations, recommends => {
+export const primaryErrorSet = derived(issuesStore, $issues => {
 	const importantProviders = [
 		'core_front_page',
 		'core_posts_page',
@@ -182,15 +129,15 @@ export const primaryErrorSet = derived( recommendations, recommends => {
 		'singular_post',
 	];
 
-	for ( const key of importantProviders ) {
-		const recommendation = recommends.find( r => r.key === key );
-		if ( recommendation ) {
-			return recommendation.errors[ 0 ];
+	for (const key of importantProviders) {
+		const issue = $issues.find(r => r.key === key);
+		if (issue) {
+			return groupErrorsByFrequency(issue);
 		}
 	}
 
 	return undefined;
-} );
+});
 
 /**
  * Set the dismissal error if something wrong occurred
@@ -200,21 +147,21 @@ export const primaryErrorSet = derived( recommendations, recommends => {
  * @param {string} title Error display title.
  * @param {Object} error Error.
  */
-function setDismissalError( title: string, error: JSONObject ): void {
-	dismissalErrorStore.set( {
+function setDismissalError(title: string, error: JSONObject): void {
+	dismissalErrorStore.set({
 		title,
 		error,
-	} );
+	});
 }
 
 /**
  * Clear all the dismissed recommendations.
  */
-export async function clearDismissedRecommendations(): Promise< void > {
-	await api.post( '/recommendations/reset', {
-		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
-	} );
-	dismissed.set( [] );
+export async function clearDismissedRecommendations(): Promise<void> {
+	await api.post('/recommendations/reset', {
+		nonce: Jetpack_Boost.nonces['recommendations/reset'],
+	});
+	dismissed.set([]);
 }
 
 /**
@@ -223,41 +170,52 @@ export async function clearDismissedRecommendations(): Promise< void > {
  * groups things like HTTP errors by code.
  *
  * @param {Object} errors Errors in an object keyed by URL to group
+ * @param          issue
  */
-function groupErrorsByFrequency( errors: {
-	[ url: string ]: CriticalCssErrorDetails;
-} ): ErrorSet[] {
-	const groupKeys = Object.values( errors ).map( groupKey );
-	const groupOrder = sortByFrequency( groupKeys );
+export function groupErrorsByFrequency(issue: Critical_CSS_Issue): ErrorSet[] {
+	const { errors } = issue;
+	const groupKeys = errors.map((error) => groupKey(issue.type, error));
+	const groupOrder = sortByFrequency(groupKeys);
 
-	return groupOrder.map( group => {
-		const byUrl = objectFilter( errors, v => groupKey( v ) === group );
-		const first = byUrl[ Object.keys( byUrl )[ 0 ] ];
+	return groupOrder.map((group) => {
+	  const byUrl = errors.reduce<{ [url: string]: CriticalCssErrorDetails }>(
+		(acc, error) => {
+		  if (groupKey(issue.type, error) === group) {
+			acc[error.url] = error;
+		  }
+		  return acc;
+		},
+		{}
+	  );
+	  const first = byUrl[Object.keys(byUrl)[0]];
 
-		return {
-			type: first.type,
-			firstMeta: first.meta,
-			byUrl,
-		};
-	} );
-}
+	  return {
+		type: issue.type,
+		firstMeta: first.meta,
+		byUrl,
+	  };
+	});
+  }
+
 
 /**
  * Figures out a grouping key for the given Critical CSS error. Used to group
  * "like" errors - such as HTTP errors with the same code, or by type.
  *
+ * @param                           type
  * @param {CriticalCssErrorDetails} error
  */
-export function groupKey( error: CriticalCssErrorDetails ) {
-	if ( error.type === 'HttpError' ) {
-		return error.type + '-' + castToString( error.meta.code, '' );
+export function groupKey(type: Critical_CSS_Error_Type, error: CriticalCssErrorDetails) {
+
+	if (type === 'HttpError') {
+		return type + '-' + castToString(error.meta.code, '');
 	}
 
-	if ( error.type === 'UnknownError' ) {
-		return error.type + '-' + error.message;
+	if (type === 'UnknownError') {
+		return type + '-' + error.message;
 	}
 
-	return error.type;
+	return type;
 }
 
 /**
@@ -266,15 +224,15 @@ export function groupKey( error: CriticalCssErrorDetails ) {
  *
  * @param {string} key Key of recommendation to dismiss.
  */
-export async function dismissRecommendation( key: string ): Promise< void > {
-	dismissed.update( keys => [ ...keys, key ] );
+export async function dismissRecommendation(key: string): Promise<void> {
+	dismissed.update(keys => [...keys, key]);
 	try {
-		await api.post( '/recommendations/dismiss', {
+		await api.post('/recommendations/dismiss', {
 			providerKey: key,
-			nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
-		} );
-	} catch ( error ) {
-		setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
+			nonce: Jetpack_Boost.nonces['recommendations/dismiss'],
+		});
+	} catch (error) {
+		setDismissalError(__('Failed to dismiss recommendation', 'jetpack-boost'), error);
 	}
 }
 /**
@@ -283,9 +241,9 @@ export async function dismissRecommendation( key: string ): Promise< void > {
 export async function showDismissedRecommendations() {
 	try {
 		await clearDismissedRecommendations();
-	} catch ( error ) {
+	} catch (error) {
 		setDismissalError(
-			__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
+			__('Failed to show the dismissed recommendations', 'jetpack-boost'),
 			error
 		);
 	}

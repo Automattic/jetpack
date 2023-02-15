@@ -31,7 +31,14 @@ declare global {
 		connection: ConnectionStatus;
 		criticalCSS?: {
 			// @TODO REFACTORING IN PROGRESS 🍟
-			status: Critical_CSS_Recommendations & CriticalCssStatus;
+			status: CriticalCssStatus & {
+				providers_errors?: {
+					[ providerKey: string ]: {
+						[ url: string ]: CriticalCssErrorDetails;
+					};
+				};
+				provider_key_labels?: { [ name: string ]: string };
+			};
 			suggestRegenerate: boolean;
 		};
 		showRatingPromptNonce?: string;
