@@ -430,8 +430,7 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const url = getLink()[ 0 ];
-			const query = getLink()[ 1 ];
+			const [ url, query ] = getLink();
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
 				if (
