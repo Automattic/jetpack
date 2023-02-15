@@ -1460,24 +1460,24 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Get the site option for the connected GitHub repo name.
+	 * Get the WPCOM site option for the connected GitHub repo name.
 	 */
-	public function get_github_hosting_repo_name() {
-		return get_option( 'github_hosting_repo_name', '' );
+	public function get_wpcom_github_hosting_repo_name() {
+		return get_option( 'wpcom_github_hosting_repo_name', '' );
 	}
 
 	/**
-	 * Get the site option for the connected GitHub branch name.
+	 * Get the WPCOM site option for the connected GitHub branch name.
 	 */
-	public function get_github_hosting_branch_name() {
-		return get_option( 'github_hosting_branch_name', '' );
+	public function get_wpcom_github_hosting_branch_name() {
+		return get_option( 'wpcom_github_hosting_branch_name', '' );
 	}
 
 	/**
-	 * Get the site option for the base path to use when copying
+	 * Get the WPCOM site option for the base path to use when copying
 	 * files from the connected GitHub repo to the Atomic file system.
 	 */
-	public function get_github_hosting_base_path() {
-		return get_option( 'github_hosting_base_path', '' );
+	public function get_wpcom_github_hosting_base_path() {
+		return get_option( 'wpcom_github_hosting_base_path', '' );
 	}
 }
