@@ -170,7 +170,7 @@
 									name: 'jpcrm-populate-crm-data',
 								},
 								{
-									label: 'Pre-generate Woo data',
+									label: 'Pre-generate CRM Woo data',
 									name: 'jpcrm-populate-woo-data',
 								},
 								{
@@ -236,10 +236,6 @@
 								{
 									label: 'WP Job Manager',
 									name: 'wp-job-manager',
-								},
-								{
-									label: 'Jetpack CRM',
-									name: 'zero-bs-crm',
 								},
 								{
 									label: 'Jetpack Debug Helper',
@@ -343,7 +339,7 @@
 				}
 			} );
 			// prettier-ignore
-			return `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`;
+			return [ `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
 		}
 
 		/**
@@ -434,17 +430,25 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const url = getLink();
+			const url = getLink()[ 0 ];
+			const query = getLink()[ 1 ];
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
-				if ( url.match( /[?&]jpcrm-populate-crm-data/ ) && ! url.match( /zero-bs-crm/ ) ) {
+				if (
+					query.includes( 'jpcrm-populate-crm-data' ) &&
+					! url.match( /[?&]branches\.zero-bs-crm/ )
+				) {
+					// /jpcrm-populate-crm-data/
 					$link
 						.attr( 'href', null )
 						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
-				} else if ( url.match( /[?&]jpcrm-populate-woo-data/ ) && ! url.match( /woocommerce/ ) ) {
+				} else if (
+					query.includes( 'jpcrm-populate-woo-data' ) &&
+					! query.includes( 'woocommerce' )
+				) {
 					$link
 						.attr( 'href', null )
-						.text( 'Select the WooCommerce plugin in order to populate with Woo data' );
+						.text( 'Select the WooCommerce plugin in order to populate with CRM Woo data' );
 				} else {
 					$link.attr( 'href', url ).text( url );
 				}
