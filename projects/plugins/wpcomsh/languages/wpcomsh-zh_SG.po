@@ -499,7 +499,7 @@ msgstr "在 WordPress.com 上创建免费网站或博客"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr "注脚文本"
+msgstr "页脚文本"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"

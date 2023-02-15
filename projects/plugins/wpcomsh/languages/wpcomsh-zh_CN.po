@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
+"PO-Revision-Date: 2023-02-14 18:06:06+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -493,7 +493,7 @@ msgstr "在 WordPress.com 上创建免费网站或博客"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr "注脚文本"
+msgstr "页脚文本"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"

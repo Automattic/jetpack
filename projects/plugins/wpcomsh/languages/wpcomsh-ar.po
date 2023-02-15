@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
+"PO-Revision-Date: 2023-01-29 09:10:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -18,12 +18,12 @@ msgstr "قم بإهداء المؤلف خطة ووردبريس.كوم."
 #: frontend-notices/gifting-banner/gifting-banner.php:201
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
-msgstr[4] ""
-msgstr[5] ""
+msgstr[0] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها اليوم."
+msgstr[1] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها غدا."
+msgstr[2] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد يومين."
+msgstr[3] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد %d أيام."
+msgstr[4] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد %d يوما."
+msgstr[5] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد %d يوما."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Gift the author a WordPress.com upgrade."

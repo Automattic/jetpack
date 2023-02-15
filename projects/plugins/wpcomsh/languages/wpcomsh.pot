@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2022-12-23 23:25-0300\n"
+"POT-Creation-Date: 2023-02-15 10:41-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
@@ -84,23 +84,23 @@ msgid ""
 "settings."
 msgstr ""
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid ""
 "Proxied only: You can see this because you are proxied. Do not use this if "
 "you don't know why you are here."
 msgstr ""
 
 #. translators: %s: plugin name
-#: feature-plugins/managed-plugins.php:259
+#: feature-plugins/managed-plugins.php:276
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: feature-plugins/managed-plugins.php:262
+#: feature-plugins/managed-plugins.php:279
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
@@ -109,9 +109,9 @@ msgstr ""
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr ""
 
@@ -155,20 +155,20 @@ msgstr ""
 msgid "Footer Credit"
 msgstr ""
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr ""
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr ""
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr ""
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr ""
 
@@ -194,24 +194,24 @@ msgstr ""
 msgid "Continue to site"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 #, php-format
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural ""
@@ -219,7 +219,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr ""
 
@@ -231,6 +231,14 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:80
 msgid "Create logo"
+msgstr ""
+
+#: notices/media-library-private-site-cdn-notice.php:20
+#, php-format
+msgid ""
+"The image CDN is disabled because your site is marked Private. If image "
+"thumbnails do not display in your Media Library, you can switch to Coming "
+"Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
 msgstr ""
 
 #: notices/php-version-notices.php:30

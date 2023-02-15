@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-09 12:29:03+0000\n"
+"PO-Revision-Date: 2022-12-30 18:10:23+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,21 +13,21 @@ msgstr ""
 
 #: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "Gift the author a WordPress.com plan."
-msgstr ""
+msgstr "Dhurojini autorit një plan WordPress.com."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:201
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
+msgstr[1] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:190
 msgid "Gift the author a WordPress.com upgrade."
-msgstr ""
+msgstr "Dhurojini autorit një përmirësim në WordPress.com."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:163
 msgid "This site's plan has expired."
-msgstr ""
+msgstr "Plani i këtij sajti ka skaduar."
 
 #: notices/plan-notices.php:131
 msgid "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a href=\"%1$s\">Reactivate your plan</a> to retain eCommerce plan features such as custom plugins and themes, SFTP, and phpMyAdmin access."
@@ -91,7 +91,7 @@ msgstr "Plani Personal për <strong>%3$s</strong> skadoi më %2$s. <a href=\"%1$
 
 #: notices/plan-notices.php:90
 msgid "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Premium plan features such as site monetization, VideoPress, and Google Analytics support."
-msgstr "Plani Me Pagesë për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Me Pagesë, të tilla si monetarizim sajti, VideoPress  de mbulim për Google Analytics."
+msgstr "Plani Me Pagesë për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$s\">Riaktivizoni planin tuaj</a>, që të mbani veçori plani Me Pagesë, të tilla si monetarizim sajti, VideoPress dhe mbulim për Google Analytics."
 
 #: notices/plan-notices.php:85
 msgid "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a href=\"%1$s\">Renew your plan</a> to retain Personal plan features such as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
@@ -142,7 +142,7 @@ msgstr "Blog"
 
 #: feature-plugins/hooks.php:140
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
-msgstr "Vetëm përmes ndërmjetësi: Mund ta shihni këtë ngaqë jeni kaluar përmes ndërmjetësi. Mos e përdorni këtë, nëse s’e dini pse gjendeni këtu."
+msgstr "Vetëm përmes ndërmjetësi: Mundeni ta shihni këtë ngaqë jeni kaluar përmes ndërmjetësi. Mos e përdorni këtë, nëse s’e dini pse gjendeni këtu."
 
 #: feature-plugins/hooks.php:129
 msgid "You do not have permission to access this page."
@@ -162,7 +162,7 @@ msgstr "CSS"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools pre-installed and activated on all Atomic Sites"
-msgstr "Funksione & mjete të furnizuara nga WordPress.com të parainstaluara dhe aktivizuara në krejt Sajtet Atomic"
+msgstr "Funksione & mjete të furnizuara nga WordPress.com të instaluara paraprakisht dhe aktivizuara në krejt Sajtet Atomic"
 
 #. translators: Message about how a managed theme is updated.
 #. translators: Information about how a managed plugin is updated, for
@@ -278,11 +278,11 @@ msgstr "Shfaq Buton Ndjekjeje"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr "Përfshi ricicërimat"
+msgstr "Përfshi retweet-e"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr "Fshihi cicërimat e botuara përmes Publicize-it"
+msgstr "Fshihi Tweets e botuara përmes Publicize-it"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
@@ -330,11 +330,11 @@ msgstr "Klasifikim:"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr "Reja e etiketave nuk do të shfaqet, sepse s’ka klasifikime që mbulojnë widget-in për re etiketash."
+msgstr "Reja e etiketave s’do të shfaqet, sepse s’ka klasifikime që mbulojnë widget-in për re etiketash."
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
-msgstr "Shfaq numërim etiketash"
+msgstr "Shfaq numra etiketash"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
@@ -378,7 +378,7 @@ msgstr "Numër për shfaqje:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
-msgstr "Imazhe"
+msgstr "Figura"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
@@ -418,19 +418,19 @@ msgstr "Mos Shfaq Emër"
 
 #: widgets/class-aboutme-widget.php:139
 msgid "Display Small"
-msgstr "Shfaqe të Vogël"
+msgstr "Shfaqe me të Vogla"
 
 #: widgets/class-aboutme-widget.php:137
 msgid "Display Medium"
-msgstr "Shfaqe të Mesme"
+msgstr "Shfaqe me Mesatare"
 
 #: widgets/class-aboutme-widget.php:135
 msgid "Display Large"
-msgstr "Shfaqe të Madhe"
+msgstr "Shfaqe me të Mëdha"
 
 #: widgets/class-aboutme-widget.php:133
 msgid "Display X-Large"
-msgstr "Shfaqe Ekstra të Madhe"
+msgstr "Shfaqe me Ekstra të Mëdha"
 
 #: widgets/class-aboutme-widget.php:122
 msgid "Your about.me URL"
@@ -454,7 +454,7 @@ msgstr "Widget About.me"
 
 #: widgets/class-aboutme-widget.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr "Shfaqni profilin tuaj about.me me një miniaturë"
+msgstr "Shfaqni me një miniaturë profilin tuaj about.me"
 
 #: safeguard/utils.php:68
 msgid "Unable to fetch the requested data."
@@ -594,7 +594,7 @@ msgstr "Listë e postimeve, faqeve, ose komenteve tuaja më të vlerësuara."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
-msgstr "Klikimet kryesuese llogariten prej statistikave për 48-72 orët e fundit. Duan ca kohë të ndryshojnë."
+msgstr "Klikimet kryesuese llogariten prej statistikash për 48-72 orët e fundit. Duan ca kohë të ndryshojnë."
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
@@ -606,7 +606,7 @@ msgstr "Gjatësi ekrani:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr "Paraqit lidhjet më të klikuara në blogun tuaj."
+msgstr "Paraqitni lidhjet më të klikuara në blogun tuaj."
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
@@ -804,7 +804,7 @@ msgstr "Tekst i shfaqur pas Gravatar-it. Kjo është opsionale dhe mund të për
 
 #: widgets/class-gravatar-widget.php:202
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr "Lidhje Gravatari. Kjo është URL opsionale që do të përdoret kur dikush klikon mbi Gravatarin tuaj:"
+msgstr "Lidhje Gravatari. Kjo është URL opsionale, e cila do të përdoret kur dikush klikon mbi Gravatarin tuaj:"
 
 #: widgets/class-gravatar-widget.php:189
 msgid "Gravatar alignment:"
@@ -820,7 +820,7 @@ msgstr "Adresë Email Vetjake:"
 
 #: widgets/class-gravatar-widget.php:159
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr "Përzgjidhni një përdorues ose zgjidhni \"vetjake\" dhe jepni një adresë email vetjake."
+msgstr "Përzgjidhni një përdorues, ose zgjidhni “vetjake” dhe jepni një adresë email vetjake."
 
 #: widgets/class-gravatar-widget.php:154
 msgid "Center"
@@ -849,7 +849,7 @@ msgstr "I madh (128 piksela)"
 
 #: widgets/class-gravatar-widget.php:146
 msgid "Medium (96 pixels)"
-msgstr "I mesëm (96 piksela)"
+msgstr "Mesatar (96 piksela)"
 
 #: widgets/class-gravatar-widget.php:145
 msgid "Small (64 pixels)"
@@ -857,7 +857,7 @@ msgstr "I vogël (64 piksela)"
 
 #: widgets/class-gravatar-widget.php:102
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
-msgstr "Lypset të zgjidhni një përdorues ose të jepni një adresë email te rregullimet tuaja për <a href=\"%s\">Widget-in Gravatar</a>."
+msgstr "Lypset të zgjidhni një përdorues, ose të jepni një adresë email te rregullimet tuaja për <a href=\"%s\">Widget-in Gravatar</a>."
 
 #: widgets/class-gravatar-widget.php:25
 msgid "Gravatar"
@@ -869,15 +869,15 @@ msgstr "Futni figurë Gravatari"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:64
 msgid "Choose an image to display in your sidebar:"
-msgstr "Zgjidhni një figurë që ta shfaqni në anështyllën tuaj:"
+msgstr "Zgjidhni një figurë që të shfaqet në anështyllën tuaj:"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:13
 msgid "Freshly Pressed"
-msgstr "Të saposhtypura"
+msgstr "E saposhtypur"
 
 #: widgets/class-wpcom-freshly-pressed-widget.php:10
 msgid "Display a Freshly Pressed badge in your sidebar"
-msgstr "Shfaqni te anështylla juaj një stemë E saposhtypur"
+msgstr "Shfaqni te anështylla juaj një stemë “E saposhtypur”"
 
 #: widgets/class-widget-authors-grid.php:126
 #: widgets/class-wpcom-widget-recent-comments.php:384
@@ -886,7 +886,7 @@ msgstr "Madhësi Avatari (px):"
 
 #: widgets/class-widget-authors-grid.php:121
 msgid "Display all authors (including those who have not written any posts)"
-msgstr "Shfaq krejt autorët (përfshi ata që s’kanë shkruaj ndonjë postim)"
+msgstr "Shfaq krejt autorët (përfshi ata që s’kanë shkruar ndonjë postim)"
 
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
@@ -923,7 +923,7 @@ msgstr "Sajt Privat"
 #: private-site/private-site.php:474 private-site/private-site.php:591
 #: private-site/private-site.php:814
 msgid "This site is private."
-msgstr "Ky përdorues është privat."
+msgstr "Ky sajt është privat."
 
 #: private-site/access-denied-coming-soon-template.php:55
 #: private-site/access-denied-private-site-template.php:47
@@ -945,10 +945,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
-"Ju lutemi, mbani parasysh se - ky mjet shfaq vetëm të dhëna rregullash\n"
+"Ju lutemi, mbani parasysh se - ky mjet shfaq vetëm hollësi rregullash\n"
 "privatësie të sjella nga WordPress dhe shtojcat pjesëmarrëse. S’përfshin\n"
-"të dhëna rregullash privatësie për shtojca jopjesëmarrëse. Është përgjegjësi\n"
-"e juaja të merrni veçmas të dhëna rregullash privatësie për këto të fundit."
+"hollësi rregullash privatësie për shtojca jopjesëmarrëse. Është përgjegjësi\n"
+"e juaja të merrni veçmas hollësi rregullash privatësie për këto të fundit."
 
 #: privacy/class-wp-privacy-participating-plugins.php:126
 msgid ""
@@ -962,7 +962,7 @@ msgstr ""
 "të depozituara nga WordPress-i dhe shtojcat pjesëmarrëse. S’eksporton të dhëna\n"
 "personale të depozituara nga shtojca jopjesëmarrëse. Është përgjegjësi e juaja\n"
 "të eksportoni veçmas të dhëna personale të depozituara nga shtojca jopjesëmarrëse.\n"
-"Në këtë kohë të dhënat personale të eksportuara përfshijnë vetëm objektet vijuese:"
+"Në këtë kohë, të dhënat personale të eksportuara përfshijnë vetëm objektet vijuese:"
 
 #: privacy/class-wp-privacy-participating-plugins.php:74
 msgid ""
@@ -975,9 +975,9 @@ msgid ""
 msgstr ""
 "Ju lutemi, mbani parasysh se - ky mjet fshin vetëm të dhëna personale\n"
 "të depozituara nga WordPress-i dhe shtojcat pjesëmarrëse. S’fshin përdorues\n"
-"të regjistruar, as fshin të dhëna personale të depozituara nga shtojca\n"
-"jopjesëmarrëse. Është përgjegjësi e juaja të fshini përdorues të regjistruar, si dhe\n"
-"të dhëna personale të depozituara nga shtojca jopjesëmarrëse. Në këtë kohë, në\n"
+"të regjistruar, as të dhëna personale të depozituara nga shtojca jo të tilla.\n"
+"Është përgjegjësi e juaja të fshini përdorues të regjistruar, si dhe të dhëna\n"
+"personale të depozituara nga shtojca jopjesëmarrëse. Në këtë kohë, në\n"
 "të dhënat personale të fshira përfshihen vetëm objektet vijuese:"
 
 #: logo-tool/logo-tool.php:80

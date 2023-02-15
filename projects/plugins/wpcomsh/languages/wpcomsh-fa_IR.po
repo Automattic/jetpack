@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-02 16:07:08+0000\n"
+"PO-Revision-Date: 2023-02-06 10:25:27+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: frontend-notices/gifting-banner/gifting-banner.php:213
 msgid "Gift the author a WordPress.com plan."
-msgstr ""
+msgstr "یکی از طرح‌های WordPress.com را به آن هدیه دهید."
 
 #: frontend-notices/gifting-banner/gifting-banner.php:201
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
@@ -107,7 +107,7 @@ msgstr "هدیه"
 
 #: frontend-notices/gifting-banner/gifting-banner.php:169
 msgid "Enjoy this site?"
-msgstr ""
+msgstr "از این سایت لذت می‌برید؟"
 
 #: frontend-notices/class-wpcomsh-frontend-notices.php:152
 msgid "Continue to site"
