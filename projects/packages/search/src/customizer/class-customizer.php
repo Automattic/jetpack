@@ -232,6 +232,26 @@ class Customizer {
 			)
 		);
 
+		$id = $setting_prefix . 'show_post_date';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'              => is_multisite() ? '1' : '0',
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'type'    => 'checkbox',
+				'section' => $section_id,
+				'label'   => __( 'Show post date', 'jetpack-search-pkg' ),
+			)
+		);
+
 		$id = $setting_prefix . 'show_powered_by';
 		$wp_customize->add_setting(
 			$id,
