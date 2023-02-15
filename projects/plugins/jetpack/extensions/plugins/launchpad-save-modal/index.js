@@ -4,7 +4,7 @@ import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
@@ -32,9 +32,11 @@ export const settings = {
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
-		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
+		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
+			window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
+		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
@@ -56,9 +58,31 @@ export const settings = {
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )
 			) {
+				// We want to prevent the launchpad modal from rendering on top of the first
+				// post published modal that exists in the editing toolkit. The following
+				// conditional is a stopgap solution for the time being, and the end goal is
+				// to migrate the first post published modal logic into jetpack, abstract code from
+				// both modals and their rendering behavior, and remove this solution afterwards.
+				if (
+					siteIntentOption === 'write' &&
+					parseInt( prevHasNeverPublishedPostOption.current ) &&
+					isInsidePostEditor
+				) {
+					setIsModalOpen( false );
+					prevHasNeverPublishedPostOption.current = '';
+					return;
+				}
+
 				setIsModalOpen( true );
 			}
-		}, [ isSavingSite, prevIsSavingSite, isSavingPost, prevIsSavingPost ] );
+		}, [
+			isSavingSite,
+			prevIsSavingSite,
+			isSavingPost,
+			prevIsSavingPost,
+			siteIntentOption,
+			isInsidePostEditor,
+		] );
 
 		useEffect( () => {
 			// if the isCurrentPostPublished is ever false it means this current post hasn't been published yet so we set the initialPostPublish state
