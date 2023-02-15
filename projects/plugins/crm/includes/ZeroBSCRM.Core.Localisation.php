@@ -319,11 +319,11 @@ function zeroBSCRM_date_forceEN( $time = -1 ) {
 		// dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
 		// (https://www.php.net/manual/en/class.intldateformatter.php)
 
-		// phpcs:disable
-		zeroBSCRM_locale_setServerLocale('en_US');
-		$r = strftime("%d %B %Y %H:%M:%S",$time);
+		// @todo - this is to be refactored.
+		zeroBSCRM_locale_setServerLocale( 'en_US' );
+		$r = strftime( '%d %B %Y %H:%M:%S', $time );
 		zeroBSCRM_locale_resetServerLocale();
-		// phpcs:enable
+
 		return $r;
 
 	}
