@@ -11,14 +11,14 @@ jQuery( function ( $ ) {
 		jpcrm_woosync_initiate_sync();
 
 		// remove URL param to prevent refresh from restarting anew
-		const url = new URL( location );
+		var url = new URL( location );
 		url.searchParams.delete( 'definitely_restart_sync' );
 		history.replaceState( null, null, url );
 	}
 
 	// bind clickable stats
 	jQuery( '.jpcrm-clickable' ).on( 'click', function () {
-		const url = jQuery( this ).attr( 'data-href' );
+		var url = jQuery( this ).attr( 'data-href' );
 		if ( url ) {
 			window.open( url, '_blank' ).trigger( 'focus' );
 		}
@@ -60,7 +60,7 @@ function jpcrm_woosync_initiate_sync() {
 			'job_in_progress', 'sync_completed', or 'sync_part_complete'
 		*/
 
-			let sleep_time = 1000,
+			var sleep_time = 1000,
 				completed = false,
 				remaining_pages = -1,
 				percentage_completed = -1;
@@ -158,7 +158,7 @@ function jpcrm_woosync_initiate_sync() {
 				// console.log( 'WooSync Background sync has more pages...' );
 
 				// append title where material to build one
-				let title = '';
+				var title = '';
 				if ( remaining_pages > 0 ) {
 					title = jpcrm_woosync_language_label( 'pages_remain', '{0} pages remain' ).format(
 						remaining_pages
@@ -197,7 +197,7 @@ function jpcrm_woosync_initiate_sync() {
 		},
 		function ( response ) {
 			// failed to run sync job for some reason...
-			let error_string = '';
+			var error_string = '';
 
 			if ( response.statusText == 'timeout' ) {
 				// AJAX call timed out, but cron should catch it
@@ -243,7 +243,7 @@ function jpcrm_woosync_fire_sync( success_callback, error_callback ) {
 		window.jpcrm_woosync_firing_sync = true;
 
 		// postbag!
-		const data = {
+		var data = {
 			action: 'jpcrm_woosync_fire_sync_job',
 			sec: window.jpcrm_woosync_nonce,
 		};
@@ -305,9 +305,14 @@ NOTE: shall we move this to Core (if we agree)... it'll mean we can use argument
 */
 if ( ! String.prototype.format ) {
 	String.prototype.format = function () {
-		const args = arguments;
+		var args = arguments;
 		return this.replace( /{(\d+)}/g, function ( match, number ) {
 			return typeof args[ number ] !== 'undefined' ? args[ number ] : match;
 		} );
 	};
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woosync_initiate_sync, jpcrm_woosync_fire_sync,
+		jpcrm_woosync_language_label };
 }
