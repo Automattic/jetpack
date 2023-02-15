@@ -419,16 +419,18 @@ addFilter(
  * @returns {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
+	// Apply only to videopress/video block.
+	if ( name !== 'videopress/video' ) {
+		return settings;
+	}
+
 	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
 	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
 		'videopress/video'
 	);
 
-	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable ) {
-		return settings;
-	}
-
-	if ( name !== 'videopress/video' ) {
+	// If videopress/video block is not registered or not available, do not extend transforms.
+	if ( ! isVideoPressVideoBlockRegistered || ! isVideoPressVideoBlockAvailable ) {
 		return settings;
 	}
 
