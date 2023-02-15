@@ -172,6 +172,19 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 				},
 			)
 		);
+
+		// Upload Route
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/upload',
+			array(
+				'methods'             => \WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'videopress_upload' ),
+				'permission_callback' => function () {
+					return Data::can_perform_action() && current_user_can( 'upload_files' );
+				},
+			)
+		);
 	}
 
 	/**
@@ -277,6 +290,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 */
 	public static function videopress_upload_jwt() {
 		$has_connected_owner = Data::has_connected_owner();
+
 		if ( ! $has_connected_owner ) {
 			return rest_ensure_response(
 				new WP_Error(
@@ -363,6 +377,23 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			new WP_REST_Response( $data, $status )
+		);
+	}
+
+	/**
+	 * Upload videos to VideoPress servers.
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public function videopress_upload() {
+		$jwt = self::videopress_upload_jwt();
+
+		$data = array(
+			'token' => $jwt,
+		);
+
+		return rest_ensure_response(
+			new WP_REST_Response( $data, 200 )
 		);
 	}
 
