@@ -10,7 +10,6 @@
 		 * Values from "@tsconfig/svelte/tsconfig.json"
 		 */
 		"sourceMap": true,
-		"forceConsistentCasingInFileNames": true,
-		"rootDir": "."
+		"forceConsistentCasingInFileNames": true
 	}
 }

@@ -1,8 +1,8 @@
 <?php
 /**
- * Primary class file for the Jetpack Migration plugin.
+ * Primary class file for the Move to WordPress.com plugin.
  *
- * @package automattic/jetpack-migration-plugin
+ * @package automattic/wpcom-migration-plugin
  */
 
 namespace Automattic\Jetpack\Migration;
@@ -19,9 +19,9 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Sync\Data_Settings;
 
 /**
- * Class Jetpack_Migration
+ * Class WPCOM_Migration
  */
-class Jetpack_Migration {
+class WPCOM_Migration {
 
 	/**
 	 * Constructor.
@@ -45,9 +45,9 @@ class Jetpack_Migration {
 				$config->ensure(
 					'connection',
 					array(
-						'slug'     => JETPACK_MIGRATION_SLUG,
-						'name'     => JETPACK_MIGRATION_NAME,
-						'url_info' => JETPACK_MIGRATION_URI,
+						'slug'     => WPCOM_MIGRATION_SLUG,
+						'name'     => WPCOM_MIGRATION_NAME,
+						'url_info' => WPCOM_MIGRATION_URI,
 					)
 				);
 				// Sync package.
@@ -70,7 +70,7 @@ class Jetpack_Migration {
 			'Move to WordPress.com',
 			'Move to WordPress.com',
 			'manage_options',
-			'jetpack-migration',
+			'wpcom-migration',
 			array( $this, 'plugin_settings_page' ),
 			'dashicons-admin-generic',
 			79 // right before the Settings menu (80)
@@ -91,18 +91,18 @@ class Jetpack_Migration {
 	 */
 	public function enqueue_admin_scripts() {
 		Assets::register_script(
-			'jetpack-migration',
+			'wpcom-migration',
 			'build/index.js',
-			JETPACK_MIGRATION_ROOT_FILE,
+			WPCOM_MIGRATION_ROOT_FILE,
 			array(
 				'in_footer'  => true,
-				'textdomain' => 'jetpack-migration',
+				'textdomain' => 'wpcom-migration',
 			)
 		);
-		Assets::enqueue_script( 'jetpack-migration' );
+		Assets::enqueue_script( 'wpcom-migration' );
 		// Initial JS state including JP Connection data.
-		wp_add_inline_script( 'jetpack-migration', Connection_Initial_State::render(), 'before' );
-		wp_add_inline_script( 'jetpack-migration', $this->render_initial_state(), 'before' );
+		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
+		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );
 	}
 
 	/**
@@ -111,7 +111,7 @@ class Jetpack_Migration {
 	 * @return string
 	 */
 	public function render_initial_state() {
-		return 'var jetpackMigrationInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+		return 'var wpcomMigrationInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
 	}
 
 	/**
@@ -132,7 +132,7 @@ class Jetpack_Migration {
 	 */
 	public function plugin_settings_page() {
 		?>
-			<div id="jetpack-migration-root"></div>
+			<div id="wpcom-migration-root"></div>
 		<?php
 	}
 
@@ -144,7 +144,7 @@ class Jetpack_Migration {
 	 * @static
 	 */
 	public static function plugin_deactivation() {
-		$manager = new Connection_Manager( 'jetpack-migration' );
+		$manager = new Connection_Manager( 'wpcom-migration' );
 		$manager->remove_connection();
 	}
 }

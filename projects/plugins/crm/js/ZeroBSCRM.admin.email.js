@@ -383,3 +383,7 @@ function zbscrmjs_customer_setCustomerEmail( obj ) {
 			.classList.toggle( 'hidden', obj.email != '' );
 	}
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbscrmjs_customer_setCustomerEmail };
+}

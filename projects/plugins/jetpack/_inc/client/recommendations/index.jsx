@@ -290,7 +290,7 @@ const RecommendationsComponent = props => {
 					<a
 						role="button"
 						tabIndex="0"
-						className="jp-footer__link"
+						className="jp-footer__link__recommended"
 						href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
 					>
 						{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
@@ -300,7 +300,7 @@ const RecommendationsComponent = props => {
 					<a
 						role="button"
 						tabIndex="0"
-						className="jp-footer__link"
+						className="jp-footer__link__recommended"
 						href={ getRedirectUrl( 'jetpack-support' ) }
 					>
 						{ __( 'Search our support site', 'jetpack' ) }

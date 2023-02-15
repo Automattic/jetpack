@@ -525,3 +525,11 @@ function zeroBSCRMJS_settingsLang( key, fallback ) {
 
 	return fallback;
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRM_settingsPage_bindCustomFields, zbscrmJS_customFields_buildLineV3,
+	zbscrmJS_customFields_buildLineFiles, zbscrmJS_customFields_buildLine,
+	zbscrmJS_customFields_buildSelect, zbscrmJS_customFields_buildNonSelect,
+	zbscrmJS_customFields_updateRow, zbscrmJS_customFields_bindRowControls,
+	zbscrmJS_customFieldTypePlaceholder, zeroBSCRMJS_settingsLang };
+	}

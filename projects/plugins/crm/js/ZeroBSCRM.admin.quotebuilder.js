@@ -461,3 +461,8 @@ function jpcrm_quotes_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { quoteTemplateBlocker, zbscrm_appendTextToEditor, zbscrm_getTemplatedQuote,
+		jpcrm_quotes_send_email_modal, jpcrm_quotes_send_email, jpcrm_quotes_lang };
+}
