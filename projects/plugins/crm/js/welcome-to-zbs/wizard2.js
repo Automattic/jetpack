@@ -12,7 +12,7 @@
                 zbs_crm_share_ess: zbsOptions.zbs_crm_share_essentials,
                 security: jQuery( '#zbswf-ajax-nonce' ).val()
             };*/
-var zbsOptions = {
+export var zbsOptions = {
 	zbs_crm_name: 'Jetpack CRM',
 	zbs_crm_type: '',
 	zbs_crm_other: '',
@@ -126,7 +126,7 @@ jQuery( function () {
 /**
  *
  */
-function zbs_biz_select() {
+export function zbs_biz_select() {
 	if ( jQuery( '#zbs_crm_type' ).val() == 'Other' ) {
 		jQuery( '#zbs_other_details' ).show();
 		jQuery( '#zbs_other_label' ).removeClass( 'hide' );
@@ -141,10 +141,12 @@ function zbs_biz_select() {
 		zbs_crm_js_updatePage2();
 	}, 0 );
 }
+
+export var crm_name = '';
 /**
  *
  */
-function zbs_crm_name_change() {
+export function zbs_crm_name_change() {
 	crm_name = jQuery( '#zbs_crm_name' ).val();
 
 	if ( crm_name != '' ) {
@@ -156,7 +158,7 @@ function zbs_crm_name_change() {
 /**
  *
  */
-function zbs_crm_js_updatePage2() {
+export function zbs_crm_js_updatePage2() {
 	var b2bMode = jQuery( '#zbs_b2b' ).is( ':checked' );
 	var userType = jQuery( '#zbs_crm_type' ).val();
 	let userArea = 'smallbiz';
@@ -211,7 +213,7 @@ function zbs_crm_js_updatePage2() {
 /**
  *
  */
-function zbsJS_welcomeWizard_update_deets() {
+export function zbsJS_welcomeWizard_update_deets() {
 	window.zbsOptions.zbs_crm_name = jQuery( '#zbs_crm_name' ).val();
 	window.zbsOptions.zbs_crm_other = jQuery( '#zbs_other_details' ).val();
 	window.zbsOptions.zbs_crm_curr = jQuery( '#zbs_crm_curr' ).val();

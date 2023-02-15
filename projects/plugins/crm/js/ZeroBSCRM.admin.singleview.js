@@ -278,3 +278,9 @@ function zeroBSCRMJS_bindActivityStream() {
 /* ============================================================================================================
     / Generic helpers (view settings)
 ============================================================================================================ */
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCurrentlyDeleting, zeroBSCRMJS_initSingleView, zeroBSCRMJS_bindViewFiles,
+		zeroBSCRMJS_viewContactInit, zeroBSCRMJS_viewCompanyInit,
+		zeroBSCRMJS_bindGenericViewSettings, zeroBSCRMJS_bindActivityStream };
+}

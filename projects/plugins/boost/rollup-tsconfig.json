@@ -1,8 +1,8 @@
 {
 	"extends": "./tsconfig.json",
 	"include": [
-		"app/assets/src/js/**/*",
 		"../../js-packages/components/**/*",
+		"app/assets/src/js/**/*",
 		"app/features/image-guide/src/**/*"
 	],
 	"compilerOptions": {

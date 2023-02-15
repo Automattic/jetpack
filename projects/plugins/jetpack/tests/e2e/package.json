@@ -47,7 +47,6 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [],
 		"pluginSlug": "jetpack",
 		"mirrorName": "jetpack-production"
 	}

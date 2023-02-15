@@ -71,7 +71,7 @@
 	</span>
 
 	<MoreList let:entry entries={displayUrls}>
-		<a href={entry.href} target="_blank">
+		<a href={entry.href} target="_blank" rel="noreferrer">
 			{entry.label}
 		</a>
 	</MoreList>

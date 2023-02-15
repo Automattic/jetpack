@@ -368,3 +368,10 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 			}
 		} );
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsTagManagerUpdateAJAXBlocker, zeroBSCRMJS_buildTags,
+		zeroBSCRMJS_buildTagsInput, zbsJS_drawTag, zbsJS_bindTags, zbsJS_bindTagsInit,
+		zbsJS_addTagAction, zbsJS_bindTagManagerInit, zbsJS_addEmptyTag,
+		zeroBSCRMJS_tagManager_bindTagEditButtons };
+}

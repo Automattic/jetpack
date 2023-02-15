@@ -17,3 +17,7 @@ function jpcrm_list_view_segment_action_export_button( dataLine ) {
         </a>
     `;
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_list_view_segment_action_export_button };
+}

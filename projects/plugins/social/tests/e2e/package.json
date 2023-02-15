@@ -43,12 +43,6 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [
-			"plugins/social",
-			"packages/publicize",
-			"js-packages/publicize-components",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "social",
 		"mirrorName": "jetpack-social-plugin"
 	}
