@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Update form-styles script to prevent blurred forms on slow loading pages
