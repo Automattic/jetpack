@@ -214,6 +214,7 @@ class Initializer {
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
-		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
+
+		register_block_type( $videopress_video_metadata_file );
 	}
 }
