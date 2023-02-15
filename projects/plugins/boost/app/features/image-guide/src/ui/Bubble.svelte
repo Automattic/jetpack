@@ -95,7 +95,7 @@
 		text-align: center;
 
 		border: 1px solid hsl( 0deg 0% 100% / 0.05 );
-		text-shadow: 0 0 1px hsl( 0, 0%, 0% / 0.15 );
+		text-shadow: 0 0 1px hsl( 0, 0%, 0%, 0.15 );
 		cursor: default;
 		transition: background-color 300ms ease;
 

@@ -6,41 +6,65 @@ const projects = [
 		project: 'Jetpack connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/connection', '--retries=1' ],
+		targets: [ 'plugins/jetpack' ],
 		suite: '',
 	},
 	{
 		project: 'Jetpack pre-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/pre-connection', '--retries=1' ],
+		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 	},
 	{
 		project: 'Jetpack post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
+		targets: [ 'plugins/jetpack' ],
 		suite: '',
 	},
 	{
 		project: 'Jetpack sync',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/sync', '--retries=1' ],
+		targets: [ 'packages/sync' ],
 		suite: '',
 	},
 	{
 		project: 'Jetpack blocks',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/blocks', '--retries=1' ],
+		targets: [ 'plugins/jetpack' ],
 		suite: '',
 	},
-	{ project: 'Boost', path: 'projects/plugins/boost/tests/e2e', testArgs: [], suite: '' },
-	{ project: 'Search', path: 'projects/plugins/search/tests/e2e', testArgs: [], suite: '' },
+	{
+		project: 'Boost',
+		path: 'projects/plugins/boost/tests/e2e',
+		testArgs: [],
+		targets: [ 'plugins/boost' ],
+		suite: '',
+	},
+	{
+		project: 'Search',
+		path: 'projects/plugins/search/tests/e2e',
+		testArgs: [],
+		targets: [ 'plugins/search' ],
+		suite: '',
+	},
 	{
 		project: 'VideoPress',
 		path: 'projects/plugins/videopress/tests/e2e',
 		testArgs: [],
+		targets: [ 'plugins/videopress' ],
 		suite: '',
 	},
-	{ project: 'Social', path: 'projects/plugins/social/tests/e2e', testArgs: [], suite: '' },
+	{
+		project: 'Social',
+		path: 'projects/plugins/social/tests/e2e',
+		testArgs: [],
+		targets: [ 'plugins/social' ],
+		suite: '',
+	},
 ];
 
 const matrix = [];
@@ -53,18 +77,18 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		);
 
 		for ( const project of projects ) {
-			const packageJson = JSON.parse( fs.readFileSync( `${ project.path }/package.json`, 'utf8' ) );
+			if ( ! project.targets ) {
+				// If no targets are defined, run the tests
+				matrix.push( project );
+			}
 
-			if ( packageJson?.ci?.targets?.length > 0 ) {
-				// iterate over defined target plugins/projects and see if they are changed
-				for ( const target of packageJson.ci.targets ) {
-					if ( Object.keys( changedProjects ).includes( target ) ) {
-						matrix.push( project );
-						break;
-					}
-				}
-			} else {
-				// if no targets are defined, run the tests
+			const targets = execSync(
+				`pnpm jetpack dependencies list --add-dependencies ${ project.targets.join( ' ' ) }`
+			)
+				.toString()
+				.split( '\n' );
+
+			if ( Object.keys( changedProjects ).some( target => targets.includes( target ) ) ) {
 				matrix.push( project );
 			}
 		}
