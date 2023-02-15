@@ -21,13 +21,13 @@ interface CriticalCssErrorDetails {
 	url: string;
 	message: string;
 	meta: JSONObject;
+	type: Critical_CSS_Error_Type;
 }
 
-type Critical_CSS_Issue = {
+export type CriticalCssIssue = {
 	provider_name: string;
 	key: string;
 	status: "active" | "dismissed";
-	type: Critical_CSS_Error_Type;
 	errors: CriticalCssErrorDetails[]
 };
 
@@ -43,46 +43,9 @@ export type ErrorSet = {
 	};
 };
 
-const initialIssues: Critical_CSS_Issue[] = [];
-if (Jetpack_Boost.criticalCSS.status?.providers_errors) {
-	const global_providers_errors = Jetpack_Boost.criticalCSS.status.providers_errors;
-	const global_provider_labels = Jetpack_Boost.criticalCSS.status.provider_key_labels;
-	const global_dismissed_recommendations = Jetpack_Boost.criticalCssDismissedRecommendations;
-	const results: Critical_CSS_Issue[] = Object.entries(global_providers_errors).reduce<Critical_CSS_Issue[]>(
-		(issues, [providerKey, urlErrors]) => {
-			const providerName = global_provider_labels?.[providerKey] ?? providerKey;
-			const existingIssue = issues.find(issue => issue.provider_name === providerName);
-			const isDismissed = global_dismissed_recommendations?.includes(providerKey);
-			const status = isDismissed ? "dismissed" : "active";
-			const errors = Object.entries(urlErrors).map(([url, error]) => ({
-				url,
-				message: error.message,
-				status,
-				type: error.type,
-				meta: error.meta,
-			}));
-			if (existingIssue) {
-				existingIssue.errors.push(...errors);
-			} else {
-				issues.push({
-					provider_name: providerName,
-					key: providerKey,
-					type: 'UnknownError',
-					status,
-					errors,
-				});
-			}
-			return issues;
-		},
-		[]
-	)
-	initialIssues.push(...results);
-}
+const initialIssues: CriticalCssIssue[] = Jetpack_Boost.criticalCSS.status?.issues;
 
-
-console.log(initialIssues);
-
-const issuesStore = writable<Critical_CSS_Issue[]>(initialIssues);
+const issuesStore = writable<CriticalCssIssue[]>(initialIssues);
 
 const dismissalErrorStore = writable(null);
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
@@ -172,15 +135,15 @@ export async function clearDismissedIssues(): Promise<void> {
  * @param {Object} errors Errors in an object keyed by URL to group
  * @param          issue
  */
-export function groupErrorsByFrequency(issue: Critical_CSS_Issue): ErrorSet[] {
+export function groupErrorsByFrequency(issue: CriticalCssIssue): ErrorSet[] {
 	const { errors } = issue;
-	const groupKeys = errors.map((error) => groupKey(issue.type, error));
+	const groupKeys = errors.map((error) => groupKey(error));
 	const groupOrder = sortByFrequency(groupKeys);
 
 	return groupOrder.map((group) => {
 		const byUrl = errors.reduce<{ [url: string]: CriticalCssErrorDetails }>(
 			(acc, error) => {
-				if (groupKey(issue.type, error) === group) {
+				if (groupKey(error) === group) {
 					acc[error.url] = error;
 				}
 				return acc;
@@ -190,7 +153,7 @@ export function groupErrorsByFrequency(issue: Critical_CSS_Issue): ErrorSet[] {
 		const first = byUrl[Object.keys(byUrl)[0]];
 
 		return {
-			type: issue.type,
+			type: first.type,
 			firstMeta: first.meta,
 			byUrl,
 		};
@@ -205,17 +168,17 @@ export function groupErrorsByFrequency(issue: Critical_CSS_Issue): ErrorSet[] {
  * @param                           type
  * @param {CriticalCssErrorDetails} error
  */
-export function groupKey(type: Critical_CSS_Error_Type, error: CriticalCssErrorDetails) {
+export function groupKey(error: CriticalCssErrorDetails) {
 
-	if (type === 'HttpError') {
-		return type + '-' + castToString(error.meta.code, '');
+	if (error.type === 'HttpError') {
+		return error.type + '-' + castToString(error.meta.code, '');
 	}
 
-	if (type === 'UnknownError') {
-		return type + '-' + error.message;
+	if (error.type === 'UnknownError') {
+		return error.type + '-' + error.message;
 	}
 
-	return type;
+	return error.type;
 }
 
 /**

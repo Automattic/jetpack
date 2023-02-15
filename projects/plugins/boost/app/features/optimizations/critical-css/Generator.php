@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
@@ -61,20 +62,13 @@ class Generator {
 			);
 		}
 
-		$providers_errors    = $this->state->get_providers_errors();
-		$provider_key_labels = array_combine(
-			array_keys( $providers_errors ),
-			array_map( array( $this, 'describe_provider_key' ), array_keys( $providers_errors ) )
-		);
-
 		return array(
 			'status'                => Critical_CSS_State::SUCCESS,
 			'progress'              => $this->state->get_percent_complete(),
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'providers_errors'      => $providers_errors,
-			'provider_key_labels'   => $provider_key_labels,
+			'issues'                => $this->get_issues(),
 			'created'               => $this->state->get_created_time(),
 			'updated'               => $this->state->get_updated_time(),
 		);
@@ -96,6 +90,38 @@ class Generator {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get providers errors.
+	 *
+	 * @return array
+	 */
+	public function get_issues() {
+		$providers_errors = $this->state->get_providers_errors();
+
+		// @TODO: Recommendations need a refactor. Fix this implementing wp-js-async package.
+		$recommendations = new Recommendations();
+		$dismissed       = $recommendations->get_dismissed();
+
+		$issues = [];
+		foreach ( $providers_errors as $provider => $url_errors ) {
+			$errors = array();
+			foreach ( $url_errors as $url => $error ) {
+				$error['url'] = $url;
+				$errors[]     = $error;
+			}
+			$label = $this->describe_provider_key( $provider );
+			$status   = in_array( $provider, $dismissed, true ) ? 'dismissed' : 'active';
+			$issues[] = [
+				'provider_name' => $label,
+				'key'           => $provider,
+				'status'        => $status,
+				'errors'        => $errors,
+			];
+		}
+
+		return $issues;
 	}
 
 	/**
@@ -138,7 +164,7 @@ class Generator {
 			$generate_nonce = sanitize_key(
 				$_GET[ self::GENERATE_QUERY_ACTION ]
 			);
-		} elseif ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
+		} else if ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
 			$generate_nonce = sanitize_key(
 				$_SERVER['HTTP_X_GENERATE_CRITICAL_CSS']
 			);
@@ -154,6 +180,7 @@ class Generator {
 
 		return $is_generating;
 	}
+
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	public function make_generation_request() {
