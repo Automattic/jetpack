@@ -26,6 +26,7 @@ interface CriticalCssErrorDetails {
 type Critical_CSS_Issue = {
 	provider_name: string;
 	key: string;
+	status: "active" | "dismissed";
 	type: Critical_CSS_Error_Type;
 	errors: CriticalCssErrorDetails[]
 };
@@ -46,13 +47,17 @@ const initialIssues: Critical_CSS_Issue[] = [];
 if (Jetpack_Boost.criticalCSS.status?.providers_errors) {
 	const global_providers_errors = Jetpack_Boost.criticalCSS.status.providers_errors;
 	const global_provider_labels = Jetpack_Boost.criticalCSS.status.provider_key_labels;
+	const global_dismissed_recommendations = Jetpack_Boost.criticalCssDismissedRecommendations;
 	const results: Critical_CSS_Issue[] = Object.entries(global_providers_errors).reduce<Critical_CSS_Issue[]>(
 		(issues, [providerKey, urlErrors]) => {
 			const providerName = global_provider_labels?.[providerKey] ?? providerKey;
 			const existingIssue = issues.find(issue => issue.provider_name === providerName);
+			const isDismissed = global_dismissed_recommendations?.includes(providerKey);
+			const status = isDismissed ? "dismissed" : "active";
 			const errors = Object.entries(urlErrors).map(([url, error]) => ({
 				url,
 				message: error.message,
+				status,
 				type: error.type,
 				meta: error.meta,
 			}));
@@ -63,6 +68,7 @@ if (Jetpack_Boost.criticalCSS.status?.providers_errors) {
 					provider_name: providerName,
 					key: providerKey,
 					type: 'UnknownError',
+					status,
 					errors,
 				});
 			}
@@ -78,8 +84,6 @@ console.log(initialIssues);
 
 const issuesStore = writable<Critical_CSS_Issue[]>(initialIssues);
 
-const initialState = Jetpack_Boost.criticalCssDismissedRecommendations || [];
-const dismissed = writable<string[]>(initialState);
 const dismissalErrorStore = writable(null);
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
 
@@ -96,15 +100,16 @@ export const failedProviderKeyCount = derived(issuesStore, $issues =>
  * Store used to track Critical CSS Recommendations which have been dismissed.
  * Exported as a read-only store.
  */
-export const dismissedIssues = { subscribe: dismissed.subscribe };
+export const dismissedIssues = derived(issuesStore, $issues => {
+	return $issues.filter(r => r.status === "dismissed");
+});
 
 /**
  * Derived store containing Critical CSS recommendations which have not been dismissed.
  */
-export const activeIssues = derived(
-	[issuesStore, dismissedIssues],
-	([recommends, dismisses]) => recommends.filter(r => !dismisses.includes(r.key))
-);
+export const activeIssues = derived(issuesStore, $issues => {
+	return $issues.filter(r => r.status === "active");
+});
 
 /**
  * Derived datastore: Returns the most important Set of errors among the recommendations.
@@ -150,7 +155,13 @@ export async function clearDismissedIssues(): Promise<void> {
 	await api.post('/recommendations/reset', {
 		nonce: Jetpack_Boost.nonces['recommendations/reset'],
 	});
-	dismissed.set([]);
+	issuesStore.update((issues) => {
+		return issues.map((issue) => {
+			issue.status = "active";
+			return issue;
+		});
+	}
+	);
 }
 
 /**
@@ -167,24 +178,24 @@ export function groupErrorsByFrequency(issue: Critical_CSS_Issue): ErrorSet[] {
 	const groupOrder = sortByFrequency(groupKeys);
 
 	return groupOrder.map((group) => {
-	  const byUrl = errors.reduce<{ [url: string]: CriticalCssErrorDetails }>(
-		(acc, error) => {
-		  if (groupKey(issue.type, error) === group) {
-			acc[error.url] = error;
-		  }
-		  return acc;
-		},
-		{}
-	  );
-	  const first = byUrl[Object.keys(byUrl)[0]];
+		const byUrl = errors.reduce<{ [url: string]: CriticalCssErrorDetails }>(
+			(acc, error) => {
+				if (groupKey(issue.type, error) === group) {
+					acc[error.url] = error;
+				}
+				return acc;
+			},
+			{}
+		);
+		const first = byUrl[Object.keys(byUrl)[0]];
 
-	  return {
-		type: issue.type,
-		firstMeta: first.meta,
-		byUrl,
-	  };
+		return {
+			type: issue.type,
+			firstMeta: first.meta,
+			byUrl,
+		};
 	});
-  }
+}
 
 
 /**
@@ -214,7 +225,13 @@ export function groupKey(type: Critical_CSS_Error_Type, error: CriticalCssErrorD
  * @param {string} key Key of recommendation to dismiss.
  */
 export async function dismissIssue(key: string): Promise<void> {
-	dismissed.update(keys => [...keys, key]);
+	issuesStore.update((issues) => {
+		const issue = issues.find((el) => el.key === key);
+		if (issue) {
+			issue.status = 'dismissed';
+		}
+		return issues;
+	});
 	try {
 		await api.post('/recommendations/dismiss', {
 			providerKey: key,
