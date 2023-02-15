@@ -71,12 +71,10 @@ class Generator_Success implements Endpoint {
 		}
 
 		$storage         = new Critical_CSS_Storage();
-		$recommendations = new Recommendations();
 		$generator       = new Generator();
 
 		$storage->store_css( $cache_key, $params['data'] );
 		$generator->state->set_source_success( $cache_key );
-		$recommendations->reset();
 
 		Regenerate_Admin_Notice::dismiss();
 		Critical_CSS_State::set_fresh();

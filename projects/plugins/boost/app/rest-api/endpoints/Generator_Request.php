@@ -22,12 +22,10 @@ class Generator_Request implements Endpoint {
 
 		if ( $reset ) {
 			$storage         = new Critical_CSS_Storage();
-			$recommendations = new Recommendations();
 
 			// Create a new Critical CSS Request block to track creation request.
 			$storage->clear();
 			$generator->make_generation_request();
-			$recommendations->reset();
 			Regenerate_Admin_Notice::dismiss();
 		}
 

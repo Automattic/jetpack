@@ -99,11 +99,7 @@ class Generator {
 	 */
 	public function get_issues() {
 		$providers_errors = $this->state->get_providers_errors();
-
-		// @TODO: Recommendations need a refactor. Fix this implementing wp-js-async package.
-		$recommendations = new Recommendations();
-		$dismissed       = $recommendations->get_dismissed();
-
+		$issue_status = $this->state->get_providers_issue_status();
 		$issues = [];
 		foreach ( $providers_errors as $provider => $url_errors ) {
 			$errors = array();
@@ -112,7 +108,8 @@ class Generator {
 				$errors[]     = $error;
 			}
 			$label = $this->describe_provider_key( $provider );
-			$status   = in_array( $provider, $dismissed, true ) ? 'dismissed' : 'active';
+
+			$status   = !empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
 			$issues[] = [
 				'provider_name' => $label,
 				'key'           => $provider,
