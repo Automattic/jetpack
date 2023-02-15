@@ -11,10 +11,6 @@
 }
 
 .jp-at-a-glance__stats-card {
-	padding: 0;
-}
-
-.jp-at-a-glance__stats-card {
 	.jp-link-button {
 		background: $white;
 		border: none;
@@ -98,7 +94,7 @@
 }
 
 .jp-at-a-glance__stats-bottom {
-	margin: rem( 32px ) 0 0;
+	margin: 0;
 
 	@include breakpoint( '<480px' ) {
 		box-shadow: 0 0 0 1px $light-gray-700;
@@ -107,7 +103,6 @@
 
 .jp-at-a-glance__stats-summary {
 	text-align: center;
-	border-bottom: 1px $light-gray-700 solid;
 
 	@include breakpoint( '>660px' ) {
 		flex-wrap: nowrap;
@@ -123,7 +118,6 @@
 .jp-at-a-glance__stats-summary-bestday {
 	flex-basis: 25%;
 	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
 }
 
 .jp-at-a-glance__stats-summary-today {
@@ -148,7 +142,6 @@
 .jp-at-a-glance__stats-summary-alltime {
 	flex-basis: 50%;
 	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
 
 	@include breakpoint( '>660px' ) {
 		max-width: 50%; // for IE 10 since it doesn't recognize flex-basis
@@ -164,8 +157,6 @@
 }
 
 .jp-at-a-glance__stats-cta {
-	padding: rem( 16px );
-	background-color: lighten( $gray, 35% );
 
 	@include breakpoint( '>660px' ) {
 		display: flex;
@@ -222,7 +213,6 @@
 
 	.dops-button {
 		text-align: center;
-		margin: rem( 4px );
 	}
 }
 
@@ -313,7 +303,7 @@
 		}
 	}
 	.jp-dash-item__card {
-		display: flex;
+		display: block;
 	}
 }
 
