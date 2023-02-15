@@ -5,7 +5,7 @@
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
-		activeRecommendations,
+		activeIssues,
 		dismissedRecommendations,
 		dismissalError,
 		showDismissedRecommendations,
@@ -30,7 +30,7 @@
 	 */
 	let heading: string;
 	$: heading =
-		$activeRecommendations.length === 0
+		$activeIssues.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
@@ -78,7 +78,7 @@
 		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
 	{/if}
 
-	{#each $activeRecommendations as issue (issue.key)}
+	{#each $activeIssues as issue (issue.key)}
 		<div class="panel" transition:slide|local>
 			<CloseButton on:click={() => dismissRecommendation( issue.key )} />
 

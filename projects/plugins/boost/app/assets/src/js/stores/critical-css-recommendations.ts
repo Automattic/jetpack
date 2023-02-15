@@ -112,7 +112,7 @@ export const dismissedRecommendations = { subscribe: dismissed.subscribe };
 /**
  * Derived store containing Critical CSS recommendations which have not been dismissed.
  */
-export const activeRecommendations = derived(
+export const activeIssues = derived(
 	[issuesStore, dismissedRecommendations],
 	([recommends, dismisses]) => recommends.filter(r => !dismisses.includes(r.key))
 );
