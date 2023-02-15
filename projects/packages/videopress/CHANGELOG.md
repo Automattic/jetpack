@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.11] - 2023-02-15
+### Fixed
+- VideoPress: Disable local library upload button when video is already uploaded (mobile) [#28958]
+
 ## [0.10.10] - 2023-02-15
 ### Added
 - VideoPress: Register block for native [#28812]
@@ -708,6 +712,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.10...v0.10.11
 [0.10.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.9...v0.10.10
 [0.10.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.8...v0.10.9
 [0.10.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.7...v0.10.8
