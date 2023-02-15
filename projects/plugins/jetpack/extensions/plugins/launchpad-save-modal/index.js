@@ -28,7 +28,7 @@ export const settings = {
 			setShouldShowFirstPostPublishedModal,
 		} = useDispatch( 'automattic/wpcom-welcome-guide' );
 		const prevIsCurrentPostPublished = useRef( isCurrentPostPublished );
-		const [ firstPostPublishedModalOpen, setFirstPostPublishedModalOpen ] = useState( false );
+		const [ displayFirstPostPublishedModal, setDisplayFirstPostPublishedModal ] = useState( false );
 
 		useEffect( () => {
 			fetchShouldShowFirstPostPublishedModal();
@@ -50,7 +50,7 @@ export const settings = {
 				// Thus, we need to delay open the modal so that the modal would not be close immediately
 				// because the outside of modal is focused
 				window.setTimeout( () => {
-					setFirstPostPublishedModalOpen( true );
+					setDisplayFirstPostPublishedModal( true );
 				} );
 			}
 		}, [
@@ -72,8 +72,7 @@ export const settings = {
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
 
-		// TODO: Rename Launchpad state
-		const [ isModalOpen, setIsModalOpen ] = useState( false );
+		const [ displayLaunchpadModal, setDisplayLaunchpadModal ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
@@ -99,9 +98,9 @@ export const settings = {
 		useEffect( () => {
 			if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
-				( prevIsSavingPost === true && isSavingPost === false )
+				( prevIsSavingPost === true && isSavingPost === false && isCurrentPostPublished )
 			) {
-				setIsModalOpen( true );
+				setDisplayLaunchpadModal( true );
 			}
 		}, [ isSavingSite, prevIsSavingSite, isSavingPost, prevIsSavingPost ] );
 
@@ -116,7 +115,7 @@ export const settings = {
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
 			! dontShowAgain &&
-			isModalOpen;
+			displayLaunchpadModal;
 
 		const firstPostPublishedModal = (
 			<Modal
@@ -128,7 +127,7 @@ export const settings = {
 						setIsInitialPostPublish( false );
 						return;
 					}
-					setFirstPostPublishedModalOpen( false );
+					setDisplayFirstPostPublishedModal( false );
 					// TODO: Record new tracks event
 					// recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 				} }
@@ -151,7 +150,7 @@ export const settings = {
 							<Button
 								variant="secondary"
 								onClick={ () => {
-									setFirstPostPublishedModalOpen( false );
+									setDisplayFirstPostPublishedModal( false );
 									// TODO: Record new tracks event
 									// recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 								} }
@@ -177,7 +176,7 @@ export const settings = {
 						setIsInitialPostPublish( false );
 						return;
 					}
-					setIsModalOpen( false );
+					setDisplayLaunchpadModal( false );
 					setDontShowAgain( isChecked );
 					recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 				} }
@@ -205,7 +204,7 @@ export const settings = {
 								variant="secondary"
 								onClick={ () => {
 									setDontShowAgain( isChecked );
-									setIsModalOpen( false );
+									setDisplayLaunchpadModal( false );
 									recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 								} }
 							>
@@ -225,9 +224,9 @@ export const settings = {
 			</Modal>
 		);
 
-		if ( firstPostPublishedModalOpen ) {
+		if ( displayFirstPostPublishedModal ) {
 			return firstPostPublishedModal;
-		} else if ( showModal ) {
+		} else if ( displayLaunchpadModal ) {
 			return launchpadModal;
 		}
 
