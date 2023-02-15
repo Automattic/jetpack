@@ -325,6 +325,35 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_not_displaying_on_not_pages() {
+		// When no post id is set, the comments should default to whatever is passed as default
+		$this->assertFalse( apply_filters( 'comments_open', false, null ) );
+		$this->assertTrue( apply_filters( 'comments_open', true, null ) );
+	}
+
+	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_displaying_on_not_accessible_pages() {
+		// When post-id is passed, it should prevent access depending of the user access
+		$payload              = $this->get_payload( true, false, null, null );
+		$post_id              = $this->setup_jetpack_paid_newsletters();
+		$subscription_service = $this->set_returned_token( $payload );
+		$GLOBALS['post']      = get_post( $post_id );
+		$post_access_level    = 'paid_subscribers';
+		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
+		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
+
+		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
+	}
+
+	/**
 	 * Setup the newsletter post
 	 *
 	 * @return mixed
@@ -367,5 +396,4 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		return new WPCOM_Online_Subscription_Service();
 	}
-
 }
