@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.8.4 - 2023-02-15
+### Bug fixes
+- Blaze: prevent error on frontend-loaded Gutenberg, and bail early if Jetpack is not connected. [#28955]
+- WAF: fix PHP fatal when the jetpack-waf directory has been deleted from the wp-content folder. [#28760]
+
 ## 11.8.3 - 2023-02-14
 ### Bug fixes
 - Forms block: downgraded package version.
