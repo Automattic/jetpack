@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: enqueue video block assets by using the Assets class
