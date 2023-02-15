@@ -68,6 +68,11 @@ function JetpackFieldMultiple( props ) {
 	};
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+	const optionStyle = {
+		color: fieldStyle.color,
+		fontSize: fieldStyle.fontSize,
+		lineHeight: fieldStyle.lineHeight,
+	};
 
 	return (
 		<>
@@ -100,20 +105,22 @@ function JetpackFieldMultiple( props ) {
 							onAddOption={ addNewOption }
 							isInFocus={ index === inFocus && isSelected }
 							isSelected={ isSelected }
-							style={ type !== 'select' ? fieldStyle : {} }
+							style={ type !== 'select' ? optionStyle : {} }
 						/>
 					) ) }
+					{ isSelected && (
+						<li>
+							<Button
+								className="jetpack-field-multiple__add-option"
+								icon="insert"
+								label={ __( 'Insert option', 'jetpack' ) }
+								onClick={ addNewOption }
+							>
+								{ __( 'Add option', 'jetpack' ) }
+							</Button>
+						</li>
+					) }
 				</ol>
-				{ isSelected && (
-					<Button
-						className="jetpack-field-multiple__add-option"
-						icon="insert"
-						label={ __( 'Insert option', 'jetpack' ) }
-						onClick={ addNewOption }
-					>
-						{ __( 'Add option', 'jetpack' ) }
-					</Button>
-				) }
 			</div>
 
 			<JetpackFieldControls

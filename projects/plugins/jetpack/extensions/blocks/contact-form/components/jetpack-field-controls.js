@@ -30,7 +30,6 @@ const JetpackFieldControls = ( {
 	required,
 	setAttributes,
 	width,
-	type,
 } ) => {
 	const setNumberAttribute = ( key, parse = parseInt ) => value => {
 		const parsedValue = parse( value, 10 );
@@ -39,8 +38,6 @@ const JetpackFieldControls = ( {
 			[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
 		} );
 	};
-
-	const hasBorderControls = type !== 'radio' && type !== 'checkbox';
 
 	const colorSettings = [
 		{
@@ -117,7 +114,7 @@ const JetpackFieldControls = ( {
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack' ) }
 					initialOpen={ false }
-					colorSettings={ ! hasBorderControls ? colorSettings.slice( 0, 2 ) : colorSettings }
+					colorSettings={ colorSettings }
 				/>
 				<PanelBody title={ __( 'Input Field Styles', 'jetpack' ) } initialOpen={ false }>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
@@ -139,26 +136,22 @@ const JetpackFieldControls = ( {
 							size="__unstable-large"
 						/>
 					</BaseControl>
-					{ hasBorderControls && (
-						<>
-							<RangeControl
-								label={ __( 'Border Width', 'jetpack' ) }
-								value={ attributes.borderWidth }
-								initialPosition={ 1 }
-								onChange={ setNumberAttribute( 'borderWidth' ) }
-								min={ 0 }
-								max={ 100 }
-							/>
-							<RangeControl
-								label={ __( 'Border Radius', 'jetpack' ) }
-								value={ attributes.borderRadius }
-								initialPosition={ 0 }
-								onChange={ setNumberAttribute( 'borderRadius' ) }
-								min={ 0 }
-								max={ 100 }
-							/>
-						</>
-					) }
+					<RangeControl
+						label={ __( 'Border Width', 'jetpack' ) }
+						value={ attributes.borderWidth }
+						initialPosition={ 1 }
+						onChange={ setNumberAttribute( 'borderWidth' ) }
+						min={ 0 }
+						max={ 100 }
+					/>
+					<RangeControl
+						label={ __( 'Border Radius', 'jetpack' ) }
+						value={ attributes.borderRadius }
+						initialPosition={ 0 }
+						onChange={ setNumberAttribute( 'borderRadius' ) }
+						min={ 0 }
+						max={ 100 }
+					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Label Styles', 'jetpack' ) } initialOpen={ false }>
 					<BaseControl>

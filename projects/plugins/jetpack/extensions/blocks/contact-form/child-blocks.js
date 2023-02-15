@@ -231,6 +231,7 @@ const EditCheckbox = props => {
 
 	return (
 		<JetpackFieldCheckbox
+			clientId={ props.clientId }
 			label={ props.attributes.label } // label intentionally left blank
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
@@ -250,6 +251,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
 	return (
 		<JetpackFieldConsent
+			clientId={ clientId }
 			id={ id }
 			isSelected={ isSelected }
 			width={ width }
