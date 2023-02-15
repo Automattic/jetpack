@@ -125,7 +125,7 @@ You'll need all the tools below to work in the Jetpack monorepo.
 		Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
 
 		```sh
-		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 		```
 
 		And then install Composer:
