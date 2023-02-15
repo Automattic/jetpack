@@ -96,10 +96,7 @@ class Optimizations implements Has_Setup {
 		REST_API::register( $feature->get_endpoints() );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function setup() {
+	public function init_features() {
 
 		foreach ( $this->available_modules() as $slug => $optimization ) {
 
@@ -114,6 +111,13 @@ class Optimizations implements Has_Setup {
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
 
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setup() {
+		add_action( 'plugins_loaded', array( $this, 'init_features' ) );
 	}
 
 	/**
