@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Waf\Waf_Initializer;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Activation tests.
