@@ -7,7 +7,7 @@ import AdminPage from './components/admin-page';
  * Initial render function.
  */
 function render() {
-	const container = document.getElementById( 'jetpack-migration-root' );
+	const container = document.getElementById( 'wpcom-migration-root' );
 
 	if ( null === container ) {
 		return;

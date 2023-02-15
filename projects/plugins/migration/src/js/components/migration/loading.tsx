@@ -15,10 +15,10 @@ export function MigrationLoading() {
 		<ConnectScreenLayout
 			className={ 'wordpress-branding' }
 			logo={ <WordPressLogo /> }
-			title={ __( 'WordPress.com Migration', 'jetpack-migration' ) }
+			title={ __( 'Move to WordPress.com', 'wpcom-migration' ) }
 			images={ [ migrationImage1 ] }
 		>
-			<p>{ __( 'Loading…', 'jetpack-migration' ) }</p>
+			<p>{ __( 'Loading…', 'wpcom-migration' ) }</p>
 		</ConnectScreenLayout>
 	);
 }

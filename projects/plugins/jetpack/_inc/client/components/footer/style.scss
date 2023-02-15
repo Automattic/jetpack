@@ -74,3 +74,12 @@
 		}
 	}
 }
+
+.jp-footer__link__recommended {
+	@extend .jp-footer__link;
+	color: black;
+}
+
+a.jp-footer__link__recommended{
+	text-decoration: underline;
+}
