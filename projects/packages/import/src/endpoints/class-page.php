@@ -30,7 +30,7 @@ class Page extends Post {
 		$pages = \get_pages( $this->get_import_db_query( $parent_import_id ) );
 
 		if ( is_array( $pages ) && count( $pages ) === 1 ) {
-			$parent_id = $pages[0];
+			$parent_id = $pages[0]->ID;
 
 			return (bool) \wp_update_post(
 				array(
