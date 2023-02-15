@@ -207,10 +207,10 @@ export const VideoRow = ( {
 	};
 
 	useEffect( () => {
-		if ( ! canExpand ) {
+		if ( disabled ) {
 			setExpanded( false );
 		}
-	}, [ canExpand ] );
+	}, [ disabled ] );
 
 	return (
 		<div
