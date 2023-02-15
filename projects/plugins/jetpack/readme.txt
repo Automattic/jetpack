@@ -244,22 +244,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.1 - 2023-02-08
+### 11.9-a.3 - 2023-02-15
 #### Enhancements
-- Contact form: add a blur effect while the form is loading the styles.
-- Form block: include style variations.
-- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
-- VideoPress: add transform control from video block to videopress/video block.
+- Site editor: display location-aware snackbar in edit mode.
+- Stats: adds filter to hide stats widget based on user capability.
+- Stats: added a notice with a link to a survey when the new stats interface is disabled.
+- Subscriptions: updated submit messages text for subscriptions.
+- Social: visual update to social buttons.
 
 #### Improved compatibility
-- Donations block: remove dependencies on lodash and @wordpress/keycodes
-- Podcast player block: remove dependency on wp-components from the frontend code
-- Slideshow block: remove dependency on Lodash
-- Subscriptions: update subscribe block description.
+- Social: update icon font to remove support for older browsers (IE11-).
+- Themes: ensure redesigned sharing buttons look good in default themes (Twenty Nineteen, Twenty Sixteen).
 
 #### Bug fixes
-- Subscriptions: fix rendering of subscriber email in .com.
-- Custom CSS: scope Additional CSS submenus to site with a connected owner.
+- Forms block: add filter to prevent contact-form-styles script from being concatenated.
+- Forms block: add new method to parse the form fields, fallback to old method.
+- Forms block: prevent blur effect on AMP pages.
+- Subscriptions: fix premium content block where it would only allow access to site subscribers.
+- Subscriptions: fix subscribe-block button to behave the same as in the fronted.
+- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag.
 
 --------
 
