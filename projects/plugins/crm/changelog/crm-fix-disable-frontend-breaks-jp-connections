@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Before kill the fronend, check if the request is not XMLRPC or REST
+Before kill the frontend (when the option is enabled), skip it for XMLRPC or REST requests
