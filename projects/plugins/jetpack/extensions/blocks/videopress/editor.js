@@ -424,7 +424,7 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 		'videopress/video'
 	);
 
-	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable && isSimpleSite() ) {
+	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable ) {
 		return settings;
 	}
 
