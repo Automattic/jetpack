@@ -113,8 +113,9 @@ export default function ProductInterstitial( {
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
 								<ProductDetailCard
-									slug="security"
+									slug={ bundle }
 									trackButtonClick={ trackBundleClick }
+									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
 								/>
 							) : (
