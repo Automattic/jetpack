@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.25.0 - 2023-02-15
+### Added
+- Export ConnectScreenLayout component [#28770]
+
+### Changed
+- Update to React 18. [#28710]
+
 ## 0.24.9 - 2023-02-08
 ### Changed
 - Updated package dependencies. [#28682, #28700]
