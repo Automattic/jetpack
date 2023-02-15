@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Updated backup storage UI to consider custom retention period
