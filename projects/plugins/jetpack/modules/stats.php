@@ -90,7 +90,7 @@ function register_endpoints_for_nudge() {
  * @return mixed
  */
 function odyssey_nudge_handler() {
-	$action = isset( $_POST['action'] ) ? $_POST['action'] : '';
+	$action        = isset( $_POST['action'] ) ? $_POST['action'] : '';
 	$stats_notices = new StatsNotices();
 	if ( $action === 'odyssey-reset-nudge' ) {
 		$stats_notices->update_notice(
@@ -119,6 +119,28 @@ function odyssey_nudge_handler() {
 					'status'     => 200,
 					'time-stamp' => time(),
 					'message'    => 'dismissed nudge',
+				)
+			)
+		);
+	}
+	if ( $action === 'odyssey-rest-one' ) {
+		return rest_ensure_response(
+			new WP_REST_Response(
+				array(
+					'status'     => 200,
+					'time-stamp' => time(),
+					'message'    => 'rest one',
+				)
+			)
+		);
+	}
+	if ( $action === 'odyssey-rest-two' ) {
+		return rest_ensure_response(
+			new WP_REST_Response(
+				array(
+					'status'     => 200,
+					'time-stamp' => time(),
+					'message'    => 'rest two',
 				)
 			)
 		);
@@ -417,6 +439,7 @@ function stats_reports_load() {
 }
 
 function stats_reset_nudge_handler() {
+	$nonce = wp_create_nonce();
 	?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
@@ -427,6 +450,36 @@ function stats_reset_nudge_handler() {
 		jQuery('#test-button-reset-nudge').click(function() {
 			jQuery.post(url, data, function(response) {
 				console.log(response);
+			});
+		});
+	});
+	jQuery(document).ready(function($) {
+		let url = '/wp-json/jetpack/v4/stats/nudge';
+		var data = {
+			'action': 'odyssey-rest-one',
+		};
+		jQuery('#test-button-rest-one').click(function() {
+			jQuery.post(url, data, function(response) {
+				console.log(response);
+			});
+		});
+	});
+	jQuery(document).ready(function($) {
+		let nonce = "<?php echo esc_attr( $nonce ); ?>";
+		let url = '/wp-json/jetpack/v4/stats-app/stats/notices';
+		var data = {
+			id: 'opt_in_new_stats',
+			status: 'dismissed',
+		};
+		jQuery('#test-button-rest-two').click(function() {
+			jQuery.ajax({
+				type: "POST",
+				url: url,
+				data: data,
+				headers: { "x-wp-nonce": nonce },
+				success: function(response) {
+					console.log(response);
+				}
 			});
 		});
 	});
@@ -577,7 +630,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
 				<div style="display: visible;">
-					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
+					<p><button id="test-button-reset-nudge">Reset Nudge</button> | <button id="test-button-rest-one">Test REST 1</button> | <button id="test-button-rest-two">Test REST 2</button></p>
 				</div>
 				<?php
 				endif;
