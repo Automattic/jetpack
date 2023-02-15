@@ -193,8 +193,14 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
-		// Register and enqueue scripts used by the VideoPress block.
-		Block_Editor_Extensions::init( $videopress_video_metadata );
+		/*
+		 * Use the videopress/video editor script handle to localize enqueue scripts.
+		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
+		 */
+		$script_handle = generate_block_asset_handle( $videopress_video_block_name, 'editorScript' );
+
+		// Register and enqueue scripts used by the VideoPress video block.
+		Block_Editor_Extensions::init( $script_handle );
 
 		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
