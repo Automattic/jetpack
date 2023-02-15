@@ -1,4 +1,4 @@
-.post__publish-modal {
+.launchpad__save-modal {
 
 	.components-modal__content {
 		padding: 48px;
@@ -23,7 +23,7 @@
 	&-controls {
 		display: flex;
 		width: 100%;
-		justify-content: flex-end;
+		justify-content: space-between;
 	}
 
 	&-buttons {
@@ -48,4 +48,3 @@
 		line-height: 24px;
 	}
 }
-
