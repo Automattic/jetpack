@@ -5,6 +5,7 @@ import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
+import editorImageURL from '../../utils/editor-image-url';
 import metadata from './block.json';
 import { VideoPressIcon as icon } from './components/icons';
 import Edit from './edit';
@@ -21,7 +22,7 @@ registerBlockType( name, {
 	icon,
 	example: {
 		attributes: {
-			src: videoPressBlockExampleImage,
+			src: editorImageURL( videoPressBlockExampleImage ),
 			isExample: true,
 		},
 	},

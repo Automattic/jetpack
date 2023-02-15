@@ -22,8 +22,8 @@ jQuery( function () {
 function jpcrm_js_client_portal_bind_daterangepicker() {
 	if ( typeof jQuery( '.zbs-date' ).daterangepicker === 'function' ) {
 		// JPCRM_PUBLIC_LOCALE_OPT_FOR_DATERANGEPICKER is a constant defined inline and it comes from PHP
-		const locale_opt = JPCRM_PUBLIC_LOCALE_OPT_FOR_DATERANGEPICKER;
-		const daterangepicker_opts = {
+		var locale_opt = JPCRM_PUBLIC_LOCALE_OPT_FOR_DATERANGEPICKER;
+		var daterangepicker_opts = {
 			locale: locale_opt,
 			timePicker: false,
 			showDropdowns: true,
@@ -44,4 +44,8 @@ function jpcrm_js_client_portal_bind_daterangepicker() {
 			}
 		} );
 	}
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_js_client_portal_bind_daterangepicker };
 }
