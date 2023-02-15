@@ -548,7 +548,7 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::INSTALL_PURCHASED_PLUGINS     => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_STARTER_PLANS,
 		),
@@ -595,7 +595,7 @@ class WPCOM_Features {
 		// MANAGE_PLUGINS - Atomic only feature. Can upload, install, and activate any 3rd party plugin.
 		self::MANAGE_PLUGINS                => array(
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 		),
 		self::NO_ADVERTS_NO_ADVERTS_PHP     => array(
 			self::NO_ADS,
