@@ -131,6 +131,9 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
+		// Initialize connection notices.
+		new Connection_Notice();
 	}
 
 	/**
