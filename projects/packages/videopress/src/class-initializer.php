@@ -14,6 +14,8 @@ use Automattic\Jetpack\Assets;
  */
 class Initializer {
 
+	const JETPACK_VIDEOPRESS_VIDEO_HANDLER = 'jetpack-videopress-video-block';
+
 	/**
 	 * Initialization optinos
 	 *
@@ -195,14 +197,8 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
-		/*
-		 * Use the videopress/video editor script handle to localize enqueue scripts.
-		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
-		 */
-		$script_handle = generate_block_asset_handle( $videopress_video_block_name, 'editorScript' );
-
 		// Register and enqueue scripts used by the VideoPress video block.
-		Block_Editor_Extensions::init( $script_handle );
+		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
 
 		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
@@ -210,7 +206,7 @@ class Initializer {
 		}
 
 		Assets::register_script(
-			$script_handle,
+			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
 			'../build/block-editor/blocks/video/index.js',
 			__FILE__,
 			array(
@@ -218,6 +214,6 @@ class Initializer {
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
-		Assets::enqueue_script( $script_handle );
+		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
 	}
 }
