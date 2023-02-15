@@ -217,8 +217,6 @@ class Initializer {
 			)
 		);
 
-		register_block_type( $videopress_video_metadata_file );
-
 		// Register script used by the VideoPress video block in the front-end.
 		Assets::register_script(
 			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
@@ -229,5 +227,8 @@ class Initializer {
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
+
+		// Register VideoPress video block.
+		register_block_type( $videopress_video_metadata_file );
 	}
 }
