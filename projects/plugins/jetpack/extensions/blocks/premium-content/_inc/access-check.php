@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 
-require __DIR__ . '/subscription-service/include.php';
+require_once __DIR__ . '/subscription-service/include.php';
 
 /**
  * Determines if the memberships module is set up.
