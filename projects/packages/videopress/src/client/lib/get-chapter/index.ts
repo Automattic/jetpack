@@ -9,38 +9,32 @@ import { GetChapterArgs } from './types';
  * @returns {Promise} The chapter.
  */
 
-const getChapter = ( {
+const getChapter = async ( {
 	guid,
 	token,
 	isPrivate,
 	chapter,
 }: GetChapterArgs ): Promise< string | null > => {
-	return new Promise( ( resolve, reject ) => {
-		const fetchChapterText = async () => {
-			if ( ! chapter?.src ) {
-				resolve( null );
-			}
-			if ( isPrivate && ! token ) {
-				resolve( null );
-			}
+	if ( ! chapter?.src ) {
+		return;
+	}
+	if ( isPrivate && ! token ) {
+		return;
+	}
 
-			const queryString = token
-				? `?${ new URLSearchParams( { metadata_token: token } ).toString() }`
-				: '';
+	const queryString = token
+		? `?${ new URLSearchParams( { metadata_token: token } ).toString() }`
+		: '';
 
-			const chapterUrl = `https://videos.files.wordpress.com/${ guid }/${ chapter.src }${ queryString }`;
+	const chapterUrl = `https://videos.files.wordpress.com/${ guid }/${ chapter.src }${ queryString }`;
 
-			const response = await fetch( chapterUrl );
+	const response = await fetch( chapterUrl );
 
-			if ( ! response.ok ) {
-				reject( new Error( `HTTP error! status: ${ response.status }` ) );
-			}
+	if ( ! response.ok ) {
+		throw new Error( `HTTP error! status: ${ response.status }` );
+	}
 
-			return await response.text();
-		};
-
-		resolve( await fetchChapterText() );
-	} );
+	return await response.text();
 };
 
 export default getChapter;
