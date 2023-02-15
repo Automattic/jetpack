@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-CRM: fix issue  where exporting contacts shows "County" when it should show "State".
