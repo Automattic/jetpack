@@ -21,6 +21,7 @@ Available slugs are:
 * linkedin
 * tumblr
 * google
+* mastodon
 
 ```es6
 import {
@@ -52,6 +53,7 @@ return (
 * LinkedinIcon
 * TumblrIcon
 * GoogleIcon
+* MastodonIcon
 
 ```es6
 import {
@@ -69,7 +71,8 @@ import {
 	TwitterIcon,
 	LinkedinIcon,
 	TumblrIcon,
-	GoogleIcon
+	GoogleIcon,
+	MastodonIcon
 } from '@automattic/jetpack-components';
 
 return (
@@ -89,6 +92,7 @@ return (
 		<LinkedinIcon />
 		<TumblrIcon />
 		<GoogleIcon />
+		<MastodonIcon />
 	</div>
 )
 ```
