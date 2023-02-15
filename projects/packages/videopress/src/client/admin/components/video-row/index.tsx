@@ -6,7 +6,7 @@ import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -205,6 +205,12 @@ export const VideoRow = ( {
 			handleClick( e );
 		}
 	};
+
+	useEffect( () => {
+		if ( ! canExpand ) {
+			setExpanded( false );
+		}
+	}, [ canExpand ] );
 
 	return (
 		<div
