@@ -1,6 +1,6 @@
 import { CONNECTION_STORE_ID, useConnection } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import { useSelect, useDispatch } from '@wordpress/data';
 
 let stubConnectUser;
@@ -13,7 +13,7 @@ describe( 'RedeemPartnerCouponPreConnection', () => {
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 
-		stubConnectUser = jest.spyOn( dispatch.current, 'connectUser' ).mockReset();
+		stubConnectUser = jest.spyOn( dispatch.current, 'connectUser' ).mockReset().mockReturnValue();
 		stubGetConnectionStatus = jest
 			.spyOn( storeSelect, 'getConnectionStatus' )
 			.mockReset()
