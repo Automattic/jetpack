@@ -376,7 +376,22 @@ class DashBackups extends Component {
 		} else if ( 'unavailable' === this.props.rewindStatus || '' === this.props.rewindStatus ) {
 			return this.getVPContent();
 		}
-		return <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+		return (
+			<div className="jp-dash-item">
+				{ this.getRewindContent() }
+				<React.Fragment>
+					<Card
+						compact
+						key="new-backups-look"
+						className="jp-dash-item__new-backups-look"
+						href={ '/wp-admin/admin.php?page=jetpack-backup' }
+						onClick={ null }
+					>
+						{ 'Check out the new look!' }
+					</Card>
+				</React.Fragment>
+			</div>
+		);
 	}
 
 	renderGettingStartedVideo() {

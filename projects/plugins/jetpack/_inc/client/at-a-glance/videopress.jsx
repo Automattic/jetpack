@@ -100,6 +100,16 @@ class DashVideoPress extends Component {
 									</div>
 								) }
 							</div>
+							<JetpackBanner
+								className="media__videopress-new-look"
+								callToAction={ __( 'Check it out', 'jetpack' ) }
+								title={ 'VP has a new look and great new features.' }
+								disableHref="false"
+								eventFeature="videopress"
+								icon="video"
+								feature="jetpack_videopress"
+								href={ '/wp-admin/admin.php?page=jetpack-videopress' }
+							/>
 							{ shouldDisplayBanner && (
 								<JetpackBanner
 									className="media__videopress-upgrade"
