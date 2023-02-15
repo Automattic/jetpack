@@ -31,7 +31,6 @@ declare global {
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
 		criticalCSS?: {
-			// @TODO REFACTORING IN PROGRESS 🍟
 			status: CriticalCssStatus & {
 				issues?: CriticalCssIssue[];
 				provider_key_labels?: { [ name: string ]: string };
