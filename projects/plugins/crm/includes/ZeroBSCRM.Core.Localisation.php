@@ -321,6 +321,7 @@ function zeroBSCRM_date_forceEN( $time = -1 ) {
 
 		// @todo - this is to be refactored.
 		zeroBSCRM_locale_setServerLocale( 'en_US' );
+		// phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 		$r = strftime( '%d %B %Y %H:%M:%S', $time );
 		zeroBSCRM_locale_resetServerLocale();
 

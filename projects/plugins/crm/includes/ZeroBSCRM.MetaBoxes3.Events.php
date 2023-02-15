@@ -761,12 +761,12 @@ function zeroBSCRM_task_ui_date($taskObject = array()){
 		$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
 		*/
 		// @todo - this is to be refactored.
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 		zeroBSCRM_locale_setServerLocale( 'en_US' );
 		$start_d = strftime( '%d %B %Y %H:%M:%S', $taskObject['start'] );
 		$end_d   = strftime( '%d %B %Y %H:%M:%S', $taskObject['end'] );
 		zeroBSCRM_locale_resetServerLocale();
-		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 	}
 
     $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
