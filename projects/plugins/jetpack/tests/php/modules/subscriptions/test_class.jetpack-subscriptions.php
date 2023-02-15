@@ -364,6 +364,28 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_not_displaying_for_paid_subscribers_when_defaults_to_false() {
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		register_subscription_block();
+
+		// When post-id is passed, it should prevent access depending of the user access
+		$payload              = $this->get_payload( true, true, null, null );
+		$post_id              = $this->setup_jetpack_paid_newsletters();
+		$subscription_service = $this->set_returned_token( $payload );
+		$GLOBALS['post']      = get_post( $post_id );
+		$post_access_level    = 'paid_subscribers';
+		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
+		$this->assertTrue( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
+
+		// The user has access, BUT it still does NOT displayu comments if defaults to false
+		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
+	}
+
+	/**
 	 * Setup the newsletter post
 	 *
 	 * @return mixed
