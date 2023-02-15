@@ -1,9 +1,10 @@
 import { Button } from '@wordpress/components';
-import { withInstanceId } from '@wordpress/compose';
+import { compose, withInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { useFormStyle } from '../util/form';
+import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
@@ -127,4 +128,18 @@ function JetpackFieldMultiple( props ) {
 	);
 }
 
-export default withInstanceId( JetpackFieldMultiple );
+export default compose(
+	withSharedFieldAttributes( [
+		'borderRadius',
+		'borderWidth',
+		'labelFontSize',
+		'fieldFontSize',
+		'lineHeight',
+		'labelLineHeight',
+		'inputColor',
+		'labelColor',
+		'fieldBackgroundColor',
+		'borderColor',
+	] ),
+	withInstanceId
+)( JetpackFieldMultiple );

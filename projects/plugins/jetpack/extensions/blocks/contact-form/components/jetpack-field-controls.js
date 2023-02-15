@@ -107,6 +107,12 @@ const JetpackFieldControls = ( {
 							'jetpack'
 						) }
 					/>
+
+					<ToggleControl
+						label={ __( 'Sync fields style', 'jetpack' ) }
+						checked={ attributes.shareFieldAttributes }
+						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+					/>
 				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack' ) }
