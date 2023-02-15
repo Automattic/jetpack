@@ -59,4 +59,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Security around phone numbers viewing
 - Improved: Added a migration to remove outdated AKA lines
 
-[5.5.4-beta]: https://github.com/Automattic/zero-bs-crm/compare/v5.5.3...v5.5.4-beta
+[5.5.4-alpha]: https://github.com/Automattic/zero-bs-crm/compare/v5.5.3...v5.5.4-alpha
