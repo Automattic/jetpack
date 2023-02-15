@@ -309,11 +309,4 @@ class Render_Blocking_JS implements Feature {
 	public static function get_slug() {
 		return 'render-blocking-js';
 	}
-
-	public function do_setup() {
-		add_action( 'plugins_loaded', array( $this, 'setup' ), 13 );
-
-		return $this;
-	}
-
 }

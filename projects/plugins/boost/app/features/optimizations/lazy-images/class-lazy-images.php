@@ -14,10 +14,4 @@ class Lazy_Images implements Feature {
 	public static function get_slug() {
 		return 'lazy-images';
 	}
-
-	public function do_setup() {
-		add_action( 'plugins_loaded', array( $this, 'setup' ), 12 );
-
-		return $this;
-	}
 }

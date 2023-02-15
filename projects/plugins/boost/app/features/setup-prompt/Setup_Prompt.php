@@ -35,15 +35,6 @@ class Setup_Prompt implements Has_Setup {
 		wp_enqueue_style( 'jetpack-boost-admin-banner', plugins_url( '../../assets/dist/admin-banner.css', __FILE__ ), array(), JETPACK_BOOST_VERSION );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function do_setup() {
-		add_action( 'admin_init', array( $this, 'setup' ) );
-
-		return $this;
-	}
-
 	public function connection_prompt() {
 		include __DIR__ . '/_inc/banner.php';
 	}

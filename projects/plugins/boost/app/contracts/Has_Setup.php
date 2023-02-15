@@ -18,16 +18,4 @@ interface Has_Setup {
 	 * @return mixed
 	 */
 	public function setup();
-
-	/**
-	 * Example: add_action( 'init', array( $this, 'setup' ), 15 );
-	 *
-	 * Allows for greater flexibility when initializing a feature.
-	 *
-	 * Should return the feature's instance
-	 * and hook its setup.
-	 *
-	 * @return Has_Setup Instance of the feature.
-	 */
-	public function do_setup();
 }

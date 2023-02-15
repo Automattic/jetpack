@@ -164,13 +164,4 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			Generator_Error::class,
 		);
 	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function do_setup() {
-		add_action( 'plugins_loaded', array( $this, 'setup' ), 11 );
-
-		return $this;
-	}
 }

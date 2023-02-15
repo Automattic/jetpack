@@ -135,13 +135,4 @@ class Optimizations implements Has_Setup {
 		return array();
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function do_setup() {
-		add_action( 'plugins_loaded', array( $this, 'setup' ) );
-
-		return $this;
-	}
-
 }
