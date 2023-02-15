@@ -5,8 +5,10 @@ import { MediaPlaceholder } from '@wordpress/block-editor';
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
+import usePosterImage from '../../../hooks/use-poster-image';
+import { getJWT } from '../../../hooks/use-uploader';
 /**
  * Internal dependencies
  */
@@ -27,6 +29,20 @@ export default function VideoPressEdit( { attributes, setAttributes } ): React.R
 	 * TODO: The current components are intended to act as placeholders while block is in development.
 	 * They should eventually be edited or replaced to support VideoPress.
 	 */
+
+	const poster = usePosterImage( '7QhghIkx' );
+
+	/* eslint-disable no-console */
+	useEffect( () => {
+		poster()
+			.then( s => console.log( s ) )
+			.catch( e => console.log( e ) );
+
+		getJWT()
+			.then( s => console.log( s ) )
+			.catch( e => console.log( e ) );
+	}, [] );
+	/* eslint-enable no-console */
 
 	/**
 	 * Function to set attributes upon media upload
