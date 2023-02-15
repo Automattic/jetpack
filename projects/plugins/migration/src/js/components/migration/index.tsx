@@ -5,6 +5,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { MIGRATION_HANDLER_ROUTE } from '../constants';
+import useAnalytics from '../hooks/use-analytics';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
@@ -69,15 +70,18 @@ export function Migration( props: Props ) {
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const isFullyConnected = isRegistered && isUserConnected;
+	const { tracks } = useAnalytics( apiRoot, apiNonce );
 
 	const onGetStartedClick = useCallback(
 		( e: Event ) => {
+			tracks.recordEvent( `wpcom_migration_get_started_click`, { sourceSiteSlug } );
+
 			// If it's fully connected, href attribute is the final destination
 			if ( ! isFullyConnected ) {
 				handleRegisterSite( e );
 			}
 		},
-		[ isFullyConnected, handleRegisterSite ]
+		[ isFullyConnected, handleRegisterSite, tracks, sourceSiteSlug ]
 	);
 
 	return (

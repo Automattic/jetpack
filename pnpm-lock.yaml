@@ -1964,6 +1964,7 @@ importers:
 
   projects/plugins/migration:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:0.1.23
       '@automattic/jetpack-api': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
@@ -1987,6 +1988,7 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
