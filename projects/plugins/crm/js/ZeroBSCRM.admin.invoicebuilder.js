@@ -521,16 +521,16 @@ function zbscrm_JS_draw_send_invoice_to( res ) {
 	// at some point we changed these to be passing the full obj
 	// ... if so, interpret
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_contact === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_contact === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
 	) {
-		zbs_invoice_contact = parseInt( zbs_invoice.invoiceObj.invoice_contact.id );
+		zbs_invoice_contact = parseInt( window.zbs_invoice.invoiceObj.invoice_contact.id );
 	}
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_company === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_company === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
 	) {
-		zbs_invoice_company = parseInt( zbs_invoice.invoiceObj.invoice_company.id );
+		zbs_invoice_company = parseInt( window.zbs_invoice.invoiceObj.invoice_company.id );
 	}
 
 	// here we allow for prefilled data via zbsprefillcust _GET param (passed by php)
@@ -2340,3 +2340,24 @@ function zbscrm_JS_invoice_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbs_invoice, zbs_tax, zbs_tax_table, zbsInvBlocker,
+		zbscrm_JS_retrieve_invoice_data, zbscrm_JS_draw_invoice_html,
+		zbscrm_JS_draw_invoice_actions_html, zbscrmJS_retrieveCurrentBillToEmail,
+		zbscrm_JS_draw_invoice_logo_html, zbscrm_JS_draw_invoice_top_right_form, zbscrm_JS_draw_send_invoice_to,
+		zbscrm_JS_draw_customise, zbscrm_JS_draw_invoice_biz_info,
+		zbscrm_JS_draw_line_items, zbscrm_JS_draw_invoice_totals,
+		zbscrm_JS_draw_partials_table, zbscrm_JS_generate_invoice_row,
+		zbscrm_JS_output_tax_line, zbscrm_JS_add_empty_row, zbscrm_JS_bind_due_days,
+		zbscrm_JS_bind_row_actions, zbscrm_JS_calculate_invoice_row_subtotals,
+		zbscrm_JS_calculate_invoice_subtotal, zbscrm_JS_calculate_invoice_tax_table,
+		zbscrm_JS_pickTaxRate, zbscrm_JS_calculate_tax_amounts,
+		zbscrm_JS_calc_grandtotal, zbscrm_JS_calc_amount_due,
+		zbscrm_JS_bind_change_actions, zbscrm_JS_calculatediscount,
+		zbscrm_JS_invoice_typeahead_bind, zbscrm_JS_bindInitialLearnLinks,
+		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_showCompanyLinkIf,
+		zbscrm_JS_bind_invoice_actions, zbscrmJS_sendInvoiceModal,
+		zbscrmJS_sendInvoiceEmail, zbscrm_JS_transaction_edit_URL,
+		zeroBSCRMJS_invEditLang, zbscrm_JS_calcTotals, zbscrm_JS_invoice_lang };
+}

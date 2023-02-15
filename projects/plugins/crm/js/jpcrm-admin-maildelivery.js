@@ -260,6 +260,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		} );
 }
 
+var oauth_profile_key = '';
+
 // bind wizard funcs
 /**
  *
@@ -1019,4 +1021,10 @@ function zeroBSCRMJS_validateSettings() {
 
 			break;
 	} // / switch
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRMJS_SMTPWiz, zbsTestDelivery, oauth_profile_key,
+		zeroBSCRMJS_refreshPage, zeroBSCRMJS_mail_delivery_bindList,
+		zeroBSCRMJS_mail_delivery_bindWizard, zeroBSCRMJS_validateSettings };
 }

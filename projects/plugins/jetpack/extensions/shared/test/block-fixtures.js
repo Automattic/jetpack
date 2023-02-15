@@ -77,8 +77,8 @@ export default function runBlockFixtureTests( blockName, blocks, fixturesPath ) 
 				}
 
 				// @wordpress/blocks may call these. Noop them to avoid unnecessary output.
-				jest.spyOn( console, 'groupCollapsed' ).mockReset();
-				jest.spyOn( console, 'groupEnd' ).mockReset();
+				jest.spyOn( console, 'groupCollapsed' ).mockReturnValue();
+				jest.spyOn( console, 'groupEnd' ).mockReturnValue();
 
 				const blocksActual = parse( htmlFixtureContent );
 

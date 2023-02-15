@@ -207,3 +207,7 @@ function zerobscrmJS_sendBetaFeedback( successcb, errcb ) {
 		} );
 	} // / not blocked
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zerobscrmJS_bindBetaFeedback, zerobscrmJS_sendBetaFeedback, zbsBetaFeedbackInTube, zbsBetaFeedbackInTube };
+}
