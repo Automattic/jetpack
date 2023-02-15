@@ -6,10 +6,10 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
 		activeIssues,
-		dismissedRecommendations,
+		dismissedIssues,
 		dismissalError,
-		showDismissedRecommendations,
-		dismissRecommendation,
+		showDismissedIssues,
+		dismissIssue,
 		groupErrorsByFrequency,
 	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
@@ -55,18 +55,18 @@
 		<section transition:slide|local>
 			<p>{heading}</p>
 
-			{#if $dismissedRecommendations.length > 0}
+			{#if $dismissedIssues.length > 0}
 				<p>
-					<button class="components-button is-link" on:click={showDismissedRecommendations}>
+					<button class="components-button is-link" on:click={showDismissedIssues}>
 						{sprintf(
 							/* translators: %d is a number of recommendations which were previously hidden by the user */
 							_n(
 								'Show %d hidden recommendation.',
 								'Show %d hidden recommendations.',
-								$dismissedRecommendations.length,
+								$dismissedIssues.length,
 								'jetpack-boost'
 							),
-							$dismissedRecommendations.length
+							$dismissedIssues.length
 						)}
 					</button>
 				</p>
@@ -80,7 +80,7 @@
 
 	{#each $activeIssues as issue (issue.key)}
 		<div class="panel" transition:slide|local>
-			<CloseButton on:click={() => dismissRecommendation( issue.key )} />
+			<CloseButton on:click={() => dismissIssue( issue.key )} />
 
 			<h4>
 				<InfoIcon />

@@ -2,7 +2,6 @@ import { writable, derived } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
-import { objectFilter } from '../utils/object-filter';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import type { JSONObject } from '../utils/json-types';
 
@@ -42,16 +41,6 @@ export type ErrorSet = {
 		[url: string]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};
 };
-
-/**
- * Specification of the Recommendation data structure used for display.
- */
-type Recommendation = {
-	key: string; // Provider Key associated with this recommendation.
-	label: string; // Label for the Provider Key.
-	errors: ErrorSet[]; // Sets of errors grouped for display. Mostly grouped by error type, but can also group by HTTP error code.
-};
-
 
 const initialIssues: Critical_CSS_Issue[] = [];
 if (Jetpack_Boost.criticalCSS.status?.providers_errors) {
@@ -107,13 +96,13 @@ export const failedProviderKeyCount = derived(issuesStore, $issues =>
  * Store used to track Critical CSS Recommendations which have been dismissed.
  * Exported as a read-only store.
  */
-export const dismissedRecommendations = { subscribe: dismissed.subscribe };
+export const dismissedIssues = { subscribe: dismissed.subscribe };
 
 /**
  * Derived store containing Critical CSS recommendations which have not been dismissed.
  */
 export const activeIssues = derived(
-	[issuesStore, dismissedRecommendations],
+	[issuesStore, dismissedIssues],
 	([recommends, dismisses]) => recommends.filter(r => !dismisses.includes(r.key))
 );
 
@@ -157,7 +146,7 @@ function setDismissalError(title: string, error: JSONObject): void {
 /**
  * Clear all the dismissed recommendations.
  */
-export async function clearDismissedRecommendations(): Promise<void> {
+export async function clearDismissedIssues(): Promise<void> {
 	await api.post('/recommendations/reset', {
 		nonce: Jetpack_Boost.nonces['recommendations/reset'],
 	});
@@ -224,7 +213,7 @@ export function groupKey(type: Critical_CSS_Error_Type, error: CriticalCssErrorD
  *
  * @param {string} key Key of recommendation to dismiss.
  */
-export async function dismissRecommendation(key: string): Promise<void> {
+export async function dismissIssue(key: string): Promise<void> {
 	dismissed.update(keys => [...keys, key]);
 	try {
 		await api.post('/recommendations/dismiss', {
@@ -238,9 +227,9 @@ export async function dismissRecommendation(key: string): Promise<void> {
 /**
  * Show the previously dismissed recommendations.
  */
-export async function showDismissedRecommendations() {
+export async function showDismissedIssues() {
 	try {
-		await clearDismissedRecommendations();
+		await clearDismissedIssues();
 	} catch (error) {
 		setDismissalError(
 			__('Failed to show the dismissed recommendations', 'jetpack-boost'),
