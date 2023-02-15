@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Initialized the VideoPress package
  */
@@ -207,6 +209,15 @@ class Initializer {
 			return;
 		}
 
-		register_block_type( $videopress_video_metadata_file );
+		Assets::register_script(
+			$script_handle,
+			'../build/block-editor/blocks/video/index.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
+		);
+		Assets::enqueue_script( $script_handle );
 	}
 }
