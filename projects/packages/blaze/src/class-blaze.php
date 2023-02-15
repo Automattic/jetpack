@@ -219,7 +219,10 @@ class Blaze {
 		 * We only want it in the post editor.
 		 * Enqueueing the script in those editors would cause a fatal error.
 		 * See #20357 for more info.
-		 */
+		*/
+		if ( ! function_exists( 'get_current_screen' ) ) { // When Gutenberg is loaded in the frontend.
+			return;
+		}
 		$current_screen = get_current_screen();
 		if (
 			empty( $current_screen )
@@ -228,7 +231,6 @@ class Blaze {
 		) {
 			return;
 		}
-
 		// Bail if criteria is not met to enable Blaze features.
 		if ( ! self::should_initialize() ) {
 			return;
