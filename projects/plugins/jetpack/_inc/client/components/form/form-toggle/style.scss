@@ -12,6 +12,7 @@
 	position: relative;
 	display: inline-block;
 	border-radius: 12px;
+	box-shadow: 0 0 0 1px var(--jp-black) inset;
 	box-sizing: border-box;
 	padding: 2px;
 	width: 40px;
@@ -32,14 +33,14 @@
 	&:after {
 		left: 0;
 		border-radius: 50%;
-		background: $white;
+		background: var(--jp-black);
 		transition: all .2s ease;
 	}
 	&:before {
 		display: none;
 	}
 	.dops-accessible-focus &:focus{
-		box-shadow: 0 0 0 2px $blue-medium;
+		box-shadow: 0 0 0 2px var(--jp-green-60);
 	}
 }
 
@@ -60,15 +61,15 @@
 .form-toggle {
 	.dops-accessible-focus &:focus {
 		+ .form-toggle__label .form-toggle__switch {
-			box-shadow: 0 0 0 2px $blue-medium;
+			box-shadow: 0 0 0 2px var(--jp-green-60);
 		}
 		&:checked + .form-toggle__label .form-toggle__switch {
-			box-shadow: 0 0 0 2px $blue-light;
+			box-shadow: 0 0 0 2px ar(--jp-green-20);
 		}
 	}
 
 	& + .form-toggle__label .form-toggle__switch {
-		background: lighten( $gray, 10% );
+		background: var(jp-white);
 	}
 
 	&:not( :disabled ) {
@@ -79,9 +80,10 @@
 
 	&:checked{
 		+ .form-toggle__label .form-toggle__switch {
-			background: $blue-medium;
-
+			background: var(--jp-green-40);
+			box-shadow: 0 0 0 1px var(--jp-green-40) inset;
 			&:after {
+				background: var(--jp-white);
 				left: 16px;
 			}
 		}
@@ -89,7 +91,7 @@
 
 	&:checked:not( :disabled ) {
 		+ .form-toggle__label:hover .form-toggle__switch {
-			background: $blue-light;
+			background: var(--jp-green-20);
 		}
 	}
 
@@ -104,7 +106,7 @@
 // Classes for toggle state before action is complete (updating plugin or something)
 .form-toggle.is-toggling {
 	+ .form-toggle__label .form-toggle__switch {
-		background: $blue-medium;
+		background: var(jp-green-10);
 	}
 	&:checked {
 		+ .form-toggle__label .form-toggle__switch {
