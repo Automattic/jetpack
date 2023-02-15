@@ -4,8 +4,7 @@ import { ConnectScreenLayout } from '@automattic/jetpack-connection';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
-import { useCallback } from 'react/cjs/react.production.min';
+import React, { useEffect, useCallback } from 'react';
 import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import useAnalytics from '../hooks/use-analytics';
 import { WordPressLogo } from '../illustrations';
@@ -55,7 +54,7 @@ export function MigrationProgress( props: Props ) {
 					isSecondary={ true }
 					target={ '_blank' }
 					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
-					click={ onCheckProgressClick }
+					onClick={ onCheckProgressClick }
 				>
 					{ __( 'Check your migration progress', 'wpcom-migration' ) }
 				</Button>

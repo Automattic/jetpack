@@ -1964,7 +1964,7 @@ importers:
 
   projects/plugins/migration:
     specifiers:
-      '@automattic/jetpack-analytics': workspace:0.1.23
+      '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-api': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
