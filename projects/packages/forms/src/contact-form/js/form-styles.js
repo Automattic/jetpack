@@ -1,16 +1,23 @@
-window.addEventListener( 'load', () => {
-	const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
-	const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
+const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
+const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
 
+const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
+const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
+const bodyNode = doc.querySelector( 'body' );
+
+//Fallback in case of the page load event takes too long to fire up
+const fallbackTimer = setTimeout( () => {
+	handleFormStyles();
+}, 3000 );
+
+window.addEventListener( 'load', () => {
 	const observer = new MutationObserver( () => {
-		generateStyleVariables( FRONTEND_SELECTOR );
-		generateStyleVariables( EDITOR_SELECTOR );
+		handleFormStyles();
 	} );
 
 	//Make sure to execute at least once if not triggered by the observer
 	setTimeout( () => {
-		generateStyleVariables( FRONTEND_SELECTOR );
-		generateStyleVariables( EDITOR_SELECTOR );
+		handleFormStyles();
 
 		observer.observe( document.querySelector( 'body' ), {
 			childList: true,
@@ -18,6 +25,11 @@ window.addEventListener( 'load', () => {
 		} );
 	}, 100 );
 } );
+
+function handleFormStyles() {
+	generateStyleVariables( FRONTEND_SELECTOR );
+	generateStyleVariables( EDITOR_SELECTOR );
+}
 
 function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
@@ -34,8 +46,10 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 		</div>
 	`;
 
-	const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
-	const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
+	setTimeout( () => {
+		clearTimeout( fallbackTimer );
+		bodyNode.classList.add( 'contact-form-styles-loaded' );
+	}, 200 );
 
 	if ( ! doc.querySelectorAll( selector ).length ) {
 		return;
@@ -64,7 +78,6 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const container = doc.querySelector( selector );
 	container.appendChild( styleProbe );
 
-	const bodyNode = doc.querySelector( 'body' );
 	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
@@ -108,10 +121,6 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-size', fontSize );
 	outputContainer.style.setProperty( '--jetpack--contact-form--font-family', fontFamily );
 	outputContainer.style.setProperty( '--jetpack--contact-form--line-height', lineHeight );
-
-	setTimeout( () => {
-		bodyNode.classList.add( 'contact-form-styles-loaded' );
-	}, 200 );
 }
 
 function getBackgroundColor( backgroundColorNode ) {
