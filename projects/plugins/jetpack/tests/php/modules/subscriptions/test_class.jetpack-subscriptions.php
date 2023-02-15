@@ -3,11 +3,13 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
+use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -31,6 +33,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
+
 		parent::tear_down();
 	}
 
@@ -330,6 +334,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		register_subscription_block();
+
 		// When no post id is set, the comments should default to whatever is passed as default
 		$this->assertFalse( apply_filters( 'comments_open', false, null ) );
 		$this->assertTrue( apply_filters( 'comments_open', true, null ) );
@@ -341,6 +348,9 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		register_subscription_block();
+
 		// When post-id is passed, it should prevent access depending of the user access
 		$payload              = $this->get_payload( true, false, null, null );
 		$post_id              = $this->setup_jetpack_paid_newsletters();
@@ -350,7 +360,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
 		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 
-		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
+		$this->assertFalse( apply_filters( 'comments_open', true, $post_id ) );
 	}
 
 	/**
