@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "945164e5252332ec45fe7084204373aa",
+    "content-hash": "58ce824c96f2c386d21764682dca62d7",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -367,16 +367,16 @@
         },
         {
             "name": "automattic/jetpack-blaze",
-            "version": "v0.5.1.1",
+            "version": "v0.5.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-blaze.git",
-                "reference": "058eae716b28a5870eb4b7f1ca3196bf52038de2"
+                "reference": "0345d59e858498f9337b11c7061b0c91c2c57e50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-blaze/zipball/058eae716b28a5870eb4b7f1ca3196bf52038de2",
-                "reference": "058eae716b28a5870eb4b7f1ca3196bf52038de2",
+                "url": "https://api.github.com/repos/Automattic/jetpack-blaze/zipball/0345d59e858498f9337b11c7061b0c91c2c57e50",
+                "reference": "0345d59e858498f9337b11c7061b0c91c2c57e50",
                 "shasum": ""
             },
             "require": {
@@ -415,9 +415,9 @@
             ],
             "description": "Attract high-quality traffic to your site using Blaze.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-blaze/tree/v0.5.1.1"
+                "source": "https://github.com/Automattic/jetpack-blaze/tree/v0.5.1.2"
             },
-            "time": "2023-02-13T20:18:31+00:00"
+            "time": "2023-02-15T20:57:54+00:00"
         },
         {
             "name": "automattic/jetpack-blocks",
@@ -1975,16 +1975,16 @@
         },
         {
             "name": "automattic/jetpack-waf",
-            "version": "v0.9.1",
+            "version": "v0.9.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-waf.git",
-                "reference": "4c6d528789212ca19b3ce3a867469bd0cf05ad76"
+                "reference": "caf9f7610a8080910bfb29cbf8d8fc7689a3fe6a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/4c6d528789212ca19b3ce3a867469bd0cf05ad76",
-                "reference": "4c6d528789212ca19b3ce3a867469bd0cf05ad76",
+                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/caf9f7610a8080910bfb29cbf8d8fc7689a3fe6a",
+                "reference": "caf9f7610a8080910bfb29cbf8d8fc7689a3fe6a",
                 "shasum": ""
             },
             "require": {
@@ -2021,9 +2021,9 @@
             ],
             "description": "Tools to assist with the Jetpack Web Application Firewall",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.9.1"
+                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.9.1.1"
             },
-            "time": "2023-02-13T20:11:41+00:00"
+            "time": "2023-02-15T21:01:47+00:00"
         },
         {
             "name": "automattic/jetpack-wordads",
