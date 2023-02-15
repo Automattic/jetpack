@@ -92,27 +92,44 @@ class Post extends \WP_REST_Posts_Controller {
 
 		// WXR saves terms as slugs, so we need to convert them to IDs before send the data to the legacy endpoint.
 		foreach ( array( 'categories', 'tags' ) as $taxonomy ) {
-			$request[ $taxonomy ] = is_array( $request[ $taxonomy ] ) ? $request[ $taxonomy ] : array();
-
-			if ( count( $request[ $taxonomy ] ) ) {
-				$ids = get_terms(
-					array(
-						'fields'     => 'ids',
-						'hide_empty' => false,
-						'slug'       => $request[ $taxonomy ],
-						'taxonomy'   => $taxonomy === 'tags' ? 'post_tag' : 'category',
-					)
-				);
-
-				if ( is_array( $ids ) ) {
-					$request[ $taxonomy ] = $ids;
-				}
-			}
+			$request[ $taxonomy ] = $this->extract_terms_ids( $request, $taxonomy );
 		}
 
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
+	 * Extract terms IDs from slugs.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @param string          $taxonomy Taxonomy name.
+	 * @return array List of terms IDs.
+	 */
+	protected function extract_terms_ids( $request, $taxonomy ) {
+		$ret = is_array( $request[ $taxonomy ] ) ? $request[ $taxonomy ] : array();
+
+		if ( ! count( $ret ) ) {
+			return $ret;
+		}
+
+		// Extract the terms by ID.
+		$ids = get_terms(
+			array(
+				'fields'     => 'ids',
+				'hide_empty' => false,
+				'slug'       => $ret,
+				'taxonomy'   => $taxonomy === 'tags' ? 'post_tag' : 'category',
+			)
+		);
+
+		if ( is_array( $ids ) ) {
+			return $ids;
+		} else {
+			// Flush away any invalid terms.
+			return array();
+		}
 	}
 
 	/**
