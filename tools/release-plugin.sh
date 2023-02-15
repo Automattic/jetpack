@@ -36,9 +36,10 @@ if ! command -v gh &> /dev/null; then
 	fi 
 fi
 
-GH_VER="$( gh --version | grep -E -o -m1 '([0-9])*\.([0-9])*\.([0-9])*' )"
+GH_VER="$( gh --version | grep -E -o -m1 '[0-9]+\.[0-9]+\.[0-9]+' )"
 if ! version_compare "$GH_VER" "2.21.2"; then
-	die "Your version of the GH CLI is out of date. Please upgrade your version with 'brew upgrade gh' and start again"
+	command -v brew &> /dev/null && WITH=" with 'brew upgrade gh'" || WITH=
+	die "Your version of the GH CLI is out of date. Please upgrade your version$WITH and start again"
 fi
 
 # Get the options passed and parse them.

@@ -5,6 +5,7 @@
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import config from '../../../stores/config';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
@@ -60,7 +61,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$config.criticalCSS?.suggestRegenerate}
+				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
 			/>
 		</div>
 	</Module>

@@ -50,7 +50,7 @@ module.exports = [
 		externals: {
 			...jetpackWebpackConfig.externals,
 			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'jetpack-migration',
+				consumer_slug: 'wpcom-migration',
 			} ),
 		},
 	},

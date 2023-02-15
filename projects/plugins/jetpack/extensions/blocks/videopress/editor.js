@@ -9,6 +9,7 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
+import { parse } from '@wordpress/block-serialization-default-parser';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -489,8 +490,39 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	return attrs;
 }
 
+function mapV6AttributesToV5( attributes ) {
+	const newAttributes = { ...attributes };
+	if ( attributes?.tracks ) {
+		newAttributes.videoPressTracks = attributes.tracks;
+		delete newAttributes.tracks;
+	}
+
+	if ( attributes?.isExample ) {
+		newAttributes.isVideoPressExample = attributes.isExample;
+		delete newAttributes.isExample;
+	}
+
+	if ( attributes?.classNames ) {
+		newAttributes.videoPressClassNames = attributes.classNames;
+		delete newAttributes.classNames;
+	}
+
+	// Clean the rest of the attributes.
+	delete newAttributes.title;
+	delete newAttributes.description;
+	delete newAttributes.cacheHtml;
+	delete newAttributes.videoRatio;
+	delete newAttributes.privacySetting;
+	delete newAttributes.allowDownload;
+	delete newAttributes.displayEmbed;
+	delete newAttributes.rating;
+	delete newAttributes.isPrivate;
+
+	return newAttributes;
+}
+
 /**
- * Convert some video blocks to VideoPress video blocks,
+ * Convert video blocks to VideoPress video blocks,
  * when the app detects that the block is a VideoPress block instance.
  *
  * Blocks list:
@@ -591,3 +623,43 @@ addFilter(
 	'videopress/jetpack-convert-to-videopress-video-block',
 	convertVideoBlockToVideoPressVideoBlock
 );
+
+const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
+	return props => {
+		const { block } = props;
+		const { name, attributes, clientId } = block;
+		const { replaceBlock } = useDispatch( blockEditorStore );
+
+		/*
+		 * Detect missing videopress/video (v6) block,
+		 * and try to convert it to extended core/video (v5)
+		 */
+		useEffect( () => {
+			if ( name !== 'core/missing' ) {
+				return;
+			}
+
+			if ( attributes?.originalName !== 'videopress/video' ) {
+				return;
+			}
+
+			try {
+				const parsedData = parse( attributes.originalContent );
+				const originalBlock = parsedData?.[ 0 ];
+				if ( ! originalBlock ) {
+					return;
+				}
+
+				const { attrs } = originalBlock;
+				replaceBlock( clientId, createBlock( 'core/video', mapV6AttributesToV5( attrs ) ) );
+			} catch ( e ) {
+				// eslint-disable-next-line no-console
+				console.error( 'Error converting VideoPress block to core/video', e );
+			}
+		}, [ name, clientId, attributes, replaceBlock ] );
+
+		return <BlockListBlock { ...props } />;
+	};
+}, 'convertV6toV5' );
+
+addFilter( 'editor.BlockListBlock', 'videopress/jetpack-convert-from-v6-to-v5', convertV6toV5 );
