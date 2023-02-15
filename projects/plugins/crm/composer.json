@@ -12,6 +12,12 @@
 		"codeception/util-universalframework": "^1.0"
 	},
 	"scripts": {
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production"
+		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
@@ -21,13 +27,17 @@
 		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
 		"cs-unstaged": "temp=$(git diff --diff-filter=d --name-only | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-unstaged $temp || echo 'No changes found.'",
 		"test-php": "tests/action-test-php.sh",
-		"skip-test-php": "tests/action-skip-test-php.sh"
+		"skip-test-php": "tests/action-skip-test-php.sh",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"config": {
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_2_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_5_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -36,7 +46,7 @@
 	"require": {
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.1",
+		"dompdf/dompdf": "2.0.3",
 		"automattic/jetpack-composer-plugin": "@dev"
 	},
 	"repositories": [
@@ -50,14 +60,15 @@
 	],
 	"minimum-stability": "dev",
 	"extra": {
-		"autotagger": true,
+		"autotagger": {
+			"v": false
+		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/zero-bs-crm/compare/v${old}...v${new}"
 		},
 		"release-branch-prefix": "crm",
-		"wp-plugin-slug": "zero-bs-crm",
-		"wp-svn-autopublish": true
+		"wp-plugin-slug": "zero-bs-crm"
 	}
 }

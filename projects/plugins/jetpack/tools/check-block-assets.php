@@ -62,28 +62,14 @@ $allowed = array(
 	'dialogue'       => array(
 		'wp-data',
 	),
-	'donations'      => array(
-		'lodash',
-		'wp-keycodes',
-	),
-	'map'            => array(
-		'lodash',
-		'react',
-		'react-dom',
-		'wp-components',
-		'wp-element',
-	),
 	'podcast-player' => array(
 		'lodash',
 		'react',
 		'react-dom',
-		'wp-components',
 		'wp-compose',
 		'wp-data',
 		'wp-element',
-	),
-	'slideshow'      => array(
-		'lodash',
+		'wp-primitives',
 	),
 	'story'          => array(
 		'lodash',

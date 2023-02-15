@@ -28,8 +28,8 @@
 		"version-packages": "bash ./tools/version-packages.sh"
 	},
 	"devDependencies": {
-		"eslint": "8.32.0",
-		"husky": "7.0.4",
+		"eslint": "8.33.0",
+		"husky": "8.0.3",
 		"jetpack-cli": "workspace:1.0.0",
 		"jetpack-js-tools": "workspace:*"
 	},
