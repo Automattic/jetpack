@@ -37,8 +37,11 @@ class Optimizations implements Has_Setup {
 			new Lazy_Images(),
 			new Render_Blocking_JS(),
 			new Image_Guide(),
-			new Minify(),
 		);
+
+		if ( defined( 'JETPACK_BOOST_MINIFY' ) && JETPACK_BOOST_MINIFY ) {
+			$features[] = new Minify();
+		}
 
 		foreach ( $features as $feature ) {
 			$slug                    = $feature->get_slug();
