@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 bootstrap="tests/php/bootstrap.php"
+		 bootstrap="bootstrap.php"
 		 backupGlobals="false"
 		 colors="true"
 		 convertDeprecationsToExceptions="true"
@@ -15,7 +15,7 @@
   </coverage>
   <testsuites>
     <testsuite name="main">
-      <directory prefix="test" suffix=".php">tests/php</directory>
+      <directory prefix="test" suffix=".php">.</directory>
     </testsuite>
   </testsuites>
 </phpunit>
