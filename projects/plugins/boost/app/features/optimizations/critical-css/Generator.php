@@ -99,7 +99,7 @@ class Generator {
 	 */
 	public function get_issues() {
 		$providers_errors = $this->state->get_providers_errors();
-		$issue_status = $this->state->get_providers_issue_status();
+		$issue_status = $this->state->get_provider_issue_status();
 		$issues = [];
 		foreach ( $providers_errors as $provider => $url_errors ) {
 			$errors = array();
