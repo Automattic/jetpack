@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Import;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 
 /**
@@ -39,7 +40,12 @@ class Main {
 			return;
 		}
 
-		add_action( 'rest_api_init', array( __CLASS__, 'initialize_rest_api' ) );
+		$connection = new Connection_Manager();
+
+		// Initialize the REST API only if the user is connected.
+		if ( $connection->has_connected_owner() ) {
+			add_action( 'rest_api_init', array( __CLASS__, 'initialize_rest_api' ) );
+		}
 
 		/**
 		 * Runs right after the Jetpack Import package is initialized.
