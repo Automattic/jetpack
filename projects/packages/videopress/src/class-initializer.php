@@ -7,10 +7,15 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Initialized the VideoPress package
  */
 class Initializer {
+
+	const JETPACK_VIDEOPRESS_VIDEO_HANDLER      = 'jetpack-videopress-video-block';
+	const JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER = 'jetpack-videopress-video-block-view';
 
 	/**
 	 * Initialization optinos
@@ -193,14 +198,37 @@ class Initializer {
 		// Pick the block name straight from the block metadata .json file.
 		$videopress_video_block_name = $videopress_video_metadata->name;
 
-		// Register and enqueue scripts used by the VideoPress block.
-		Block_Editor_Extensions::init( $videopress_video_metadata );
+		// Register and enqueue scripts used by the VideoPress video block.
+		Block_Editor_Extensions::init( self::JETPACK_VIDEOPRESS_VIDEO_HANDLER );
 
 		// Do not register if the block is already registered.
 		if ( \WP_Block_Type_Registry::get_instance()->is_registered( $videopress_video_block_name ) ) {
 			return;
 		}
 
+		// Register script used by the VideoPress video block in the editor.
+		Assets::register_script(
+			self::JETPACK_VIDEOPRESS_VIDEO_HANDLER,
+			'../build/block-editor/blocks/video/index.js',
+			__FILE__,
+			array(
+				'in_footer'  => false,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
+		);
+
+		// Register script used by the VideoPress video block in the front-end.
+		Assets::register_script(
+			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER,
+			'../build/block-editor/blocks/video/view.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-videopress-pkg',
+			)
+		);
+
+		// Register VideoPress video block.
 		register_block_type( $videopress_video_metadata_file );
 	}
 }
