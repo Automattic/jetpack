@@ -1,4 +1,0 @@
-Significance: major
-Type: other
-
-Remove `jetpack_require_lib` and `jetpack_require_lib_dir`, which has been issuing deprecation warnings since 11.6.

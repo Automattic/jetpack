@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.0 - 2023-02-15
+### Added
+- Added fetchMigrationStatus get method [#28807]
+
+### Changed
+- Update to React 18. [#28710]
+
 ## 0.14.9 - 2023-01-25
 ### Changed
 - Change the web application firewall to run automatic and manual rules independently. [#27726]
