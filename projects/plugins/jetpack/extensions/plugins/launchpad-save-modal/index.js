@@ -98,7 +98,7 @@ export const settings = {
 		useEffect( () => {
 			if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
-				( prevIsSavingPost === true && isSavingPost === false && isCurrentPostPublished )
+				( prevIsSavingPost === true && isSavingPost === false )
 			) {
 				setDisplayLaunchpadModal( true );
 			}
@@ -226,7 +226,7 @@ export const settings = {
 
 		if ( displayFirstPostPublishedModal ) {
 			return firstPostPublishedModal;
-		} else if ( displayLaunchpadModal ) {
+		} else if ( showModal ) {
 			return launchpadModal;
 		}
 
