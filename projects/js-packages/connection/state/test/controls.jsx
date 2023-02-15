@@ -8,9 +8,9 @@ const {
 	FETCH_AUTHORIZATION_URL: fetchAuthorizationUrl,
 } = controls;
 
-const stubRegisterSite = jest.spyOn( restApi, 'registerSite' ).mockReset();
-const stubFetchAuthorizationUrl = jest.spyOn( restApi, 'fetchAuthorizationUrl' ).mockReset();
-const stubAssign = jest.spyOn( window.location, 'assign' ).mockReset();
+const stubRegisterSite = jest.spyOn( restApi, 'registerSite' ).mockReturnValue();
+const stubFetchAuthorizationUrl = jest.spyOn( restApi, 'fetchAuthorizationUrl' ).mockReturnValue();
+const stubAssign = jest.spyOn( window.location, 'assign' ).mockReturnValue();
 
 const getAuthorizationUrl = jest.fn();
 const resolveSelect = () => ( { getAuthorizationUrl } );

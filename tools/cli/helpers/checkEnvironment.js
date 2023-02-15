@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import * as envfile from 'envfile';
-import execa from 'execa';
+import { execaNode } from 'execa';
 import semver from 'semver';
 
 /**
@@ -91,7 +91,7 @@ export async function checkCliLocation() {
 		);
 
 		// Alas node doesn't expose `execve()` or the like, so this seems the best we can do without messing with native function call stuff.
-		const res = await execa.node( exe, process.argv.slice( 2 ), {
+		const res = await execaNode( exe, process.argv.slice( 2 ), {
 			env: {
 				JETPACK_CLI_DID_REEXEC: thisRoot,
 			},
