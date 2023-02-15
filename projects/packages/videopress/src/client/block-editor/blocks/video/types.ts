@@ -82,3 +82,10 @@ export type DetailsPanelProps = VideoControlProps & {
 	updateError: object | null;
 	isRequestingVideoData: boolean;
 };
+
+export type VideoPreview = {
+	html?: string;
+	scripts: Array< string >;
+	width?: number;
+	height?: number;
+};
