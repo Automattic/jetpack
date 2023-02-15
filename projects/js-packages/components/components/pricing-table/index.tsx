@@ -185,9 +185,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 							) }
 						</Text>
 					) }
-					<Text variant="body-small">
-						<TermsOfService multipleButtons />
-					</Text>
+					<TermsOfService multipleButtons />
 				</div>
 			</div>
 		</PricingTableContext.Provider>
