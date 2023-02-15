@@ -2,7 +2,80 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.8-beta - 2023-01-30
+## 11.9-a.3 - 2023-02-15
+### Enhancements
+- Added a notice with a link to a survey when the new stats interface is disabled [#28823]
+- Admin: make the links under the Reccommendation section more apparent (black+underline) [#28950]
+- Display location-aware snackbar upon loading the site editor [#28810]
+- Jetpack stats dashboard widget: Adds filter to hide stats widget based on user capability. [#28833]
+- Make the Stats dashboard widget link to Odyssey stats if enabled [#28855]
+- Map block: reimplemented the frontend in vanilla JS [#28782]
+- Social Logos: update icon font to remove support for older b browsers (IE11-). [#28849]
+- Updated submit messages text for subscriptions [#26593]
+- Visual update to social buttons which haven't been updated in like 10 years. [#28874]
+
+### Improved compatibility
+- Theme Compatiblity: ensure redesigned sharing buttons look good in  default themes as well (Twenty Nineteen, Twenty Sixteen) [#28876]
+
+### Bug fixes
+- Add filter to prevent contact-form-styles script from being concatenated [#28905]
+- Add new method to reverse print_r output as stored on the feedback posts. Use it to try and parse the form fields, fallback to old method. [#28815]
+- Fix goodreads custom widget not finding the target HTML element and appending another after its script tag. [#28946]
+- Fix premium content block where it would only allow access to site subscribers [#28912]
+- Fix subscribe-block button to behave the same as in the fronted with regards to white-space and min-width rules applied to RichText by Gutenberg with the useDefaultStyles hook [#28925]
+- Prevent Forms blur effect on AMP pages [#28926]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added new stats options to store the timestamp when Odyssey is enabled and disabled [#28794]
+- Edited changelog for 11.9-a.1 [#28848]
+- Fix a bug where comments would be open under pages [#28894]
+- General: update wording in plugin's readme. [#28889]
+- Jetpack: convert v6 to v5 in case it is not registered [#28949]
+- Membership: user_can_view_post: Memoize results [#28878]
+- Move dialogue and conversation editor extensions back to beta, as they were not released to wordpress.com users [#28842]
+- Remove `jetpack_require_lib` and `jetpack_require_lib_dir`, which has been issuing deprecation warnings since 11.6. [#28866]
+- Sharing: update Social Logos with new logos (Google, Link, Mastodon, Medium, Patreon, Tiktok, WooCommerce) [#28849]
+- This change doesn't affect the plugin. [#28877]
+- Updated package dependencies. [#28910]
+- Update to React 18. [#28710]
+
+## 11.9-a.1 - 2023-02-08
+### Enhancements
+- Contact form: add a blur effect while the form is loading the styles. [#28212]
+- Form block: add two new style variations. [#28212]
+- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra. [#28678]
+- VideoPress: add transform control from video block to videopress/video block. [#28691]
+
+### Improved compatibility
+- Donations block: remove dependencies on lodash and @wordpress/keycodes [#28667]
+- Podcast player block: remove dependency on wp-components from the frontend code [#28740]
+- Slideshow block: remove dependency on Lodash [#28665]
+- Subscriptions: update subscribe block description. [#28742]
+
+### Bug fixes
+- Subscriptions: fix rendering of subscriber email on WPcom. [#28761]
+- Custom CSS: scope Additional CSS submenus to site with a connected owner. [#28757]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin: add New badge for Odyssey Stats toggle. [#28662]
+- WPcom: AI Block display backend user error. [#28617]
+- API: added a new `site_source_slug` option to help resuming on copy site feature. [#28768]
+- API: Fix PHP warning [#28750]
+- API: Fix PHP warning [#28806]
+- Contact form: put legacy contact-form blocks registration behind a flag. [#28630]
+- Forms block: add "watch" entries for both composer and package .json files. [#28704]
+- Forms block: add tooling for building the Jetpack Forms Dashboard. [#28689]
+- Build: Check blocks' view scripts for unexpected dependencies. [#28626]
+- General: update wrong return types. [#28744]
+- Masterbar: Fix PHP warning [#28799]
+- Protect: update wording in error message. [#28554]
+- Social Logos: update dependency [#28685]
+- Subscriptions: update paywall placeholder design for Subscriptions. [#28813]
+- Update composer lockfile. [#28733]
+- Updated package dependencies. [#28682]
+- WordPress.com REST API: fix notice. [#28745]
+
+## [11.8] - 2023-02-07
 ### Enhancements
 - Form block: add styling of input fields. [#27837]
 
@@ -11,13 +84,16 @@
 - Revue block: add a direct link to the WordPress.com subscriber import page. [#28538]
 
 ### Bug fixes
+- Backup: fix Backup submenu item not visible when the site has a VaultPress Backup plan but the VaultPress Backup plugin is not active. [#28650]
+- Dashboard: do not register the VaultPress and Scan submenu items without having Backups/Scan state. [#28711]
 - Slideshow: fix slideshow loading excessive dependencies on every page view. [#28562]
-- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Twitter Timeline shortcode: remove jQuery dependency for non-admin pages, and add it for admin pages. [#28643]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Contact Form: fix a PHP warning. [#28640]
+- Dashboard: remove border around counts for anti-spam/protect. [#28746]
 - JSON API: fix the response format for '/sites/$site/dropdown-pages/', the endpoint is not used in production yet. [#28586]
+- Masterbar: avoid PHP fatal on WoA sites due to a bad filter return. [#28622]
 - Reading settings: add 'Reading' link to the menu in Calypso for self-hosted Jetpack sites. [#28616]
 - Shortcodes: fix a PHP warning. [#28644]
 - Subscriptions: fix warnings from the global reading of '$post'. [#28639]
@@ -7669,6 +7745,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I

@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.27.5 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 0.27.4 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
 ## 0.27.3 - 2023-01-26
 ### Changed
 - Use `flex-start` instead of `start` for better browser compatibility. [#28530]

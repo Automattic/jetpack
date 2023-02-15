@@ -43,7 +43,7 @@ function zeroBSCRMJS_segment_bindPostRender() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// add an empty
-			const html = zeroBSCRMJS_segment_buildConditionLine( false );
+			var html = zeroBSCRMJS_segment_buildConditionLine( false );
 
 			// set it
 			jQuery( '#zbs-segment-edit-conditions' ).append( html );
@@ -146,7 +146,7 @@ function zeroBSCRMJS_segment_bindPostRender() {
  */
 function zeroBSCRMJS_segment_buildConditions() {
 	// build html
-	let html = '';
+	var html = '';
 
 	// build any existing (rules)
 	if (
@@ -179,7 +179,7 @@ function zeroBSCRMJS_segment_buildConditions() {
  * @param rule
  */
 function zeroBSCRMJS_segment_buildConditionLine( rule ) {
-	let html = '<div class="zbs-segment-edit-condition ui corner labeled segment description-hidden"';
+	var html = '<div class="zbs-segment-edit-condition ui corner labeled segment description-hidden"';
 	// for existing
 	if ( typeof rule !== 'undefined' && rule !== false ) {
 		if ( typeof rule.id !== 'undefined' ) {
@@ -214,7 +214,7 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 	// condition selector
 	if ( typeof window.jpcrm_available_conditions !== 'undefined' ) {
 		// shim for backward compatibility with Advanced segments < v1.8
-		let rule_type = '';
+		var rule_type = '';
 		if ( rule.type ) {
 			rule_type = rule.type;
 			if ( rule_type.substr( 0, 5 ) == 'zbsc_' ) {
@@ -242,11 +242,11 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 			// type e.g. STATUS
 			html += '<select class="zbs-segment-edit-var-condition-type">';
 
-			let current_category = '';
+			var current_category = '';
 
 			// each category
 			jQuery.each( window.jpcrm_available_conditions_by_category, function ( index, category ) {
-				const category_key = category.key;
+				var category_key = category.key;
 
 				if (
 					typeof category.conditions !== 'undefined' &&
@@ -259,7 +259,7 @@ function zeroBSCRMJS_segment_buildConditionLine( rule ) {
 					}
 
 					// first reorganise category conditions
-					const ordered_conditions = category.conditions.sort( jpcrm_js_compare_conditions );
+					var ordered_conditions = category.conditions.sort( jpcrm_js_compare_conditions );
 
 					// cycle through conditions in category
 					jQuery.each( ordered_conditions, function ( condition_key, condition ) {
@@ -354,13 +354,13 @@ function zeroBSCRMJS_segment_buildConditionCascades() {
  */
 function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 	// what's selected?
-	let selected = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+	var selected = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
 
 	if ( typeof selected !== 'undefined' ) {
 		// clear existing + start html
 		jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).remove();
 		jQuery( '.jpcrm-condition-info', jQuery( ele ) ).remove();
-		let html = '';
+		var html = '';
 
 		// shim for backward compatibility with Advanced segments < v1.8
 		if ( selected.substr( 0, 5 ) == 'zbsc_' ) {
@@ -378,7 +378,7 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 				window.jpcrm_available_conditions[ selected ].operators[ 0 ] != 'mailpoet_status'
 			) {
 				// get orig if building from scratch
-				let origVal = '';
+				var origVal = '';
 				if ( typeof jQuery( ele ).attr( 'data-orig-operator' ) !== 'undefined' ) {
 					origVal = jQuery( ele ).attr( 'data-orig-operator' );
 				}
@@ -414,7 +414,7 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 			}
 		} else {
 			// get original value
-			let original_value = '';
+			var original_value = '';
 			if ( typeof jQuery( ele ).attr( 'data-orig-operator' ) !== 'undefined' ) {
 				original_value = jQuery( ele ).attr( 'data-orig-operator' );
 			}
@@ -443,8 +443,8 @@ function zeroBSCRMJS_segment_buildConditionCascadesForEle( ele ) {
 function zeroBSCRMJS_segment_buildConditionCascades2() {
 	jQuery( '.zbs-segment-edit-condition.dirty' ).each( function ( ind, ele ) {
 		// what's selected?
-		const selected = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
-		let typeselected = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+		var selected = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
+		var typeselected = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
 
 		// shim for backward compatibility with Advanced segments < v1.8
 		if ( typeselected && typeselected.substr( 0, 5 ) == 'zbsc_' ) {
@@ -458,8 +458,8 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 				jQuery( ele )
 			).remove();
 			jQuery( '.jpcrm-condition-info', jQuery( ele ) ).remove();
-			let html = '';
-			let inputmask_class = '';
+			var html = '';
+			var inputmask_class = '';
 
 			// attempt to discern any passed `inputmask` (note that int + float obvious fields already automatically input mask)
 			if (
@@ -472,7 +472,7 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 			}
 
 			// allows injection on edit page (if injected, then remove after inserted/loaded)
-			let v = '',
+			var v = '',
 				v2 = '';
 			if ( typeof jQuery( ele ).attr( 'data-orig-value' ) !== 'undefined' ) {
 				v = jQuery( ele ).attr( 'data-orig-value' );
@@ -708,8 +708,8 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					html += '<select class="zbs-segment-edit-var-condition-value">';
 
 					if ( window.jpcrm_mailpoet_status_list && window.jpcrm_mailpoet_status_list.length > 0 ) {
-						for ( let i = 0; i < window.jpcrm_mailpoet_status_list.length; i++ ) {
-							const cur_status = window.jpcrm_mailpoet_status_list[ i ];
+						for ( var i = 0; i < window.jpcrm_mailpoet_status_list.length; i++ ) {
+							var cur_status = window.jpcrm_mailpoet_status_list[ i ];
 							html +=
 								'<option value="' +
 								cur_status.key +
@@ -740,7 +740,7 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
 					'" />';
 
 				// display a namesake
-				let original_value = v;
+				var original_value = v;
 				if ( v2 != '' ) {
 					original_value += '-' + v2;
 				}
@@ -789,15 +789,15 @@ function zeroBSCRMJS_segment_buildConditionCascades2() {
  */
 function zeroBSCRMJS_segment_previewAudience() {
 	// id's
-	const snameid = 'zbs-segment-edit-var-title';
-	const smatchtypeid = 'zbs-segment-edit-var-matchtype';
+	var snameid = 'zbs-segment-edit-var-title';
+	var smatchtypeid = 'zbs-segment-edit-var-matchtype';
 
 	// retrieve
-	const sname = jQuery( '#' + snameid ).val();
-	const smatchtype = jQuery( '#' + smatchtypeid ).val();
+	var sname = jQuery( '#' + snameid ).val();
+	var smatchtype = jQuery( '#' + smatchtypeid ).val();
 
 	// check (these also show "required")
-	let errors = 0;
+	var errors = 0;
 	if ( ! zeroBSCRMJS_genericCheckNotEmptySemantic( snameid ) ) {
 		errors++;
 		// and focus it as on this ui might be far down page
@@ -812,20 +812,20 @@ function zeroBSCRMJS_segment_previewAudience() {
 		// continue
 
 		// check conditions
-		const sconditions = [];
+		var sconditions = [];
 		jQuery( '.zbs-segment-edit-condition' ).each( function ( ind, ele ) {
 			// get vars
-			const type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
-			let operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
-			const value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
-			const value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
+			var type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+			var operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
+			var value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
+			var value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
 
 			// operator will be empty for those such as tagged
 			if ( typeof operator === 'undefined' || operator == 'undefined' ) {
 				operator = -1;
 			}
 
-			const condition = {
+			var condition = {
 				type: type,
 				operator: operator,
 				value: value1,
@@ -846,7 +846,7 @@ function zeroBSCRMJS_segment_previewAudience() {
 			jQuery( '#zbs-segment-edit-act-save, #zbs-segment-edit-act-delete' ).addClass( 'loading' );
 
 			// make a segment obj
-			const segment = {
+			var segment = {
 				title: sname,
 				matchtype: smatchtype,
 				conditions: sconditions,
@@ -867,10 +867,10 @@ function zeroBSCRMJS_segment_previewAudience() {
 					// successfully retrieved
 
 					// localise
-					const seg = segment;
+					var seg = segment;
 
 					// build preview out
-					let html = '';
+					var html = '';
 
 					// catch errors
 					if ( typeof previewList === 'undefined' ) {
@@ -896,11 +896,11 @@ function zeroBSCRMJS_segment_previewAudience() {
 
 						// for each preview line
 						jQuery.each( previewList.list, function ( ind, ele ) {
-							let fn = ele.fullname;
+							var fn = ele.fullname;
 							if ( fn == '' ) {
 								fn = zeroBSCRMJS_segmentLang( 'noName' );
 							}
-							let em = ele.email;
+							var em = ele.email;
 							if ( em == '' ) {
 								em = zeroBSCRMJS_segmentLang( 'noEmail' );
 							}
@@ -970,15 +970,15 @@ function zeroBSCRMJS_segment_previewAudience() {
  */
 function zeroBSCRMJS_segment_saveSegmentAct() {
 	// id's
-	const snameid = 'zbs-segment-edit-var-title';
-	const smatchtypeid = 'zbs-segment-edit-var-matchtype';
+	var snameid = 'zbs-segment-edit-var-title';
+	var smatchtypeid = 'zbs-segment-edit-var-matchtype';
 
 	// retrieve
-	const sname = jQuery( '#' + snameid ).val();
-	const smatchtype = jQuery( '#' + smatchtypeid ).val();
+	var sname = jQuery( '#' + snameid ).val();
+	var smatchtype = jQuery( '#' + smatchtypeid ).val();
 
 	// check (these also show "required")
-	let errors = 0;
+	var errors = 0;
 	if ( ! zeroBSCRMJS_genericCheckNotEmptySemantic( snameid ) ) {
 		errors++;
 		// and focus it as on this ui might be far down page
@@ -1002,20 +1002,20 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
 		// continue
 
 		// check conditions
-		const sconditions = [];
+		var sconditions = [];
 		jQuery( '.zbs-segment-edit-condition' ).each( function ( ind, ele ) {
 			// get vars
-			const type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
-			let operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
-			const value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
-			const value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
+			var type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+			var operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
+			var value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
+			var value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
 
 			// operator will be empty for those such as tagged
 			if ( typeof operator === 'undefined' || operator == 'undefined' ) {
 				operator = -1;
 			}
 
-			const condition = {
+			var condition = {
 				type: type,
 				operator: operator,
 				value: value1,
@@ -1032,7 +1032,7 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
 		// for now that means 1 + :)
 		if ( sconditions.length > 0 ) {
 			// make a segment obj
-			const segment = {
+			var segment = {
 				title: sname,
 				matchtype: smatchtype,
 				conditions: sconditions,
@@ -1053,13 +1053,13 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
 					// successfully saved
 
 					// needs page refresh? (if new -> edit, not edit->edit)
-					let refreshReq = false;
+					var refreshReq = false;
 					if ( window.zbsSegment == false ) {
 						refreshReq = true;
 					}
 
 					// localise
-					const seg = segment;
+					var seg = segment;
 
 					// update local obj
 					window.zbsSegment.id = id;
@@ -1148,7 +1148,7 @@ function zeroBSCRMJS_segment_saveSegmentAct() {
  * @param eleid
  */
 function zeroBSCRMJS_genericCheckNotEmptySemantic( eleid ) {
-	const val = jQuery( '#' + eleid ).val();
+	var val = jQuery( '#' + eleid ).val();
 
 	if ( typeof val === 'undefined' || val.length < 1 ) {
 		// show error + mark field
@@ -1170,7 +1170,7 @@ function zeroBSCRMJS_genericCheckNotEmptySemantic( eleid ) {
 	return false;
 }
 
-const zbsAJAXSending = false;
+var zbsAJAXSending = false;
 /**
  * @param segment
  * @param callback
@@ -1182,7 +1182,7 @@ function zeroBSCRMJS_segment_saveSegment( segment, callback, cbfail ) {
 		window.zbsAJAXSending = true;
 
 		// pull through vars
-		let sID = -1;
+		var sID = -1;
 
 		// get id from passed js if avail
 		// from obj if (typeof window.zbsSegment != "undefined" && typeof window.zbsSegment.id != "undefined") sID = window.zbsSegment.id;
@@ -1192,7 +1192,7 @@ function zeroBSCRMJS_segment_saveSegment( segment, callback, cbfail ) {
 		}
 
 		// get deets - whatever's passed is updated, so don't pass nulls
-		const data = {
+		var data = {
 			action: 'zbs_segment_savesegment',
 			sID: sID,
 			sec: window.zbsSegmentSEC,
@@ -1257,7 +1257,7 @@ function zeroBSCRMJS_segment_previewSegment( segment, callback, cbfail ) {
 		window.zbsAJAXSending = true;
 
 		// pull through vars
-		let sID = -1;
+		var sID = -1;
 
 		// get id from passed js if avail
 		// from obj if (typeof window.zbsSegment != "undefined" && typeof window.zbsSegment.id != "undefined") sID = window.zbsSegment.id;
@@ -1267,7 +1267,7 @@ function zeroBSCRMJS_segment_previewSegment( segment, callback, cbfail ) {
 		}
 
 		// get deets - whatever's passed is updated, so don't pass nulls
-		const data = {
+		var data = {
 			action: 'zbs_segment_previewsegment',
 			sID: sID,
 			sec: window.zbsSegmentSEC,
@@ -1329,7 +1329,7 @@ function zeroBSCRMJS_segment_previewSegment( segment, callback, cbfail ) {
  */
 function jpcrm_js_show_condition_info( ele ) {
 	// load description
-	let condition_key = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ).parent() )
+	var condition_key = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ).parent() )
 		.find( 'option:selected' )
 		.val();
 
@@ -1339,7 +1339,7 @@ function jpcrm_js_show_condition_info( ele ) {
 	}
 
 	// load description
-	let description = zeroBSCRMJS_segmentLang( 'default_description' );
+	var description = zeroBSCRMJS_segmentLang( 'default_description' );
 
 	if (
 		typeof window.jpcrm_available_conditions[ condition_key ] !== 'undefined' &&
@@ -1419,4 +1419,17 @@ function jpcrm_js_compare_conditions( a, b ) {
 	}
 
 	return 0;
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsAJAXSending, zeroBSCRMJS_segment_bindPostRender,
+		zeroBSCRMJS_segment_buildConditions, zeroBSCRMJS_segment_buildConditionLine,
+		zeroBSCRMJS_segment_buildConditionCascades,
+		zeroBSCRMJS_segment_buildConditionCascadesForEle,
+		zeroBSCRMJS_segment_buildConditionCascades2,
+		zeroBSCRMJS_segment_previewAudience, zeroBSCRMJS_segment_saveSegmentAct,
+		zeroBSCRMJS_genericCheckNotEmptySemantic, zeroBSCRMJS_segment_saveSegment,
+		zeroBSCRMJS_segment_previewSegment, jpcrm_js_show_condition_info,
+		jpcrm_js_hide_condition_info, zeroBSCRMJS_segmentLang,
+		jpcrm_js_compare_conditions };
 }

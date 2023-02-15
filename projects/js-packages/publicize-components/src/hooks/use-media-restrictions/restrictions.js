@@ -6,6 +6,7 @@
  */
 const MP4 = 'video/mp4';
 const MOV = 'video/mov';
+const VIDEOPRESS = 'video/videopress';
 const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const facebookImageTypes = allowedImageTypes.concat( [
 	'image/gif',
@@ -48,7 +49,7 @@ const facebookVideoTypes = [
 
 export const RESTRICTIONS = {
 	twitter: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 5,
 		},
@@ -58,7 +59,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	facebook: {
-		allowedMediaTypes: facebookImageTypes.concat( facebookVideoTypes ),
+		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
 			maxSize: 4,
 		},
@@ -68,7 +69,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	tumblr: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
 		image: {
 			maxSize: 20,
 		},
@@ -78,7 +79,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	linkedin: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 20,
 		},

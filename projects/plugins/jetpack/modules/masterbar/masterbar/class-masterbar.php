@@ -114,12 +114,12 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = $this->user_data['user_locale'];
+		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
+		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
+		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
+		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
 		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used

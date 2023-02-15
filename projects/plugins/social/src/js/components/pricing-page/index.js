@@ -60,16 +60,16 @@ const PricingPage = () => {
 				{ name: __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-social' ) },
 				{ name: __( 'Customize publications', 'jetpack-social' ) },
 				{
-					name: __( 'Engagement optimizer', 'jetpack-social' ),
+					name: __( 'Recycle content', 'jetpack-social' ),
 					tooltipInfo: __(
-						'Enhance social media engagement with personalized posts.',
+						'Repurpose, reuse or republish already published content.',
 						'jetpack-social'
 					),
 				},
 				{
-					name: __( 'Recycle content', 'jetpack-social' ),
+					name: __( 'Engagement optimizer', 'jetpack-social' ),
 					tooltipInfo: __(
-						'Repurpose, reuse or republish already published content.',
+						'Enhance social media engagement with personalized posts.',
 						'jetpack-social'
 					),
 				},
@@ -150,7 +150,7 @@ const PricingPage = () => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem />
+				<PricingTableItem isIncluded />
 				<PricingTableItem />
 				<PricingTableItem />
 				<PricingTableItem />
@@ -176,7 +176,7 @@ const PricingPage = () => {
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
 				<PricingTableItem isIncluded />
-				<PricingTableItem />
+				<PricingTableItem isIncluded />
 				<PricingTableItem />
 				<PricingTableItem />
 				<PricingTableItem />
