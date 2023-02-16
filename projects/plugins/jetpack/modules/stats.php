@@ -466,7 +466,7 @@ function stats_reset_nudge_handler() {
 	});
 	jQuery(document).ready(function($) {
 		let nonce = <?php echo wp_json_encode( $nonce ); ?>;
-		let url = '/wp-json/jetpack/v4/stats-app/stats/notices';
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
 		var data = {
 			id: 'opt_in_new_stats',
 			status: 'dismissed',
