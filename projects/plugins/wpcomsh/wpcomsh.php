@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.6.6
+ * Version: 3.6.7
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.6.6' );
+define( 'WPCOMSH_VERSION', '3.6.7' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -276,17 +276,6 @@ add_filter( 'jetpack_site_pending_automated_transfer', 'check_site_has_pending_a
 function require_lib( $slug ) {
 	if ( ! preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		return;
-	}
-
-	// these are whitelisted libraries that Jetpack has
-	$in_jetpack = array(
-		'tonesque',
-		'class.color',
-	);
-
-	// hand off to `jetpack_require_lib`, if possible.
-	if ( in_array( $slug, $in_jetpack, true ) && function_exists( 'jetpack_require_lib' ) ) {
-		return jetpack_require_lib( $slug );
 	}
 
 	$basename = basename( $slug );
