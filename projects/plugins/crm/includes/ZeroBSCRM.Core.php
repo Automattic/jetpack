@@ -1821,8 +1821,6 @@ final class ZeroBSCRM {
 			if ( $this->settings->get( 'killfrontend' ) == 1 ) {
 				global $pagenow;
 
-				// http://wordpress.stackexchange.com/questions/12863/check-if-were-on-the-wp-login-page
-				// } 2.0.2 also allow /wild stuff (e.g. welcome wiz)
 				if ( ! zeroBSCRM_isLoginPage()
 					&& ! zeroBSCRM_isWelcomeWizPage()
 					&& ! zeroBSCRM_isAPIRequest()
