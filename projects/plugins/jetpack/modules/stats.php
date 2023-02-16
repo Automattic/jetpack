@@ -469,7 +469,7 @@ function stats_reset_nudge_handler() {
 		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
 		var data = {
 			id: 'opt_in_new_stats',
-			status: 'dismissed',
+			status: 'postponed',
 		};
 		jQuery('#test-button-rest-two').click(function() {
 			jQuery.ajax({
