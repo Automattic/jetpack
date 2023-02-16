@@ -95,6 +95,10 @@ export async function tokenBridgeHandler(
 		{ targetOrigin: '*' }
 	);
 
+	if ( isRetry ) {
+		debug( '(%s) client retrying request. Flush the token.', context );
+	}
+
 	const tokenData = await getMediaToken( 'playback', {
 		id: Number( postId ),
 		guid,
