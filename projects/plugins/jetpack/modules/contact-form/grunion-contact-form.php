@@ -5218,14 +5218,6 @@ function grunion_delete_old_spam() {
  * @return null|void
  */
 function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	// Do not do anything if the submission is not from a block.
-	if (
-		! isset( $extra_values['is_block'] )
-		|| ! $extra_values['is_block']
-	) {
-		return;
-	}
-
 	/*
 	 * Event details.
 	 */
@@ -5235,6 +5227,16 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
 		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
 	);
+
+	// old deprecated attribute that should been removed in May 2020.
+	if (
+		! isset( $extra_values['is_block'] )
+		|| ! $extra_values['is_block']
+	) {
+		$event_props['is_block'] = 0;
+	} else {
+		$event_props['is_block'] = 1;
+	}
 
 	$post = get_post( $post_id );
 	if ( $post ) {
