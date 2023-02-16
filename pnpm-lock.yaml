@@ -1969,6 +1969,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/typography': 1.0.0
       '@babel/core': 7.20.12
@@ -1994,6 +1995,7 @@ importers:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
       '@automattic/typography': 1.0.0
       '@wordpress/components': 23.3.0_pjwopsidmaokadturxaafygjp4
       '@wordpress/data': 8.3.0_react@18.2.0

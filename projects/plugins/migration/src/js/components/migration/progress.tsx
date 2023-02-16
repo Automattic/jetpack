@@ -1,12 +1,12 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenLayout } from '@automattic/jetpack-connection';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useCallback } from 'react';
 import { MIGRATION_HANDLER_ROUTE } from '../constants';
-import useAnalytics from '../hooks/use-analytics';
 import { WordPressLogo } from '../illustrations';
 import migrationImage2 from './../../../../images/migration-2.png';
 import './styles.module.scss';
@@ -24,7 +24,7 @@ interface Props {
  */
 export function MigrationProgress( props: Props ) {
 	const { apiRoot, apiNonce, sourceSiteSlug } = props;
-	const { tracks } = useAnalytics( apiRoot, apiNonce );
+	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
@@ -32,7 +32,7 @@ export function MigrationProgress( props: Props ) {
 	}, [ apiRoot, apiNonce ] );
 
 	const onCheckProgressClick = useCallback( () => {
-		tracks.recordEvent( `wpcom_migration_check_progress_click`, { sourceSiteSlug } );
+		tracks.recordEvent( `jetpack_migration_check_progress_click`, { sourceSiteSlug } );
 	}, [ tracks, sourceSiteSlug ] );
 
 	return (
