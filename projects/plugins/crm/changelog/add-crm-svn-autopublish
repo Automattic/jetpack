@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Adding back a composer.json entry to allow svn auto publishing.
+
+
