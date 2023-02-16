@@ -5242,6 +5242,8 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	if ( $post ) {
 		$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
 		$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+	} else {
+		$event_props['no_post'] = 1;
 	}
 
 	/*

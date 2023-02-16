@@ -293,6 +293,8 @@ class Util {
 		if ( $post ) {
 			$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
 			$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+		} else {
+			$event_props['no_post'] = 1;
 		}
 
 		/*
