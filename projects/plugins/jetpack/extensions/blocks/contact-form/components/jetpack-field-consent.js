@@ -57,6 +57,7 @@ const JetpackFieldConsent = ( {
 						label={ __( 'Sync fields style', 'jetpack' ) }
 						checked={ attributes.shareFieldAttributes }
 						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+						help={ __( 'Deactivate for individual styling of this block', 'jetpack' ) }
 					/>
 				</PanelBody>
 				<PanelColorSettings
