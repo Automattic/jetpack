@@ -16,8 +16,8 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
 
-	const chosenFreePlan = writable( false );
-	const chosenPaidPlan = writable( false );
+	const initiatingFreePlan = writable( false );
+	const initiatingPaidPlan = writable( false );
 	const dismissedSnackbar = writable( false );
 
 	const snackbarMessage = derived(
@@ -35,19 +35,27 @@
 		}
 	);
 
+	const ensureConnection = async () => {
+		const connectionStore = get( connection );
+		if ( connectionStore.connected ) {
+			return;
+		}
+
+		await connection.initialize();
+
+		if ( ! connectionStore.connected ) {
+			throw connectionStore.error;
+		}
+	};
+
 	const chooseFreePlan = async () => {
-		chosenFreePlan.set( true );
+		initiatingFreePlan.set( true );
 
 		await Promise.all( [
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} ),
 			await ( async () => {
 				try {
-					await connection.initialize();
-
-					const connectionStore = get( connection );
-					if ( ! connectionStore.connected ) {
-						throw connectionStore.error;
-					}
+					await ensureConnection();
 
 					// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
 					markGetStartedComplete();
@@ -58,31 +66,26 @@
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
-					chosenFreePlan.set( false );
+					initiatingFreePlan.set( false );
 				}
 			} )(),
 		] );
 	};
 
 	const choosePaidPlan = async () => {
-		chosenPaidPlan.set( true );
+		initiatingPaidPlan.set( true );
 
 		await Promise.all( [
 			await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} ),
 			await ( async () => {
 				try {
-					await connection.initialize();
-
-					const connectionStore = get( connection );
-					if ( ! connectionStore.connected ) {
-						throw connectionStore.error;
-					}
+					await ensureConnection();
 
 					window.location.href = getUpgradeURL();
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
-					chosenPaidPlan.set( false );
+					initiatingPaidPlan.set( false );
 				}
 			} )(),
 		] );
@@ -112,8 +115,8 @@
 					{pricing}
 					onPremiumCTA={choosePaidPlan}
 					onFreeCTA={chooseFreePlan}
-					chosenFreePlan={$chosenFreePlan}
-					chosenPaidPlan={$chosenPaidPlan}
+					chosenFreePlan={$initiatingFreePlan}
+					chosenPaidPlan={$initiatingPaidPlan}
 					snackbarMessage={$snackbarMessage}
 					onSnackbarDismiss={() => dismissedSnackbar.set( true )}
 				/>
