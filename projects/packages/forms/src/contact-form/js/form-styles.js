@@ -1,7 +1,7 @@
 const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
 
-//Fallback in case the page load event takes to long to fire up
+//Fallback in case of the page load event takes too long to fire up
 const fallbackTimer = setTimeout( () => {
 	handleFormStyles();
 }, 3000 );
