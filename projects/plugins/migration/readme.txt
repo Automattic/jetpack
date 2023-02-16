@@ -1,4 +1,4 @@
-=== Jetpack Migration ===
+=== Move to WordPress.com ===
 Contributors: automattic,
 Tags: jetpack, stuff
 Requires at least: 6.0
@@ -8,11 +8,11 @@ Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Jetpack Migration plugin
+Move to WordPress.com plugin
 
 == Description ==
 
-A Jetpack plugin that helps users to migrate their sites to WordPress.com
+A WordPress plugin that helps users to migrate their sites to WordPress.com
 
 == Installation ==
 

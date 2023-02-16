@@ -3,7 +3,7 @@ import path from 'path';
 import process from 'process';
 import chalk from 'chalk';
 import Configstore from 'configstore';
-import execa from 'execa';
+import { execa } from 'execa';
 import inquirer from 'inquirer';
 import tmp from 'tmp';
 import { projectDir } from '../helpers/install.js';

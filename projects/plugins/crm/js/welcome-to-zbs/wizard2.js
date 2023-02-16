@@ -141,6 +141,8 @@ export function zbs_biz_select() {
 		zbs_crm_js_updatePage2();
 	}, 0 );
 }
+
+export var crm_name = '';
 /**
  *
  */
@@ -156,7 +158,7 @@ export function zbs_crm_name_change() {
 /**
  *
  */
-function zbs_crm_js_updatePage2() {
+export function zbs_crm_js_updatePage2() {
 	var b2bMode = jQuery( '#zbs_b2b' ).is( ':checked' );
 	var userType = jQuery( '#zbs_crm_type' ).val();
 	let userArea = 'smallbiz';
@@ -211,7 +213,7 @@ function zbs_crm_js_updatePage2() {
 /**
  *
  */
-function zbsJS_welcomeWizard_update_deets() {
+export function zbsJS_welcomeWizard_update_deets() {
 	window.zbsOptions.zbs_crm_name = jQuery( '#zbs_crm_name' ).val();
 	window.zbsOptions.zbs_crm_other = jQuery( '#zbs_other_details' ).val();
 	window.zbsOptions.zbs_crm_curr = jQuery( '#zbs_crm_curr' ).val();
@@ -232,4 +234,3 @@ function zbsJS_welcomeWizard_update_deets() {
 	window.zbsOptions.zbs_crm_email = jQuery( '#zbs_crm_email' ).val();
 	window.zbsOptions.zbs_crm_subscribed = jQuery( '#zbs_sub' ).is( ':checked' ) ? 1 : 0;
 }
-

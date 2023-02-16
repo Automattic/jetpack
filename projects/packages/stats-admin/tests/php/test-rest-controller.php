@@ -180,4 +180,91 @@ class Test_REST_Controller extends Stats_Test_Case {
 
 		$this->assertEquals( 400, $response->get_status() );
 	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_filter_and_build_query_string() {
+		$filter_and_build_query_string = new \ReflectionMethod( $this->rest_controller, 'filter_and_build_query_string' );
+		$filter_and_build_query_string->setAccessible( true );
+
+		$this->assertEquals(
+			'c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				),
+				array( 'a' )
+			)
+		);
+		$this->assertEquals(
+			'a=b&c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				)
+			)
+		);
+		$this->assertEquals(
+			'',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array()
+			)
+		);
+	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_get_wp_error() {
+		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
+		$get_wp_error->setAccessible( true );
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'error'   => 'err1',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err1',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code'    => 'err2',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err2',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code' => 'err2',
+			),
+			500
+		);
+		$this->assertEquals(
+			'unknown remote error',
+			$error->get_error_message()
+		);
+	}
 }
