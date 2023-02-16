@@ -340,8 +340,8 @@ function stats_reports_load() {
 	} elseif ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		// Normal page load.  Load page content via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
-		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
-		add_action( 'admin_footer', 'stats_reset_nudge_handler' );
+		add_action( 'admin_print_footer_scripts', 'stats_script_dismiss_nudge_handler' );
+		add_action( 'admin_print_footer_scripts', 'stats_script_reset_nudge_handler' );
 	}
 }
 
@@ -351,7 +351,7 @@ function stats_reports_load() {
  * @access public
  * @return void
  */
-function stats_reset_nudge_handler() {
+function stats_script_reset_nudge_handler() {
 	?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
@@ -384,10 +384,10 @@ function stats_reset_nudge_handler() {
  * @access public
  * @return void
  */
-function stats_handle_test_button_toggle() {
+function stats_script_dismiss_nudge_handler() {
 	?>
 	<script type="text/javascript">
-	function test_button_toggle() {
+	function stats_odyssey_dismiss_nudge() {
 		// Hide the nudge UI, effectively dismissing it.
 		var element = document.getElementById( "stats-odyssey-nudge-main" );
 		element.classList.toggle( "is-hidden" );
@@ -799,7 +799,7 @@ function stats_print_odyssey_nudge( $html ) {
 		}
 	</style>
 	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<button onclick="test_button_toggle()">X</button>
+		<button onclick="stats_odyssey_dismiss_nudge()">X</button>
 		<div class="stats-odyssey-nudge--content">
 			<h1>Explore the new Jetpack Stats</h1>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
