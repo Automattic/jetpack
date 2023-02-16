@@ -17,7 +17,7 @@ type Critical_CSS_Error_Type =
 	| 'EmptyCSSError'
 	| 'XFrameDenyError';
 
-interface CriticalCssErrorDetails {
+export interface CriticalCssErrorDetails {
 	url: string;
 	message: string;
 	meta: JSONObject;
