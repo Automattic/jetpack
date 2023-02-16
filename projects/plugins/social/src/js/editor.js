@@ -55,12 +55,7 @@ const JetpackSocialSidebar = () => {
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const {
-		isPublicizeEnabled,
-		hidePublicizeFeature,
-		isPostAlreadyShared,
-		isSocialImageGeneratorEnabled,
-	} = usePublicizeConfig();
+	const { isPublicizeEnabled, hidePublicizeFeature, isPostAlreadyShared } = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	// Determine if the review request should show right before the post publishes
 	// The publicize-enabled meta and related connections are disabled after publishing
@@ -110,7 +105,6 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				{ isSocialImageGeneratorEnabled && <div>SIG</div> }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
