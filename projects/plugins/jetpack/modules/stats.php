@@ -49,7 +49,6 @@ function stats_load() {
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-	add_action( 'rest_api_init', 'register_endpoints_for_nudge' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -64,59 +63,6 @@ function stats_load() {
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
-}
-
-/**
- * Register endpoint for Odyssey nudge.
- *
- * @access public
- * @return void
- */
-function register_endpoints_for_nudge() {
-	register_rest_route(
-		'jetpack/v4',
-		'/stats/nudge',
-		array(
-			'methods'  => 'POST',
-			'callback' => 'odyssey_nudge_handler',
-		)
-	);
-}
-
-/**
- * Handler for Odyssey nudge.
- *
- * @access public
- * @return mixed
- */
-function odyssey_nudge_handler() {
-	$action        = isset( $_POST['action'] ) ? $_POST['action'] : '';
-	$stats_notices = new StatsNotices();
-	if ( $action === 'odyssey-reset-nudge' ) {
-		$stats_notices->update_notice(
-			StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID,
-			StatsNotices::NOTICE_STATUS_POSTPONED,
-			25
-		);
-		return rest_ensure_response(
-			new WP_REST_Response(
-				array(
-					'status'     => 200,
-					'time-stamp' => time(),
-					'message'    => 'reset nudge',
-				)
-			)
-		);
-	}
-	// Nothing to do here. Should never be called.
-	return rest_ensure_response(
-		new WP_REST_Response(
-			array(
-				'status'  => 200,
-				'message' => 'ingored request',
-			)
-		)
-	);
 }
 
 /**
