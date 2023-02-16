@@ -13,7 +13,6 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Cloud_CSS_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Request_Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
-use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Cloud_CSS implements Feature, Has_Endpoints {
 
@@ -42,7 +41,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
-		REST_API::register( $this->get_endpoints() );
 		Critical_CSS_Invalidator::init();
 		Cloud_CSS_Cron::init();
 
@@ -59,13 +57,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			new Update_Cloud_CSS(),
 			new Cloud_CSS_Status(),
 		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setup_trigger() {
-		return 'init';
 	}
 
 	public function display_critical_css() {

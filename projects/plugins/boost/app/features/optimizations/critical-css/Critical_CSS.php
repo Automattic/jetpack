@@ -19,7 +19,6 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
-use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Critical_CSS implements Feature, Has_Endpoints {
 
@@ -67,8 +66,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		CSS_Proxy::init();
 
 		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
-
-		REST_API::register( $this->get_endpoints() );
 
 		// Admin Notices
 		Regenerate_Admin_Notice::init();
@@ -166,12 +163,5 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			Recommendations_Reset::class,
 			Generator_Error::class,
 		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setup_trigger() {
-		return 'init';
 	}
 }
