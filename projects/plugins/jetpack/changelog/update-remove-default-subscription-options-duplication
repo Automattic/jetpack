@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Reading Settings: Remove duplication of defining default subscription_options
