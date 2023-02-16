@@ -32,7 +32,9 @@ export function MigrationProgress( props: Props ) {
 	}, [ apiRoot, apiNonce ] );
 
 	const onCheckProgressClick = useCallback( () => {
-		tracks.recordEvent( `jetpack_migration_check_progress_click`, { sourceSiteSlug } );
+		tracks.recordEvent( `jetpack_migration_check_progress_click`, {
+			source_site_slug: sourceSiteSlug,
+		} );
 	}, [ tracks, sourceSiteSlug ] );
 
 	return (

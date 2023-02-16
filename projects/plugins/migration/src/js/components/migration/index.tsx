@@ -74,8 +74,9 @@ export function Migration( props: Props ) {
 
 	const onGetStartedClick = useCallback(
 		( e: Event ) => {
-			tracks.recordEvent( `jetpack_migration_get_started_click`, { sourceSiteSlug } );
-
+			tracks.recordEvent( `jetpack_migration_get_started_click`, {
+				source_site_slug: sourceSiteSlug,
+			} );
 			// If it's fully connected, href attribute is the final destination
 			if ( ! isFullyConnected ) {
 				handleRegisterSite( e );
