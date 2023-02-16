@@ -681,7 +681,9 @@ function stats_reports_page( $main_chart_only = false ) {
  */
 function stats_print_header_section( $html ) {
 	$header = stats_parse_header_section( $html );
-	echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( $header !== '' ) {
+		echo $header; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 }
 
 /**
@@ -693,7 +695,9 @@ function stats_print_header_section( $html ) {
  */
 function stats_print_content_section( $html ) {
 	$content = stats_parse_content_section( $html );
-	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	if ( $content !== '' ) {
+		echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 }
 
 /**
@@ -748,8 +752,13 @@ function stats_content_marker() {
  * @return string
  */
 function stats_parse_header_section( $html ) {
-	$b = stats_content_marker();
-	return strstr( $html, $b, true );
+	$mark = stats_content_marker();
+	$head = strstr( $html, $mark, true );
+	// Enforce a string result instead of string|false.
+	if ( $head === false ) {
+		return '';
+	}
+	return $head;
 }
 
 /**
@@ -764,8 +773,13 @@ function stats_parse_header_section( $html ) {
 function stats_parse_content_section( $html ) {
 	// TODO: Skip past gotonewdash DIV.
 	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$b = stats_content_marker();
-	return strstr( $html, $b );
+	$mark = stats_content_marker();
+	$body = strstr( $html, $mark );
+	// Enforce a string result instead of string|false.
+	if ( $body === false ) {
+		return '';
+	}
+	return $body;
 }
 
 /**
