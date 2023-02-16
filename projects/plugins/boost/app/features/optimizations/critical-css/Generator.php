@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
@@ -98,9 +97,10 @@ class Generator {
 	 * @return array
 	 */
 	public function get_issues() {
+
 		$providers_errors = $this->state->get_providers_errors();
-		$issue_status = $this->state->get_provider_issue_status();
-		$issues = [];
+		$issue_status     = $this->state->get_provider_issue_status();
+		$issues           = array();
 		foreach ( $providers_errors as $provider => $url_errors ) {
 			$errors = array();
 			foreach ( $url_errors as $url => $error ) {
@@ -109,13 +109,13 @@ class Generator {
 			}
 			$label = $this->describe_provider_key( $provider );
 
-			$status   = !empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
-			$issues[] = [
+			$status   = ! empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
+			$issues[] = array(
 				'provider_name' => $label,
 				'key'           => $provider,
 				'status'        => $status,
 				'errors'        => $errors,
-			];
+			);
 		}
 
 		return $issues;
@@ -161,7 +161,7 @@ class Generator {
 			$generate_nonce = sanitize_key(
 				$_GET[ self::GENERATE_QUERY_ACTION ]
 			);
-		} else if ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
+		} elseif ( ! empty( $_SERVER['HTTP_X_GENERATE_CRITICAL_CSS'] ) ) {
 			$generate_nonce = sanitize_key(
 				$_SERVER['HTTP_X_GENERATE_CRITICAL_CSS']
 			);

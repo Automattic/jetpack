@@ -111,16 +111,17 @@ class Critical_CSS_State {
 		return $this->collate_column( 'issue_status' );
 	}
 	public function set_provider_issue_status( $provider_key, $status ) {
-		$valid_statuses = array( 'dismissed', 'active');
-		if( ! in_array( $status, $valid_statuses, true ) ) {
+		$valid_statuses = array( 'dismissed', 'active' );
+		if ( ! in_array( $status, $valid_statuses, true ) ) {
 			return;
 		}
+
 		$this->sources[ $provider_key ]['issue_status'] = $status;
 		$this->save();
 	}
 
 	public function reset_provider_issue_status() {
-		foreach( $this->sources as $provider_key => $source ) {
+		foreach ( $this->sources as $provider_key => $source ) {
 			$this->sources[ $provider_key ]['issue_status'] = 'active';
 		}
 		$this->save();
