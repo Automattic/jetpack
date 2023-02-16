@@ -1052,3 +1052,31 @@ function subscription_options_fallback( $default, $option, $passed_default ) {
 }
 
 add_filter( 'default_option_subscription_options', 'subscription_options_fallback', 10, 3 );
+
+/**
+ * Validate settings for the Subscriptions module.
+ *
+ * @param array $settings Settings to be validated.
+ */
+function sanitize_subscription_options( $settings ) {
+	global $allowedposttags;
+
+	$default = subscription_options_fallback( null, 'subscription_options', false );
+
+	// Blog Follow.
+	$settings['invitation'] = trim( wp_kses( $settings['invitation'], $allowedposttags ) );
+	if ( empty( $settings['invitation'] ) ) {
+		$settings['invitation'] = $default['invitation'];
+	}
+
+	// Comments Follow (single post).
+	$settings['comment_follow'] = trim( wp_kses( $settings['comment_follow'], $allowedposttags ) );
+	if ( empty( $settings['comment_follow'] ) ) {
+		$settings['comment_follow'] = $default['comment_follow'];
+	}
+
+	return $settings;
+}
+
+add_filter( 'sanitize_option_subscription_options', 'sanitize_subscription_options', 10, 3 );
+
