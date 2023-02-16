@@ -11,14 +11,14 @@ use Automattic\Jetpack\Waf\Waf_Runner;
 /**
  * Activation tests.
  */
-final class WafActivationTest extends PHPUnit\Framework\TestCase {
+final class WafActivationTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Test setup.
 	 *
 	 * @before
 	 */
-	protected function before() {
+	protected function set_up() {
 		// Set a blog token and id so the site is connected.
 		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
 		Jetpack_Options::update_option( 'id', 1234 );
