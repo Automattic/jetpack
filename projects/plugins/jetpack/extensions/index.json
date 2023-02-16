@@ -39,6 +39,7 @@
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
+		"videopress/video",
 		"wordads",
 		"payments-intro",
 		"post-publish-qr-post-panel",
@@ -53,7 +54,6 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
-		"videopress/video",
 		"videopress/video-chapters"
 	],
 	"experimental": [
