@@ -16,7 +16,7 @@ class Recommendations_Reset implements Endpoint {
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
 		$state = new Critical_CSS_State();
-		$state->reset_provider_issues();
+		$state->reset_provider_issue_status();
 		wp_send_json_success();
 	}
 
