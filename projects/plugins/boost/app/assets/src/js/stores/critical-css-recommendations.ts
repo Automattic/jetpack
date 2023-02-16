@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
+import { criticalCssStatus } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 
 type Critical_CSS_Error_Type =
@@ -43,9 +44,9 @@ export type ErrorSet = {
 	};
 };
 
-const initialIssues: CriticalCssIssue[] = Jetpack_Boost?.criticalCSS?.status?.issues;
-
-const issuesStore = writable< CriticalCssIssue[] >( initialIssues || [] );
+const issuesStore = derived( criticalCssStatus, $status => {
+	return $status.issues || [];
+} );
 
 const dismissalErrorStore = writable( null );
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };

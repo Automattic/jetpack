@@ -1,6 +1,7 @@
 import { derived, writable } from 'svelte/store';
 import api from '../api/api';
 import { modules } from './modules';
+import type { CriticalCssIssue } from './critical-css-recommendations';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
@@ -21,6 +22,7 @@ export interface CriticalCssStatus {
 	success_count?: number;
 	created?: number;
 	viewports?: Viewport[];
+	issues?: CriticalCssIssue[];
 }
 
 const SUCCESS = 'success';
