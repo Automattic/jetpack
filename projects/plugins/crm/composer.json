@@ -37,7 +37,7 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_4_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_5_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -46,7 +46,7 @@
 	"require": {
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.1",
+		"dompdf/dompdf": "2.0.3",
 		"automattic/jetpack-composer-plugin": "@dev"
 	},
 	"repositories": [
@@ -60,14 +60,15 @@
 	],
 	"minimum-stability": "dev",
 	"extra": {
-		"autotagger": true,
+		"autotagger": {
+			"v": false
+		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/zero-bs-crm/compare/v${old}...v${new}"
 		},
 		"release-branch-prefix": "crm",
-		"wp-plugin-slug": "zero-bs-crm",
-		"wp-svn-autopublish": true
+		"wp-plugin-slug": "zero-bs-crm"
 	}
 }

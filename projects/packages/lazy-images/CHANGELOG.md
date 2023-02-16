@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
 ## [2.1.30] - 2023-01-26
 ### Changed
 - Minor internal updates.
@@ -285,6 +289,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Lazy Images: Move into a package
 
+[2.1.31]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.30...v2.1.31
 [2.1.30]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.29...v2.1.30
 [2.1.29]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.28...v2.1.29
 [2.1.28]: https://github.com/Automattic/jetpack-lazy-images/compare/v2.1.27...v2.1.28

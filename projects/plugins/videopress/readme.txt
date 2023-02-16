@@ -4,7 +4,7 @@ Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, 
 
 Requires at least: 6.0
 Tested up to: 6.1
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,34 +73,31 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.3.0 - 2023-01-18
+### 1.4.0 - 2023-02-15
 #### Added
-- Added Replace Control to the block
-- Added anchor support to the block
-- Added rating selector on video details edit page
-- Added "publish first video" popover
-- Added embed block transform from/to video block
-- Added "Show video sharing menu" control to VideoPress block
-- Added VideoPress shortcode
-- Added privacy to the edit details page
+- Added connect banner to video block when required
+- Added Share and Download sections to the video details page
+- Added site default privacy in video block privacy control
+- Added manual conversion panel to video block sidebar
+- Added Preload Metadata control to the video block Playback panel
 
 #### Changed
-- Updated no video dashboard UI
-- Updated footer of the uploader component
-- Enhanced behavior when deleting multiple videos
-- Filtered the video fields that re-render the player when changed
+- Updated package dependencies
+- Updated video block transform to/from embed block
+- Updated layout of video block when uploading a new file
+- Updated videos gallery rendering with page and search parameters
+- Updated chapters parser limitations
+- Updated data request of private videos
+- Updated the request handling when a user is not connected
 
 #### Removed
-- Removed src/client files from the final bundle
-- Removed video chapters block
+- Removed prompt to convert embed block to video block
 
 #### Fixed
-- Fixed layout visual issues
-- Fixed issues when setting the video block video from the media library
-- Fixed video attributes not being cleaned when replacing a video file
-- Fixed duplicate uploads when replacing a video
-- Fixed local videos listed as VideoPress videos
-- Fixed player not rendering once file uploads
-- Fixed title and description rendering on the block
-- Fixed exception when deleting the last video of the page
+- Fixed adding videos from the WordPress.com media library
+- Fixed minor visual issues of the video block
+- Fixed uploading video tracks for private videos
+- Fixed error when local videos cannot be read
+- Fixed block visualization for private videos
+- Fixed custom CSS classes removed issue
 
