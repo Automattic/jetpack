@@ -43,7 +43,7 @@ export type ErrorSet = {
 	};
 };
 
-const initialIssues: CriticalCssIssue[] = Jetpack_Boost.criticalCSS.status?.issues;
+const initialIssues: CriticalCssIssue[] = Jetpack_Boost?.criticalCSS?.status?.issues;
 
 const issuesStore = writable< CriticalCssIssue[] >( initialIssues );
 
