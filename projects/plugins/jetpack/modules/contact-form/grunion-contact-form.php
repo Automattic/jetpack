@@ -5236,6 +5236,12 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
 	);
 
+	$post = get_post( $post_id );
+	if ( $post ) {
+		$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
+		$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+	}
+
 	/*
 	 * Record event.
 	 * We use different libs on wpcom and Jetpack.
