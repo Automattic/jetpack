@@ -342,8 +342,6 @@ function stats_reports_load() {
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_handle_test_button_toggle' );
 		add_action( 'admin_footer', 'stats_reset_nudge_handler' );
-
-		wp_localize_script( 'my-ajax-handle', 'the_ajax_script', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
 	}
 }
 
