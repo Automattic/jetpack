@@ -17,7 +17,7 @@ declare global {
 	};
 
 	// Constants provided by the plugin.
-	const Jetpack_Boost: Refactoring_Critical_CSS_Recommendations & {
+	const Jetpack_Boost: {
 		preferences: {
 			showRatingPrompt: boolean;
 			showScorePrompt: boolean;
