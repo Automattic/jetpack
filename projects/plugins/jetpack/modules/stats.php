@@ -847,8 +847,7 @@ function stats_print_odyssey_nudge( $html ) {
  */
 function stats_settings_url() {
 	$i18n_headers = jetpack_get_module_i18n( 'stats' );
-	$url          = admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) );
-	return $url;
+	return admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) );
 }
 
 /**
