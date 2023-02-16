@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Moving deleting connection owner notice from JITM to Connection package.
