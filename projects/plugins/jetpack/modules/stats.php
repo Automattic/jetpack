@@ -704,12 +704,25 @@ function stats_print_content_section( $html ) {
  * @return void
  */
 function stats_print_chart_scripts( $html ) {
-	$b = stats_content_marker();
-	$i = strpos( $html, $b );
-	if ( $i > 0 ) {
-		return;
+	if ( is_chart_scripts( $html ) ) {
+		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
-	echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+/**
+ * Legacy Stats: Test for presence of chart scripts
+ *
+ * @access public
+ * @param mixed $html Input HTML that may or may not include the chart scripts.
+ * @return bool
+ */
+function is_chart_scripts( $html ) {
+	$str = stats_content_marker();
+	$pos = strpos( $html, $str );
+	if ( $pos === false ) {
+		return true;
+	}
+	return false;
 }
 
 /**
