@@ -108,43 +108,6 @@ function odyssey_nudge_handler() {
 			)
 		);
 	}
-	if ( $action === 'odyssey-dismiss-nudge' ) {
-		$stats_notices->update_notice(
-			StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID,
-			StatsNotices::NOTICE_STATUS_POSTPONED
-		);
-		return rest_ensure_response(
-			new WP_REST_Response(
-				array(
-					'status'     => 200,
-					'time-stamp' => time(),
-					'message'    => 'dismissed nudge',
-				)
-			)
-		);
-	}
-	if ( $action === 'odyssey-rest-one' ) {
-		return rest_ensure_response(
-			new WP_REST_Response(
-				array(
-					'status'     => 200,
-					'time-stamp' => time(),
-					'message'    => 'rest one',
-				)
-			)
-		);
-	}
-	if ( $action === 'odyssey-rest-two' ) {
-		return rest_ensure_response(
-			new WP_REST_Response(
-				array(
-					'status'     => 200,
-					'time-stamp' => time(),
-					'message'    => 'rest two',
-				)
-			)
-		);
-	}
 	// Nothing to do here. Should never be called.
 	return rest_ensure_response(
 		new WP_REST_Response(
@@ -452,36 +415,6 @@ function stats_reset_nudge_handler() {
 			});
 		});
 	});
-	jQuery(document).ready(function($) {
-		let url = '/wp-json/jetpack/v4/stats/nudge';
-		var data = {
-			'action': 'odyssey-rest-one',
-		};
-		jQuery('#test-button-rest-one').click(function() {
-			jQuery.post(url, data, function(response) {
-				console.log(response);
-			});
-		});
-	});
-	jQuery(document).ready(function($) {
-		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
-		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
-		var data = {
-			id: 'opt_in_new_stats',
-			status: 'postponed',
-		};
-		jQuery('#test-button-rest-two').click(function() {
-			jQuery.ajax({
-				type: "POST",
-				url: url,
-				data: data,
-				headers: { "x-wp-nonce": nonce },
-				success: function(response) {
-					console.log(response);
-				}
-			});
-		});
-	});
 	</script>
 	<?php
 }
@@ -637,7 +570,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
 				<div style="display: visible;">
-					<p><button id="test-button-reset-nudge">Reset Nudge</button> | <button id="test-button-rest-one">Test REST 1</button> | <button id="test-button-rest-two">Test REST 2</button></p>
+					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
 				</div>
 				<?php
 				endif;
