@@ -2,7 +2,6 @@ import logger from 'jetpack-e2e-commons/logger.cjs';
 import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 import { expect } from '@playwright/test';
-import { JetpackBoostPage } from '../pages/index.js';
 
 export function boostPrerequisitesBuilder( page ) {
 	const state = {
@@ -53,7 +52,7 @@ export function boostPrerequisitesBuilder( page ) {
 async function buildPrerequisites( state, page ) {
 	const functions = {
 		modules: () => ensureModulesState( state.modules ),
-		connected: () => ensureConnectedState( state.connected, page ),
+		connected: () => ensureConnectedState( state.connected ),
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
@@ -125,14 +124,14 @@ export async function deactivateModules( modules ) {
 	}
 }
 
-export async function ensureConnectedState( requiredConnected = undefined, page ) {
+export async function ensureConnectedState( requiredConnected = undefined ) {
 	const isConnected = await checkIfConnected();
 
 	if ( requiredConnected && isConnected ) {
 		logger.prerequisites( 'Jetpack Boost is already connected, moving on' );
 	} else if ( requiredConnected && ! isConnected ) {
 		logger.prerequisites( 'Connecting Jetpack Boost' );
-		await connect( page );
+		await connect();
 	} else if ( ! requiredConnected && isConnected ) {
 		logger.prerequisites( 'Disconnecting Jetpack Boost' );
 		await disconnect();
@@ -141,13 +140,11 @@ export async function ensureConnectedState( requiredConnected = undefined, page 
 	}
 }
 
-export async function connect( page ) {
+export async function connect() {
 	logger.prerequisites( `Connecting Boost plugin to WP.com` );
-	// Boost cannot be connected to WP.com using the WP-CLI because the site is considered
-	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
-	const jetpackBoostPage = await JetpackBoostPage.visit( page );
-	await jetpackBoostPage.connect();
-	await jetpackBoostPage.isOverallScoreHeaderShown();
+	const cliCmd = 'jetpack-boost connection activate';
+	const result = await execWpCommand( cliCmd );
+	expect( result ).toEqual( 'Success: Boost is connected from WP.com' );
 }
 
 export async function disconnect() {
