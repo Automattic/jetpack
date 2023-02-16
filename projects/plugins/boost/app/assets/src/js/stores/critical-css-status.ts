@@ -192,6 +192,13 @@ export function setError(): void {
 	} ) );
 }
 
+export function updateIssues( issues: CriticalCssIssue[] ): void {
+	return update( state => ( {
+		...state,
+		issues,
+	} ) );
+}
+
 export const criticalCssStatus = {
 	subscribe,
 };

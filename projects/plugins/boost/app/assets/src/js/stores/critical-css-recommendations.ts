@@ -1,9 +1,9 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { criticalCssStatus } from './critical-css-status';
+import { criticalCssStatus, updateIssues } from './critical-css-status';
 import type { JSONObject } from '../utils/json-types';
 
 type Critical_CSS_Error_Type =
@@ -127,12 +127,13 @@ export async function clearDismissedIssues(): Promise< void > {
 	await api.post( '/recommendations/reset', {
 		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
 	} );
-	issuesStore.update( issues => {
-		return issues.map( issue => {
+	const issues = get( issuesStore );
+	updateIssues(
+		issues.map( issue => {
 			issue.status = 'active';
 			return issue;
-		} );
-	} );
+		} )
+	);
 }
 
 /**
@@ -189,13 +190,12 @@ export function groupKey( error: CriticalCssErrorDetails ) {
  * @param {string} key Key of recommendation to dismiss.
  */
 export async function dismissIssue( key: string ): Promise< void > {
-	issuesStore.update( issues => {
-		const issue = issues.find( el => el.key === key );
-		if ( issue ) {
-			issue.status = 'dismissed';
-		}
-		return issues;
-	} );
+	const issues = get( issuesStore );
+	const issue = issues.find( el => el.key === key );
+	if ( issue ) {
+		issue.status = 'dismissed';
+		updateIssues( issues );
+	}
 	try {
 		await api.post( '/recommendations/dismiss', {
 			providerKey: key,
