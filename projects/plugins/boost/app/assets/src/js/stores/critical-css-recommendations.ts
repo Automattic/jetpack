@@ -45,7 +45,7 @@ export type ErrorSet = {
 
 const initialIssues: CriticalCssIssue[] = Jetpack_Boost?.criticalCSS?.status?.issues;
 
-const issuesStore = writable< CriticalCssIssue[] >( initialIssues );
+const issuesStore = writable< CriticalCssIssue[] >( initialIssues || [] );
 
 const dismissalErrorStore = writable( null );
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
@@ -54,15 +54,21 @@ export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
  * Derived datastore: contains the number of provider keys which failed in the
  * latest Critical CSS generation run.
  */
-export const failedProviderKeyCount = derived( issuesStore, $issues =>
-	$issues.reduce( ( acc, curr ) => ( curr.errors.length > 0 ? acc + 1 : acc ), 0 )
-);
+export const failedProviderKeyCount = derived( issuesStore, $issues => {
+	if ( $issues.length === 0 ) {
+		return 0;
+	}
+	return $issues.reduce( ( acc, curr ) => ( curr.errors.length > 0 ? acc + 1 : acc ), 0 );
+} );
 
 /**
  * Store used to track Critical CSS Recommendations which have been dismissed.
  * Exported as a read-only store.
  */
 export const dismissedIssues = derived( issuesStore, $issues => {
+	if ( $issues.length === 0 ) {
+		return [];
+	}
 	return $issues.filter( r => r.status === 'dismissed' );
 } );
 
@@ -70,6 +76,9 @@ export const dismissedIssues = derived( issuesStore, $issues => {
  * Derived store containing Critical CSS recommendations which have not been dismissed.
  */
 export const activeIssues = derived( issuesStore, $issues => {
+	if ( $issues.length === 0 ) {
+		return [];
+	}
 	return $issues.filter( r => r.status === 'active' );
 } );
 
