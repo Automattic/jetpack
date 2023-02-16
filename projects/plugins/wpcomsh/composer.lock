@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "653c6403f70de2673ccf922ed945a50e",
+    "content-hash": "dbeae7275dfdca0d773dd67d728f6cfb",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -345,16 +345,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.0.0",
+            "version": "v2.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "b5f6f42b3cf13dc792e573740fce2616309894bd"
+                "reference": "27be09ee48fa412ab75d4bfc134931175309e962"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/b5f6f42b3cf13dc792e573740fce2616309894bd",
-                "reference": "b5f6f42b3cf13dc792e573740fce2616309894bd",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/27be09ee48fa412ab75d4bfc134931175309e962",
+                "reference": "27be09ee48fa412ab75d4bfc134931175309e962",
                 "shasum": ""
             },
             "require": {
@@ -393,7 +393,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2023-02-15T14:21:38+00:00"
+            "time": "2023-02-16T12:46:13+00:00"
         },
         {
             "name": "composer/installers",
@@ -2305,5 +2305,5 @@
     "platform-dev": {
         "php": ">=7.0.0"
     },
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }
