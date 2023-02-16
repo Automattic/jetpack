@@ -112,7 +112,6 @@ export default function VideoPressEdit( {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		guid,
-		id,
 		cacheHtml,
 		poster,
 		align,
@@ -149,7 +148,7 @@ export default function VideoPressEdit( {
 			return setToken( null );
 		}
 
-		getMediaToken( 'playback', { id, guid } ).then( tokenData => {
+		getMediaToken( 'playback', { guid } ).then( tokenData => {
 			setToken( tokenData?.token );
 		} );
 	}, [ isPrivate ] );
