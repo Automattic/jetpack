@@ -3112,6 +3112,11 @@ function zeroBS___________DAL30Helpers(){return;}
 		                        $retArray[$outputPrefix.$fK] = intval($retArray[$outputPrefix.$fK]);
 		                        break;
 
+						case 'textarea':
+							// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$retArray[ $outputPrefix . $fK ] = sanitize_textarea_field( $arraySource[ $fieldPrefix . $fK ] );
+							break;
+
 		                    case 'date':
 
 		                        $retArray[$outputPrefix.$fK] = sanitize_text_field($arraySource[$fieldPrefix.$fK]);
