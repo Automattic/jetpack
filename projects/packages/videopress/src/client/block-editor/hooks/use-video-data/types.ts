@@ -29,5 +29,4 @@ export type VideoDataProps = {
 export type UseVideoDataProps = {
 	videoData: VideoDataProps;
 	isRequestingVideoData: boolean;
-	isOverwriteChapterAllowed: boolean;
 };
