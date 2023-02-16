@@ -7,7 +7,7 @@ export type ConnectionStatus = {
 	isConnecting: boolean;
 	connected: boolean;
 	userConnected: boolean;
-	error: null | string;
+	error: null | Error;
 };
 
 const initialState = Jetpack_Boost.connection;

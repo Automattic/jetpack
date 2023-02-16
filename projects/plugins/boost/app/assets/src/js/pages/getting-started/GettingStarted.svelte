@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { get, writable } from 'svelte/store';
+	import { derived, get, writable } from 'svelte/store';
+	import { ApiError } from '../../api/api-error';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -17,6 +18,22 @@
 
 	const chosenFreePlan = writable( false );
 	const chosenPaidPlan = writable( false );
+	const dismissedSnackbar = writable( false );
+
+	const snackbarMessage = derived(
+		[ connection, dismissedSnackbar ],
+		( [ $connection, $dismissedSnackbar ] ) => {
+			if ( ! ( $dismissedSnackbar || $connection.connected ) && $connection.error?.message ) {
+				if ( $connection.error instanceof ApiError ) {
+					return $connection.error.getDisplayBody();
+				}
+
+				return $connection.error.message;
+			}
+
+			return null;
+		}
+	);
 
 	const chooseFreePlan = async () => {
 		chosenFreePlan.set( true );
@@ -29,7 +46,7 @@
 
 					const connectionStore = get( connection );
 					if ( ! connectionStore.connected ) {
-						throw new Error( connectionStore.error );
+						throw connectionStore.error;
 					}
 
 					// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
@@ -39,8 +56,7 @@
 					await updateModuleState( 'critical-css', true );
 					navigate( '/' );
 				} catch ( e ) {
-					// eslint-disable-next-line no-console
-					console.error( e );
+					dismissedSnackbar.set( false );
 				} finally {
 					chosenFreePlan.set( false );
 				}
@@ -59,13 +75,12 @@
 
 					const connectionStore = get( connection );
 					if ( ! connectionStore.connected ) {
-						throw new Error( connectionStore.error );
+						throw connectionStore.error;
 					}
 
 					window.location.href = getUpgradeURL();
 				} catch ( e ) {
-					// eslint-disable-next-line no-console
-					console.error( e );
+					dismissedSnackbar.set( false );
 				} finally {
 					chosenPaidPlan.set( false );
 				}
@@ -99,6 +114,8 @@
 					onFreeCTA={chooseFreePlan}
 					chosenFreePlan={$chosenFreePlan}
 					chosenPaidPlan={$chosenPaidPlan}
+					snackbarMessage={$snackbarMessage}
+					onSnackbarDismiss={() => dismissedSnackbar.set( true )}
 				/>
 			</div>
 		</div>
