@@ -112,7 +112,6 @@ export default function VideoPressEdit( {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		guid,
-		id,
 		cacheHtml,
 		poster,
 		align,
@@ -123,13 +122,6 @@ export default function VideoPressEdit( {
 		caption,
 		isExample,
 	} = attributes;
-
-	/*
-	 * Force className cleanup.
-	 * It adds ` wp-embed-aspect-21-9 wp-has-aspect-ratio` classes
-	 * when transforming from embed block.
-	 */
-	delete attributes.className;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -156,7 +148,7 @@ export default function VideoPressEdit( {
 			return setToken( null );
 		}
 
-		getMediaToken( 'playback', { id, guid } ).then( tokenData => {
+		getMediaToken( 'playback', { guid } ).then( tokenData => {
 			setToken( tokenData?.token );
 		} );
 	}, [ isPrivate ] );
@@ -177,11 +169,13 @@ export default function VideoPressEdit( {
 			return;
 		}
 
-		const queryString = token
-			? `?${ new URLSearchParams( { metadata_token: token } ).toString() }`
-			: '';
+		let queryString = '';
+		if ( token ) {
+			queryString = '?' + new URLSearchParams( { metadata_token: token } ).toString();
+		}
 
-		const chapterUrl = `https://videos.files.wordpress.com/${ guid }/${ chapter.src }${ queryString }`;
+		const chapterUrl =
+			'https://videos.files.wordpress.com/' + guid + '/' + chapter.src + queryString;
 
 		try {
 			fetch( chapterUrl )

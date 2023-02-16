@@ -6,24 +6,6 @@
  */
 
 /**
- * Returns the location of Jetpack's lib directory. This filter is applied
- * in require_lib().
- *
- * @since 4.0.2
- * @deprecated since 11.3 Use `JETPACK__PLUGIN_DIR . '_inc/lib/'` instead.
- * @todo Remove this in Jetpack 11.9 (started issuing warnings in 11.6).
- *
- * @return string Location of Jetpack library directory.
- *
- * @filter require_lib_dir
- */
-function jetpack_require_lib_dir() {
-	_deprecated_function( __FUNCTION__, 'Jetpack 11.3', '`JETPACK__PLUGIN_DIR . \'_inc/lib/\'`' );
-	return JETPACK__PLUGIN_DIR . '_inc/lib';
-}
-add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
-
-/**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
  * code debug mode, it shouldn't use minified assets. Note that this filter is not being used
  * in every place where assets are enqueued. The filter is added at priority 9 to be overridden
@@ -53,7 +35,6 @@ require_once JETPACK__PLUGIN_DIR . 'functions.global.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.compat.php';
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-gallery-settings.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.cookies.php';
-require_once JETPACK__PLUGIN_DIR . 'require-lib.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';

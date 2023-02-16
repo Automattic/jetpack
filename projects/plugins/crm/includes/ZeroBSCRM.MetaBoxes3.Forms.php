@@ -107,7 +107,7 @@
 
                 ?>
 
-               script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
+				<script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
                 
                 <table class="form-table wh-metatab wptbp">
                 <?php foreach ($zbsFormFields as $fieldK => $fieldV){

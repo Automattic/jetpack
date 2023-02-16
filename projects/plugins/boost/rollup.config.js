@@ -166,7 +166,6 @@ export default [
 					'createPortal',
 					'findDOMNode',
 					'render',
-					'unmountComponentAtNode',
 					'createRef',
 					'memo',
 					'useImperativeHandle',

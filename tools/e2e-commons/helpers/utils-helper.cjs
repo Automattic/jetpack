@@ -3,7 +3,6 @@ const config = require( 'config' );
 const fetch = require( 'node-fetch' );
 const fs = require( 'fs' );
 const path = require( 'path' );
-const shellescape = require( 'shell-escape' );
 const logger = require( '../logger.cjs' );
 const { join } = require( 'path' );
 const { E2E_DEBUG } = process.env;
@@ -45,40 +44,6 @@ async function resetWordpressInstall() {
 	const cmd = 'pnpm e2e-env reset';
 	await cancelPartnerPlan();
 	execSyncShellCommand( cmd );
-}
-
-/**
- * Provisions Jetpack plan and connects the site through Jetpack Start flow
- *
- * @param {number} userId WPCOM user ID
- * @param {string} plan   One of free, personal, premium, or professional.
- * @param {string} user   Local user name, id, or e-mail
- * @return {string} authentication URL
- */
-async function provisionJetpackStartConnection( userId, plan = 'free', user = 'wordpress' ) {
-	logger.info( `Provisioning Jetpack start connection [userId: ${ userId }, plan: ${ plan }]` );
-	const [ clientID, clientSecret ] = config.get( 'jetpackStartSecrets' );
-
-	const cmd = `sh ${ path.resolve(
-		__dirname,
-		'../../partner-provision.sh'
-	) } --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ resolveSiteUrl() } --wpcom_user_id=${ userId }`;
-
-	const response = execSyncShellCommand( cmd );
-	logger.cli( response );
-
-	const json = JSON.parse( response );
-	if ( json.success !== true ) {
-		throw new Error( 'Jetpack Start provision is failed. Response: ' + response );
-	}
-
-	await execWpCommand(
-		`jetpack authorize_user --user=${ user } ` + shellescape( [ `--token=${ json.access_token }` ] )
-	);
-
-	await execWpCommand( 'jetpack status' );
-
-	return true;
 }
 
 async function cancelPartnerPlan() {
@@ -355,7 +320,6 @@ module.exports = {
 	execContainerShellCommand,
 	resetWordpressInstall,
 	BASE_DOCKER_CMD,
-	provisionJetpackStartConnection,
 	activateModule,
 	execWpCommand,
 	logDebugLog,

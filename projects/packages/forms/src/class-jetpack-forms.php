@@ -14,7 +14,7 @@ use Automattic\Jetpack\Forms\Dashboard\Dashboard;
  */
 class Jetpack_Forms {
 
-	const PACKAGE_VERSION = '0.3.0-alpha';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Load the contact form module.
@@ -28,7 +28,7 @@ class Jetpack_Forms {
 			 * Enable the new Jetpack Forms dashboard.
 			 *
 			 * @module contact-form
-			 * @since $$next-version$$
+			 * @since 0.3.0
 			 *
 			 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
 			 */

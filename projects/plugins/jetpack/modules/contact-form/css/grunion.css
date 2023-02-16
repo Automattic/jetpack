@@ -570,6 +570,10 @@ on production builds, the attributes are being reordered, causing side-effects
 	filter: blur(10px);
 }
 
-.contact-form-styles-loaded .wp-block-jetpack-contact-form-container {
+.contact-form-styles-loaded .wp-block-jetpack-contact-form-container,
+html[amp] body .wp-block-jetpack-contact-form-container,
+html[amp-version] body .wp-block-jetpack-contact-form-container,
+html[class*='amphtml'] body .wp-block-jetpack-contact-form-container
+{
 	filter: blur(0px);
 }
