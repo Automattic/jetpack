@@ -401,17 +401,32 @@ function stats_reports_load() {
 	}
 }
 
+/**
+ * JavaScript to reset the Odyssey nudge.
+ *
+ * @access public
+ * @return void
+ */
 function stats_reset_nudge_handler() {
 	?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
-		let url = '/wp-json/jetpack/v4/stats/nudge';
-		var data = {
-			'action': 'odyssey-reset-nudge',
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
+		let data = {
+			id: 'opt_in_new_stats',
+			status: 'postponed',
+			postponed_for: 10,
 		};
 		jQuery('#test-button-reset-nudge').click(function() {
-			jQuery.post(url, data, function(response) {
-				console.log(response);
+			jQuery.ajax({
+				type: "POST",
+				url: url,
+				data: data,
+				headers: { "x-wp-nonce": nonce },
+				success: function(response) {
+					console.log(response);
+				}
 			});
 		});
 	});
@@ -420,7 +435,7 @@ function stats_reset_nudge_handler() {
 }
 
 /**
- * JavaScript to trigger an alert when the test button is clicked.
+ * JavaScript to dismiss the Odyssey nudge.
  *
  * @access public
  * @return void
