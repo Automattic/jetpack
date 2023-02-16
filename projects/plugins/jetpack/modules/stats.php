@@ -500,12 +500,20 @@ function stats_handle_test_button_toggle() {
 		var element = document.getElementById( "stats-odyssey-nudge-main" );
 		element.classList.toggle( "is-hidden" );
 		// Send an AJAX request.
-		let url = '/wp-json/jetpack/v4/stats/nudge';
-		var data = {
-			'action': 'odyssey-dismiss-nudge'
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
+		let data = {
+			id: 'opt_in_new_stats',
+			status: 'postponed',
 		};
-		jQuery.post(url, data, function(response) {
-			console.log(response);
+		jQuery.ajax({
+			type: "POST",
+			url: url,
+			data: data,
+			headers: { "x-wp-nonce": nonce },
+			success: function(response) {
+				console.log(response);
+			}
 		});
 	}
 	</script>
