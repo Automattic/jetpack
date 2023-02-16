@@ -9,7 +9,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
