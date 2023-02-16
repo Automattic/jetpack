@@ -1352,7 +1352,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "75f9c6e73541c5670d25a594c09f6ea7c49e680d"
+                "reference": "ab08a17e5e6f9e04b5036ad4f3e64b041707386c"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1399,7 +1399,8 @@
                     "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-coverage-html": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/integration/phpunit.xml.dist",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/unit/phpunit.xml.dist"
                 ],
                 "test-php": [
                     "@composer phpunit"
