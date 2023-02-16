@@ -439,7 +439,6 @@ function stats_reports_load() {
 }
 
 function stats_reset_nudge_handler() {
-	$nonce = wp_create_nonce( 'wp_rest' );
 	?>
 	<script type="text/javascript" >
 	jQuery(document).ready(function($) {
@@ -465,7 +464,7 @@ function stats_reset_nudge_handler() {
 		});
 	});
 	jQuery(document).ready(function($) {
-		let nonce = <?php echo wp_json_encode( $nonce ); ?>;
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
 		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
 		var data = {
 			id: 'opt_in_new_stats',
