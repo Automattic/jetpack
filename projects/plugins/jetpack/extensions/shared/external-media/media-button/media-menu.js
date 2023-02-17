@@ -65,6 +65,7 @@ function MediaButtonMenu( props ) {
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
 							<MenuItem
+								icon={ media }
 								onClick={ () => {
 									onClose();
 									open();
