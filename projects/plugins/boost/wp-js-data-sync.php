@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Handler;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 
 
@@ -48,3 +47,10 @@ add_action(
 		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
 	}
 );
+
+
+
+/**
+ * Register Data Sync Stores
+ */
+jetpack_boost_register_option( 'critical_css_issues', new Critical_CSS_Issues() );

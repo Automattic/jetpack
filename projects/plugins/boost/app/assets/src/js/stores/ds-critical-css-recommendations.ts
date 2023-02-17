@@ -34,13 +34,13 @@ export type CriticalCssIssue = z.infer< typeof CriticalCssIssueSchema >;
 
 const issues = client.createAsyncStore(
 	'critical_css_issues',
-	z.array( CriticalCssIssueSchema ).catch( [] )
+	z.array( CriticalCssIssueSchema ).nonempty()
 );
 export const issuesStore = issues.store;
 
-// 🍅 REFACTORING: Eventually this should be removed.
-const windowIssues = Jetpack_Boost.criticalCSS.status.issues ?? [];
-const validatedIssues = CriticalCssIssueSchema.array().parse( windowIssues );
-// eslint-disable-next-line no-console
-console.log( 'Overriding issue store from global', validatedIssues );
-issuesStore.override( validatedIssues as CriticalCssIssue[] );
+// // 🍅 REFACTORING: Eventually this should be removed.
+// const windowIssues = Jetpack_Boost.criticalCSS.status.issues ?? [];
+// const validatedIssues = CriticalCssIssueSchema.array().parse( windowIssues );
+// // eslint-disable-next-line no-console
+// console.log( 'Overriding issue store from global', validatedIssues );
+// issuesStore.override( validatedIssues as CriticalCssIssue[] );

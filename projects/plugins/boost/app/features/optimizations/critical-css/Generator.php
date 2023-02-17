@@ -67,7 +67,6 @@ class Generator {
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'issues'                => $this->get_issues(),
 			'created'               => $this->state->get_created_time(),
 			'updated'               => $this->state->get_updated_time(),
 		);
