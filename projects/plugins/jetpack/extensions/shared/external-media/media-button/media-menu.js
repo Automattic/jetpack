@@ -56,9 +56,7 @@ function MediaButtonMenu( props ) {
 							aria-expanded={ isOpen }
 							onClick={ onToggle }
 						>
-							<div className="jetpack-external-media-button-menu__label">
-								{ props.label || label }
-							</div>
+							<div className="jetpack-external-media-button-menu__label">{ label }</div>
 							<Icon icon={ media } />
 						</Button>
 					);
