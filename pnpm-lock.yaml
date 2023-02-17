@@ -1614,7 +1614,7 @@ importers:
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-image-guide': workspace:*
-      '@automattic/jetpack-svelte-data-sync-client': workspace:0.1.0-alpha
+      '@automattic/jetpack-svelte-data-sync-client': workspace:*
       '@babel/core': 7.20.12
       '@babel/preset-env': 7.20.2
       '@babel/preset-react': 7.18.6
