@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
+import { dispatch, select } from '@wordpress/data';
+import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -42,7 +45,9 @@ const transformToCoreEmbed = {
 	blocks: [ 'core/embed' ],
 	isMatch: ( attrs: VideoBlockAttributes ) => attrs?.src || attrs?.guid,
 	transform: ( attrs: VideoBlockAttributes ) => {
-		const { guid, src: srcFromAttr } = attrs;
+		const { updateBlockAttributes } = dispatch( blockEditorStore );
+		const { getBlockAttributes } = select( blockEditorStore );
+		const { guid, src: srcFromAttr, className } = attrs;
 
 		// Build the source (URL) in case it isn't defined.
 		const { url } = buildVideoPressURL( guid );
@@ -52,13 +57,28 @@ const transformToCoreEmbed = {
 			return createBlock( 'core/embed' );
 		}
 
-		return createBlock( 'core/embed', {
+		const block = createBlock( 'core/embed', {
 			allowResponsive: true,
 			providerNameSlug: 'videopress',
 			responsive: true,
 			type: 'video',
 			url,
 		} );
+
+		/*
+		 * Hack: It seems that core doesn't allow setting the className
+		 * attribute when creating a block.
+		 * So, we need to wait for the block to be created
+		 * and then update the className attribute, asynchronously.
+		 */
+		const { clientId } = block;
+		setTimeout( () => {
+			const { className: embedClassName } = getBlockAttributes( clientId ) || {};
+			const updatedClassName = classnames( className, embedClassName );
+			updateBlockAttributes( clientId, { className: updatedClassName } );
+		}, 0 );
+
+		return block;
 	},
 };
 
