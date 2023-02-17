@@ -163,7 +163,10 @@ export class SyncedStore< T > {
 
 	private equals( a: unknown, b: unknown ) {
 		if ( typeof a === 'object' && typeof b === 'object' ) {
-			return Object.entries( a ).sort().toString() === Object.entries( b ).sort().toString();
+			return (
+				JSON.stringify( Object.entries( a ).sort() ) ===
+				JSON.stringify( Object.entries( b ).sort() )
+			);
 		}
 		return a === b;
 	}
