@@ -3,8 +3,12 @@ import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { criticalCssStatus, updateIssues } from './critical-css-status';
-import type { JSONObject } from '../utils/json-types';
+import { JSONObject } from './data-sync-client';
+import {
+	CriticalCssErrorDetails,
+	CriticalCssIssue,
+	issuesStore,
+} from './ds-critical-css-recommendations';
 
 type Critical_CSS_Error_Type =
 	| 'SuccessTargetError'
@@ -18,20 +22,6 @@ type Critical_CSS_Error_Type =
 	| 'EmptyCSSError'
 	| 'XFrameDenyError';
 
-export interface CriticalCssErrorDetails {
-	url: string;
-	message: string;
-	meta: JSONObject;
-	type: Critical_CSS_Error_Type;
-}
-
-export type CriticalCssIssue = {
-	provider_name: string;
-	key: string;
-	status: 'active' | 'dismissed';
-	errors: CriticalCssErrorDetails[];
-};
-
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.
  * Every error in the set is of the same type.
@@ -43,10 +33,6 @@ export type ErrorSet = {
 		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};
 };
-
-const issuesStore = derived( criticalCssStatus, $status => {
-	return $status.issues || [];
-} );
 
 const dismissalErrorStore = writable( null );
 export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
@@ -128,7 +114,7 @@ export async function clearDismissedIssues(): Promise< void > {
 		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
 	} );
 	const issues = get( issuesStore );
-	updateIssues(
+	issuesStore.set(
 		issues.map( issue => {
 			issue.status = 'active';
 			return issue;
@@ -172,7 +158,12 @@ export function groupErrorsByFrequency( issue: CriticalCssIssue ): ErrorSet[] {
  * @param {CriticalCssErrorDetails} error
  */
 export function groupKey( error: CriticalCssErrorDetails ) {
-	if ( error.type === 'HttpError' ) {
+	if (
+		error.type === 'HttpError' &&
+		typeof error.meta === 'object' &&
+		error.meta !== null &&
+		'code' in error.meta
+	) {
 		return error.type + '-' + castToString( error.meta.code, '' );
 	}
 
@@ -194,7 +185,7 @@ export async function dismissIssue( key: string ): Promise< void > {
 	const issue = issues.find( el => el.key === key );
 	if ( issue ) {
 		issue.status = 'dismissed';
-		updateIssues( issues );
+		issuesStore.set( issues );
 	}
 	try {
 		await api.post( '/recommendations/dismiss', {
