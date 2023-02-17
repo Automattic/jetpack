@@ -70,9 +70,6 @@ export default function PosterImageBlockControl( {
 		setAttributes( { poster: '' } );
 	};
 
-	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
-	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
-
 	return (
 		<Dropdown
 			contentClassName={ styles.dropdown_content }
@@ -105,7 +102,7 @@ export default function PosterImageBlockControl( {
 											onClick={ open }
 											aria-describedby={ videoPosterDescription }
 										>
-											{ ! poster ? selectPosterLabel : replacePosterLabel }
+											{ __( 'Open Media Library', 'jetpack-videopress-pkg' ) }
 											<p id={ videoPosterDescription } hidden>
 												{ poster
 													? sprintf(
