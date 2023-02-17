@@ -6,12 +6,14 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import { buildVideoPressURL, pickGUIDFromUrl } from '../../../../lib/url';
+import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
 	type: 'block',
 	blocks: [ 'core/embed' ],
-	isMatch: attrs => attrs.providerNameSlug === 'videopress' && pickGUIDFromUrl( attrs?.url ),
-	transform: attrs => {
+	isMatch: ( attrs: CoreEmbedVideoPressVariationBlockAttributes ) =>
+		attrs.providerNameSlug === 'videopress' && pickGUIDFromUrl( attrs?.url ),
+	transform: ( attrs: CoreEmbedVideoPressVariationBlockAttributes ) => {
 		const { url: src, providerNameSlug } = attrs;
 		const guid = pickGUIDFromUrl( src );
 
@@ -38,8 +40,8 @@ const transformFromCoreEmbed = {
 const transformToCoreEmbed = {
 	type: 'block',
 	blocks: [ 'core/embed' ],
-	isMatch: attrs => attrs?.src || attrs?.guid,
-	transform: attrs => {
+	isMatch: ( attrs: VideoBlockAttributes ) => attrs?.src || attrs?.guid,
+	transform: ( attrs: VideoBlockAttributes ) => {
 		const { guid, src: srcFromAttr } = attrs;
 
 		// Build the source (URL) in case it isn't defined.
