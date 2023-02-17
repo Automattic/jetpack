@@ -35,6 +35,11 @@
 - Subscriptions: fix a bug where comments would be open under pages [#28894]
 - Update to React 18. [#28710]
 
+## 11.8.4 - 2023-02-15
+### Bug fixes
+- Blaze: prevent error on frontend-loaded Gutenberg, and bail early if Jetpack is not connected. [#28955]
+- WAF: fix PHP fatal when the jetpack-waf directory has been deleted from the wp-content folder. [#28760]
+
 ## 11.9-a.1 - 2023-02-08
 ### Enhancements
 - Contact form: add a blur effect while the form is loading the styles. [#28212]
