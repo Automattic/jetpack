@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 
 /**
@@ -154,7 +155,7 @@ class Brute_Force_Protection_Shared_Functions {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! jetpack_convert_ip_address( $new_item->range_low ) || ! jetpack_convert_ip_address( $new_item->range_high ) ) {
+				if ( ! IP_Utils::convert_ip_address( $new_item->range_low ) || ! IP_Utils::convert_ip_address( $new_item->range_high ) ) {
 					$whitelist_error = true;
 					break;
 				}
@@ -163,7 +164,7 @@ class Brute_Force_Protection_Shared_Functions {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! jetpack_convert_ip_address( $new_item->ip_address ) ) {
+				if ( ! IP_Utils::convert_ip_address( $new_item->ip_address ) ) {
 					$whitelist_error = true;
 					break;
 				}
