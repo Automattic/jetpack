@@ -65,7 +65,7 @@ export const settings = {
 				// both modals and their rendering behavior, and remove this solution afterwards.
 				if (
 					siteIntentOption === 'write' &&
-					parseInt( prevHasNeverPublishedPostOption.current ) &&
+					prevHasNeverPublishedPostOption.current &&
 					isInsidePostEditor
 				) {
 					setIsModalOpen( false );
