@@ -4,40 +4,41 @@
 
 ## 11.9-a.3 - 2023-02-15
 ### Enhancements
-- Added a notice with a link to a survey when the new stats interface is disabled [#28823]
-- Admin: make the links under the Reccommendation section more apparent (black+underline) [#28950]
-- Display location-aware snackbar upon loading the site editor [#28810]
-- Jetpack stats dashboard widget: Adds filter to hide stats widget based on user capability. [#28833]
-- Make the Stats dashboard widget link to Odyssey stats if enabled [#28855]
-- Map block: reimplemented the frontend in vanilla JS [#28782]
-- Social Logos: update icon font to remove support for older b browsers (IE11-). [#28849]
-- Updated submit messages text for subscriptions [#26593]
-- Visual update to social buttons which haven't been updated in like 10 years. [#28874]
+- Site editor: display location-aware snackbar in edit mode. [#28810]
+- Stats: adds filter to hide stats widget based on user capability. [#28833]
+- Stats: added a notice with a link to a survey when the new stats interface is disabled. [#28823]
+- Subscriptions: updated submit messages text for subscriptions. [#26593]
+- Social: visual update to social buttons. [#28874]
 
 ### Improved compatibility
-- Theme Compatiblity: ensure redesigned sharing buttons look good in  default themes as well (Twenty Nineteen, Twenty Sixteen) [#28876]
+- Social: update icon font to remove support for older browsers (IE11-). [#28849]
+- Themes: ensure redesigned sharing buttons look good in default themes (Twenty Nineteen, Twenty Sixteen). [#28876]
 
 ### Bug fixes
-- Add filter to prevent contact-form-styles script from being concatenated [#28905]
-- Add new method to reverse print_r output as stored on the feedback posts. Use it to try and parse the form fields, fallback to old method. [#28815]
-- Fix goodreads custom widget not finding the target HTML element and appending another after its script tag. [#28946]
-- Fix premium content block where it would only allow access to site subscribers [#28912]
-- Fix subscribe-block button to behave the same as in the fronted with regards to white-space and min-width rules applied to RichText by Gutenberg with the useDefaultStyles hook [#28925]
-- Prevent Forms blur effect on AMP pages [#28926]
+- Forms block: add filter to prevent contact-form-styles script from being concatenated. [#28905]
+- Forms block: add new method to parse the form fields, fallback to old method. [#28815]
+- Forms block: prevent blur effect on AMP pages. [#28926]
+- Subscriptions: fix premium content block where it would only allow access to site subscribers. [#28912]
+- Subscriptions: fix subscribe-block button to behave the same as in the fronted. [#28925]
+- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag. [#28946]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Added new stats options to store the timestamp when Odyssey is enabled and disabled [#28794]
-- Edited changelog for 11.9-a.1 [#28848]
-- Fix a bug where comments would be open under pages [#28894]
-- General: update wording in plugin's readme. [#28889]
-- Jetpack: convert v6 to v5 in case it is not registered [#28949]
+- Admin: make the links under the Recommendation section more apparent. [#28950]
+- Jetpack: convert v6 to v5 in case it is not registered. [#28949]
+- Map block: reimplemented the frontend in vanilla JS. [#28782]
 - Membership: user_can_view_post: Memoize results [#28878]
 - Move dialogue and conversation editor extensions back to beta, as they were not released to wordpress.com users [#28842]
 - Remove `jetpack_require_lib` and `jetpack_require_lib_dir`, which has been issuing deprecation warnings since 11.6. [#28866]
 - Sharing: update Social Logos with new logos (Google, Link, Mastodon, Medium, Patreon, Tiktok, WooCommerce) [#28849]
-- This change doesn't affect the plugin. [#28877]
-- Updated package dependencies. [#28910]
+- Stats: make the Stats dashboard widget link to Odyssey stats if enabled. [#28855]
+- Stats: added new stats options to store the timestamp when Odyssey is enabled and disabled [#28794]
+- Subscriptions: fix a bug where comments would be open under pages [#28894]
 - Update to React 18. [#28710]
+
+## 11.8.4 - 2023-02-15
+### Bug fixes
+- Blaze: prevent error on frontend-loaded Gutenberg, and bail early if Jetpack is not connected. [#28955]
+- WAF: fix PHP fatal when the jetpack-waf directory has been deleted from the wp-content folder. [#28760]
 
 ## 11.9-a.1 - 2023-02-08
 ### Enhancements
