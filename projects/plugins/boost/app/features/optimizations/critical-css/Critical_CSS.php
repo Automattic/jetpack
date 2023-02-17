@@ -9,7 +9,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
@@ -48,13 +47,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * This is only run if Critical CSS module has been activated.
 	 */
 	public function setup() {
-		// Touch to setup the post type. This is a temporary hack.
-		// This should instantiate a new Post_Type_Storage class,
-		// so that Critical_CSS class is responsible
-		// for setting up the storage.
-		$recommendations = new Recommendations();
-		$recommendations->attach_hooks();
-
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
 		if ( Generator::is_generating_critical_css() ) {

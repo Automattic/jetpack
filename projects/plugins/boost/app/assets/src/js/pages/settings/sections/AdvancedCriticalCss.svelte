@@ -5,12 +5,12 @@
 	import CloseButton from '../../../elements/CloseButton.svelte';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import {
-		dismissRecommendation,
-		activeRecommendations,
-		dismissedRecommendations,
-		clearDismissedRecommendations,
+		activeIssues,
+		dismissedIssues,
 		dismissalError,
-		setDismissalError,
+		showDismissedIssues,
+		dismissIssue,
+		groupErrorsByFrequency,
 	} from '../../../stores/critical-css-recommendations';
 	import { isFinished } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
@@ -26,37 +26,11 @@
 	}
 
 	/**
-	 * Dismisses a recommendation by key.
-	 *
-	 * @param {string} key Recommendation key to dismiss.
-	 */
-	async function dismiss( key ) {
-		try {
-			await dismissRecommendation( key );
-		} catch ( error ) {
-			setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
-		}
-	}
-	/**
-	 * Show the previously dismissed recommendations.
-	 */
-	async function showDismissedRecommendations() {
-		try {
-			await clearDismissedRecommendations();
-		} catch ( error ) {
-			setDismissalError(
-				__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
-				error
-			);
-		}
-	}
-
-	/**
 	 * Figure out heading based on state.
 	 */
 	let heading: string;
 	$: heading =
-		$activeRecommendations.length === 0
+		$activeIssues.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
 			: __(
 					'While Jetpack Boost has been able to automatically generate optimized CSS for most of your important files & sections, we have identified a few more that require your attention.',
@@ -81,18 +55,18 @@
 		<section transition:slide|local>
 			<p>{heading}</p>
 
-			{#if $dismissedRecommendations.length > 0}
+			{#if $dismissedIssues.length > 0}
 				<p>
-					<button class="components-button is-link" on:click={showDismissedRecommendations}>
+					<button class="components-button is-link" on:click={showDismissedIssues}>
 						{sprintf(
 							/* translators: %d is a number of recommendations which were previously hidden by the user */
 							_n(
 								'Show %d hidden recommendation.',
 								'Show %d hidden recommendations.',
-								$dismissedRecommendations.length,
+								$dismissedIssues.length,
 								'jetpack-boost'
 							),
-							$dismissedRecommendations.length
+							$dismissedIssues.length
 						)}
 					</button>
 				</p>
@@ -104,20 +78,21 @@
 		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
 	{/if}
 
-	{#each $activeRecommendations as recommendation (recommendation.key)}
+	{#each $activeIssues as issue (issue.key)}
 		<div class="panel" transition:slide|local>
-			<CloseButton on:click={() => dismiss( recommendation.key )} />
+			<CloseButton on:click={() => dismissIssue( issue.key )} />
 
 			<h4>
 				<InfoIcon />
-				{recommendation.label}
+				{issue.provider_name}
 			</h4>
 
-			{#each [ recommendation.errors[ 0 ] ] as errorSet}
-				<div class="problem">
-					<CriticalCssErrorDescription {errorSet} on:retry={onRetry} />
-				</div>
-			{/each}
+			<div class="problem">
+				<CriticalCssErrorDescription
+					errorSet={groupErrorsByFrequency( issue )[ 0 ]}
+					on:retry={onRetry}
+				/>
+			</div>
 		</div>
 	{/each}
 </div>
