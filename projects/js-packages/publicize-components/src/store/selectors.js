@@ -577,5 +577,5 @@ export function getAttachedMedia() {
  * @returns {Array} An array of image generator settings.
  */
 export function getImageGeneratorPostSettings() {
-	return get( getJetpackSocialOptions(), [ 'image_generator_settings' ], [] );
+	return getJetpackSocialOptions()?.image_generator_settings ?? [];
 }

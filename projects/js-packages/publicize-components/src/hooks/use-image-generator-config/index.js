@@ -2,6 +2,8 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 
+const PUBLICIZE_STORE_ID = 'jetpack/publicize';
+
 /**
  * @typedef {object} ImageGeneratorConfigHook
  * @property {Array} postSettings - Array of post settings (custom text, image type etc).
@@ -23,35 +25,41 @@ import { useCallback } from '@wordpress/element';
 export default function useImageGeneratorConfig() {
 	const { editPost } = useDispatch( editorStore );
 
-	const { postSettings, currentOptions, isPostPublished } = useSelect( select => ( {
-		postSettings: select( 'jetpack/publicize' ).getImageGeneratorPostSettings(),
-		currentOptions: select( 'jetpack/publicize' ).getJetpackSocialOptions(),
+	const { postSettings, currentOptions } = useSelect( select => ( {
+		postSettings: select( PUBLICIZE_STORE_ID ).getImageGeneratorPostSettings(),
+		currentOptions: select( PUBLICIZE_STORE_ID ).getJetpackSocialOptions(),
+	} ) );
+
+	const { isPostPublished } = useSelect( select => ( {
 		isPostPublished: select( editorStore ).isCurrentPostPublished(),
 	} ) );
 
 	const updateSettings = useCallback(
-		settings => {
+		( key, value ) => {
+			const settings = { ...postSettings, [ key ]: value };
 			editPost( {
 				meta: {
 					jetpack_social_options: { ...currentOptions, image_generator_settings: settings },
 				},
 			} );
 		},
-		[ currentOptions, editPost ]
+		[ currentOptions, editPost, postSettings ]
 	);
 
-	const updateSetting = ( setting, value ) =>
-		updateSettings( { ...postSettings, [ setting ]: value } );
-	const getSetting = setting => currentOptions?.image_generator_settings?.[ setting ] ?? null;
+	const getCurrentSettings = sigSettings => {
+		return {
+			isEnabled: sigSettings?.enabled ?? ! isPostPublished,
+			customText: sigSettings?.custom_text ?? null,
+			imageType: sigSettings?.image_type ?? null,
+			imageId: sigSettings?.image_id ?? null,
+		};
+	};
 
 	return {
-		isEnabled: getSetting( 'enabled' ) ?? ! isPostPublished,
-		customText: getSetting( 'custom_text' ) ?? null,
-		imageType: getSetting( 'image_type' ) ?? null,
-		imageId: getSetting( 'image_id' ) ?? null,
-		setIsEnabled: value => updateSetting( 'enabled', value ),
-		setCustomText: value => updateSetting( 'custom_text', value ),
-		setImageType: value => updateSetting( 'image_type', value ),
-		setImageId: value => updateSetting( 'image_id', value ),
+		...getCurrentSettings( currentOptions?.image_generator_settings ),
+		setIsEnabled: value => updateSettings( 'enabled', value ),
+		setCustomText: value => updateSettings( 'custom_text', value ),
+		setImageType: value => updateSettings( 'image_type', value ),
+		setImageId: value => updateSettings( 'image_id', value ),
 	};
 }
