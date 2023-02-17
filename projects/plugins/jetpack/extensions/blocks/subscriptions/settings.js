@@ -1,9 +1,11 @@
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
 import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
@@ -42,6 +44,28 @@ export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction={ 'column' }>
+						<FlexBlock>
+							<InspectorNotice spanClass={ 'jetpack-subscribe-info' }>
+								{ createInterpolateElement(
+									/* translators: basic information about the newsletter visibility */
+									__(
+										'You can restrict your post as accessible only to your e-mail subscribers or your paid supporters. The email version of this post will be delivered accordingly.<br/>' +
+											'Read more about Paid Newsletters: <a>doc link</a>.',
+										'jetpack'
+									),
+									{
+										br: <br />,
+										a: (
+											<a
+												href={ getRedirectUrl( 'paid-newsletter-info', {
+													anchor: 'memberships-and-subscriptions',
+												} ) }
+											/>
+										),
+									}
+								) }
+							</InspectorNotice>
+						</FlexBlock>
 						{ canEdit && showVisibilityNotice && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
