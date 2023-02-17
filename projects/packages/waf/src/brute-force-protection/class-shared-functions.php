@@ -105,7 +105,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @param string $ip_address The IP Address to convert.
 	 * @return object An IP Address object.
 	 */
-	private function create_ip_object( $ip_address ) {
+	private static function create_ip_object( $ip_address ) {
 		$range = false;
 		if ( strpos( $ip_address, '-' ) ) {
 			$ip_address = explode( '-', $ip_address );
