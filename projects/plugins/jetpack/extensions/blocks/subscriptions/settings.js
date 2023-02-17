@@ -1,10 +1,14 @@
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import { Button, PanelRow, Dropdown, VisuallyHidden, Flex, FlexBlock } from '@wordpress/components';
+import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+
+import './settings.scss';
 
 export const accessOptions = {
 	everybody: {
@@ -66,56 +70,75 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
+	// Can be “private”, “password”, or “public”.
+	const visibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const showVisibilityNotice = visibility !== 'public';
+	const isVisibilityRestricted = showVisibilityNotice; // This is defined solely for semantic purpose
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction={ withModal ? 'row' : 'column' }>
-						{
+					<Flex direction={ 'column' }>
+						{ canEdit && showVisibilityNotice && (
 							<FlexBlock>
-								<span>{ __( 'Access', 'jetpack' ) }</span>
-							</FlexBlock>
-						}
-						{ ! canEdit && <span>{ accessLabel }</span> }
-						{ withModal && canEdit && (
-							<FlexBlock>
-								<Dropdown
-									placement="bottom-end"
-									contentClassName="edit-post-post-visibility__dialog"
-									focusOnMount
-									renderToggle={ ( { isOpen, onToggle } ) => (
-										<Button
-											isTertiary
-											onClick={ onToggle }
-											aria-expanded={ isOpen }
-											aria-label={ sprintf(
-												// translators: %s: Current newsletter post access.
-												__( 'Select audience: %s', 'jetpack' ),
-												accessLabel
-											) }
-										>
-											{ accessLabel }
-										</Button>
-									) }
-									renderContent={ ( { onClose } ) => (
-										<div className="editor-post-visibility">
-											<InspectorPopoverHeader
-												title={ __( 'Audience', 'jetpack' ) }
-												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
-												onClose={ onClose }
-											/>
-											<NewsletterAccessChoices onChange={ setPostMeta } />
-										</div>
-									) }
-								/>
+								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
+									{
+										/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
+										__(
+											'Private" or password-protected posts cannot be assigned for Subscribers only.',
+											'jetpack'
+										)
+									}
+								</InspectorNotice>
 							</FlexBlock>
 						) }
 
-						{ ! withModal && canEdit && (
+						<Flex direction={ withModal ? 'row' : 'column' }>
 							<FlexBlock>
-								<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+								<span>{ __( 'Access', 'jetpack' ) }</span>
 							</FlexBlock>
-						) }
+							{ ( ! canEdit || isVisibilityRestricted ) && <span>{ accessLabel }</span> }
+							{ ! isVisibilityRestricted && withModal && canEdit && (
+								<FlexBlock>
+									<Dropdown
+										placement="bottom-end"
+										contentClassName="edit-post-post-visibility__dialog"
+										focusOnMount
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												isTertiary
+												onClick={ onToggle }
+												aria-expanded={ isOpen }
+												aria-label={ sprintf(
+													// translators: %s: Current newsletter post access.
+													__( 'Select audience: %s', 'jetpack' ),
+													accessLabel
+												) }
+											>
+												{ accessLabel }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="editor-post-visibility">
+												<InspectorPopoverHeader
+													title={ __( 'Audience', 'jetpack' ) }
+													help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
+													onClose={ onClose }
+												/>
+												<NewsletterAccessChoices onChange={ setPostMeta } />
+											</div>
+										) }
+									/>
+								</FlexBlock>
+							) }
+
+							{ ! isVisibilityRestricted && ! withModal && canEdit && (
+								<FlexBlock>
+									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+								</FlexBlock>
+							) }
+						</Flex>
 					</Flex>
 				</PanelRow>
 			) }
