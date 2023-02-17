@@ -168,6 +168,7 @@
 }
 
 .jb-premium-cta {
+	width: 100%;
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -175,6 +176,7 @@
 	margin: 32px 0;
 	border: 2px solid $jetpack-green;
 	border-radius: $border-radius;
+	background-color: #ffffff;
 	cursor: pointer;
 
 	p {

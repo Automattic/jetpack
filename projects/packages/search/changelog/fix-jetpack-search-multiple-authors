@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Separated authors by comments if there are multiple authors in a search result

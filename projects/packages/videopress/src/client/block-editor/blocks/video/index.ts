@@ -14,12 +14,14 @@ import transforms from './transforms';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './style.scss';
 
-export const { name, title, description } = metadata;
+export const { name, title, description, attributes } = metadata;
 
 registerBlockType( name, {
 	edit: Edit,
+	title,
 	save,
 	icon,
+	attributes,
 	example: {
 		attributes: {
 			src: editorImageURL( videoPressBlockExampleImage ),
