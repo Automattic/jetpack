@@ -16,8 +16,12 @@ class Refactoring_Critical_CSS_State_Storage implements Storage_Driver {
 		return $this->generator->get_issues();
 	}
 
-	public function set( $key, $value ) {
-		// TODO: Implement set() method.
+	public function set( $key, $issues ) {
+		foreach ( $issues as $issue ) {
+			$provider_key = $issue['provider_key'];
+			$issue_status = $issue['status'];
+			$this->generator->state->set_provider_issue_status( $provider_key, $issue_status );
+		}
 	}
 
 	public function delete( $key ) {
