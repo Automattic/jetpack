@@ -7,7 +7,7 @@ import { Migration, MigrationError, MigrationLoading, MigrationProgress } from '
 
 const Admin = () => {
 	const sourceSiteSlug = window?.location?.host;
-	const { apiNonce, apiRoot, registrationNonce } = window.jetpackMigrationInitialState;
+	const { apiNonce, apiRoot, registrationNonce } = window.wpcomMigrationInitialState;
 
 	const configureApi = useCallback( () => {
 		restApi.setApiRoot( apiRoot );
@@ -43,7 +43,7 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			moduleName={ __( `Move to WordPress.com`, 'jetpack-migration' ) }
+			moduleName={ __( `Move to WordPress.com`, 'wpcom-migration' ) }
 			showBackground={ false }
 			showHeader={ false }
 			showFooter={ false }

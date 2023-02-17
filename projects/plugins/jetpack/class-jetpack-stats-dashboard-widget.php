@@ -44,7 +44,7 @@ class Jetpack_Stats_Dashboard_Widget {
 		 * By default, the dashboard widget is shown to users who can view_stats.
 		 *
 		 * @module stats
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param bool Whether to show the widget to the current user.
 		 */

@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
@@ -19,8 +19,9 @@ class Recommendations_Dismiss implements Endpoint {
 			wp_send_json_error();
 		}
 
-		$recommendations = new Recommendations();
-		$recommendations->dismiss( $provider_key );
+		$state = new Critical_CSS_State();
+		$state->set_provider_issue_status( $provider_key, 'dismissed' );
+
 		wp_send_json_success();
 	}
 
