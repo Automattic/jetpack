@@ -2541,14 +2541,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'stb_enabled'                          => array(
 				'description'       => esc_html__( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				// Keep the previous behaviour after updating subscription to autoactivate
+				// So we don't update the frontend for new users of Jetpack
+				// https://github.com/Automattic/jetpack/pull/29028
+			'default'               => jetpack_get_module_info( 'subscriptions' )['auto_activate'] === 'No' ? 1 : 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
 			'stc_enabled'                          => array(
 				'description'       => esc_html__( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				// Keep the previous behaviour after updating subscription to autoactivate
+				// So we don't update the frontend for new users of Jetpack
+				// https://github.com/Automattic/jetpack/pull/29028
+			'default'               => jetpack_get_module_info( 'subscriptions' )['auto_activate'] === 'No' ? 1 : 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),

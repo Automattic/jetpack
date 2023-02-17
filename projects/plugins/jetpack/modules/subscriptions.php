@@ -415,11 +415,22 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Returns the default value for the options stc_enabled and stb_enabled
+	 * that should be assumed depending on the Auto-activate status of the
+	 * subscriptions module.
+	 * We keep the previous behaviour after updating subscription to autoactivate
+	 * So we don't update the frontend for new users of Jetpack
+	 * https://github.com/Automattic/jetpack/pull/29028
+	 */
+	public function stc_stb_default_value() {
+		return jetpack_get_module_info( 'subscriptions' )['auto_activate'] === 'No' ? 1 : 0;
+	}
+
+	/**
 	 * Post Subscriptions Toggle.
 	 */
 	public function subscription_post_subscribe_setting() {
-
-		$stb_enabled = get_option( 'stb_enabled', 1 );
+		$stb_enabled = get_option( 'stb_enabled', $this->stc_stb_default_value() );
 		?>
 
 		<p class="description">
@@ -441,8 +452,7 @@ class Jetpack_Subscriptions {
 	 * Comments Subscriptions Toggle.
 	 */
 	public function subscription_comment_subscribe_setting() {
-
-		$stc_enabled = get_option( 'stc_enabled', 1 );
+		$stc_enabled = get_option( 'stc_enabled', $this->stc_stb_default_value() );
 		?>
 
 		<p class="description">
@@ -809,7 +819,7 @@ class Jetpack_Subscriptions {
 
 		$str = '';
 
-		if ( false === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 === (int) get_option( 'stc_enabled', 1 ) && empty( $post->post_password ) && 'post' === get_post_type() ) {
+		if ( false === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 === (int) get_option( 'stc_enabled', $this->stc_stb_default_value() ) && empty( $post->post_password ) && 'post' === get_post_type() ) {
 			// Subscribe to comments checkbox.
 			$str             .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$comment_sub_text = __( 'Notify me of follow-up comments by email.', 'jetpack' );
@@ -828,7 +838,7 @@ class Jetpack_Subscriptions {
 			$str .= '</p>';
 		}
 
-		if ( 1 === (int) get_option( 'stb_enabled', 1 ) ) {
+		if ( 1 === (int) get_option( 'stb_enabled', $this->stc_stb_default_value() ) ) {
 			// Subscribe to blog checkbox.
 			$str          .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
 			$blog_sub_text = __( 'Notify me of new posts by email.', 'jetpack' );
