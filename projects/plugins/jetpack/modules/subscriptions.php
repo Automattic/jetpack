@@ -7,7 +7,7 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Requires User Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup
