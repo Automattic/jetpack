@@ -1650,6 +1650,7 @@ importers:
       svelte-preprocess: 4.9.2
       tslib: 2.3.1
       typescript: 4.8.2
+      zod: 3.20.2
     dependencies:
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-svelte-data-sync-client': link:../../js-packages/svelte-data-sync-client
@@ -1659,6 +1660,7 @@ importers:
       jetpack-boost-critical-css-gen: github.com/automattic/jetpack-boost-critical-css-gen/799e6d78bbc14d51288ba929e59de0a624649e8b
       prettier: 2.6.2
       svelte-navigator: 3.1.5_blprp4ovaphqvsbuhbk2xnyjlu
+      zod: 3.20.2
     devDependencies:
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-image-guide': link:../../js-packages/image-guide
@@ -22381,7 +22383,6 @@ packages:
 
   /zod/3.20.2:
     resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
-    dev: true
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
