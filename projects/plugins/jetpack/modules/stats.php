@@ -286,6 +286,19 @@ function stats_admin_menu() {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( ! ( new Host() )->is_woa_site() && isset( $_GET['enable_new_stats'] ) && '1' === $_GET['enable_new_stats'] ) {
+		Stats_Options::set_options(
+			array(
+				'enable_odyssey_stats'     => true,
+				'odyssey_stats_changed_at' => time(),
+			)
+		);
+		$connection_manager = new Connection_Manager( 'jetpack' );
+		$tracking           = new Tracking( 'jetpack', $connection_manager );
+		$tracking->record_user_event( 'calypso_stats_enabled' );
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ( new Host() )->is_woa_site() || ! Stats_Options::get_option( 'enable_odyssey_stats' ) || isset( $_GET['noheader'] ) ) {
 		// Show old Jetpack Stats interface for:
 		// - Atomic sites.
@@ -812,7 +825,7 @@ function stats_print_odyssey_nudge( $html ) {
 		return;
 	}
 	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
-	$settings_url = stats_settings_url();
+	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
 	?>
 	<style>
 		.stats-odyssey-nudge {
@@ -830,7 +843,7 @@ function stats_print_odyssey_nudge( $html ) {
 		<div class="stats-odyssey-nudge--content">
 			<h1>Explore the new Jetpack Stats</h1>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
-			<a href="<?php echo esc_url( $settings_url ); ?>">Switch to new Stats</a>
+			<a href="<?php echo esc_url( $redirect_url ); ?>">Switch to new Stats</a>
 			<a href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
 		</div>
 	</div>
