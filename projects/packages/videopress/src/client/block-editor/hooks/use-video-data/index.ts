@@ -40,7 +40,7 @@ export default function useVideoData( {
 
 	useEffect( () => {
 		if ( ! isUserConnected ) {
-			debug( 'User is not connected ❌' );
+			debug( 'User is not connected' );
 			return;
 		}
 
