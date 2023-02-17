@@ -79,17 +79,6 @@ jobs:
             pnpm jetpack build -v --no-pnpm-install --for-mirrors="$BUILD_BASE" "${PROJECTS[@]}"
           fi
 
-      - name: Check for weird bug
-        run: |
-          if [[ ! -e "$BUILD_BASE/mirrors.txt" ]]; then
-            RERUN=
-            if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-              RERUN=" Please re-run the workflow, the bug seems intermittent."
-            fi
-            echo "::error::There's currently a strange bug where the build just exits (with a successful status) instead of completing. Investigation is ongoing.$RERUN"
-            exit 1
-          fi
-
       - name: Filter mirror list for release branch
         if: github.ref == 'refs/heads/prerelease' || contains( github.ref, '/branch-' )
         run: .github/files/filter-mirrors-for-release-branch.sh

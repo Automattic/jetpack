@@ -13,7 +13,7 @@ import './search-result-expanded.scss';
  * @returns {Element} - Expanded search result component.
  */
 export default function SearchResultExpanded( props ) {
-	const { isMultiSite, locale = 'en-US' } = props;
+	const { isMultiSite, locale = 'en-US', showPostDate } = props;
 	const { result_type, fields, highlight } = props.result;
 
 	if ( result_type !== 'post' ) {
@@ -37,6 +37,14 @@ export default function SearchResultExpanded( props ) {
 	const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
+
+	if ( Array.isArray( fields.author ) ) {
+		if ( fields.author.length > 3 ) {
+			fields.author = fields.author.slice( 0, 3 ).join( ', ' ) + '...';
+		} else {
+			fields.author = fields.author.join( ', ' );
+		}
+	}
 	return (
 		<li
 			className={ [
@@ -105,38 +113,43 @@ export default function SearchResultExpanded( props ) {
 					</div>
 				</a>
 			</div>
-			{ isMultiSite && (
-				<ul className="jetpack-instant-search__search-result-expanded__footer">
-					<li>
-						<PhotonImage
-							alt={ fields.blog_name }
-							className="jetpack-instant-search__search-result-expanded__footer-blog-image"
-							isPhotonEnabled={ false }
-							height={ 24 }
-							width={ 24 }
-							src={ fields.blog_icon_url }
-							lazyLoad={ false }
-						/>
-						<span className="jetpack-instant-search__search-result-expanded__footer-blog">
-							{ fields.blog_name }
-						</span>
-					</li>
-					<li>
-						<span className="jetpack-instant-search__search-result-expanded__footer-author">
-							{ fields.author }
-						</span>
-					</li>
-					<li>
-						<span className="jetpack-instant-search__search-result-expanded__footer-date">
-							{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
-								year: 'numeric',
-								month: 'short',
-								day: 'numeric',
-							} ) }
-						</span>
-					</li>
-				</ul>
-			) }
+			{ isMultiSite ||
+				( showPostDate && (
+					<ul className="jetpack-instant-search__search-result-expanded__footer">
+						{ isMultiSite && (
+							<>
+								<li>
+									<PhotonImage
+										alt={ fields.blog_name }
+										className="jetpack-instant-search__search-result-expanded__footer-blog-image"
+										isPhotonEnabled={ false }
+										height={ 24 }
+										width={ 24 }
+										src={ fields.blog_icon_url }
+										lazyLoad={ false }
+									/>
+									<span className="jetpack-instant-search__search-result-expanded__footer-blog">
+										{ fields.blog_name }
+									</span>
+								</li>
+								<li>
+									<span className="jetpack-instant-search__search-result-expanded__footer-author">
+										{ fields.author }
+									</span>
+								</li>
+							</>
+						) }
+						<li>
+							<span className="jetpack-instant-search__search-result-expanded__footer-date">
+								{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
+									year: 'numeric',
+									month: 'short',
+									day: 'numeric',
+								} ) }
+							</span>
+						</li>
+					</ul>
+				) ) }
 		</li>
 	);
 }

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: do not use JS template to build queryString of the chapter file to avoid concat_js=no issues

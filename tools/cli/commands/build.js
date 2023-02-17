@@ -732,7 +732,7 @@ async function buildProject( t ) {
 	await fs.copyFile( `SECURITY.md`, npath.join( buildDir, 'SECURITY.md' ) );
 
 	// Copy project files.
-	for await ( const file of listProjectFiles( t.cwd, t.execa, t.output ) ) {
+	for await ( const file of listProjectFiles( t.cwd, t.execa ) ) {
 		const srcfile = npath.join( t.cwd, file );
 		const destfile = npath.join( buildDir, file );
 		await fs.mkdir( npath.dirname( destfile ), { recursive: true } );
