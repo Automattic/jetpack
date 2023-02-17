@@ -1,7 +1,7 @@
 <?php
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
@@ -15,8 +15,8 @@ class Recommendations_Reset implements Endpoint {
 	// $request is required to adhere to the contract.
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$recommendations = new Recommendations();
-		$recommendations->reset();
+		$state = new Critical_CSS_State();
+		$state->reset_provider_issue_status();
 		wp_send_json_success();
 	}
 
