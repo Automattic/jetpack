@@ -72,7 +72,7 @@ class WPCOM_Migration {
 			'manage_options',
 			'wpcom-migration',
 			array( $this, 'plugin_settings_page' ),
-			'dashicons-admin-generic',
+			'dashicons-migrate',
 			79 // right before the Settings menu (80)
 		);
 
