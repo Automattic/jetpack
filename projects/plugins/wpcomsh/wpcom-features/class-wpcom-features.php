@@ -255,6 +255,7 @@ class WPCOM_Features {
 	public const INSTALL_WOO_PAYMENT_GATEWAYS  = 'install-woo-payment-gateways';
 	public const INSTANT_SEARCH                = 'instant-search';
 	public const JETPACK_DASHBOARD             = 'jetpack-dashboard';
+	public const LIST_INSTALLED_PLUGINS        = 'list-installed-plugins';
 	public const LIVE_SUPPORT                  = 'live_support';
 	public const MANAGE_PLUGINS                = 'manage-plugins';
 	public const NO_ADVERTS_NO_ADVERTS_PHP     = 'no-adverts/no-adverts.php';
@@ -572,6 +573,11 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
+		),
+		self::LIST_INSTALLED_PLUGINS        => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PRO_PLANS,
+			self::WPCOM_STARTER_PLANS,
 		),
 		// LIVE_SUPPORT - Monthly plans do not get live support. p7DVsv-a9N-p2.
 		self::LIVE_SUPPORT                  => array(

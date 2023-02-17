@@ -58,10 +58,9 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 		case 'update_plugins':
 			/*
 			 * Requests like /sites/207323956/plugins rely on the activate_plugins capability.
-			 * Allow this for sites with INSTALL_PURCHASED_PLUGINS feature, to accommodate
-			 * limited sites that can only install marketplace plugins and not any plugin.
+			 * Allow sites with the LIST_INSTALLED_PLUGINS feature to list the installed plugins.
 			 */
-			if ( wpcomsh_is_plugin_list_request() && wpcom_site_has_feature( WPCOM_Features::INSTALL_PURCHASED_PLUGINS ) ) {
+			if ( wpcomsh_is_plugin_list_request() && wpcom_site_has_feature( WPCOM_Features::LIST_INSTALLED_PLUGINS ) ) {
 				break;
 			}
 
