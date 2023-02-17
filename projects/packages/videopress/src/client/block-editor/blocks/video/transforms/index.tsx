@@ -76,7 +76,7 @@ const transformToCoreEmbed = {
 			const { className: embedClassName } = getBlockAttributes( clientId ) || {};
 			const updatedClassName = classnames( className, embedClassName );
 			updateBlockAttributes( clientId, { className: updatedClassName } );
-		}, 0 );
+		}, 100 );
 
 		return block;
 	},
