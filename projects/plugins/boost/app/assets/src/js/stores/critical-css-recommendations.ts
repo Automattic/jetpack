@@ -113,7 +113,7 @@ export async function clearDismissedIssues(): Promise< void > {
 	await api.post( '/recommendations/reset', {
 		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
 	} );
-	const issues = get( issuesStore );
+	const issues = structuredClone( get( issuesStore ) );
 	issuesStore.set(
 		issues.map( issue => {
 			issue.status = 'active';
@@ -181,7 +181,7 @@ export function groupKey( error: CriticalCssErrorDetails ) {
  * @param {string} key Key of recommendation to dismiss.
  */
 export async function dismissIssue( key: string ): Promise< void > {
-	const issues = get( issuesStore );
+	const issues = structuredClone( get( issuesStore ) );
 	const issue = issues.find( el => el.key === key );
 	if ( issue ) {
 		issue.status = 'dismissed';
