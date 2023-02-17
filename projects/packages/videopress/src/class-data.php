@@ -290,10 +290,11 @@ class Data {
 		// Tweak VideoPress videos data.
 		$videos = array_map(
 			function ( $video ) {
+				$video              = (array) $video;
 				$id                 = $video['id'];
 				$guid               = $video['jetpack_videopress_guid'];
-				$media_details      = $video['media_details'];
-				$jetpack_videopress = $video['jetpack_videopress'];
+				$media_details      = (array) $video['media_details'];
+				$jetpack_videopress = (array) $video['jetpack_videopress'];
 
 				$videopress_media_details = $media_details['videopress'];
 				$width                    = $media_details['width'];
