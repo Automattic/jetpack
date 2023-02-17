@@ -13,7 +13,7 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import type { VideoPosterCardProsp } from './types';
+import type { VideoPosterCardProps } from './types';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { VideoControlProps } from '../../types';
 import type React from 'react';
@@ -23,10 +23,10 @@ const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 /**
  * Simple component that renders info about video poster.
  *
- * @param {VideoPosterCardProsp} props - Component props.
+ * @param {VideoPosterCardProps} props - Component props.
  * @returns {React.ReactElement}         VideoPosterCard component
  */
-function VideoPosterCard( { poster }: VideoPosterCardProsp ): React.ReactElement {
+function VideoPosterCard( { poster }: VideoPosterCardProps ): React.ReactElement {
 	const notes = createInterpolateElement(
 		__(
 			'<strong>No custom Poster image selected.</strong> You can upload or select an image from your media library to override the default video image.',
