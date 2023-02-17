@@ -18,7 +18,7 @@ export class API_Endpoint< T extends RequestParams > {
 		 * For more information on the shape of the API,
 		 * @see API.request
 		 */
-		this.endpoint = this.name.replace( '_', '-' );
+		this.endpoint = this.name.replaceAll( '_', '-' );
 	}
 
 	public async validatedRequest( method: RequestMethods = 'GET', params?: T ): Promise< T > {
