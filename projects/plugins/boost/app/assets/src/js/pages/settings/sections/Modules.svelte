@@ -1,7 +1,11 @@
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
+	import config from '../../../stores/config';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
@@ -20,6 +24,7 @@
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
+	const minifyCssLink = getRedirectUrl( 'jetpack-boost-minify-css' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
@@ -52,6 +57,13 @@
 
 		<div slot="meta">
 			<CriticalCssMeta />
+		</div>
+
+		<div slot="notice">
+			<ReactComponent
+				this={RegenerateCriticalCssSuggestion}
+				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
+			/>
 		</div>
 	</Module>
 
@@ -123,6 +135,19 @@
 		</Module>
 	</div>
 
+	<Module slug={'minify'}>
+		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+		<p slot="description">
+			<TemplatedString
+				template={__(
+					`Minimize code and markup in your web pages and script files, reducing file sizes and speeding up your site. Read more on <link>web.dev</link>.`,
+					'jetpack-boost'
+				)}
+				vars={externalLinkTemplateVar( minifyCssLink )}
+			/>
+		</p>
+	</Module>
+
 	<SuperCacheInfo />
 </div>
 
@@ -140,5 +165,9 @@
 		margin-left: 10px;
 		transform: translateY( -4.5px );
 		display: inline-block;
+	}
+
+	[slot='notice'] {
+		margin-top: 1rem;
 	}
 </style>

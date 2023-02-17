@@ -2,6 +2,29 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ButtonControls from '../controls';
 
+// Mock `useSetting` from `@wordpress/block-editor` to override a setting.
+// This approach was recommended at p1667855007139489-slack-C45SNKV4Z
+jest.mock( '@wordpress/block-editor/build/components/use-setting', () => {
+	const { default: useSetting } = jest.requireActual(
+		'@wordpress/block-editor/build/components/use-setting'
+	);
+	const settings = {
+		'color.defaultGradients': true,
+		'color.defaultPalette': true,
+	};
+	const aliases = {
+		'color.palette.default': 'color.palette',
+		'color.gradients.default': 'color.gradients',
+	};
+	return path => {
+		let ret = settings.hasOwnProperty( path ) ? settings[ path ] : useSetting( path );
+		if ( ret === undefined && aliases.hasOwnProperty( path ) ) {
+			ret = useSetting( aliases[ path ] );
+		}
+		return ret;
+	};
+} );
+
 const defaultAttributes = {
 	align: undefined,
 	width: undefined,

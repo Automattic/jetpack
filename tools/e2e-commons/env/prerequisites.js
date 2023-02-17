@@ -4,9 +4,9 @@ import {
 	execWpCommand,
 	getDotComCredentials,
 	isLocalSite,
-	provisionJetpackStartConnection,
 	resetWordpressInstall,
 } from '../helpers/utils-helper.cjs';
+import { provisionJetpackStartConnection } from '../helpers/partner-provisioning.js';
 import fs from 'fs';
 import config from 'config';
 import assert from 'assert';
@@ -121,7 +121,7 @@ async function connect() {
 		provisionJetpackStartConnection( creds.userId, 'free' );
 	} catch ( error ) {
 		// Let's try to re-try the provisioning if it fails the first time.
-		if ( error.message.startsWith( 'Jetpack Start provision is failed' ) ) {
+		if ( error.message.startsWith( 'Jetpack Start provisioning failed' ) ) {
 			provisionJetpackStartConnection( creds.userId, 'free' );
 		} else {
 			throw error;

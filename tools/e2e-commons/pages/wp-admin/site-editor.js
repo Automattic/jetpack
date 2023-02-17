@@ -1,8 +1,10 @@
 import WpPage from '../wp-page.js';
 import logger from '../../logger.cjs';
 import { resolveSiteUrl } from '../../helpers/utils-helper.cjs';
+import { waitForBlock } from '../../helpers/blocks-helper.js';
 import { EditorCanvas } from './index.js';
 import { expect } from '@playwright/test';
+import { SitePage } from '../index.js';
 
 export default class SiteEditorPage extends WpPage {
 	constructor( page ) {
@@ -13,7 +15,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async edit() {
-		const editBtnSelector = "button[aria-label='Open the editor']";
+		const editBtnSelector = 'button.edit-site-site-hub__edit-button';
 		if ( await this.isElementVisible( editBtnSelector, 2000 ) ) {
 			await this.click( editBtnSelector );
 		}
@@ -53,6 +55,7 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async insertBlock( blockName, blockTitle ) {
+		await waitForBlock( blockName, this );
 		await this.searchForBlock( blockTitle );
 
 		logger.step( `Insert block {name: ${ blockName }, title: ${ blockTitle }}` );
@@ -88,9 +91,9 @@ export default class SiteEditorPage extends WpPage {
 		] );
 
 		logger.action( 'Waiting for new page' );
-		await viewPageTab.waitForLoadState();
-		await viewPageTab.bringToFront();
-		return viewPageTab;
+		const sitePage = await SitePage.init( viewPageTab );
+		await sitePage.page.bringToFront();
+		return sitePage;
 	}
 
 	async waitForNoticeToAppear() {

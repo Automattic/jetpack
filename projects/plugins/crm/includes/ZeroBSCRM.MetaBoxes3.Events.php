@@ -744,27 +744,30 @@ function zeroBSCRM_task_ui_date($taskObject = array()){
 
     } else {
 
+		// temp pre v3.0 fix, forcing english en for this datepicker only.
+		// requires js mod: search #forcedlocaletasks
+		// (Month names are localised, causing a mismatch here (Italian etc.))
+		// ... so we translate:
+		// d F Y H:i:s (date - not locale based)
+		// https://www.php.net/manual/en/function.date.php
+		// ... into
+		// %d %B %Y %H:%M:%S (strfttime - locale based date)
+		// (https://www.php.net/manual/en/function.strftime.php)
 
-        // temp pre v3.0 fix, forcing english en for this datepicker only. 
-        // requires js mod: search #forcedlocaletasks
-        // (Month names are localised, causing a mismatch here (Italian etc.)) 
-        // ... so we translate:
-        //      d F Y H:i:s (date - not locale based)
-        // https://www.php.net/manual/en/function.date.php
-        // ... into
-        //      dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
-        // (https://www.php.net/manual/en/class.intldateformatter.php)
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
 
-        /*
-        $start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-        $end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-        */
-
-        $fmt = new IntlDateFormatter( 'en_US', IntlDateFormatter::FULL, IntlDateFormatter::FULL );
-        $fmt->setPattern( 'dd MMMM yyyy HH:mm:ss' );
-        $start_d = $fmt->format($taskObject['start']);
-        $end_d =  $fmt->format($taskObject['end']);
-    }
+		/*
+		$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
+		$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
+		*/
+		// @todo - this is to be refactored.
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
+		zeroBSCRM_locale_setServerLocale( 'en_US' );
+		$start_d = strftime( '%d %B %Y %H:%M:%S', $taskObject['start'] );
+		$end_d   = strftime( '%d %B %Y %H:%M:%S', $taskObject['end'] );
+		zeroBSCRM_locale_resetServerLocale();
+		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
+	}
 
     $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
     $html .= '<input type="hidden" id="zbs_from" name="zbse_start" value="' . $start_d .'"/>';

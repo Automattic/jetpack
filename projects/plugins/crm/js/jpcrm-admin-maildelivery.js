@@ -1,4 +1,4 @@
-const zeroBSCRMJS_SMTPWiz = {
+var zeroBSCRMJS_SMTPWiz = {
 	sendFromName: '',
 	sendFromEmail: '',
 	serverType: 'wp_mail',
@@ -23,7 +23,7 @@ jQuery( function () {
 } );
 
 // defaults for test delivery pass through for SWAL
-const zbsTestDelivery = false,
+var zbsTestDelivery = false,
 	zbsTestDeliveryMsg = '';
 
 // bind list view stuff
@@ -35,7 +35,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get deets
-			let emailFrom = '',
+			var emailFrom = '',
 				emailIndx = -1;
 
 			emailIndx = jQuery( this ).attr( 'data-indx' );
@@ -52,14 +52,14 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 				preConfirm: function ( email ) {
 					return new Promise( function ( resolve, reject ) {
 						// localise indx
-						const lIndx = emailIndx;
+						var lIndx = emailIndx;
 
 						// timeout for loading
 						setTimeout( function () {
 							if ( ! zbscrm_JS_validateEmail( email ) ) {
 								reject( window.zeroBSCRMJS_globViewLang( 'pleaseEnterEmail' ) );
 							} else {
-								const data = {
+								var data = {
 									action: 'zbs_maildelivery_test',
 									indx: lIndx,
 									em: email,
@@ -75,7 +75,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 									timeout: 20000,
 									success: function ( response ) {
 										// localise
-										const lEmail = email;
+										var lEmail = email;
 
 										window.zbsTestDelivery = 'success';
 										window.zbsTestDeliveryMsg =
@@ -121,7 +121,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get deets
-			let emailIndx = -1;
+			var emailIndx = -1;
 
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
@@ -136,9 +136,9 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 			} ).then( function ( result ) {
 				if ( result.value ) {
 					// localise indx
-					const lIndx = emailIndx;
+					var lIndx = emailIndx;
 
-					const data = {
+					var data = {
 						action: 'zbs_maildelivery_remove',
 						indx: lIndx,
 						sec: window.zbs_root.jpcrm_nonce,
@@ -185,7 +185,7 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get deets
-			let emailIndx = -1;
+			var emailIndx = -1;
 
 			emailIndx = jQuery( this ).attr( 'data-indx' );
 
@@ -199,9 +199,9 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 				confirmButtonText: window.zeroBSCRMJS_globViewLang( 'defaultMailDeliverySureConfirm' ),
 			} ).then( function () {
 				// localise indx
-				const lIndx = emailIndx;
+				var lIndx = emailIndx;
 
-				const data = {
+				var data = {
 					action: 'zbs_maildelivery_setdefault',
 					indx: lIndx,
 					sec: window.zbs_root.jpcrm_nonce,
@@ -260,6 +260,8 @@ function zeroBSCRMJS_mail_delivery_bindList() {
 		} );
 }
 
+var oauth_profile_key = '';
+
 // bind wizard funcs
 /**
  *
@@ -286,9 +288,9 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// test inputs & move on to step 2
-			let okayToProceed = true;
-			const sendFromName = jQuery( '#zbs-mail-delivery-wizard-sendfromname' ).val();
-			const sendFromEmail = jQuery( '#zbs-mail-delivery-wizard-sendfromemail' ).val();
+			var okayToProceed = true;
+			var sendFromName = jQuery( '#zbs-mail-delivery-wizard-sendfromname' ).val();
+			var sendFromEmail = jQuery( '#zbs-mail-delivery-wizard-sendfromemail' ).val();
 
 			// send from name
 			if ( sendFromName.length > 0 ) {
@@ -346,7 +348,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 	// Step 2
 	jQuery( '#zbs-mail-delivery-wizard-step-2-wrap .ui.radio.checkbox' ).on( 'click', function () {
 		// check mode
-		let serverType = 'wp_mail';
+		var serverType = 'wp_mail';
 		if ( jQuery( '#zbs-mail-delivery-wizard-step-2-servertype-smtp' ).checkbox( 'is checked' ) ) {
 			serverType = 'smtp';
 		}
@@ -391,7 +393,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 		.off( 'change' )
 		.on( 'change', function () {
 			// debug console.log(jQuery('#zbs-mail-delivery-wizard-step-2-prefill-smtp select').val());
-			const v = jQuery( '#zbs-mail-delivery-wizard-step-2-prefill-smtp select' ).val();
+			var v = jQuery( '#zbs-mail-delivery-wizard-step-2-prefill-smtp select' ).val();
 
 			// find deets
 			jQuery( '#zbs-mail-delivery-wizard-step-2-prefill-smtp select option' ).each( function (
@@ -399,7 +401,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 				ele
 			) {
 				if ( jQuery( ele ).val() == v && window.zbs_root.smtp_providers[ v ] ) {
-					const smtp_settings = window.zbs_root.smtp_providers[ v ];
+					var smtp_settings = window.zbs_root.smtp_providers[ v ];
 
 					// fill out + break
 					jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-host' ).val( smtp_settings.host );
@@ -423,10 +425,10 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// test inputs & move on to step 2
-			let okayToProceed = true;
+			var okayToProceed = true;
 
 			// wpmail or smtp?
-			let serverType = 'wp_mail';
+			var serverType = 'wp_mail';
 			if ( jQuery( '#zbs-mail-delivery-wizard-step-2-servertype-smtp' ).checkbox( 'is checked' ) ) {
 				serverType = 'smtp';
 			}
@@ -438,10 +440,10 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 
 			// smtp?
 			if ( serverType == 'smtp' ) {
-				const smtpHost = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-host' ).val();
-				const smtpPort = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-port' ).val();
-				const smtpUser = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-user' ).val();
-				const smtpPass = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-pass' ).val();
+				var smtpHost = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-host' ).val();
+				var smtpPort = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-port' ).val();
+				var smtpUser = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-user' ).val();
+				var smtpPass = jQuery( '#zbs-mail-delivery-wizard-step-2-smtp-pass' ).val();
 
 				// first check lengths of them all
 
@@ -518,7 +520,7 @@ function zeroBSCRMJS_mail_delivery_bindWizard() {
 			// API Oauth
 			if ( serverType == 'api' ) {
 				// got a valid connection?
-				const oauth_profile_key = jQuery( '#jpcrm-mail-delivery-wizard-step-2-api select' ).val();
+				var oauth_profile_key = jQuery( '#jpcrm-mail-delivery-wizard-step-2-api select' ).val();
 				if ( oauth_profile_key ) {
 					jQuery( '#zbs-mail-delivery-wizard-oauth-error' ).addClass( 'hidden' );
 					window.zeroBSCRMJS_SMTPWiz.oauth_profile_key = oauth_profile_key;
@@ -579,7 +581,7 @@ function zeroBSCRMJS_validateSettings() {
 			smtpPass: ''
 			*/
 
-	let serverType = 'wp_mail';
+	var serverType = 'wp_mail';
 	if ( jQuery( '#zbs-mail-delivery-wizard-step-2-servertype-smtp' ).checkbox( 'is checked' ) ) {
 		serverType = 'smtp';
 	}
@@ -658,7 +660,7 @@ function zeroBSCRMJS_validateSettings() {
 					);
 
 					// some kind of error, suggest retry
-					const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMailError' );
+					var resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedWPMailError' );
 					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
 					// enable back button, disable finish button
@@ -700,7 +702,7 @@ function zeroBSCRMJS_validateSettings() {
 						);
 
 						// postbag! - NOTE: This also adds a new Mail Delivery line to the options (or updates an old one with same email)
-						const data = {
+						var data = {
 							action: 'zbs_maildelivery_validation_smtp',
 							sendFromName: window.zeroBSCRMJS_SMTPWiz.sendFromName,
 							sendFromEmail: window.zeroBSCRMJS_SMTPWiz.sendFromEmail,
@@ -723,7 +725,7 @@ function zeroBSCRMJS_validateSettings() {
 
 								// 2.94.2 we also added hidden output of all debugs (click to show)
 								if ( typeof response.debugs !== 'undefined' ) {
-									let debugStr = '';
+									var debugStr = '';
 									if ( response.debugs.length > 0 ) {
 										jQuery.each( response.debugs, function ( ind, ele ) {
 											debugStr += '<hr />' + ele;
@@ -765,7 +767,7 @@ function zeroBSCRMJS_validateSettings() {
 										setTimeout( function () {
 											//console.log('x',window.zeroBSCRMJS_SMTPWiz.smtpHost);
 											// show result
-											const resHTML =
+											var resHTML =
 												window.zeroBSCRMJS_globViewLang( 'settingsValidatedSMTP' ) +
 												'<div class="zbs-validated">' +
 												window.zeroBSCRMJS_SMTPWiz.sendFromEmail +
@@ -848,7 +850,7 @@ function zeroBSCRMJS_validateSettings() {
 								);
 
 								// some kind of error, suggest retry
-								const resHTML = window.zeroBSCRMJS_globViewLang(
+								var resHTML = window.zeroBSCRMJS_globViewLang(
 									'settingsValidatedSMTPGeneralError'
 								);
 								jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
@@ -874,7 +876,7 @@ function zeroBSCRMJS_validateSettings() {
 
 						// 2.94.2 we also added hidden output of all debugs (click to show)
 						if ( typeof response.debugs !== 'undefined' ) {
-							let debugStr = '';
+							var debugStr = '';
 							if ( response.debugs.length > 0 ) {
 								jQuery.each( response.debugs, function ( ind, ele ) {
 									debugStr += '<hr />' + ele;
@@ -891,7 +893,7 @@ function zeroBSCRMJS_validateSettings() {
 							);
 
 							// some kind of error, suggest retry
-							const resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
+							var resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
 							jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
 							// enable back button, disable finish button
@@ -924,7 +926,7 @@ function zeroBSCRMJS_validateSettings() {
 					);
 
 					// some kind of error, suggest retry
-					const resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
+					var resHTML = window.zeroBSCRMJS_globViewLang( 'likelytimeout' );
 					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
 					// enable back button, disable finish button
@@ -1008,7 +1010,7 @@ function zeroBSCRMJS_validateSettings() {
 					);
 
 					// some kind of error, suggest retry
-					const resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuthError' );
+					var resHTML = window.zeroBSCRMJS_globViewLang( 'settingsValidatedOAuthError' );
 					jQuery( '#zbs-mail-delivery-wizard-validate-console' ).html( resHTML );
 
 					// enable back button, disable finish button
@@ -1019,4 +1021,10 @@ function zeroBSCRMJS_validateSettings() {
 
 			break;
 	} // / switch
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRMJS_SMTPWiz, zbsTestDelivery, oauth_profile_key,
+		zeroBSCRMJS_refreshPage, zeroBSCRMJS_mail_delivery_bindList,
+		zeroBSCRMJS_mail_delivery_bindWizard, zeroBSCRMJS_validateSettings };
 }

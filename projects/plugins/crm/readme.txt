@@ -2,7 +2,7 @@
 Contributors: automattic, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.1
-Stable tag: 5.5.1
+Stable tag: 5.5.3
 Requires at least: 5.0
 Requires PHP: 7.2
 License: GPLv2
@@ -399,6 +399,53 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
+### 5.5.4-alpha - 2023-02-15
+#### Added
+- adds the necessary migration to move all files that were inside the zbscrm-store folder with a flat struture to the new jpcrm-storage folder that uses a hierarchical structure
+- Copy tests from old repo.
+
+#### Changed
+- Added webpack build step
+- CRM: changing variable declarations back to var
+- CRM: export vars that are referenced via window.
+- Updated package dependencies.
+
+#### Fixed
+- Client Portal bug that prevented access from being disabled using the contact page was fixed
+- CRM: add a missing < which prevented a <script> tag from being opened.
+- CRM: Adding a JS function to a list of exports so that it can be called outside the bundle it was declared in.
+- CRM: Adding exports to functions called externally, in all JS fiiles where it is needed.
+- CRM:  allows custom profile pictures to be shown in the dashboard.
+- CRM: Escaping an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
+- CRM: Fix avatar getting removed when saving a contact
+- CRM: Fixes a contact fild issue when a Woo order subscription is updated.
+- CRM: Fix escape in contact list filters
+- CRM: Fixing minor admin only issue on placeholder fields.
+- CRM: fix issue  where exporting contacts shows "County" when it should show "State".
+- CRM:  fix the escape used in the "Bundle holder" notification when uploading files to a contact
+- Fixed numeric fields, date fields, and textareas in the Client Portal
+
+-------------------------
+* Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
+* Fixed: HTML escaped code in contact list filters for segments
+
+v5.5.2 - 25 January 2023
+-------------------------
+* Fixed: Custom profile images are now shown in the Latest Contacts dashboard
+* Fixed: Potential XSS in the Custom Fields setting page
+* Fixed: Custom profile pictures are no longer removed when updating contacts
+* Fixed: Potential XSS in invoices with manual input references
+* Fixed: Code snippet was removed from the top of the Forms new/edit page
+* Fixed: Remove HTML code in the "Bundle holder" notification when uploading files to a contact
+* Fixed: HTML escaped code in contact list filters for segments
+* Fixed: Improved security regarding filenames for uploaded files
+* Fixed: The creation date for contacts is updated on any WooCommerce subscription event
+* Improved: Added translation for contact fields when exporting contacts
+* Improved: Added Invoice Status to PDF Invoice template
+* Added: Export Segments to .CSV
+* Added: WooCommerce order status mapping to transaction status
+* Added: WooCommerce order status mapping to invoice status
+
 v5.5.1 - 16 December 2022
 -------------------------
 * Fixed: Inline field editing no longer prevents listings from being displayed

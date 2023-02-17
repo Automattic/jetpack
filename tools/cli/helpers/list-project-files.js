@@ -18,21 +18,30 @@ export async function* listProjectFiles( src, spawn ) {
 	const lsFiles = spawn( 'git', [ '-c', 'core.quotepath=off', 'ls-files' ], {
 		cwd: src,
 		stdio: [ 'ignore', 'pipe', null ],
+		buffer: false,
 	} );
 	const lsIgnoredFiles = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'ls-files', '--others', '--ignored', '--exclude-standard' ],
-		{ cwd: src, stdio: [ 'ignore', 'pipe', null ] }
+		{ cwd: src, stdio: [ 'ignore', 'pipe', null ], buffer: false }
 	);
 	const checkAttrInclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-include' ],
-		{ cwd: src, stdio: [ lsIgnoredFiles.stdout, 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ lsIgnoredFiles.stdout, 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const checkAttrExclude = spawn(
 		'git',
 		[ '-c', 'core.quotepath=off', 'check-attr', '--stdin', 'production-exclude' ],
-		{ cwd: src, stdio: [ 'pipe', 'pipe', null ] }
+		{
+			cwd: src,
+			stdio: [ 'pipe', 'pipe', null ],
+			buffer: false,
+		}
 	);
 	const filterProductionInclude = new FilterStream(
 		s => s.match( /^(.*): production-include: (?!unspecified|unset)/ )?.[ 1 ]
@@ -55,7 +64,19 @@ export async function* listProjectFiles( src, spawn ) {
 		crlfDelay: Infinity,
 	} );
 
+	// Apparently if any of the execa promises reject during the `yield*`, node will decide they're "unhandled" and exit ignoring any
+	// parent catch. So we need to catch any errors manually, then re-throw them after.
+	let err;
+	for ( const proc of [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] ) {
+		proc.catch( e => ( err ||= e ) );
+	}
+
+	// Return each line from the generator.
 	yield* rl;
 
+	// Wait for processes, then rethrow any error.
 	await Promise.all( [ lsFiles, lsIgnoredFiles, checkAttrInclude, checkAttrExclude ] );
+	if ( err ) {
+		throw err;
+	}
 }

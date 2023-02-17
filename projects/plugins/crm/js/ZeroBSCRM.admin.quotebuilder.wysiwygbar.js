@@ -10,7 +10,7 @@
 
 ( function () {
 	// hardtyped, unless window.jpcrm_placeholder_list is set (overrides)
-	let template_placeholders = [
+	var template_placeholders = [
 		{ text: 'Contact Full Name', value: '##CONTACT-FULLNAME##' },
 		{ text: 'Contact First Name', value: '##CONTACT-FNAME##' },
 		{ text: 'Contact Last Name', value: '##CONTACT-LNAME##' },

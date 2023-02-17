@@ -41,10 +41,6 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [
-			"plugins/videopress",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "videopress",
 		"mirrorName": "jetpack-videopress-plugin"
 	}

@@ -1,8 +1,8 @@
 {
-	"name": "jetpack-migration-e2e-tests",
+	"name": "wpcom-migration-e2e-tests",
 	"private": true,
 	"type": "module",
-	"description": "A Jetpack plugin that helps users to migrate their sites to WordPress.com.",
+	"description": "A WordPress plugin that helps users to migrate their sites to WordPress.com.",
 	"homepage": "https://jetpack.com",
 	"bugs": {
 		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Migration"
@@ -46,6 +46,6 @@
 			"tools/e2e-commons"
 		],
 		"pluginSlug": "migration",
-		"mirrorName": "jetpack-migration"
+		"mirrorName": "wpcom-migration"
 	}
 }
