@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+
 /**
  * Shared Functions class.
  */
