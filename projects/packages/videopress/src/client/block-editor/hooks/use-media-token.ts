@@ -7,10 +7,9 @@ import { useEffect, useState } from '@wordpress/element';
  */
 import getMediaToken from '../../lib/get-media-token';
 import { MediaTokenScopeProps } from '../../lib/get-media-token/types';
-import { VideoGUID, VideoId } from '../blocks/video/types';
+import { VideoGUID } from '../blocks/video/types';
 
 type UseMediaTokenArgs = {
-	id?: VideoId;
 	guid?: VideoGUID;
 	isPrivate: boolean;
 	tokenType: MediaTokenScopeProps;
@@ -21,7 +20,7 @@ type UseMediaTokenArgs = {
  * @param {UseMediaTokenArgs} args - Hook arguments object.
  * @returns {string} The media token.
  */
-const useMediaToken = ( { id, guid, isPrivate, tokenType }: UseMediaTokenArgs ): string | null => {
+const useMediaToken = ( { guid, isPrivate, tokenType }: UseMediaTokenArgs ): string | null => {
 	const [ token, setToken ] = useState< string | null >( null );
 
 	useEffect( () => {
