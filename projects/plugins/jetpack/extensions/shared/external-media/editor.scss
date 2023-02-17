@@ -431,6 +431,7 @@ $grid-size: 8px;
 .components-placeholder__fieldset,
 .editor-post-featured-image {
 	.components-dropdown .jetpack-external-media-button-menu {
+		width: auto;
 		margin-right: 8px;
 		margin-bottom: 1em;
 		padding-left: 6px;
