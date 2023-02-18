@@ -309,3 +309,8 @@ if ( ! String.prototype.format ) {
 		} );
 	};
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_mailpoet_initiate_sync, jpcrm_mailpoet_fire_sync,
+		jpcrm_mailpoet_language_label };
+}

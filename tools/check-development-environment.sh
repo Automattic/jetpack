@@ -203,7 +203,7 @@ else
 	elif php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		success "ok (version $VER)"
 	elif php -r "exit( version_compare( PHP_VERSION, '$MIN_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
-		warning "ok (version $VER)" 'php' "Version $PHP_VERSION or later is recommended."
+		warning "ok (version $VER)" 'php' "Version $PHP_VERSION or later is recommended. Tooling may raise errors with earlier versions."
 	else
 		failure 'too old' 'php' "PHP at $BIN is version $VER. Version $MIN_PHP_VERSION or later is required; $PHP_VERSION or later is recommended."
 	fi

@@ -318,5 +318,6 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 }
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { jpcrm_segment_export_to_mailpoet };
+    module.exports = { jpcrm_segment_export_to_mailpoet, jpcrm_mailpoet_initiate_export,
+		jpcrm_segment_batch_export, jpcrm_mailpoet_retrieve_list_summary };
 }

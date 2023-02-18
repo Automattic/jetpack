@@ -237,3 +237,7 @@ jQuery( function ( $ ) {
   }
 */
 } );
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsTour };
+}

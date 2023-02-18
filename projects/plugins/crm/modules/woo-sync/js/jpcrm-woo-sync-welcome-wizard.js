@@ -34,10 +34,10 @@ jQuery( document ).ready( function () {
 	jQuery( '.choose .btn' ).on( 'click', function () {
 		window.jpcrm_woo_options.jpcrm_wcsetuptype = jQuery( this ).data( 'setup' );
 
-		jQuery( '#jpcrm-woo-setup-' + jpcrm_woo_options.jpcrm_wcsetuptype + ' .selected' ).show();
-		jQuery( '#jpcrm-woo-setup-' + jpcrm_woo_options.jpcrm_wcsetuptype + ' .choose' ).hide();
+		jQuery( '#jpcrm-woo-setup-' + window.jpcrm_woo_options.jpcrm_wcsetuptype + ' .selected' ).show();
+		jQuery( '#jpcrm-woo-setup-' + window.jpcrm_woo_options.jpcrm_wcsetuptype + ' .choose' ).hide();
 
-		if ( jpcrm_woo_options.jpcrm_wcsetuptype == 1 ) {
+		if ( window.jpcrm_woo_options.jpcrm_wcsetuptype == 1 ) {
 			jQuery( '#jpcrm-woo-setup-0 .choose' ).show();
 			jQuery( '#jpcrm-woo-setup-0 .selected' ).hide();
 			jQuery( '#sc-0' ).removeClass( 'setup-selected' );
@@ -150,4 +150,8 @@ function jpcrm_woosync_update_details() {
 	window.jpcrm_woo_options.jpcrm_wcinv = jQuery( '#jpcrm_wcinv' ).is( ':checked' ) ? 1 : 0;
 	window.jpcrm_woo_options.jpcrm_wctagcust = jQuery( '#jpcrm_wctagcust' ).is( ':checked' ) ? 1 : 0;
 	window.jpcrm_woo_options.jpcrm_wcacc = jQuery( '#jpcrm_wcacc' ).is( ':checked' ) ? 1 : 0;
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woo_options, jpcrm_woosync_update_details };
 }

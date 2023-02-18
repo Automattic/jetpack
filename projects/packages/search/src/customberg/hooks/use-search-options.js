@@ -31,7 +31,11 @@ export default function useSearchOptions() {
 		'site',
 		'jetpack_search_show_powered_by'
 	);
-
+	const [ postDate, setPostDate ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_show_post_date'
+	);
 	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
 		'site',
@@ -64,5 +68,7 @@ export default function useSearchOptions() {
 		sortEnabled,
 		theme,
 		trigger,
+		postDate,
+		setPostDate,
 	};
 }
