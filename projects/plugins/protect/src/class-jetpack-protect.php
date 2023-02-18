@@ -39,6 +39,10 @@ class Jetpack_Protect {
 	 * @var string
 	 */
 	const JETPACK_SCAN_PRODUCT_IDS          = array(
+		2010, // JETPACK_SECURITY_DAILY.
+		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
+		2012, // JETPACK_SECURITY_REALTIME.
+		2013, // JETPACK_SECURITY_REALTIME_MONTHLY.
 		2014, // JETPACK_COMPLETE.
 		2015, // JETPACK_COMPLETE_MONTHLY.
 		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
@@ -334,11 +338,6 @@ class Jetpack_Protect {
 	 * @return boolean
 	 */
 	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
-		if ( Plan::has_required_plan() ) {
-			wp_safe_redirect( '/wp-admin/admin.php?page=jetpack-protect' );
-			exit;
-		}
-
 		if ( $plugin_slug !== JETPACK_PROTECT_SLUG || $has_license ) {
 			return $has_license;
 		}
