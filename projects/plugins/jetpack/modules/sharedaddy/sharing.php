@@ -455,7 +455,7 @@ class Sharing_Admin {
 					</td>
 					<td class="services">
 						<h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php esc_html_e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
-						<div class="sharedaddy sd-sharing-enabled <?php if ( $global['button_style'] === 'official' ) { echo ''; } ?>">
+						<div class="sharedaddy sd-sharing-enabled">
 							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
 							<?php endif; ?>
