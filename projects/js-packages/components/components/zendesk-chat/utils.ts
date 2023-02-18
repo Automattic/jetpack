@@ -2,14 +2,14 @@ import { DateFunctionType } from './types';
 
 // Checks if current time is within the days chat is available
 const isWithinAvailableChatDays: DateFunctionType = ( currentTime: Date ) => {
-	const [ SUNDAY, SATURDAY ] = [ 0, 6 ];
+	const weekendDays = [ 0, 6 ]; // 0 is Sunday and 6 is Saturday
 	const utcWeekDay = currentTime.getUTCDay();
 
-	if ( utcWeekDay !== SUNDAY && utcWeekDay !== SATURDAY ) {
-		return true;
+	if ( weekendDays.includes( utcWeekDay ) ) {
+		return false;
 	}
 
-	return false;
+	return true;
 };
 
 // Checks if the current time is within the times chat is consistently covered
