@@ -187,14 +187,10 @@ export async function dismissIssue( key: string ): Promise< void > {
 		issue.status = 'dismissed';
 		issuesStore.set( issues );
 	}
-	try {
-		await api.post( '/recommendations/dismiss', {
-			providerKey: key,
-			nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
-		} );
-	} catch ( error ) {
-		setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
-	}
+
+	// @TODO:
+	// Not handling errors anymore?
+	// setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
 }
 /**
  * Show the previously dismissed recommendations.
