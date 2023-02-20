@@ -46,14 +46,12 @@ export default function useImageGeneratorConfig() {
 		[ currentOptions, editPost, postSettings ]
 	);
 
-	const getCurrentSettings = sigSettings => {
-		return {
-			isEnabled: sigSettings?.enabled ?? ! isPostPublished,
-			customText: sigSettings?.custom_text ?? null,
-			imageType: sigSettings?.image_type ?? null,
-			imageId: sigSettings?.image_id ?? null,
-		};
-	};
+	const getCurrentSettings = sigSettings => ( {
+		isEnabled: sigSettings?.enabled ?? ! isPostPublished,
+		customText: sigSettings?.custom_text ?? null,
+		imageType: sigSettings?.image_type ?? null,
+		imageId: sigSettings?.image_id ?? null,
+	} );
 
 	return {
 		...getCurrentSettings( currentOptions?.image_generator_settings ),
