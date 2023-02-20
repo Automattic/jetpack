@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.1.0';
 
 	/**
 	 * A list of all the routes.
@@ -50,7 +50,7 @@ class Main {
 		/**
 		 * Runs right after the Jetpack Import package is initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		*/
 		do_action( 'jetpack_import_initialized' );
 	}
@@ -75,7 +75,7 @@ class Main {
 		/**
 		 * Allow other plugins to modify import routes.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param array $routes Array of import routes.
 		 */
