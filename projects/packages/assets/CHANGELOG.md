@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
 ## [1.17.31] - 2023-02-15
 ### Changed
 - Update to React 18. [#28710]
@@ -19,8 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.17.28] - 2022-12-02
 ### Changed
-- Updated package dependencies. [#27688]
-- Updated package dependencies. [#27696]
+- Updated package dependencies.
 
 ## [1.17.27] - 2022-11-28
 ### Changed
@@ -301,6 +304,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[1.17.32]: https://github.com/Automattic/jetpack-assets/compare/v1.17.31...v1.17.32
 [1.17.31]: https://github.com/Automattic/jetpack-assets/compare/v1.17.30...v1.17.31
 [1.17.30]: https://github.com/Automattic/jetpack-assets/compare/v1.17.29...v1.17.30
 [1.17.29]: https://github.com/Automattic/jetpack-assets/compare/v1.17.28...v1.17.29
