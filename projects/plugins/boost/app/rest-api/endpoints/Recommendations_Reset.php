@@ -15,8 +15,11 @@ class Recommendations_Reset implements Endpoint {
 	// $request is required to adhere to the contract.
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$state = new Critical_CSS_State();
-		$state->reset_provider_issue_status();
+		$issues = jetpack_boost_ds_get('critical_css_issues');
+		foreach ($issues as $issue ) {
+			$issue['issue_status'] = 'active';
+		}
+		jetpack_boost_ds_set('critical_css_issues', $issues);
 		wp_send_json_success();
 	}
 
