@@ -58,6 +58,20 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	className?: string;
 };
 
+export type CoreEmbedBlockAttributes = {
+	className: string;
+	allowResponsive: boolean;
+	providerNameSlug: string;
+	responsive: boolean;
+	type: string;
+	url: string;
+};
+
+export type CoreEmbedVideoPressVariationBlockAttributes = CoreEmbedBlockAttributes & {
+	providerNameSlug: 'videopress';
+	type: 'video';
+};
+
 export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;
 
 export type VideoControlProps = {

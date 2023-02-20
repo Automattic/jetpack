@@ -59,9 +59,14 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/wpcom-migration",
 		"release-branch-prefix": "migration",
-		"wp-plugin-slug": "wpcom-migration"
+		"wp-plugin-slug": "wpcom-migration",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {
