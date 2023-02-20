@@ -173,7 +173,10 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 													help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
 													onClose={ onClose }
 												/>
-												<NewsletterAccessChoices onChange={ setPostMeta } />
+												<NewsletterAccessChoices
+													accessLevel={ accessLevel }
+													onChange={ setPostMeta }
+												/>
 											</div>
 										) }
 									/>
