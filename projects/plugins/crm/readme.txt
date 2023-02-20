@@ -399,7 +399,32 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-v5.5.3 - 26 January 2023
+### 5.5.4-alpha - 2023-02-15
+#### Added
+- adds the necessary migration to move all files that were inside the zbscrm-store folder with a flat struture to the new jpcrm-storage folder that uses a hierarchical structure
+- Copy tests from old repo.
+
+#### Changed
+- Added webpack build step
+- CRM: changing variable declarations back to var
+- CRM: export vars that are referenced via window.
+- Updated package dependencies.
+
+#### Fixed
+- Client Portal bug that prevented access from being disabled using the contact page was fixed
+- CRM: add a missing < which prevented a <script> tag from being opened.
+- CRM: Adding a JS function to a list of exports so that it can be called outside the bundle it was declared in.
+- CRM: Adding exports to functions called externally, in all JS fiiles where it is needed.
+- CRM:  allows custom profile pictures to be shown in the dashboard.
+- CRM: Escaping an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
+- CRM: Fix avatar getting removed when saving a contact
+- CRM: Fixes a contact fild issue when a Woo order subscription is updated.
+- CRM: Fix escape in contact list filters
+- CRM: Fixing minor admin only issue on placeholder fields.
+- CRM: fix issue  where exporting contacts shows "County" when it should show "State".
+- CRM:  fix the escape used in the "Bundle holder" notification when uploading files to a contact
+- Fixed numeric fields, date fields, and textareas in the Client Portal
+
 -------------------------
 * Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
 * Fixed: HTML escaped code in contact list filters for segments

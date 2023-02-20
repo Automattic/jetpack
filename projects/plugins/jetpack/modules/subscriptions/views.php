@@ -186,7 +186,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			switch ( $_GET['subscribe'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 				case 'invalid_email':
 					?>
-					<p class="error"><?php esc_html_e( 'The email you entered was invalid. Please check and try again.', 'jetpack' ); ?></p>
+					<p class="error"><?php esc_html_e( 'Oops! The email you used is invalid. Please try again.', 'jetpack' ); ?></p>
 					<?php
 					break;
 				case 'opted_out':
@@ -196,14 +196,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					printf(
 						wp_kses(
 							/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link. */
-							__( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							__( 'Oops! It seems that the email you used has opted out of subscriptions. You can manage your preferences from the <a href="%1$s" title="%2$s" target="_blank">Subscriptions Manager</a>', 'jetpack' ),
 							self::$allowed_html_tags_for_message
 						),
 						'https://subscribe.wordpress.com/',
-						esc_attr__( 'Manage your email preferences.', 'jetpack' )
+						esc_attr__( 'Subscriptions Manager', 'jetpack' )
 					);
 					?>
-										</p>
+					</p>
 					<?php
 					break;
 				case 'already':
@@ -213,11 +213,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					printf(
 						wp_kses(
 							/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link. */
-							__( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							__( 'You have already subscribed to this site. Please check your email inbox. You can manage your preferences from the <a href="%1$s" title="%2$s" target="_blank">Subscriptions Manager</a>.', 'jetpack' ),
 							self::$allowed_html_tags_for_message
 						),
 						'https://subscribe.wordpress.com/',
-						esc_attr__( 'Manage your email preferences.', 'jetpack' )
+						esc_attr__( 'Subscriptions Manager', 'jetpack' )
 					);
 					?>
 										</p>
@@ -230,11 +230,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						printf(
 							wp_kses(
 								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
-								__( 'You already have several pending email subscriptions. <br /> Approve or delete a few subscriptions at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
+								__( 'Oops! It seems you have several subscriptions pending confirmation. You can confirm or unsubscribe some from the <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">Subscriptions Manager</a> before adding more.', 'jetpack' ),
 								self::$allowed_html_tags_for_message
 							),
 							'https://subscribe.wordpress.com/',
-							esc_attr__( 'Manage your email preferences.', 'jetpack' )
+							esc_attr__( 'Subscriptions Manager', 'jetpack' )
 						);
 						?>
 					</p>
@@ -247,11 +247,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						printf(
 							wp_kses(
 								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
-								__( 'You subscribed to this site before but you have not clicked the confirmation link yet. Please check your inbox. <br /> Otherwise, you can manage your preferences at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a>.', 'jetpack' ),
+								__( 'It seems you already tried to subscribe with this email, but have not confirmed from the email link we sent. Please check your email inbox to confirm or you can manage your preferences from the <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">Subscriptions Manager</a>.', 'jetpack' ),
 								self::$allowed_html_tags_for_message
 							),
 							'https://subscribe.wordpress.com/',
-							esc_attr__( 'Manage your email preferences.', 'jetpack' )
+							esc_attr__( 'Subscriptions Manager', 'jetpack' )
 						);
 						?>
 					</p>
@@ -264,7 +264,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					break;
 				default:
 					?>
-					<p class="error"><?php esc_html_e( 'There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
+					<p class="error"><?php esc_html_e( 'Oops! There was an error when subscribing. Please try again.', 'jetpack' ); ?></p>
 					<?php
 					break;
 			endswitch;
@@ -276,26 +276,26 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 			switch ( $_GET['blogsub'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotValidated
 				case 'confirming':
-					$message = __( 'Thanks for subscribing! You&rsquo;ll get an email with a link to confirm your subscription. If you don&rsquo;t get it, please <a href="https://en.support.wordpress.com/contact/">contact us</a>.', 'jetpack' );
+					$message = __( 'Thank you! You can now check your email to confirm your subscription.', 'jetpack' );
 					break;
 				case 'blocked':
-					$message = __( 'Subscriptions have been blocked for this email address.', 'jetpack' );
+					$message = __( 'Sorry but this email has been blocked for this subscription. <a href="https://en.support.wordpress.com/contact/">Contact us</a> if needed.', 'jetpack' );
 					break;
 				case 'flooded':
-					$message = __( 'You already have several pending email subscriptions. Approve or delete a few through your <a href="https://subscribe.wordpress.com/">Subscription Manager</a> before attempting to subscribe to more blogs.', 'jetpack' );
+					$message = __( 'Oops! It seems you have several subscriptions pending confirmation. You can confirm or unsubscribe some from the  <a href="https://subscribe.wordpress.com/">Subscriptions Manager</a> before adding more.', 'jetpack' );
 					break;
 				case 'spammed':
 					/* translators: %s is a URL */
-					$message = sprintf( __( 'Because there are many pending subscriptions for this email address, we have blocked the subscription. Please <a href="%s">activate or delete</a> pending subscriptions before attempting to subscribe.', 'jetpack' ), 'https://subscribe.wordpress.com/' );
+					$message = sprintf( __( 'Sorry but this email has been blocked. It has too many subscriptions pending confirmation. Please confirm or unsubscribe some from the  <a href="%s">Subscriptions Manager</a>.', 'jetpack' ), 'https://subscribe.wordpress.com/' );
 					break;
 				case 'subscribed':
-					$message = __( 'You&rsquo;re already subscribed to this site.', 'jetpack' );
+					$message = __( 'Hey! You were already subscribed.', 'jetpack' );
 					break;
 				case 'pending':
-					$message = __( 'You have a pending subscription already; we just sent you another email. Click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don&rsquo;t receive it.', 'jetpack' );
+					$message = __( 'It seems you already tried to subscribe. We just sent you another email so you can confirm the subscription.', 'jetpack' );
 					break;
 				case 'confirmed':
-					$message = __( 'Congrats, you&rsquo;re subscribed! You&rsquo;ll get an email with the details of your subscription and an unsubscribe link.', 'jetpack' );
+					$message = __( 'Cool! You are now subscribed. Now you can check your email for more details and how to manage the subscription.', 'jetpack' );
 					break;
 			}
 

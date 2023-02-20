@@ -61,20 +61,13 @@ class Generator {
 			);
 		}
 
-		$providers_errors    = $this->state->get_providers_errors();
-		$provider_key_labels = array_combine(
-			array_keys( $providers_errors ),
-			array_map( array( $this, 'describe_provider_key' ), array_keys( $providers_errors ) )
-		);
-
 		return array(
 			'status'                => Critical_CSS_State::SUCCESS,
 			'progress'              => $this->state->get_percent_complete(),
 			'success_count'         => $this->state->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'providers_errors'      => $providers_errors,
-			'provider_key_labels'   => $provider_key_labels,
+			'issues'                => $this->get_issues(),
 			'created'               => $this->state->get_created_time(),
 			'updated'               => $this->state->get_updated_time(),
 		);
@@ -96,6 +89,36 @@ class Generator {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get providers errors.
+	 *
+	 * @return array
+	 */
+	public function get_issues() {
+
+		$providers_errors = $this->state->get_providers_errors();
+		$issue_status     = $this->state->get_provider_issue_status();
+		$issues           = array();
+		foreach ( $providers_errors as $provider => $url_errors ) {
+			$errors = array();
+			foreach ( $url_errors as $url => $error ) {
+				$error['url'] = $url;
+				$errors[]     = $error;
+			}
+			$label = $this->describe_provider_key( $provider );
+
+			$status   = ! empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
+			$issues[] = array(
+				'provider_name' => $label,
+				'key'           => $provider,
+				'status'        => $status,
+				'errors'        => $errors,
+			);
+		}
+
+		return $issues;
 	}
 
 	/**
@@ -154,6 +177,7 @@ class Generator {
 
 		return $is_generating;
 	}
+
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	public function make_generation_request() {

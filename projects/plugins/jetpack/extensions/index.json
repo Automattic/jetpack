@@ -47,6 +47,7 @@
 	],
 	"beta": [
 		"amazon",
+		"blogging-prompt",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
