@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Remove `test-coverage` scripts and other remnants of automated code coverage.
+
+

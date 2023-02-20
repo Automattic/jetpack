@@ -1966,11 +1966,14 @@ importers:
 
   projects/plugins/migration:
     specifiers:
+      '@automattic/jetpack-analytics': workspace:*
       '@automattic/jetpack-api': workspace:*
       '@automattic/jetpack-base-styles': workspace:*
       '@automattic/jetpack-components': workspace:*
       '@automattic/jetpack-connection': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
+      '@automattic/typography': 1.0.0
       '@babel/core': 7.20.12
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
@@ -1989,10 +1992,13 @@ importers:
       webpack: 5.72.1
       webpack-cli: 4.9.1
     dependencies:
+      '@automattic/jetpack-analytics': link:../../js-packages/analytics
       '@automattic/jetpack-api': link:../../js-packages/api
       '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
       '@automattic/jetpack-components': link:../../js-packages/components
       '@automattic/jetpack-connection': link:../../js-packages/connection
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@automattic/typography': 1.0.0
       '@wordpress/components': 23.3.0_pjwopsidmaokadturxaafygjp4
       '@wordpress/data': 8.3.0_react@18.2.0
       '@wordpress/date': 4.26.0

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: propagate custom CSS from VideoPress video block to core/embed when transforming block
