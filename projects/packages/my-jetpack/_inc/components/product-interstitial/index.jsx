@@ -59,8 +59,15 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		checkout => {
-			activate().finally( () => {
+			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
+
+			activateOrCheckout().finally( () => {
 				const product = select( STORE_ID ).getProduct( slug );
+				if ( bundle ) {
+					// Get straight to the checkout page.
+					checkout?.();
+					return;
+				}
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = product?.hasRequiredPlan;
 				const isFree = product?.pricingForUi?.isFree;
@@ -79,7 +86,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, slug ]
+		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
 	);
 
 	const onClickGoBack = useCallback( () => {
@@ -113,8 +120,9 @@ export default function ProductInterstitial( {
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
 								<ProductDetailCard
-									slug="security"
+									slug={ bundle }
 									trackButtonClick={ trackBundleClick }
+									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
 								/>
 							) : (
