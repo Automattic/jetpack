@@ -543,7 +543,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "6070efd42fbcb868dd8afdc21ad678f88d975103"
+                "reference": "7b9a848c16ddef248597636fbcf13f77b8637a6e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -573,9 +573,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1233,7 +1230,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f6102cda899d35efbf6968177b500ccc4c24d7c6"
+                "reference": "054c1389884f529e74928bd589c7efb0d59e99f8"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -1282,7 +1279,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "f909e0af647b5e08203392b25aa9baaa0fa99c26"
+                "reference": "4280d94fac2900a3f49bda47828413eb2b8182a1"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
