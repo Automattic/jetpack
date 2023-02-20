@@ -1,5 +1,5 @@
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { getRedirectUrl } from '@automattic/jetpack-components';
+// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
 import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
