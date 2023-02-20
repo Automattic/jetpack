@@ -185,9 +185,20 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		foreach ( $this->list_all_files( $zip_folder ) as $file ) {
 			// remove the zip folder from the file name.
-			$file_path   = str_replace( $zip_folder, '', $file );
-			$destination = $target_folder . $file_path;
-			$dir         = dirname( $destination );
+			$file_path = str_replace( $zip_folder . DIRECTORY_SEPARATOR, '', $file );
+
+			/**
+			 * The GitHub zipball comes with a folder inside that we need to remove
+			 * from the path in order to get the right destination.
+			 *
+			 * Example: zip_folder/owner-repo-ref/*
+			 *
+			 * As we're mirroring the zip folder to the root (usually wp-content),
+			 * we need to remove the `owner-repo-ref` part.
+			 */
+			list(, $file_path) = explode( DIRECTORY_SEPARATOR, $file_path, 2 );
+			$destination       = $target_folder . $file_path;
+			$dir               = dirname( $destination );
 
 			if ( ! is_dir( $dir ) ) {
 				mkdir( $dir, 0755, true );
