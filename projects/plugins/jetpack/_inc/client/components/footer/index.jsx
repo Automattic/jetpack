@@ -1,4 +1,5 @@
 import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import DevCard from 'components/dev-card';
@@ -174,11 +175,9 @@ export class Footer extends React.Component {
 			if ( ! this.props.isAtomicPlatform ) {
 				return (
 					<li className="jp-footer__link-item">
-						<a
+						<ExternalLink
 							onClick={ this.trackVersionClick }
 							href={ getRedirectUrl( 'jetpack' ) }
-							target="_blank"
-							rel="noopener noreferrer"
 							className="jp-footer__link"
 							title={ __( 'Jetpack version', 'jetpack' ) }
 						>
@@ -189,7 +188,7 @@ export class Footer extends React.Component {
 										version
 								  )
 								: 'Jetpack' }
-						</a>
+						</ExternalLink>
 					</li>
 				);
 			}
@@ -218,27 +217,24 @@ export class Footer extends React.Component {
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
-						<a
+						<ExternalLink
 							onClick={ this.trackTermsClick }
 							href={ getRedirectUrl( 'wpcom-tos' ) }
-							target="_blank"
-							rel="noopener noreferrer"
 							title={ __( 'WordPress.com Terms of Service', 'jetpack' ) }
 							className="jp-footer__link"
 						>
 							{ _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ) }
-						</a>
+						</ExternalLink>
 					</li>
 					<li className="jp-footer__link-item">
-						<a
+						<ExternalLink
 							onClick={ this.trackPrivacyClick }
 							href={ privacyUrl }
-							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy", 'jetpack' ) }
 							className="jp-footer__link"
 						>
 							{ _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ) }
-						</a>
+						</ExternalLink>
 					</li>
 					{ maybeShowModules() }
 					{ maybeShowDebug() }
