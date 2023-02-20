@@ -61,25 +61,6 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Admin has access all the time
-	 *
-	 * @return void
-	 */
-	public function test_access_check_current_visitor_can_access_admin() {
-		$admin_user_id = $this->factory->user->create(
-			array(
-				'user_email' => 'test-admin@example.com',
-			)
-		);
-
-		get_user_by( 'id', $admin_user_id )->add_role( 'administrator' );
-		$post_id         = $this->factory->post->create();
-		$GLOBALS['post'] = get_post( $post_id );
-		wp_set_current_user( $admin_user_id );
-		$this->assertTrue( current_visitor_can_access( array(), array() ) );
-	}
-
-	/**
 	 * Stubs WPCOM_Token_Subscription_Service in order to return the provided token.
 	 *
 	 * @param array $payload
@@ -138,6 +119,34 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 		return array( $non_subscriber_id, $regular_subscriber_id, $paid_subscriber_id, $plan_id );
 	}
 
+	/**
+	 * Admin has access all the time
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+	 *
+	 * @return void
+	 */
+	public function test_access_check_current_visitor_can_access_admin() {
+		$admin_user_id = $this->factory->user->create(
+			array(
+				'user_email' => 'test-admin@example.com',
+			)
+		);
+
+		get_user_by( 'id', $admin_user_id )->add_role( 'administrator' );
+		$post_id         = $this->factory->post->create();
+		$GLOBALS['post'] = get_post( $post_id );
+		wp_set_current_user( $admin_user_id );
+		$this->assertTrue( current_visitor_can_access( array(), array() ) );
+	}
+
+	/**
+	 * Test current_visitor_can_access works for different types of users
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+	 *
+	 * @return void
+	 */
 	public function test_access_check_current_visitor_can_access_regular_users() {
 		$users_plans           = $this->set_up_users_and_plans();
 		$non_subscriber_id     = $users_plans[0];
@@ -164,6 +173,13 @@ class WP_Test_Jetpack_Premium_Content extends WP_UnitTestCase {
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanId' => $plan_id ), array() ) );
 	}
 
+	/**
+	 * Test that plan id can be passed 2 ways
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Premium_Content\current_visitor_can_access
+	 *
+	 * @return void
+	 */
 	public function test_access_check_current_visitor_can_access_passing_plan_id() {
 		$users_plans        = $this->set_up_users_and_plans();
 		$paid_subscriber_id = $users_plans[2];
