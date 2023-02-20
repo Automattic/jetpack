@@ -96,12 +96,12 @@
 			var button_style = $( '#button_style' ).val();
 
 			// Toggle .sd-social-official class
-			var sharedaddy = $( '.sharedaddy' );
+			var sharedaddy = $('.sharedaddy');
 			var oficialClass = 'sd-social-official';
 			if ( 'official' === button_style ) {
-				sharedaddy.addClass( oficialClass );
+				sharedaddy.addClass(oficialClass);
 			} else {
-				sharedaddy.removeClass( oficialClass );
+				sharedaddy.removeClass(oficialClass);
 			}
 
 			// Clear the live preview
