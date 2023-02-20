@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.1] - 2023-02-20
+### Changed
+- Minor internal updates.
+
 ## [1.8.0] - 2023-02-08
 ### Added
 - After connection flow, load unattached licenses. If any of them match the product that's being connected, redirect users to the license activation page. [#28509]
@@ -234,6 +238,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Licensing: Add support for Jetpack licenses
 
+[1.8.1]: https://github.com/Automattic/jetpack-licensing/compare/v1.8.0...v1.8.1
 [1.8.0]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.14...v1.8.0
 [1.7.14]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.13...v1.7.14
 [1.7.13]: https://github.com/Automattic/jetpack-licensing/compare/v1.7.12...v1.7.13
