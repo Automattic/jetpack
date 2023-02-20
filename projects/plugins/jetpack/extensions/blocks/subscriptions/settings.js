@@ -27,6 +27,20 @@ export const accessOptions = {
 	},
 };
 
+export function MisconfigurationWarning() {
+	return (
+		<InspectorNotice spanClass={ 'jetpack-subscribe-notice-misconfiguration warning' }>
+			{
+				/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
+				__(
+					'Newsletters are not configured properly as private or password-protected posts cannot be assigned for Subscribers only. Please update this to everybody, or update your post visibility setting.',
+					'jetpack'
+				)
+			}
+		</InspectorNotice>
+	);
+}
+
 export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 	const instanceId = useInstanceId( NewsletterAccess );
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
@@ -35,9 +49,11 @@ export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
 	// Can be “private”, “password”, or “public”.
-	const visibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
-	const showVisibilityNotice = visibility !== 'public';
-	const isVisibilityRestricted = showVisibilityNotice; // This is defined solely for semantic purpose
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibilityIsPublic = postVisibility === 'public';
+
+	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
+	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
 
 	return (
 		<PostVisibilityCheck
@@ -66,17 +82,24 @@ export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 								) }
 							</InspectorNotice>
 						</FlexBlock>
-						{ canEdit && showVisibilityNotice && (
+
+						{ canEdit && showVisibilityRestrictedMessage && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
 									{
 										/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
 										__(
-											'Private" or password-protected posts cannot be assigned for Subscribers only.',
+											'Private or password-protected posts cannot be assigned as Subscribers-only.',
 											'jetpack'
 										)
 									}
 								</InspectorNotice>
+							</FlexBlock>
+						) }
+
+						{ canEdit && showMisconfigurationMessage && (
+							<FlexBlock>
+								<MisconfigurationWarning />
 							</FlexBlock>
 						) }
 
@@ -86,14 +109,14 @@ export function NewsletterAccess( { accessLevel, setPostMeta } ) {
 									<span>{ __( 'Access', 'jetpack' ) }</span>
 								</FlexBlock>
 
-								{ ( ! canEdit || isVisibilityRestricted ) && (
+								{ ( ! canEdit || showVisibilityRestrictedMessage ) && (
 									<FlexBlock>
 										{ ' ' }
 										<span>{ accessLabel }</span>
 									</FlexBlock>
 								) }
 
-								{ ! isVisibilityRestricted && canEdit && (
+								{ ! showVisibilityRestrictedMessage && canEdit && (
 									<FlexBlock>
 										<Dropdown
 											placement="bottom-end"
