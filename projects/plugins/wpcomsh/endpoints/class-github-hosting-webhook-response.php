@@ -148,13 +148,25 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	}
 
 	/**
-	 * Updates the deployment status option with the uploaded log file URL.
+	 * Updates the deployment status option.
+	 *
+	 * @param Array $content The contents to be merged to the existing option.
+	 */
+	private function update_status( $content ) {
+		$existing = get_option( self::$deployment_status_option, array() );
+		$new      = array_merge( $existing, $content );
+
+		update_option( self::$deployment_status_option, $new );
+	}
+
+	/**
+	 * Saves the logic file and update the deployment status option with the uploaded log file URL.
 	 */
 	private function commit_log_file() {
 		$log_file_url = $this->save_log_file();
 
 		if ( $log_file_url ) {
-			update_option( self::$deployment_status_option, array( 'log_file_url' => $log_file_url ) );
+			$this->update_status( array( 'log_file_url' => $log_file_url ) );
 			$this->get_filesystem()->delete( $this->get_log_file_path() );
 		}
 	}
@@ -175,6 +187,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		$this->deployment_id = str_replace( '/', '-', $repo ) . '_' . $ref . '_' . time();
 		$this->log( 'Starting deployment ' . $this->deployment_id );
+		$this->update_status( array( 'status' => 'running' ) );
 
 		if ( ! isset( $base_path ) ) {
 			$base_path = '';
@@ -185,6 +198,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		if ( is_wp_error( $file_name ) ) {
 			$this->log( 'Deployment failed.' );
 			$this->commit_log_file();
+			$this->update_status( array( 'status' => 'failed' ) );
 			return $file_name;
 		}
 
@@ -193,6 +207,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		if ( is_wp_error( $result ) ) {
 			$this->log( 'Deployment failed.' );
 			$this->commit_log_file();
+			$this->update_status( array( 'status' => 'failed' ) );
 			return $result;
 		}
 
@@ -200,6 +215,13 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		$this->log( 'Deployment completed.' );
 		$this->commit_log_file();
+		$this->update_status(
+			array(
+				'status'                    => 'success',
+				'last_deployment_timestamp' => time(),
+				'last_deployment_sha'       => $ref,
+			)
+		);
 	}
 
 	/**
@@ -307,6 +329,8 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			return new WP_Error( 'zipball_extract_failure', __( 'The ZIP file could not be extracted.' ) );
 		}
 
+		$move_failures = array();
+
 		foreach ( $this->list_all_files( $zip_folder ) as $file ) {
 			// remove the zip folder from the file name.
 			$file_path = str_replace( $zip_folder . DIRECTORY_SEPARATOR, '', $file );
@@ -333,9 +357,11 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			if ( $result ) {
 				$this->log( "Moved $file to $destination" );
 			} else {
+				$move_failures[] = $file_path;
 				$this->log( "Failed to move $file to $destination" );
 			}
 		}
+		$this->update_status( array( 'move_failures' => $move_failures ) );
 		$this->get_filesystem()->delete( $zip_file_path );
 		$this->get_filesystem()->delete( $zip_folder, true );
 		$this->log( 'Deleted zipball.' );
@@ -348,6 +374,8 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	 * @param string[] $files The file names.
 	 */
 	private function remove_files( $files ) {
+		$remove_failures = array();
+
 		foreach ( $files as $file ) {
 			$file_path = $this->root . $file;
 			$result    = $this->get_filesystem()->delete( $file_path );
@@ -355,9 +383,12 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			if ( $result ) {
 				$this->log( "Removed $file_path" );
 			} else {
+				$remove_failures[] = $file;
 				$this->log( "Failed to remove $file_path" );
 			}
 		}
+
+		$this->update_status( array( 'remove_failures' => $remove_failures ) );
 	}
 
 	/**
