@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add info for concatenated CSS and JS assets when WP_DEBUG is enabled.
