@@ -1,5 +1,5 @@
 import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { Dashicon } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import DevCard from 'components/dev-card';
@@ -175,9 +175,11 @@ export class Footer extends React.Component {
 			if ( ! this.props.isAtomicPlatform ) {
 				return (
 					<li className="jp-footer__link-item">
-						<ExternalLink
+						<a
 							onClick={ this.trackVersionClick }
 							href={ getRedirectUrl( 'jetpack' ) }
+							target="_blank"
+							rel="noopener noreferrer"
 							className="jp-footer__link"
 							title={ __( 'Jetpack version', 'jetpack' ) }
 						>
@@ -188,7 +190,8 @@ export class Footer extends React.Component {
 										version
 								  )
 								: 'Jetpack' }
-						</ExternalLink>
+							{ <Dashicon icon="external" /> }
+						</a>
 					</li>
 				);
 			}
@@ -210,31 +213,40 @@ export class Footer extends React.Component {
 						<a
 							onClick={ this.trackAboutClick }
 							href={ aboutPageUrl }
+							target={ this.props.siteConnectionStatus ? '_self' : '_blank' }
+							rel="noopener noreferrer"
 							className="jp-footer__link"
 							title={ __( 'About Jetpack', 'jetpack' ) }
 						>
 							{ _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ) }
+							{ ! this.props.siteConnectionStatus && <Dashicon icon="external" /> }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
-						<ExternalLink
+						<a
 							onClick={ this.trackTermsClick }
 							href={ getRedirectUrl( 'wpcom-tos' ) }
+							target="_blank"
+							rel="noopener noreferrer"
 							title={ __( 'WordPress.com Terms of Service', 'jetpack' ) }
 							className="jp-footer__link"
 						>
 							{ _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ) }
-						</ExternalLink>
+							{ <Dashicon icon="external" /> }
+						</a>
 					</li>
 					<li className="jp-footer__link-item">
-						<ExternalLink
+						<a
 							onClick={ this.trackPrivacyClick }
 							href={ privacyUrl }
+							target={ this.props.siteConnectionStatus ? '_self' : '_blank' }
+							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy", 'jetpack' ) }
 							className="jp-footer__link"
 						>
 							{ _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ) }
-						</ExternalLink>
+							{ ! this.props.siteConnectionStatus && <Dashicon icon="external" /> }
+						</a>
 					</li>
 					{ maybeShowModules() }
 					{ maybeShowDebug() }
