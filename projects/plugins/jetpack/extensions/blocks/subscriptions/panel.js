@@ -1,5 +1,10 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
-import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isComingSoon,
+	isPrivateSite,
+	getJetpackData,
+} from '@automattic/jetpack-shared-extension-utils';
+import { Button } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
@@ -10,12 +15,15 @@ import {
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { get } from 'lodash';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { getSubscriberCounts } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
+
+const DISCUSSION_URL = `${ get( getJetpackData(), 'adminUrl', false ) }?page=jetpack#/discussion`;
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
@@ -62,7 +70,8 @@ export default function SubscribePanels() {
 		return null;
 	}
 
-	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
+	const showNotices =
+		Number.isFinite( subscriberCount ) && subscriberCount > 0 && isNewsletterFeatureEnabled();
 	return (
 		<>
 			{ isNewsletterFeatureEnabled() && (
@@ -127,6 +136,12 @@ export default function SubscribePanels() {
 						accessLevel={ accessLevel }
 						withModal={ false }
 					/>
+				) }
+
+				{ ! isNewsletterFeatureEnabled() && (
+					<Button variant="link" href={ DISCUSSION_URL }>
+						{ __( 'Enable newsletter', 'jetpack' ) }
+					</Button>
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>

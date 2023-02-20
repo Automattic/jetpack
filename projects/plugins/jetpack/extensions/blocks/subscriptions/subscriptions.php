@@ -33,7 +33,7 @@ const DEFAULT_SPACING_VALUE       = 10;
 function register_block() {
 	if (
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
-		|| ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'subscriptions' ) && ! ( new Status() )->is_offline_mode() )
+		|| ( Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
