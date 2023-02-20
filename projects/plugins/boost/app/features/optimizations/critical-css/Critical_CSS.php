@@ -16,7 +16,6 @@ use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
 class Critical_CSS implements Feature, Has_Endpoints {
@@ -151,7 +150,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			Generator_Status::class,
 			Generator_Request::class,
 			Generator_Success::class,
-			Recommendations_Dismiss::class,
 			Recommendations_Reset::class,
 			Generator_Error::class,
 		);

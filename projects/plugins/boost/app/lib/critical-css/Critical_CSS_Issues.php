@@ -35,7 +35,7 @@ class Refactoring_Critical_CSS_State_Storage implements Storage_Driver {
 	 * @return mixed
 	 */
 	public function describe_provider_key( $provider_key ) {
-		$provider  = $this->find_provider_for( $provider_key );
+		$provider = $this->find_provider_for( $provider_key );
 		if ( ! $provider ) {
 			return $provider_key;
 		}
@@ -51,11 +51,9 @@ class Refactoring_Critical_CSS_State_Storage implements Storage_Driver {
 	public function __construct( $namespace ) {
 		$this->namespace = $namespace;
 		$this->paths     = new Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers();
-		$this->generator = new \Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator();
 	}
 
 	public function get( $_unused ) {
-
 		$data    = Transient::get( Critical_CSS_State::KEY_PREFIX . 'local' );
 		$sources = $data['sources'];
 		$issues  = array();
@@ -83,11 +81,16 @@ class Refactoring_Critical_CSS_State_Storage implements Storage_Driver {
 	}
 
 	public function set( $key, $issues ) {
+		$data         = Transient::get( Critical_CSS_State::KEY_PREFIX . 'local' );
+		$valid_statuses = array( 'dismissed', 'active' );
 		foreach ( $issues as $issue ) {
-			$provider_key = $issue['provider_key'];
+			$provider_key = $issue['key'];
 			$issue_status = $issue['status'];
-			$this->generator->state->set_provider_issue_status( $provider_key, $issue_status );
+			if ( in_array( $issue_status, $valid_statuses, true ) ) {
+				$data['sources'][ $provider_key ]['issue_status'] = $issue_status;
+			}
 		}
+		Transient::set( Critical_CSS_State::KEY_PREFIX . 'local', $data );
 	}
 
 	public function delete( $key ) {
