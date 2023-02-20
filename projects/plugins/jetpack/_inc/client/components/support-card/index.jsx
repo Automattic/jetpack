@@ -77,7 +77,7 @@ class SupportCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
-						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
+						<h3 className="jp-support-card__header">{ __( 'We’re here to help', 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
