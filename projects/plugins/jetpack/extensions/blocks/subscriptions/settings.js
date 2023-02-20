@@ -27,6 +27,22 @@ export const accessOptions = {
 	},
 };
 
+export function MisconfigurationWarning() {
+	return (
+		<InspectorNotice spanClass={ 'jetpack-subscribe-notice-misconfiguration warning' }>
+			{
+				/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
+				__(
+					'Newsletters are not configured properly as private or password-protected posts cannot be assigned for Subscribers only. Please update this to everybody, or update your post visibility setting.',
+					'jetpack'
+				)
+			}
+		</InspectorNotice>
+	);
+}
+
+
+
 function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
@@ -73,9 +89,11 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
 	// Can be “private”, “password”, or “public”.
-	const visibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
-	const showVisibilityNotice = visibility !== 'public';
-	const isVisibilityRestricted = showVisibilityNotice; // This is defined solely for semantic purpose
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibilityIsPublic = postVisibility === 'public';
+
+	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
+	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
 
 	return (
 		<PostVisibilityCheck
@@ -104,13 +122,14 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								) }
 							</InspectorNotice>
 						</FlexBlock>
-						{ canEdit && showVisibilityNotice && (
+
+						{ canEdit && showVisibilityRestrictedMessage && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
 									{
 										/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
 										__(
-											'Private" or password-protected posts cannot be assigned for Subscribers only.',
+											'Private or password-protected posts cannot be assigned as Subscribers-only.',
 											'jetpack'
 										)
 									}
@@ -118,12 +137,18 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 							</FlexBlock>
 						) }
 
+						{ canEdit && showMisconfigurationMessage && (
+							<FlexBlock>
+								<MisconfigurationWarning />
+							</FlexBlock>
+						) }
+
 						<Flex direction={ withModal ? 'row' : 'column' }>
 							<FlexBlock>
 								<span>{ __( 'Access', 'jetpack' ) }</span>
 							</FlexBlock>
-							{ ( ! canEdit || isVisibilityRestricted ) && <span>{ accessLabel }</span> }
-							{ ! isVisibilityRestricted && withModal && canEdit && (
+							{ ( ! canEdit || showVisibilityRestrictedMessage ) && <span>{ accessLabel }</span> }
+							{ ! showVisibilityRestrictedMessage && withModal && canEdit && (
 								<FlexBlock>
 									<Dropdown
 										placement="bottom-end"
@@ -157,7 +182,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								</FlexBlock>
 							) }
 
-							{ ! isVisibilityRestricted && ! withModal && canEdit && (
+							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
 								<FlexBlock>
 									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
 								</FlexBlock>

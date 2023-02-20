@@ -1,5 +1,11 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .jetpack-inspector-notice {
-	span.jetpack-subscribe-info, span.jetpack-subscribe-notice-visibility {
+	span.jetpack-subscribe-info, span.jetpack-subscribe-notice-visibility, span.jetpack-subscribe-notice-misconfiguration {
+		&.warning{
+			background-color: $studio-red-10;
+		}
+
 		margin:0;
 		padding:0;
 		width: 100%;
