@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Adds a "show post date" selector to Search customberg, allows non-multisite sites to show the post date in the "expanded" search result format.
