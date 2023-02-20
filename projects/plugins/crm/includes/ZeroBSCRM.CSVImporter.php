@@ -286,7 +286,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		// Retrieve fields
 		$field_map          = array();
 		$mapped_field_count = 0;
-		for ( $fieldI = 1; $fieldI <= 30; $fieldI++ ) {
+		for ( $fieldI = 0; $fieldI <= 30; $fieldI++ ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Default to ignore
 			$map_to = 'ignorezbs';
@@ -686,13 +686,14 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 										// } else use md5 of the line + Filename
 
 									// } If no STATUS have to add one!
+									$status_override_value = null;
 									if ( ! isset( $customerFields['zbsc_status'] ) ) {
 
 										// } Get from setting, if present
 										if ( isset( $settings['defaultcustomerstatus'] ) && ! empty( $settings['defaultcustomerstatus'] ) ) {
-											$customerFields['zbsc_status'] = $settings['defaultcustomerstatus'];
+											$status_override_value = $settings['defaultcustomerstatus'];
 										} else {
-											$customerFields['zbsc_status'] = 'Customer';
+											$status_override_value = 'Customer';
 										}
 									}
 
@@ -706,6 +707,34 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 										}
 
 										$existingOverwrites[] = $thisDupeRef;
+									}
+
+									if ( ! empty( $potentialCustomerID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+										// We could modify `zeroBS_integrations_addOrUpdateCustomer`
+										// to touch only on the fields we are passing to the function,
+										// but that function is used in other places and this could
+										// result in unwanted side effects.
+										// Instead we are passing all original fields
+										// to the function, and overriding only the ones
+										// we want.
+										$original_contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+											$potentialCustomerID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+											array(
+												'withCustomFields' => true,
+												'ignoreowner' => true,
+											)
+										);
+										foreach ( $original_contact as $original_key => $original_value ) {
+											// We need to prefix all fields coming from the above function, because
+											// `zeroBS_integrations_addOrUpdateCustomer` expects the fields to be prefixed
+											// (this is an older function).
+											$original_contact[ 'zbsc_' . $original_key ] = $original_value;
+											unset( $original_contact[ $original_key ] );
+										}
+										$customerFields = array_merge( $original_contact, $customerFields ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									} else {
+										// We should override the status only when adding a new contact.
+										$customerFields['zbsc_status'] = ! empty( $status_override_value ) ? $status_override_value : $customerFields['zbsc_status']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									}
 
 									// } Add customer

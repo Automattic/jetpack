@@ -187,7 +187,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );
 		if ( ! ProIcon ) {
-			return () => null;
+			return null;
 		}
 
 		return (
