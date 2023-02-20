@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 
@@ -70,76 +69,6 @@ class Generator {
 			'created'               => $this->state->get_created_time(),
 			'updated'               => $this->state->get_updated_time(),
 		);
-	}
-
-	/**
-	 * Given a provider key, find the provider which owns the key. Returns false
-	 * if no Provider is found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return Provider|false|string
-	 */
-	public function find_provider_for( $provider_key ) {
-		foreach ( $this->paths->get_providers() as $provider ) {
-			if ( $provider::owns_key( $provider_key ) ) {
-				return $provider;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get providers errors.
-	 *
-	 * @return array
-	 */
-	public function get_issues() {
-
-		$providers_errors = $this->state->get_providers_errors();
-		$issue_status     = $this->state->get_provider_issue_status();
-		$issues           = array();
-		foreach ( $providers_errors as $provider => $url_errors ) {
-			$errors = array();
-			foreach ( $url_errors as $url => $error ) {
-				$error['url'] = $url;
-				$errors[]     = $error;
-			}
-			$label = $this->describe_provider_key( $provider );
-
-			$status   = ! empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
-			$issues[] = array(
-				'provider_name' => $label,
-				'key'           => $provider,
-				'status'        => $status,
-				'errors'        => $errors,
-			);
-		}
-
-		return $issues;
-	}
-
-	/**
-	 * Returns a descriptive label for a provider key, or the raw provider key
-	 * if none found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return mixed
-	 */
-	public function describe_provider_key( $provider_key ) {
-		$provider = $this->find_provider_for( $provider_key );
-		if ( ! $provider ) {
-			return $provider_key;
-		}
-
-		/**
-		 * Provider key.
-		 *
-		 * @param string $provider_key
-		 */
-		return $provider::describe_key( $provider_key );
 	}
 
 	/**

@@ -26,7 +26,7 @@ const CriticalCssIssueSchema = z.object( {
 	provider_name: z.string(),
 	key: z.string(),
 	status: z.enum( [ 'active', 'dismissed' ] ),
-	errors: z.array( CriticalCssErrorsSchema ).nonempty(),
+	errors: z.array( CriticalCssErrorsSchema ),
 } );
 
 export type CriticalCssErrorDetails = z.infer< typeof CriticalCssErrorsSchema >;

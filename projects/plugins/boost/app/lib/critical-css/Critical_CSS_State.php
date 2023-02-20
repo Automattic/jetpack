@@ -535,7 +535,7 @@ class Critical_CSS_State {
 		return array_filter(
 			$sources,
 			function ( $source_details ) {
-				if ( is_array( $source_details['error'] ) ) {
+				if ( isset( $source_details['error'] ) && is_array( $source_details['error'] ) ) {
 					foreach ( $source_details['error'] as $error ) {
 						if ( empty( $error['type'] ) ) {
 							return false;
