@@ -204,7 +204,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 				mkdir( $dir, 0755, true );
 			}
 
-			$this->get_filesystem()->move( $file, $destination );
+			$this->get_filesystem()->move( $file, $destination, true );
 		}
 		$this->get_filesystem()->delete( $zip_file_path );
 		$this->get_filesystem()->delete( $zip_folder, true );
