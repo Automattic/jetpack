@@ -133,6 +133,10 @@ class Concatenate_CSS extends WP_Styles {
 
 				$stylesheets[ $concat_group ][ $media ][ $handle ] = $css_url_parsed['path'];
 				$this->done[]                                      = $handle;
+
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					echo sprintf( "\n<!-- Concat CSS %s -->\n", esc_html( $handle ) );
+				}
 			} else {
 				++$stylesheet_group_index;
 				$stylesheets[ $stylesheet_group_index ]['noconcat'][] = $handle;

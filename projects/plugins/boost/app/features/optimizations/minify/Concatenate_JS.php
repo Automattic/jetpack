@@ -169,6 +169,9 @@ class Concatenate_JS extends WP_Scripts {
 				$javascripts[ $level ]['paths'][]   = $js_url_parsed['path'];
 				$javascripts[ $level ]['handles'][] = $handle;
 
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					echo sprintf( "\n<!-- Concat JS %s -->\n", esc_html( $handle ) );
+				}
 			} else {
 				++$level;
 				$javascripts[ $level ]['type']   = 'do_item';
