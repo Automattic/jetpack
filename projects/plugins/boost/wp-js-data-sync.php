@@ -22,7 +22,7 @@ function jetpack_boost_register_option( $name, $handler ) {
  * @return Data_Sync_Entry
  */
 function jetpack_boost_ds( $name ) {
-	return Registry::get_instance( 'jetpack_boost' )->get_entry( $name );
+	return Registry::get_instance( 'jetpack_boost_ds' )->get_entry( $name );
 }
 
 function jetpack_boost_ds_get( $option ) {
