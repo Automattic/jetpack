@@ -331,6 +331,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
 	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
+	 *
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
@@ -344,6 +346,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
 	 *
 	 * @return void
 	 */
@@ -366,6 +370,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	/**
 	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
 	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
+	 *
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_for_paid_subscribers_when_defaults_to_false() {
@@ -381,7 +387,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
 		$this->assertTrue( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 
-		// The user has access, BUT it still does NOT displayu comments if defaults to false
+		// The user has access, BUT it still does NOT display comments if defaults to false
 		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
 	}
 
