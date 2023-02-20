@@ -505,7 +505,7 @@ export default function VideoPressEdit( {
 				/>
 			</BlockControls>
 
-			<InspectorControls>
+			<InspectorControls group="settings">
 				<DetailsPanel
 					filename={ filename }
 					chapter={ chapter }
@@ -514,11 +514,19 @@ export default function VideoPressEdit( {
 					isRequestingVideoData={ isRequestingVideoData }
 					{ ...{ attributes, setAttributes } }
 				/>
+
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
 				/>
-				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+			</InspectorControls>
+
+			<InspectorControls group="color">
+				<ColorPanel
+					clientId={ clientId }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
 			</InspectorControls>
 
 			<ConnectBanner

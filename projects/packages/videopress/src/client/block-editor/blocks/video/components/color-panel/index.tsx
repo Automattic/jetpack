@@ -2,7 +2,11 @@
  *External dependencies
  */
 import { PanelColorSettings } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
+import {
+	ToggleControl,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToolsPanelItem as ToolsPanelItem,
+} from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +28,7 @@ import type React from 'react';
  * @param {VideoControlProps} props - Component props.
  * @returns {React.ReactElement}    Component template
  */
-export default function ColorPanel( { attributes, setAttributes }: VideoControlProps ) {
+export default function ColorPanel( { clientId, attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
 
 	const initialColorState: VideoBlockColorAttributesProps = {
@@ -44,8 +48,17 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 		debouncedSetColors( colorToUpdate );
 	}, [] );
 
+	const resetStaticColors = useCallback( () => setAttributes( { useAverageColor: true } ), [] );
+
 	return (
-		<PanelBody title={ __( 'Color', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
+		<ToolsPanelItem
+			hasValue={ () => ! useAverageColor }
+			label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
+			resetAllFilter={ resetStaticColors }
+			isShownByDefault
+			panelId={ clientId }
+			onDeselect={ resetStaticColors }
+		>
 			<ToggleControl
 				label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
 				help={
@@ -94,6 +107,6 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 					] }
 				/>
 			) }
-		</PanelBody>
+		</ToolsPanelItem>
 	);
 }
