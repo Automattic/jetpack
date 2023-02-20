@@ -1,3 +1,3 @@
-export type VideoPosterCardProsp = {
+export type VideoPosterCardProps = {
 	poster: string;
 };

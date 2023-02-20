@@ -497,26 +497,27 @@ class REST_Controller {
 		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
-			$response_body = get_transient( $cache_key );
-			if ( false !== $response_body ) {
-				return json_decode( $response_body, true );
+			$response_body_content = get_transient( $cache_key );
+			if ( false !== $response_body_content ) {
+				return json_decode( $response_body_content, true );
 			}
 		}
 
-		$response              = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			$version,
 			$args,
 			$body,
 			$base_api_path
 		);
-		$response_code         = wp_remote_retrieve_response_code( $response );
-		$response_body_content = wp_remote_retrieve_body( $response );
-		$response_body         = json_decode( $response_body, true );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
+
+		$response_code         = wp_remote_retrieve_response_code( $response );
+		$response_body_content = wp_remote_retrieve_body( $response );
+		$response_body         = json_decode( $response_body_content, true );
 
 		if ( 200 !== $response_code ) {
 			return $this->get_wp_error( $response_body, $response_code );

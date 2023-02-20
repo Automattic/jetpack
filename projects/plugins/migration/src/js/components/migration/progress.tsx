@@ -1,10 +1,11 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenLayout } from '@automattic/jetpack-connection';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo } from '../illustrations';
 import migrationImage2 from './../../../../images/migration-2.png';
@@ -23,11 +24,18 @@ interface Props {
  */
 export function MigrationProgress( props: Props ) {
 	const { apiRoot, apiNonce, sourceSiteSlug } = props;
+	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
+
+	const onCheckProgressClick = useCallback( () => {
+		tracks.recordEvent( `jetpack_migration_check_progress_click`, {
+			source_site_slug: sourceSiteSlug,
+		} );
+	}, [ tracks, sourceSiteSlug ] );
 
 	return (
 		<ConnectScreenLayout
@@ -48,6 +56,7 @@ export function MigrationProgress( props: Props ) {
 					isSecondary={ true }
 					target={ '_blank' }
 					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
+					onClick={ onCheckProgressClick }
 				>
 					{ __( 'Check your migration progress', 'wpcom-migration' ) }
 				</Button>
