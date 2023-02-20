@@ -3,7 +3,7 @@
 .jetpack-inspector-notice {
 	span.jetpack-subscribe-info, span.jetpack-subscribe-notice-visibility, span.jetpack-subscribe-notice-misconfiguration {
 		&.warning{
-			background-color: $studio-red-10;
+			color: $alert-red;
 		}
 
 		margin:0;
