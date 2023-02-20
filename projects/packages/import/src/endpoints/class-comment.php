@@ -24,7 +24,7 @@ class Comment extends \WP_REST_Comments_Controller {
 		parent::__construct();
 
 		// @see add_comment_meta
-		$this->import_id_meta_type = $this->rest_base;
+		$this->import_id_meta_type = 'comment';
 	}
 
 	/**
@@ -47,32 +47,24 @@ class Comment extends \WP_REST_Comments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or error object on failure.
 	 */
 	public function create_item( $request ) {
+		// Resolve comment post ID.
+		if ( ! empty( $request['post'] ) ) {
+			$posts = \get_posts( $this->get_import_db_query( $request['post'] ) );
+
+			// Overwrite the comment parent post ID.
+			$request['post'] = is_array( $posts ) && count( $posts ) ? $posts[0] : 0;
+		}
+
+		// Resolve comment parent ID.
+		if ( ! empty( $request['parent'] ) ) {
+			$comments = \get_comments( $this->get_import_db_query( $request['parent'] ) );
+
+			// Overwrite the comment parent post ID.
+			$request['parent'] = is_array( $comments ) && count( $comments ) ? $comments[0] : 0;
+		}
+
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );
-	}
-
-	/**
-	 * Update the comment parent ID.
-	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
-	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$comments = \get_comments( $this->get_import_db_query( $parent_import_id ) );
-
-		if ( is_array( $comments ) && count( $comments ) === 1 ) {
-			$parent_id = $comments[0];
-
-			return (bool) \wp_update_comment(
-				array(
-					'comment_ID'     => $resource_id,
-					'comment_parent' => $parent_id,
-				)
-			);
-		}
-
-		return false;
 	}
 }
