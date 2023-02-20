@@ -6,10 +6,6 @@ import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
-import vpBlockBridge from '../../scripts/vp-block-bridge';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -36,9 +32,6 @@ if ( window.videopressAjax ) {
 
 // Define a debug instance for block bridge.
 window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
-
-// Load VideoPressBlock bridge script.
-globalScripts.push( vpBlockBridge );
 
 /**
  * VideoPlayer react component
