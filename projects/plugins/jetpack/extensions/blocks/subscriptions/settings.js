@@ -41,8 +41,6 @@ export function MisconfigurationWarning() {
 	);
 }
 
-
-
 function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
