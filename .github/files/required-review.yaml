@@ -35,6 +35,7 @@
    - '!projects/js-packages/svelte-data-sync-client/**'
    - '!projects/packages/wp-js-data-sync/**'
    - '!projects/packages/backup/**'
+   - '!projects/packages/import/**'
    - '!projects/packages/search/**'
    - '!projects/packages/stats/**'
    - '!projects/packages/stats-admin/**'
@@ -59,10 +60,11 @@
     - avengers
     - jetpack-approvers
 
-# The Caribou team reviews changes to the Migration plugin,
+# The Caribou team reviews changes to the Migration plugin and its Import package,
 # and can add dependencies to the monorepo's lock file.
 - name: Migration
   paths:
+    - 'projects/packages/import/**'
     - 'projects/plugins/migration/**'
     - '!projects/plugins/*/composer.lock'
     - '!projects/plugins/*/composer.json'

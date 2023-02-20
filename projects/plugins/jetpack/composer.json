@@ -29,6 +29,7 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
 		"automattic/jetpack-licensing": "@dev",
@@ -65,10 +66,6 @@
 		],
 		"phpunit": [
 			"tests/action-phpunit.sh"
-		],
-		"test-coverage": [
-			"@php tools/build-module-headings-translations.php",
-			"tests/action-test-coverage.sh"
 		],
 		"test-js": [
 			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"

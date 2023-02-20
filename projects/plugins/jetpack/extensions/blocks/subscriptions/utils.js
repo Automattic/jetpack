@@ -33,7 +33,7 @@ export const isNewsletterFeatureEnabled = () => {
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: __( 'Add paid plan', 'jetpack' );
+		: __( 'Add Payments', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (

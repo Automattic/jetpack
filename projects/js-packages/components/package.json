@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.27.6",
+	"version": "0.27.7-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -61,8 +61,7 @@
 	"scripts": {
 		"build": "pnpm run compile-ts",
 		"compile-ts": "tsc --pretty",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"engines": {
 		"node": "^18.13.0",
