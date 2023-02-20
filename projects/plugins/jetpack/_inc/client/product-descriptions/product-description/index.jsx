@@ -11,9 +11,9 @@ import { getProductsForPurchase } from 'state/initial-state';
 import { getIntroOffers } from 'state/intro-offers';
 import { productIllustrations } from '../constants';
 import {
-	cloud as cloudIcon,
+	vaultpress as vaultpressIcon,
 	shield as shieldIcon,
-	removeBug as bugIcon,
+	akismetAntiSpam as akismetIcon,
 	combined as bundleIcon,
 } from './icons';
 
@@ -46,13 +46,13 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 	switch ( product.slug ) {
 		case 'jetpack_backup_t0_yearly':
 		case 'jetpack_backup_t1_yearly':
-			icon = cloudIcon;
+			icon = vaultpressIcon;
 			break;
 		case 'jetpack_scan':
 			icon = shieldIcon;
 			break;
 		case 'jetpack_anti_spam':
-			icon = bugIcon;
+			icon = akismetIcon;
 			break;
 		case 'jetpack_security_t0_yearly':
 		case 'jetpack_security_t1_yearly':
