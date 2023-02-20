@@ -64,7 +64,6 @@ body.settings_page_sharing .services {
 }
 
 body.settings_page_sharing .services ul li {
-	float: left;
 	cursor: move;
 }
 
@@ -172,8 +171,9 @@ li.service.share-skype span:before {
  */
 
 body.settings_page_sharing ul.preview {
+	display: flex;
+	flex-wrap: wrap;
 	float: left;
-	margin: 0px;
 }
 
 body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharing ul.preview li.preview-item a {
@@ -314,6 +314,7 @@ body.settings_page_sharing .advanced input[type=submit] {
 	background-size: 85px 20px;
 	width:85px;
 	height:20px;
+	margin-left: -4px;
 }
 
 .preview-twitter .option-smart-on {

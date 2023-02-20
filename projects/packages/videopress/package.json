@@ -20,8 +20,7 @@
 		"clean": "rm -rf build/",
 		"validate": "pnpm exec validate-es build/",
 		"watch": "pnpm build && pnpm build-client --watch",
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"devDependencies": {
 		"@automattic/calypso-color-schemes": "2.1.1",

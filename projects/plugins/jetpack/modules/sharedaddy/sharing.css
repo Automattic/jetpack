@@ -26,15 +26,6 @@ div.sharedaddy h3.sd-title {
 	font-weight: bold;
 }
 
-div.sharedaddy h3.sd-title:before {
-	content: "";
-	display: block;
-	width: 100%;
-	min-width: 30px;
-	border-top: 1px solid #dcdcde;
-	margin-bottom: 1em;
-}
-
 body.highlander-light h3.sd-title:before {
 	border-top: 1px solid rgba(0,0,0,.2);
 }
@@ -110,7 +101,22 @@ body.highlander-dark h3.sd-title:before {
 	padding: 5px 11px 4px 9px;
 }
 
-.sd-social-text .sd-content ul li a.sd-button span,
+.sd-social-official .sd-content ul li a.sd-button,
+.sd-social-official .sd-content ul li.preview-item div.option.option-smart-off a {
+	align-items: center;
+	display: flex;
+	font-size: 12px;
+	line-height: 12px;
+	padding: 1px 6px 0px 5px;
+	min-height: 20px;
+}
+
+.sd-social-official .sd-content ul.preview li a.sd-button,
+.sd-social-official .sd-content ul.preview li.preview-item div.option.option-smart-off a {
+	position: relative;
+	top: 2px;
+}
+
 .sd-content ul li a.sd-button>span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
 .sd-content ul li.preview-item div.option.option-smart-off a span,
@@ -119,23 +125,20 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content>ul>li>a.sd-button span,
 .sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
 	line-height: 23px;
+	margin-left: 6px;
+}
+
+.sd-social-text .sd-content ul li a.sd-button span {
+	margin-left: 3px;
+}
+
+.sd-social-official .sd-content ul li a.sd-button>span,
+.sd-social-official .sd-content ul li.preview-item div.option.option-smart-off a span {
+	line-height: 12px;
+	margin-left: 3px;
 }
 
 
-
-/* Our gray buttons should be smaller when seen with the official ones */
-.sd-social-official .sd-content>ul>li>a.sd-button,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button,
-.sd-social-official .sd-content>ul>li .digg_button>a,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a {
-	line-height: 17px;
-	box-shadow: none; /* No shadow on gray buttons between the official ones */
-	vertical-align: top;
-}
-
-.sd-social-official .sd-content ul li a.sd-button>span {
-	line-height: 17px;
-}
 .sd-social-official .sd-content>ul>li>a.sd-button:before,
 .sd-social-official .sd-content>ul>li .digg_button>a:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button:before,
@@ -199,19 +202,12 @@ body.highlander-dark h3.sd-title:before {
 }
 
 .sd-content ul li {
-	margin: 0 8px 8px 0;
+	margin: 0 8px 12px 0;
 	padding: 0;
 }
 /* Add more pading on touch devices */
 .jp-sharing-input-touch .sd-content ul li { padding-left: 10px; }
 
-/* Text + icon & Official */
-.sd-social-icon-text .sd-content ul li a span,
-.sd-social-official .sd-content ul li a.sd-button span,
-.sd-content ul li.preview-item a.sd-button span,
-.sd-content ul li.advanced .share-more span {
-	margin-left: 6px;
-}
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;
 }
@@ -386,14 +382,13 @@ body .sd-content ul li.share-custom.no-icon a span {
 	line-height: 1;
 }
 
-
-/* Official buttons */
-.sd-social-official .sd-content ul, .sd-social-official .sd-content ul li {
-	line-height: 25px !important;
-}
-
 .sd-social-official .sd-content>ul>li>a.sd-button span {
 	line-height: 1;
+}
+
+.sd-social-official .sd-content ul {
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .sd-social-official .sd-content ul:after {
@@ -409,10 +404,12 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content ul>li {
-	display: block;
-	float: left;
-	margin: 0 10px 5px 0 !important;
-	height: 25px;
+	display: flex;
+	max-height: 18px;
+}
+
+.sd-social-official .sd-content ul>li .option-smart-off {
+	margin-right: 8px;
 }
 
 .sd-social-official .fb-share-button > span {
@@ -438,7 +435,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content .share-skype {
-	width: 55px;
+	min-width: 55px;
 }
 
 body .sd-social-official li.share-print ,
@@ -554,6 +551,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	width: auto;
 	height: auto;
 	margin-bottom: 0;
+	max-width: 32px;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
@@ -698,7 +696,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 }
 
 .sd-content .share-customize-link {
-	margin-top: 0em;
+	margin-top: 8px;
 	line-height: 11px;
 }
 
