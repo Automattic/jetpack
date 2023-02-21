@@ -45,7 +45,7 @@ class REST_Controller {
 		// Stats for single resource type.
 
 		register_rest_route(
-			'jetpack/v4',
+			'wpcom/v2',
 			'form-responses',
 			array(
 				'methods'           => WP_REST_Server::READABLE,
