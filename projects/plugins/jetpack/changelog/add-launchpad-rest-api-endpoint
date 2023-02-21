@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Add a Launchpad REST API endpoint for cross-platform benefit
