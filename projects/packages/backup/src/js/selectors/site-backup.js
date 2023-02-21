@@ -5,6 +5,7 @@ const siteBackupSelectors = {
 	getMinDaysOfBackupsAllowed: state => state.siteBackupSize.minDaysOfBackupsAllowed ?? null,
 	getDaysOfBackupsAllowed: state => state.siteBackupSize.daysOfBackupsAllowed ?? null,
 	getDaysOfBackupsSaved: state => state.siteBackupSize.daysOfBackupsSaved ?? null,
+	getBackupRetentionDays: state => state.siteBackupSize.retentionDays ?? null,
 
 	// Policies
 	isFetchingBackupPolicies: state => state.siteBackupPolicies.isFetching ?? null,
