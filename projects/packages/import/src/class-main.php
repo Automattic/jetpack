@@ -67,6 +67,7 @@ class Main {
 		$routes = array(
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
+			'media'      => new Endpoints\Attachment(),
 			'pages'      => new Endpoints\Page(),
 			'posts'      => new Endpoints\Post(),
 			'tags'       => new Endpoints\Tag(),

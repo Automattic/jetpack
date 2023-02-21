@@ -158,7 +158,7 @@ trait Import {
 				'permission_callback' => array( $this, 'import_permissions_callback' ),
 				'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
 			),
-			'allow_batch' => array( 'v1' => true ),
+			'allow_batch' => $this->allow_batch,
 			'schema'      => array( $this, 'get_public_item_schema' ),
 		);
 	}
