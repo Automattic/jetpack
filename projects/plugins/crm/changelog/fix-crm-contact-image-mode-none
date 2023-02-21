@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: show default avatar under activity, when contact image mode set to none.
