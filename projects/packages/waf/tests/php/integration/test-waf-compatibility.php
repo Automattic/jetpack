@@ -120,6 +120,9 @@ final class WafCompatibilityTest extends WorDBless\BaseTestCase {
 		$query_filter_factory = function ( $waf_list_mock, $brute_force_list_mock ) use ( &$update_count ) {
 			return function ( $result, $query ) use ( &$update_count, $waf_list_mock, $brute_force_list_mock ) {
 
+				error_log( "\n" );
+				error_log( "Query: $query" );
+
 				// Mock the value of 'jetpack_waf_ip_allow_list' for Jetpack_Options::get_raw_option().
 				if ( $query === "SELECT option_value FROM wp_options WHERE option_name = 'jetpack_waf_ip_allow_list' LIMIT 1" ) {
 					return array( (object) array( $waf_list_mock ) );
@@ -135,7 +138,7 @@ final class WafCompatibilityTest extends WorDBless\BaseTestCase {
 				}
 
 				// Test that the update query is run, and includes the correct option value.
-				if ( preg_match( "/UPDATE wp_options SET option_value = '(.*)' WHERE option_name = 'jetpack_waf_ip_allow_list'/s", $query ) === 1 ) {
+				if ( preg_match( "/UPDATE wp_options SET option_value = '(.*)' WHERE option_name = 'jetpack_waf_ip_allow_list'/sim", $query ) === 1 ) {
 					++$update_count;
 					$expected_query = "UPDATE wp_options SET option_value = '" . Waf_Compatibility::merge_ip_allow_lists( $waf_list_mock, $brute_force_list_mock ) . "' WHERE option_name = 'jetpack_waf_ip_allow_list'";
 					$this->assertEquals( $expected_query, $query );
