@@ -54,13 +54,14 @@ class Notices {
 	 * @return array
 	 */
 	public function get_notices_to_show() {
-		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
-		$stats_views       = $this->get_new_stats_views();
+		$new_stats_enabled        = Stats_Options::get_option( 'enable_odyssey_stats' );
+		$stats_views              = $this->get_new_stats_views();
+		$odyssey_stats_changed_at = intval( Stats_Options::get_option( 'odyssey_stats_changed_at' ) );
 
 		return array(
 			// Show Opt-in notice 30 days after the new stats being disabled.
 			self::OPT_IN_NEW_STATS_NOTICE_ID   => ! $new_stats_enabled
-				&& Stats_Options::get_option( 'odyssey_stats_changed_at' ) < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
+				&& $odyssey_stats_changed_at < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
 				&& ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
 
 			// Show feedback notice after 3 views of the new stats.
