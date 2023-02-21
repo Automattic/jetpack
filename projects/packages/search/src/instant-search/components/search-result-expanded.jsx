@@ -37,6 +37,14 @@ export default function SearchResultExpanded( props ) {
 	const firstImage = Array.isArray( fields[ 'image.url.raw' ] )
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
+
+	if ( Array.isArray( fields.author ) ) {
+		if ( fields.author.length > 3 ) {
+			fields.author = fields.author.slice( 0, 3 ).join( ', ' ) + '...';
+		} else {
+			fields.author = fields.author.join( ', ' );
+		}
+	}
 	return (
 		<li
 			className={ [

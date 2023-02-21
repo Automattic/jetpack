@@ -1,0 +1,5 @@
+Significance: patch
+Type: removed
+Comment: Tooling related - removing a redundant eslintrc.js file
+
+

@@ -448,8 +448,6 @@ function createPackageJson( packageJson, answers ) {
 		};
 		packageJson.scripts = {
 			test: 'jest tests',
-			'test-coverage':
-				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR" --coverageReporters=clover',
 		};
 
 		// Extract the version of jest currently in use for the dependency.
@@ -532,7 +530,6 @@ async function createComposerJson( composerJson, answers ) {
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
 }
