@@ -829,19 +829,28 @@ function stats_print_odyssey_nudge( $html ) {
 	?>
 	<style>
 		.stats-odyssey-nudge {
-			border-left: 3px solid var(--jp-green-40);
+			border: 1px solid var( --jp-gray-5 );
+			border-radius: 4px;
+			border-color: var( --jp-black );
+			border-left-width: 6px;
+			padding: 24px 31px 27px 18px;
 		}
 		.stats-odyssey-nudge--content {
 			margin-bottom: 0;
+		}
+		.stats-odyssey-nudge--button {
+			position: absolute;
+			top: 1rem;
+			right: 1rem;
 		}
 		.is-hidden {
 			display: none;
 		}
 	</style>
 	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<button onclick="stats_odyssey_dismiss_nudge()">X</button>
+		<button class="stats-odyssey-nudge--button" onclick="stats_odyssey_dismiss_nudge()">X</button>
 		<div class="stats-odyssey-nudge--content">
-			<h1>Explore the new Jetpack Stats</h1>
+			<h3>Explore the new Jetpack Stats</h3>
 			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
 			<a href="<?php echo esc_url( $redirect_url ); ?>">Switch to new Stats</a>
 			<a href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
