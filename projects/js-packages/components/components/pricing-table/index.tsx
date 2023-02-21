@@ -1,3 +1,4 @@
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
@@ -29,13 +30,9 @@ const ToS = createInterpolateElement(
 		'jetpack'
 	),
 	{
-		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 		shareDetailsLink: (
-			<a
-				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-				rel="noopener noreferrer"
-				target="_blank"
-			/>
+			<ExternalLink href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) } />
 		),
 	}
 );
