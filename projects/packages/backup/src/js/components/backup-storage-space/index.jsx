@@ -23,6 +23,8 @@ const BackupStorageSpace = () => {
 	const showComponent = storageSize !== null && storageLimit > 0;
 
 	const usageLevel = useSelect( select => select( STORE_ID ).getStorageUsageLevel() );
+	const backupRetentionDays = useSelect( select => select( STORE_ID ).getBackupRetentionDays() );
+	const retentionDays = backupRetentionDays || planRetentionDays;
 
 	const dispatch = useDispatch( STORE_ID );
 
@@ -56,7 +58,7 @@ const BackupStorageSpace = () => {
 				storageLimit,
 				minDaysOfBackupsAllowed,
 				daysOfBackupsAllowed,
-				planRetentionDays,
+				retentionDays,
 				daysOfBackupsSaved
 			)
 		);
@@ -66,7 +68,7 @@ const BackupStorageSpace = () => {
 		storageLimit,
 		minDaysOfBackupsAllowed,
 		daysOfBackupsAllowed,
-		planRetentionDays,
+		retentionDays,
 		daysOfBackupsSaved,
 	] );
 
