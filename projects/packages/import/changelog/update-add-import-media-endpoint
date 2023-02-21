@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `/jetpack/v4/import/media/*` endpoints.
