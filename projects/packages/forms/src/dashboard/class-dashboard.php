@@ -53,13 +53,13 @@ class Dashboard {
 			)
 		);
 
-		$api_namespace = defined( 'IS_WPCOM' ) && IS_WPCOM
+		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
 			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) ) // should we include full URL here (public-api.wordpress.com)?
-			: '/wp-json/jetpack/v4/';
+			: '/wp-json/wpcom/v2/';
 
 		wp_add_inline_script(
 			'jp-forms-dashboard',
-			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_namespace ) ) . ';',
+			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
 			'before'
 		);
 	}
