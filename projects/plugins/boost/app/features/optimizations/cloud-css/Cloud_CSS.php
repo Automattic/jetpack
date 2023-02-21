@@ -213,7 +213,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function has_health_problem() {
 		$cloud_css = new Critical_CSS_State( 'cloud' );
 
-		return $cloud_css->get_status() === 'error';
+		return $cloud_css->is_fatal_error();
 	}
 
 	/**

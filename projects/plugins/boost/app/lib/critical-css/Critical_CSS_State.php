@@ -22,6 +22,18 @@ class Critical_CSS_State {
 	const FAIL          = 'error';
 	const REQUESTING    = 'requesting';
 
+	/**
+	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
+	 * the whole process should be considered broken.
+	 */
+	const CORE_PROVIDER_KEYS = array(
+		'core_front_page',
+		'core_posts_page',
+		'singular_page',
+		'singular_post',
+		'singular_product',
+	);
+
 	const KEY_PREFIX = 'critical_css_state-';
 
 	/**
@@ -172,7 +184,38 @@ class Critical_CSS_State {
 	 * @return mixed
 	 */
 	public function get_status() {
-		return $this->state;
+		if ( $this->is_empty() ) {
+			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
+		}
+
+		if ( $this->is_fatal_error() ) {
+			return array(
+				'status'       => Critical_CSS_State::FAIL,
+				'status_error' => $this->get_state_error(),
+			);
+		}
+
+		if ( $this->is_pending() ) {
+			return array(
+				'status'                 => Critical_CSS_State::REQUESTING,
+				'progress'               => $this->get_percent_complete(),
+				'success_count'          => $this->get_providers_success_count(),
+				'pending_provider_keys'  => $this->get_provider_urls(),
+				'provider_success_ratio' => $this->get_provider_success_ratios(),
+				'created'                => $this->get_created_time(),
+				'updated'                => $this->get_updated_time(),
+			);
+		}
+
+		return array(
+			'status'                => Critical_CSS_State::SUCCESS,
+			'progress'              => $this->get_percent_complete(),
+			'success_count'         => $this->get_providers_success_count(),
+			'core_providers'        => self::CORE_PROVIDER_KEYS,
+			'core_providers_status' => $this->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
+			'created'               => $this->get_created_time(),
+			'updated'               => $this->get_updated_time(),
+		);
 	}
 
 	/**
@@ -300,7 +343,7 @@ class Critical_CSS_State {
 				// For each URL
 				// Track the state and errors in a state array.
 				$provider_state = $this->provider_states[ $key ];
-				if ( ! $provider_state ) {
+				if ( $provider_state->is_successful() ) {
 					continue;
 				}
 				$provider_state->create_request( apply_filters( 'jetpack_boost_critical_css_urls', $urls ), $provider::get_success_ratio() );
@@ -453,6 +496,7 @@ class Critical_CSS_State {
 
 		return $count;
 	}
+
 
 	/**
 	 * Returns the percentage of requests that are finished processing successfully even though there are some providers having some error.
