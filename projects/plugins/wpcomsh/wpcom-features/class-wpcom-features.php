@@ -281,6 +281,7 @@ class WPCOM_Features {
 	public const SFTP                          = 'sftp';
 	public const SIMPLE_PAYMENTS               = 'simple-payments';
 	public const SITE_PREVIEW_LINKS            = 'site-preview-links';
+	public const SOCIAL_IMAGE_GENERATOR        = 'social-image-generator';
 	public const SOCIAL_PREVIEWS               = 'social-previews';
 	public const SOCIAL_SHARES_1000            = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING    = 'social-enhanced-publishing';
@@ -756,6 +757,11 @@ class WPCOM_Features {
 		),
 		self::SITE_PREVIEW_LINKS            => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+		),
+		self::SOCIAL_IMAGE_GENERATOR        => array(
+			self::JETPACK_SOCIAL_ADVANCED_PLANS,
+			self::JETPACK_COMPLETE_PLANS,
+			self::BUNDLE_ENTERPRISE,
 		),
 		self::SOCIAL_PREVIEWS               => array(
 			self::WPCOM_PRO_PLANS,
