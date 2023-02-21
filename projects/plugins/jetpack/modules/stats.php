@@ -829,32 +829,76 @@ function stats_print_odyssey_nudge( $html ) {
 	?>
 	<style>
 		.stats-odyssey-nudge {
+			display: flex;
+			align-items: flex-start;
+			font-size: var( --font-body );
+
 			border: 1px solid var( --jp-gray-5 );
 			border-radius: 4px;
 			border-color: var( --jp-black );
 			border-left-width: 6px;
 			padding: 24px 31px 27px 18px;
+
+			margin-top: 24px;
 		}
 		.stats-odyssey-nudge--content {
-			margin-bottom: 0;
+			flex-grow: 1;
 		}
-		.stats-odyssey-nudge--button {
+		.stats-odyssey-nudge--title {
+			font-weight: 600;
+			margin-bottom: 8px;
+		}
+		.stats-odyssey-nudge--close-button {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
+		}
+		.stats-odyssey-nudge--action-bar {
+			display: flex;
+			align-items: center;
+			margin-top: 20px;
+		}
+		.stats-odyssey-nudge--primary-button {
+			margin-right: 18px;
+			padding-left: 20px;
+			padding-right: 20px;
+			font-size: 16px;
+			border-color: black;
+			background-color: black;
+		}
+		.stats-odyssey-nudge--primary-button:hover {
+			border-color: #3c434a;
+			background-color: #3c434a;
+		}
+		.is-primary-link {
+			color: white;
+			text-decoration: none;
+		}
+		.is-primary-link:hover {
+			color: white;
+		}
+		.is-secondary-link {
+			color: black;
+		}
+		.is-secondary-link:hover {
+			color: black;
 		}
 		.is-hidden {
 			display: none;
 		}
 	</style>
 	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<button class="stats-odyssey-nudge--button" onclick="stats_odyssey_dismiss_nudge()">X</button>
 		<div class="stats-odyssey-nudge--content">
-			<h3>Explore the new Jetpack Stats</h3>
-			<p>We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
-			<a href="<?php echo esc_url( $redirect_url ); ?>">Switch to new Stats</a>
-			<a href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
+			<div class="stats-odyssey-nudge--title">Explore the new Jetpack Stats</div>
+			We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.
+			<div class="stats-odyssey-nudge--action-bar">
+				<button class="dops-button stats-odyssey-nudge--primary-button">
+					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>">Switch to new Stats</a>
+				</button>
+				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
+			</div>
 		</div>
+		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()">X</button>
 	</div>
 	<?php
 }
