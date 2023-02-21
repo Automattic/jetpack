@@ -2,7 +2,8 @@ import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import {
 	isComingSoon,
 	isPrivateSite,
-	getJetpackData,
+	useModuleStatus,
+	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
@@ -21,9 +22,11 @@ import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
+import { name } from './';
 
-const ADMIN_URL = getJetpackData()?.adminUrl;
 export default function SubscribePanels() {
+	const { tracks } = useAnalytics();
+	const { isModuleActive, changeStatus, isLoading } = useModuleStatus( name );
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 
@@ -32,11 +35,14 @@ export default function SubscribePanels() {
 
 	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
 		getSubscriberCounts( counts => {
 			setSubscriberCount( counts.email_subscribers );
 			setFollowerCount( counts.social_followers );
 		} );
-	}, [] );
+	}, [ isModuleActive ] );
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
@@ -61,16 +67,21 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	const enableSubscriptionsModule = () => {
+		tracks.recordEvent( 'jetpack_editor_subscriptions_enable' );
+		return changeStatus( true );
+	};
+
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
 	if (
 		( ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ) &&
-		( ! Number.isFinite( followerCount ) || followerCount <= 0 )
+		( ! Number.isFinite( followerCount ) || followerCount <= 0 ) &&
+		isModuleActive
 	) {
 		return null;
 	}
 
-	const showNotices =
-		Number.isFinite( subscriberCount ) && subscriberCount > 0 && isNewsletterFeatureEnabled();
+	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0 && isModuleActive;
 	return (
 		<>
 			{ isNewsletterFeatureEnabled() && (
@@ -136,13 +147,13 @@ export default function SubscribePanels() {
 						withModal={ false }
 					/>
 				) }
-
-				{ ! isNewsletterFeatureEnabled() && (
+				{ ! isModuleActive && (
 					<Button
-						variant="link"
-						href={ ADMIN_URL ? `${ ADMIN_URL }?page=jetpack#/discussion` : '' }
+						disabled={ isLoading || isModuleActive }
+						onClick={ enableSubscriptionsModule }
+						variant="secondary"
 					>
-						{ __( 'Enable newsletter', 'jetpack' ) }
+						{ __( 'Activate Subscriptions', 'jetpack' ) }
 					</Button>
 				) }
 			</PluginPrePublishPanel>
@@ -180,6 +191,15 @@ export default function SubscribePanels() {
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
 					</InspectorNotice>
+				) }
+				{ ! isModuleActive && (
+					<Button
+						disabled={ isLoading || isModuleActive }
+						onClick={ enableSubscriptionsModule }
+						variant="secondary"
+					>
+						{ __( 'Activate Subscriptions', 'jetpack' ) }
+					</Button>
 				) }
 			</PluginPostPublishPanel>
 		</>

@@ -50,6 +50,14 @@ function register_block() {
 		);
 	}
 
+	/*
+	 * If the Subscriptions module is not active,
+	 * do not make any further changes on the site.
+	 */
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
+	}
+
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
 		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
@@ -366,6 +374,10 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes ) {
+	// If the Subscriptions module is not active, don't render the block.
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return '';
+	}
 	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 	if ( has_newsletter_plans() ) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
