@@ -212,7 +212,7 @@ module.exports = [
 		module: {
 			strictExportPresence: true,
 			rules: [
-				// Transpile JavaScript
+				// Transpile plugin JavaScript.
 				jetpackWebpackConfig.TranspileRule( {
 					exclude: /node_modules\//,
 				} ),
@@ -237,6 +237,8 @@ module.exports = [
 			jetpackConfig: JSON.stringify( {
 				consumer_slug: 'zero-bs-crm',
 			} ),
+			'@wordpress/i18n': 'global wpI18n',
+			'@wordpress/jp-i18n-loader': 'global jpI18nLoader',
 		},
 	},
 ];
