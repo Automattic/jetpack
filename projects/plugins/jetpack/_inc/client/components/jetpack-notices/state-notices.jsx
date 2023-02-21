@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import SimpleNotice from 'components/notice';
@@ -84,9 +85,7 @@ class JetpackStateNotices extends React.Component {
 						'jetpack'
 					),
 					{
-						a: (
-							<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-						),
+						a: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 					}
 				);
 				break;

@@ -1,4 +1,4 @@
-import { writable, derived, get } from 'svelte/store';
+import { writable, derived, get, Readable } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
@@ -87,7 +87,7 @@ export const activeIssues = derived( issuesStore, $issues => {
  * Derived datastore: Returns the most important Set of errors among the recommendations.
  * Used for displaying the most important error as a showstopper if no URLS succeeded.
  */
-export const primaryErrorSet = derived( issuesStore, $issues => {
+export const primaryErrorSet: Readable< ErrorSet > = derived( issuesStore, $issues => {
 	const importantProviders = [
 		'core_front_page',
 		'core_posts_page',
@@ -98,7 +98,7 @@ export const primaryErrorSet = derived( issuesStore, $issues => {
 	for ( const key of importantProviders ) {
 		const issue = $issues.find( r => r.key === key );
 		if ( issue ) {
-			return groupErrorsByFrequency( issue );
+			return groupErrorsByFrequency( issue )[ 0 ];
 		}
 	}
 

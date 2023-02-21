@@ -244,25 +244,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.3 - 2023-02-15
+### 11.9-a.5 - 2023-02-20
 #### Enhancements
-- Site editor: display location-aware snackbar in edit mode.
-- Stats: adds filter to hide stats widget based on user capability.
-- Stats: added a notice with a link to a survey when the new stats interface is disabled.
-- Subscriptions: updated submit messages text for subscriptions.
-- Social: visual update to social buttons.
+- Import: add new `automattic/jetpack-import` package.
+- Jetpack: improve design of MediaButton component.
+- Sharing: update look and feel of sharing buttons when in "official" mode.
 
 #### Improved compatibility
-- Social: update icon font to remove support for older browsers (IE11-).
-- Themes: ensure redesigned sharing buttons look good in default themes (Twenty Nineteen, Twenty Sixteen).
+- Stats: adjust margin for WordPress.com stats link in Jetpack dashboard.
+- VideoPress: extend media button for VideoPress video block.
+- VideoPress: restore v5/v6 transform for all platforms.
 
 #### Bug fixes
-- Forms block: add filter to prevent contact-form-styles script from being concatenated.
-- Forms block: add new method to parse the form fields, fallback to old method.
-- Forms block: prevent blur effect on AMP pages.
-- Subscriptions: fix premium content block where it would only allow access to site subscribers.
-- Subscriptions: fix subscribe-block button to behave the same as in the fronted.
-- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag.
+- Form block: update form-styles script to prevent blurred forms on slow loading pages.
+- Story block: remove dependency on wp-components from the frontend code.
 
 --------
 
