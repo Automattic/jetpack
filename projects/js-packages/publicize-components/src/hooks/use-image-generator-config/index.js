@@ -4,6 +4,13 @@ import { useCallback } from '@wordpress/element';
 
 const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 
+const getCurrentSettings = ( sigSettings, isPostPublished ) => ( {
+	isEnabled: sigSettings?.enabled ?? ! isPostPublished,
+	customText: sigSettings?.custom_text ?? null,
+	imageType: sigSettings?.image_type ?? null,
+	imageId: sigSettings?.image_id ?? null,
+} );
+
 /**
  * @typedef {object} ImageGeneratorConfigHook
  * @property {Array} postSettings - Array of post settings (custom text, image type etc).
@@ -46,15 +53,8 @@ export default function useImageGeneratorConfig() {
 		[ currentOptions, editPost, postSettings ]
 	);
 
-	const getCurrentSettings = sigSettings => ( {
-		isEnabled: sigSettings?.enabled ?? ! isPostPublished,
-		customText: sigSettings?.custom_text ?? null,
-		imageType: sigSettings?.image_type ?? null,
-		imageId: sigSettings?.image_id ?? null,
-	} );
-
 	return {
-		...getCurrentSettings( currentOptions?.image_generator_settings ),
+		...getCurrentSettings( currentOptions?.image_generator_settings, isPostPublished ),
 		setIsEnabled: value => updateSettings( 'enabled', value ),
 		setCustomText: value => updateSettings( 'custom_text', value ),
 		setImageType: value => updateSettings( 'image_type', value ),

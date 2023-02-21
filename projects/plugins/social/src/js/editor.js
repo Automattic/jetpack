@@ -56,7 +56,12 @@ const JetpackSocialSidebar = () => {
 	const closeModal = useCallback( () => setIsModalOpened( false ), [] );
 
 	const { hasConnections, hasEnabledConnections } = useSocialMediaConnections();
-	const { isPublicizeEnabled, hidePublicizeFeature, isPostAlreadyShared } = usePublicizeConfig();
+	const {
+		isPublicizeEnabled,
+		hidePublicizeFeature,
+		isPostAlreadyShared,
+		isSocialImageGeneratorEnabled,
+	} = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	// Determine if the review request should show right before the post publishes
 	// The publicize-enabled meta and related connections are disabled after publishing
@@ -106,7 +111,7 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				<SocialImageGeneratorPanel />
+				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
@@ -122,13 +127,15 @@ const JetpackSocialSidebar = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			<PluginPrePublishPanel
-				initialOpen
-				title={ __( 'Social Image Generator', 'jetpack-social' ) }
-				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
-			>
-				<SocialImageGeneratorPanel prePublish={ true } />
-			</PluginPrePublishPanel>
+			{ isSocialImageGeneratorEnabled && (
+				<PluginPrePublishPanel
+					initialOpen
+					title={ __( 'Social Image Generator', 'jetpack-social' ) }
+					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				>
+					<SocialImageGeneratorPanel prePublish={ true } />
+				</PluginPrePublishPanel>
+			) }
 
 			<PluginPrePublishPanel
 				initialOpen
