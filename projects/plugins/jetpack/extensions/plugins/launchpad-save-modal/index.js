@@ -17,6 +17,7 @@ export const settings = {
 			[]
 		);
 		const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+		const isPublishingPost = useSelect( select => select( editorStore ).isPublishingPost(), [] );
 		const isCurrentPostPublished = useSelect(
 			select => select( editorStore ).isCurrentPostPublished(),
 			[]
@@ -24,6 +25,7 @@ export const settings = {
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
+		const prevIsPublishingPost = usePrevious( isPublishingPost );
 
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
@@ -54,25 +56,25 @@ export const settings = {
 			} );
 
 		useEffect( () => {
+			// We want to prevent the launchpad modal from rendering on top of the first
+			// post published modal that exists in the editing toolkit. The following
+			// conditional is a stopgap solution for the time being, and the end goal is
+			// to migrate the first post published modal logic into jetpack, abstract code from
+			// both modals and their rendering behavior, and remove this solution afterwards.
 			if (
+				prevIsPublishingPost === true &&
+				isPublishingPost === false &&
+				prevHasNeverPublishedPostOption.current &&
+				siteIntentOption === 'write' &&
+				isInsidePostEditor
+			) {
+				setIsModalOpen( false );
+				prevHasNeverPublishedPostOption.current = '';
+				return;
+			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )
 			) {
-				// We want to prevent the launchpad modal from rendering on top of the first
-				// post published modal that exists in the editing toolkit. The following
-				// conditional is a stopgap solution for the time being, and the end goal is
-				// to migrate the first post published modal logic into jetpack, abstract code from
-				// both modals and their rendering behavior, and remove this solution afterwards.
-				if (
-					siteIntentOption === 'write' &&
-					prevHasNeverPublishedPostOption.current &&
-					isInsidePostEditor
-				) {
-					setIsModalOpen( false );
-					prevHasNeverPublishedPostOption.current = '';
-					return;
-				}
-
 				setIsModalOpen( true );
 			}
 		}, [
@@ -82,6 +84,8 @@ export const settings = {
 			prevIsSavingPost,
 			siteIntentOption,
 			isInsidePostEditor,
+			isPublishingPost,
+			prevIsPublishingPost,
 		] );
 
 		useEffect( () => {
