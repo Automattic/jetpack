@@ -1,3 +1,4 @@
+import { useAnalytics, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BlockControls,
 	InspectorControls,
@@ -6,7 +7,14 @@ import {
 	withFontSizes,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
+import {
+	Button,
+	ExternalLink,
+	Placeholder,
+	TextControl,
+	Toolbar,
+	withFallbackStyles,
+} from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
@@ -26,6 +34,7 @@ import {
 } from './constants';
 import SubscriptionControls from './controls';
 import GetAddPaidPlanButton, { isNewsletterFeatureEnabled } from './utils';
+import { icon, name, settings } from './';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -47,7 +56,46 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
+const SubscriptionsPlaceholder = ( { isModuleActive, changeStatus } ) => {
+	const { tracks } = useAnalytics();
+
+	const activateSubcriptions = () => {
+		tracks.recordEvent( 'jetpack_editor_subscriptions_activate' );
+
+		const newModuleStatus = changeStatus( name, ! isModuleActive );
+
+		return newModuleStatus;
+	};
+
+	// Track when the placeholder is viewed.
+	useEffect( () => {
+		tracks.recordEvent( 'jetpack_editor_subscriptions_placeholder_view' );
+	}, [ tracks ] );
+
+	return (
+		<Placeholder
+			icon={ icon }
+			instructions={ __(
+				"You'll need to activate the Subscriptions feature to use the Subcribe block.",
+				'jetpack'
+			) }
+			label={ settings.title }
+		>
+			<Button onClick={ () => activateSubcriptions() } variant="secondary">
+				{ __( 'Activate Subscriptions', 'jetpack' ) }
+			</Button>
+			<div className="membership-button__disclaimer">
+				<ExternalLink href="https://jetpack.com/support/subscriptions/">
+					{ __( 'Learn more about the Subscriptions feature here.', 'jetpack' ) }
+				</ExternalLink>
+			</div>
+		</Placeholder>
+	);
+};
+
 export function SubscriptionEdit( props ) {
+	const { isModuleActive, changeStatus } = useModuleStatus( name );
+
 	const {
 		className,
 		attributes,
@@ -179,6 +227,10 @@ export function SubscriptionEdit( props ) {
 	};
 
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
+
 		getSubscriberCounts(
 			counts => {
 				const count = includeSocialFollowers
@@ -199,7 +251,7 @@ export function SubscriptionEdit( props ) {
 				setSubscriberCount( 0 );
 			}
 		);
-	}, [ includeSocialFollowers ] );
+	}, [ includeSocialFollowers, isModuleActive ] );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
@@ -212,6 +264,12 @@ export function SubscriptionEdit( props ) {
 		}
 		setBorderColor( buttonBackgroundColor.color );
 	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
+
+	if ( ! isModuleActive ) {
+		return (
+			<SubscriptionsPlaceholder isModuleActive={ isModuleActive } changeStatus={ changeStatus } />
+		);
+	}
 
 	return (
 		<>

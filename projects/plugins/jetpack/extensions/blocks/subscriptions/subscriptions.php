@@ -33,7 +33,7 @@ const DEFAULT_SPACING_VALUE       = 10;
 function register_block() {
 	if (
 		( defined( 'IS_WPCOM' ) && IS_WPCOM )
-		|| ( Jetpack::is_connection_ready() && Jetpack::is_module_active( 'subscriptions' ) && ! ( new Status() )->is_offline_mode() )
+		|| ( Jetpack::is_connection_ready() && ! ( new Status() )->is_offline_mode() )
 	) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
@@ -48,6 +48,14 @@ function register_block() {
 				),
 			)
 		);
+	}
+
+	/*
+	 * If the Subscriptions module is not active,
+	 * do not make any further changes on the site.
+	 */
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return;
 	}
 
 	if (
@@ -366,6 +374,11 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes ) {
+	// If the Subscriptions module is not active, don't render the block.
+	if ( ! Jetpack::is_module_active( 'subscriptions' ) ) {
+		return '';
+	}
+
 	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
 	if ( has_newsletter_plans() ) {
 		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.

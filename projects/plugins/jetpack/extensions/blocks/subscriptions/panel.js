@@ -1,5 +1,9 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
-import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isComingSoon,
+	isPrivateSite,
+	useModuleStatus,
+} from '@automattic/jetpack-shared-extension-utils';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
@@ -16,20 +20,27 @@ import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
+import { name } from './';
+
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+	const { isModuleActive } = useModuleStatus( name );
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
 	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
+
 		getSubscriberCounts( counts => {
 			setSubscriberCount( counts.email_subscribers );
 			setFollowerCount( counts.social_followers );
 		} );
-	}, [] );
+	}, [ isModuleActive ] );
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
