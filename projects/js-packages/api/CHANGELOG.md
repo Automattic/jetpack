@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.1 - 2023-02-20
+### Changed
+- Minor internal updates.
+
 ## 0.15.0 - 2023-02-15
 ### Added
 - Added fetchMigrationStatus get method [#28807]
