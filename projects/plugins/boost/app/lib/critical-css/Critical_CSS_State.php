@@ -22,18 +22,6 @@ class Critical_CSS_State {
 	const FAIL          = 'error';
 	const REQUESTING    = 'requesting';
 
-	/**
-	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
-	 * the whole process should be considered broken.
-	 */
-	const CORE_PROVIDER_KEYS = array(
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-		'singular_product',
-	);
-
 	const KEY_PREFIX = 'critical_css_state-';
 
 	/**
@@ -192,6 +180,7 @@ class Critical_CSS_State {
 	 * @return mixed
 	 */
 	public function get_status() {
+
 		$status = array(
 			'status'                => $this->state,
 			'created'               => $this->created,
@@ -200,8 +189,6 @@ class Critical_CSS_State {
 			'provider_states'       => $this->provider_states,
 			'progress'              => $this->get_percent_complete(),
 			'success_count'         => $this->get_providers_success_count(),
-			'core_providers'        => self::CORE_PROVIDER_KEYS,
-			'core_providers_status' => $this->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
 		);
 
 		if ( $this->is_pending() ) {
@@ -283,28 +270,6 @@ class Critical_CSS_State {
 		$this->created = microtime( true );
 
 		$this->save_state_transient();
-	}
-
-	/**
-	 * Get the core providers' status.
-	 *
-	 * @param array $keys Providers keys.
-	 *
-	 * @return string
-	 */
-	public function get_core_providers_status( $keys ) {
-		$status = 'success';
-		foreach ( $this->provider_states as $key => $provider_state ) {
-			if ( ! in_array( $key, $keys, true ) ) {
-				continue;
-			}
-			if ( $provider_state->has_errors() ) {
-				$status = 'error';
-				break;
-			}
-		}
-
-		return $status;
 	}
 
 	/**

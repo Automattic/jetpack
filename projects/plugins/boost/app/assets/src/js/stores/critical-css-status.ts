@@ -16,8 +16,6 @@ export interface CriticalCssStatus {
 	provider_success_ratio?: ProvidersSuccessRatio;
 	status: string;
 	updated?: number;
-	core_providers?: string[];
-	core_providers_status?: string;
 	status_error?: Error | string;
 	success_count?: number;
 	created?: number;

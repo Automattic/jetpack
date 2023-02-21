@@ -10,7 +10,7 @@ class Generator {
 
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
 	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
-	
+
 
 	public $state;
 
