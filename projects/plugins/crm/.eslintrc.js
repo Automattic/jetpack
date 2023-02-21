@@ -1,6 +1,6 @@
 module.exports = {
 	rules: {
-		// Enforce the use of the jetpack-starter-plugin textdomain.
+		// Enforce the use of the zero-bs-crm textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
