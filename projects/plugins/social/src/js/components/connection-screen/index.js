@@ -1,5 +1,6 @@
 import { Dialog, ProductOffer, Text, getRedirectUrl } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -15,13 +16,9 @@ const tos = createInterpolateElement(
 		'jetpack-social'
 	),
 	{
-		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
+		tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 		shareDetailsLink: (
-			<a
-				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-				rel="noopener noreferrer"
-				target="_blank"
-			/>
+			<ExternalLink href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) } />
 		),
 	}
 );
