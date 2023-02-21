@@ -27,7 +27,7 @@ if [[ "$HOME" == "/" ]]; then
 	mkdir /var/tmp/home
 	export HOME=/var/tmp/home
 fi
-pnpm config set --location=user store-dir /tmp/renovate/cache/others/pnpm
+pnpm config set --global store-dir /tmp/renovate/cache/others/pnpm
 composer config --global cache-dir /tmp/renovate/cache/others/composer
 
 # Do the pnpm and changelogger installs.
