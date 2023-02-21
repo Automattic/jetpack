@@ -72,7 +72,7 @@ class Refactoring_Critical_CSS_State_Storage implements Storage_Driver {
 			$issues[] = array(
 				'provider_name' => $label,
 				'key'           => $key,
-				'status'        => $source['issue_status'],
+				'status'        => isset( $source['issue_status'] ) ? $source['issue_status'] : 'active',
 				'errors'        => $errors,
 			);
 		}
