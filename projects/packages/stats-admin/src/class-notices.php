@@ -60,7 +60,7 @@ class Notices {
 		return array(
 			// Show Opt-in notice 30 days after the new stats being disabled.
 			self::OPT_IN_NEW_STATS_NOTICE_ID   => ! $new_stats_enabled
-				&& Stats_Options::get_option( 'odyssey_stats_changed_at' ) > time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
+				&& Stats_Options::get_option( 'odyssey_stats_changed_at' ) < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
 				&& ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
 
 			// Show feedback notice after 3 views of the new stats.
