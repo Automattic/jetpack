@@ -512,8 +512,8 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  */
 function stats_reports_page( $main_chart_only = false ) {
 	// TODO: Replace or remove "View stats on WordPress.com right now" link.
-	// Probably makes more sense to have advertise Odyssey here.
-	// TODO: Remove DIV with debug tools.
+	// Probably makes more sense to advertise Odyssey here.
+	// TODO: Remove DIV with debug tools. (currently hidden for easier testing)
 
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
