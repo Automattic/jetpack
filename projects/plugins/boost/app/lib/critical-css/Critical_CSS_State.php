@@ -39,7 +39,7 @@ class Critical_CSS_State {
 	/**
 	 * Critical CSS state.
 	 *
-	 * @var mixed
+	 * @var self::NOT_GENERATED|self::SUCCESS|self::FAIL|self::REQUESTING
 	 */
 	protected $state;
 
@@ -58,11 +58,18 @@ class Critical_CSS_State {
 	protected $provider_states = array();
 
 	/**
-	 * Epoch time when was Critical CSS last updated.
+	 * Epoch time when was Critical CSS last created.
 	 *
 	 * @var int
 	 */
 	protected $created;
+
+	/**
+	 * Epoch time when was Critical CSS last updated.
+	 *
+	 * @var int
+	 */
+	protected $updated;
 
 	/**
 	 * A string to identify between multiple requests for Critical CSS. Defaults to 'local'.
@@ -88,6 +95,7 @@ class Critical_CSS_State {
 		$state              = $this->get_state_transient();
 
 		$this->created     = $state['created'];
+		$this->updated     = $state['updated'];
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
 
@@ -184,47 +192,24 @@ class Critical_CSS_State {
 	 * @return mixed
 	 */
 	public function get_status() {
-		if ( $this->is_empty() ) {
-			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
-		}
-
-		if ( $this->is_fatal_error() ) {
-			return array(
-				'status'       => Critical_CSS_State::FAIL,
-				'status_error' => $this->get_state_error(),
-			);
-		}
-
-		if ( $this->is_pending() ) {
-			return array(
-				'status'                 => Critical_CSS_State::REQUESTING,
-				'progress'               => $this->get_percent_complete(),
-				'success_count'          => $this->get_providers_success_count(),
-				'pending_provider_keys'  => $this->get_provider_urls(),
-				'provider_success_ratio' => $this->get_provider_success_ratios(),
-				'created'                => $this->get_created_time(),
-				'updated'                => $this->get_updated_time(),
-			);
-		}
-
-		return array(
-			'status'                => Critical_CSS_State::SUCCESS,
+		$status = array(
+			'status'                => $this->state,
+			'created'               => $this->created,
+			'updated'               => $this->updated,
+			'status_error'          => $this->state_error,
+			'provider_states'       => $this->provider_states,
 			'progress'              => $this->get_percent_complete(),
 			'success_count'         => $this->get_providers_success_count(),
 			'core_providers'        => self::CORE_PROVIDER_KEYS,
 			'core_providers_status' => $this->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'created'               => $this->get_created_time(),
-			'updated'               => $this->get_updated_time(),
 		);
-	}
 
-	/**
-	 * Get Critical CSS state error.
-	 *
-	 * @return mixed
-	 */
-	public function get_state_error() {
-		return $this->state_error;
+		if ( $this->is_pending() ) {
+			$status['pending_provider_keys']  = $this->get_provider_urls();
+			$status['provider_success_ratio'] = $this->get_provider_success_ratios();
+		}
+
+		return $status;
 	}
 
 	/**
@@ -371,20 +356,6 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Returns the start time of this Critical CSS request.
-	 *
-	 * @return int
-	 */
-	public function get_created_time() {
-		return $this->created;
-	}
-
-	public function get_updated_time() {
-		$state = $this->get_state_transient();
-		return $state['updated'];
-	}
-
-	/**
 	 * Returns true if all provider keys have finished processing (whether successful or not).
 	 *
 	 * @return bool
@@ -496,7 +467,6 @@ class Critical_CSS_State {
 
 		return $count;
 	}
-
 
 	/**
 	 * Returns the percentage of requests that are finished processing successfully even though there are some providers having some error.
