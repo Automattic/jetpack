@@ -98,7 +98,7 @@ class Critical_CSS_State {
 			$this->provider_states[ $provider_key ] = new Source_Provider_State( $provider_state );
 		}
 
-		// @TODO: This shouldn't be a part of providers/Source_Provider_State.php on line 40the constructor.
+		// @TODO: This shouldn't be a part of the constructor.
 		// Check to see if the request is stuck at an unfinished state and mark it as failed if so.
 		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
 			$this->set_as_failed( __( 'Timeout while waiting for Critical CSS from the Boost Service.', 'jetpack-boost' ) );
