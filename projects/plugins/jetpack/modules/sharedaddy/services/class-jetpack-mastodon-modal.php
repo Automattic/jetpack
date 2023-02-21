@@ -35,7 +35,7 @@ class Jetpack_Mastodon_Modal {
 	 */
 	public static function should_display_modal() {
 		if (
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we only check if the query strings exist, we do not use them.
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Only used to display the modal.
 			isset( $_GET['share'] )
 			&& 'mastodon' === sanitize_text_field( wp_unslash( $_GET['share'] ) )
 			&& isset( $_GET['nb'] )
