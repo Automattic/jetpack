@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Provider_State;
 use Automattic\Jetpack_Boost\Lib\Transient;
 
 /**
@@ -40,11 +41,9 @@ class Critical_CSS_State {
 	/**
 	 * Formatted sources array created from providers.
 	 *
-	 * @see get_provider_sources
-	 * @var array
-	 * @todo: Maybe rename to providers
+	 * @var Source_Provider_State[]
 	 */
-	protected $sources = array();
+	protected $provider_states = array();
 
 	/**
 	 * Epoch time when was Critical CSS last updated.
@@ -79,16 +78,20 @@ class Critical_CSS_State {
 		$this->created     = $state['created'];
 		$this->state       = $state['state'];
 		$this->state_error = empty( $state['state_error'] ) ? null : $state['state_error'];
-		$this->sources     = $this->verify_sources( $state['sources'] );
 
-		$this->check_for_timeout();
-	}
+		foreach ( $state['sources'] as $provider_key => $provider_state ) {
 
-	/**
-	 * Check to see if the request is stuck at an unfinished state and mark it as failed if so.
-	 * @return void
-	 */
-	private function check_for_timeout() {
+			// @TODO: Remove this
+			if ( ! isset( $provider_state['urls'] ) ) {
+				unset( $provider_state );
+				continue;
+			}
+
+			$this->provider_states[ $provider_key ] = new Source_Provider_State( $provider_state );
+		}
+
+		// @TODO: This shouldn't be a part of providers/Source_Provider_State.php on line 40the constructor.
+		// Check to see if the request is stuck at an unfinished state and mark it as failed if so.
 		if ( self::REQUESTING === $this->state && ( microtime( true ) - $this->created ) > HOUR_IN_SECONDS ) {
 			$this->set_as_failed( __( 'Timeout while waiting for Critical CSS from the Boost Service.', 'jetpack-boost' ) );
 		}
@@ -116,14 +119,18 @@ class Critical_CSS_State {
 				$this->state = self::FAIL;
 			}
 
-			$this->save();
+			$this->save_state_transient();
 		}
 	}
 
 	/**
 	 * Save the Critical CSS state.
 	 */
-	public function save() {
+	private function save_state_transient() {
+		$provider_states = array();
+		foreach ( $this->provider_states as $key => $provider_state ) {
+			$provider_states[ $key ] = $provider_state->get_status();
+		}
 		Transient::set(
 			$this->get_key(),
 			array(
@@ -131,7 +138,7 @@ class Critical_CSS_State {
 				'updated'     => microtime( true ),
 				'state'       => $this->state,
 				'state_error' => $this->state_error,
-				'sources'     => $this->sources,
+				'sources'     => $provider_states,
 			)
 		);
 	}
@@ -153,11 +160,10 @@ class Critical_CSS_State {
 	public function set_as_failed( $error ) {
 		$this->state       = self::FAIL;
 		$this->state_error = $error;
-		foreach ( $this->sources as $source_key => $source ) {
-			$this->sources[ $source_key ]['status'] = self::FAIL;
-			$this->sources[ $source_key ]['error']  = null;
+		foreach ( $this->provider_states as $provider_state ) {
+			$provider_state->cancel_request();
 		}
-		$this->save();
+		$this->save_state_transient();
 	}
 
 	/**
@@ -181,30 +187,29 @@ class Critical_CSS_State {
 	/**
 	 * Set source success.
 	 *
-	 * @todo Maybe rename to set_provider_success.
-	 *
 	 * @param string $key Provider key.
+	 *
 	 */
 	public function set_source_success( $key ) {
-		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
-		// original attempt. We have to remove that first.
-		$this->sources[ $key ]['error'] = null;
-
-		$this->set_source_status( $key, self::SUCCESS );
+		if ( isset( $this->provider_states[ $key ] ) ) {
+			$this->provider_states[ $key ]->set_as_success();
+			$this->save_if_complete();
+			$this->save_state_transient();
+		}
 	}
 
 	/**
 	 * Set source error.
 	 *
-	 * @todo Maybe rename to set_provider_error.
+	 * @param string $provider_key Provider key.
+	 * @param array  $error        Provider error.
 	 *
-	 * @param string $key Provider key.
-	 * @param array  $error Provider error.
 	 */
-	public function set_source_error( $key, $error ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['error'] = $error;
-			$this->set_source_status( $key, self::FAIL );
+	public function set_provider_state_error( $provider_key, $error ) {
+		if ( isset( $this->provider_states[ $provider_key ] ) ) {
+			$this->provider_states[ $provider_key ]->set_as_failed( $error );
+			$this->save_if_complete();
+			$this->save_state_transient();
 		}
 	}
 
@@ -220,16 +225,12 @@ class Critical_CSS_State {
 	/**
 	 * Set source status.
 	 *
-	 * @todo Maybe rename to set_provider_status.
-	 *
-	 * @param string $key Provider key.
+	 * @param string $key    Provider key.
 	 * @param string $status Provider status.
+	 *
+	 *
 	 */
-	private function set_source_status( $key, $status ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['status'] = $status;
-		}
-
+	private function save_if_complete() {
 		if ( 100 === $this->get_percent_complete() ) {
 			$this->state = self::SUCCESS;
 
@@ -239,9 +240,8 @@ class Critical_CSS_State {
 			 * @since 1.5.2
 			 */
 			do_action( 'jetpack_boost_critical_css_generated', $this->state );
+			$this->save_state_transient();
 		}
-
-		$this->save();
 	}
 
 	/**
@@ -251,9 +251,10 @@ class Critical_CSS_State {
 	 */
 	public function create_request( $providers ) {
 		$this->state   = self::REQUESTING;
-		$this->sources = $this->get_provider_sources( $providers ); // TODO: Maybe rename sources to providers.
+		$this->sources = $providers;
 		$this->created = microtime( true );
-		$this->save();
+
+		$this->save_state_transient();
 	}
 
 	/**
@@ -264,11 +265,12 @@ class Critical_CSS_State {
 	 * @return string
 	 */
 	public function get_core_providers_status( $keys ) {
-		$errors = $this->collate_column( 'error' );
 		$status = 'success';
-
-		foreach ( $errors as $key => $error ) {
-			if ( ! empty( $error ) && in_array( $key, $keys, true ) ) {
+		foreach ( $this->provider_states as $key => $provider_state ) {
+			if ( ! in_array( $key, $keys, true ) ) {
+				continue;
+			}
+			if ( $provider_state->has_errors() ) {
 				$status = 'error';
 				break;
 			}
@@ -297,27 +299,27 @@ class Critical_CSS_State {
 
 				// For each URL
 				// Track the state and errors in a state array.
-				$sources[ $key ] = array(
-					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
-					'status'        => self::REQUESTING,
-					'error'         => null,
-					'success_ratio' => $provider::get_success_ratio(),
-				);
+				$provider_state = $this->provider_states[ $key ];
+				if ( ! $provider_state ) {
+					continue;
+				}
+				$provider_state->create_request( apply_filters( 'jetpack_boost_critical_css_urls', $urls ), $provider::get_success_ratio() );
 			}
 		}
 
 		return $sources;
 	}
 
-	public function has_pending_provider( $providers = array() ) {
-		if ( empty( $providers ) ) {
-			$providers = array_keys( $this->sources );
+	public function has_pending_provider( $provider_filter = array() ) {
+		$providers_states = $this->provider_states;
+		if ( ! empty( $provider_filter ) ) {
+			foreach ( $provider_filter as $key ) {
+				unset( $providers_states[ $key ] );
+			}
 		}
-
-		$state   = $this->get_state_transient();
 		$pending = false;
-		foreach ( $state['sources'] as $name => $source_state ) {
-			if ( in_array( $name, $providers, true ) && self::REQUESTING === $source_state['status'] ) {
+		foreach ( $providers_states as $provider_state ) {
+			if ( $provider_state->is_requesting() ) {
 				$pending = true;
 				break;
 			}
@@ -387,32 +389,16 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Given a column, collate all provider sources returning the specified
-	 * column for each one.
-	 *
-	 * @param string $column Provider's source property name.
-	 *
-	 * @return array
-	 */
-	private function collate_column( $column ) {
-		$results = array_fill_keys( array_keys( $this->sources ), array() );
-
-		foreach ( $this->sources as $source_key => $source ) {
-			if ( isset( $source[ $column ] ) ) {
-				$results[ $source_key ] = $source[ $column ];
-			}
-		}
-
-		return $results;
-	}
-
-	/**
 	 * Get the provider urls.
 	 *
 	 * @return array
 	 */
 	public function get_provider_urls() {
-		return $this->collate_column( 'urls' );
+		$results = array();
+		foreach ( $this->provider_states as $key => $provider_state ) {
+			$results[ $key ] = $provider_state->get_urls();
+		}
+		return $results;
 	}
 
 	/**
@@ -421,11 +407,15 @@ class Critical_CSS_State {
 	 * @return array
 	 */
 	public function get_provider_success_ratios() {
-		return $this->collate_column( 'success_ratio' );
+		$results = array();
+		foreach ( $this->provider_states as $key => $provider_state ) {
+			$results[ $key ] = $provider_state->get_success_ratio();
+		}
+		return $results;
 	}
 
-	public function get_total_providers_count() {
-		return count( $this->sources );
+	private function get_total_providers_count() {
+		return count( $this->provider_states );
 	}
 
 	/**
@@ -434,21 +424,13 @@ class Critical_CSS_State {
 	 * @return int
 	 */
 	public function get_processed_providers_count() {
-		$source_status = $this->collate_column( 'status' );
-		$successes     = array();
-
-		foreach ( $source_status as $status ) {
-			/**
-			 * Note:
-			 * "Success" is currently considered anything that's not Requesting.
-			 * That's because Critical CSS generation can also end with failure.
-			 */
-			if ( self::REQUESTING !== $status ) {
-				$successes[] = $status;
+		$count = 0;
+		foreach ( $this->provider_states as $provider ) {
+			if ( ! $provider->is_requesting() ) {
+				++$count;
 			}
 		}
-
-		return count( $successes );
+		return $count;
 	}
 
 	/**
@@ -457,21 +439,19 @@ class Critical_CSS_State {
 	 * @return int
 	 */
 	public function get_providers_success_count() {
-		$source_status = $this->collate_column( 'status' );
-		$successes     = array();
-
-		foreach ( $source_status as $status ) {
-			/**
-			 * Note:
-			 * "Success" is currently considered anything that's not Requesting.
-			 * That's because Critical CSS generation can also end with failure.
-			 */
-			if ( self::SUCCESS === $status ) {
-				$successes[] = $status;
+		/**
+		 * Note:
+		 * "Success" is currently considered anything that's not Requesting.
+		 * That's because Critical CSS generation can also end with failure.
+		 */
+		$count = 0;
+		foreach ( $this->provider_states as $provider_state ) {
+			if ( $provider_state->is_successful() ) {
+				++$count;
 			}
 		}
 
-		return count( $successes );
+		return $count;
 	}
 
 	/**
@@ -480,7 +460,7 @@ class Critical_CSS_State {
 	 * @return int
 	 */
 	public function get_percent_complete() {
-		return $this->get_processed_providers_count() * 100 / max( 1, count( $this->sources ) );
+		return $this->get_processed_providers_count() * 100 / max( 1, $this->get_total_providers_count() );
 	}
 
 	/**
@@ -490,30 +470,4 @@ class Critical_CSS_State {
 		Transient::delete_by_prefix( self::KEY_PREFIX );
 	}
 
-	/**
-	 * Verify Provider source array, dropping sources which don't contain valid data (i.e.: from older Boost versions)
-	 *
-	 * @param array $sources - Data on Provider sources, raw from storage.
-	 */
-	protected function verify_sources( $sources ) {
-		if ( ! is_array( $sources ) ) {
-			return null;
-		}
-
-		// Ensure any source error contains a type.
-		return array_filter(
-			$sources,
-			function ( $source_details ) {
-				if ( isset( $source_details['error'] ) && is_array( $source_details['error'] ) ) {
-					foreach ( $source_details['error'] as $error ) {
-						if ( empty( $error['type'] ) ) {
-							return false;
-						}
-					}
-				}
-
-				return true;
-			}
-		);
-	}
 }

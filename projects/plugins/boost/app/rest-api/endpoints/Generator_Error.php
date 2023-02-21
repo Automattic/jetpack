@@ -98,7 +98,7 @@ class Generator_Error implements Endpoint {
 			}
 
 			// otherwise, store the error at the provider level, allowing the UI to display them with all details.
-			$generator->state->set_source_error( $cache_key, $data['urls'] );
+			$generator->state->set_provider_state_error( $cache_key, $data['urls'] );
 		}
 
 		// Set status to success to indicate the critical CSS error has been stored on the server.

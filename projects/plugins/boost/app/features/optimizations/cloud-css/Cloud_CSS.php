@@ -149,7 +149,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
 					$state->set_as_failed( $data['error'] );
 				} else {
-					$state->set_source_error( $provider, $data['urls'] );
+					$state->set_provider_state_error( $provider, $data['urls'] );
 				}
 			}
 			$state->maybe_set_status();
