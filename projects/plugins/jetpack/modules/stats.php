@@ -541,7 +541,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-				<div style="display: visible;">
+				<div style="display: none;">
 					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
 				</div>
 				<?php
