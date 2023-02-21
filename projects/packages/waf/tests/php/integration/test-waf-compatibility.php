@@ -125,15 +125,19 @@ final class WafCompatibilityTest extends WorDBless\BaseTestCase {
 				// Mock the value of 'jetpack_waf_ip_allow_list' for Jetpack_Options::get_raw_option().
 				if ( $query === "SELECT option_value FROM wp_options WHERE option_name = 'jetpack_waf_ip_allow_list' LIMIT 1" ) {
 					error_log( 'Mocking jetpack_waf_ip_allow_list: ' . "\n" . var_export( array( (object) array( $waf_list_mock ) ), true ) );
-					return array( (object) array( $waf_list_mock ) );
+					return array(
+						0 => (object) array(
+							'option_value' => $waf_list_mock,
+						),
+					);
 				}
 
 				// Mock the value of 'jetpack_protect_whitelist' for Jetpack_Options::get_raw_option().
 				if ( $query === "SELECT option_value FROM wp_options WHERE option_name = 'jetpack_protect_whitelist' LIMIT 1" ) {
 					error_log( 'Mocking jetpack_protect_whitelist: ' . "\n" . var_export( array( (object) array( $brute_force_list_mock ) ), true ) );
 					return array(
-						(object) array(
-							$brute_force_list_mock,
+						0 => (object) array(
+							'option_value' => $brute_force_list_mock,
 						),
 					);
 				}
