@@ -71,4 +71,4 @@ class WPCOM_REST_API_V2_Endpoint_Form_Responses extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Forms_Responses' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Form_Responses' );
