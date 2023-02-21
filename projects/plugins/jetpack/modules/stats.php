@@ -852,6 +852,9 @@ function stats_print_odyssey_nudge( $html ) {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
+			background-color: transparent;
+			border: none;
+			cursor: pointer;
 		}
 		.stats-odyssey-nudge--action-bar {
 			display: flex;
@@ -895,10 +898,10 @@ function stats_print_odyssey_nudge( $html ) {
 				<button class="dops-button stats-odyssey-nudge--primary-button">
 					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>">Switch to new Stats</a>
 				</button>
-				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats</a>
+				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank">Learn about Stats <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
 			</div>
 		</div>
-		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()">X</button>
+		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
 }
