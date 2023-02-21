@@ -1704,18 +1704,56 @@ importers:
 
   projects/plugins/crm:
     specifiers:
+      '@automattic/jetpack-base-styles': workspace:*
+      '@automattic/jetpack-components': workspace:*
+      '@automattic/jetpack-shared-extension-utils': workspace:*
       '@automattic/jetpack-webpack-config': workspace:*
       '@automattic/remove-asset-webpack-plugin': workspace:*
       '@babel/core': 7.20.12
       '@babel/preset-env': 7.20.2
       '@babel/register': 7.18.9
       '@babel/runtime': 7.20.13
+      '@testing-library/dom': 8.19.1
+      '@testing-library/react': 13.4.0
+      '@types/jest': 29.2.5
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      '@types/react-test-renderer': 18.0.0
+      '@types/wordpress__components': 23.0.1
+      '@wordpress/api-fetch': 6.23.0
+      '@wordpress/components': 23.3.0
+      '@wordpress/data': 8.3.0
+      '@wordpress/element': 5.3.0
+      '@wordpress/i18n': 4.26.0
+      '@wordpress/icons': 9.17.0
+      babel-jest: 29.3.1
+      classnames: 2.3.1
       css-loader: 6.5.1
       glob: 8.1.0
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0
       sass: 1.43.4
       sass-loader: 12.4.0
+      typescript: 4.8.2
       webpack: 5.72.1
       webpack-cli: 4.9.1
+    dependencies:
+      '@automattic/jetpack-base-styles': link:../../js-packages/base-styles
+      '@automattic/jetpack-components': link:../../js-packages/components
+      '@automattic/jetpack-shared-extension-utils': link:../../js-packages/shared-extension-utils
+      '@wordpress/api-fetch': 6.23.0
+      '@wordpress/components': 23.3.0_57czaiyk6rdr5iy5tfs5pior4u
+      '@wordpress/data': 8.3.0_react@18.2.0
+      '@wordpress/element': 5.3.0
+      '@wordpress/i18n': 4.26.0
+      '@wordpress/icons': 9.17.0
+      classnames: 2.3.1
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
     devDependencies:
       '@automattic/jetpack-webpack-config': link:../../js-packages/webpack-config
       '@automattic/remove-asset-webpack-plugin': link:../../js-packages/remove-asset-webpack-plugin
@@ -1723,10 +1761,21 @@ importers:
       '@babel/preset-env': 7.20.2_@babel+core@7.20.12
       '@babel/register': 7.18.9_@babel+core@7.20.12
       '@babel/runtime': 7.20.13
+      '@testing-library/dom': 8.19.1
+      '@testing-library/react': 13.4.0_qduxo4avim535knijfrctywtaq
+      '@types/jest': 29.2.5
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      '@types/react-test-renderer': 18.0.0
+      '@types/wordpress__components': 23.0.1_biqbaboplfbrettd7655fr4n2y
+      babel-jest: 29.3.1_@babel+core@7.20.12
       css-loader: 6.5.1_webpack@5.72.1
       glob: 8.1.0
+      jest: 29.3.1
+      jest-environment-jsdom: 29.3.1
       sass: 1.43.4
       sass-loader: 12.4.0_sass@1.43.4+webpack@5.72.1
+      typescript: 4.8.2
       webpack: 5.72.1_webpack-cli@4.9.1
       webpack-cli: 4.9.1_webpack@5.72.1
 
@@ -3399,7 +3448,7 @@ packages:
       '@babel/core': ^7.0.0-0
     dependencies:
       '@babel/core': 7.12.9
-      '@babel/helper-plugin-utils': 7.10.4
+      '@babel/helper-plugin-utils': 7.20.2
       '@babel/plugin-syntax-object-rest-spread': 7.8.3_@babel+core@7.12.9
       '@babel/plugin-transform-parameters': 7.20.7_@babel+core@7.12.9
     dev: true
@@ -8404,7 +8453,7 @@ packages:
     resolution: {integrity: sha512-8bVUjXZvJacUFkJXHdyZ9iH1Eaj5V7I8c4NdH5sQJsdXkqT4CA5Dhb4yb4VE/3asyx4L9ayZr1NIhTsWHczmMw==}
     dependencies:
       '@types/minimatch': 5.1.2
-      '@types/node': 16.18.12
+      '@types/node': 18.13.0
     dev: true
 
   /@types/graceful-fs/4.1.6:
@@ -8502,7 +8551,7 @@ packages:
   /@types/node-fetch/2.6.2:
     resolution: {integrity: sha512-DHqhlq5jeESLy19TYhLakJ07kNumXWjcDdxXsLUMJZ6ue8VZJj4kLPQVE/2mdHh3xZziNF1xppu5lwmS53HR+A==}
     dependencies:
-      '@types/node': 16.18.12
+      '@types/node': 18.13.0
       form-data: 3.0.1
     dev: true
 
@@ -8638,7 +8687,7 @@ packages:
   /@types/webpack/5.28.0_webpack-cli@4.9.1:
     resolution: {integrity: sha512-8cP0CzcxUiFuA9xGJkfeVpqmWTk9nx6CWwamRGCj95ph1SmlRRk9KlCZ6avhCbZd4L68LvYT6l1kpdEnQXrF8w==}
     dependencies:
-      '@types/node': 16.18.12
+      '@types/node': 18.13.0
       tapable: 2.2.1
       webpack: 5.72.1_webpack-cli@4.9.1
     transitivePeerDependencies:

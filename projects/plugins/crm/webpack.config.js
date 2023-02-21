@@ -9,6 +9,7 @@ const welcomeZBSCSSPattern = '**/css/welcome-to-zbs/*.css';
 
 const alwaysIgnoredFiles = [
 	'**/js/**/*.min.js',
+	'**/src/js/**',
 	'**/sass/**/_*.scss',
 	'**/node_modules/**',
 	'**/vendor/**',
@@ -185,5 +186,57 @@ module.exports = [
 				assets: /\.js(\.map)?$/,
 			} ),
 		],
+	},
+	{
+		entry: {
+			'onboarding-wizard': './src/js/onboarding-wizard-index.jsx',
+		},
+		mode: jetpackWebpackConfig.mode,
+		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+		output: {
+			...jetpackWebpackConfig.output,
+			path: path.resolve( './build' ),
+		},
+		optimization: {
+			...jetpackWebpackConfig.optimization,
+		},
+		resolve: {
+			...jetpackWebpackConfig.resolve,
+		},
+		node: false,
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
+		module: {
+			strictExportPresence: true,
+			rules: [
+				// Transpile JavaScript
+				jetpackWebpackConfig.TranspileRule( {
+					exclude: /node_modules\//,
+				} ),
+
+				// Transpile @automattic/jetpack-* in node_modules too.
+				jetpackWebpackConfig.TranspileRule( {
+					includeNodeModules: [ '@automattic/jetpack-' ],
+				} ),
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
+			],
+		},
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'zero-bs-crm',
+			} ),
+		},
 	},
 ];

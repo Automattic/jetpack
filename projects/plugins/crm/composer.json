@@ -44,6 +44,7 @@
 		}
 	},
 	"require": {
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/woocommerce": "^3.0",
 		"dompdf/dompdf": "2.0.3",
@@ -58,6 +59,11 @@
 			}
 		}
 	],
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"minimum-stability": "dev",
 	"extra": {
 		"autotagger": {
