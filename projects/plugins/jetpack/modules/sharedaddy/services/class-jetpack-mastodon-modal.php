@@ -170,7 +170,7 @@ class Jetpack_Mastodon_Modal {
 		<div class="sd-mastodon-modal__logo">
 			<?php echo self::$svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG is safe. ?>
 		</div>
-		<form action="" method="post">
+		<form method="post">
 			<label for="jetpack-mastodon-instance" class="sd-mastodon-modal__label">
 				<?php esc_html_e( 'Enter the full URL of the Mastodon instance where you’d like to share this post.', 'jetpack' ); ?>
 			</label>
