@@ -11,7 +11,7 @@ use Automattic\Jetpack\Waf\Waf_Initializer;
 /**
  * Integration tests for the backwards-compatibility of the package.
  */
-final class WafCompatibilityTest extends WorDBless\BaseTestCase {
+final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Mock data for 'jetpack_protect_whitelist' option.
