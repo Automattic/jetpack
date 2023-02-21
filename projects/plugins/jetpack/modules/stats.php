@@ -877,6 +877,14 @@ function stats_print_odyssey_nudge( $html ) {
 			color: white;
 			text-decoration: none;
 		}
+		.is-primary-link:active {
+			color: white;
+		}
+		.is-primary-link:focus {
+			color: white;
+			box-shadow: none;
+			outline: none;
+		}
 		.is-primary-link:hover {
 			color: white;
 		}
