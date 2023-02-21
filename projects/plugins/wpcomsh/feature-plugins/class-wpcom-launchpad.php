@@ -46,7 +46,7 @@ class WPCOM_Launchpad {
 	 * @return void
 	 */
 	public function init() {
-		add_action( 'publish_post', array( $this, 'track_newsletter_publish_first_post_task' ), 10 );
+		add_action( 'publish_post', array( $this, 'track_publish_first_post_task' ), 10 );
 		add_action( 'load-site-editor.php', array( $this, 'track_edit_site_task' ), 10 );
 		add_action( 'wpcom_site_launched', array( $this, 'track_site_launch_task' ), 10 );
 		add_action( 'wp_head', array( $this, 'maybe_preview_with_no_interactions' ), PHP_INT_MAX );
@@ -100,6 +100,16 @@ class WPCOM_Launchpad {
 	 */
 	public function is_free_flow() {
 		return get_option( 'site_intent' ) === 'free';
+	}
+
+	/**
+	 * Determine if site was started via a general onbaording flow.
+	 *
+	 * @return bool
+	 */
+	public function is_general_flow() {
+		$intent = get_option( 'site_intent' );
+		return 'write' === $intent || 'build' === $intent;
 	}
 
 	/**
@@ -164,13 +174,21 @@ class WPCOM_Launchpad {
 	 *
 	 * @return void
 	 */
-	public function track_newsletter_publish_first_post_task() {
+	public function track_publish_first_post_task() {
+		// Ensure that Headstart posts don't mark this as complete
+		if ( defined( 'HEADSTART' ) && HEADSTART ) {
+			return;
+		}
 		if ( $this->is_newsletter_flow() && $this->should_update_tasks() ) {
 			$this->mark_publish_first_post_task_as_complete();
 			update_option( 'launchpad_screen', 'off' );
 		}
 
 		if ( $this->is_free_flow() && $this->should_update_tasks() ) {
+			$this->mark_publish_first_post_task_as_complete();
+		}
+
+		if ( $this->is_general_flow() && $this->should_update_tasks() ) {
 			$this->mark_publish_first_post_task_as_complete();
 		}
 	}
@@ -197,6 +215,12 @@ class WPCOM_Launchpad {
 		}
 
 		if ( $this->is_free_flow() && $this->should_update_tasks() ) {
+			if ( ! $this->get_checklist_task( 'site_edited' ) ) {
+				$this->update_checklist_task( 'site_edited', true );
+			}
+		}
+
+		if ( $this->is_general_flow() && $this->should_update_tasks() ) {
 			if ( ! $this->get_checklist_task( 'site_edited' ) ) {
 				$this->update_checklist_task( 'site_edited', true );
 			}
@@ -231,7 +255,7 @@ class WPCOM_Launchpad {
 	 * @return void
 	 */
 	public function track_site_launch_task() {
-		if ( ! $this->is_link_in_bio_flow() && ! $this->is_videopress_flow() && ! $this->is_free_flow() ) {
+		if ( ! $this->is_link_in_bio_flow() && ! $this->is_videopress_flow() && ! $this->is_free_flow() && ! $this->is_general_flow() ) {
 			return;
 		}
 
@@ -242,8 +266,9 @@ class WPCOM_Launchpad {
 		$is_link_in_bio_flow_ready_to_launch = $this->is_link_in_bio_flow() && $this->get_checklist_task( 'links_edited' );
 		$is_videopress_flow_ready_to_launch  = $this->is_videopress_flow() && $this->get_checklist_task( 'video_uploaded' );
 		$is_free_flow_ready_to_launch        = $this->is_free_flow();
+		$is_general_flow_ready_to_launch     = $this->is_general_flow();
 
-		$is_site_ready_to_launch = $is_link_in_bio_flow_ready_to_launch || $is_videopress_flow_ready_to_launch || $is_free_flow_ready_to_launch;
+		$is_site_ready_to_launch = $is_link_in_bio_flow_ready_to_launch || $is_videopress_flow_ready_to_launch || $is_free_flow_ready_to_launch || $is_general_flow_ready_to_launch;
 
 		if ( $is_site_ready_to_launch ) {
 			if ( ! $this->get_checklist_task( 'site_launched' ) ) {
@@ -287,7 +312,7 @@ class WPCOM_Launchpad {
 			return;
 		}
 
-		// Not using `wp_attachment_is` because it require the actual file
+		// Not using `wp_attachment_is` because it requires the actual file
 		// which is not the case for Atomic VideoPress.
 		if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
 			return;
