@@ -150,7 +150,7 @@ abstract class Sharing_Source {
 		 */
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
-		return html_entity_decode( wp_kses( $title, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**
@@ -190,7 +190,7 @@ abstract class Sharing_Source {
 		 */
 		$tag_list = (string) apply_filters( 'jetpack_sharing_tag_list', implode( ', ', $tags ), $post_id, $this->id );
 
-		return html_entity_decode( wp_kses( $tag_list, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		return html_entity_decode( wp_kses( $tag_list, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**
