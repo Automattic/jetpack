@@ -15,7 +15,6 @@ import {
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { get } from 'lodash';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { getSubscriberCounts } from './api';
 import './panel.scss';
@@ -23,7 +22,7 @@ import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 
-const DISCUSSION_URL = `${ get( getJetpackData(), 'adminUrl', false ) }?page=jetpack#/discussion`;
+const ADMIN_URL = getJetpackData()?.adminUrl;
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
@@ -139,7 +138,10 @@ export default function SubscribePanels() {
 				) }
 
 				{ ! isNewsletterFeatureEnabled() && (
-					<Button variant="link" href={ DISCUSSION_URL }>
+					<Button
+						variant="link"
+						href={ ADMIN_URL ? `${ ADMIN_URL }?page=jetpack#/discussion` : '' }
+					>
 						{ __( 'Enable newsletter', 'jetpack' ) }
 					</Button>
 				) }
