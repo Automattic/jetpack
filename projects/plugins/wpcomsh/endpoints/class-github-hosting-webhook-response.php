@@ -187,7 +187,13 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		$this->deployment_id = str_replace( '/', '-', $repo ) . '_' . $ref . '_' . time();
 		$this->log( 'Starting deployment ' . $this->deployment_id );
-		$this->update_status( array( 'status' => 'running' ) );
+		$this->update_status(
+			array(
+				'status'                    => 'running',
+				'last_deployment_timestamp' => time(),
+				'last_deployment_sha'       => $ref,
+			)
+		);
 
 		if ( ! isset( $base_path ) ) {
 			$base_path = '';
@@ -215,13 +221,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		$this->log( 'Deployment completed.' );
 		$this->commit_log_file();
-		$this->update_status(
-			array(
-				'status'                    => 'success',
-				'last_deployment_timestamp' => time(),
-				'last_deployment_sha'       => $ref,
-			)
-		);
+		$this->update_status( array( 'status' => 'success' ) );
 	}
 
 	/**
