@@ -3157,7 +3157,7 @@ class Share_Mastodon extends Sharing_Source {
 		 * @module sharedaddy
 		 * @since $$next-version$$
 		 *
-		 * @param string  $share_url The default message that gets posted to Mastodon. This will get rawurlencoded.
+		 * @param string  $share_url The default message that gets posted to Mastodon.
 		 * @param WP_Post $post      The post object.
 		 * @param array   $post_data Array of information about the post we're sharing.
 		 */
