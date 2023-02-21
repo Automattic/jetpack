@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 
 class Generator {
@@ -15,9 +14,8 @@ class Generator {
 
 	public function __construct( $state = 'local' ) {
 		$this->state = new Critical_CSS_State( $state );
-		$this->paths = new Source_Providers();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->state->create_request( $this->paths->get_providers() );
+			$this->state->reset();
 		}
 	}
 
@@ -66,7 +64,7 @@ class Generator {
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	public function make_generation_request() {
-		$this->state->create_request( $this->paths->get_providers() );
+		$this->state->reset();
 	}
 
 	/**

@@ -25,7 +25,7 @@ class Critical_CSS_Invalidator {
 		// ^^ Not true anymore. Mass invalidate __some__ cached values.
 		$storage = new Critical_CSS_Storage();
 		$storage->clear();
-		Critical_CSS_State::reset();
+		Critical_CSS_State::clear();
 		Cloud_CSS_Cron::uninstall();
 	}
 

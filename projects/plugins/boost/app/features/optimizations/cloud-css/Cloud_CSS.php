@@ -106,11 +106,10 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 */
 	public function generate_cloud_css( $post = null ) {
 		$state            = new Critical_CSS_State( 'cloud' );
-		$source_providers = new Source_Providers();
 		if ( $post ) {
 			$state->add_request_context( $post );
 		}
-		$state->create_request( $source_providers->get_providers() );
+		$state->reset();
 
 		$client    = new Cloud_CSS_Request();
 		$providers = $state->get_provider_urls();

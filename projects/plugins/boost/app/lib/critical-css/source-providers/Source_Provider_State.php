@@ -63,7 +63,7 @@ class Source_Provider_State {
 		return $this->success_ratio;
 	}
 
-	public function create_request( $urls, $success_ratio ) {
+	public function prepare_new_request( $urls, $success_ratio ) {
 		$this->urls          = $urls;
 		$this->success_ratio = $success_ratio;
 		$this->error         = null;

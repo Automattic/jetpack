@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Provider_State;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Transient;
 
 /**
@@ -260,15 +261,39 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Request Critical CSS to be generated based on passed URL providers.
-	 *
-	 * @param array $providers Providers.
+	 * Reset the Critical CSS state.
+	 * This will empty the current state, effectively requesting a new Critical CSS generation.
 	 */
-	public function create_request( $providers ) {
+	public function reset() {
 		$this->state   = self::REQUESTING;
-		$this->sources = $providers;
 		$this->created = microtime( true );
 
+		$providers       = new Source_Providers();
+		$provider_states = array();
+
+		foreach ( $providers as $provider ) {
+			$provider_name = $provider::get_provider_name();
+
+			// For each provider,
+			// Gather a list of URLs that are going to be used as Critical CSS source.
+			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
+				$key           = $provider_name . '_' . $group;
+				$provider_urls = apply_filters( 'jetpack_boost_critical_css_urls', $urls );
+
+				$state          = [
+					'urls'          => '',
+					'success_ratio' => '',
+					'error'         => '',
+					'status'        => '',
+				];
+				$provider_state = new Source_Provider_State( $state );
+				$provider_state->prepare_new_request( $provider_urls, $provider::get_success_ratio() );
+				$provider_states[ $key ] = $provider_state->get_status();
+			}
+		}
+
+
+		$this->provider_states = $provider_states;
 		$this->save_state_transient();
 	}
 
@@ -279,28 +304,8 @@ class Critical_CSS_State {
 	 *
 	 * @return array
 	 */
-	protected function get_provider_sources( $providers ) {
-		$sources = array();
+	protected function get_provider_sources() {
 
-		foreach ( $providers as $provider ) {
-			$provider_name = $provider::get_provider_name();
-
-			// For each provider,
-			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
-				$key = $provider_name . '_' . $group;
-
-				// For each URL
-				// Track the state and errors in a state array.
-				$provider_state = $this->provider_states[ $key ];
-				if ( $provider_state->is_successful() ) {
-					continue;
-				}
-				$provider_state->create_request( apply_filters( 'jetpack_boost_critical_css_urls', $urls ), $provider::get_success_ratio() );
-			}
-		}
-
-		return $sources;
 	}
 
 	public function has_pending_provider( $provider_filter = array() ) {
@@ -406,7 +411,7 @@ class Critical_CSS_State {
 		$count = 0;
 		foreach ( $this->provider_states as $provider ) {
 			if ( ! $provider->is_requesting() ) {
-				++$count;
+				++ $count;
 			}
 		}
 		return $count;
@@ -426,7 +431,7 @@ class Critical_CSS_State {
 		$count = 0;
 		foreach ( $this->provider_states as $provider_state ) {
 			if ( $provider_state->is_successful() ) {
-				++$count;
+				++ $count;
 			}
 		}
 
@@ -445,7 +450,7 @@ class Critical_CSS_State {
 	/**
 	 * Reset the Critical CSS state.
 	 */
-	public static function reset() {
+	public static function clear() {
 		Transient::delete_by_prefix( self::KEY_PREFIX );
 	}
 
