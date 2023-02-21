@@ -182,13 +182,13 @@ class Critical_CSS_State {
 	public function get_status() {
 
 		$status = array(
-			'status'                => $this->state,
-			'created'               => $this->created,
-			'updated'               => $this->updated,
-			'status_error'          => $this->state_error,
-			'provider_states'       => $this->provider_states,
-			'progress'              => $this->get_percent_complete(),
-			'success_count'         => $this->get_providers_success_count(),
+			'status'          => $this->state,
+			'created'         => $this->created,
+			'updated'         => $this->updated,
+			'status_error'    => $this->state_error,
+			'provider_states' => $this->provider_states,
+			'progress'        => $this->get_percent_complete(),
+			'success_count'   => $this->get_providers_success_count(),
 		);
 
 		if ( $this->is_pending() ) {
@@ -385,7 +385,7 @@ class Critical_CSS_State {
 	 *
 	 * @return array
 	 */
-	public function get_provider_success_ratios() {
+	private function get_provider_success_ratios() {
 		$results = array();
 		foreach ( $this->provider_states as $key => $provider_state ) {
 			$results[ $key ] = $provider_state->get_success_ratio();
@@ -402,7 +402,7 @@ class Critical_CSS_State {
 	 *
 	 * @return int
 	 */
-	public function get_processed_providers_count() {
+	private function get_processed_providers_count() {
 		$count = 0;
 		foreach ( $this->provider_states as $provider ) {
 			if ( ! $provider->is_requesting() ) {
@@ -417,7 +417,7 @@ class Critical_CSS_State {
 	 *
 	 * @return int
 	 */
-	public function get_providers_success_count() {
+	private function get_providers_success_count() {
 		/**
 		 * Note:
 		 * "Success" is currently considered anything that's not Requesting.
@@ -438,7 +438,7 @@ class Critical_CSS_State {
 	 *
 	 * @return int
 	 */
-	public function get_percent_complete() {
+	private function get_percent_complete() {
 		return $this->get_processed_providers_count() * 100 / max( 1, $this->get_total_providers_count() );
 	}
 
