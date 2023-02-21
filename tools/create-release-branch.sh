@@ -14,12 +14,12 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Instructions
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <prefix|plugin> [<version>]
+		usage: $0 [options] <prefix|plugin...> [<version>]
 
 		Create a new release branch for the specified prefix or plugin.
-		The <prefix|plugin> should be a release branch prefix used by at least one
-		monorepo plugin, but may also be the name of a directory in projects/plugins/
-		or a path to a plugin directory or file.
+		The <prefix|plugin...> should be a release branch prefix used by at least one
+		monorepo plugin, but may also be the name of one or more directories in
+		projects/plugins/ or paths to plugin directories or files.
 
 		If no <version> is specified (and we're not non-interactive), you will be
 		prompted. You'll also be prompted if more than one plugin matches the prefix.
@@ -60,8 +60,17 @@ if $INTERACTIVE && [[ ! -t 0 ]]; then
 	debug "Input is not a terminal, forcing --non-interactive."
 	INTERACTIVE=false
 fi
-if [[ ${#ARGS[@]} -ne 1 && ${#ARGS[@]} -ne 2 ]]; then
+if [[ ${#ARGS[@]} -lt 1 ]]; then
 	usage
+fi
+
+VERARG=
+if [[ ${#ARGS[@]} -gt 1 ]]; then
+	normalize_version_number "${ARGS[-1]}"
+	if [[ "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+		VERARG=${ARGS[-1]}
+		unset 'ARGS[-1]'
+	fi
 fi
 
 # Collect available prefixes
@@ -72,7 +81,7 @@ while IFS=$'\t' read -r prefix file; do
 done <<<"$TMP"
 
 # If <prefix|plugin> is a known prefix, use the corresponding plugins. Otherwise, process it as a plugin arg.
-if [[ -n "${PREFIXES[${ARGS[0]}]}" ]]; then
+if [[ ${#ARGS[@]} -eq 1 && -n "${PREFIXES[${ARGS[0]}]}" ]]; then
 	PREFIX=${ARGS[0]}
 	mapfile -t DIRS <<<"${PREFIXES[$PREFIX]}"
 else
@@ -84,14 +93,41 @@ else
 	fi
 	DIRS=( "$PLUGIN_DIR" )
 
-	if [[ "${PREFIXES[$PREFIX]}" == *$'\n'* ]]; then
+	if [[ ${#ARGS[@]} -gt 1 ]]; then
+		process_plugin_arg "${ARGS[0]}"
+		PLUGIN_NAME=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
+		PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$PLUGIN_DIR/composer.json")
+		if [[ -z "$PREFIX" ]]; then
+			die "Plugin $PLUGIN_NAME does not have a release branch prefix defined in composer.json. Aborting."
+		fi
+		DIRS=( "$PLUGIN_DIR" )
+
+		for ARG in "${ARGS[@]:1}"; do
+			process_plugin_arg "$ARG"
+			PLUGIN_NAME2=$(jq --arg n "${ARGS[0]}" -r '.name // $n' "$PLUGIN_DIR/composer.json")
+			PREFIX2=$(jq -r '.extra["release-branch-prefix"] // ""' "$PLUGIN_DIR/composer.json")
+			if [[ "$PREFIX" != "$PREFIX2" ]]; then
+				die "Plugin $PLUGIN_NAME2 does not use the same prefix as $PLUGIN_NAME ($PREFIX != $PREFIX2). Aborting."
+			fi
+			DIRS+=( "$PLUGIN_DIR" )
+		done
+	elif [[ "${PREFIXES[$PREFIX]}" == *$'\n'* ]]; then
 		info "Plugin $PLUGIN_NAME uses prefix $PREFIX, which is used in multiple plugins:"
 		echo "   ${PREFIXES[$PREFIX]//$'\n'/$'\n   '}"
 		# shellcheck disable=SC2310
 		if proceed_p '' 'Release all these plugins?'; then
 			mapfile -t DIRS <<<"${PREFIXES[$PREFIX]}"
 		else
-			proceed_p ' ' "Release only $PLUGIN_NAME?"
+			mapfile -t ASK <<<"${PREFIXES[$PREFIX]}"
+			for DIR in "${ASK[@]}"; do
+				if [[ "$DIR" != "$PLUGIN_DIR" ]] && proceed_p ' ' "Release ${DIR#"$BASE/projects/"} too?"; then
+					DIRS+=( "$DIR" )
+				fi
+			done
+			echo ''
+			echo 'Selected plugins:'
+			printf "  %s\n" "${DIRS[@]}"
+			proceed_p '' "Release these plugins?"
 		fi
 	fi
 fi
@@ -154,13 +190,13 @@ function check_ver {
 	return 0
 }
 VERSIONS=()
-if [[ -n "${ARGS[1]}" && ${#DIRS[@]} -gt 1 ]]; then
+if [[ -n "$VERARG" && ${#DIRS[@]} -gt 1 ]]; then
 	debug "Ignoring specified version since more than one plugin matches."
-	ARGS[1]=
+	VERARG=
 fi
-if [[ -n "${ARGS[1]}" ]]; then
+if [[ -n "$VERARG" ]]; then
 	# Check the version.
-	check_ver "${ARGS[1]}" 0
+	check_ver "$VERARG" 0
 	info "Using version number $NORMALIZED_VERSION for plugin ${NAMES[0]}"
 	VERSIONS+=( "$NORMALIZED_VERSION" )
 else

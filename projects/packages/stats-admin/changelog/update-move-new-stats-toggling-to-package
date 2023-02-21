@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats: moved New Stats toggling logic to stats-admin
