@@ -174,6 +174,12 @@ class AJAX {
 	 */
 	private function is_videopress_private_for_site() {
 		/**
+		 * If it's a Simple site, returns the site privacy setting.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return video_is_private_wpcom_blog( get_current_blog_id() );
+		}
+		/**
 		 * If it's a private Atomic site, the default setting is private as well.
 		 */
 		if ( ( new Host() )->is_woa_site() ) {
