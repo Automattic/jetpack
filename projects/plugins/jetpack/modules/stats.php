@@ -349,38 +349,7 @@ function stats_reports_load() {
 		// Normal page load.  Load page content via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 		add_action( 'admin_print_footer_scripts', 'stats_script_dismiss_nudge_handler' );
-		add_action( 'admin_print_footer_scripts', 'stats_script_reset_nudge_handler' );
 	}
-}
-
-/**
- * JavaScript to reset the Odyssey nudge.
- *
- * @access public
- * @return void
- */
-function stats_script_reset_nudge_handler() {
-	?>
-	<script type="text/javascript" >
-	jQuery(document).ready(function($) {
-		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
-		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
-		let data = {
-			id: 'opt_in_new_stats',
-			status: 'postponed',
-			postponed_for: 10,
-		};
-		jQuery('#test-button-reset-nudge').click(function() {
-			jQuery.ajax({
-				type: "POST",
-				url: url,
-				data: data,
-				headers: { "x-wp-nonce": nonce },
-			});
-		});
-	});
-	</script>
-	<?php
 }
 
 /**
@@ -532,9 +501,6 @@ function stats_reports_page( $main_chart_only = false ) {
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
-				<div style="display: none;">
-					<p><button id="test-button-reset-nudge">Reset Nudge</button></p>
-				</div>
 				<?php
 				endif;
 
