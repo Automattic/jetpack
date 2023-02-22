@@ -2263,6 +2263,9 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-svelte-data-sync-client':
+        specifier: workspace:0.1.0-alpha
+        version: link:../../js-packages/svelte-data-sync-client
       '@wordpress/components':
         specifier: 23.3.0
         version: 23.3.0(@babel/core@7.20.12)(react-dom@18.2.0)(react@18.2.0)
@@ -2281,6 +2284,9 @@ importers:
       svelte-navigator:
         specifier: 3.1.5
         version: 3.1.5(svelte@3.53.1)(typescript@4.8.2)
+      zod:
+        specifier: 3.20.2
+        version: 3.20.2
     devDependencies:
       '@automattic/jetpack-components':
         specifier: workspace:*
@@ -23428,7 +23434,6 @@ packages:
 
   /zod@3.20.2:
     resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
-    dev: true
 
   /zwitch@1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
