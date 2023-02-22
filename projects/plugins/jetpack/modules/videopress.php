@@ -12,6 +12,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\VideoPress;
 
 /**
@@ -29,4 +30,6 @@ if ( is_admin() ) {
 	include_once __DIR__ . '/videopress/class.videopress-edit-attachment.php';
 }
 
-VideoPress\Admin_UI::init();
+if ( ! Plugins_Installer::is_plugin_active( Plugins_Installer::get_plugin_id_by_slug( 'videopress' ) ) ) {
+	VideoPress\Admin_UI::init();
+}
