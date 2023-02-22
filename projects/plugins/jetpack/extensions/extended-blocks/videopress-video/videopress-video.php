@@ -25,7 +25,7 @@ add_action(
 		$is_videopress_video_enabled = isset( $availability['videopress/video'] ) && $availability['videopress/video']['available'];
 
 		if (
-			$is_videopress_video_enable &&
+			$is_videopress_video_enabled &&
 			method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' )
 		) {
 			VideoPress_Pkg_Initializer::register_videopress_video_block();
