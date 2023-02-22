@@ -969,6 +969,10 @@ importers:
         version: 4.9.1(webpack@5.72.1)
 
   projects/js-packages/svelte-data-sync-client:
+    dependencies:
+      '@automattic/jetpack-svelte-data-sync-client':
+        specifier: workspace:0.1.0-alpha
+        version: 'link:'
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -2264,7 +2268,7 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/base-styles
       '@automattic/jetpack-svelte-data-sync-client':
-        specifier: workspace:0.1.0-alpha
+        specifier: workspace:*
         version: link:../../js-packages/svelte-data-sync-client
       '@wordpress/components':
         specifier: 23.3.0

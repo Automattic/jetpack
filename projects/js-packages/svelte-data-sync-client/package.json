@@ -42,5 +42,8 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"main": "./build/index.js",
-	"types": "./build/index.d.ts"
+	"types": "./build/index.d.ts",
+	"dependencies": {
+		"@automattic/jetpack-svelte-data-sync-client": "workspace:0.1.0-alpha"
+	}
 }
