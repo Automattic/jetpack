@@ -1,3 +1,5 @@
+import { convertZoomLevelToCameraDistance } from '../mapkit-utils';
+
 class MapkitBlock {
 	constructor( root ) {
 		this.root = root;
@@ -86,10 +88,7 @@ class MapkitBlock {
 	}
 
 	setZoom() {
-		const metersPerPixel =
-			( 156543.03392 * Math.cos( ( this.center.lat * Math.PI ) / 180 ) ) /
-			Math.pow( 2, this.zoom + 2 );
-		this.map.setCameraDistanceAnimated( 1000 * metersPerPixel );
+		this.map.cameraDistance = convertZoomLevelToCameraDistance( this.zoom, this.center.lat );
 	}
 
 	addPoints() {
