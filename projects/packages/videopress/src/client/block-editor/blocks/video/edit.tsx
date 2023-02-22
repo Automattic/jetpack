@@ -505,7 +505,7 @@ export default function VideoPressEdit( {
 				/>
 			</BlockControls>
 
-			<InspectorControls group="settings">
+			<InspectorControls>
 				<DetailsPanel
 					filename={ filename }
 					chapter={ chapter }
@@ -522,7 +522,7 @@ export default function VideoPressEdit( {
 				/>
 			</InspectorControls>
 
-			<InspectorControls group="color">
+			<InspectorControls __experimentalGroup="color">
 				<ColorPanel
 					clientId={ clientId }
 					{ ...{ attributes, setAttributes, isRequestingVideoData } }
