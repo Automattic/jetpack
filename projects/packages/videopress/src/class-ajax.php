@@ -142,7 +142,7 @@ class AJAX {
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
-				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
+				$is_videopress_private_for_site = $this->is_videopress_private_for_site();
 				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
 				break;
 		}
@@ -164,6 +164,15 @@ class AJAX {
 		 * @return bool
 		 */
 		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
+	}
+
+	/**
+	 * Checks if the default privacy for the videos is private.
+	 *
+	 * @return bool
+	 */
+	private function is_videopress_private_for_site() {
+		return get_option( 'videopress_private_enabled_for_site', false );
 	}
 
 	/**
