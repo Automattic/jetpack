@@ -207,6 +207,11 @@ const PlanInfo = ( { hasIndex, recordMeterInfo, isFreePlan, sendPaidPlanToCart }
 const MockedSearchInterface = ( { supportsInstantSearch, supportsOnlyClassicSearch } ) => {
 	return (
 		<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+				</Col>
+			</Container>
 			<div className="jp-search-dashboard-row">
 				<div className="jp-search-dashboard-top__title lg-col-span-6 md-col-span-7 sm-col-span-4">
 					<h1>
