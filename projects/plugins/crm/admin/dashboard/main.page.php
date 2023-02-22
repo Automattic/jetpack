@@ -620,12 +620,13 @@ if (jQuery('#bar-chart').length){
 				<tbody>
 					<?php
 					foreach ( $latest_cust as $cust ) {
-						// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
-						$avatar = ( isset( $cust ) && isset( $cust['id'] ) ) ? $zbs->DAL->contacts->getContactAvatar( $cust['id'] ) : '';
-						$fname  = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
-						$lname  = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
-						$status = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
-						// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName -- to be refactored.
+						$contactAvatar = $zbs->DAL->contacts->getContactAvatar( $cust['id'] );
+						$avatar        = ( isset( $cust ) && isset( $cust['id'] ) ) ? ( $contactAvatar ? $contactAvatar : zeroBSCRM_getDefaultContactAvatar() ) : '';
+						$fname         = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
+						$lname         = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
+						$status        = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName
 						if ( empty( $status ) ) {
 							$status = __( 'None', 'zero-bs-crm' );
 						}

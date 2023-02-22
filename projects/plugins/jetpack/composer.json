@@ -29,6 +29,7 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
 		"automattic/jetpack-licensing": "@dev",
@@ -66,10 +67,6 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
-		"test-coverage": [
-			"@php tools/build-module-headings-translations.php",
-			"tests/action-test-coverage.sh"
-		],
 		"test-js": [
 			"pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'"
 		],
@@ -103,7 +100,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_9_a_4",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ11_9_a_6",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
