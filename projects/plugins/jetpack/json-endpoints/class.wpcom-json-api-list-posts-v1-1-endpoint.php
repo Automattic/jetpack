@@ -228,16 +228,16 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$days      = 30;
 			$max_posts = isset( $args['number'] ) ? $args['number'] : 20;
 
-			$stats_history_query = stats_get_daily_history( false, $blog_id, 'postviews', 'post_id', $date, $days, '', $max_posts, true );
+			$stats_history_query = stats_get_daily_history( false, $blog_id, 'postviews', 'post_id', $date, $days, '', $max_posts + 1, true );
 			$top_posts_data      = array_shift( $stats_history_query );
 
 			if ( $top_posts_data ) {
 				get_posts( array( 'include' => join( ', ', array_keys( $top_posts_data ) ) ) );
 				foreach ( $top_posts_data as $id => $views ) {
-					$is_homepage_stat = ( 0 == $id );
+					$is_homepage_stat = ( 0 === $id );
 					$post             = get_post( $id );
 
-					if ( ! $is_homepage_stat && ( empty( $post ) || 'publish' != $post->post_status || 'attachment' == $post->post_type ) ) {
+					if ( ! $is_homepage_stat && ( empty( $post ) || 'publish' !== $post->post_status || 'attachment' === $post->post_type ) ) {
 						continue;
 					}
 
@@ -452,7 +452,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 								$post_views = array_filter(
 									$formatted_top_posts,
 									function ( $value ) use ( $post_ID ) {
-										return $value['post_id'] == $post_ID;
+										return $value['post_id'] === $post_ID;
 									},
 									ARRAY_FILTER_USE_BOTH
 								);
@@ -510,7 +510,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			usort(
 				$return['posts'],
 				function ( $item1, $item2 ) {
-					if ( $item1['views'] == $item2['views'] ) {
+					if ( $item1['views'] === $item2['views'] ) {
 						return 0;
 					}
 					return $item1['views'] > $item2['views'] ? -1 : 1;
