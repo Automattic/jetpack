@@ -34,7 +34,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'forms';
 
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	/**
