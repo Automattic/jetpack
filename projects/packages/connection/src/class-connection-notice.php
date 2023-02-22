@@ -147,35 +147,43 @@ class Connection_Notice {
 			echo '</form>';
 			?>
 			<script type="text/javascript">
-				jQuery( document ).ready( function( $ ) {
-					$( '#jp-switch-connection-owner' ).on( 'submit', function( e ) {
-						var formData = $( this ).serialize();
-						var submitBtn = document.getElementById( 'jp-switch-connection-owner-submit' );
-						var results = document.getElementById( 'jp-switch-user-results' );
+				( function() {
+					const switchOwnerButton = document.getElementById('jp-switch-connection-owner');
+					if ( ! switchOwnerButton ) {
+						return;
+					}
+
+					switchOwnerButton.addEventListener( 'submit', function ( e ) {
+						e.preventDefault();
+
+						var submitBtn = document.getElementById('jp-switch-connection-owner-submit');
+						var results = document.getElementById('jp-switch-user-results');
 
 						submitBtn.disabled = true;
 
-						$.ajax( {
-							type        : "POST",
-							url         : "<?php echo esc_url( get_rest_url() . 'jetpack/v4/connection/owner' ); ?>",
-							data        : formData,
-							headers     : {
-								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
-							},
-							success: function() {
-								results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack-connection' ); ?>";
-								setTimeout( function() {
-									$( '#jetpack-notice-switch-connection-owner' ).hide( 'slow' );
-								}, 1000 );
+						fetch(
+							"<?php echo esc_url( get_rest_url() . 'jetpack/v4/connection/owner' ); ?>",
+							{
+								method: 'POST',
+								headers: {
+									'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
+								},
+								body: new URLSearchParams( new FormData( this ) ),
 							}
-						} ).done( function() {
-							submitBtn.disabled = false;
-						} );
+						)
+							.then( response => response.json() )
+							.then( data => {
+								submitBtn.disabled = false;
 
-						e.preventDefault();
-						return false;
-					} );
-				} );
+								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
+									results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack-connection' ); ?>";
+									setTimeout(function () {
+										document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
+									}, 1000);
+								}
+							} );
+					});
+				} )();
 			</script>
 			<?php
 		} else {
