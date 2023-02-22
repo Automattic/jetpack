@@ -47,9 +47,10 @@ class Dashboard {
 			'../../dist/dashboard/jetpack-forms-dashboard.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+				'dependencies' => array( 'wp-api-fetch' ), // this here just for testing, remove when done (apiFetch will be on build)
 			)
 		);
 

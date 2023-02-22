@@ -10,13 +10,14 @@ namespace Automattic\Jetpack\Forms;
 
 use Jetpack_Options;
 use WP_Error;
+use WP_REST_Controller;
 use WP_REST_Server;
 
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
  * Routes are defined on Jetpack Plugin as WPCOM_REST_API_V2_Endpoint_Forms_Responses.
  */
-class REST_Controller {
+class REST_Controller extends WP_REST_Controller {
 	/**
 	 * Is WPCOM or not
 	 *
@@ -26,11 +27,14 @@ class REST_Controller {
 
 	/**
 	 * Constructor.
-	 *
-	 * @param bool $is_wpcom Whether it's WPCOM or not.
 	 */
-	public function __construct( $is_wpcom = false ) {
-		$this->is_wpcom = $is_wpcom;
+	public function __construct() {
+		$this->is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+
+		$this->namespace = 'wpcom/v2';
+		$this->rest_base = 'forms';
+
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
@@ -45,11 +49,11 @@ class REST_Controller {
 		// Stats for single resource type.
 
 		register_rest_route(
-			'wpcom/v2',
-			'form-responses',
+			$this->namespace,
+			$this->rest_base . '/responses',
 			array(
 				'methods'           => WP_REST_Server::READABLE,
-				'callback'          => array( $this, 'get_jetpack_form_responses' ),
+				'callback'          => array( $this, 'get_responses' ),
 				'permissions_check' => array( $this, 'jetpack_form_responses_permission_check' ),
 				'args'              => array(
 					'limit'   => array(
@@ -158,7 +162,7 @@ class REST_Controller {
 	 *
 	 * @return WP_REST_Response A response object containing Jetpack Forms responses.
 	 */
-	public function get_jetpack_form_responses( $request ) {
+	public function get_responses( $request ) {
 		$args = array(
 			'post_type'   => 'feedback',
 			'post_status' => array( 'publish', 'draft' ),
@@ -242,6 +246,10 @@ class REST_Controller {
 	 * Get blog ID selectively depending on IS_WPCOM or not
 	 */
 	protected function get_blog_id() {
-		return defined( 'IS_WPCOM' ) && IS_WPCOM ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	}
+}
+
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Forms\REST_Controller' );
 }
