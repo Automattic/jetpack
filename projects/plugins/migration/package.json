@@ -25,10 +25,13 @@
 		"extends @wordpress/browserslist-config"
 	],
 	"dependencies": {
+		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@automattic/typography": "1.0.0",
 		"@wordpress/components": "23.3.0",
 		"@wordpress/data": "8.3.0",
 		"@wordpress/date": "4.26.0",
