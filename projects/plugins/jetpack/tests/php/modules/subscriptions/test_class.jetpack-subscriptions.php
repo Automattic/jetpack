@@ -353,6 +353,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
 		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+
 		register_subscription_block();
 
 		// When post-id is passed, it should prevent access depending of the user access
@@ -376,6 +378,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 */
 	public function test_comments_are_not_displaying_for_paid_subscribers_when_defaults_to_false() {
 		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		register_subscription_block();
 
 		// When post-id is passed, it should prevent access depending of the user access

@@ -31,6 +31,14 @@ const defaultProps = {
 	fontSize: 12,
 };
 
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
+	useModuleStatus: jest.fn().mockReturnValue( {
+		isModuleActive: true,
+		changeStatus: jest.fn(),
+	} ),
+} ) );
+
 jest.mock( '../api', () => ( {
 	__esModule: true,
 	getSubscriberCount: jest.fn( successCallback => {
