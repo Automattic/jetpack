@@ -376,9 +376,6 @@ function stats_script_reset_nudge_handler() {
 				url: url,
 				data: data,
 				headers: { "x-wp-nonce": nonce },
-				success: function(response) {
-					console.log(response);
-				}
 			});
 		});
 	});
@@ -411,9 +408,6 @@ function stats_script_dismiss_nudge_handler() {
 			url: url,
 			data: data,
 			headers: { "x-wp-nonce": nonce },
-			success: function(response) {
-				console.log(response);
-			}
 		});
 	}
 	</script>
