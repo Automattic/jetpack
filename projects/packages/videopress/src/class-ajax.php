@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Status\Host;
 use \VIDEOPRESS_PRIVACY;
 
 /**
@@ -143,7 +142,7 @@ class AJAX {
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
-				$is_videopress_private_for_site = $this->is_videopress_private_for_site();
+				$is_videopress_private_for_site = Data::get_videopress_videos_private_for_site();
 				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
 				break;
 		}
@@ -165,31 +164,6 @@ class AJAX {
 		 * @return bool
 		 */
 		return (bool) apply_filters( 'videopress_is_current_user_authed_for_video', $is_user_authed, $guid, $embedded_post_id );
-	}
-
-	/**
-	 * Checks if the default privacy for the videos is private.
-	 *
-	 * @return bool
-	 */
-	private function is_videopress_private_for_site() {
-		/**
-		 * If it's a Simple site, returns the site privacy setting.
-		 */
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return video_is_private_wpcom_blog( get_current_blog_id() );
-		}
-		/**
-		 * If it's a private Atomic site, the default setting is private as well.
-		 */
-		if ( ( new Host() )->is_woa_site() ) {
-			if ( ( intval( get_option( 'blog_public', '' ) ) === -1 ) ) {
-				return false;
-			}
-		}
-
-		/* If it's a Jetpack site or a public Atomic site, check the settings */
-		return get_option( 'videopress_private_enabled_for_site', false );
 	}
 
 	/**
