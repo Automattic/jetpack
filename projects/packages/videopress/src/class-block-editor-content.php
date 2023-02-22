@@ -100,7 +100,7 @@ class Block_Editor_Content {
 			'controls'        => $atts['controls'],
 			'playsinline'     => $atts['playsinline'],
 			'useAverageColor' => $atts['useaveragecolor'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
-			'preloadContent'  => $atts['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects useAverageColor
+			'preloadContent'  => $atts['preloadcontent'], // The casing is intentional, shortcode params are lowercase, but player expects preloadContent
 		);
 		$src          = esc_url( add_query_arg( $query_params, $base_url ) );
 
