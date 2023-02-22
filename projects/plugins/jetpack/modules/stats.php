@@ -725,22 +725,9 @@ function stats_print_chart_scripts( $html ) {
  * @return bool
  */
 function is_chart_scripts( $html ) {
-	$str = stats_content_marker();
+	$str = Stats::STATS_CONTENT_MARKER;
 	$pos = strpos( $html, $str );
 	return $pos === false;
-}
-
-/**
- * Legacy Stats: Returns content marker
- *
- * Used to differentiate between content and script in
- * the returned server-generated HTML.
- *
- * @access public
- * @return string
- */
-function stats_content_marker() {
-	return '<div class="gotonewdash">';
 }
 
 /**
@@ -753,7 +740,7 @@ function stats_content_marker() {
  * @return string
  */
 function stats_parse_header_section( $html ) {
-	$mark = stats_content_marker();
+	$mark = Stats::STATS_CONTENT_MARKER;
 	$head = strstr( $html, $mark, true );
 	// Enforce a string result instead of string|false.
 	if ( $head === false ) {
@@ -774,7 +761,7 @@ function stats_parse_header_section( $html ) {
 function stats_parse_content_section( $html ) {
 	// TODO: Skip past gotonewdash DIV.
 	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$mark = stats_content_marker();
+	$mark = Stats::STATS_CONTENT_MARKER;
 	$body = strstr( $html, $mark );
 	// Enforce a string result instead of string|false.
 	if ( $body === false ) {
@@ -807,7 +794,7 @@ function stats_print_odyssey_nudge( $html ) {
 	if ( ! stats_should_show_odyssey_nudge() ) {
 		return;
 	}
-	$b = stats_content_marker();
+	$b = Stats::STATS_CONTENT_MARKER;
 	$i = strpos( $html, $b );
 	if ( $i === false ) {
 		return;
