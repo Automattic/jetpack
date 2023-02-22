@@ -66,6 +66,51 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'verify_xml_rpc_signature' ),
 			)
 		);
+
+		// GET https://<atomic-site-address>/wp-json/wpcomsh/v1/hosting/github/deployment-logs.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/github/deployment-logs',
+			array(
+				'show_in_index'       => true,
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_deployment_logs' ),
+				'permission_callback' => array( $this, 'verify_log_reading_permissions' ),
+			)
+		);
+	}
+
+	/**
+	 * Only site admins can access the logs.
+	 *
+	 * @return bool
+	 */
+	public function verify_log_reading_permissions() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Retrieves logs for the last deployment.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 */
+	public function get_deployment_logs( $request ) {
+		$last_deployment = get_option( self::$deployment_status_option, array() );
+
+		if ( ! isset( $last_deployment['log_post_id'] ) ) {
+			return new WP_REST_Response( null, 404 );
+		}
+
+		$post = get_post( $last_deployment['log_post_id'] );
+
+		if ( 'wpcom_ghi_deploy_log' !== $post->post_type ) {
+			return new WP_REST_Response( null, 404 );
+		}
+
+		return new WP_HTTP_Response(
+			array( 'text' => $post->post_content ),
+			200
+		);
 	}
 
 	/**
@@ -126,25 +171,22 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	private function save_log_file() {
 		$log_file_path = $this->get_log_file_path();
 
-		$file = array(
-			'name'     => basename( $log_file_path ),
-			'type'     => 'text/plain',
-			'tmp_name' => $log_file_path,
-			'error'    => 0,
-			'size'     => filesize( $log_file_path ),
+		// Reuse the same post for now until we have a UI for previous deploys, and
+		// we're handling log rotation so we don't fill the database with logs forever.
+		$id              = 0;
+		$last_deployment = get_option( self::$deployment_status_option, array() );
+		if ( isset( $last_deployment['log_post_id'] ) ) {
+			$id = $last_deployment['log_post_id'];
+		}
+
+		return wp_insert_post(
+			array(
+				'ID'           => $id,
+				'post_title'   => 'wpcom_github_integration_deployment_logs',
+				'post_content' => $this->get_filesystem()->get_contents( $log_file_path ),
+				'post_type'    => 'wpcom_ghi_deploy_log',
+			)
 		);
-
-		$overrides = array(
-			'test_form'   => false,
-			// Setting this to false lets WordPress allow empty files, not recommended.
-			'test_size'   => false,
-			// A properly uploaded file will pass this test. There should be no reason to override this one.
-			'test_upload' => false,
-		);
-
-		$result = wp_handle_sideload( $file, $overrides );
-
-		return $result['url'];
 	}
 
 	/**
@@ -163,10 +205,10 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	 * Saves the logic file and update the deployment status option with the uploaded log file URL.
 	 */
 	private function commit_log_file() {
-		$log_file_url = $this->save_log_file();
+		$log_post_id = $this->save_log_file();
 
-		if ( $log_file_url ) {
-			$this->update_status( array( 'log_file_url' => $log_file_url ) );
+		if ( ! is_wp_error( $log_post_id ) ) {
+			$this->update_status( array( 'log_post_id' => $log_post_id ) );
 			$this->get_filesystem()->delete( $this->get_log_file_path() );
 		}
 	}
