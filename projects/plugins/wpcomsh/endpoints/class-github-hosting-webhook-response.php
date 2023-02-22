@@ -232,6 +232,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		$this->update_status(
 			array(
 				'status'                    => 'running',
+				'last_deployment_repo'      => $repo,
 				'last_deployment_timestamp' => time(),
 				'last_deployment_sha'       => $ref,
 			)
