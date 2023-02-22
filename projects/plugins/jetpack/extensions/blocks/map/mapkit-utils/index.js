@@ -10,13 +10,8 @@ function convertZoomLevelToCameraDistance( zoomLevel, latitude ) {
 }
 
 function convertCameraDistanceToZoomLevel( cameraDistance, latitude ) {
-	let metersPerPixel = getMetersPerPixel( latitude );
-	let zoomLevel = -1;
-	while ( metersPerPixel > cameraDistance / 512 ) {
-		metersPerPixel /= 2;
-		zoomLevel++;
-	}
-	return zoomLevel;
+	const altitude = cameraDistance / getMetersPerPixel( latitude );
+	return Math.log2( 512 / ( altitude / 0.5 ) );
 }
 
 export { convertZoomLevelToCameraDistance, convertCameraDistanceToZoomLevel };
