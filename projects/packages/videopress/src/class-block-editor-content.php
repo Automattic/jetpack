@@ -75,7 +75,6 @@ class Block_Editor_Content {
 			'playsinline'     => false, // Whether the video should be allowed to play inline (for browsers that support this)
 			'useaveragecolor' => false, // Whether the video should use the seekbar automatic average color
 			'preloadcontent'  => 'metadata',
-			// 'defaultlangcode' => false, // Default language code. Currently ignored by the player.
 		);
 
 		// Make sure "false" will be actually false.
