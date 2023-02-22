@@ -524,11 +524,11 @@ function stats_reports_page( $main_chart_only = false ) {
 			<h1><?php esc_html_e( 'Jetpack Stats', 'jetpack' ); ?>
 			<?php
 			if ( current_user_can( 'jetpack_manage_modules' ) ) :
-				$settings_url = stats_settings_url();
+				$i18n_headers = jetpack_get_module_i18n( 'stats' );
 				?>
 				<a
 					style="font-size:13px;"
-					href="<?php echo esc_url( $settings_url ); ?>"
+					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
@@ -885,19 +885,6 @@ function stats_print_odyssey_nudge( $html ) {
 		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
-}
-
-/**
- * Stats: Return the URL for the Jetpack Stats settings page.
- *
- * Does not check for admin priviledges. The caller should check that.
- *
- * @access public
- * @return string
- */
-function stats_settings_url() {
-	$i18n_headers = jetpack_get_module_i18n( 'stats' );
-	return admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) );
 }
 
 /**
