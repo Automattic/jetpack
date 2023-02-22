@@ -22,7 +22,7 @@ add_action(
 	'init',
 	function () {
 		$availability               = \Jetpack_Gutenberg::get_availability();
-		$is_videopress_video_enable = isset( $availability['videopress/video'] ) && $availability['videopress/video']['available'];
+		$is_videopress_video_enabled = isset( $availability['videopress/video'] ) && $availability['videopress/video']['available'];
 
 		if (
 			$is_videopress_video_enable &&
