@@ -12,6 +12,10 @@
 		margin-top: calc(var(--spacing-base) * 4);
 		margin-bottom: calc(var(--spacing-base) * 3);
 		max-width: 360px;
+
+		a {
+			text-decoration: underline;
+		}
 	}
 
 	.jp-action-button {
