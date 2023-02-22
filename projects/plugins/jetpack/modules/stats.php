@@ -790,13 +790,11 @@ function stats_should_show_odyssey_nudge() {
  * @return void
  */
 function stats_print_odyssey_nudge( $html ) {
-	// TODO: Test for privileges and bail as needed.
 	if ( ! stats_should_show_odyssey_nudge() ) {
 		return;
 	}
-	$b = Stats::STATS_CONTENT_MARKER;
-	$i = strpos( $html, $b );
-	if ( $i === false ) {
+	$pos = strpos( $html, Stats::STATS_CONTENT_MARKER );
+	if ( $pos === false ) {
 		return;
 	}
 	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
