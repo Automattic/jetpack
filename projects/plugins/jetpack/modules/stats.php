@@ -697,8 +697,7 @@ function stats_print_chart_scripts( $html ) {
  * @return bool
  */
 function is_chart_scripts( $html ) {
-	$str = STATS_CONTENT_MARKER;
-	$pos = strpos( $html, $str );
+	$pos = strpos( $html, STATS_CONTENT_MARKER );
 	return $pos === false;
 }
 
@@ -712,8 +711,7 @@ function is_chart_scripts( $html ) {
  * @return string
  */
 function stats_parse_header_section( $html ) {
-	$mark = STATS_CONTENT_MARKER;
-	$head = strstr( $html, $mark, true );
+	$head = strstr( $html, STATS_CONTENT_MARKER, true );
 	// Enforce a string result instead of string|false.
 	if ( $head === false ) {
 		return '';
@@ -733,8 +731,7 @@ function stats_parse_header_section( $html ) {
 function stats_parse_content_section( $html ) {
 	// TODO: Skip past gotonewdash DIV.
 	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$mark = STATS_CONTENT_MARKER;
-	$body = strstr( $html, $mark );
+	$body = strstr( $html, STATS_CONTENT_MARKER );
 	// Enforce a string result instead of string|false.
 	if ( $body === false ) {
 		return '';
