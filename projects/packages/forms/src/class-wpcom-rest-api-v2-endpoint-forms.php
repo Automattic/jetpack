@@ -1,6 +1,6 @@
 <?php
 /**
- * The Stats Rest Controller class.
+ * The Forms Rest Controller class.
  * Registers the REST routes for Jetpack Forms (taken from stats-admin).
  *
  * @package automattic/jetpack-forms
@@ -15,9 +15,9 @@ use WP_REST_Server;
 
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
- * Routes are defined on Jetpack Plugin as WPCOM_REST_API_V2_Endpoint_Forms_Responses.
+ * Routes are defined on Jetpack Plugin as WPCOM_REST_API_V2_Endpoint_Forms.
  */
-class REST_Controller extends WP_REST_Controller {
+class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	/**
 	 * Is WPCOM or not
 	 *
@@ -54,7 +54,7 @@ class REST_Controller extends WP_REST_Controller {
 			array(
 				'methods'           => WP_REST_Server::READABLE,
 				'callback'          => array( $this, 'get_responses' ),
-				'permissions_check' => array( $this, 'jetpack_form_responses_permission_check' ),
+				'permissions_check' => array( $this, 'get_responses_permission_check' ),
 				'args'              => array(
 					'limit'   => array(
 						'default'           => 20,
@@ -230,7 +230,7 @@ class REST_Controller extends WP_REST_Controller {
 	 *
 	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
 	 */
-	public function jetpack_form_responses_permission_check() {
+	public function get_responses_permission_check() {
 		if ( ! is_user_member_of_blog( get_current_user_id(), $this->get_blog_id() ) ) {
 			return new WP_Error(
 				'invalid_user_permission_jetpack_form_responses',
@@ -251,5 +251,5 @@ class REST_Controller extends WP_REST_Controller {
 }
 
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Forms\REST_Controller' );
+	wpcom_rest_api_v2_load_plugin( 'Automattic\Jetpack\Forms\WPCOM_REST_API_V2_Endpoint_Forms' );
 }
