@@ -333,6 +333,16 @@ body .sd-content ul li.share-custom.no-icon a span {
 .sd-social-icon-text .sd-content li.share-skype a:before {
 	content: '\f220';
 }
+.sd-social-icon .sd-content ul li.share-mastodon a:before,
+.sd-social-text .sd-content ul li.share-mastodon a:before,
+.sd-content ul li.share-mastodon div.option.option-smart-off a:before,
+.sd-social-icon-text .sd-content li.share-mastodon a:before,
+.sd-social-official .sd-content li.share-mastodon a:before {
+	content: '\f10a';
+}
+.sd-social-official .sd-content li.share-mastodon a:before {
+	color: #563ACC;
+}
 .sd-social-icon .sd-content ul a.share-more:before,
 .sd-social-text .sd-content ul a.share-more:before,
 .sd-content ul li.advanced a.share-more:before,
@@ -652,6 +662,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 
 .sd-social-icon .sd-content ul li[class*='share-'].share-skype a.sd-button {
 	background: #00AFF0;
+	color: #fff !important;
+}
+
+.sd-social-icon .sd-content ul li[class*='share-'].share-mastodon a.sd-button {
+	background: linear-gradient(to top, #563ACC 0%, #6364FF 100%);
 	color: #fff !important;
 }
 
