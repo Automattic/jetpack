@@ -23,6 +23,7 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
 use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
+use Automattic\Jetpack\Stats_Admin\Main as StatsMain;
 use Automattic\Jetpack\Stats_Admin\Notices as StatsNotices;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
@@ -287,15 +288,9 @@ function stats_admin_menu() {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! ( new Host() )->is_woa_site() && isset( $_GET['enable_new_stats'] ) && '1' === $_GET['enable_new_stats'] ) {
-		Stats_Options::set_options(
-			array(
-				'enable_odyssey_stats'     => true,
-				'odyssey_stats_changed_at' => time(),
-			)
-		);
-		$connection_manager = new Connection_Manager( 'jetpack' );
-		$tracking           = new Tracking( 'jetpack', $connection_manager );
-		$tracking->record_user_event( 'calypso_stats_enabled' );
+		// Passing true enables Odyssey Stats.
+		// We're ignorning the return value for now.
+		StatsMain::update_new_stats_status( true );
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
