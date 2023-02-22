@@ -22,9 +22,9 @@ use Automattic\Jetpack\Stats\Main as Stats;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\Tracking_Pixel as Stats_Tracking_Pixel;
 use Automattic\Jetpack\Stats\XMLRPC_Provider as Stats_XMLRPC;
-use Automattic\Jetpack\Stats_Admin\Dashboard as StatsDashboard;
-use Automattic\Jetpack\Stats_Admin\Main as StatsMain;
-use Automattic\Jetpack\Stats_Admin\Notices as StatsNotices;
+use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
+use Automattic\Jetpack\Stats_Admin\Notices as Stats_Notices;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
@@ -290,7 +290,7 @@ function stats_admin_menu() {
 	if ( ! ( new Host() )->is_woa_site() && isset( $_GET['enable_new_stats'] ) && '1' === $_GET['enable_new_stats'] ) {
 		// Passing true enables Odyssey Stats.
 		// We're ignorning the return value for now.
-		StatsMain::update_new_stats_status( true );
+		Stats_Main::update_new_stats_status( true );
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -303,7 +303,7 @@ function stats_admin_menu() {
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
 		// Enable the new Odyssey Stats experience.
-		$stats_dashboard = new StatsDashboard();
+		$stats_dashboard = new Stats_Dashboard();
 		$hook            = add_submenu_page( 'jetpack', __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ) );
 		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
 	}
@@ -743,9 +743,9 @@ function stats_parse_content_section( $html ) {
  * @return boolean
  */
 function stats_should_show_odyssey_nudge() {
-	$stats_notices = ( new StatsNotices() )->get_notices_to_show();
-	return isset( $stats_notices[ StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID ] )
-		&& $stats_notices[ StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID ];
+	$stats_notices = ( new Stats_Notices() )->get_notices_to_show();
+	return isset( $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ] )
+		&& $stats_notices[ Stats_Notices::OPT_IN_NEW_STATS_NOTICE_ID ];
 }
 
 /**
