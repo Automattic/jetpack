@@ -35,6 +35,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 				'title'         => "Order lexicographically by the posts' titles.",
 				'comment_count' => 'Order by the number of comments for each post.',
 				'ID'            => 'Order by post ID.',
+				'views'         => 'Order by the number of views for each post.',
 			),
 			'after'           => '(ISO 8601 datetime) Return posts dated after the specified datetime.',
 			'before'          => '(ISO 8601 datetime) Return posts dated before the specified datetime.',
@@ -218,6 +219,44 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
+		}
+
+		$formatted_top_posts = array();
+
+		if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+			$date      = gmdate( 'Y-m-d' );
+			$days      = 30;
+			$max_posts = isset( $args['number'] ) ? $args['number'] : 20;
+
+			$stats_history_query = stats_get_daily_history( false, $blog_id, 'postviews', 'post_id', $date, $days, '', $max_posts, true );
+			$top_posts_data      = array_shift( $stats_history_query );
+
+			if ( $top_posts_data ) {
+				get_posts( array( 'include' => join( ', ', array_keys( $top_posts_data ) ) ) );
+				foreach ( $top_posts_data as $id => $views ) {
+					$is_homepage_stat = ( 0 == $id );
+					$post             = get_post( $id );
+
+					if ( ! $is_homepage_stat && ( empty( $post ) || 'publish' != $post->post_status || 'attachment' == $post->post_type ) ) {
+						continue;
+					}
+
+					$formatted_top_posts[] = array(
+						'post_id' => $id,
+						'views'   => $views,
+					);
+				}
+			}
+
+			// Having the posts ordered by views, we'll use their IDs to get the query results.
+			$query['post__in'] = array_reduce(
+				$formatted_top_posts,
+				function ( $carry, $item ) {
+					$carry[] = $item['post_id'];
+					return $carry;
+				},
+				array()
+			);
 		}
 
 		if ( isset( $args['meta_key'] ) ) {
@@ -409,6 +448,17 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 					foreach ( $wp_query->posts as $post_ID ) {
 						$the_post = $this->get_post_by( 'ID', $post_ID, $args['context'] );
 						if ( $the_post && ! is_wp_error( $the_post ) ) {
+							if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+								$post_views = array_filter(
+									$formatted_top_posts,
+									function ( $value ) use ( $post_ID ) {
+										return $value['post_id'] == $post_ID;
+									},
+									ARRAY_FILTER_USE_BOTH
+								);
+
+								$the_post['views'] = isset( reset( $post_views )['views'] ) ? reset( $post_views )['views'] : 0;
+							}
 							$posts[] = $the_post;
 						} else {
 							++$excluded_count;
@@ -454,6 +504,18 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 					break;
 			}
+		}
+
+		if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+			usort(
+				$return['posts'],
+				function ( $item1, $item2 ) {
+					if ( $item1['views'] == $item2['views'] ) {
+						return 0;
+					}
+					return $item1['views'] > $item2['views'] ? -1 : 1;
+				}
+			);
 		}
 
 		$return['found'] -= $excluded_count;
