@@ -97,6 +97,8 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_ADDON_STORAGE_10GB_MONTHLY   = 'jetpack_backup_addon_storage_10gb_monthly'; // 2040
 	private const JETPACK_BACKUP_ADDON_STORAGE_100GB_MONTHLY  = 'jetpack_backup_addon_storage_100gb_monthly'; // 2044
 	private const JETPACK_BACKUP_ADDON_STORAGE_1TB_MONTHLY    = 'jetpack_backup_addon_storage_1tb_monthly'; // 2048
+	private const JETPACK_BACKUP_ADDON_STORAGE_3TB_MONTHLY    = 'jetpack_backup_addon_storage_3tb_monthly'; // 2052
+	private const JETPACK_BACKUP_ADDON_STORAGE_5TB_MONTHLY    = 'jetpack_backup_addon_storage_5tb_monthly'; // 2056
 	private const JETPACK_VIDEOPRESS                          = 'jetpack_videopress'; // 2116
 	private const JETPACK_VIDEOPRESS_MONTHLY                  = 'jetpack_videopress_monthly'; // 2117
 	private const JETPACK_BACKUP_T0_YEARLY                    = 'jetpack_backup_t0_yearly'; // 2120
