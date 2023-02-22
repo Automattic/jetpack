@@ -136,7 +136,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	 * @return string The log file path.
 	 */
 	private function get_log_file_path() {
-		$log_file_name = 'github-deployment-' . $this->deployment_id . '.txt';
+		$log_file_name = 'wpcom-github-deployment_' . $this->deployment_id . '.txt';
 		return '/tmp/' . $log_file_name;
 	}
 
@@ -209,7 +209,6 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 
 		if ( ! is_wp_error( $log_post_id ) ) {
 			$this->update_status( array( 'log_post_id' => $log_post_id ) );
-			$this->get_filesystem()->delete( $this->get_log_file_path() );
 		}
 	}
 
@@ -227,7 +226,8 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		$access_token  = $body->access_token;
 		$removed_files = $body->removed_files;
 
-		$this->deployment_id = str_replace( '/', '-', $repo ) . '_' . $ref . '_' . time();
+		$this->deployment_id = $body->deployment_id;
+
 		$this->log( 'Starting deployment ' . $this->deployment_id );
 		$this->update_status(
 			array(
