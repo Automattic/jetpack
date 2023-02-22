@@ -743,9 +743,9 @@ function stats_parse_content_section( $html ) {
  * @return boolean
  */
 function stats_should_show_odyssey_nudge() {
-	$stats_notices = new StatsNotices();
-	$is_hidden     = $stats_notices->is_notice_hidden( StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID );
-	return ! $is_hidden;
+	$stats_notices = ( new StatsNotices() )->get_notices_to_show();
+	return isset( $stats_notices[ StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID ] )
+		&& $stats_notices[ StatsNotices::OPT_IN_NEW_STATS_NOTICE_ID ];
 }
 
 /**
