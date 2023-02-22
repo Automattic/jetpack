@@ -21,6 +21,11 @@
 	.jp-action-button {
 		margin-top: 40px;
 
+		&--button {
+			border-radius: 4px;
+			font-weight: 600;
+		}
+
 		button {
 			max-width: 100%;
 
