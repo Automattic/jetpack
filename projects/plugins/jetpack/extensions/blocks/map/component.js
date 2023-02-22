@@ -11,12 +11,8 @@ import editorAssets from './block-editor-assets.json';
 import InfoWindow from './info-window/';
 import MapMarker from './map-marker/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
-import {
-	fitMapToBounds,
-	getMapBounds,
-	googlePoint2Mapbox,
-	resizeMapContainer,
-} from './mapbox-utils';
+import { fitMapToBounds, getMapBounds, googlePoint2Mapbox } from './mapbox-utils';
+import { resizeMapContainer } from './utils';
 
 export class Map extends Component {
 	// Lifecycle

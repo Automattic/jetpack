@@ -1,4 +1,5 @@
 import { convertZoomLevelToCameraDistance } from '../mapkit-utils';
+import { resizeMapContainer } from '../utils';
 
 class MapkitBlock {
 	constructor( root ) {
@@ -9,6 +10,7 @@ class MapkitBlock {
 		this.color = this.root.getAttribute( 'data-marker-color' ) || 'red';
 		this.zoom = parseFloat( this.root.getAttribute( 'data-zoom' ) ) || 10;
 		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
+		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
 	}
 
 	async init() {
@@ -22,6 +24,7 @@ class MapkitBlock {
 	initDOM() {
 		this.root.innerHTML = `<div class="wp-block-jetpack-map__mb-container"></div>`;
 		this.container = this.root.querySelector( '.wp-block-jetpack-map__mb-container' );
+		resizeMapContainer( this.container, this.mapHeight );
 	}
 
 	loadLibrary() {

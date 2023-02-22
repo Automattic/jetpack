@@ -11,9 +11,9 @@ import {
 	fitMapToBounds,
 	getMapBounds,
 	googlePoint2Mapbox,
-	resizeMapContainer,
 	setMarkerHTML,
 } from '../mapbox-utils';
+import { resizeMapContainer } from '../utils';
 
 import '../style.scss';
 import '../map-marker/style.scss';
