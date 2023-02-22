@@ -846,6 +846,7 @@ class Jetpack {
 				'videopress',
 				'stats',
 				'stats_admin',
+				'import',
 			)
 			as $feature
 		) {

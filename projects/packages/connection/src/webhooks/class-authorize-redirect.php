@@ -59,7 +59,7 @@ class Authorize_Redirect {
 
 		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			if ( class_exists( '\Automattic\Jetpack\Licensing' ) ) {
+			if ( class_exists( '\Automattic\Jetpack\Licensing' ) && method_exists( '\Automattic\Jetpack\Licensing', 'handle_user_connected_redirect' ) ) {
 				Licensing::instance()->handle_user_connected_redirect( $dest_url );
 			}
 
