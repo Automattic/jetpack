@@ -1,3 +1,4 @@
+import { debounce } from '../../../shared/debounce';
 import { convertZoomLevelToCameraDistance } from '../mapkit-utils';
 import { resizeMapContainer } from '../utils';
 
@@ -17,14 +18,28 @@ class MapkitBlock {
 		this.initDOM();
 		await this.loadLibrary();
 		await this.fetchKey();
+		this.initMapSize();
 		this.initMap();
 		this.addPoints();
+		this.initHandlers();
 	}
 
 	initDOM() {
 		this.root.innerHTML = `<div class="wp-block-jetpack-map__mb-container"></div>`;
 		this.container = this.root.querySelector( '.wp-block-jetpack-map__mb-container' );
+	}
+
+	sizeMap = () => {
 		resizeMapContainer( this.container, this.mapHeight );
+	};
+
+	initMapSize() {
+		this.debouncedSizeMap = debounce( this.sizeMap, 250 );
+		this.sizeMap();
+	}
+
+	initHandlers() {
+		window.addEventListener( 'resize', this.debouncedSizeMap );
 	}
 
 	loadLibrary() {
