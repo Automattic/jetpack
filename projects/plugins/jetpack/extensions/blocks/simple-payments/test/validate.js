@@ -6,15 +6,11 @@ import runBlockFixtureTests from '../../../shared/test/block-fixtures';
 // this is necessary because block editor store becomes unregistered during jest initialization
 register( blockEditorStore );
 
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	jest
-		.spyOn( Intl, 'NumberFormat' )
-		.mockImplementation()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
-} );
-
-afterEach( () => {
-	jest.resetAllMocks();
 } );
 
 // Need to include all the blocks involved in rendering this block.

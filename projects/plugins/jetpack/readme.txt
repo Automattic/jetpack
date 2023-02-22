@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.8
+Stable tag: 11.8.4
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -64,12 +64,12 @@ Quickly customize your site to make it stand out — no coding needed.
 = INTEGRATIONS =
 Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
 
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores
+* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal
+* Better understand your customers and marketing with Google Analytics (GA) integration.
+* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
+* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
@@ -244,22 +244,20 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.1 - 2023-02-08
+### 11.9-a.5 - 2023-02-20
 #### Enhancements
-- Contact form: add a blur effect while the form is loading the styles.
-- Form block: include style variations.
-- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
-- VideoPress: add transform control from video block to videopress/video block.
+- Import: add new `automattic/jetpack-import` package.
+- Jetpack: improve design of MediaButton component.
+- Sharing: update look and feel of sharing buttons when in "official" mode.
 
 #### Improved compatibility
-- Donations block: remove dependencies on lodash and @wordpress/keycodes
-- Podcast player block: remove dependency on wp-components from the frontend code
-- Slideshow block: remove dependency on Lodash
-- Subscriptions: update subscribe block description.
+- Stats: adjust margin for WordPress.com stats link in Jetpack dashboard.
+- VideoPress: extend media button for VideoPress video block.
+- VideoPress: restore v5/v6 transform for all platforms.
 
 #### Bug fixes
-- Subscriptions: fix rendering of subscriber email in .com.
-- Custom CSS: scope Additional CSS submenus to site with a connected owner.
+- Form block: update form-styles script to prevent blurred forms on slow loading pages.
+- Story block: remove dependency on wp-components from the frontend code.
 
 --------
 

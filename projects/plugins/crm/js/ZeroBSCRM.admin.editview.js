@@ -493,5 +493,11 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
 
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, zbscrmjs_events_changeCompany };
+    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, 
+		zbscrmjs_events_changeCompany, zeroBSCRMJS_initEditView, zeroBSCRMJS_preLeaveEditView, zeroBSCRMJS_editViewLang,
+		zeroBSCRMJS_drawEditView, zeroBSCRMJS_editViewBinds, zeroBSCRMJS_hideNotificationsAfter,
+		zeroBSCRMJS_editContactInit, jpcrm_customer_profile_picture_on_change, jpcrm_customer_remove_profile_picture,
+		jpcrm_bind_linkify, zeroBSCRMJS_initLinkify, zeroBSCRMJS_bindLinkify, zeroBSCRMJS_events_showContactLinkIf,
+		zeroBSCRMJS_events_bindContactLinkIf, zeroBSCRMJS_events_showCompanyLinkIf, zeroBSCRMJS_events_bindCompanyLinkIf,
+		zbscrmjsPageChangesSave };
 }

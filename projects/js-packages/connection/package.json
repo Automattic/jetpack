@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-connection",
-	"version": "0.25.0-alpha",
+	"version": "0.25.2-alpha",
 	"description": "Jetpack Connection Component",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -34,8 +34,8 @@
 		"react-test-renderer": "18.2.0"
 	},
 	"peerDependencies": {
-		"react": "^17.0.2",
-		"react-dom": "^17.0.2"
+		"react": "^18.0.0",
+		"react-dom": "^18.0.0"
 	},
 	"type": "module",
 	"exports": {
@@ -47,8 +47,7 @@
 		"*.scss"
 	],
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"engines": {
 		"node": "^18.13.0",
