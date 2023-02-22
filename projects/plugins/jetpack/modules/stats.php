@@ -397,6 +397,8 @@ function stats_script_dismiss_nudge_handler() {
 		var element = document.getElementById( "stats-odyssey-nudge-main" );
 		element.classList.toggle( "is-hidden" );
 		// Send an AJAX request.
+		// Note we can provide a 'postponed_for' parameter to set the delay.
+		// Without a parameter it defaults to 30 days which is what we want here.
 		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
 		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
 		let data = {
