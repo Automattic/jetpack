@@ -15,7 +15,7 @@ const isWithinAvailableChatDays: DateFunctionType = ( currentTime: Date ) => {
 // Checks if the current time is within the times chat is consistently covered
 const isWithinAvailableChatTimes: DateFunctionType = ( currentTime: Date ) => {
 	const availableStartTime = 9; // Chat is available starting at 9:00 UTC
-	const availableEndTime = 23; // Chat is no longer available after 23:00 UTC
+	const availableEndTime = 19; // Chat is no longer available after 19:00 UTC
 	const currentUTCHour = currentTime.getUTCHours();
 
 	if ( currentUTCHour >= availableStartTime && currentUTCHour < availableEndTime ) {
