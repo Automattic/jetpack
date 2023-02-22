@@ -164,9 +164,9 @@ class Meta_Tags {
 		}
 
 		return array(
-			'url'    => $img_src[0],
-			'width'  => $img_src[1],
-			'height' => $img_src[2],
+			'src'        => $img_src[0],
+			'src_width'  => $img_src[1],
+			'src_height' => $img_src[2],
 		);
 	}
 
@@ -279,15 +279,18 @@ class Meta_Tags {
 			$tags['og:description'] = $this->get_description( $excerpt );
 		}
 
-		$image = $this->get_featured_image();
+		$featured_image = $this->get_featured_image();
+		// Add SIG image if enabled.
+		$images = apply_filters( 'jetpack_images_pre_get_images', array( $featured_image ), $data->ID );
 
-		if ( ! empty( $image ) ) {
-			$tags = array_merge(
+		if ( ! empty( $images ) ) {
+			$image = $images[0];
+			$tags  = array_merge(
 				$tags,
 				array(
-					'og:image'        => $image['url'],
-					'og:image:width'  => $image['width'],
-					'og:image:height' => $image['height'],
+					'og:image'        => $image['src'],
+					'og:image:width'  => $image['src_width'],
+					'og:image:height' => $image['src_height'],
 				)
 			);
 
@@ -295,7 +298,7 @@ class Meta_Tags {
 				$tags = array_merge(
 					$tags,
 					array(
-						'twitter:image' => $image['url'],
+						'twitter:image' => $image['src'],
 						'twitter:card'  => 'summary_large_image',
 					)
 				);

@@ -217,6 +217,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
+		add_filter( 'jetpack_images_pre_get_images', array( $this, 'get_sig_image_for_post' ), 10, 2 );
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -1455,6 +1456,38 @@ abstract class Publicize_Base {
 		}
 
 		return $checked;
+	}
+
+	/**
+	 * Checks whether sig is enabled for a post.
+	 *
+	 * @param int $post_id ID of the current post.
+	 * @return bool True if sig is enabled for the post.
+	 */
+	private function is_sig_enabled_for_post( $post_id ) {
+		$social_options = get_post_meta( $post_id, '_wpas_options', true );
+		return $social_options['image_generator_settings']['enabled'];
+	}
+
+	/**
+	 * Adds the sig image to the media array.
+	 *
+	 * @param array $media Array of media.
+	 * @param int   $post_id ID of the current post.
+	 * @return array Filtered array of media.
+	 */
+	public function get_sig_image_for_post( $media, $post_id ) {
+		if ( $this->is_sig_enabled_for_post( $post_id ) ) {
+			$sig       = new Social_Image_Generator();
+			$sig_image = array(
+				'type'       => 'image',
+				'src'        => $sig->get_image_url( $post_id ),
+				'src_width'  => 1200,
+				'src_height' => 630,
+			);
+			array_unshift( $media, $sig_image );
+		}
+		return $media;
 	}
 
 	/**
