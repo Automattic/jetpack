@@ -5,7 +5,7 @@ import {
 	useModuleStatus,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink, Flex, FlexItem } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
@@ -23,6 +23,25 @@ import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
+
+const SubscriptionsPanelPlaceholder = ( { children } ) => {
+	return (
+		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
+			<FlexItem>
+				{ __(
+					"In order to share your posts with your subscribers, you'll need to activate the Subscriptions feature.",
+					'jetpack'
+				) }
+			</FlexItem>
+			<FlexItem>{ children }</FlexItem>
+			<FlexItem>
+				<ExternalLink href="https://jetpack.com/support/subscriptions/">
+					{ __( 'Learn more about the Subscriptions feature here.', 'jetpack' ) }
+				</ExternalLink>
+			</FlexItem>
+		</Flex>
+	);
+};
 
 export default function SubscribePanels() {
 	const { tracks } = useAnalytics();
@@ -148,13 +167,15 @@ export default function SubscribePanels() {
 					/>
 				) }
 				{ ! isModuleActive && (
-					<Button
-						disabled={ isLoading || isModuleActive }
-						onClick={ enableSubscriptionsModule }
-						variant="secondary"
-					>
-						{ __( 'Activate Subscriptions', 'jetpack' ) }
-					</Button>
+					<SubscriptionsPanelPlaceholder>
+						<Button
+							disabled={ isLoading || isModuleActive }
+							onClick={ enableSubscriptionsModule }
+							variant="secondary"
+						>
+							{ __( 'Activate Subscriptions', 'jetpack' ) }
+						</Button>
+					</SubscriptionsPanelPlaceholder>
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
@@ -193,13 +214,15 @@ export default function SubscribePanels() {
 					</InspectorNotice>
 				) }
 				{ ! isModuleActive && (
-					<Button
-						disabled={ isLoading || isModuleActive }
-						onClick={ enableSubscriptionsModule }
-						variant="secondary"
-					>
-						{ __( 'Activate Subscriptions', 'jetpack' ) }
-					</Button>
+					<SubscriptionsPanelPlaceholder>
+						<Button
+							disabled={ isLoading || isModuleActive }
+							onClick={ enableSubscriptionsModule }
+							variant="secondary"
+						>
+							{ __( 'Activate Subscriptions', 'jetpack' ) }
+						</Button>
+					</SubscriptionsPanelPlaceholder>
 				) }
 			</PluginPostPublishPanel>
 		</>
