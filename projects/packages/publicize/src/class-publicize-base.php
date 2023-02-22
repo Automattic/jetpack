@@ -1568,6 +1568,22 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if the social image generator is enabled.
+	 *
+	 * @param int $blog_id The blog ID for the current blog.
+	 * @return bool
+	 */
+	public function is_social_image_generator_enabled( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return false;
+		}
+
+		return ! empty( $data['is_social_image_generator_enabled'] );
+	}
+
+	/**
 	 * Call the WPCOM REST API to calculate the scheduled shares.
 	 *
 	 * @param string $blog_id The blog_id.

@@ -22,8 +22,9 @@ class Notices {
 	const NOTICE_STATUS_DISMISSED = 'dismissed';
 	const NOTICE_STATUS_POSTPONED = 'postponed';
 
-	const VIEWS_TO_SHOW_FEEDBACK = 3;
-	const POSTPONE_FEEDBACK_DAYS = 30;
+	const VIEWS_TO_SHOW_FEEDBACK      = 3;
+	const POSTPONE_FEEDBACK_DAYS      = 30;
+	const POSTPONE_OPT_IN_NOTICE_DAYS = 30;
 
 	/**
 	 * Update the notice status.
@@ -53,13 +54,25 @@ class Notices {
 	 * @return array
 	 */
 	public function get_notices_to_show() {
-		$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
-		$stats_views       = $this->get_new_stats_views();
+		$new_stats_enabled        = Stats_Options::get_option( 'enable_odyssey_stats' );
+		$stats_views              = $this->get_new_stats_views();
+		$odyssey_stats_changed_at = intval( Stats_Options::get_option( 'odyssey_stats_changed_at' ) );
 
 		return array(
-			self::OPT_IN_NEW_STATS_NOTICE_ID   => ! $new_stats_enabled && ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
-			self::NEW_STATS_FEEDBACK_NOTICE_ID => $new_stats_enabled && $stats_views >= self::VIEWS_TO_SHOW_FEEDBACK && ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ),
-			self::OPT_OUT_NEW_STATS_NOTICE_ID  => $new_stats_enabled && $stats_views < self::VIEWS_TO_SHOW_FEEDBACK && ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
+			// Show Opt-in notice 30 days after the new stats being disabled.
+			self::OPT_IN_NEW_STATS_NOTICE_ID   => ! $new_stats_enabled
+				&& $odyssey_stats_changed_at < time() - self::POSTPONE_OPT_IN_NOTICE_DAYS * DAY_IN_SECONDS
+				&& ! $this->is_notice_hidden( self::OPT_IN_NEW_STATS_NOTICE_ID ),
+
+			// Show feedback notice after 3 views of the new stats.
+			self::NEW_STATS_FEEDBACK_NOTICE_ID => $new_stats_enabled
+				&& $stats_views >= self::VIEWS_TO_SHOW_FEEDBACK
+				&& ! $this->is_notice_hidden( self::NEW_STATS_FEEDBACK_NOTICE_ID ),
+
+			// Show opt-out notice before 3 views of the new stats, where 3 is included.
+			self::OPT_OUT_NEW_STATS_NOTICE_ID  => $new_stats_enabled
+				&& $stats_views < self::VIEWS_TO_SHOW_FEEDBACK
+				&& ! $this->is_notice_hidden( self::OPT_OUT_NEW_STATS_NOTICE_ID ),
 		);
 	}
 
