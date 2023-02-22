@@ -1,7 +1,7 @@
 import domReady from '@wordpress/dom-ready';
 import './style.scss';
 import './map-marker/style.scss';
-import { MapBoxBlock, MapkitBlock } from './sources/';
+import { MapBoxBlock, MapkitBlock } from './view/';
 
 domReady( function () {
 	Array.from( document.querySelectorAll( '.wp-block-jetpack-map' ) ).forEach( async blockRoot => {
