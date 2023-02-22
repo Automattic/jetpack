@@ -29,12 +29,6 @@ class Main {
 	const STATS_VERSION = '9';
 
 	/**
-	 * Stats content marker.
-	 * Used to test for content vs script when parsing server-generated HTML.
-	 */
-	const STATS_CONTENT_MARKER = '<div class="gotonewdash">';
-
-	/**
 	 * Singleton Main instance.
 	 *
 	 * @var Main

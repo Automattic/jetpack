@@ -34,6 +34,12 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
 
+/**
+ * Stats content marker.
+ * Used to test for content vs script when parsing server-generated HTML.
+ */
+const STATS_CONTENT_MARKER = '<div class="gotonewdash">';
+
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
 /**
@@ -691,7 +697,7 @@ function stats_print_chart_scripts( $html ) {
  * @return bool
  */
 function is_chart_scripts( $html ) {
-	$str = Stats::STATS_CONTENT_MARKER;
+	$str = STATS_CONTENT_MARKER;
 	$pos = strpos( $html, $str );
 	return $pos === false;
 }
@@ -706,7 +712,7 @@ function is_chart_scripts( $html ) {
  * @return string
  */
 function stats_parse_header_section( $html ) {
-	$mark = Stats::STATS_CONTENT_MARKER;
+	$mark = STATS_CONTENT_MARKER;
 	$head = strstr( $html, $mark, true );
 	// Enforce a string result instead of string|false.
 	if ( $head === false ) {
@@ -727,7 +733,7 @@ function stats_parse_header_section( $html ) {
 function stats_parse_content_section( $html ) {
 	// TODO: Skip past gotonewdash DIV.
 	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$mark = Stats::STATS_CONTENT_MARKER;
+	$mark = STATS_CONTENT_MARKER;
 	$body = strstr( $html, $mark );
 	// Enforce a string result instead of string|false.
 	if ( $body === false ) {
@@ -759,7 +765,7 @@ function stats_print_odyssey_nudge( $html ) {
 	if ( ! stats_should_show_odyssey_nudge() ) {
 		return;
 	}
-	$pos = strpos( $html, Stats::STATS_CONTENT_MARKER );
+	$pos = strpos( $html, STATS_CONTENT_MARKER );
 	if ( $pos === false ) {
 		return;
 	}
