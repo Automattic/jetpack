@@ -1,0 +1,4 @@
+Significance: minor
+Type: patch
+
+Added a new class constant used when parsing server-generated HTML
