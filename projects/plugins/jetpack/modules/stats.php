@@ -727,10 +727,7 @@ function stats_print_chart_scripts( $html ) {
 function is_chart_scripts( $html ) {
 	$str = stats_content_marker();
 	$pos = strpos( $html, $str );
-	if ( $pos === false ) {
-		return true;
-	}
-	return false;
+	return $pos === false;
 }
 
 /**
