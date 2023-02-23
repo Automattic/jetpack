@@ -1,4 +1,5 @@
 <?php
+
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
@@ -9,7 +10,6 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Cloud_CSS_Status;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Request_Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
@@ -33,11 +33,11 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
 	}
+
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'generate_cloud_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		Critical_CSS_Invalidator::init();
@@ -54,7 +54,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		return array(
 			new Request_Cloud_CSS(),
 			new Update_Cloud_CSS(),
-			new Cloud_CSS_Status(),
 		);
 	}
 
@@ -74,8 +73,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
 			$keys    = $this->paths->get_current_request_css_keys();
-			$state   = new Critical_CSS_State( 'cloud' );
-			$pending = $state->has_pending_provider( $keys );
+			$pending = ( new Cloud_CSS_State() )->has_pending_provider( $keys );
 
 			// If Cloud CSS is still generating and the user is logged in, render the status information in a comment.
 			if ( $pending && is_user_logged_in() ) {
@@ -103,19 +101,15 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 * @param \WP_Post|null $post Post of any post type to limit provider groups.
 	 */
 	public function generate_cloud_css() {
-		$state            = new Critical_CSS_State( 'cloud' );
-		// @REFACTORING: Restore Cloud CSS Functionality
-		// $state->create_request( $this->paths->get_providers() );
-
-		$client    = new Cloud_CSS_Request();
-		$providers = $state->get_provider_urls();
-		$response  = $client->request_generate( $providers );
+		$client   = new Cloud_CSS_Request();
+		$response = $client->request_generate();
 
 		// Set a one off cron job one hour from now. This will resend the request in case it failed.
 		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
 
 		if ( is_wp_error( $response ) ) {
-			$state->set_as_failed( $response->get_error_message() );
+			$state = new Critical_CSS_State();
+			$state->set_error( $response->get_error_message() );
 		}
 		return $response;
 	}
@@ -123,31 +117,47 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	/**
 	 * Store the Cloud Critical CSS or the error response.
 	 *
-	 * @param  array $params    Request parameters with the Cloud CSS status.
+	 * @param array $params Request parameters with the Cloud CSS status.
+	 *
 	 * @return bool[]|\WP_Error Update status response.
 	 */
 	public function update_cloud_css( $params ) {
 		try {
 			$providers = $this->remove_generation_args( $params['providers'] );
-			$state     = new Critical_CSS_State( 'cloud' );
+			$state     = new Cloud_CSS_State();
 			$storage   = new Critical_CSS_Storage();
+
+			$unknown_error = __( 'An unknown error occurred', 'jetpack-boost' );
 
 			foreach ( $providers as $provider => $result ) {
 				if ( ! isset( $result['data'] ) ) {
-					$state->set_as_failed( __( 'An unknown error occurred', 'jetpack-boost' ) );
+					$state->critical_css_state->set_error( $unknown_error );
 					continue;
 				}
 				$data = $result['data'];
-				if ( isset( $result['success'] ) && $result['success'] ) {
+
+				// Success
+				if ( ! empty( $result['success'] ) ) {
 					$state->set_source_success( $provider );
 					$storage->store_css( $provider, $data['css'] );
-				} elseif ( isset( $data['show_stopper'] ) && $data['show_stopper'] ) {
-					$state->set_as_failed( $data['error'] );
-				} else {
-					$state->set_source_error( $provider, $data['urls'] );
+					continue;
 				}
+
+				// Show Stopping failure with an error message.
+				if ( ! empty( $data['show_stopper'] ) && ! empty( $data['error'] ) ) {
+					$state->set_source_error( $data['error'] );
+					continue;
+				}
+
+				// Non show stopping failure with an error message.
+				if ( ! empty( $data['urls'] ) && is_array( $data['urls'] ) ) {
+					$state->set_source_error( $provider, $data['urls'] );
+					continue;
+				}
+
+				$state->set_source_error( $provider, $data['error'] );
 			}
-			$state->maybe_set_status();
+			$state->save();
 
 			return array( 'success' => true );
 		} catch ( \Exception $e ) {
@@ -186,26 +196,14 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * Return whether the Cloud CSS has an error or not.
-	 *
-	 * @return boolean
-	 */
-	public function has_health_problem() {
-		$cloud_css = new Critical_CSS_State( 'cloud' );
-
-		return $cloud_css->get_status() === 'error';
-	}
-
-	/**
 	 * Updates the total problem count for Boost if something's
 	 * wrong with Cloud CSS.
 	 *
-	 * @param  int $count The current problem count.
+	 * @param int $count The current problem count.
+	 *
 	 * @return int
 	 */
 	public function update_total_problem_count( $count ) {
-		$has_problem = $this->has_health_problem();
-
-		return $has_problem ? ++$count : $count;
+		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
 	}
 }

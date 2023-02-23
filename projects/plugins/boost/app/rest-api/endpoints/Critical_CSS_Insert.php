@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
@@ -71,7 +70,8 @@ class Critical_CSS_Insert implements Endpoint {
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $cache_key, $params['data'] );
 
-		Critical_CSS_State::set_fresh();
+		// @REFACTORING TODO: Create a class that manages this
+		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', true );
 
 		/**
 		 * Fires when Critical CSS has been generated - whether locally or remotely.

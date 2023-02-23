@@ -64,3 +64,5 @@ add_action(
  * Register Data Sync Stores
  */
 jetpack_boost_register_option( 'critical_css_state', new Critical_CSS_Sync() );
+jetpack_boost_register_option( 'cloud_critical_css_state', new Critical_CSS_Sync() );
+jetpack_boost_register_option( 'critical_css_suggest_regenerate', new Critical_CSS_Sync() );

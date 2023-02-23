@@ -39,6 +39,7 @@ export const markGetStartedComplete = () => {
 	} ) );
 };
 
+// @REFACTORING TODO: Implement this
 export const hideRegenerateCriticalCssSuggestion = () => {
 	update( store => ( {
 		...store,
