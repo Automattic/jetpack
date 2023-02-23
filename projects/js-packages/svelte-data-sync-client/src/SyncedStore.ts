@@ -22,7 +22,7 @@ export class SyncedStore< T > {
 		const store = writable< T >( initialValue );
 
 		// Send the store value to the API
-		store.set = value => {
+		const set = value => {
 			store.update( prevValue => {
 				// Synchronize is an async function, but is called without await here.
 				// This intentionally prevents the store from waiting for the request to complete.
@@ -33,12 +33,27 @@ export class SyncedStore< T > {
 			} );
 		};
 
+		type SvelteUpdater = typeof store.update;
+		const update: SvelteUpdater = updateCallback => {
+			store.update( prevValue => {
+				// Structured Clone is necessary because
+				// the updateCallback function may mutate the value
+				// And debouncedSynchronize may fail an object comparison
+				// because of it.
+				const value = updateCallback( prevValue );
+				this.debouncedSynchronize( prevValue, value );
+				return value;
+			} );
+		};
+
 		const override = ( value: T ) => {
 			store.update( () => value );
 		};
 
 		return {
-			...store,
+			subscribe: store.subscribe,
+			set,
+			update,
 			override,
 		};
 	}
