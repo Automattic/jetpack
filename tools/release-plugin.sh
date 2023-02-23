@@ -9,6 +9,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 
 # Instructions
@@ -71,20 +72,35 @@ shift "$(($OPTIND -1))"
 [[ $# -gt 2 ]] && die "Too many arguments specified! Only provide a project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 
 # Get the project slug.
-PROJECTS=()
+declare -A PROJECTS
 SLUG="${1#projects/}" # DWIM
 SLUG="${SLUG%/}" # Sanitize
 if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
 	yellow "Project found: $SLUG"
-	PROJECTS+=("$SLUG")
+	PROJECTS["$SLUG"]=''
 fi
 
-if [[ "${PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
-	PROJECTS+=("plugins/mu-wpcom-plugin")
+if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
+	PROJECTS["plugins/mu-wpcom-plugin"]=''
 fi
 
 [ ${#PROJECTS[@]} -eq 0 ] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
 
+# Try to obtain a version number. 
+for SLUG in "${!PROJECTS[@]}"; do
+	cd "$BASE"
+	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
+		PROJECTS["$SLUG"]=$(cd "projects/$SLUG" && vendor/bin/changelogger version next)
+	fi
+done
+
+for PLUGIN in "${!PROJECTS[@]}"; do
+	read -r -p "Which version are you releasing for $PLUGIN? (${PROJECTS[$PLUGIN]}): " VER
+  	PROJECTS["$PLUGIN"]=${VER:-"${PROJECTS[$PLUGIN]}"}
+done
+
+exit
+# We need to loop through the projects
 # Determine the project version
 [[ -z $2 ]] && die "Please specify a version number"
 # Figure out the version(s) to use for the plugin(s).
@@ -95,7 +111,7 @@ function check_ver {
 		return 1
 	fi
 	local CUR_VERSION
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$PROJECT")
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "${PROJECTS[0]}")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
 		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
