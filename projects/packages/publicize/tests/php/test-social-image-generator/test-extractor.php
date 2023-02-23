@@ -1,13 +1,12 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Main plugin file testing.
+ * Testing the Extractor.
  *
  * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\Social_Image_Generator\Extractor;
 use WorDBless\BaseTestCase;
 
 /**
@@ -48,7 +47,7 @@ class Extractor_Test extends BaseTestCase {
 				'post_status'  => 'publish',
 			)
 		);
-		$this->extractor     = new Extractor( $this->post_id );
+		$this->extractor     = new Social_Image_Generator\Extractor( $this->post_id );
 		$this->attachment_id = $this->create_upload_object( realpath( __DIR__ . '/..' ) . '/images/jetpack-logo.png' );
 	}
 

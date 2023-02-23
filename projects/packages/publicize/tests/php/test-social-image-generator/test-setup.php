@@ -1,0 +1,145 @@
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Testing the Social Image Generator setup class.
+ *
+ * @package automattic/jetpack-publicize
+ */
+
+namespace Automattic\Jetpack\Publicize;
+
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
+use Jetpack_Options;
+use WorDBless\BaseTestCase;
+use WorDBless\Options as WorDBless_Options;
+use WorDBless\Users as WorDBless_Users;
+
+/**
+ * Testing the SIG setup.
+ */
+class Setup_Test extends BaseTestCase {
+	/**
+	 * Social Image Generator setup instance.
+	 *
+	 * @var Social_Image_Generator\Setup Instance of the setup class.
+	 */
+	public static $sig;
+
+	/**
+	 * Setup.
+	 *
+	 * @beforeClass
+	 */
+	public static function set_up_before_class() {
+		self::$sig = new Social_Image_Generator\Setup();
+		self::$sig->init();
+	}
+
+	/**
+	 * Setting up the test.
+	 *
+	 * @before
+	 */
+	public function set_up() {
+		// Mock site connection.
+		( new Tokens() )->update_blog_token( 'test.test' );
+		Jetpack_Options::update_option( 'id', 123 );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+	}
+
+	/**
+	 * Returning the environment into its initial state.
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		WorDBless_Options::init()->clear_options();
+		WorDBless_Users::init()->clear_all_users();
+
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$_GET = array();
+	}
+
+	/**
+	 * Mocks a successful response from WPCOM
+	 */
+	public function mock_success_response() {
+		return array(
+			'body'     => wp_json_encode( 'testtoken' ),
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
+	 * Mocks a failed response from WPCOM
+	 */
+	public function mock_error_response() {
+		return array(
+			'body'     => '',
+			'response' => array(
+				'code'    => 500,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
+	 * Create a test post with settings for the image generator.
+	 *
+	 * @param array $image_generator_settings Settings for the image generator.
+	 * @return int Post ID.
+	 */
+	public function create_post( $image_generator_settings = array() ) {
+		return wp_insert_post(
+			array(
+				'post_title'   => 'hello',
+				'post_content' => 'world',
+				'post_status'  => 'publish',
+				'meta_input'   => array(
+					Publicize::POST_JETPACK_SOCIAL_OPTIONS => array(
+						'image_generator_settings' => $image_generator_settings,
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Test that the token gets saved when a post is saved.
+	 */
+	public function test_token_gets_stored_when_post_is_saved() {
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post( array( 'is_enabled' => true ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$extractor = new Social_Image_Generator\Extractor( $post_id );
+		$this->assertEquals( 'testtoken', $extractor->get_token() );
+	}
+
+	/**
+	 * Test that no token gets created when SIG is disabled.
+	 */
+	public function test_token_does_not_get_created_when_sig_is_disabled() {
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post( array( 'is_enabled' => false ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$extractor = new Social_Image_Generator\Extractor( $post_id );
+		$this->assertSame( '', $extractor->get_token() );
+	}
+
+	/**
+	 * Test that no token gets created when request fails.
+	 */
+	public function test_token_does_not_get_created_when_request_fails() {
+		add_filter( 'pre_http_request', array( $this, 'mock_failure_response' ) );
+		$post_id = $this->create_post( array( 'is_enabled' => false ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_failure_response' ) );
+
+		$extractor = new Social_Image_Generator\Extractor( $post_id );
+		$this->assertSame( '', $extractor->get_token() );
+	}
+}

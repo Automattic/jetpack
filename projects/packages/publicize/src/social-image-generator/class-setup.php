@@ -76,6 +76,6 @@ class Setup {
 			return;
 		}
 
-		$this->set_token( $token, $post_id );
+		$this->set_token( $post_id, $token );
 	}
 }
