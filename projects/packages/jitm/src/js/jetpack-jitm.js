@@ -88,7 +88,7 @@ jQuery( document ).ready( function ( $ ) {
 					envelope.id +
 					'" ' +
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
-					( envelope.CTA.waiting.length ? 'data-cta-waiting="'+ envelope.CTA.waiting +'"' : '' ) +
+					( envelope.CTA.waiting && envelope.CTA.waiting.length ? 'data-cta-waiting="'+ envelope.CTA.waiting +'"' : '' ) +
 					'>' +
 					envelope.CTA.message +
 					'</a>';
