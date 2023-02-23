@@ -156,10 +156,12 @@ class Connection_Notice {
 					switchOwnerButton.addEventListener( 'submit', function ( e ) {
 						e.preventDefault();
 
-						var submitBtn = document.getElementById('jp-switch-connection-owner-submit');
-						var results = document.getElementById('jp-switch-user-results');
-
+						const submitBtn = document.getElementById('jp-switch-connection-owner-submit');
 						submitBtn.disabled = true;
+
+						const results = document.getElementById('jp-switch-user-results');
+						results.innerHTML = '';
+						results.classList.remove( 'error-message' );
 
 						fetch(
 							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
@@ -176,11 +178,20 @@ class Connection_Notice {
 								submitBtn.disabled = false;
 
 								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
+									// Owner successfully changed.
 									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 									setTimeout(function () {
 										document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
 									}, 1000);
+
+									return;
 								}
+
+								// API returned an error, something went wrong.
+								results.classList.add( 'error-message' );
+								results.innerHTML = data.hasOwnProperty( 'message' )
+									? data.message
+									: "<?php esc_html_e( 'Something went wrong. Please try again.', 'jetpack-connection' ); ?>";
 							} );
 					});
 				} )();
