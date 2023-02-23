@@ -23,7 +23,7 @@
 		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"devDependencies": {
-		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/calypso-color-schemes": "3.0.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.20.12",

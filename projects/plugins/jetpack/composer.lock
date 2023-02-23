@@ -875,7 +875,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "82af7f2fa186f320d807aad0d179a1d691318230"
+                "reference": "18f8f1fc449e666d94fd0443543f5550188c16e7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -897,7 +897,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -2304,10 +2304,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "819c5345676b2830fad4ec956a3c680d44778d1b"
+                "reference": "9e0055457442062de1b4b955db24a02b8191c8a4"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "wikimedia/aho-corasick": "^1.0"
             },

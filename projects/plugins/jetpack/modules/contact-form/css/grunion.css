@@ -367,6 +367,16 @@
 	flex-grow: 1;
 }
 
+.contact-form :not(.is-style-outlined):not(.is-style-animated) .grunion-field-wrap .grunion-checkbox-multiple-options,
+.contact-form :not(.is-style-outlined):not(.is-style-animated) .grunion-field-wrap .grunion-radio-options {
+	background-color: var(--jetpack--contact-form--input-background);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	padding: var(--jetpack--contact-form--input-padding, 16px);
+}
+
 .contact-form .is-style-outlined .grunion-field-wrap .notched-label {
 	position: absolute;
 	right: 0;
