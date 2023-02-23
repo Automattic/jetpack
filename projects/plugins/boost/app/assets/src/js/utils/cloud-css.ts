@@ -1,15 +1,15 @@
+import { get } from 'svelte/store';
 import api from '../api/api';
 import {
-	getStatus,
-	updateGenerateStatus,
-	resetCloudStatus,
+	setRequesting,
 	resetCloudRetryStatus,
 	setError,
 	CriticalCssStatus,
 } from '../stores/critical-css-status';
+import { criticalCssDS } from '../stores/critical-css-status-ds';
 
 export async function requestCloudCss(): Promise< void > {
-	resetCloudStatus();
+	setRequesting();
 	await startCloudCssRequest();
 }
 
@@ -33,7 +33,7 @@ async function startCloudCssRequest(): Promise< void > {
 
 let statusIntervalId = null;
 
-function pollIntervalForStatus( status: CriticalCssStatus ) {
+function calcIntervalDuration( status: CriticalCssStatus ) {
 	return status.progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
 }
 
@@ -48,20 +48,22 @@ function pollIntervalForStatus( status: CriticalCssStatus ) {
  * poll the status with a long interval.
  */
 export function pollCloudCssStatus() {
-	let status = getStatus();
-	const interval = pollIntervalForStatus( getStatus() );
-
 	// If we are creating a new poll, clear the previous one.
 	stopPollingCloudCssStatus();
+	const duration = calcIntervalDuration( get( criticalCssDS.store ) );
 
 	statusIntervalId = setInterval( async () => {
-		status = await api.get< CriticalCssStatus >( '/cloud-css/status' );
-		updateGenerateStatus( status );
+		const status = await criticalCssDS.endpoint.GET();
+		if ( status ) {
+			// .override will set the store values without triggering
+			// an update back to the server.
+			criticalCssDS.store.override( status );
+		}
 
-		if ( interval !== pollIntervalForStatus( status ) ) {
+		if ( duration !== calcIntervalDuration( status ) ) {
 			pollCloudCssStatus();
 		}
-	}, interval );
+	}, duration );
 }
 
 export function stopPollingCloudCssStatus() {

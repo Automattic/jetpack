@@ -87,12 +87,12 @@ export const CriticalCssStatusSchema = z
 		issues: [],
 	} );
 
-export const criticalCSSState = client.createAsyncStore(
+export const criticalCssDS = client.createAsyncStore(
 	'critical_css_state',
 	CriticalCssStatusSchema
 );
 
-criticalCSSState.store.subscribe( state => {
+criticalCssDS.store.subscribe( state => {
 	// @REFACTORING: Helper function to log state changes.
 	// eslint-disable-next-line no-console
 	console.log( 'criticalCSSState', state );

@@ -2,11 +2,7 @@ import { derived, get } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { z } from 'zod';
 import api from '../api/api';
-import {
-	CriticalCssIssue,
-	criticalCSSState,
-	CriticalCssStatusSchema,
-} from './critical-css-status-ds';
+import { CriticalCssIssue, criticalCssDS, CriticalCssStatusSchema } from './critical-css-status-ds';
 import { modules } from './modules';
 import type { JSONObject } from '../utils/json-types';
 
@@ -24,14 +20,8 @@ const resetState = {
 	issues: [],
 };
 
-const store = criticalCSSState.store;
-// @REFACTORING
-window.store = store;
+const store = criticalCssDS.store;
 const { subscribe, update, set } = store;
-
-export function getStatus() {
-	return get( store );
-}
 
 /**
  * Derived datastore: Returns true if the Critical CSS status indicates the process
@@ -205,7 +195,7 @@ export function storeGenerateError( error: Error ): void {
 	} ) );
 }
 
-export function resetCloudStatus(): void {
+export function setRequesting(): void {
 	return update( state => ( {
 		...state,
 		...resetState,

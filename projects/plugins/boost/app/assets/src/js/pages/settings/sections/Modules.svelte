@@ -4,7 +4,6 @@
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import config from '../../../stores/config';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
