@@ -110,22 +110,6 @@ class Critical_CSS_State {
 	public function get_provider_issue_status() {
 		return $this->collate_column( 'issue_status' );
 	}
-	public function set_provider_issue_status( $provider_key, $status ) {
-		$valid_statuses = array( 'dismissed', 'active' );
-		if ( ! in_array( $status, $valid_statuses, true ) ) {
-			return;
-		}
-
-		$this->sources[ $provider_key ]['issue_status'] = $status;
-		$this->save();
-	}
-
-	public function reset_provider_issue_status() {
-		foreach ( $this->sources as $provider_key => $source ) {
-			$this->sources[ $provider_key ]['issue_status'] = 'active';
-		}
-		$this->save();
-	}
 
 	public function maybe_set_status() {
 		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
@@ -265,18 +249,6 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Request Critical CSS to be generated based on passed URL providers.
-	 *
-	 * @param array $providers Providers.
-	 */
-	public function create_request( $providers ) {
-		$this->state   = self::REQUESTING;
-		$this->sources = $this->get_provider_sources( $providers ); // TODO: Maybe rename sources to providers.
-		$this->created = microtime( true );
-		$this->save();
-	}
-
-	/**
 	 * Get the core providers' status.
 	 *
 	 * @param array $keys Providers keys.
@@ -295,38 +267,6 @@ class Critical_CSS_State {
 		}
 
 		return $status;
-	}
-
-	/**
-	 * Get providers sources.
-	 *
-	 * @param array $providers Providers.
-	 *
-	 * @return array
-	 */
-	protected function get_provider_sources( $providers ) {
-		$sources = array();
-
-		foreach ( $providers as $provider ) {
-			$provider_name = $provider::get_provider_name();
-
-			// For each provider,
-			// Gather a list of URLs that are going to be used as Critical CSS source.
-			foreach ( $provider::get_critical_source_urls( $this->context_posts ) as $group => $urls ) {
-				$key = $provider_name . '_' . $group;
-
-				// For each URL
-				// Track the state and errors in a state array.
-				$sources[ $key ] = array(
-					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
-					'status'        => self::REQUESTING,
-					'error'         => null,
-					'success_ratio' => $provider::get_success_ratio(),
-				);
-			}
-		}
-
-		return $sources;
 	}
 
 	public function has_pending_provider( $providers = array() ) {

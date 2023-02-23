@@ -1,3 +1,4 @@
+// @REFACTORING: ESLint complaining about imports that work.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
 // eslint-disable-next-line import/no-extraneous-dependencies

@@ -47,8 +47,13 @@ export const CriticalCssStatusSchema = z
 		callback_passthrough: z.record(z.unknown()).optional(),
 		generation_nonce: z.coerce.string().optional(),
 		proxy_nonce: z.coerce.string().optional(),
-		pending_provider_keys: z.record(z.array(z.coerce.string())).optional(),
-		provider_success_ratio: z.record(z.coerce.number()).optional(),
+		// Source provider information - which URLs to generate CSS for.
+		sources: z.record(
+			z.object({
+				urls: z.array(z.coerce.string()),
+				success_ratio: z.coerce.number(),
+			})
+		),
 		status: z.coerce.string(),
 		updated: z.coerce.number().optional(),
 		core_providers: z.array(z.coerce.string()).optional(),
@@ -62,7 +67,24 @@ export const CriticalCssStatusSchema = z
 			height: z.coerce.number(),
 		})).optional(),
 		issues: z.array(CriticalCssIssueSchema).optional(),
-	})
+	}).catch({
+		progress: 0,
+		retried_show_stopper: false,
+		callback_passthrough: {},
+		generation_nonce: '',
+		proxy_nonce: '',
+		sources: {},
+		status: 'not_generated',
+		updated: 0,
+		core_providers: [],
+		core_providers_status: '',
+		status_error: '',
+		success_count: 0,
+		created: 0,
+		viewports: [],
+		issues: [],
+	});
+
 
 export const criticalCSSState = client.createAsyncStore(
 	'critical_css_state',

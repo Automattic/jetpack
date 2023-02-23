@@ -22,13 +22,12 @@ class Critical_CSS_Start implements Endpoint {
 
 		// Create a new Critical CSS Request block to track creation request.
 		$storage->clear();
-		$generator->make_generation_request();
 		Regenerate_Admin_Notice::dismiss();
 
 		return rest_ensure_response(
 			array(
 				'status' => 'success',
-				'data'   => $generator->get_local_critical_css_generation_info()
+				'data'   => $generator->get_local_critical_css_generation_info(),
 			)
 		);
 	}

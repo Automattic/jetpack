@@ -19,14 +19,6 @@ import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 import type { Viewport } from './types';
 
-export type ProviderKeyUrls = {
-	[ providerKey: string ]: string[];
-};
-
-export type ProvidersSuccessRatio = {
-	[ providerKey: string ]: number;
-};
-
 export type MajorMinorCallback = (
 	majorSteps: number,
 	majorStep: number,
@@ -74,7 +66,6 @@ export default async function generateCriticalCss(
 
 	try {
 		if ( reset ) {
-			await clearDismissedIssues();
 			updateGenerateStatus( { status: 'requesting', progress: 0, issues: [] } );
 			hideRegenerateCriticalCssSuggestion();
 		}
@@ -112,15 +103,21 @@ export default async function generateCriticalCss(
 		// Run generator on each configuration.
 		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 		logPreCriticalCSSGeneration();
-		await generateForKeys(
-			cssStatus.pending_provider_keys,
-			requestGetParameters,
-			cssStatus.viewports as Viewport[],
-			cssStatus.callback_passthrough as JSONObject,
-			wrappedCallback,
-			cssStatus.provider_success_ratio,
-			cssStatus.proxy_nonce
-		);
+
+		// @REFACTORING: Add Toast error handling if sources missing
+		const sourcesExist = Object.keys( cssStatus.sources ).length > 0;
+		if( sourcesExist ) {
+			await generateForKeys(
+				// @REFACTORING: Fix type error.
+				cssStatus.sources,
+				requestGetParameters,
+				cssStatus.viewports as Viewport[],
+				cssStatus.callback_passthrough as JSONObject,
+				wrappedCallback,
+				cssStatus.proxy_nonce
+			);
+		}
+
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
 		if ( ! cancelling ) {
@@ -167,7 +164,7 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {ProviderKeyUrls}    providerKeys         - Set of URLs to use for each provider key
+ * @param {sources}            sources              - Set of URLs to use for each provider key
  * @param {Object}             requestGetParameters - GET parameters to include with each request.
  * @param {Viewport[]}         viewports            - Viewports to generate with.
  * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
@@ -176,15 +173,14 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
-	providerKeys: ProviderKeyUrls,
+	sources: Record< string, { urls: string[]; success_ratio: number } >,
 	requestGetParameters: { [ key: string ]: string },
 	viewports: Viewport[],
 	passthrough: JSONObject,
 	callback: MajorMinorCallback,
-	successRatios: ProvidersSuccessRatio,
 	proxyNonce: string
 ): Promise< void > {
-	const majorSteps = Object.keys( providerKeys ).length + 1;
+	const majorSteps = Object.keys( sources ).length + 1;
 	let majorStep = 0;
 
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
@@ -195,7 +191,8 @@ async function generateForKeys(
 	let maxSize = 0;
 
 	// Run through each set of URLs.
-	for ( const [ providerKey, urls ] of Object.entries( providerKeys ) ) {
+	for ( const [ providerKey, provider ] of Object.entries( sources ) ) {
+		const { urls, success_ratio } = provider;
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
@@ -209,7 +206,7 @@ async function generateForKeys(
 					atRules: keepAtRule,
 					properties: keepProperty,
 				},
-				successRatio: successRatios[ providerKey ],
+				successRatio: success_ratio,
 			} );
 
 			const updateResult = await sendGenerationResult( providerKey, 'insert', {

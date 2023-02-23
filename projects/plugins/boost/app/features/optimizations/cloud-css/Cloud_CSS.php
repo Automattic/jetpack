@@ -2,7 +2,6 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -188,21 +187,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		}
 
 		$this->generate_cloud_css();
-	}
-
-	/**
-	 * Add Cloud CSS related constants to be passed to JavaScript only if the module is enabled.
-	 *
-	 * @param array $constants Constants to be passed to JavaScript.
-	 *
-	 * @return array
-	 */
-	public function add_critical_css_constants( $constants ) {
-		// Information about the current status of Cloud CSS / generation.
-		$generator                      = new Generator( 'cloud' );
-		$constants['criticalCssStatus'] = $generator->get_critical_css_status();
-
-		return $constants;
 	}
 
 	/**

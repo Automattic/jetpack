@@ -6,7 +6,6 @@
  */
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 use WP_REST_Server;
@@ -23,8 +22,7 @@ class Cloud_CSS_Status implements Contracts\Endpoint {
 
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$generator = new Generator( 'cloud' );
-		return $generator->get_critical_css_status();
+		return jetpack_boost_ds_get( 'critical_css_status' );
 	}
 
 	public function permissions() {

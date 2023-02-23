@@ -27,50 +27,8 @@ class Generator {
 	public $state;
 
 	public function __construct( $state = 'local' ) {
-		$this->state = new  Critical_CSS_State( $state );
+		$this->state = new Critical_CSS_State( $state );
 		$this->paths = new Source_Providers();
-		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->state->create_request( $this->paths->get_providers() );
-		}
-	}
-
-	/**
-	 * Get Critical CSS status.
-	 */
-	public function get_critical_css_status() {
-		if ( $this->state->is_empty() ) {
-			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
-		}
-
-		if ( $this->state->is_fatal_error() ) {
-			return array(
-				'status'       => Critical_CSS_State::FAIL,
-				'status_error' => $this->state->get_state_error(),
-			);
-		}
-
-		if ( $this->state->is_pending() ) {
-			return array(
-				'status'                 => Critical_CSS_State::REQUESTING,
-				'progress'               => $this->state->get_percent_complete(),
-				'success_count'          => $this->state->get_providers_success_count(),
-				'pending_provider_keys'  => $this->state->get_provider_urls(),
-				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
-				'created'                => $this->state->get_created_time(),
-				'updated'                => $this->state->get_updated_time(),
-			);
-		}
-
-		return array(
-			'status'                => Critical_CSS_State::SUCCESS,
-			'progress'              => $this->state->get_percent_complete(),
-			'success_count'         => $this->state->get_providers_success_count(),
-			'core_providers'        => self::CORE_PROVIDER_KEYS,
-			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'issues'                => $this->get_issues(),
-			'created'               => $this->state->get_created_time(),
-			'updated'               => $this->state->get_updated_time(),
-		);
 	}
 
 	/**
@@ -89,36 +47,6 @@ class Generator {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Get providers errors.
-	 *
-	 * @return array
-	 */
-	public function get_issues() {
-
-		$providers_errors = $this->state->get_providers_errors();
-		$issue_status     = $this->state->get_provider_issue_status();
-		$issues           = array();
-		foreach ( $providers_errors as $provider => $url_errors ) {
-			$errors = array();
-			foreach ( $url_errors as $url => $error ) {
-				$error['url'] = $url;
-				$errors[]     = $error;
-			}
-			$label = $this->describe_provider_key( $provider );
-
-			$status   = ! empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
-			$issues[] = array(
-				'provider_name' => $label,
-				'key'           => $provider,
-				'status'        => $status,
-				'errors'        => $errors,
-			);
-		}
-
-		return $issues;
 	}
 
 	/**
@@ -178,19 +106,17 @@ class Generator {
 		return $is_generating;
 	}
 
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-	public function make_generation_request() {
-		$this->state->create_request( $this->paths->get_providers() );
-	}
-
 	/**
 	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
 	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
 	 * such as in response to a request-generate API call or during page initialization.
 	 */
 	public function get_local_critical_css_generation_info() {
-		$status = $this->get_critical_css_status();
+
+		// @REFACTORING:
+		// This method should be moved inside critical_css_state DataSync handling class
+		// to pre-populate the data on request and strip it out when receiving the data
+		// so that it's not persisted in the db.
 
 		// Add viewport sizes.
 		$status['viewports'] = array(
@@ -221,6 +147,8 @@ class Generator {
 		$status['callback_passthrough'] = array(
 			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
 		);
+
+		$status['sources'] = $this->paths->get_sources();
 
 		return $status;
 	}
