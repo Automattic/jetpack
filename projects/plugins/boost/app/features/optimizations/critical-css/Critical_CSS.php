@@ -14,8 +14,6 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
 class Critical_CSS implements Feature, Has_Endpoints {
 
@@ -147,9 +145,7 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	public function get_endpoints() {
 		return array(
 				Critical_CSS_Insert::class,
-				Critical_CSS_Start::class,
-				Recommendations_Dismiss::class,
-				Recommendations_Reset::class,
+				Critical_CSS_Start::class
 		);
 	}
 }

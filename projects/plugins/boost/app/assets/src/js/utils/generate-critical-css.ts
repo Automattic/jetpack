@@ -1,14 +1,12 @@
 import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
-import { clearDismissedIssues } from '../stores/critical-css-recommendations';
 import setProviderIssue, {
 	requestGeneration,
 	sendGenerationResult,
 	stopTheShow,
 	storeGenerateError,
 	updateGenerateStatus,
-	updateSuccessCount,
 } from '../stores/critical-css-status';
 import { CriticalCssIssue, Critical_CSS_Error_Type } from '../stores/critical-css-status-ds';
 import { JSONObject } from '../stores/data-sync-client';
@@ -77,7 +75,7 @@ export default async function generateCriticalCss(
 	try {
 		if ( reset ) {
 			await clearDismissedIssues();
-			updateGenerateStatus( { status: 'requesting', progress: 0 } );
+			updateGenerateStatus( { status: 'requesting', progress: 0, issues: [] } );
 			hideRegenerateCriticalCssSuggestion();
 		}
 
@@ -248,7 +246,8 @@ async function generateForKeys(
 					};
 				} );
 				const issue: CriticalCssIssue = {
-					provider_name: providerKey,
+					provider_name: providerKey, // @REFACTORING: This should be the display name
+					key: providerKey,
 					status: 'active',
 					errors: errorsWithURLs,
 				};

@@ -1,6 +1,5 @@
 import { writable, derived, get, Readable } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
-import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import { criticalCssStatus, updateIssues } from './critical-css-status';
@@ -24,18 +23,6 @@ export type ErrorSet = {
 };
 
 const issuesStore = derived( criticalCssStatus, $status => {
-	// @REFACTORING: Ensure that the keys are unique. I accidentally added duplicate provider keys.
-	// De-duplicate array based on $status.issues.provider_key
-	// const unique = [];
-	// const issues = $status.issues || [];
-	// return issues.filter( issue => {
-	// 	if ( unique.includes( issue.key ) ) {
-	// 		return false;
-	// 	}
-	// 	unique.push( issue.key );
-	// 	return true;
-	// } );
-
 	return $status.issues;
 } );
 
@@ -95,37 +82,6 @@ export const primaryErrorSet: Readable< ErrorSet > = derived( issuesStore, $issu
 
 	return undefined;
 } );
-
-/**
- * Set the dismissal error if something wrong occurred
- * during the event to dismiss a recommendation or the event
- * to clear the dismissed recommendations.
- *
- * @param {string} title Error display title.
- * @param {Object} error Error.
- */
-function setDismissalError( title: string, error: JSONObject ): void {
-	dismissalErrorStore.set( {
-		title,
-		error,
-	} );
-}
-
-/**
- * Clear all the dismissed recommendations.
- */
-export async function clearDismissedIssues(): Promise< void > {
-	await api.post( '/recommendations/reset', {
-		nonce: Jetpack_Boost.nonces[ 'recommendations/reset' ],
-	} );
-	const issues = get( issuesStore );
-	updateIssues(
-		issues.map( issue => {
-			issue.status = 'active';
-			return issue;
-		} )
-	);
-}
 
 /**
  * Takes a Provider Key set of errors (in an object keyed by URL), and returns
@@ -192,25 +148,24 @@ export async function dismissIssue( key: string ): Promise< void > {
 		issue.status = 'dismissed';
 		updateIssues( issues );
 	}
-	try {
-		await api.post( '/recommendations/dismiss', {
-			providerKey: key,
-			nonce: Jetpack_Boost.nonces[ 'recommendations/dismiss' ],
-		} );
-	} catch ( error ) {
-		setDismissalError( __( 'Failed to dismiss recommendation', 'jetpack-boost' ), error );
-	}
 }
 /**
  * Show the previously dismissed recommendations.
  */
 export async function showDismissedIssues() {
-	try {
-		await clearDismissedIssues();
-	} catch ( error ) {
-		setDismissalError(
-			__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
-			error
-		);
-	}
+	const issues = get( issuesStore );
+	updateIssues(
+		issues.map( issue => {
+			issue.status = 'active';
+			return issue;
+		} )
+	);
+	// @REFACTORING: Restore dismissal error reporting:
+	// We need a toast these sorts of errors.
+	// That would address this as well:
+	// https://github.com/orgs/Automattic/projects/548?pane=issue&itemId=20996239
+	// setDismissalError(
+	// 	__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
+	// 	error
+	// );
 }
