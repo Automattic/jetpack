@@ -74,8 +74,6 @@ declare global {
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
 
-	type TracksEventProperties = { [ key: string ]: string | number };
-
 	const jpTracksAJAX: {
 		record_ajax_event(
 			eventName: string,
