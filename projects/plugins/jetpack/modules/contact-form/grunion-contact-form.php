@@ -389,6 +389,8 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		wp_register_style( 'jetpack-forms-block-style-variations', false, array(), JETPACK__VERSION );
+
 		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
@@ -4388,12 +4390,104 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Enqueues the inline styles for form block style variations.
+	 */
+	public function enqueue_block_variation_styles() {
+		static $loaded = false;
+
+		if ( $loaded ) {
+			return;
+		}
+
+		wp_enqueue_style( 'jetpack-forms-block-style-variations' );
+		$loaded = true;
+
+		wp_add_inline_style(
+			'jetpack-forms-block-style-variations',
+			<<<CSS
+.contact-form .is-style-outlined .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap),
+.contact-form .is-style-animated .grunion-field-wrap:not(.grunion-field-checkbox-wrap):not(.grunion-field-consent-wrap) {
+	--notch-width: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+	position: relative;
+	display: flex;
+	flex-direction: row-reverse;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label {
+	position: absolute;
+	right: 0;
+	left: 0;
+	width: 100%;
+	max-width: 100%;
+	height: 100%;
+	display: flex;
+	box-sizing: border-box;
+	text-align: left;
+	pointer-events: none;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__leading {
+	width: var(--notch-width);
+	border-radius: var(--jetpack--contact-form--border-radius);
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	border-right: none;
+	border-top-right-radius: unset;
+	border-bottom-right-radius: unset;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
+	border-radius: unset;
+	border: var(--jetpack--contact-form--border);
+	border-color: var(--jetpack--contact-form--border-color);
+	border-style: var(--jetpack--contact-form--border-style);
+	border-width: var(--jetpack--contact-form--border-size);
+	padding: 0 4px;
+	transition: border 150ms linear;
+}
+
+/*
+For some reason, when keeping the rule below together with the above selector,
+on production builds, the attributes are being reordered, causing side-effects
+*/
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__notch {
+	border-left: none;
+	border-right: none;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap.no-label .notched-label__notch {
+	padding: 0;
+}
+
+.contact-form .is-style-outlined .grunion-field-wrap .notched-label .notched-label__label {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	pointer-events: none;
+	will-change: transform;
+	transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	margin: 0;
+	font-weight: 300;
+}
+
+.contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
+	top: var(--jetpack--contact-form--input-padding-top, 16px);
+}
+CSS
+		);
+	}
+
+	/**
 	 * Outputs the HTML for this form field
 	 *
 	 * @return string HTML
 	 */
 	public function render() {
 		global $current_user, $user_identity;
+
+		self::enqueue_block_variation_styles();
 
 		$field_id            = $this->get_attribute( 'id' );
 		$field_type          = $this->maybe_override_type();
