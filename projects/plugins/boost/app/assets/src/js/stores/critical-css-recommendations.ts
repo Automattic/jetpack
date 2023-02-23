@@ -4,33 +4,12 @@ import api from '../api/api';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import { criticalCssStatus, updateIssues } from './critical-css-status';
-import type { JSONObject } from '../utils/json-types';
-
-type Critical_CSS_Error_Type =
-	| 'SuccessTargetError'
-	| 'UrlError'
-	| 'HttpError'
-	| 'UnknownError'
-	| 'CrossDomainError'
-	| 'LoadTimeoutError'
-	| 'RedirectError'
-	| 'UrlVerifyError'
-	| 'EmptyCSSError'
-	| 'XFrameDenyError';
-
-export interface CriticalCssErrorDetails {
-	url: string;
-	message: string;
-	meta: JSONObject;
-	type: Critical_CSS_Error_Type;
-}
-
-export type CriticalCssIssue = {
-	provider_name: string;
-	key: string;
-	status: 'active' | 'dismissed';
-	errors: CriticalCssErrorDetails[];
-};
+import {
+	CriticalCssErrorDetails,
+	CriticalCssIssue,
+	Critical_CSS_Error_Type,
+} from './critical-css-status-ds';
+import { JSONObject } from './data-sync-client';
 
 /**
  * Specification for a set of errors that can appear as a part of a recommendation.
@@ -45,7 +24,19 @@ export type ErrorSet = {
 };
 
 const issuesStore = derived( criticalCssStatus, $status => {
-	return $status.issues || [];
+	// @REFACTORING: Ensure that the keys are unique. I accidentally added duplicate provider keys.
+	// De-duplicate array based on $status.issues.provider_key
+	// const unique = [];
+	// const issues = $status.issues || [];
+	// return issues.filter( issue => {
+	// 	if ( unique.includes( issue.key ) ) {
+	// 		return false;
+	// 	}
+	// 	unique.push( issue.key );
+	// 	return true;
+	// } );
+
+	return $status.issues;
 } );
 
 const dismissalErrorStore = writable( null );
@@ -172,7 +163,12 @@ export function groupErrorsByFrequency( issue: CriticalCssIssue ): ErrorSet[] {
  * @param {CriticalCssErrorDetails} error
  */
 export function groupKey( error: CriticalCssErrorDetails ) {
-	if ( error.type === 'HttpError' ) {
+	if (
+		error.type === 'HttpError' &&
+		typeof error.meta === 'object' &&
+		error.meta !== null &&
+		'code' in error.meta
+	) {
 		return error.type + '-' + castToString( error.meta.code, '' );
 	}
 

@@ -2,12 +2,16 @@ import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
 import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
 import { clearDismissedIssues } from '../stores/critical-css-recommendations';
-import {
+import setProviderIssue, {
 	requestGeneration,
 	sendGenerationResult,
+	stopTheShow,
 	storeGenerateError,
 	updateGenerateStatus,
+	updateSuccessCount,
 } from '../stores/critical-css-status';
+import { CriticalCssIssue, Critical_CSS_Error_Type } from '../stores/critical-css-status-ds';
+import { JSONObject } from '../stores/data-sync-client';
 import { modules, isModuleEnabledStore } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
@@ -15,7 +19,6 @@ import { logPreCriticalCSSGeneration } from './console';
 import { isSameOrigin } from './is-same-origin';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
-import type { JSONObject } from './json-types';
 import type { Viewport } from './types';
 
 export type ProviderKeyUrls = {
@@ -100,7 +103,7 @@ export default async function generateCriticalCss(
 				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
 			}
 
-			updateGenerateStatus( { status: 'requesting', progress: percent } );
+			updateGenerateStatus( { status: 'requesting', progress: Math.round( percent ) } );
 		} );
 
 		// Prepare GET parameters to include with each request.
@@ -114,8 +117,8 @@ export default async function generateCriticalCss(
 		await generateForKeys(
 			cssStatus.pending_provider_keys,
 			requestGetParameters,
-			cssStatus.viewports,
-			cssStatus.callback_passthrough,
+			cssStatus.viewports as Viewport[],
+			cssStatus.callback_passthrough as JSONObject,
 			wrappedCallback,
 			cssStatus.provider_success_ratio,
 			cssStatus.proxy_nonce
@@ -211,7 +214,7 @@ async function generateForKeys(
 				successRatio: successRatios[ providerKey ],
 			} );
 
-			const updateResult = await sendGenerationResult( providerKey, 'success', {
+			const updateResult = await sendGenerationResult( providerKey, 'insert', {
 				data: css,
 				warnings: warnings.map( x => x.toString() ),
 				passthrough,
@@ -227,25 +230,32 @@ async function generateForKeys(
 		} catch ( err ) {
 			// Success Target Errors indicate that URLs failed, but the process itself succeeded.
 			if ( err.isSuccessTargetError ) {
-				await sendGenerationResult( providerKey, 'error', {
-					data: {
-						show_stopper: false,
-						provider_key: providerKey,
-						urls: err.urlErrors,
-					},
-					passthrough,
-				} );
-
 				stepsFailed++;
-				const urlError = err.urlErrors as {
+				const urlErrors = err.urlErrors as {
+					// These come from Jetpack Boost Critical CSS Generator
+					// In this shape:
 					[ url: string ]: {
 						message: string;
-						type: string;
+						type: Critical_CSS_Error_Type;
 						meta: JSONObject;
 					};
 				};
-
-				for ( const [ url, error ] of Object.entries( urlError ) ) {
+				const errorsWithURLs = Object.keys( urlErrors ).map( url => {
+					const error = urlErrors[ url ];
+					return {
+						...error,
+						url,
+					};
+				} );
+				const issue: CriticalCssIssue = {
+					provider_name: providerKey,
+					status: 'active',
+					errors: errorsWithURLs,
+				};
+				if ( providerKey ) {
+					setProviderIssue( providerKey, issue );
+				}
+				for ( const [ url, error ] of Object.entries( urlErrors ) ) {
 					// Track individual Critical CSS generation error.
 					const eventProps: TracksEventProperties = {
 						url,
@@ -253,19 +263,18 @@ async function generateForKeys(
 						error_message: error.message,
 						error_type: error.type,
 					};
-					if ( error.type === 'HttpError' ) {
+					if (
+						error.type === 'HttpError' &&
+						typeof error.meta === 'object' &&
+						error.meta !== null &&
+						'code' in error.meta
+					) {
 						eventProps.error_meta = castToNumber( error.meta.code );
 					}
 					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
-				await sendGenerationResult( providerKey, 'error', {
-					data: {
-						show_stopper: true,
-						error: err.message,
-					},
-					passthrough,
-				} );
+				stopTheShow();
 
 				// Track showstopper Critical CSS generation error.
 				const eventProps = {
@@ -275,7 +284,6 @@ async function generateForKeys(
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
 				recordBoostEvent( 'critical_css_failure', eventProps );
-
 				return;
 			}
 		}
@@ -300,8 +308,9 @@ async function generateForKeys(
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}
-
-	updateGenerateStatus( { status: 'success', progress: 0 } );
+	updateGenerateStatus( {
+		status: 'success',
+	} );
 }
 
 /**

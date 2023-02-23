@@ -78,7 +78,7 @@
 		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
 	{/if}
 
-	{#each $activeIssues as issue (issue.key)}
+	{#each $activeIssues as issue (issue.provider_name)}
 		<div class="panel" transition:slide|local>
 			<CloseButton on:click={() => dismissIssue( issue.key )} />
 

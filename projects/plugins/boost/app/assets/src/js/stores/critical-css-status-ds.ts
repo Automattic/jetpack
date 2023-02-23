@@ -2,7 +2,7 @@
 import z from 'zod';
 import { client, JSONSchema } from './data-sync-client';
 
-const ErrorTypeSchema = z.enum([
+const CriticalCssErrorType = z.enum([
 	'SuccessTargetError',
 	'UrlError',
 	'HttpError',
@@ -14,22 +14,28 @@ const ErrorTypeSchema = z.enum([
 	'EmptyCSSError',
 	'XFrameDenyError',
 ]);
+
+export type Critical_CSS_Error_Type = z.infer<typeof CriticalCssErrorType>;
 const CriticalCssErrorDetailsSchema = z.object({
 	url: z.coerce.string(),
 	message: z.coerce.string(),
-	meta: z.record(z.unknown()),
-	type: ErrorTypeSchema,
+	meta: JSONSchema,
+	type: CriticalCssErrorType,
 });
+
+export type CriticalCssErrorDetails = z.infer<typeof CriticalCssErrorDetailsSchema>;
 
 const CriticalCssIssueSchema = z.object({
 	provider_name: z.coerce.string(),
 	key: z.coerce.string(),
-	status: z.enum(['active', 'dismissed']),
+	status: z.enum(['active', 'dismissed']).catch('active'),
 	errors: z.array(CriticalCssErrorDetailsSchema),
 });
 
+export type CriticalCssIssue = z.infer<typeof CriticalCssIssueSchema>;
+
 export const ErrorSetSchema = z.object({
-	type: ErrorTypeSchema,
+	type: CriticalCssErrorType,
 	firstMeta: z.record(z.unknown()),
 	byUrl: z.record(CriticalCssErrorDetailsSchema),
 });

@@ -12,10 +12,8 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
 
@@ -148,12 +146,10 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 */
 	public function get_endpoints() {
 		return array(
-			Generator_Status::class,
-			Generator_Request::class,
-			Generator_Success::class,
-			Recommendations_Dismiss::class,
-			Recommendations_Reset::class,
-			Generator_Error::class,
+				Critical_CSS_Insert::class,
+				Critical_CSS_Start::class,
+				Recommendations_Dismiss::class,
+				Recommendations_Reset::class,
 		);
 	}
 }

@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
@@ -10,14 +9,14 @@ use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
-class Generator_Success implements Endpoint {
+class Critical_CSS_Insert implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
 	/**
-	 * Handler for PUT '/critical-css/(?P<cacheKey>.+)/success'.
+	 * Handler for PUT '/critical-css/<cacheKey>/insert'.
 	 *
 	 * @param \WP_REST_Request $request The request object.
 	 *
@@ -70,12 +69,8 @@ class Generator_Success implements Endpoint {
 		}
 
 		$storage   = new Critical_CSS_Storage();
-		$generator = new Generator();
-
 		$storage->store_css( $cache_key, $params['data'] );
-		$generator->state->set_source_success( $cache_key );
 
-		Regenerate_Admin_Notice::dismiss();
 		Critical_CSS_State::set_fresh();
 
 		// Set status to success to indicate the critical CSS data has been stored on the server.
@@ -83,7 +78,6 @@ class Generator_Success implements Endpoint {
 			array(
 				'status'        => 'success',
 				'code'          => 'processed',
-				'status_update' => $generator->get_critical_css_status(),
 			)
 		);
 	}
@@ -95,6 +89,6 @@ class Generator_Success implements Endpoint {
 	}
 
 	public function name() {
-		return '/critical-css/(?P<cacheKey>.+)/success';
+		return '/critical-css/(?P<cacheKey>.+)/insert';
 	}
 }

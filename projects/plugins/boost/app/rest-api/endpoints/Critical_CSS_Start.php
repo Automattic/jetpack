@@ -8,30 +8,27 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
-class Generator_Request implements Endpoint {
+class Critical_CSS_Start implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
 	}
 
 	public function response( $request ) {
-		$reset = ! empty( $request['reset'] );
 
 		$generator = new Generator();
 
-		if ( $reset ) {
-			$storage = new Critical_CSS_Storage();
+		$storage = new Critical_CSS_Storage();
 
-			// Create a new Critical CSS Request block to track creation request.
-			$storage->clear();
-			$generator->make_generation_request();
-			Regenerate_Admin_Notice::dismiss();
-		}
+		// Create a new Critical CSS Request block to track creation request.
+		$storage->clear();
+		$generator->make_generation_request();
+		Regenerate_Admin_Notice::dismiss();
 
 		return rest_ensure_response(
 			array(
-				'status'        => 'success',
-				'status_update' => $generator->get_local_critical_css_generation_info(),
+				'status' => 'success',
+				'data'   => $generator->get_local_critical_css_generation_info()
 			)
 		);
 	}
@@ -43,6 +40,6 @@ class Generator_Request implements Endpoint {
 	}
 
 	public function name() {
-		return 'critical-css/request-generate';
+		return 'critical-css/start';
 	}
 }
