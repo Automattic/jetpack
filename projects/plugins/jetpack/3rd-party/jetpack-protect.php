@@ -70,12 +70,7 @@ function try_install() {
  */
 function install_and_activate() {
 	$result = Plugins_Installer::install_and_activate_plugin( PLUGIN_SLUG );
-
-	if ( is_wp_error( $result ) ) {
-		return false;
-	} else {
-		return true;
-	}
+	return ! is_wp_error( $result );
 }
 
 /**

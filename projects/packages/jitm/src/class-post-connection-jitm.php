@@ -239,7 +239,7 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
-	 * A special filter used in the CTA of a JITM offering to install the Jetpack Protect plugin.
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack VideoPress plugin.
 	 *
 	 * @return string The new CTA
 	 */
@@ -256,7 +256,7 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
-	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Protect plugin.
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack VideoPress plugin.
 	 *
 	 * @return string The new CTA
 	 */

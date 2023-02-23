@@ -70,6 +70,8 @@ jQuery( document ).ready( function ( $ ) {
 
 				var ajaxAction = envelope.CTA.ajax_action;
 
+				console.log(envelope);
+
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
@@ -88,6 +90,7 @@ jQuery( document ).ready( function ( $ ) {
 					envelope.id +
 					'" ' +
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
+					( envelope.CTA.waiting.length ? 'data-cta-waiting="'+ envelope.CTA.waiting +'"' : '' ) +
 					'>' +
 					envelope.CTA.message +
 					'</a>';
@@ -192,6 +195,15 @@ jQuery( document ).ready( function ( $ ) {
 					$template.fadeOut( 'slow' );
 				}, 2000 );
 			} );
+		} );
+
+		// If the CTA has some "waiting" text, update it after the button is clicked on
+		$template.find( '.jitm-button[data-cta-waiting]' ).on( 'click', function ( e ) {
+			var button       = $( this ),
+				waiting_text = button.attr('data-cta-waiting');
+
+			button.attr( 'disabled', true );
+			button.text( waiting_text );
 		} );
 
 		// Handle CTA ajax actions.
