@@ -233,7 +233,7 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                         if ($page < 0) $page = 0;
 
 						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$orderByStr .= ' LIMIT ' . ( (int) $page * (int) $perPage ) . ',' . (int) $perPage;
+						$orderByStr .= sprintf( ' LIMIT %d, %d ', (int) $page * (int) $perPage, (int) $perPage );
                     }
 
                     // append to sql
