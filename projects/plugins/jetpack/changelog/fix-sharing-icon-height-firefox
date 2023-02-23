@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: avoid distored sharing icons in Firefox when using the Icon-only button style.
