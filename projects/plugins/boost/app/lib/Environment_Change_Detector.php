@@ -30,8 +30,22 @@ class Environment_Change_Detector {
 	}
 
 	public function handle_post_change( $post_id, $post ) {
-		$post_types = get_post_types( array( 'name' => $post->post_type ), 'objects' );
-		if ( empty( $post_types ) || ! isset( $post_types['post'] ) || $post_types['post']->public !== true ) {
+		// Ignore changes to any post which is not published.
+		if ( 'publish' !== $post->post_status ) {
+			return;
+		}
+
+		// Ignore any chnages which do not impact any public post types.
+		$post_types      = get_post_types( array( 'name' => $post->post_type ), 'objects' );
+		$includes_public = false;
+		foreach ( $post_types as $post_type ) {
+			if ( $post_type->public ) {
+				$includes_public = true;
+				break;
+			}
+		}
+
+		if ( ! $includes_public ) {
 			return;
 		}
 
