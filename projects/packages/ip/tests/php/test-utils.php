@@ -305,4 +305,15 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse( Utils::ip_address_is_in_range( $out_range_ip, $range_low, $range_high ) );
 	}
 
+	/**
+	 * Test `get_ip_addresses_from_string`.
+	 *
+	 * @covers ::get_ip_addresses_from_string
+	 */
+	public function test_get_ip_addresses_from_string() {
+		$string   = "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555,1.1.1.10-1.1.1.20";
+		$expected = array( '8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9', '1.1.1.10-1.1.1.20' );
+		$this->assertEquals( $expected, Utils::get_ip_addresses_from_string( $string ) );
+	}
+
 }
