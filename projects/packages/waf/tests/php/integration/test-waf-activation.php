@@ -75,6 +75,9 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 
 		// Ensure the bootstrap file was generated.
 		$this->assertFileExists( ( new Waf_Standalone_Bootstrap() )->get_bootstrap_file_path() );
+
+		// Clean up
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 	}
 
 }
