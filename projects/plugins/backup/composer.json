@@ -46,11 +46,11 @@
 		"autotagger": {
 			"v": false
 		},
+		"changelogger": {
+			"versioning": "wordpress"
+		},
 		"release-branch-prefix": "jetpack",
 		"wp-plugin-slug": "jetpack-backup",
 		"wp-svn-autopublish": true
-	},
-	"changelogger": {
-		"versioning": "wordpress"
 	}
 }
