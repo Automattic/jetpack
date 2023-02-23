@@ -16,7 +16,6 @@ import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
-
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
@@ -75,53 +74,92 @@ export default function SubscribePanels() {
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
-				title={ __( 'Newsletter', 'jetpack' ) }
+				title={
+					<>
+						{ __( 'Newsletter:', 'jetpack' ) }
+						{ accessLevel && (
+							<span className={ 'editor-post-publish-panel__link' }>
+								{ accessOptions[ accessLevel ].label }
+							</span>
+						) }
+					</>
+				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post will reach <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
-								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
-								),
-								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
+							followerCount !== 0
+								? sprintf(
+										/* translators: 1$s will be subscribers, %2$s will be social followers */
+										__(
+											'This post will reach <span>%1$s</span> and <span>%2$s</span>.',
+											'jetpack'
+										),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										),
+										sprintf(
+											/* translators: %s will be a number of social followers */
+											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+											numberFormat( followerCount )
+										)
+								  )
+								: sprintf(
+										/* translators: 1$s will be subscribers */
+										__( 'This post will reach <span>%1$s</span>.', 'jetpack' ),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										)
+								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
 					</InspectorNotice>
 				) }
 
 				{ isNewsletterFeatureEnabled() && (
-					<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+					<NewsletterAccess
+						setPostMeta={ setPostMeta }
+						accessLevel={ accessLevel }
+						withModal={ false }
+					/>
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							sprintf(
-								/* translators: 1$s will be subscribers, %2$s will be social followers */
-								__( 'This post was shared to <span>%1$s</span> and <span>%2$s</span>.', 'jetpack' ),
-								sprintf(
-									/* translators: %s will be a number of subscribers */
-									_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-									numberFormat( subscriberCount )
-								),
-								sprintf(
-									/* translators: %s will be a number of social followers */
-									_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-									numberFormat( followerCount )
-								)
-							),
+							followerCount !== 0
+								? sprintf(
+										/* translators: 1$s will be subscribers, %2$s will be social followers */
+										__(
+											'This post was shared to <span>%1$s</span> and <span>%2$s</span>.',
+											'jetpack'
+										),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										),
+										sprintf(
+											/* translators: %s will be a number of social followers */
+											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
+											numberFormat( followerCount )
+										)
+								  )
+								: sprintf(
+										/* translators: 1$s will be subscribers */
+										__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
+										sprintf(
+											/* translators: %s will be a number of subscribers */
+											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
+											numberFormat( subscriberCount )
+										)
+								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
 						) }
 					</InspectorNotice>

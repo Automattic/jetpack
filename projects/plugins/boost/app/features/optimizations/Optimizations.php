@@ -7,9 +7,12 @@ use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
+use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
+use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 class Optimizations implements Has_Setup {
 
@@ -37,6 +40,10 @@ class Optimizations implements Has_Setup {
 			new Render_Blocking_JS(),
 			new Image_Guide(),
 		);
+
+		if ( defined( 'JETPACK_BOOST_MINIFY' ) && JETPACK_BOOST_MINIFY ) {
+			$features[] = new Minify();
+		}
 
 		foreach ( $features as $feature ) {
 			$slug                    = $feature->get_slug();
@@ -90,12 +97,11 @@ class Optimizations implements Has_Setup {
 		if ( empty( $feature->get_endpoints() ) ) {
 			return false;
 		}
+
+		REST_API::register( $feature->get_endpoints() );
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public function setup() {
+	public function init_features() {
 
 		foreach ( $this->available_modules() as $slug => $optimization ) {
 
@@ -103,12 +109,20 @@ class Optimizations implements Has_Setup {
 				continue;
 			}
 
-			$optimization->feature->setup();
+			Setup::add( $optimization->feature );
+
 			$this->register_endpoints( $optimization->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
 
 		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function setup() {
+		add_action( 'plugins_loaded', array( $this, 'init_features' ) );
 	}
 
 	/**
@@ -128,13 +142,6 @@ class Optimizations implements Has_Setup {
 		}
 
 		return array();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setup_trigger() {
-		return 'plugins_loaded';
 	}
 
 }
