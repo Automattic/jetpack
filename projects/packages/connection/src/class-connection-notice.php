@@ -166,7 +166,7 @@ class Connection_Notice {
 							{
 								method: 'POST',
 								headers: {
-									'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
+									'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								},
 								body: new URLSearchParams( new FormData( this ) ),
 							}
