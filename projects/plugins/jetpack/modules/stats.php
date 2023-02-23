@@ -35,9 +35,10 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
 
 /**
- * Stats content marker.
+ * Stats content markers.
  * Used to test for content vs script when parsing server-generated HTML.
  */
+const STATS_BODY_MARKER    = '<div id="statchart"';
 const STATS_CONTENT_MARKER = '<div class="gotonewdash">';
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
@@ -729,9 +730,7 @@ function stats_parse_header_section( $html ) {
  * @return string
  */
 function stats_parse_content_section( $html ) {
-	// TODO: Skip past gotonewdash DIV.
-	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$body = strstr( $html, STATS_CONTENT_MARKER );
+	$body = strstr( $html, STATS_BODY_MARKER );
 	// Enforce a string result instead of string|false.
 	if ( $body === false ) {
 		return '';
