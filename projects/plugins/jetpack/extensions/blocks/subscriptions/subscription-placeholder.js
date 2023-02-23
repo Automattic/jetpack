@@ -4,7 +4,7 @@ import { useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { icon, settings } from './';
 
-export const SubscriptionsPlaceholder = ( { changeStatus } ) => {
+export const SubscriptionsPlaceholder = ( { changeStatus, isLoading, isModuleActive } ) => {
 	const { tracks } = useAnalytics();
 
 	const enableSubscriptionsModule = () => {
@@ -26,7 +26,12 @@ export const SubscriptionsPlaceholder = ( { changeStatus } ) => {
 			) }
 			label={ settings.title }
 		>
-			<Button onClick={ enableSubscriptionsModule } variant="secondary">
+			<Button
+				disabled={ isModuleActive || isLoading }
+				isBusy={ isLoading }
+				onClick={ enableSubscriptionsModule }
+				variant="secondary"
+			>
 				{ __( 'Activate Subscriptions', 'jetpack' ) }
 			</Button>
 			<div className="membership-button__disclaimer">

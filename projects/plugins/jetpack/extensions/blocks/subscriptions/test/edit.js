@@ -38,6 +38,8 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	...jest.requireActual( '@automattic/jetpack-shared-extension-utils' ),
 	useModuleStatus: jest.fn().mockReturnValue( {
 		isModuleActive: true,
+		isLoadingModules: false,
+		isChangingStatus: false,
 		changeStatus: jest.fn(),
 	} ),
 } ) );

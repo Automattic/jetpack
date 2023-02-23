@@ -69,7 +69,8 @@ async function isJetpackModuleActive( name ) {
  * @returns {boolean} Whether the module is active.
  */
 const useModuleStatus = name => {
-	const [ isLoading, setIsLoading ] = useState( false );
+	const [ isLoadingModules, setIsLoadingModules ] = useState( Boolean( name ) );
+	const [ isChangingStatus, setIsChangingStatus ] = useState( false );
 	const [ isModuleActive, setModuleStatus ] = useState( false );
 
 	// Get module status.
@@ -78,11 +79,11 @@ const useModuleStatus = name => {
 			return;
 		}
 
-		setIsLoading( true );
+		setIsLoadingModules( true );
 
 		isJetpackModuleActive( name ).then( moduleStatus => {
 			setModuleStatus( moduleStatus );
-			setIsLoading( false );
+			setIsLoadingModules( false );
 		} );
 	}, [ name ] );
 
@@ -91,21 +92,22 @@ const useModuleStatus = name => {
 			if ( ! name || isModuleActive === newModuleStatus ) {
 				return;
 			}
-			setIsLoading( true );
+			setIsChangingStatus( true );
 			changeModuleStatus( name, newModuleStatus )
 				.then( () => {
 					setModuleStatus( newModuleStatus );
-					setIsLoading( false );
+					setIsChangingStatus( false );
 				} )
 				.catch( () => {
-					setIsLoading( false );
+					setIsChangingStatus( false );
 				} );
 		},
 		[ name, isModuleActive ]
 	);
 
-	return useMemo( () => ( { isLoading, isModuleActive, changeStatus } ), [
-		isLoading,
+	return useMemo( () => ( { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } ), [
+		isLoadingModules,
+		isChangingStatus,
 		isModuleActive,
 		changeStatus,
 	] );

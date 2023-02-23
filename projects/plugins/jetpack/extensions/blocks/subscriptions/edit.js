@@ -67,7 +67,9 @@ export function SubscriptionEdit( props ) {
 		fontSize,
 		hasNewsletterPlans,
 	} = props;
-	const { isModuleActive, changeStatus } = useModuleStatus( name );
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus(
+		name
+	);
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -228,8 +230,18 @@ export function SubscriptionEdit( props ) {
 		isModuleActive,
 	] );
 
+	if ( isLoadingModules ) {
+		return null;
+	}
+
 	if ( ! isModuleActive ) {
-		return <SubscriptionsPlaceholder changeStatus={ changeStatus } />;
+		return (
+			<SubscriptionsPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
 	}
 
 	return (

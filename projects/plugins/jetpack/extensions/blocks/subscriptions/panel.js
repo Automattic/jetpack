@@ -45,7 +45,9 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 
 export default function SubscribePanels() {
 	const { tracks } = useAnalytics();
-	const { isModuleActive, changeStatus, isLoading } = useModuleStatus( name );
+	const { isModuleActive, changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus(
+		name
+	);
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
 
@@ -166,10 +168,11 @@ export default function SubscribePanels() {
 						withModal={ false }
 					/>
 				) }
-				{ ! isModuleActive && (
+				{ ! isModuleActive && ! isLoadingModules && (
 					<SubscriptionsPanelPlaceholder>
 						<Button
-							disabled={ isLoading || isModuleActive }
+							disabled={ isModuleActive || isChangingStatus }
+							isBusy={ isChangingStatus }
 							onClick={ enableSubscriptionsModule }
 							variant="secondary"
 						>
@@ -213,10 +216,11 @@ export default function SubscribePanels() {
 						) }
 					</InspectorNotice>
 				) }
-				{ ! isModuleActive && (
+				{ ! isModuleActive && ! isLoadingModules && (
 					<SubscriptionsPanelPlaceholder>
 						<Button
-							disabled={ isLoading || isModuleActive }
+							disabled={ isModuleActive || isChangingStatus }
+							isBusy={ isChangingStatus }
 							onClick={ enableSubscriptionsModule }
 							variant="secondary"
 						>
