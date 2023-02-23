@@ -1819,10 +1819,16 @@ final class ZeroBSCRM {
 
 			// } Catch front end loads :)
 			if ( $this->settings->get( 'killfrontend' ) == 1 ) {
+				global $pagenow;
 
-				// http://wordpress.stackexchange.com/questions/12863/check-if-were-on-the-wp-login-page
-				// } 2.0.2 also allow /wild stuff (e.g. welcome wiz)
-				if ( ! zeroBSCRM_isLoginPage() && ! zeroBSCRM_isWelcomeWizPage() && ! zeroBSCRM_isAPIRequest() ) {
+				if ( ! zeroBSCRM_isLoginPage()
+					&& ! zeroBSCRM_isWelcomeWizPage()
+					&& ! zeroBSCRM_isAPIRequest()
+					&& ! defined( 'XMLRPC_REQUEST' )
+					&& ! defined( 'REST_REQUEST' )
+					// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+					&& ! ( 'index.php' === $pagenow && ! empty( $_GET['rest_route'] ) )
+				) {
 
 					zeroBSCRM_stopFrontEnd();
 

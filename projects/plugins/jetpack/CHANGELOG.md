@@ -2,6 +2,28 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.9-a.5 - 2023-02-20
+### Enhancements
+- Import: add new `automattic/jetpack-import` package. [#28824]
+- Jetpack: improve design of MediaButton component. [#29027]
+- Sharing: update look and feel of sharing buttons when in "official" mode. [#28961]
+
+### Improved compatibility
+- Stats: adjust margin for WordPress.com stats link in Jetpack dashboard. [#28976]
+- VideoPress: extend media button for VideoPress video block. [#29032]
+- VideoPress: restore v5/v6 transform for all platforms. [#28986]
+
+### Bug fixes
+- Form block: update form-styles script to prevent blurred forms on slow loading pages. [#28973]
+- Story block: remove dependency on wp-components from the frontend code. [#28743]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- General: use external link icons for external links. [#28922]
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Writing Prompts (beta): adds initial scaffolding for block. [#29013]
+- WPcom: adjust paid-newsletters UI, add regression tests. [#28690, #28966]
+- WPcom: adjust prompt for AI paragraph block. [#28565]
+
 ## 11.9-a.3 - 2023-02-15
 ### Enhancements
 - Site editor: display location-aware snackbar in edit mode. [#28810]
