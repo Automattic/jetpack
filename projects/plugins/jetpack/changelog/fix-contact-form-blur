@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix styles and remove blur loading effect from form blocks
