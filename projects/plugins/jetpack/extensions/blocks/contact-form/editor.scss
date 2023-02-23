@@ -410,8 +410,6 @@
 	}
 
 	&:focus {
-		background: #fff;
-		border-color: #e3e5e8;
 		box-shadow: none;
 	}
 }
@@ -584,6 +582,19 @@
 	&.is-style-outlined, &.is-style-animated {
 		.jetpack-field {
 			position: relative;
+		}
+	}
+
+	&:not(.is-style-outlined):not(.is-style-animated) {
+		.jetpack-field.jetpack-field-multiple {
+			.jetpack-field-multiple__list {
+				background-color: var(--jetpack--contact-form--input-background);
+				border-radius: var(--jetpack--contact-form--border-radius);
+				border-color: var(--jetpack--contact-form--border-color);
+				border-style: var(--jetpack--contact-form--border-style);
+				border-width: var(--jetpack--contact-form--border-size);
+				padding: var(--jetpack--contact-form--input-padding, 16px);
+			}
 		}
 	}
 
