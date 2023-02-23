@@ -40,7 +40,7 @@ class Test_Connection_Notice extends TestCase {
 		$notice = new Connection_Notice();
 
 		$this->expectOutputRegex( '#Connect to WordPress.com#i' );
-		$this->expectOutputRegex( '#https://jetpack\.wordpress\.com/jetpack\.authorize/1/\?response_type=code#i' );
+		$this->expectOutputRegex( '#https:\/\/jetpack\.wordpress\.com\/jetpack\.authorize\/1\/\?response_type=code#i' );
 
 		$notice->delete_user_update_connection_owner_notice();
 
@@ -54,7 +54,7 @@ class Test_Connection_Notice extends TestCase {
 		$notice = new Connection_Notice();
 
 		$this->expectOutputRegex( '#Set new connection owner#i' );
-		$this->expectOutputRegex( '#http://example\.org/index\.php\?rest_route=/jetpack/v4/connection/owner#i' );
+		$this->expectOutputRegex( '#' . preg_quote( 'http:\/\/example.org\/index.php?rest_route=\/jetpack\/v4\/connection\/owner', '#' ) . '#i' );
 
 		$notice->delete_user_update_connection_owner_notice();
 	}
