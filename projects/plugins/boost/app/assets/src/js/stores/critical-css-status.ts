@@ -145,15 +145,7 @@ export async function requestGeneration(
 			generation_nonce: data.generation_nonce,
 			proxy_nonce: data.proxy_nonce,
 			callback_passthrough: data.callback_passthrough,
-
-			// @REFACTORING TODO: Adjust the "pending_provider_keys" shape
-			// @REFACTORING TODO: Type "sources".
 			sources: data.sources,
-			// @REFACTORING TODO:
-			// These are coming from the Generator class in a roundabout way right now.
-			// Refactor to call a Providers endpoint like we used to have
-
-			provider_success_ratio: data.provider_success_ratio,
 		};
 		set( newState );
 	} else {
