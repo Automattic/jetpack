@@ -205,6 +205,74 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack Protect plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_protect_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-protect-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-protect-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Protect plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_protect_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-protect-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-protect-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to install the Jetpack Protect plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_videopress_install() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-videopress-action' => 'install',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-videopress-install'
+		);
+	}
+
+	/**
+	 * A special filter used in the CTA of a JITM offering to activate the Jetpack Protect plugin.
+	 *
+	 * @return string The new CTA
+	 */
+	public static function jitm_jetpack_videopress_activate() {
+		return wp_nonce_url(
+			add_query_arg(
+				array(
+					'jetpack-videopress-action' => 'activate',
+				),
+				admin_url( 'admin.php?page=jetpack' )
+			),
+			'jetpack-videopress-install'
+		);
+	}
+
+	/**
 	 * Dismisses a JITM feature class so that it will no longer be shown.
 	 *
 	 * @param string $id The id of the JITM that was dismissed.
@@ -250,6 +318,14 @@ class Post_Connection_JITM extends JITM {
 		// Jetpack Boost.
 		add_filter( 'jitm_jetpack_boost_install', array( $this, 'jitm_jetpack_boost_install' ) );
 		add_filter( 'jitm_jetpack_boost_activate', array( $this, 'jitm_jetpack_boost_activate' ) );
+
+		// Jetpack Protect.
+		add_filter( 'jitm_jetpack_protect_install', array( $this, 'jitm_jetpack_protect_install' ) );
+		add_filter( 'jitm_jetpack_protect_activate', array( $this, 'jitm_jetpack_protect_activate' ) );
+
+		// Jetpack VideoPress
+		add_filter( 'jitm_jetpack_videopress_install', array( $this, 'jitm_jetpack_videopress_install' ) );
+		add_filter( 'jitm_jetpack_videopress_activate', array( $this, 'jitm_jetpack_videopress_activate' ) );
 
 		$user = wp_get_current_user();
 

@@ -27,6 +27,8 @@ function load_3rd_party() {
 		'creative-mail.php',
 		'jetpack-backup.php',
 		'jetpack-boost.php',
+		'jetpack-protect.php',
+		'jetpack-videopress.php',
 		'debug-bar.php',
 		'class-domain-mapping.php',
 		'crowdsignal.php',
