@@ -108,7 +108,7 @@ const PricingPage = () => {
 						offPrice={ firstMonthIntroOffer }
 						legend={ sprintf(
 							// translators: %s is the regular monthly price
-							__( 'trial for the first month, then $%s /month', 'jetpack-social' ),
+							__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-social' ),
 							monthlyAdvancedPrice
 						) }
 						currency="USD"
