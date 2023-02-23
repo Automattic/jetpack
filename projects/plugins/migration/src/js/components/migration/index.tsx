@@ -130,7 +130,7 @@ export function Migration( props: Props ) {
 					isSecondary={ true }
 					target={ '_blank' }
 					href={ getRedirectUrl(
-						'https://wordpress.com/support/import/import-an-entire-wordpress-site/'
+						'https://wordpress.com/support/import-using-wordpress-migration/'
 					) }
 				>
 					{ createInterpolateElement( __( 'Learn more <ExternalLink />', 'wpcom-migration' ), {
