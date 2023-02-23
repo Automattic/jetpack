@@ -6,10 +6,6 @@ import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
-/**
- * Internal dependencies
- */
-import vpBlockBridge from '../../scripts/vp-block-bridge';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -34,11 +30,12 @@ if ( window.videopressAjax ) {
 	);
 }
 
+if ( window?.videoPressEditorState?.playerBridgeUrl ) {
+	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+}
+
 // Define a debug instance for block bridge.
 window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
-
-// Load VideoPressBlock bridge script.
-globalScripts.push( vpBlockBridge );
 
 /**
  * VideoPlayer react component
@@ -140,24 +137,29 @@ export default function VideoPressPlayer( {
 
 	/*
 	 * Callback state handler for the video player
-	 * tied to the `onVideoPressLoadingState` event,
+	 * tied to the `message` event,
 	 * provided by the videopress player through the bridge.
 	 */
-	const onVideoLoadingStateHandler = useCallback( ( { detail } ) => {
-		setIsVideoPlayerLoaded( detail?.state === 'loaded' );
+	const onVideoLoadingStateHandler = useCallback( ev => {
+		const eventName = ev?.data?.event;
+		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
+			return;
+		}
+
+		const playerLoadingState = ev?.data?.state;
+		setIsVideoPlayerLoaded( playerLoadingState === 'loaded' );
 	}, [] );
 
-	// Listen to the `onVideoPressLoadingState` event.
+	// Listen to the `message` event.
 	useEffect( () => {
 		if ( ! window ) {
 			return;
 		}
 
-		window.addEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
+		window.addEventListener( 'message', onVideoLoadingStateHandler );
 
-		return () =>
-			window?.removeEventListener( 'onVideoPressLoadingState', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, window, html ] );
+		return () => window?.removeEventListener( 'message', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler ] );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {

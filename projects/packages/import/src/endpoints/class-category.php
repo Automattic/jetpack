@@ -64,7 +64,7 @@ class Category extends \WP_REST_Terms_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		if ( isset( $request['parent'] ) ) {
+		if ( ! empty( $request['parent'] ) ) {
 			$parent = get_term_by( 'slug', $request['parent'], 'category' );
 
 			// Overwrite the parent ID with the parent term ID found using the slug.
@@ -74,29 +74,5 @@ class Category extends \WP_REST_Terms_Controller {
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );
-	}
-
-	/**
-	 * Update the category parent ID.
-	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
-	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$categories = \get_categories( $this->get_import_db_query( $parent_import_id ) );
-
-		if ( is_array( $categories ) && count( $categories ) === 1 ) {
-			$parent_id = $categories[0];
-
-			return (bool) \wp_update_category(
-				array(
-					'cat_ID'          => $resource_id,
-					'category_parent' => $parent_id,
-				)
-			);
-		}
-
-		return false;
 	}
 }

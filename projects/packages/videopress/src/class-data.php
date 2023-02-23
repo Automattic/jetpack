@@ -237,15 +237,23 @@ class Data {
 		// Tweak local videos data.
 		$local_videos = array_map(
 			function ( $video ) {
+				$video              = (array) $video;
 				$id                 = $video['id'];
 				$media_details      = $video['media_details'];
 				$jetpack_videopress = $video['jetpack_videopress'];
+				$read_error         = null;
+
+				// In malformed files, the media_details or jetpack_videopress properties are not arrays.
+				if ( ! is_array( $media_details ) || ! is_array( $jetpack_videopress ) ) {
+					$media_details      = (array) $media_details;
+					$jetpack_videopress = (array) $jetpack_videopress;
+					$read_error         = Upload_Exception::ERROR_MALFORMED_FILE;
+				}
 
 				// Check if video is already uploaded to VideoPress or has some error.
 				try {
 					$uploader                  = new Uploader( $id );
 					$is_uploaded_to_videopress = $uploader->is_uploaded();
-					$read_error                = null;
 				} catch ( Upload_Exception $e ) {
 					$is_uploaded_to_videopress = false;
 					$read_error                = $e->getCode();
@@ -282,10 +290,11 @@ class Data {
 		// Tweak VideoPress videos data.
 		$videos = array_map(
 			function ( $video ) {
+				$video              = (array) $video;
 				$id                 = $video['id'];
 				$guid               = $video['jetpack_videopress_guid'];
-				$media_details      = $video['media_details'];
-				$jetpack_videopress = $video['jetpack_videopress'];
+				$media_details      = (array) $video['media_details'];
+				$jetpack_videopress = (array) $video['jetpack_videopress'];
 
 				$videopress_media_details = $media_details['videopress'];
 				$width                    = $media_details['width'];

@@ -228,13 +228,14 @@ class Woo_Sync {
 	 */
 	public function get_woo_order_statuses() {
 		$woo_order_statuses = array(
-			'wcpending'    => __( 'Pending', 'zero-bs-crm' ),
-			'wcprocessing' => __( 'Processing', 'zero-bs-crm' ),
-			'wconhold'     => __( 'On hold', 'zero-bs-crm' ),
-			'wccompleted'  => __( 'Completed', 'zero-bs-crm' ),
-			'wccancelled'  => __( 'Cancelled', 'zero-bs-crm' ),
-			'wcrefunded'   => __( 'Refunded', 'zero-bs-crm' ),
-			'wcfailed'     => __( 'Failed', 'zero-bs-crm' ),
+			'wcpending'       => __( 'Pending', 'zero-bs-crm' ),
+			'wcprocessing'    => __( 'Processing', 'zero-bs-crm' ),
+			'wconhold'        => __( 'On hold', 'zero-bs-crm' ),
+			'wccompleted'     => __( 'Completed', 'zero-bs-crm' ),
+			'wccancelled'     => __( 'Cancelled', 'zero-bs-crm' ),
+			'wcrefunded'      => __( 'Refunded', 'zero-bs-crm' ),
+			'wcfailed'        => __( 'Failed', 'zero-bs-crm' ),
+			'wccheckoutdraft' => __( 'Draft', 'zero-bs-crm' ),
 		);
 		return apply_filters( 'zbs-woo-additional-status', $woo_order_statuses );
 	}
@@ -1531,13 +1532,14 @@ class Woo_Sync {
 		$setting_prefix = $this->get_woo_order_mapping_types()[ $crm_type ]['prefix'];
 
 		return array(
-			'completed'  => $setting_prefix . 'wccompleted',
-			'on-hold'    => $setting_prefix . 'wconhold',
-			'cancelled'  => $setting_prefix . 'wccancelled',
-			'processing' => $setting_prefix . 'wcprocessing',
-			'refunded'   => $setting_prefix . 'wcrefunded',
-			'failed'     => $setting_prefix . 'wcfailed',
-			'pending'    => $setting_prefix . 'wcpending',
+			'completed'      => $setting_prefix . 'wccompleted',
+			'on-hold'        => $setting_prefix . 'wconhold',
+			'cancelled'      => $setting_prefix . 'wccancelled',
+			'processing'     => $setting_prefix . 'wcprocessing',
+			'refunded'       => $setting_prefix . 'wcrefunded',
+			'failed'         => $setting_prefix . 'wcfailed',
+			'pending'        => $setting_prefix . 'wcpending',
+			'checkout-draft' => $setting_prefix . 'wccheckoutdraft',
 		);
 	}
 

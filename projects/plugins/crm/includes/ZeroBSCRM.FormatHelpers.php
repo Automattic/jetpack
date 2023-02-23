@@ -1148,7 +1148,6 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	    return $start_d . ' - ' . $end_d;
 	}
 
-	// phpcs:disable
 /* ======================================================
   /	Tasks
    ====================================================== */
@@ -1960,4 +1959,3 @@ function zeroBSCRM_outputEmailHistory($userID = -1){
    		return $migrationName;
    		
    }
-// phpcs: enable

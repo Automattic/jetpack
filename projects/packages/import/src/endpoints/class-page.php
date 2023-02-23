@@ -20,26 +20,21 @@ class Page extends Post {
 	}
 
 	/**
-	 * Update the post parent ID.
+	 * Creates a single page.
 	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$pages = \get_pages( $this->get_import_db_query( $parent_import_id ) );
+	public function create_item( $request ) {
+		if ( ! empty( $request['parent'] ) ) {
+			$pages = \get_pages( $this->get_import_db_query( $request['parent'] ) );
 
-		if ( is_array( $pages ) && count( $pages ) === 1 ) {
-			$parent_id = $pages[0]->ID;
-
-			return (bool) \wp_update_post(
-				array(
-					'ID'          => $resource_id,
-					'post_parent' => $parent_id,
-				)
-			);
+			// Overwrite the page parent page ID.
+			$request['parent'] = is_array( $pages ) && count( $pages ) ? $pages[0]->ID : 0;
 		}
 
-		return false;
+		$response = parent::create_item( $request );
+
+		return $this->add_import_id_metadata( $request, $response );
 	}
 }
