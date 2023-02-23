@@ -70,8 +70,6 @@ jQuery( document ).ready( function ( $ ) {
 
 				var ajaxAction = envelope.CTA.ajax_action;
 
-				console.log(envelope);
-
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
