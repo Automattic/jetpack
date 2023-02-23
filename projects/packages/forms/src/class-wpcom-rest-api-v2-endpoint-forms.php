@@ -107,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				return array(
 					'id'                      => $response->ID,
 					'uid'                     => $data['all_fields']['feedback_id'],
-					'date'                    => get_the_date( 'c', $data ),
+					'date'                    => get_the_date( 'c', $response ),
 					'author_name'             => $data['_feedback_author'],
 					'author_email'            => $data['_feedback_author_email'],
 					'author_url'              => $data['_feedback_author_url'],
