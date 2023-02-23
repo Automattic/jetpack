@@ -27,7 +27,7 @@ class Generator {
 	public $state;
 
 	public function __construct( $state = 'local' ) {
-		$this->state = new Critical_CSS_State( $state );
+		$this->state = new  Critical_CSS_State( $state );
 		$this->paths = new Source_Providers();
 		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
 			$this->state->create_request( $this->paths->get_providers() );

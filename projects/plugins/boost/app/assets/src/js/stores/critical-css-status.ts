@@ -1,29 +1,15 @@
-import { derived, writable } from 'svelte/store';
+import { derived, writable, get } from 'svelte/store';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { z } from 'zod';
 import api from '../api/api';
+import { criticalCSSState, CriticalCssStatusSchema } from './critical-css-status-ds';
 import { modules } from './modules';
 import type { CriticalCssIssue } from './critical-css-recommendations';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
 
-export interface CriticalCssStatus {
-	progress: number;
-	retried_show_stopper?: boolean;
-	callback_passthrough?: JSONObject;
-	generation_nonce?: string;
-	proxy_nonce?: string;
-	pending_provider_keys?: ProviderKeyUrls;
-	provider_success_ratio?: ProvidersSuccessRatio;
-	status: string;
-	updated?: number;
-	core_providers?: string[];
-	core_providers_status?: string;
-	status_error?: Error | string;
-	success_count?: number;
-	created?: number;
-	viewports?: Viewport[];
-	issues?: CriticalCssIssue[];
-}
+export type CriticalCssStatus = z.infer< typeof CriticalCssStatusSchema >;
 
 const SUCCESS = 'success';
 const FAIL = 'fail';
@@ -36,16 +22,11 @@ const resetState = {
 	status: 'not_generated',
 };
 
-const initialState = Jetpack_Boost.criticalCSS?.status || resetState;
-
-const store = writable< CriticalCssStatus >( initialState );
+const store = criticalCSSState.store;
 const { subscribe, update } = store;
 
-let status: CriticalCssStatus;
-subscribe( state => ( status = state ) );
-
 export function getStatus() {
-	return status;
+	return get( store );
 }
 
 /**
