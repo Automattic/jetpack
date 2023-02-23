@@ -40,6 +40,14 @@ export const ErrorSetSchema = z.object( {
 	byUrl: z.record( CriticalCssErrorDetailsSchema ),
 } );
 
+const ProviderSourcesSchema = z.record(
+	z.object( {
+		urls: z.array( z.coerce.string() ),
+		success_ratio: z.coerce.number(),
+		label: z.coerce.string(),
+	} )
+);
+export type ProviderSources = z.infer< typeof ProviderSourcesSchema >;
 export const CriticalCssStatusSchema = z
 	.object( {
 		progress: z.coerce.number(),
@@ -48,13 +56,7 @@ export const CriticalCssStatusSchema = z
 		generation_nonce: z.coerce.string().optional(),
 		proxy_nonce: z.coerce.string().optional(),
 		// Source provider information - which URLs to generate CSS for.
-		sources: z.record(
-			z.object( {
-				urls: z.array( z.coerce.string() ),
-				success_ratio: z.coerce.number(),
-				label: z.coerce.string(),
-			} )
-		),
+		sources: ProviderSourcesSchema,
 		status: z.coerce.string(),
 		updated: z.coerce.number().optional(),
 		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
@@ -91,9 +93,3 @@ export const criticalCssDS = client.createAsyncStore(
 	'critical_css_state',
 	CriticalCssStatusSchema
 );
-
-criticalCssDS.store.subscribe( state => {
-	// @REFACTORING: Helper function to log state changes.
-	// eslint-disable-next-line no-console
-	console.log( 'criticalCSSState', state );
-} );

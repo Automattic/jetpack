@@ -7,7 +7,11 @@ import setProviderIssue, {
 	storeGenerateError,
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
-import { CriticalCssIssue, Critical_CSS_Error_Type } from '../stores/critical-css-status-ds';
+import {
+	CriticalCssIssue,
+	Critical_CSS_Error_Type,
+	ProviderSources,
+} from '../stores/critical-css-status-ds';
 import { JSONObject, suggestRegenerateDS } from '../stores/data-sync-client';
 import { modules, isModuleEnabledStore } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
@@ -104,10 +108,8 @@ export default async function generateCriticalCss(
 		logPreCriticalCSSGeneration();
 
 		// @REFACTORING: Add Toast error handling if sources missing
-		const sourcesExist = Object.keys( cssStatus.sources ).length > 0;
-		if ( sourcesExist ) {
+		if ( Object.keys( cssStatus.sources ).length > 0 ) {
 			await generateForKeys(
-				// @REFACTORING: Fix type error.
 				cssStatus.sources,
 				requestGetParameters,
 				cssStatus.viewports as Viewport[],
@@ -170,8 +172,7 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
-	// @REFACTORING: Reuse type from the zod definition
-	sources: Record< string, { urls: string[]; success_ratio: number; label: string } >,
+	sources: ProviderSources,
 	requestGetParameters: { [ key: string ]: string },
 	viewports: Viewport[],
 	passthrough: JSONObject,
