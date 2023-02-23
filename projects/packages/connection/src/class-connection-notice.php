@@ -176,7 +176,7 @@ class Connection_Notice {
 								submitBtn.disabled = false;
 
 								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
-									results.innerHTML = "<?php esc_html_e( 'Success!', 'jetpack-connection' ); ?>";
+									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 									setTimeout(function () {
 										document.getElementById( 'jetpack-notice-switch-connection-owner' ).style.display = 'none';
 									}, 1000);
