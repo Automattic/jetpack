@@ -1,4 +1,4 @@
-# WordPress.com Features (jetpack-mu-wpcom)
+# WordPress.com Features (jetpack-mu-wpcom)!
 
 Note: This package is intended for internal use by WordPress.com only.
 
