@@ -33,6 +33,7 @@ class Jetpack_Mu_Wpcom {
 		if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		}
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -52,5 +53,12 @@ class Jetpack_Mu_Wpcom {
 		) {
 			require_once __DIR__ . '/features/coming-soon/coming-soon.php';
 		}
+	}
+
+	/**
+	 * Load WP REST API plugins for wpcom
+	 */
+	public static function load_wpcom_rest_api_endpoints() {
+		wpcom_rest_api_v2_load_plugin_files( 'features/wpcom-endpoints/*.php' );
 	}
 }
