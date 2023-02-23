@@ -49,7 +49,16 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 		debouncedSetColors( colorToUpdate );
 	}, [] );
 
-	const resetStaticColors = useCallback( () => setAttributes( { useAverageColor: true } ), [] );
+	const resetStaticColors = useCallback( () => {
+		setColorsState( {} );
+
+		setAttributes( {
+			useAverageColor: true,
+			seekbarColor: '',
+			seekbarLoadingColor: '',
+			seekbarPlayedColor: '',
+		} );
+	}, [] );
 
 	return (
 		<ToolsPanelItem
