@@ -15,7 +15,6 @@ use WP_REST_Server;
 
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
- * Routes are defined on Jetpack Plugin as WPCOM_REST_API_V2_Endpoint_Forms.
  */
 class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	/**
@@ -39,9 +38,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 	/**
 	 * Registers the REST routes.
-	 *
-	 * Odyssey Stats is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
-	 * The current Site ID is added as part of the route, so that the front end doesn't have to handle the differences.
 	 *
 	 * @access public
 	 */
