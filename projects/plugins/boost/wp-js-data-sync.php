@@ -5,8 +5,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
 
-
-if( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
+if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 }
 /**
@@ -14,7 +13,7 @@ if( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  */
 function jetpack_boost_register_option( $name, $handler ) {
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	               ->register( $name, $handler );
+					->register( $name, $handler );
 }
 
 /**
@@ -27,15 +26,27 @@ function jetpack_boost_ds( $name ) {
 }
 
 function jetpack_boost_ds_get( $option ) {
-	return jetpack_boost_ds( $option )->get();
+	$option = jetpack_boost_ds( $option );
+	if ( ! $option ) {
+		return null;
+	}
+	return $option->get();
 }
 
 function jetpack_boost_ds_set( $option, $value ) {
-	return jetpack_boost_ds( $option )->set( $value );
+	$option = jetpack_boost_ds( $option );
+	if ( ! $option ) {
+		return null;
+	}
+	return $option->set( $value );
 }
 
 function jetpack_boost_ds_delete( $option ) {
-	return jetpack_boost_ds( $option )->delete();
+	$option = jetpack_boost_ds( $option );
+	if ( ! $option ) {
+		return null;
+	}
+	return $option->delete();
 }
 
 /**
@@ -43,13 +54,11 @@ function jetpack_boost_ds_delete( $option ) {
  */
 add_action(
 	'admin_init',
-	function() {
+	function () {
 		$options = Data_Sync::setup( JETPACK_BOOST_DATASYNC_NAMESPACE, 'jetpack-boost-admin' );
 		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
 	}
 );
-
-
 
 /**
  * Register Data Sync Stores

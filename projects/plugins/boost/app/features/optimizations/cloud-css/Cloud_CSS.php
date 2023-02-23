@@ -73,10 +73,9 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		// Get the Critical CSS to show.
 		$critical_css = $this->paths->get_current_request_css();
 		if ( ! $critical_css ) {
-			$source_providers = new Source_Providers();
-			$keys             = $source_providers->get_current_request_css_keys();
-			$state            = new Critical_CSS_State( 'cloud' );
-			$pending          = $state->has_pending_provider( $keys );
+			$keys    = $this->paths->get_current_request_css_keys();
+			$state   = new Critical_CSS_State( 'cloud' );
+			$pending = $state->has_pending_provider( $keys );
 
 			// If Cloud CSS is still generating and the user is logged in, render the status information in a comment.
 			if ( $pending && is_user_logged_in() ) {
@@ -103,13 +102,10 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 *
 	 * @param \WP_Post|null $post Post of any post type to limit provider groups.
 	 */
-	public function generate_cloud_css( $post = null ) {
+	public function generate_cloud_css() {
 		$state            = new Critical_CSS_State( 'cloud' );
-		$source_providers = new Source_Providers();
-		if ( $post ) {
-			$state->add_request_context( $post );
-		}
-		$state->create_request( $source_providers->get_providers() );
+		// @REFACTORING: Restore Cloud CSS Functionality
+		// $state->create_request( $this->paths->get_providers() );
 
 		$client    = new Cloud_CSS_Request();
 		$providers = $state->get_provider_urls();

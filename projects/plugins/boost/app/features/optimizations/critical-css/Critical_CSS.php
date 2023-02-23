@@ -6,6 +6,7 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -97,6 +98,8 @@ class Critical_CSS implements Feature, Has_Endpoints {
 		add_filter( 'style_loader_tag', array( $display, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $display, 'onload_flip_stylesheets' ) );
 
+		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
+
 		// Ensure admin bar compatibility.
 		Admin_Bar_Compatibility::init();
 	}
@@ -115,6 +118,24 @@ class Critical_CSS implements Feature, Has_Endpoints {
 			// Turn off display of admin bar.
 			add_filter( 'show_admin_bar', '__return_false', PHP_INT_MAX );
 		}
+	}
+
+	/**
+	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
+	 *
+	 * @param array $constants Constants to be passed to JavaScript.
+	 *
+	 * @return array
+	 */
+	public function add_critical_css_constants( $constants ) {
+		// Information about the current status of Critical CSS / generation.
+		$constants['criticalCSS'] = array(
+			// @REFACTORING TODO: Move this to a separate DS option?
+			// This is currently in an awkward place.
+			'suggestRegenerate' => ! Critical_CSS_State::is_fresh(),
+		);
+
+		return $constants;
 	}
 
 	/**

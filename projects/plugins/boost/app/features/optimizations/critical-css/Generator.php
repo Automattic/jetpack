@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 
@@ -12,63 +10,10 @@ class Generator {
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
 	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
 
-	/**
-	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
-	 * the whole process should be considered broken.
-	 */
-	const CORE_PROVIDER_KEYS = array(
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-		'singular_product',
-	);
+	private $paths;
 
-	public $state;
-
-	public function __construct( $state = 'local' ) {
-		$this->state = new Critical_CSS_State( $state );
+	public function __construct() {
 		$this->paths = new Source_Providers();
-	}
-
-	/**
-	 * Given a provider key, find the provider which owns the key. Returns false
-	 * if no Provider is found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return Provider|false|string
-	 */
-	public function find_provider_for( $provider_key ) {
-		foreach ( $this->paths->get_providers() as $provider ) {
-			if ( $provider::owns_key( $provider_key ) ) {
-				return $provider;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns a descriptive label for a provider key, or the raw provider key
-	 * if none found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return mixed
-	 */
-	public function describe_provider_key( $provider_key ) {
-		$provider = $this->find_provider_for( $provider_key );
-		if ( ! $provider ) {
-			return $provider_key;
-		}
-
-		/**
-		 * Provider key.
-		 *
-		 * @param string $provider_key
-		 */
-		return $provider::describe_key( $provider_key );
 	}
 
 	/**
@@ -117,6 +62,7 @@ class Generator {
 		// This method should be moved inside critical_css_state DataSync handling class
 		// to pre-populate the data on request and strip it out when receiving the data
 		// so that it's not persisted in the db.
+		$status = array();
 
 		// Add viewport sizes.
 		$status['viewports'] = array(

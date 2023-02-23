@@ -106,7 +106,7 @@ export default async function generateCriticalCss(
 
 		// @REFACTORING: Add Toast error handling if sources missing
 		const sourcesExist = Object.keys( cssStatus.sources ).length > 0;
-		if( sourcesExist ) {
+		if ( sourcesExist ) {
 			await generateForKeys(
 				// @REFACTORING: Fix type error.
 				cssStatus.sources,
@@ -117,7 +117,6 @@ export default async function generateCriticalCss(
 				cssStatus.proxy_nonce
 			);
 		}
-
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
 		if ( ! cancelling ) {
@@ -164,16 +163,16 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {sources}            sources              - Set of URLs to use for each provider key
+ * @param {Object}             sources              - Set of URLs to use for each provider key
  * @param {Object}             requestGetParameters - GET parameters to include with each request.
  * @param {Viewport[]}         viewports            - Viewports to generate with.
  * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
  * @param {MajorMinorCallback} callback             - Callback to send minor / major progress step info to.
- * @param {Array}              successRatios        - Success ratios.
  * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
-	sources: Record< string, { urls: string[]; success_ratio: number } >,
+	// @REFACTORING: Reuse type from the zod definition
+	sources: Record< string, { urls: string[]; success_ratio: number; label: string } >,
 	requestGetParameters: { [ key: string ]: string },
 	viewports: Viewport[],
 	passthrough: JSONObject,
@@ -192,7 +191,7 @@ async function generateForKeys(
 
 	// Run through each set of URLs.
 	for ( const [ providerKey, provider ] of Object.entries( sources ) ) {
-		const { urls, success_ratio } = provider;
+		const { urls, success_ratio, label } = provider;
 		callback( ++majorStep, majorSteps, 0, 0 );
 		try {
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
@@ -243,7 +242,7 @@ async function generateForKeys(
 					};
 				} );
 				const issue: CriticalCssIssue = {
-					provider_name: providerKey, // @REFACTORING: This should be the display name
+					provider_name: label,
 					key: providerKey,
 					status: 'active',
 					errors: errorsWithURLs,
@@ -300,7 +299,7 @@ async function generateForKeys(
 			error_count: stepsFailed,
 			average_size: totalSize / Math.max( 1, stepsPassed ),
 			max_size: maxSize,
-			provider_keys: Object.keys( providerKeys ).join( ',' ),
+			provider_keys: Object.keys( sources ).join( ',' ),
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}

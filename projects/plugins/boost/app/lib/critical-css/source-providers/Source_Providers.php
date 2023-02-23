@@ -117,6 +117,7 @@ class Source_Providers {
 				// Track the state and errors in a state array.
 				$sources[ $key ] = array(
 					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
+					'label'         => $provider::describe_key( $key ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);
 			}

@@ -68,16 +68,29 @@ class Critical_CSS_Insert implements Endpoint {
 			);
 		}
 
-		$storage   = new Critical_CSS_Storage();
+		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $cache_key, $params['data'] );
 
 		Critical_CSS_State::set_fresh();
 
+		/**
+		 * Fires when Critical CSS has been generated - whether locally or remotely.
+		 *
+		 * @since 1.5.2
+		 */
+		$status = jetpack_boost_ds_get( 'critical_css_state' );
+		// @REFACTORING: Add backwards compatibility and ensure this is fired once.
+		// We may need a final "done" call so that this isn't triggered multiple times.
+		// This is a hot endpoint - it's called multiple times during generation.
+		if ( isset( $status['progess'] ) && $status['progress'] === 100 ) {
+			do_action( 'jetpack_boost_critical_css_generated', $status );
+		}
+
 		// Set status to success to indicate the critical CSS data has been stored on the server.
 		return rest_ensure_response(
 			array(
-				'status'        => 'success',
-				'code'          => 'processed',
+				'status' => 'success',
+				'code'   => 'processed',
 			)
 		);
 	}

@@ -16,10 +16,9 @@ use Automattic\Jetpack_Boost\Lib\Transient;
  */
 class Critical_CSS_State {
 
-	const NOT_GENERATED = 'not_generated';
-	const SUCCESS       = 'success';
-	const FAIL          = 'error';
-	const REQUESTING    = 'requesting';
+	const SUCCESS    = 'success';
+	const FAIL       = 'error';
+	const REQUESTING = 'requesting';
 
 	const KEY_PREFIX = 'critical_css_state-';
 
@@ -61,14 +60,6 @@ class Critical_CSS_State {
 	protected $request_name;
 
 	/**
-	 * Posts for which the Critical CSS request is created. Limit provider groups to only the ones related to posts in
-	 * this array.
-	 *
-	 * @var int[]
-	 */
-	protected $context_posts = array();
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct( $request_name = 'local' ) {
@@ -95,6 +86,8 @@ class Critical_CSS_State {
 	}
 
 	private function get_state_transient() {
+		// @REFACTORING TODO:
+		// Use jetpack_boost_ds_get('critical_css_state');
 		return Transient::get(
 			$this->get_key(),
 			array(
@@ -105,10 +98,6 @@ class Critical_CSS_State {
 				'sources'     => array(),
 			)
 		);
-	}
-
-	public function get_provider_issue_status() {
-		return $this->collate_column( 'issue_status' );
 	}
 
 	public function maybe_set_status() {
@@ -128,6 +117,8 @@ class Critical_CSS_State {
 	 * Save the Critical CSS state.
 	 */
 	public function save() {
+		// @REFACTORING TODO:
+		// Use jetpack_boost_ds_set('critical_css_state');
 		Transient::set(
 			$this->get_key(),
 			array(
@@ -138,15 +129,6 @@ class Critical_CSS_State {
 				'sources'     => $this->sources,
 			)
 		);
-	}
-
-	/**
-	 * Add a context to the Critical CSS state.
-	 *
-	 * @return string
-	 */
-	public function add_request_context( $post ) {
-		$this->context_posts[] = $post;
 	}
 
 	/**
@@ -174,99 +156,12 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Get Critical CSS state error.
-	 *
-	 * @return mixed
-	 */
-	public function get_state_error() {
-		return $this->state_error;
-	}
-
-	/**
-	 * Set source success.
-	 *
-	 * @todo Maybe rename to set_provider_success.
-	 *
-	 * @param string $key Provider key.
-	 */
-	public function set_source_success( $key ) {
-		// If this success was result of a retry by Cloud_CSS_Cron. This provider may contain error data from the
-		// original attempt. We have to remove that first.
-		$this->sources[ $key ]['error'] = null;
-
-		$this->set_source_status( $key, self::SUCCESS );
-	}
-
-	/**
-	 * Set source error.
-	 *
-	 * @todo Maybe rename to set_provider_error.
-	 *
-	 * @param string $key Provider key.
-	 * @param array  $error Provider error.
-	 */
-	public function set_source_error( $key, $error ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['error'] = $error;
-			$this->set_source_status( $key, self::FAIL );
-		}
-	}
-
-	/**
 	 * Get the transient key name.
 	 *
 	 * @return string
 	 */
 	public function get_key() {
 		return self::KEY_PREFIX . $this->request_name;
-	}
-
-	/**
-	 * Set source status.
-	 *
-	 * @todo Maybe rename to set_provider_status.
-	 *
-	 * @param string $key Provider key.
-	 * @param string $status Provider status.
-	 */
-	private function set_source_status( $key, $status ) {
-		if ( isset( $this->sources[ $key ] ) ) {
-			$this->sources[ $key ]['status'] = $status;
-		}
-
-		if ( 100 === $this->get_percent_complete() ) {
-			$this->state = self::SUCCESS;
-
-			/**
-			 * Fires when Critical CSS has been generated - whether locally or remotely.
-			 *
-			 * @since 1.5.2
-			 */
-			do_action( 'jetpack_boost_critical_css_generated', $this->state );
-		}
-
-		$this->save();
-	}
-
-	/**
-	 * Get the core providers' status.
-	 *
-	 * @param array $keys Providers keys.
-	 *
-	 * @return string
-	 */
-	public function get_core_providers_status( $keys ) {
-		$errors = $this->collate_column( 'error' );
-		$status = 'success';
-
-		foreach ( $errors as $key => $error ) {
-			if ( ! empty( $error ) && in_array( $key, $keys, true ) ) {
-				$status = 'error';
-				break;
-			}
-		}
-
-		return $status;
 	}
 
 	public function has_pending_provider( $providers = array() ) {
@@ -283,49 +178,6 @@ class Critical_CSS_State {
 			}
 		}
 		return $pending;
-	}
-
-	/**
-	 * Get providers errors.
-	 *
-	 * @return array
-	 */
-	public function get_providers_errors() {
-		$errors = $this->collate_column( 'error' );
-
-		return array_filter( $errors );
-	}
-
-	/**
-	 * Returns the start time of this Critical CSS request.
-	 *
-	 * @return int
-	 */
-	public function get_created_time() {
-		return $this->created;
-	}
-
-	public function get_updated_time() {
-		$state = $this->get_state_transient();
-		return $state['updated'];
-	}
-
-	/**
-	 * Returns true if all provider keys have finished processing (whether successful or not).
-	 *
-	 * @return bool
-	 */
-	public function is_done() {
-		return self::SUCCESS === $this->state;
-	}
-
-	/**
-	 * Return true if the Critical CSS state is empty.
-	 *
-	 * @return bool
-	 */
-	public function is_empty() {
-		return empty( $this->state );
 	}
 
 	/**
@@ -387,42 +239,6 @@ class Critical_CSS_State {
 	}
 
 	/**
-	 * Get the success ratio for the provider.
-	 *
-	 * @return array
-	 */
-	public function get_provider_success_ratios() {
-		return $this->collate_column( 'success_ratio' );
-	}
-
-	public function get_total_providers_count() {
-		return count( $this->sources );
-	}
-
-	/**
-	 * Returns the number of requests that were processed whether there was an error.
-	 *
-	 * @return int
-	 */
-	public function get_processed_providers_count() {
-		$source_status = $this->collate_column( 'status' );
-		$successes     = array();
-
-		foreach ( $source_status as $status ) {
-			/**
-			 * Note:
-			 * "Success" is currently considered anything that's not Requesting.
-			 * That's because Critical CSS generation can also end with failure.
-			 */
-			if ( self::REQUESTING !== $status ) {
-				$successes[] = $status;
-			}
-		}
-
-		return count( $successes );
-	}
-
-	/**
 	 * Returns the number of requests that were successfully finished. i.e.: number of blocks stored.
 	 *
 	 * @return int
@@ -443,15 +259,6 @@ class Critical_CSS_State {
 		}
 
 		return count( $successes );
-	}
-
-	/**
-	 * Returns the percentage of requests that are finished processing successfully even though there are some providers having some error.
-	 *
-	 * @return int
-	 */
-	public function get_percent_complete() {
-		return $this->get_processed_providers_count() * 100 / max( 1, count( $this->sources ) );
 	}
 
 	/**

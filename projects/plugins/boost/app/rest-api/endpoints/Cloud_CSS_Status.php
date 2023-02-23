@@ -22,7 +22,7 @@ class Cloud_CSS_Status implements Contracts\Endpoint {
 
 	//phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		return jetpack_boost_ds_get( 'critical_css_status' );
+		return jetpack_boost_ds_get( 'critical_css_state' );
 	}
 
 	public function permissions() {
