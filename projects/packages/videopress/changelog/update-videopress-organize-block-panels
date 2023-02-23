@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-VideoPress: reorganize video block settings sidebar using tabs
+VideoPress: move the Playback Bar color panel into the colors panel group
