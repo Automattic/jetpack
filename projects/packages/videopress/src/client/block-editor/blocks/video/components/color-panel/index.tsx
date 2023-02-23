@@ -3,6 +3,7 @@
  */
 import { PanelColorSettings } from '@wordpress/block-editor';
 import {
+	PanelRow,
 	ToggleControl,
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 	__experimentalToolsPanelItem as ToolsPanelItem,
@@ -52,6 +53,7 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 
 	return (
 		<ToolsPanelItem
+			className="videopress-playback-bar-colors-panel-item"
 			hasValue={ () => ! useAverageColor }
 			label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
 			resetAllFilter={ resetStaticColors }
@@ -59,6 +61,10 @@ export default function ColorPanel( { clientId, attributes, setAttributes }: Vid
 			panelId={ clientId }
 			onDeselect={ resetStaticColors }
 		>
+			<PanelRow className="videopress-color-panel__title">
+				{ __( 'Playback bar colors', 'jetpack-videopress-pkg' ) }
+			</PanelRow>
+
 			<ToggleControl
 				label={ __( 'Dynamic color', 'jetpack-videopress-pkg' ) }
 				help={
