@@ -9,7 +9,7 @@ import {
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
 import { modules, isModuleEnabledStore } from '../stores/modules';
-import { recordBoostEvent, type TracksEventProperties } from './analytics';
+import { recordBoostEvent, TracksEventProperties } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
 import { isSameOrigin } from './is-same-origin';
