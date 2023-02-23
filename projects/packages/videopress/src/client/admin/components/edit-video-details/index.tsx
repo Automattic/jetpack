@@ -141,6 +141,7 @@ const Infos = ( {
 					onEnter={ noop }
 					type="textarea"
 					size="large"
+					rows={ 4 }
 				/>
 			) }
 		</>
