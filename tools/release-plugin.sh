@@ -71,14 +71,19 @@ shift "$(($OPTIND -1))"
 [[ $# -gt 2 ]] && die "Too many arguments specified! Only provide a project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 
 # Get the project slug.
-PROJECT=
+PROJECTS=()
 SLUG="${1#projects/}" # DWIM
 SLUG="${SLUG%/}" # Sanitize
 if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
 	yellow "Project found: $SLUG"
-	PROJECT="$SLUG"
+	PROJECTS+=("$SLUG")
 fi
-[[ -z "$PROJECT" ]] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
+
+if [[ "${PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
+	PROJECTS+=("plugins/mu-wpcom-plugin")
+fi
+
+[ ${#PROJECTS[@]} -eq 0 ] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
 
 # Determine the project version
 [[ -z $2 ]] && die "Please specify a version number"
