@@ -101,7 +101,7 @@ const PricingPage = () => {
 					<ProductPrice
 						price={ 30 }
 						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						legend={ __( 'for the first month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 						hidePriceFraction
 					/>
@@ -131,7 +131,7 @@ const PricingPage = () => {
 					<ProductPrice
 						price={ 10 }
 						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						legend={ __( 'for the first month, billed yearly', 'jetpack-social' ) }
 						currency="USD"
 						hidePriceFraction
 					/>
