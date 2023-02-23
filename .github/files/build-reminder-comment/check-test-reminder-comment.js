@@ -16,7 +16,7 @@ const getCheckComments = require( './get-check-comments.js' );
  * @param {Core}   core    - A reference to the @actions/core package
  * @returns {Promise} Promise resolving to an array of project strings needing testing.
  */
-async function isTouchingSomethingNeedingTesting( github, owner, repo, number, core ) {
+async function touchedProjectsNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
 	const projects = [];
 
@@ -57,18 +57,17 @@ async function checkTestReminderComment( github, context, core ) {
 	const data = {};
 
 	// Check if one of the files modified in this PR need testing on WordPress.com.
-	const touchesSomethingNeedingTesting = await isTouchingSomethingNeedingTesting(
+	data.projects = await touchedProjectsNeedingTesting(
 		github,
 		owner,
 		repoName,
 		issue.number,
 		core
 	);
-	data.projects = touchesSomethingNeedingTesting;
 
 	core.info(
 		`Build: This PR ${
-			touchesSomethingNeedingTesting ? 'touches' : 'does not touch'
+			data.projects.length ? 'touches' : 'does not touch'
 		} something that needs testing on WordPress.com.`
 	);
 
@@ -83,7 +82,7 @@ async function checkTestReminderComment( github, context, core ) {
 	);
 
 	// This PR does not touch files needing testing.
-	if ( ! touchesSomethingNeedingTesting.length ) {
+	if ( ! data.projects.length ) {
 		if ( testCommentIDs.length > 0 ) {
 			core.info(
 				`Build: this PR previously touched something that needs testing, but does not anymore. Deleting previous test reminder comments.`
