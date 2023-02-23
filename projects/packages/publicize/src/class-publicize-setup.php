@@ -100,7 +100,7 @@ class Publicize_Setup {
 			return;
 		}
 
-		$sig = new Social_Image_Generator();
+		$sig = new Social_Image_Generator\Setup();
 		$sig->init();
 	}
 }
