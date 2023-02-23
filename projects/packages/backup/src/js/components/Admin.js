@@ -357,7 +357,7 @@ const NoBackupCapabilities = () => {
 		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
 			? sprintf(
 					// translators: %s is the regular monthly price
-					__( 'trial for the first month, then $%s/month', 'jetpack-backup-pkg' ),
+					__( 'trial for the first month, then $%s /month', 'jetpack-backup-pkg' ),
 					price
 			  )
 			: __(
