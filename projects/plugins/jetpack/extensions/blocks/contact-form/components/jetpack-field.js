@@ -1,13 +1,14 @@
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 import classnames from 'classnames';
 import { isEmpty } from 'lodash';
 import { useFormStyle } from '../util/form';
+import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
-export default function JetpackField( props ) {
+const JetpackField = props => {
 	const {
 		attributes,
 		clientId,
@@ -59,7 +60,22 @@ export default function JetpackField( props ) {
 			/>
 		</>
 	);
-}
+};
+
+export default compose(
+	withSharedFieldAttributes( [
+		'borderRadius',
+		'borderWidth',
+		'labelFontSize',
+		'fieldFontSize',
+		'lineHeight',
+		'labelLineHeight',
+		'inputColor',
+		'labelColor',
+		'fieldBackgroundColor',
+		'borderColor',
+	] )
+)( JetpackField );
 
 const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
 	return props => {
