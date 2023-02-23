@@ -6,6 +6,7 @@
 	"require": {
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"wikimedia/aho-corasick": "^1.0"
 	},
