@@ -30,7 +30,7 @@ function handleFormStyles() {
 function generateStyleVariables( selector, outputSelector = 'body' ) {
 	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 	const STYLE_PROBE_STYLE =
-		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
+		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden; display: none';
 	const HTML = `
 		<div class="contact-form" style="">
 			<div class="wp-block-button is-style-outline">
