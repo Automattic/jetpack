@@ -478,16 +478,11 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  * @param bool $main_chart_only (default: false) Main Chart Only.
  */
 function stats_reports_page( $main_chart_only = false ) {
-	// TODO: Replace or remove "View stats on WordPress.com right now" link.
-	// Probably makes more sense to advertise Odyssey here.
-	// TODO: Remove DIV with debug tools. (currently hidden for easier testing)
-
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
 	}
 
-	$blog_id   = Stats_Options::get_option( 'blog_id' );
-	$stats_url = Redirect::get_url( 'calypso-stats' );
+	$blog_id = Stats_Options::get_option( 'blog_id' );
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -527,7 +522,6 @@ function stats_reports_page( $main_chart_only = false ) {
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
