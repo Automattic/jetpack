@@ -8,7 +8,7 @@
 
 namespace Automattic\Jetpack\Forms;
 
-use Jetpack_Options;
+use Automattic\Jetpack\Connection\Manager;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
@@ -18,18 +18,9 @@ use WP_REST_Server;
  */
 class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	/**
-	 * Is WPCOM or not
-	 *
-	 * @var bool
-	 */
-	protected $is_wpcom;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'forms';
 
@@ -53,25 +44,25 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				'permissions_check' => array( $this, 'get_responses_permission_check' ),
 				'args'              => array(
 					'limit'   => array(
-						'default'           => 20,
-						'type'              => 'integer',
-						'required'          => false,
-						'minimum'           => 1,
+						'default'  => 20,
+						'type'     => 'integer',
+						'required' => false,
+						'minimum'  => 1,
 					),
 					'offset'  => array(
-						'default'           => 0,
-						'type'              => 'integer',
-						'required'          => false,
-						'minimum'           => 0,
+						'default'  => 0,
+						'type'     => 'integer',
+						'required' => false,
+						'minimum'  => 0,
 					),
 					'form_id' => array(
-						'type'              => 'integer',
-						'required'          => false,
-						'minimum'           => 1,
+						'type'     => 'integer',
+						'required' => false,
+						'minimum'  => 1,
 					),
 					'search'  => array(
-						'type'              => 'string',
-						'required'          => false,
+						'type'     => 'string',
+						'required' => false,
 					),
 				),
 			)
@@ -154,7 +145,12 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
 	 */
 	public function get_responses_permission_check() {
-		if ( ! is_user_member_of_blog( get_current_user_id(), $this->get_blog_id() ) ) {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		if ( ! is_user_member_of_blog( get_current_user_id(), $site_id ) ) {
 			return new WP_Error(
 				'invalid_user_permission_jetpack_form_responses',
 				'unauthorized',
@@ -163,13 +159,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Get blog ID selectively depending on IS_WPCOM or not
-	 */
-	protected function get_blog_id() {
-		return $this->is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 	}
 }
 
