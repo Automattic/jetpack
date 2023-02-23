@@ -47,7 +47,7 @@ class Data {
 		}
 
 		/* If it's a Jetpack site or a public Atomic site, check the settings */
-		return get_option( 'videopress_private_enabled_for_site', false );
+		return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
 	}
 
 	/**
