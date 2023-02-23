@@ -56,99 +56,26 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 						'default'           => 20,
 						'type'              => 'integer',
 						'required'          => false,
-						'validate_callback' => __CLASS__ . '::validate_posint',
+						'minimum'           => 1,
 					),
 					'offset'  => array(
 						'default'           => 0,
 						'type'              => 'integer',
 						'required'          => false,
-						'validate_callback' => __CLASS__ . '::validate_non_neg_int',
+						'minimum'           => 0,
 					),
 					'form_id' => array(
 						'type'              => 'integer',
 						'required'          => false,
-						'validate_callback' => __CLASS__ . '::validate_posint',
+						'minimum'           => 1,
 					),
 					'search'  => array(
-						'type'              => 'text',
+						'type'              => 'string',
 						'required'          => false,
-						'validate_callback' => __CLASS__ . '::validate_string',
 					),
 				),
 			)
 		);
-	}
-
-	/**
-	 * Validates that the parameter is a positive integer.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param int             $value Value to check.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_posint( $value, $request, $param ) {
-		if ( ! is_numeric( $value ) || $value <= 0 ) {
-			return new WP_Error(
-				'invalid_param',
-				sprintf(
-					/* Translators: Placeholder is a parameter name. */
-					esc_html__( '%s must be a positive integer.', 'jetpack-forms' ),
-					$param
-				)
-			);
-		}
-		return true;
-	}
-
-	/**
-	 * Validates that the parameter is a non-negative integer (includes 0).
-	 *
-	 * @since 10.4.0
-	 *
-	 * @param int             $value Value to check.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_non_neg_int( $value, $request, $param ) {
-		if ( ! is_numeric( $value ) || $value < 0 ) {
-			return new WP_Error(
-				'invalid_param',
-				/* translators: %s: The literal parameter name. Should not be translated. */
-				sprintf( esc_html__( '%s must be a non-negative integer.', 'jetpack-forms' ), $param )
-			);
-		}
-		return true;
-	}
-
-	/**
-	 * Validates that the parameter is a string.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @param string          $value Value to check.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_string( $value, $request, $param ) {
-		if ( ! is_string( $value ) ) {
-			return new WP_Error(
-				'invalid_param',
-				sprintf(
-					/* Translators: Placeholder is a parameter name. */
-					esc_html__( '%s must be a string.', 'jetpack-forms' ),
-					$param
-				)
-			);
-		}
-		return true;
 	}
 
 	/**
