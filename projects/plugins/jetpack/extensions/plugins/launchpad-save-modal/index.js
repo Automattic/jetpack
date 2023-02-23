@@ -4,7 +4,7 @@ import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
@@ -17,6 +17,7 @@ export const settings = {
 			[]
 		);
 		const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
+		const isPublishingPost = useSelect( select => select( editorStore ).isPublishingPost(), [] );
 		const isCurrentPostPublished = useSelect(
 			select => select( editorStore ).isCurrentPostPublished(),
 			[]
@@ -24,6 +25,7 @@ export const settings = {
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
+		const prevIsPublishingPost = usePrevious( isPublishingPost );
 
 		// We use this state as a flag to manually handle the modal close on first post publish
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
@@ -32,9 +34,11 @@ export const settings = {
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
-		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
+		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
+			window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
+		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
@@ -52,13 +56,37 @@ export const settings = {
 			} );
 
 		useEffect( () => {
+			// We want to prevent the launchpad modal from rendering on top of the first
+			// post published modal that exists in the editing toolkit. The following
+			// conditional is a stopgap solution for the time being, and the end goal is
+			// to migrate the first post published modal logic into jetpack, abstract code from
+			// both modals and their rendering behavior, and remove this solution afterwards.
 			if (
+				prevIsPublishingPost === true &&
+				isPublishingPost === false &&
+				prevHasNeverPublishedPostOption.current &&
+				siteIntentOption === 'write' &&
+				isInsidePostEditor
+			) {
+				setIsModalOpen( false );
+				prevHasNeverPublishedPostOption.current = '';
+				return;
+			} else if (
 				( prevIsSavingSite === true && isSavingSite === false ) ||
 				( prevIsSavingPost === true && isSavingPost === false )
 			) {
 				setIsModalOpen( true );
 			}
-		}, [ isSavingSite, prevIsSavingSite, isSavingPost, prevIsSavingPost ] );
+		}, [
+			isSavingSite,
+			prevIsSavingSite,
+			isSavingPost,
+			prevIsSavingPost,
+			siteIntentOption,
+			isInsidePostEditor,
+			isPublishingPost,
+			prevIsPublishingPost,
+		] );
 
 		useEffect( () => {
 			// if the isCurrentPostPublished is ever false it means this current post hasn't been published yet so we set the initialPostPublish state
