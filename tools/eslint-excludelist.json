@@ -47,7 +47,6 @@
 	"projects/plugins/jetpack/_inc/client/state/search/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/settings/actions.js",
 	"projects/plugins/jetpack/_inc/client/state/settings/reducer.js",
-	"projects/plugins/jetpack/_inc/client/state/site-products/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/site-verify/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/site/reducer.js",
 	"projects/plugins/jetpack/_inc/client/state/tracking/reducer.js",
