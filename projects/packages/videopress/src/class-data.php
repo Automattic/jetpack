@@ -42,7 +42,7 @@ class Data {
 		 */
 		if ( ( new Host() )->is_woa_site() ) {
 			if ( ( intval( get_option( 'blog_public', '' ) ) === -1 ) ) {
-				return false;
+				return true;
 			}
 		}
 
