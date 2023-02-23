@@ -37,11 +37,9 @@ class Environment_Change_Detector {
 
 		// Ignore changes to post types which do not affect the front-end UI
 		if ( ! $this->is_post_type_invalidating( $post->post_type ) ) {
-			error_log( 'not invalidating: ' . $post->post_type );
 			return;
 		}
 
-		error_log( 'act' );
 		$this->do_action( false, 'post_saved' );
 	}
 
