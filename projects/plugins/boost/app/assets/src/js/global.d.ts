@@ -4,7 +4,6 @@
 
 import { CriticalCssIssue } from './stores/critical-css-recommendations';
 import type { ConnectionStatus } from './stores/connection';
-import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
@@ -30,12 +29,6 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
-		criticalCSS?: {
-			status: CriticalCssStatus & {
-				issues?: CriticalCssIssue[];
-				provider_key_labels?: { [ name: string ]: string };
-			};
-		};
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
 		dismissedScorePrompts: string[];
