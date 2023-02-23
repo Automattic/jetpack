@@ -65,8 +65,10 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 	};
 
 	useEffect( () => {
-		textRef.current.focus();
-	}, [ textRef ] );
+		setTimeout( () => {
+			containerRef.current.querySelector( 'input' ).focus();
+		}, 50 );
+	}, [] );
 
 	return (
 		<div ref={ containerRef }>
