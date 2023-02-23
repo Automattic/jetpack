@@ -223,7 +223,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		$formatted_top_posts = array();
 
-		if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
 			$date      = gmdate( 'Y-m-d' );
 			$days      = 30;
 			$max_posts = isset( $args['number'] ) ? $args['number'] : 20;
@@ -448,7 +448,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 					foreach ( $wp_query->posts as $post_ID ) {
 						$the_post = $this->get_post_by( 'ID', $post_ID, $args['context'] );
 						if ( $the_post && ! is_wp_error( $the_post ) ) {
-							if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+							if ( defined( 'IS_WPCOM' ) && IS_WPCOM && isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
 								$post_views = array_filter(
 									$formatted_top_posts,
 									function ( $value ) use ( $post_ID ) {
@@ -506,7 +506,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			}
 		}
 
-		if ( isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && isset( $args['order_by'] ) && 'views' === $args['order_by'] ) {
 			usort(
 				$return['posts'],
 				function ( $item1, $item2 ) {
