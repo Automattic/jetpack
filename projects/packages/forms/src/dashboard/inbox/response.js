@@ -1,8 +1,11 @@
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
+import { map } from 'lodash';
+import { formatFieldName, getDisplayName, getPath } from './util';
 
-const InboxResponse = () => {
+const InboxResponse = ( { loading, response } ) => {
 	const classes = classnames( 'jp-forms__inbox-response', {
 		'has-email': true,
 	} );
@@ -11,6 +14,10 @@ const InboxResponse = () => {
 		'is-ip': false,
 		'is-name': true,
 	} );
+
+	if ( ! loading && ! response ) {
+		return <div>none selected</div>;
+	}
 
 	return (
 		<div className={ classes }>
@@ -21,48 +28,42 @@ const InboxResponse = () => {
 				/>
 			</div>
 
-			<h3 className={ titleClasses }>{ __( 'Bill Suitor', 'jetpack-forms' ) }</h3>
-			<p className="jp-forms__inbox-response-subtitle">
-				{ __( 'bill@la84.com', 'jetpack-forms' ) }
-			</p>
+			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
+			<p className="jp-forms__inbox-response-subtitle">{ response.author_email }</p>
 
 			<div className="jp-forms__inbox-response-meta">
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Date:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-meta-value">
-					{ sprintf(
-						/* Translators: %1$s is the date, %2$s is the time. */
-						__( '%1$s at %2$s', 'jetpack-forms' ),
-						dateI18n( getDateSettings().formats.date, new Date().getTime() ),
-						dateI18n( getDateSettings().formats.time, new Date().getTime() )
-					) }
+					{ __( 'Added on', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-value">
+						{ sprintf(
+							/* Translators: %1$s is the date, %2$s is the time. */
+							__( '%1$s at %2$s', 'jetpack-forms' ),
+							dateI18n( getDateSettings().formats.date, response.date ),
+							dateI18n( getDateSettings().formats.time, response.date )
+						) }
+					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Source:', 'jetpack-forms' ) }
+					{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-value">{ getPath( response ) }</span>
 				</div>
-				<div className="jp-forms__inbox-response-meta-value">{ '/rsvp' }</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'IP address:', 'jetpack-forms' ) }
+					{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
 				</div>
-				<div className="jp-forms__inbox-response-meta-value">{ '168.1.0.254' }</div>
 			</div>
 
 			<div className="jp-forms__inbox-response-separator" />
 
 			<div className="jp-forms__inbox-response-data">
-				<div className="jp-forms__inbox-response-data-label">
-					{ __( 'Name:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-value">
-					{ __( 'Bill Suitor', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-label">
-					{ __( 'Email:', 'jetpack-forms' ) }
-				</div>
-				<div className="jp-forms__inbox-response-data-value">
-					{ __( 'bill@la84.com', 'jetpack-forms' ) }
-				</div>
+				{ map( response.fields, ( value, key ) => {
+					return (
+						<Fragment key={ key }>
+							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }</div>
+							<div className="jp-forms__inbox-response-data-value">{ value }</div>
+						</Fragment>
+					);
+				} ) }
 			</div>
 		</div>
 	);
