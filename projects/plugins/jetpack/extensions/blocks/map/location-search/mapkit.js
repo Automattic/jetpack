@@ -13,21 +13,19 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 
 	const autocompleter = {
 		name: 'placeSearch',
-		options: value => {
+		options: async value => {
 			return new Promise( function ( resolve, reject ) {
 				const search = new mapkit.Search( {
 					getsUserLocation: true,
+					includePointsOfInterest: false,
 				} );
 				search.autocomplete( value, ( err, results ) => {
 					if ( err ) {
 						reject( err );
 						return;
 					}
-					// filter out results from Yelp etc
-					const filtered = results?.results.filter(
-						result =>
-							result.dependentLocalities === undefined || result.dependentLocalities?.length === 0
-					);
+					// filter out results without coordinates
+					const filtered = results?.results.filter( result => result.coordinate );
 
 					// add placeName
 					const withPlaceName = filtered.map( result => ( {
