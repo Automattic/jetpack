@@ -25,6 +25,7 @@ const getSiteSize = () => ( { dispatch } ) => {
 				minDaysOfBackupsAllowed: res.min_days_of_backups_allowed,
 				daysOfBackupsAllowed: res.days_of_backups_allowed,
 				daysOfBackupsSaved: res.days_of_backups_saved,
+				retentionDays: res.retention_days,
 			};
 
 			dispatch( { type: SITE_BACKUP_SIZE_GET_SUCCESS, payload } );

@@ -70,13 +70,13 @@ const AgenciesCard: FC< Props > = ( {
 				</Button>
 				<div className="jp-agencies-card__contact">
 					<h3 className="jp-agencies-card__header">
-						{ __( "Manage your clients' sites with ease", 'jetpack' ) }
+						{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
 					</h3>
 					<p className="jp-agencies-card__description">
 						{ sprintf(
 							/* translators: %s is the percentage discount the users get in the agencies portal */
 							__(
-								`Manage your clients' sites with ease and get a %s discount with the Jetpack licensing platform.`,
+								'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
 								'jetpack'
 							),
 							`${ discountPercentage }%`

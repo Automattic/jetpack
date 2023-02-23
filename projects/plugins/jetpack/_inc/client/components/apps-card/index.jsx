@@ -1,5 +1,6 @@
 import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -78,11 +79,9 @@ class AppsCard extends React.Component {
 					),
 					{
 						a: (
-							<a
+							<ExternalLink
 								className="jp-apps-card__link"
 								href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
-								rel="noopener noreferrer"
-								target="_blank"
 								onClick={ this.trackAppLinkClick }
 							/>
 						),
