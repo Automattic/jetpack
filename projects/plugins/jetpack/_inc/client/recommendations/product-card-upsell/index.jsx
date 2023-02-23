@@ -53,11 +53,10 @@ const ProductCardUpsellComponent = ( {
 	const initialPrice = introOriginalPrice || cost * 12;
 	// introRawPrice is the price after introductory offer, but before any other discount.
 	const introPrice = introRawPrice || initialPrice;
+	const isTrial = isFirstMonthTrial( introOffer );
 	// Apply special discount if there's a discount and is not a first month trial.
 	const finalPrice =
-		! isFirstMonthTrial( introOffer ) && hasDiscount && discount
-			? introPrice * ( 1 - discount / 100 )
-			: introPrice;
+		! isTrial && hasDiscount && discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
 
 	// Compute total discount, including introductory offer (if it exists) and special discount.
 	const totalDiscount = initialPrice
@@ -73,6 +72,14 @@ const ProductCardUpsellComponent = ( {
 		finalPrice,
 		currency,
 	] );
+
+	const checkoutUrl = new URL( upgradeUrl );
+
+	// Remove the coupon code from the URL if it's a trial.
+	// This is mostly to avoid confusion since the UI won't show the discount either
+	if ( isTrial ) {
+		checkoutUrl.searchParams.delete( 'coupon' );
+	}
 
 	const header = isRecommended && (
 		<RecommendedHeader className="jp-recommendations-product-card-upsell__header" />
@@ -130,7 +137,7 @@ const ProductCardUpsellComponent = ( {
 				className="jp-recommendations-product-card-upsell__cta-button"
 				primary={ ! isRecommended }
 				rna
-				href={ upgradeUrl }
+				href={ checkoutUrl.toString() }
 				onClick={ onClick }
 				target="_blank"
 				rel="noopener noreferrer"
