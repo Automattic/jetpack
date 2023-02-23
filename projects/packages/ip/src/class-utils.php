@@ -167,4 +167,38 @@ class Utils {
 		return false;
 	}
 
+	/**
+	 * Extracts IP addresses from a given string.
+	 *
+	 * We allow for both, one IP per line or comma-; semicolon; or whitespace-separated lists. This also validates the IP addresses
+	 * and only returns the ones that look valid. IP ranges using the "-" character are also supported.
+	 *
+	 * @param string $ips List of ips - example: "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555,1.1.1.10-1.1.1.20".
+	 * @return array List of valid IP addresses. - example based on input example: array('8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9', '1.1.1.10-1.1.1.20')
+	 */
+	public static function get_ip_addresses_from_string( $ips ) {
+		$ips = (string) $ips;
+		$ips = preg_split( '/[\s,;]/', $ips );
+
+		$result = array();
+
+		foreach ( $ips as $ip ) {
+			// Validate both IP values from the range
+			$range = explode( '-', $ip );
+			if ( count( $range ) === 2 ) {
+				if ( filter_var( $range[0], FILTER_VALIDATE_IP ) !== false || filter_var( $range[1], FILTER_VALIDATE_IP ) !== false ) {
+					$result[] = $ip;
+				}
+				continue;
+			}
+
+			// validate the single IP value
+			if ( filter_var( $ip, FILTER_VALIDATE_IP ) !== false ) {
+				$result[] = $ip;
+			}
+		}
+
+		return $result;
+	}
+
 }
