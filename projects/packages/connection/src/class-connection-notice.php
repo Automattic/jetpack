@@ -162,7 +162,7 @@ class Connection_Notice {
 						submitBtn.disabled = true;
 
 						fetch(
-							"<?php echo esc_url( get_rest_url() . 'jetpack/v4/connection/owner' ); ?>",
+							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 							{
 								method: 'POST',
 								headers: {
