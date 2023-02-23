@@ -32,6 +32,7 @@ const PricingPage = () => {
 		updateOptions( newOption );
 	}, [ updateOptions ] );
 
+	// todo: pull pricing from wpcom
 	const firstMonthIntroOffer = 1;
 	const monthlyBasicPrice = 10;
 	const monthlyAdvancedPrice = 15;
