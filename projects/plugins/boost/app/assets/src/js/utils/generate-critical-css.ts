@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
 import { __ } from '@wordpress/i18n';
-import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
 import setProviderIssue, {
 	requestGeneration,
 	sendGenerationResult,
@@ -9,7 +8,7 @@ import setProviderIssue, {
 	updateGenerateStatus,
 } from '../stores/critical-css-status';
 import { CriticalCssIssue, Critical_CSS_Error_Type } from '../stores/critical-css-status-ds';
-import { JSONObject } from '../stores/data-sync-client';
+import { JSONObject, suggestRegenerateDS } from '../stores/data-sync-client';
 import { modules, isModuleEnabledStore } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
@@ -67,7 +66,7 @@ export default async function generateCriticalCss(
 	try {
 		if ( reset ) {
 			updateGenerateStatus( { status: 'requesting', progress: 0, issues: [] } );
-			hideRegenerateCriticalCssSuggestion();
+			suggestRegenerateDS.store.set( false );
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.

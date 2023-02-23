@@ -16,3 +16,11 @@ export type JSONObject = Literal | { [ key: string ]: JSONObject } | JSONObject[
 export const JSONSchema: z.ZodType< JSONObject > = z.lazy( () =>
 	z.union( [ literalSchema, z.array( JSONSchema ), z.record( JSONSchema ) ] )
 );
+
+/*
+ * Data Sync Stores
+ */
+export const suggestRegenerateDS = client.createAsyncStore(
+	'critical_css_suggest_regenerate',
+	z.coerce.boolean()
+);

@@ -35,7 +35,6 @@ declare global {
 				issues?: CriticalCssIssue[];
 				provider_key_labels?: { [ name: string ]: string };
 			};
-			suggestRegenerate: boolean;
 		};
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;

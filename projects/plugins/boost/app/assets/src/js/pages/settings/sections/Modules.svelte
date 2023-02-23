@@ -6,6 +6,7 @@
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import config from '../../../stores/config';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
 	import {
 		requestCloudCss,
@@ -30,6 +31,7 @@
 	export let location, navigate;
 
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
+	const suggestRegenerate = suggestRegenerateDS.store;
 </script>
 
 <div class="jb-container--narrow">
@@ -62,7 +64,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
+				show={$suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
 			/>
 		</div>
 	</Module>
