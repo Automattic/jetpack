@@ -107,7 +107,7 @@ export class SyncedStore< T > {
 		// Store the value in case the UI changes rapidly.
 		// This will be read after the debounce.
 		if ( syncRequestFromStore ) {
-			this.pendingValue = value;
+			this.pendingValue = structuredClone( value );
 		}
 
 		// Prevent multiple requests from being sent at once.
@@ -121,7 +121,7 @@ export class SyncedStore< T > {
 
 		// The pending value may change while debouncing.
 		// If it's now the same as the previous value, don't send the request.
-		if ( this.pendingValue === prevValue ) {
+		if ( this.equals( this.pendingValue, prevValue ) ) {
 			// eslint-disable-next-line no-console
 			this.requestLock = false;
 			this.pendingValue = undefined;
@@ -137,7 +137,11 @@ export class SyncedStore< T > {
 				return this.debouncedSynchronize( prevValue, this.pendingValue, attempt + 1 );
 			}
 
-			if ( syncRequestFromStore && result !== this.failedToSync && result !== this.pendingValue ) {
+			if (
+				syncRequestFromStore &&
+				result !== this.failedToSync &&
+				! this.equals( result, this.pendingValue )
+			) {
 				// Using result instead of prevValue here
 				// Because we received fresher "real value" from the API.
 				return this.debouncedSynchronize( result, this.pendingValue, 1 );
@@ -183,6 +187,7 @@ export class SyncedStore< T > {
 				JSON.stringify( Object.entries( b ).sort() )
 			);
 		}
+
 		return a === b;
 	}
 }
