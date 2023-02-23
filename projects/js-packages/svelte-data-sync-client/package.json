@@ -44,6 +44,7 @@
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts",
 	"dependencies": {
-		"@automattic/jetpack-svelte-data-sync-client": "workspace:0.1.0-alpha"
+		"@automattic/jetpack-svelte-data-sync-client": "workspace:0.1.0-alpha",
+		"deep-equal": "2.2.0"
 	}
 }
