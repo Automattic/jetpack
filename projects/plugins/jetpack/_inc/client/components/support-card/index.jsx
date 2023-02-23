@@ -1,4 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -76,7 +77,7 @@ class SupportCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
-						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
+						<h3 className="jp-support-card__header">{ __( 'We’re here to help', 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
@@ -90,25 +91,27 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button
-								onClick={ this.trackGettingStartedClick }
-								href={
-									this.props.isAtomicSite
-										? getRedirectUrl( 'calypso-help' )
-										: getRedirectUrl( 'jetpack-support-getting-started' )
-								}
-							>
-								{ __( 'Getting started with Jetpack', 'jetpack' ) }
+							<Button onClick={ this.trackGettingStartedClick }>
+								<ExternalLink
+									href={
+										this.props.isAtomicSite
+											? getRedirectUrl( 'calypso-help' )
+											: getRedirectUrl( 'jetpack-support-getting-started' )
+									}
+								>
+									{ __( 'Getting started with Jetpack', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
-							<Button
-								onClick={ this.trackSearchClick }
-								href={
-									this.props.isAtomicSite
-										? getRedirectUrl( 'calypso-help' )
-										: getRedirectUrl( 'jetpack-support' )
-								}
-							>
-								{ __( 'Search our support site', 'jetpack' ) }
+							<Button onClick={ this.trackSearchClick }>
+								<ExternalLink
+									href={
+										this.props.isAtomicSite
+											? getRedirectUrl( 'calypso-help' )
+											: getRedirectUrl( 'jetpack-support' )
+									}
+								>
+									{ __( 'Search our support site', 'jetpack' ) }
+								</ExternalLink>
 							</Button>
 						</p>
 					</div>
