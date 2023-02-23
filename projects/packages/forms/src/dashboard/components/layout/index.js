@@ -4,13 +4,14 @@ import JetpackFormsLogo from '../logo';
 
 import './style.scss';
 
-const Layout = ( { children, title } ) => {
+const Layout = ( { children, title, subtitle } ) => {
 	return (
 		<div className="jp-forms__layout">
 			<JetpackFormsLogo />
 
 			<div className="jp-forms__layout-header">
 				<h2 className="jp-forms__layout-title">{ title }</h2>
+				{ subtitle && <p className="jp-forms__header-subtext">{ subtitle }</p> }
 			</div>
 
 			{ children }
