@@ -1875,7 +1875,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return null|void
 	 */
-	private function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props ) {
 		/*
 		 * Event details.
 		 */
