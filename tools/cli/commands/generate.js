@@ -194,9 +194,18 @@ export function getQuestions( type ) {
 			name: 'versioningMethod',
 			message: 'How do you want versioning to work for your plugin?',
 			choices: [
+				// Note: There's no actual reason for recommending either option. Neither method is
+				// objectively better. We're not going to actually have consistency, tooling is
+				// already pretty simple in this respect (and without mandatory consistency it can't
+				// be simplified anyway), cognitive load would need research to determine the extent
+				// to which it's an issue, and WordPress core explicitly doesn't take a side on it.
+				// It comes down to which way the developers actually working on the plugin think
+				// about versioning for it.
+				//
+				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
 				{
 					name:
-						'WordPress-style: Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
 					checked: true,
 					value: 'wordpress',
 				},
