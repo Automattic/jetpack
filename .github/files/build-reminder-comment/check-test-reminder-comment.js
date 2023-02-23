@@ -7,14 +7,14 @@ const getCheckComments = require( './get-check-comments.js' );
  *
  * Currently we look whether process.env.CHANGED contains `plugins/jetpack`,
  * meaning that Jetpack is being built. Or `packages/jetpack-mu-wpcom`,
- * for the jetpack-mu-wpcom-plugin used on WordPress.com.
+ * for the jetpack-mu-wpcom-plugin used on WordPress.com is being built.
  *
  * @param {GitHub} github  - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
  * @param {Core}   core    - A reference to the @actions/core package
- * @returns {Promise} Promise resolving to an array of project strings needing testing, or false.
+ * @returns {Promise} Promise resolving to an array of project strings needing testing.
  */
 async function isTouchingSomethingNeedingTesting( github, owner, repo, number, core ) {
 	const changed = JSON.parse( process.env.CHANGED );
@@ -30,12 +30,12 @@ async function isTouchingSomethingNeedingTesting( github, owner, repo, number, c
 		projects.push( 'jetpack-mu-wpcom-plugin' );
 	}
 
-	if ( projects.length > 0 ) {
+	if ( projects.length ) {
 		return projects;
 	}
 
 	core.info( 'Build: Nothing that needs testing was found' );
-	return false;
+	return projects;
 }
 
 /**
@@ -48,7 +48,7 @@ async function isTouchingSomethingNeedingTesting( github, owner, repo, number, c
  * @param {core}   core    - A reference to the @actions/core package
  * @returns {Promise} Promise resolving to an object with the following properties:
  * - {commentId} - a comment ID, or 0 if no comment is found.
- * - {projects} - an array of project strings needing testing, or false.
+ * - {projects} - an array of project strings needing testing.
  */
 async function checkTestReminderComment( github, context, core ) {
 	const { repo, issue } = context;
@@ -56,8 +56,7 @@ async function checkTestReminderComment( github, context, core ) {
 	const { TEST_COMMENT_INDICATOR } = process.env;
 	const data = {};
 
-	// Check if one of the files modified in this PR has been de-fusioned,
-	// and thus must now be tested on WordPress.com.
+	// Check if one of the files modified in this PR need testing on WordPress.com.
 	const touchesSomethingNeedingTesting = await isTouchingSomethingNeedingTesting(
 		github,
 		owner,
@@ -83,9 +82,8 @@ async function checkTestReminderComment( github, context, core ) {
 		core
 	);
 
-	// This PR does not touch de-fusioned files.
-	if ( ! touchesSomethingNeedingTesting ) {
-		// If it previously touched Jetpack, delete the comments that were created then.
+	// This PR does not touch files needing testing.
+	if ( ! touchesSomethingNeedingTesting.length ) {
 		if ( testCommentIDs.length > 0 ) {
 			core.info(
 				`Build: this PR previously touched something that needs testing, but does not anymore. Deleting previous test reminder comments.`
