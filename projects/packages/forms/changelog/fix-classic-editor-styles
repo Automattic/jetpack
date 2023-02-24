@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Remove CSS normalization for body on contact-form module and package
