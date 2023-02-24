@@ -31,12 +31,13 @@ export function MisconfigurationWarning( { accessLevel } ) {
 	return (
 		<InspectorNotice spanClass={ 'jetpack-subscribe-notice-misconfiguration warning' }>
 			{ sprintf(
-				/* translators: %s: visibility label for the newsletter. this is a warning in the newsletter when posts have a private or password-protected visibility */
+				/* translators: %1$s: visibility label for the newsletter, %2$s: label for setting "everybody". this is a warning in the newsletter when posts have a private or password-protected visibility */
 				__(
-					'Private or password-protected posts cannot be assigned a newsletter setting of %s. Please update the setting to "Everybody", or update the post visibility setting.',
+					'Private or password-protected posts cannot be assigned a newsletter setting of "%1$s". Please update the setting to "%2$s", or update the post visibility setting.',
 					'jetpack'
 				),
-				accessOptions[ accessLevel ].label
+				accessOptions[ accessLevel ].label,
+				accessOptions.everybody.label
 			) }
 		</InspectorNotice>
 	);
