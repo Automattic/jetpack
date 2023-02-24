@@ -14,7 +14,7 @@ import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
-import Map from './component.js';
+import Map from './component';
 import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
 import previewPlaceholder from './map-preview.jpg';

@@ -6,19 +6,19 @@ import {
 	getLoadContext,
 	loadBlockEditorAssets,
 	waitForObject,
-} from '../../shared/block-editor-asset-loader';
-import editorAssets from './block-editor-assets.json';
-import InfoWindow from './info-window/';
-import MapMarker from './map-marker/';
-import { mapboxMapFormatter } from './mapbox-map-formatter/';
+} from '../../../shared/block-editor-asset-loader';
+import editorAssets from '../block-editor-assets.json';
+import { mapboxMapFormatter } from '../mapbox-map-formatter';
 import {
 	fitMapToBounds,
 	getMapBounds,
 	googlePoint2Mapbox,
 	resizeMapContainer,
-} from './mapbox-utils';
+} from '../mapbox-utils';
+import InfoWindow from './info-window';
+import MapMarker from './map-marker';
 
-export class Map extends Component {
+export class MapBoxComponent extends Component {
 	// Lifecycle
 	constructor() {
 		super( ...arguments );
@@ -314,7 +314,6 @@ export class Map extends Component {
 		const { mapboxgl } = this.state;
 		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
-
 		try {
 			map = new mapboxgl.Map( {
 				container: this.mapRef.current,
@@ -375,7 +374,7 @@ export class Map extends Component {
 	}
 }
 
-Map.defaultProps = {
+MapBoxComponent.defaultProps = {
 	points: [],
 	mapStyle: 'default',
 	zoom: 13,
@@ -389,4 +388,4 @@ Map.defaultProps = {
 	mapCenter: {},
 };
 
-export default Map;
+export default MapBoxComponent;
