@@ -43,12 +43,16 @@ export function PosterDropdown( {
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
 					style={ { backgroundImage: poster ? `url(${ poster })` : undefined } }
-					className="poster-panel__button"
-					variant="tertiary"
+					className={ `poster-panel__button ${ poster ? 'has-poster' : '' }` }
+					variant="secondary"
 					onClick={ onToggle }
 					aria-expanded={ isOpen }
 				>
-					{ __( 'Select Poster Image', 'jetpack-videopress-pkg' ) }
+					<span>
+						{ ! poster
+							? __( 'Select Poster Image', 'jetpack-videopress-pkg' )
+							: __( 'Replace Poster Image', 'jetpack-videopress-pkg' ) }
+					</span>
 				</Button>
 			) }
 			renderContent={ ( { onClose } ) => {
