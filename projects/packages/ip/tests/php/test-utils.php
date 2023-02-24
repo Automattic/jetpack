@@ -312,19 +312,20 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 * @covers ::get_ip_addresses_from_string
 	 */
 	public function test_get_ip_addresses_from_string() {
-		$string = '';
+		$ip_string =
+			// IPv4.
+			"1.1.1.1\n2.2.2.2,3.3.3.3;4.4.4.4 5.5.5.5-6.6.6.6\n" .
+			// IPv6.
+			"2001:db8::1\n2001:db8::2,2001:db8::3;2001:db8::4 2001:db8::5-2001:db8::6\n" .
+			// Invalid IP addresses.
+			'hello world - 1.2.3:4,9999:9999:9999.9999:9999:9999:9999';
 
-		$delimiters       = array( "\n", ',', ';', ' ' );
-		$delimiters_index = 0;
-
-		$ips = array(
-			// IPv4
+		$expected = array(
 			'1.1.1.1',
 			'2.2.2.2',
 			'3.3.3.3',
 			'4.4.4.4',
 			'5.5.5.5-6.6.6.6',
-			// IPv6
 			'2001:db8::1',
 			'2001:db8::2',
 			'2001:db8::3',
@@ -332,18 +333,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 			'2001:db8::5-2001:db8::6',
 		);
 
-		// Generate a string that includes all IPs and delimiters.
-		foreach ( $ips as $ips_index => $ip ) {
-			$string .= $ip;
-
-			$is_last_loop = $ips_index === count( $ips ) - 1;
-			if ( ! $is_last_loop ) {
-				$string          .= $delimiters[ $delimiters_index ];
-				$delimiters_index = count( $delimiters ) === $delimiters_index + 1 ? 0 : $delimiters_index + 1;
-			}
-		}
-
-		$this->assertEquals( $ips, Utils::get_ip_addresses_from_string( $string ) );
+		$this->assertEquals( $expected, Utils::get_ip_addresses_from_string( $ip_string ) );
 	}
 
 }
