@@ -30,7 +30,7 @@
 		"watch": "concurrently 'pnpm:build-dashboard --watch'"
 	},
 	"dependencies": {
-		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/calypso-color-schemes": "3.0.0",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
