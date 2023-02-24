@@ -20,6 +20,7 @@ const projects = [
 		project: 'Blocks with latest Gutenberg',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'blocks', '--retries=1' ],
+		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: 'gutenberg-29113',
 	},
 	{
