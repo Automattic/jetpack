@@ -132,11 +132,13 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 							</FlexBlock>
 						) }
 
-						{ canEdit && showMisconfigurationMessage && (
-							<FlexBlock>
-								<MisconfigurationWarning accessLevel={ accessLevel } />
-							</FlexBlock>
-						) }
+						{ canEdit &&
+							withModal /* to prevent displaying in pre-publish panel */ &&
+							showMisconfigurationMessage && (
+								<FlexBlock>
+									<MisconfigurationWarning accessLevel={ accessLevel } />
+								</FlexBlock>
+							) }
 
 						<Flex direction={ withModal ? 'row' : 'column' }>
 							<FlexBlock>
