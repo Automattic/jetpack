@@ -10,7 +10,7 @@ import { linkOff, image as imageIcon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
-import styles from './style.module.scss';
+import './style.scss';
 /**
  * Types
  */
@@ -71,7 +71,7 @@ export default function PosterImageBlockControl( {
 
 	return (
 		<Dropdown
-			contentClassName={ styles.dropdown_content }
+			contentClassName="dropdown-content"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<ToolbarButton
 					label={ __( 'Poster image', 'jetpack-videopress-pkg' ) }
@@ -86,7 +86,7 @@ export default function PosterImageBlockControl( {
 				const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 				return (
 					<>
-						<NavigableMenu className="block-editor-media-replace-flow__media-upload-menu">
+						<NavigableMenu className="poster-image-block-control__wrapper">
 							<MediaUploadCheck>
 								<MediaUpload
 									title={ __( 'Select Poster Image', 'jetpack-videopress-pkg' ) }
@@ -119,8 +119,11 @@ export default function PosterImageBlockControl( {
 								/>
 							</MediaUploadCheck>
 
+							<VideoPosterCard poster={ poster } className="current-media" />
+
 							{ !! poster && (
 								<MenuItem
+									className="poster-image-block-control__remove-button"
 									variant="tertiary"
 									isDestructive
 									onClick={ () => {
@@ -133,7 +136,6 @@ export default function PosterImageBlockControl( {
 								</MenuItem>
 							) }
 						</NavigableMenu>
-						<VideoPosterCard poster={ poster } className={ styles.current_media } />
 					</>
 				);
 			} }
