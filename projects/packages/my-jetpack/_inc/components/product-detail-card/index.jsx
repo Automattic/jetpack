@@ -148,7 +148,11 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const priceDescription =
 		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
-			? __( 'for the first month, billed yearly', 'jetpack-my-jetpack' )
+			? sprintf(
+					// translators: %s is the monthly price for a product
+					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
+					price
+			  )
 			: __(
 					'/month, paid yearly',
 					'jetpack-my-jetpack',
