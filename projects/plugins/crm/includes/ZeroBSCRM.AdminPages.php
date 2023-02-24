@@ -1366,16 +1366,10 @@ function zeroBSCRM_html_home2() {
 	<div class="container">
 
 		<div class="intro">
-
 			<div class="block" style="text-align:center;margin-top:-50px;">
 						<img src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" alt="Jetpack CRMt" id="jetpack-crm-welcome" style="text-align:center;padding:30px;"> 
 						<h6><?php esc_html_e( 'Thank you for choosing Jetpack CRM - The Ultimate Entrepreneurs\' CRM for WordPress', 'zero-bs-crm' ); ?></h6>
-					</div>
-
-		</div>
-
-		<div id="first-customer">
-		<a href="https://jetpackcrm.com/learn/" target="_blank"><img src="<?php echo esc_url( plugins_url( '/i/first-customer-welcome-image.png', ZBS_ROOTFILE ) ); ?>" alt="<?php esc_attr_e( 'Adding your first customer', 'zero-bs-crm' ); ?>"></a>
+			</div>
 		</div>
 
 		<div id="action-buttons" class='block'>
