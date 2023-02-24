@@ -121,6 +121,8 @@ export default function PosterImageBlockControl( {
 
 							{ !! poster && (
 								<MenuItem
+									variant="tertiary"
+									isDestructive
 									onClick={ () => {
 										onRemovePoster();
 										onClose();

@@ -117,7 +117,7 @@ export default function PosterPanel( {
 			<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
 			{ poster && (
-				<MenuItem onClick={ onRemovePoster } icon={ linkOff }>
+				<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
 					{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
 				</MenuItem>
 			) }
