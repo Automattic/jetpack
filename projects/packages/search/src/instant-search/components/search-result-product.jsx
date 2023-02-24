@@ -56,7 +56,7 @@ class SearchResultProduct extends Component {
 					getCategories()
 						.map( cat => 'jetpack-instant-search__search-result-category--' + cleanForSlug( cat ) )
 						.join( ' ' ),
-				].join( '' ) }
+				].join( ' ' ) }
 			>
 				<a
 					className="jetpack-instant-search__search-result-product-img-link"

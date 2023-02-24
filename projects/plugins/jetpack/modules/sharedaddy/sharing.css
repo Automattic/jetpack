@@ -128,6 +128,12 @@ body.highlander-dark h3.sd-title:before {
 	margin-left: 6px;
 }
 
+/* Icon Only */
+.sd-social-icon .sd-content ul li a.sd-button>span {
+	margin-left: 0;
+}
+
+/* Text Only */
 .sd-social-text .sd-content ul li a.sd-button span {
 	margin-left: 3px;
 }
