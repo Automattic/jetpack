@@ -1,9 +1,12 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Booolean_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
+use Automattic\Jetpack_Boost\Data_Sync\Cloud_CSS_Sync;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
+
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -63,6 +66,6 @@ add_action(
 /**
  * Register Data Sync Stores
  */
-jetpack_boost_register_option( 'critical_css_state', new Critical_CSS_Sync() );
-jetpack_boost_register_option( 'cloud_critical_css_state', new Critical_CSS_Sync() );
-jetpack_boost_register_option( 'critical_css_suggest_regenerate', new Critical_CSS_Sync() );
+jetpack_boost_register_option( 'critical_css_state', Critical_CSS_Sync::class );
+jetpack_boost_register_option( 'cloud_critical_css_state', Cloud_CSS_Sync::class );
+jetpack_boost_register_option( 'critical_css_suggest_regenerate', Booolean_Entry::class );
