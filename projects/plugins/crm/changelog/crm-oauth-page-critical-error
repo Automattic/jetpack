@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+OAuth connections page no longer shows critical error after saving credentials

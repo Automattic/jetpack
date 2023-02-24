@@ -42,10 +42,12 @@
 		"wordads",
 		"payments-intro",
 		"post-publish-qr-post-panel",
-		"payment-buttons"
+		"payment-buttons",
+		"site-editor-snackbars"
 	],
 	"beta": [
 		"amazon",
+		"blogging-prompt",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",

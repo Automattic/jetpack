@@ -39,11 +39,6 @@
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [
-			"plugins/search",
-			"packages/search",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "search",
 		"mirrorName": "jetpack-search-plugin"
 	}

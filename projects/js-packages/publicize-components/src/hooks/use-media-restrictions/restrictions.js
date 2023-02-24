@@ -46,6 +46,30 @@ const facebookVideoTypes = [
 	'video/vob',
 	'video/wmv',
 ];
+const mastodonImageTypes = allowedImageTypes.concat( [
+	'image/gif',
+	'image/heic',
+	'image/heif',
+	'image/webp',
+	'image/avif',
+] );
+const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
+
+// Global max size: 100 GB;
+export const GLOBAL_MAX_SIZE = 100000;
+
+export const DEFAULT_RESTRICTIONS = {
+	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
+	image: {
+		maxSize: 4,
+	},
+	video: {
+		minLength: 0,
+		minSize: 0,
+		maxSize: GLOBAL_MAX_SIZE,
+		maxLength: GLOBAL_MAX_SIZE,
+	},
+};
 
 export const RESTRICTIONS = {
 	twitter: {
@@ -88,6 +112,15 @@ export const RESTRICTIONS = {
 			maxSize: 200,
 			maxLength: 600,
 			minLength: 3,
+		},
+	},
+	mastodon: {
+		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 10,
+		},
+		video: {
+			maxSize: 40,
 		},
 	},
 };

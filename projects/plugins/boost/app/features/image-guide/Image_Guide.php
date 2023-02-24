@@ -46,10 +46,6 @@ class Image_Guide implements Feature {
 		return 'image-guide';
 	}
 
-	public function setup_trigger() {
-		return 'init';
-	}
-
 	public function enqueue_assets() {
 		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
 		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );

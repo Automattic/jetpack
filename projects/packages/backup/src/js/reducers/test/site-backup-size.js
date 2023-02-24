@@ -15,6 +15,7 @@ describe( 'reducer', () => {
 			minDaysOfBackupsAllowed: null,
 			daysOfBackupsAllowed: null,
 			daysOfBackupsSaved: null,
+			retentionDays: null,
 		},
 		fetchingState: {
 			isFetching: true,
@@ -23,6 +24,7 @@ describe( 'reducer', () => {
 			minDaysOfBackupsAllowed: null,
 			daysOfBackupsAllowed: null,
 			daysOfBackupsSaved: null,
+			retentionDays: null,
 		},
 		failedState: {
 			isFetching: false,
@@ -31,6 +33,7 @@ describe( 'reducer', () => {
 			minDaysOfBackupsAllowed: null,
 			daysOfBackupsAllowed: null,
 			daysOfBackupsSaved: null,
+			retentionDays: null,
 		},
 	};
 
@@ -55,6 +58,7 @@ describe( 'reducer', () => {
 						minDaysOfBackupsAllowed: 7,
 						daysOfBackupsAllowed: 30,
 						daysOfBackupsSaved: 24,
+						retentionDays: 7,
 					},
 				},
 				expected: {
@@ -64,6 +68,7 @@ describe( 'reducer', () => {
 					minDaysOfBackupsAllowed: 7,
 					daysOfBackupsAllowed: 30,
 					daysOfBackupsSaved: 24,
+					retentionDays: 7,
 				},
 			},
 			{
