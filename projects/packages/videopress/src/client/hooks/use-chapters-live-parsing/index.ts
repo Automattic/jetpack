@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { useDebounce } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
@@ -13,18 +12,7 @@ import validateChapters from '../../utils/video-chapters/validate-chapters';
 const CHAPTERS_CHECK_INTERVAL = 3000;
 
 const useChaptersLiveParsing = description => {
-	const [ isModalOpen, setIsModalOpen ] = useState( false );
 	const [ hasIncompleteChapters, setHasIncompleteChapters ] = useState( false );
-
-	const learnMoreHelperText = __(
-		'Did you know you can now add Chapters to your videos? <link>Learn how</link>',
-		'jetpack-videopress-pkg'
-	);
-
-	const incompleteChaptersNoticeText = __(
-		'It seems there are some chapters, but they are incomplete. Check out the <link>format</link> and try again.',
-		'jetpack-videopress-pkg'
-	);
 
 	const checkChapters = useCallback( () => {
 		const chapters = extractVideoChapters( description );
@@ -46,12 +34,7 @@ const useChaptersLiveParsing = description => {
 	useEffect( checkChapters, [] );
 
 	return {
-		isModalOpen,
-		setIsModalOpen,
 		hasIncompleteChapters,
-		setHasIncompleteChapters,
-		learnMoreHelperText,
-		incompleteChaptersNoticeText,
 	};
 };
 

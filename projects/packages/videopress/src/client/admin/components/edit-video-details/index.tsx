@@ -11,8 +11,7 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
-import { SelectControl, RadioControl, CheckboxControl, Notice } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -27,9 +26,10 @@ import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import LearnHowModal from '../../../block-editor/blocks/video/components/details-panel/learn-how-notice';
+import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
+import IncompleteChaptersNotice from '../../../components/incomplete-chapters-notice';
 import { VideoPlayer } from '../../../components/video-frame-selector';
 import useChaptersLiveParsing from '../../../hooks/use-chapters-live-parsing';
 import {
@@ -118,45 +118,7 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 } ) => {
-	const {
-		isModalOpen,
-		setIsModalOpen,
-		hasIncompleteChapters,
-		learnMoreHelperText,
-		incompleteChaptersNoticeText,
-	} = useChaptersLiveParsing( description );
-
-	const learnMoreHelper = (
-		<div className={ styles[ 'learn-more' ] }>
-			{ createInterpolateElement( learnMoreHelperText, {
-				link: (
-					<Button
-						variant="link"
-						size="small"
-						onClick={ () => setIsModalOpen( isOpen => ! isOpen ) }
-					/>
-				),
-			} ) }
-		</div>
-	);
-
-	const incompleteChaptersNotice = (
-		<Notice
-			status="warning"
-			className={ styles[ 'incomplete-chapters-notice' ] }
-			isDismissible={ false }
-		>
-			{ createInterpolateElement( incompleteChaptersNoticeText, {
-				link: (
-					<Button
-						variant="link"
-						size="small"
-						onClick={ () => setIsModalOpen( isOpen => ! isOpen ) }
-					/>
-				),
-			} ) }
-		</Notice>
-	);
+	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
 
 	return (
 		<>
@@ -188,9 +150,14 @@ const Infos = ( {
 						rows={ 8 }
 					/>
 					<div className={ styles[ 'chapters-help-container' ] }>
-						{ hasIncompleteChapters ? incompleteChaptersNotice : learnMoreHelper }
+						{ hasIncompleteChapters ? (
+							<IncompleteChaptersNotice className={ styles[ 'incomplete-chapters-notice' ] } />
+						) : (
+							<div className={ styles[ 'learn-more' ] }>
+								<ChaptersLearnMoreHelper />
+							</div>
+						) }
 					</div>
-					<LearnHowModal onClose={ () => setIsModalOpen( false ) } isOpen={ isModalOpen } />
 				</>
 			) }
 		</>
