@@ -28,6 +28,7 @@ import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
+import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
@@ -516,6 +517,12 @@ export default function VideoPressEdit( {
 				/>
 
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+
+				<PosterPanel
+					clientId={ clientId }
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+				/>
 
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
