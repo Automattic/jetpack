@@ -1,12 +1,18 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { select } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { debounce } from 'lodash';
 import { getLoadContext, waitForObject } from '../../../../shared/block-editor-asset-loader';
+import {
+	convertZoomLevelToCameraDistance,
+	convertCameraDistanceToZoomLevel,
+} from '../../mapkit-utils';
+import { MapkitContext } from '../context';
 
 // mapRef can be a ref to the element that will render the map
 // or a ref to the element that will be on the page when the map is rendered.
 // It is only used here to determine the document and window to use.
-const useMapKitSetup = mapRef => {
+const useMapkitSetup = mapRef => {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ mapkit, setMapkit ] = useState( null );
@@ -23,7 +29,7 @@ const useMapKitSetup = mapRef => {
 					async () => {
 						const { currentWindow } = getLoadContext( mapRef.current );
 						const mapkitObj = await waitForObject( currentWindow, 'mapkit' );
-						setMapkit( mapkitObj );
+
 						resolve( mapkitObj );
 					},
 					{ once: true }
@@ -62,6 +68,8 @@ const useMapKitSetup = mapRef => {
 				setLoaded( true );
 			} else {
 				loadLibrary().then( mapkitObj => {
+					setMapkit( mapkitObj );
+
 					fetchKey( mapkitObj ).then( () => {
 						setLoaded( true );
 					} );
@@ -73,4 +81,92 @@ const useMapKitSetup = mapRef => {
 	return { loaded, error, mapkit };
 };
 
-export { useMapKitSetup };
+const useMapkitInit = ( mapkit, loaded, mapRef ) => {
+	const [ map, setMap ] = useState( null );
+	useEffect( () => {
+		if ( mapkit && loaded ) {
+			setMap( new mapkit.Map( mapRef.current ) );
+		}
+	}, [ mapkit, loaded, mapRef ] );
+	return { map };
+};
+
+const useMapkitCenter = ( center, setCenter ) => {
+	const { mapkit, map } = useContext( MapkitContext );
+	const memoizedCenter = useRef( center );
+
+	useEffect( () => {
+		if ( ! mapkit || ! map || ! memoizedCenter.current ) {
+			return;
+		}
+		map.center = new mapkit.Coordinate( memoizedCenter.current.lat, memoizedCenter.current.lng );
+	}, [ mapkit, map, memoizedCenter ] );
+
+	useEffect( () => {
+		if ( ! mapkit || ! map ) {
+			return;
+		}
+
+		const changeRegion = () => {
+			if ( map.center ) {
+				const { latitude, longitude } = map.center;
+				setCenter( { lat: latitude, lng: longitude } );
+			}
+		};
+
+		map.addEventListener( 'region-change-end', debounce( changeRegion, 1000 ) );
+
+		return () => {
+			map.removeEventListener( 'region-change-end', changeRegion );
+		};
+	}, [ mapkit, map, setCenter ] );
+};
+
+const useMapkitType = mapStyle => {
+	const { mapkit, map } = useContext( MapkitContext );
+
+	useEffect( () => {
+		if ( ! mapkit || ! map ) {
+			return;
+		}
+		map.mapType = ( () => {
+			switch ( mapStyle ) {
+				case 'satellite':
+					return mapkit.Map.MapTypes.Satellite;
+				case 'muted':
+					return mapkit.Map.MapTypes.Muted;
+				case 'hybrid':
+					return mapkit.Map.MapTypes.Hybrid;
+				default:
+					return mapkit.Map.MapTypes.Standard;
+			}
+		} )();
+	}, [ mapkit, map, mapStyle ] );
+};
+
+const useMapkitZoom = ( zoom, setZoom ) => {
+	const { mapkit, map } = useContext( MapkitContext );
+
+	useEffect( () => {
+		if ( mapkit && map ) {
+			const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
+			if ( cameraDistance !== map.cameraDistance ) {
+				map.cameraDistance = cameraDistance;
+			}
+		}
+	}, [ mapkit, map, zoom ] );
+
+	useEffect( () => {
+		const changeZoom = () => {
+			setZoom( convertCameraDistanceToZoomLevel( map.cameraDistance, map.center.latitude ) );
+		};
+
+		map.addEventListener( 'zoom-end', changeZoom );
+
+		return () => {
+			map.removeEventListener( 'zoom-end', changeZoom );
+		};
+	}, [ mapkit, map, setZoom ] );
+};
+
+export { useMapkitSetup, useMapkitInit, useMapkitZoom, useMapkitType, useMapkitCenter };

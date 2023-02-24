@@ -17,7 +17,7 @@ import {
 } from './mapbox-utils';
 
 import './style.scss';
-import './map-marker/style.scss';
+import './component/map-marker/style.scss';
 
 class MapBlock {
 	constructor( root, onError = () => {} ) {
