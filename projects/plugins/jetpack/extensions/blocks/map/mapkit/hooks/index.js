@@ -34,7 +34,7 @@ const useMapKitSetup = mapRef => {
 			} );
 		};
 
-		const fetchKey = async mapkitObj => {
+		const fetchKey = mapkitObj => {
 			return new Promise( resolve => {
 				mapkitObj.init( {
 					authorizationCallback: async done => {
