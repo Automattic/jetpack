@@ -17,6 +17,12 @@ const projects = [
 		suite: '',
 	},
 	{
+		project: 'Blocks with latest Gutenberg',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'blocks', '--retries=1' ],
+		suite: 'gutenberg-29113',
+	},
+	{
 		project: 'Jetpack post-connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/post-connection', '--retries=1' ],
