@@ -498,11 +498,19 @@ export default function VideoPressEdit( {
 					isRequestingVideoData={ isRequestingVideoData }
 					{ ...{ attributes, setAttributes } }
 				/>
+
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
 				/>
-				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+			</InspectorControls>
+
+			<InspectorControls __experimentalGroup="color">
+				<ColorPanel
+					clientId={ clientId }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
 			</InspectorControls>
 
 			<ConnectBanner
