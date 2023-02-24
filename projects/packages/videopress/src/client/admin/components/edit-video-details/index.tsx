@@ -11,7 +11,8 @@ import {
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
-import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
+import { SelectControl, RadioControl, CheckboxControl, Notice } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	Icon,
@@ -22,13 +23,15 @@ import {
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { Link } from 'react-router-dom';
+import LearnHowModal from '../../../block-editor/blocks/video/components/details-panel/learn-how-notice';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import useChaptersLiveParsing from '../../../hooks/use-chapters-live-parsing';
 import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
@@ -115,6 +118,46 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 } ) => {
+	const {
+		isModalOpen,
+		setIsModalOpen,
+		hasIncompleteChapters,
+		learnMoreHelperText,
+		incompleteChaptersNoticeText,
+	} = useChaptersLiveParsing( description );
+
+	const learnMoreHelper = (
+		<div className={ styles[ 'learn-more' ] }>
+			{ createInterpolateElement( learnMoreHelperText, {
+				link: (
+					<Button
+						variant="link"
+						size="small"
+						onClick={ () => setIsModalOpen( isOpen => ! isOpen ) }
+					/>
+				),
+			} ) }
+		</div>
+	);
+
+	const incompleteChaptersNotice = (
+		<Notice
+			status="warning"
+			className={ styles[ 'incomplete-chapters-notice' ] }
+			isDismissible={ false }
+		>
+			{ createInterpolateElement( incompleteChaptersNoticeText, {
+				link: (
+					<Button
+						variant="link"
+						size="small"
+						onClick={ () => setIsModalOpen( isOpen => ! isOpen ) }
+					/>
+				),
+			} ) }
+		</Notice>
+	);
+
 	return (
 		<>
 			{ loading ? (
@@ -132,17 +175,23 @@ const Infos = ( {
 			{ loading ? (
 				<Placeholder height={ 133 } className={ styles.input } />
 			) : (
-				<Input
-					value={ description }
-					className={ styles.input }
-					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
-					name="description"
-					onChange={ onChangeDescription }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-					rows={ 4 }
-				/>
+				<>
+					<Input
+						value={ description }
+						className={ styles.input }
+						label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+						name="description"
+						onChange={ onChangeDescription }
+						onEnter={ noop }
+						type="textarea"
+						size="large"
+						rows={ 4 }
+					/>
+					<div className={ styles[ 'chapters-help-container' ] }>
+						{ hasIncompleteChapters ? incompleteChaptersNotice : learnMoreHelper }
+					</div>
+					<LearnHowModal onClose={ () => setIsModalOpen( false ) } isOpen={ isModalOpen } />
+				</>
 			) }
 		</>
 	);
