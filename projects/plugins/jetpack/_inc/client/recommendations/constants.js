@@ -19,6 +19,8 @@ export const RECOMMENDATION_WIZARD_STEP = {
 	RELATED_POSTS: 'related-posts',
 	CREATIVE_MAIL: 'creative-mail',
 	SITE_ACCELERATOR: 'site-accelerator',
+	VAULTPRESS_BACKUP: 'vaultpress-backup',
+	VAULTPRESS_FOR_WOOCOMMERCE: 'vaultpress-for-woocommerce',
 	PUBLICIZE: 'publicize',
 	PROTECT: 'protect',
 	ANTI_SPAM: 'anti-spam',
