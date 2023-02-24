@@ -68,42 +68,57 @@ while getopts "v:abh" opt; do
 done
 shift "$(($OPTIND -1))"
 
-# If there are more than two arguments, bail.
-[[ $# -gt 2 ]] && die "Too many arguments specified! Only provide a project and a version number. Got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
-
-# Get the project slug.
+# Parse arguments in associated array of plugins/project => version format.
 declare -A PROJECTS
-SLUG="${1#projects/}" # DWIM
-SLUG="${SLUG%/}" # Sanitize
-if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
-	yellow "Project found: $SLUG"
-	PROJECTS["$SLUG"]=''
-fi
+while [[ $# -gt 0 ]]; do
+	if [[ "$1" =~ ^[a-zA-Z\-]+$ ]]; then
+		PLUGIN=$1
+	else
+		die "Script must be passed in [project] <version> format. Got $1"
+	fi
+	
+	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
+		PROJECTS["$PLUGIN"]=$2
+		SHIFT="2"
+	else
+		PROJECTS["$PLUGIN"]=''
+		SHIFT="1"
+	fi
+	shift "$SHIFT"
+done
 
+# If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
 if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
 	PROJECTS["plugins/mu-wpcom-plugin"]=''
 fi
 
-[ ${#PROJECTS[@]} -eq 0 ] && die "A valid project slug must be specified (make sure project is in plugins/<project> format and comes before specifying version number."
-
-# Try to obtain a version number. 
-for SLUG in "${!PROJECTS[@]}"; do
-	cd "$BASE"
-	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
-		PROJECTS["$SLUG"]=$(cd "projects/$SLUG" && vendor/bin/changelogger version next)
+# Check that the projects are valid.
+for PLUGIN in "${!PROJECTS[@]}"; do
+	# Get the project slug.
+	SLUG="${PLUGIN#projects/}" # DWIM
+	SLUG="${SLUG%/}" # Sanitize
+	SLUG="plugins/$SLUG"
+	if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
+		yellow "Project found: $SLUG"
+		PROJECTS["$PLUGIN"]="$SLUG"
+		unset "${PROJECTS[$PLUGIN]}"
+	else 
+		die "$SLUG isn't a valid project!"
 	fi
 done
 
-for PLUGIN in "${!PROJECTS[@]}"; do
-	read -r -p "Which version are you releasing for $PLUGIN? (${PROJECTS[$PLUGIN]}): " VER
-  	PROJECTS["$PLUGIN"]=${VER:-"${PROJECTS[$PLUGIN]}"}
+# Try to obtain a version number for plugins that we didn't supply.
+for SLUG in "${!PROJECTS[@]}"; do
+	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
+		cd "$BASE"
+		if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
+			PROJECTS["$SLUG"]=$(cd "projects/$SLUG" && vendor/bin/changelogger version next)
+		fi
+	fi
 done
 
-exit
-# We need to loop through the projects
-# Determine the project version
-[[ -z $2 ]] && die "Please specify a version number"
-# Figure out the version(s) to use for the plugin(s).
+
+# Check the plugin version(s) to use for the plugin(s).
 function check_ver {
 	normalize_version_number "$1"
 	if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
@@ -125,20 +140,8 @@ if ! check_ver "$2"; then
 fi
 VERSION="$2"
 
-# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
-VERSION_AB=
-if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
-	VERSION_AB="-${VERSION_AB:1:1}"
-fi
 
-if [[ -n "$ALPHABETA" ]]; then
-	if [[ "$VERSION_AB" != "$ALPHABETA" || ! "$VERSION_AB" ]]; then
-		die "$ALPHABETA passed to script, but version number $VERSION does not contain the corresponding flag."
-	fi
-elif [[ -n "$VERSION_AB" && -z "$ALPHABETA" ]]; then
-	die "$VERSION contains alpha or beta flag, but corresponding flag was not passed to the script, i.e. tools/release-plugin.sh -b plugins/jetpack 11.6-beta."
-fi
-
+exit
 proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Check if a remote branch for the release branch exits and ask to delete it if it does.
@@ -181,6 +184,11 @@ fi
 
 yellow "Updating the changelogs."
 # Run the changelogger release script
+# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
+VERSION_AB=
+if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
+	VERSION_AB="-${VERSION_AB:1:1}"
+fi
 tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
 
 # When it completes, wait for user to edit anything they want, then push key to continue.
