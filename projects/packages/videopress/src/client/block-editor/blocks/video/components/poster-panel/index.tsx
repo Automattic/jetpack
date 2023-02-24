@@ -36,9 +36,8 @@ export function PosterDropdown( {
 		setAttributes( { poster: image.url } );
 	};
 
-	const posterActionLabel = ! poster
-		? __( 'Select Poster Image', 'jetpack-videopress-pkg' )
-		: __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
+	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
+	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
 
 	return (
 		<Dropdown
@@ -52,7 +51,7 @@ export function PosterDropdown( {
 					onClick={ onToggle }
 					aria-expanded={ isOpen }
 				>
-					<span>{ posterActionLabel }</span>
+					<span>{ ! poster ? selectPosterLabel : replacePosterLabel }</span>
 				</Button>
 			) }
 			renderContent={ ( { onClose } ) => {
