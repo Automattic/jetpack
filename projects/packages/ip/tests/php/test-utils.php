@@ -336,4 +336,24 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		$this->assertEquals( $expected, Utils::get_ip_addresses_from_string( $ip_string ) );
 	}
 
+	/**
+	 * Test `validate_ip_range`.
+	 *
+	 * @covers ::validate_ip_range
+	 */
+	public function test_validate_ip_range() {
+		// Valid range.
+		$this->assertTrue( Utils::validate_ip_range( '1.1.1.1', '2.2.2.2' ) );
+		$this->assertTrue( Utils::validate_ip_range( '2001:db8::1', '2001:db8::2' ) );
+
+		// Invalid ranges.
+		$this->assertFalse( Utils::validate_ip_range( '2.2.2.2', '1.1.1.1' ) );
+		$this->assertFalse( Utils::validate_ip_range( '2001:db8::2', '2001:db8::1' ) );
+		$this->assertFalse( Utils::validate_ip_range( '1.1.1', '2.2.2.2' ) );
+
+		// Ranges with the same low and high address are still considered valid.
+		$this->assertTrue( Utils::validate_ip_range( '1.1.1.1', '1.1.1.1' ) );
+		$this->assertTrue( Utils::validate_ip_range( '2001:db8::1', '2001:db8::1' ) );
+	}
+
 }
