@@ -44,11 +44,11 @@
 	.gridicon {
 		display: inline-flex;
 
-		&:first-child {
+		&.gridicons-arrow-left {
 			margin-right: 3px;
 		}
 
-		&:last-child {
+		&.gridicons-arrow-right {
 			margin-left: 3px;
 		}
 	}
