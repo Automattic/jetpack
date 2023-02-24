@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Test fix: adapted the Sync test to WordPress Core changes in post deletion mechanics.
