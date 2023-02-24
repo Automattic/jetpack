@@ -1,7 +1,7 @@
+import { Gridicon } from '@automattic/jetpack-components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { filter, flatten, map, range } from 'lodash';
-import Gridicon from '../Gridicon';
 import PageNumber from './page-number';
 
 import './style.scss';
