@@ -2,7 +2,6 @@
  * Type definitions for the global namespace. i.e.: things we expect to find in window.
  */
 
-import { CriticalCssIssue } from './stores/critical-css-recommendations';
 import type { ConnectionStatus } from './stores/connection';
 import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
