@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 require_once __DIR__ . '/functions.php';
 
 // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
