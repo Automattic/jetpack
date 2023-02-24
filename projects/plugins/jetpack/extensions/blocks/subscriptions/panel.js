@@ -94,7 +94,7 @@ export default function SubscribePanels() {
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
 				{ isNewsletterFeatureEnabled() && showMisconfigurationMessage && (
-					<MisconfigurationWarning />
+					<MisconfigurationWarning accessLevel={ accessLevel } />
 				) }
 				{ showNotices && (
 					<InspectorNotice>
@@ -141,7 +141,7 @@ export default function SubscribePanels() {
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
 				{ isNewsletterFeatureEnabled() && showMisconfigurationMessage && (
-					<MisconfigurationWarning />
+					<MisconfigurationWarning accessLevel={ accessLevel } />
 				) }
 				{ showNotices && (
 					<InspectorNotice>

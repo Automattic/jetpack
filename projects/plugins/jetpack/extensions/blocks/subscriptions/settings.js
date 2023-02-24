@@ -27,16 +27,17 @@ export const accessOptions = {
 	},
 };
 
-export function MisconfigurationWarning() {
+export function MisconfigurationWarning( { accessLevel } ) {
 	return (
 		<InspectorNotice spanClass={ 'jetpack-subscribe-notice-misconfiguration warning' }>
-			{
-				/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
+			{ sprintf(
+				/* translators: %s: visibility label for the newsletter. this is a warning in the newsletter when posts have a private or password-protected visibility */
 				__(
-					'Newsletters are not configured properly as private or password-protected posts cannot be assigned for Subscribers only. Please update this to everybody, or update your post visibility setting.',
+					'Private or password-protected posts cannot be assigned a newsletter setting of %s. Please update the setting to "Everybody", or update the post visibility setting.',
 					'jetpack'
-				)
-			}
+				),
+				accessOptions[ accessLevel ].label
+			) }
 		</InspectorNotice>
 	);
 }
@@ -102,13 +103,8 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 							<InspectorNotice spanClass={ 'jetpack-subscribe-info' }>
 								{ createInterpolateElement(
 									/* translators: basic information about the newsletter visibility */
-									__(
-										'You can restrict your post as accessible only to your e-mail subscribers or your paid supporters. The email version of this post will be delivered accordingly.<br/>' +
-											'Read more about Paid Newsletters: <a>doc link</a>.',
-										'jetpack'
-									),
+									__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
 									{
-										br: <br />,
 										a: (
 											<a
 												href={ getRedirectUrl( 'paid-newsletter-info', {
@@ -137,7 +133,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 
 						{ canEdit && showMisconfigurationMessage && (
 							<FlexBlock>
-								<MisconfigurationWarning />
+								<MisconfigurationWarning accessLevel={ accessLevel } />
 							</FlexBlock>
 						) }
 
