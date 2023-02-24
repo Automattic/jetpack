@@ -514,11 +514,24 @@ export default function VideoPressEdit( {
 					isRequestingVideoData={ isRequestingVideoData }
 					{ ...{ attributes, setAttributes } }
 				/>
+
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
 				/>
-				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+			</InspectorControls>
+
+			{ /*
+			 * __experimentalGroup is a temporary prop to allow us to group the color panel,
+			 * and it will be replaced with the `group` prop once it's stabilized.
+			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
+			 */ }
+			<InspectorControls __experimentalGroup="color">
+				<ColorPanel
+					clientId={ clientId }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
 			</InspectorControls>
 
 			<ConnectBanner
