@@ -803,13 +803,9 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 						<?php
 						if ( isset( $log['shortdesc'] ) ) {
 							echo wp_kses( $log['shortdesc'], array( 'i' => array( 'class' => true ) ) );
-							?>
-							<?php
 							if ( isset( $log['author'] ) ) {
 								echo ' &mdash; ' . esc_html( $log['author'] );
 							}
-							?>
-							<?php
 							if ( isset( $log['nicetime'] ) ) {
 								echo ' &mdash; <i class="clock icon"></i>' . esc_html( $log['nicetime'] );
 							}
