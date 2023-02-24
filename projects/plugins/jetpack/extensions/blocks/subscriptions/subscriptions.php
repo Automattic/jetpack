@@ -496,6 +496,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 					<?php
 					printf(
 						'<input
+							required="required"
 							type="email"
 							name="email"
 							%1$s
