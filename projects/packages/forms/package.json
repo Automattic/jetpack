@@ -66,6 +66,7 @@
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.11.0",
 		"@wordpress/browserslist-config": "5.11.0",
 		"@wordpress/components": "23.5.0",
+		"@wordpress/date": "4.26.0",
 		"autoprefixer": "10.4.12",
 		"concurrently": "6.4.0",
 		"glob": "7.1.6",
