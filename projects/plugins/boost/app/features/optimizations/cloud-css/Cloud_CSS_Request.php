@@ -21,6 +21,8 @@ class Cloud_CSS_Request {
 		// Provide the Cloud with URLs to generate CSS for.
 		$providers    = new Source_Providers();
 		$sources      = $providers->get_sources();
+		$state = new Cloud_CSS_State();
+		$state->set_pending_providers( $sources )->save();
 		$grouped_urls = array();
 		foreach ( $sources as $provider => $source ) {
 			$grouped_urls[ $provider ] = $source['urls'];

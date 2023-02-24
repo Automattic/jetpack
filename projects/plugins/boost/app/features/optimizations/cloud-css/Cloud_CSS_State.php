@@ -15,7 +15,7 @@ class Cloud_CSS_State {
 	}
 
 	public function save() {
-		jetpack_boost_ds_set( 'cloud_css_state', $this->state );
+		jetpack_boost_ds_set( 'cloud_critical_css_state', $this->state );
 		$this->critical_css_state->save();
 	}
 
@@ -67,5 +67,15 @@ class Cloud_CSS_State {
 			}
 		}
 		return $pending;
+	}
+
+	public function set_pending_providers( $providers ) {
+		foreach ($providers as $provider) {
+			$provider['status'] = self::REQUESTING;
+		}
+
+		$this->state['sources'] = $providers;
+
+		return $this;
 	}
 }
