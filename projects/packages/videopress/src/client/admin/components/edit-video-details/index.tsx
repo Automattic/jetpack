@@ -43,6 +43,7 @@ import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
+import VideoDetailsActions from '../video-details-actions';
 import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
@@ -74,7 +75,7 @@ const Header = ( {
 					{ ! isSm && <Icon icon={ chevronRightSmall } /> }
 					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
-				<div>
+				<div className={ styles.buttons }>
 					<Button
 						disabled={ saveDisabled || saving }
 						onClick={ onSaveChanges }
@@ -82,6 +83,7 @@ const Header = ( {
 					>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
+					<VideoDetailsActions />
 				</div>
 			</div>
 		</div>
