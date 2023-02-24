@@ -183,16 +183,16 @@ class Utils {
 		$result = array();
 
 		foreach ( $ips as $ip ) {
-			// Validate both IP values from the range
+			// Validate both IP values from the range.
 			$range = explode( '-', $ip );
 			if ( count( $range ) === 2 ) {
-				if ( filter_var( $range[0], FILTER_VALIDATE_IP ) !== false || filter_var( $range[1], FILTER_VALIDATE_IP ) !== false ) {
+				if ( filter_var( $range[0], FILTER_VALIDATE_IP ) !== false && filter_var( $range[1], FILTER_VALIDATE_IP ) !== false ) {
 					$result[] = $ip;
 				}
 				continue;
 			}
 
-			// validate the single IP value
+			// Validate the single IP value.
 			if ( filter_var( $ip, FILTER_VALIDATE_IP ) !== false ) {
 				$result[] = $ip;
 			}
