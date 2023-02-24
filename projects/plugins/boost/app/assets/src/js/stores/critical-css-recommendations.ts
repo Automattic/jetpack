@@ -1,5 +1,4 @@
 import { writable, derived, get, Readable } from 'svelte/store';
-import { __ } from '@wordpress/i18n';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
 import { criticalCssStatus, updateIssues } from './critical-css-status';
@@ -16,7 +15,7 @@ import { JSONObject } from './data-sync-client';
  */
 export type ErrorSet = {
 	type: Critical_CSS_Error_Type; // Type of errors in this set.
-	firstMeta: JSONObject; // Meta from the first error, for convenience.
+	firstMeta: { [ key: string ]: JSONObject }; // Meta from the first error, for convenience.
 	byUrl: {
 		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};

@@ -231,7 +231,7 @@ async function generateForKeys(
 					[ url: string ]: {
 						message: string;
 						type: Critical_CSS_Error_Type;
-						meta: JSONObject;
+						meta: { [ key: string ]: JSONObject };
 					};
 				};
 				const errorsWithURLs = Object.keys( urlErrors ).map( url => {

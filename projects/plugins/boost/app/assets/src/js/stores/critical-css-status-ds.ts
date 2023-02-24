@@ -19,7 +19,7 @@ export type Critical_CSS_Error_Type = z.infer< typeof CriticalCssErrorType >;
 const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
-	meta: JSONSchema,
+	meta: z.record( JSONSchema ),
 	type: CriticalCssErrorType,
 } );
 
