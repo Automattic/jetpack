@@ -14,23 +14,21 @@ const useMapKitSetup = mapRef => {
 	useEffect( () => {
 		const blog_id = select( CONNECTION_STORE_ID ).getBlogId();
 
-		const loadLibrary = async () => {
+		const loadLibrary = () => {
 			return new Promise( resolve => {
 				const { currentDoc } = getLoadContext( mapRef.current );
 				const element = currentDoc.createElement( 'script' );
 				element.addEventListener(
 					'load',
-					() => {
+					async () => {
 						const { currentWindow } = getLoadContext( mapRef.current );
-						waitForObject( currentWindow, 'mapkit' ).then( mapkitObj => {
-							setMapkit( mapkitObj );
-							resolve( mapkitObj );
-						} );
+						const mapkitObj = await waitForObject( currentWindow, 'mapkit' );
+						setMapkit( mapkitObj );
+						resolve( mapkitObj );
 					},
 					{ once: true }
 				);
 				element.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
-				//element['data-libraries'] = 'services,full-map,geojson';
 				element.crossOrigin = 'anonymous';
 				currentDoc.head.appendChild( element );
 			} );
@@ -39,18 +37,17 @@ const useMapKitSetup = mapRef => {
 		const fetchKey = async mapkitObj => {
 			return new Promise( resolve => {
 				mapkitObj.init( {
-					authorizationCallback: done => {
-						fetch( `https://public-api.wordpress.com/wpcom/v2/sites/${ blog_id }/mapkit` )
-							.then( response => {
-								if ( response.status === 200 ) {
-									return response.json();
-								}
-								setError( 'Mapkit API error' );
-							} )
-							.then( data => {
-								done( data.wpcom_mapkit_access_token );
-								resolve();
-							} );
+					authorizationCallback: async done => {
+						const response = await fetch(
+							`https://public-api.wordpress.com/wpcom/v2/sites/${ blog_id }/mapkit`
+						);
+						if ( response.status === 200 ) {
+							const data = await response.json();
+							done( data.wpcom_mapkit_access_token );
+						} else {
+							setError( 'Mapkit API error' );
+						}
+						resolve();
 					},
 				} );
 			} );
