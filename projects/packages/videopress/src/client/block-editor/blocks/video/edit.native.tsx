@@ -10,9 +10,11 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../lib/url';
+import { usePreview } from '../../hooks/use-preview';
 import { VideoPressIcon as icon } from './components/icons';
+import VideoPressPlayer from './components/videopress-player';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from './constants';
-import style from './style.scss';
 
 /**
  * VideoPress block Edit react components
@@ -28,6 +30,21 @@ export default function VideoPressEdit( { attributes, setAttributes } ): React.R
 	 * They should eventually be edited or replaced to support VideoPress.
 	 */
 
+	const {
+		autoplay,
+		loop,
+		muted,
+		controls,
+		playsinline,
+		preload,
+		useAverageColor,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		guid,
+		cacheHtml,
+		poster,
+	} = attributes;
 	/**
 	 * Function to set attributes upon media upload
 	 *
@@ -38,6 +55,28 @@ export default function VideoPressEdit( { attributes, setAttributes } ): React.R
 	function onSelectMediaUploadOption( { id, url } ) {
 		setAttributes( { id, src: url } );
 	}
+
+	const videoPressUrl = getVideoPressUrl( guid, {
+		autoplay,
+		controls,
+		loop,
+		muted,
+		playsinline,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		useAverageColor,
+		poster,
+	} );
+
+	// Get video preview status.
+	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+
+	// Pick video properties from preview.
+	const { html: previewHtml, scripts } = preview;
+
+	const html = previewHtml || cacheHtml;
 
 	if ( ! attributes.id ) {
 		return (
@@ -52,8 +91,12 @@ export default function VideoPressEdit( { attributes, setAttributes } ): React.R
 	}
 
 	return (
-		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
-			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
-		</View>
+		<VideoPressPlayer
+			html={ html }
+			isRequestingEmbedPreview={ isRequestingEmbedPreview }
+			scripts={ scripts }
+			attributes={ attributes }
+			preview={ preview }
+		/>
 	);
 }
