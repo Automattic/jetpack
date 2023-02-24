@@ -16,7 +16,6 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 		options: async value => {
 			return new Promise( function ( resolve, reject ) {
 				const search = new mapkit.Search( {
-					getsUserLocation: true,
 					includePointsOfInterest: false,
 				} );
 				search.autocomplete( value, ( err, results ) => {
