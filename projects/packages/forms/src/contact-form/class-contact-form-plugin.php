@@ -2009,6 +2009,7 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
+		$fields['all_fields']           = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 
