@@ -21,7 +21,7 @@ class Cloud_CSS_State {
 
 	private function validate_provider_key( $provider_key ) {
 		if ( ! isset( $this->state['sources'][ $provider_key ] ) ) {
-			error_log( 'Cloud CSS: validate_provider_key() called with unknown provider key' );
+			error_log( 'Cloud CSS: validate_provider_key() called with unknown provider key: "' . $provider_key . '"' );
 			return false;
 		}
 		return true;
