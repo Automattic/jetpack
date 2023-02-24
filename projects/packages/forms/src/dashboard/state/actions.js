@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+/**
  * Internal dependencies
  */
 import {
@@ -6,7 +10,6 @@ import {
 	JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
 	JETPACK_FORMS_RESPONSES_FETCH_FAIL,
 } from './action-types';
-import responses from './fixtures/responses';
 
 export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 	return async dispatch => {
@@ -24,7 +27,7 @@ export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 		} ).toString();
 
 		try {
-			const data = await apiFake( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
+			const data = await apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
 
 			dispatch( {
 				type: JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
@@ -39,19 +42,4 @@ export const fetchResponses = ( query, limit = 20, offset = 0 ) => {
 			} );
 		}
 	};
-};
-
-// TODO: This only here while we get the endpoints merged in. Replace with import apiFetch from '@wordpress/api-fetch';
-const delay = ms => new Promise( resolve => setTimeout( resolve, ms ) );
-const apiFake = async params => {
-	const method = params.method ? params.method.toUpperCase() : 'GET';
-	// eslint-disable-next-line -- this is debugging code
-	console.log( `Faking request to: ${ method } ${ params.path }` );
-	await delay( 500 );
-	switch ( `${ method } ${ params.path }` ) {
-		case 'GET /wpcom/v2/forms/responses?limit=10&offset=0':
-			return responses;
-		default:
-			return '';
-	}
 };
