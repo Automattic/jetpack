@@ -12,30 +12,30 @@
  */
 
 /*
-    Copyright Automattic and many other contributors.
+	Copyright Automattic and many other contributors.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+	You should have received a copy of the GNU General Public License
+	along with this program; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 define( 'WPSC_VERSION', '1.9.1-alpha' );
 
-require_once( __DIR__. '/inc/delete-cache-button.php');
-require_once( __DIR__. '/inc/preload-notification.php');
+require_once( __DIR__ . '/inc/delete-cache-button.php' );
+require_once( __DIR__ . '/inc/preload-notification.php' );å
 
 if ( ! function_exists( 'wp_cache_phase2' ) ) {
-	require_once( __DIR__. '/wp-cache-phase2.php');
+	require_once( __DIR__ . '/wp-cache-phase2.php' );
 }
 
 if ( ! defined( 'PHP_VERSION_ID' ) ) {
@@ -63,13 +63,13 @@ function wpsc_init() {
 		'jetpack'     => 'https://jetpack.com/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
 	);
 
-	if ( !defined( 'WPCACHEHOME' ) ) {
+	if ( ! defined( 'WPCACHEHOME' ) ) {
 		define( 'WPCACHEHOME', __DIR__ . '/' );
 		$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 		$wpsc_advanced_cache_dist_filename = WPCACHEHOME . 'advanced-cache.php';
 	} elseif ( realpath( WPCACHEHOME ) != realpath( __DIR__ ) ) {
-		$wp_cache_config_file_sample = __DIR__. '/wp-cache-config-sample.php';
-		$wpsc_advanced_cache_dist_filename = __DIR__. '/advanced-cache.php';
+		$wp_cache_config_file_sample = __DIR__ . '/wp-cache-config-sample.php';
+		$wpsc_advanced_cache_dist_filename = __DIR__ . '/advanced-cache.php';
 		if ( ! defined( 'ADVANCEDCACHEPROBLEM' ) ) {
 			define( 'ADVANCEDCACHEPROBLEM', 1 ); // force an update of WPCACHEHOME
 		}
@@ -79,7 +79,7 @@ function wpsc_init() {
 	}
 	$wpsc_advanced_cache_filename = WP_CONTENT_DIR . '/advanced-cache.php';
 
-	if ( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) ) {
+	if ( ! defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) ) {
 		$wp_cache_check_wp_config = true;
 	}
 }
@@ -110,9 +110,9 @@ if ( ! isset( $cache_enabled, $super_cache_enabled, $wp_cache_mod_rewrite, $cach
 	@include $wp_cache_config_file_sample; // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
 }
 
-include(WPCACHEHOME . 'wp-cache-base.php');
+include( WPCACHEHOME . 'wp-cache-base.php' );
 if ( class_exists( 'WP_REST_Controller' ) ) {
-	include( __DIR__. '/rest/load.php' );
+	include( __DIR__ . '/rest/load.php' );
 }
 
 function wp_super_cache_init_action() {
@@ -126,11 +126,11 @@ add_action( 'init', 'wp_super_cache_init_action' );
 function wp_cache_set_home() {
 	global $wp_cache_is_home;
 	$wp_cache_is_home = ( is_front_page() || is_home() );
-	if ( $wp_cache_is_home && is_paged() )
+	if ( $wp_cache_is_home && is_paged() ) {
 		$wp_cache_is_home = false;
+	}
 }
 add_action( 'template_redirect', 'wp_cache_set_home' );
-
 
 // OSSDL CDN plugin (https://wordpress.org/plugins/ossdl-cdn-off-linker/)
 include_once( WPCACHEHOME . 'ossdl-cdn.php' );
@@ -146,6 +146,7 @@ function get_wpcachehome() {
 		} elseif ( is_file( __DIR__ . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
 			define( 'WPCACHEHOME', __DIR__ . '/wp-super-cache/' );
 		} else {
+			// translators: the placeholder adds in the actual path of the site
 			die( sprintf( esc_html__( 'Please create %s/wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php', 'wp-super-cache' ), esc_attr( WPCACHECONFIGPATH ) ) );
 		}
 	}
@@ -156,8 +157,8 @@ function wpsc_remove_advanced_cache() {
 	if ( file_exists( $wpsc_advanced_cache_filename ) ) {
 		$file = file_get_contents( $wpsc_advanced_cache_filename );
 		if (
-			strpos( $file, "WP SUPER CACHE 0.8.9.1" ) ||
-			strpos( $file, "WP SUPER CACHE 1.2" )
+			strpos( $file, 'WP SUPER CACHE 0.8.9.1' ) ||
+			strpos( $file, 'WP SUPER CACHE 1.2' )
 		) {
 			unlink( $wpsc_advanced_cache_filename );
 		}
@@ -207,7 +208,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
 	wp_clear_scheduled_hook( 'wp_cache_gc' );
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
-	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
+	wp_cache_replace_line( '^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file );
 	wp_cache_disable_plugin( false ); // don't delete configuration file
 	delete_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner' );
 }
@@ -215,9 +216,9 @@ register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
 	global $cache_path;
-	if ( ! isset( $cache_path ) || $cache_path == '' )
+	if ( ! isset( $cache_path ) || $cache_path == '' ) {
 		$cache_path = WP_CONTENT_DIR . '/cache/'; // from sample config file
-
+	}
 	ob_start();
 	wpsc_init();
 
@@ -254,7 +255,6 @@ function wp_cache_add_pages() {
 	}
 }
 add_action( 'admin_menu', 'wp_cache_add_pages' );
-
 
 function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
@@ -427,7 +427,7 @@ function wp_cache_manager_error_checks() {
 
 	if ( '' == get_option( 'permalink_structure' ) ) {
 		echo '<div class="notice notice-error"><h4>' . __( 'Permlink Structure Error', 'wp-super-cache' ) . '</h4>';
-		echo "<p>" . __( 'A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href="options-permalink.php">Permalinks Options Page</a> to configure your permalinks.', 'wp-super-cache' ) . "</p>";
+		echo '<p>' . __( 'A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href="options-permalink.php">Permalinks Options Page</a> to configure your permalinks.', 'wp-super-cache' ) . '</p>';
 		echo '</div>';
 		return false;
 	}
@@ -439,7 +439,7 @@ function wp_cache_manager_error_checks() {
 			<p><?php _e( 'The WordPress CRON jobs system is disabled. This means the garbage collection system will not work unless you run the CRON system manually.', 'wp-super-cache' ); ?></p>
 			</div>
 			<?php
-		} elseif ( function_exists( "wp_remote_get" ) == false ) {
+		} elseif ( function_exists( 'wp_remote_get' ) == false ) {
 			$hostname = str_replace( 'http://', '', str_replace( 'https://', '', get_option( 'siteurl' ) ) );
 			if( strpos( $hostname, '/' ) )
 				$hostname = substr( $hostname, 0, strpos( $hostname, '/' ) );
