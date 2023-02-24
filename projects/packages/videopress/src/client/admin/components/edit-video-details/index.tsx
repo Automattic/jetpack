@@ -185,7 +185,7 @@ const Infos = ( {
 						onEnter={ noop }
 						type="textarea"
 						size="large"
-						rows={ 4 }
+						rows={ 8 }
 					/>
 					<div className={ styles[ 'chapters-help-container' ] }>
 						{ hasIncompleteChapters ? incompleteChaptersNotice : learnMoreHelper }
