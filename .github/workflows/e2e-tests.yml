@@ -137,7 +137,7 @@ jobs:
           echo "::endgroup::"
         fi
 
-        if [ "${SUITE}" == gutenberg* ]; then
+        if [[ "${SUITE}" == gutenberg* ]]; then
             echo "::group::Setting up Gutenberg"
             pnpm e2e-env gb-setup
             echo "::endgroup::"
