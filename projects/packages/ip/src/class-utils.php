@@ -222,7 +222,7 @@ class Utils {
 			// We can then use strcmp to see if the address is in range.
 			$ip_low  = inet_pton( $range_low );
 			$ip_high = inet_pton( $range_high );
-			if ( ! $ip_low || ! $ip_high ) {
+			if ( false === $ip_low || false === $ip_high ) {
 				return false;
 			}
 			if ( strcmp( $ip_low, $ip_high ) > 0 ) {
@@ -232,7 +232,7 @@ class Utils {
 			// The ip2long will give us an integer of an ipv4 address only. it will produce FALSE for ipv6.
 			$ip_low  = ip2long( $range_low );
 			$ip_high = ip2long( $range_high );
-			if ( ! $ip_low || ! $ip_high ) {
+			if ( false === $ip_low || false === $ip_high ) {
 				return false;
 			}
 			if ( $ip_low > $ip_high ) {
