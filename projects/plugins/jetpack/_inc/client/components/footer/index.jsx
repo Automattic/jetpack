@@ -1,4 +1,5 @@
 import { getRedirectUrl, JetpackFooter } from '@automattic/jetpack-components';
+import { Dashicon } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import DevCard from 'components/dev-card';
@@ -189,6 +190,7 @@ export class Footer extends React.Component {
 										version
 								  )
 								: 'Jetpack' }
+							{ <Dashicon icon="external" /> }
 						</a>
 					</li>
 				);
@@ -211,10 +213,13 @@ export class Footer extends React.Component {
 						<a
 							onClick={ this.trackAboutClick }
 							href={ aboutPageUrl }
+							target={ this.props.siteConnectionStatus ? '_self' : '_blank' }
+							rel="noopener noreferrer"
 							className="jp-footer__link"
 							title={ __( 'About Jetpack', 'jetpack' ) }
 						>
 							{ _x( 'About', 'Link to learn more about Jetpack.', 'jetpack' ) }
+							{ ! this.props.siteConnectionStatus && <Dashicon icon="external" /> }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
@@ -227,17 +232,20 @@ export class Footer extends React.Component {
 							className="jp-footer__link"
 						>
 							{ _x( 'Terms', 'Shorthand for Terms of Service.', 'jetpack' ) }
+							{ <Dashicon icon="external" /> }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackPrivacyClick }
 							href={ privacyUrl }
+							target={ this.props.siteConnectionStatus ? '_self' : '_blank' }
 							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy", 'jetpack' ) }
 							className="jp-footer__link"
 						>
 							{ _x( 'Privacy', 'Shorthand for Privacy Policy.', 'jetpack' ) }
+							{ ! this.props.siteConnectionStatus && <Dashicon icon="external" /> }
 						</a>
 					</li>
 					{ maybeShowModules() }

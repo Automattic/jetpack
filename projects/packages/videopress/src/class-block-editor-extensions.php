@@ -35,10 +35,10 @@ class Block_Editor_Extensions {
 	 * This method should be called only once by the Block registrar.
 	 * Do not call this method again.
 	 *
-	 * @param array $block_metadata - The block metadata.
+	 * @param string $script_handle - The script handle.
 	 */
-	public static function init( $block_metadata ) {
-		if ( ! Status::is_active() ) {
+	public static function init( $script_handle ) {
+		if ( ! Status::is_registrant_plugin_active() ) {
 			return;
 		}
 
@@ -46,7 +46,7 @@ class Block_Editor_Extensions {
 		 * Use the videopress/video editor script handle to localize enqueue scripts.
 		 * @see https://developer.wordpress.org/reference/functions/generate_block_asset_handle
 		 */
-		self::$script_handle = generate_block_asset_handle( $block_metadata->name, 'editorScript' );
+		self::$script_handle = $script_handle;
 
 		/**
 		* Alternative to `JETPACK_BETA_BLOCKS`, set to `true` to load Beta Blocks.
@@ -153,9 +153,14 @@ class Block_Editor_Extensions {
 		}
 
 		$videopress_editor_state = array(
-			'extensions'          => $extensions_list,
-			'siteType'            => $site_type,
-			'myJetpackConnectUrl' => admin_url( 'admin.php?page=my-jetpack#/connection' ),
+			'extensions'                  => $extensions_list,
+			'siteType'                    => $site_type,
+			'myJetpackConnectUrl'         => admin_url( 'admin.php?page=my-jetpack#/connection' ),
+			'jetpackVideoPressSettingUrl' => admin_url( 'admin.php?page=jetpack#/settings?term=videopress' ),
+			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
+			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
+			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
+			'playerBridgeUrl'             => plugins_url( '../build/lib/player-bridge.js', __FILE__ ),
 		);
 
 		// Expose initital state of site connection

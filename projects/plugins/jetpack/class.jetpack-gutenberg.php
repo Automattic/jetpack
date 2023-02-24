@@ -688,6 +688,11 @@ class Jetpack_Gutenberg {
 				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
 				 */
 				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
+				/**
+				 * Prevent the registration of the blocks from extensions/blocks/contact-form
+				 * if the Forms package is enabled.
+				 */
+				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', false ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
@@ -700,9 +705,10 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
-				'sharesData'                  => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                 => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'sharesData'                    => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                   => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( $blog_id ),
 			);
 		}
 

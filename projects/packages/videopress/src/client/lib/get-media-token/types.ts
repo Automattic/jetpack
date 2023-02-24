@@ -19,6 +19,8 @@ export type GetMediaTokenArgsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
 	adminAjaxAPI?: string;
+	filename?: string;
+	flushToken?: boolean;
 };
 
 export type AdminAjaxTokenProps = AdminAjaxTokensProps[ number ];
@@ -41,7 +43,10 @@ export type MediaTokenProps = {
 declare global {
 	interface Window {
 		videopressAjax: {
+			context?: 'main' | 'sandbox';
 			ajaxUrl: string;
+			bridgeUrl: string;
+			post_id: string;
 		};
 		ajaxurl?: string;
 	}

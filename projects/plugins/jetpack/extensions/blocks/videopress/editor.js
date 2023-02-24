@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import analytics from '@automattic/jetpack-analytics';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -6,15 +10,19 @@ import {
 } from '@automattic/jetpack-shared-extension-utils';
 import { createBlobURL } from '@wordpress/blob';
 import { useBlockEditContext, store as blockEditorStore } from '@wordpress/block-editor';
+import { parse } from '@wordpress/block-serialization-default-parser';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
-import { mediaUpload } from '@wordpress/editor';
+import { useDispatch, select } from '@wordpress/data';
+import { mediaUpload, store as editorStore } from '@wordpress/editor';
 import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { VideoPressBlockContext } from './components';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
@@ -22,7 +30,8 @@ import deprecatedV3 from './deprecated/v3';
 import deprecatedV4 from './deprecated/v4';
 import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
-import { pickGUIDFromUrl } from './utils';
+import { pickGUIDFromUrl, isVideoPressBlockBasedOnAttributes } from './utils';
+import addV6TransformSupport from './v6-transform';
 import addVideoPressVideoChaptersSupport from './video-chapters';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './editor.scss';
@@ -397,6 +406,12 @@ addFilter(
 	addVideoPressVideoChaptersSupport
 );
 
+addFilter(
+	'blocks.registerBlockType',
+	'videopress/add-v6-transform-support',
+	addV6TransformSupport
+);
+
 /**
  * Extend videopress/video transform to/from core/video block.
  *
@@ -405,16 +420,18 @@ addFilter(
  * @returns {object} Modified block settings.
  */
 function addVideoPressCoreVideoTransform( settings, name ) {
+	// Apply only to videopress/video block.
+	if ( name !== 'videopress/video' ) {
+		return settings;
+	}
+
 	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
 	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
 		'videopress/video'
 	);
 
-	if ( isVideoPressVideoBlockRegistered && isVideoPressVideoBlockAvailable && isSimpleSite() ) {
-		return settings;
-	}
-
-	if ( name !== 'videopress/video' ) {
+	// If videopress/video block is not registered or not available, do not extend transforms.
+	if ( ! isVideoPressVideoBlockRegistered || ! isVideoPressVideoBlockAvailable ) {
 		return settings;
 	}
 
@@ -431,7 +448,16 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 						const guidFromSrc = pickGUIDFromUrl( src );
 						return guid || guidFromSrc;
 					},
-					transform: attrs => createBlock( 'videopress/video', attrs ),
+					transform: attrs => {
+						const postId = select( editorStore ).getCurrentPostId();
+						analytics?.tracks?.recordEvent(
+							'jetpack_editor_videopress_block_manual_transform_click',
+							{
+								post_id: postId,
+							}
+						);
+						return createBlock( 'videopress/video', attrs );
+					},
 				},
 			],
 			to: [
@@ -476,37 +502,39 @@ function getVideoPressVideoBlockAttributes( attributes, defaultAttributes ) {
 	return attrs;
 }
 
+function mapV6AttributesToV5( attributes ) {
+	const newAttributes = { ...attributes };
+	if ( attributes?.tracks ) {
+		newAttributes.videoPressTracks = attributes.tracks;
+		delete newAttributes.tracks;
+	}
+
+	if ( attributes?.isExample ) {
+		newAttributes.isVideoPressExample = attributes.isExample;
+		delete newAttributes.isExample;
+	}
+
+	if ( attributes?.classNames ) {
+		newAttributes.videoPressClassNames = attributes.classNames;
+		delete newAttributes.classNames;
+	}
+
+	// Clean the rest of the attributes.
+	delete newAttributes.title;
+	delete newAttributes.description;
+	delete newAttributes.cacheHtml;
+	delete newAttributes.videoRatio;
+	delete newAttributes.privacySetting;
+	delete newAttributes.allowDownload;
+	delete newAttributes.displayEmbed;
+	delete newAttributes.rating;
+	delete newAttributes.isPrivate;
+
+	return newAttributes;
+}
+
 /**
- * Check whether the block is a VideoPress block instance,
- * based on the passed attributes.
- *
- * @param {object} attributes - Block attributes.
- * @returns {boolean} 	        Whether the block is a VideoPress block instance.
- */
-const isVideoPressBlockBasedOnAttributes = attributes => {
-	const { guid, videoPressTracks, isVideoPressExample } = attributes;
-
-	// VideoPress block should have a guid attribute.
-	if ( ! guid?.length ) {
-		return false;
-	}
-
-	// VideoPress block should have a videoPressTracks array attribute.
-	if ( ! Array.isArray( videoPressTracks ) ) {
-		return false;
-	}
-
-	// VideoPress block should have a isVideoPressExample boolean attribute.
-	const attrNames = Object.keys( attributes );
-	if ( ! attrNames.includes( 'isVideoPressExample' ) || typeof isVideoPressExample !== 'boolean' ) {
-		return false;
-	}
-
-	return true;
-};
-
-/**
- * Convert some video blocks to VideoPress video blocks,
+ * Convert video blocks to VideoPress video blocks,
  * when the app detects that the block is a VideoPress block instance.
  *
  * Blocks list:
@@ -547,16 +575,18 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 
 		const isSimple = isSimpleSite();
 
+		// Note: conversion disabled for now.
 		const shouldConvertCoreVideoToVideoPressVideoBlock = !! (
 			isCoreVideoBlock && // Only auto-convert if the block is a core/video block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
 			isCoreVideoVideoPressBlock && // Only auto-convert if the block is a VideoPress block
 			isVideoPressVideoBlockAvailable && // Only auto-convert if the feature is available
-			// Only auto-convert if the site is Simple
-			isSimple
+			isSimple && // Only auto-convert if the site is Simple
+			// Disable auto-conversion for now.
+			false
 		);
 
-		// Note: it does not convert
+		// Note: conversion disabled for now.
 		const shouldConvertCoreEmbedToVideoPressVideoBlock = !! (
 			isCoreEmbedBlock && // Only auto-convert if the block is a core/embed block
 			isVideoPressVideoBlockRegistered && // Only auto-convert if the VideoPress block is registered
@@ -605,3 +635,43 @@ addFilter(
 	'videopress/jetpack-convert-to-videopress-video-block',
 	convertVideoBlockToVideoPressVideoBlock
 );
+
+const convertV6toV5 = createHigherOrderComponent( BlockListBlock => {
+	return props => {
+		const { block } = props;
+		const { name, attributes, clientId } = block;
+		const { replaceBlock } = useDispatch( blockEditorStore );
+
+		/*
+		 * Detect missing videopress/video (v6) block,
+		 * and try to convert it to extended core/video (v5)
+		 */
+		useEffect( () => {
+			if ( name !== 'core/missing' ) {
+				return;
+			}
+
+			if ( attributes?.originalName !== 'videopress/video' ) {
+				return;
+			}
+
+			try {
+				const parsedData = parse( attributes.originalContent );
+				const originalBlock = parsedData?.[ 0 ];
+				if ( ! originalBlock ) {
+					return;
+				}
+
+				const { attrs } = originalBlock;
+				replaceBlock( clientId, createBlock( 'core/video', mapV6AttributesToV5( attrs ) ) );
+			} catch ( e ) {
+				// eslint-disable-next-line no-console
+				console.error( 'Error converting VideoPress block to core/video', e );
+			}
+		}, [ name, clientId, attributes, replaceBlock ] );
+
+		return <BlockListBlock { ...props } />;
+	};
+}, 'convertV6toV5' );
+
+addFilter( 'editor.BlockListBlock', 'videopress/jetpack-convert-from-v6-to-v5', convertV6toV5 );

@@ -107,6 +107,26 @@ class Critical_CSS_State {
 		);
 	}
 
+	public function get_provider_issue_status() {
+		return $this->collate_column( 'issue_status' );
+	}
+	public function set_provider_issue_status( $provider_key, $status ) {
+		$valid_statuses = array( 'dismissed', 'active' );
+		if ( ! in_array( $status, $valid_statuses, true ) ) {
+			return;
+		}
+
+		$this->sources[ $provider_key ]['issue_status'] = $status;
+		$this->save();
+	}
+
+	public function reset_provider_issue_status() {
+		foreach ( $this->sources as $provider_key => $source ) {
+			$this->sources[ $provider_key ]['issue_status'] = 'active';
+		}
+		$this->save();
+	}
+
 	public function maybe_set_status() {
 		if ( $this->get_total_providers_count() === $this->get_processed_providers_count() ) {
 			// Only consider the generation a success if at least one provider was successful
@@ -384,6 +404,17 @@ class Critical_CSS_State {
 	 */
 	public function is_fatal_error() {
 		return self::FAIL === $this->state;
+	}
+
+	/**
+	 * Has there been any HTML/CSS structure changes since the last Critical CSS generation?
+	 */
+	public static function is_fresh() {
+		return Transient::get( 'is_ccss_fresh', false );
+	}
+
+	public static function set_fresh( $is_fresh = true ) {
+		Transient::set( 'is_ccss_fresh', $is_fresh );
 	}
 
 	/**

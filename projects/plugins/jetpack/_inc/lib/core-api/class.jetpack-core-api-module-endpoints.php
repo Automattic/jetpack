@@ -8,8 +8,8 @@
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
-
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
@@ -863,7 +863,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'admin_bar':
-				case 'enable_calypso_stats':
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
@@ -878,6 +877,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current !== $grouped_options
 						? update_option( 'stats_options', $grouped_options )
 						: true;
+					break;
+
+				case 'enable_odyssey_stats':
+					$updated = Stats_Admin_Main::update_new_stats_status( $value );
+
 					break;
 
 				case 'akismet_show_user_comments_approved':
