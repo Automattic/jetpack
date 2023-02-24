@@ -45,6 +45,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			'term'            => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
 			'type'            => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 			'parent_id'       => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+			'include'         => '(array:int|int) Includes the specified post ID(s) in the response',
 			'exclude'         => '(array:int|int) Excludes the specified post ID(s) from the response',
 			'exclude_tree'    => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
 			'status'          => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
@@ -218,6 +219,10 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
+		}
+
+		if ( isset( $args['include'] ) ) {
+			$query['post__in'] = $args['include'];
 		}
 
 		if ( isset( $args['meta_key'] ) ) {
