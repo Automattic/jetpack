@@ -54,11 +54,11 @@ const noop = () => {
 
 const Header = ( {
 	saveDisabled = true,
-	saveLoading = false,
+	saving = false,
 	onSaveChanges,
 }: {
 	saveDisabled?: boolean;
-	saveLoading?: boolean;
+	saving?: boolean;
 	onSaveChanges: () => void;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -76,9 +76,9 @@ const Header = ( {
 				</div>
 				<div>
 					<Button
-						disabled={ saveDisabled || saveLoading }
+						disabled={ saveDisabled || saving }
 						onClick={ onSaveChanges }
-						isLoading={ saveLoading }
+						isLoading={ saving }
 					>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -253,7 +253,7 @@ const EditVideoDetails = () => {
 						<Header
 							onSaveChanges={ handleSaveChanges }
 							saveDisabled={ ! hasChanges }
-							saveLoading={ updating }
+							saving={ updating }
 						/>
 					</>
 				}
