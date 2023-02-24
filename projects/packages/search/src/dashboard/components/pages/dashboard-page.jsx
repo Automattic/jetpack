@@ -105,6 +105,11 @@ export default function DashboardPage( { isLoading = false } ) {
 
 	return (
 		<>
+			<Container horizontalSpacing={ 0 }>
+				<Col>
+					<div id="jp-admin-notices" className="jetpack-search-jitm-card" />
+				</Col>
+			</Container>
 			{ isPageLoading && <Loading /> }
 			{ ! isPageLoading && (
 				<div className="jp-search-dashboard-page">
