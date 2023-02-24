@@ -32,7 +32,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
-    add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -67,7 +67,15 @@ class Jetpack_Mu_Wpcom {
 	 * Load WP REST API plugins for wpcom
 	 */
 	public static function load_wpcom_rest_api_endpoints() {
-		if ( function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
+		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
+			return;
+		}
+
+		// WPCOM uses ABSPATH in `wpcom_rest_api_v2_load_plugin_files` so we must as well.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$relative_path = str_replace( ABSPATH, '', __DIR__ );
+			wpcom_rest_api_v2_load_plugin_files( $relative_path . '/features/wpcom-endpoints/*.php' );
+		} else {
 			wpcom_rest_api_v2_load_plugin_files( 'features/wpcom-endpoints/*.php' );
 		}
 	}
