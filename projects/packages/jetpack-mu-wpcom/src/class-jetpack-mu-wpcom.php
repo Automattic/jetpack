@@ -59,6 +59,8 @@ class Jetpack_Mu_Wpcom {
 	 * Load WP REST API plugins for wpcom
 	 */
 	public static function load_wpcom_rest_api_endpoints() {
-		wpcom_rest_api_v2_load_plugin_files( 'features/wpcom-endpoints/*.php' );
+		if ( function_exists( 'wpcom_rest_api_v2_load_plugin_files' ) ) {
+			wpcom_rest_api_v2_load_plugin_files( 'features/wpcom-endpoints/*.php' );
+		}
 	}
 }

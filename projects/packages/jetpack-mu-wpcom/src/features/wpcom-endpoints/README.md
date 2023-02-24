@@ -4,9 +4,11 @@ These are endpoints designed to be shared across both WPCom platforms: Simple an
 
 These calls can be bridged from `public-api.wordpress.com` to an Atomic site seamlessly with a little extra work to ensure that the freshest data is always served. See PCYsg-liz-p2 for more.
 
-This is intended to replace:
+For WPCom-only endpoints, this is intended to replace:
 1. Atomic (via the classic Jetpack plugin): `_inc/lib/core-api/wpcom-endpoints/`
 2. Simple                                 : `wp-content/rest-api-plugins/jetpack-endpoints`
+
+If your endpoint still needs to work with non-Atomic Jetpack sites, continue to use the classic Jetpack plugin.
 
 ## Further Instructions
 
