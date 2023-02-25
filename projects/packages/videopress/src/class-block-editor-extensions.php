@@ -160,6 +160,7 @@ class Block_Editor_Extensions {
 			'isVideoPressModuleActive'    => Status::is_jetpack_plugin_and_videopress_module_active(),
 			'isStandaloneActive'          => Status::is_standalone_plugin_active(),
 			'imagesURLBase'               => plugin_dir_url( __DIR__ ) . 'build/images/',
+			'playerBridgeUrl'             => plugins_url( '../build/lib/player-bridge.js', __FILE__ ),
 		);
 
 		// Expose initital state of site connection

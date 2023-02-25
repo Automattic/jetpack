@@ -552,7 +552,7 @@ if (jQuery('#bar-chart').length){
 				<div class='date'><img class='ui avatar img img-rounded' alt='<?php esc_attr_e( 'Contact Image', 'zero-bs-crm' ); ?>' src='<?php echo esc_url( $avatar ); ?>'/></div>
 				<div class='content text'>
 				<span class='header'><?php echo esc_html( $logmetatype ); ?><span class='when'> (<?php echo esc_html( $diff . __( ' ago', 'zero-bs-crm' ) ); ?>)</span><span class='who'><?php echo esc_html( $logauthor ); ?></span></span>
-				<div class='description'><?php echo esc_html( $logmetashot ); ?><br/></div>
+				<div class='description'><?php echo wp_kses( $logmetashot, array( 'i' => array( 'class' => true ) ) ); ?><br/></div>
 				</div>
 			</div>
 						<?php

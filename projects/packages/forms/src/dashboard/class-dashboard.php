@@ -47,10 +47,21 @@ class Dashboard {
 			'../../dist/dashboard/jetpack-forms-dashboard.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+				'dependencies' => array( 'wp-api-fetch' ), // this here just for testing, remove when done (apiFetch will be on build)
 			)
+		);
+
+		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
+			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) ) // should we include full URL here (public-api.wordpress.com)?
+			: '/wp-json/wpcom/v2/';
+
+		wp_add_inline_script(
+			'jp-forms-dashboard',
+			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
+			'before'
 		);
 	}
 
