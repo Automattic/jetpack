@@ -22,6 +22,8 @@ export const useVideoPressSettings = (): useVideoPressSettingsProps => {
 	return {
 		settings: {
 			videoPressVideosPrivateForSite: settings?.videoPressVideosPrivateForSite ?? false,
+			siteIsPrivate: settings?.siteIsPrivate ?? false,
+			siteType: settings?.siteType ?? 'jetpack',
 		},
 
 		onUpdate: settingsToUpdate => dispatch.updateVideoPressSettings( settingsToUpdate ),

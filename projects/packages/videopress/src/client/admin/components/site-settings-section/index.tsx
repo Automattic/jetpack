@@ -23,9 +23,13 @@ import type React from 'react';
  */
 const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	videoPressVideosPrivateForSite,
+	siteIsPrivate,
+	siteType,
 	onPrivacyChange,
 } ) => {
 	const { canPerformAction } = usePermission();
+	const siteIsAtomicPrivate = siteIsPrivate && siteType === 'atomic';
+	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
 
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
@@ -43,7 +47,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					) }
 					onChange={ onPrivacyChange }
 					checked={ videoPressVideosPrivateForSite }
-					disabled={ ! canPerformAction }
+					disabled={ disablePrivacyToggle }
 				/>
 			</Col>
 		</Container>
@@ -52,10 +56,12 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 
 export const ConnectSiteSettingsSection = () => {
 	const { settings, onUpdate } = useVideoPressSettings();
-	const { videoPressVideosPrivateForSite } = settings;
+	const { videoPressVideosPrivateForSite, siteIsPrivate, siteType } = settings;
 	return (
 		<SiteSettingsSection
 			videoPressVideosPrivateForSite={ videoPressVideosPrivateForSite }
+			siteIsPrivate={ siteIsPrivate }
+			siteType={ siteType }
 			onPrivacyChange={ newPrivacyValue => {
 				onUpdate( {
 					videoPressVideosPrivateForSite: newPrivacyValue,

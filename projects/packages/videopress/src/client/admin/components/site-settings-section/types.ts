@@ -10,6 +10,16 @@ export type SiteSettingsSectionProps = {
 	videoPressVideosPrivateForSite: boolean;
 
 	/**
+	 * Read-only prop to inform the settings section if the site is private or not.
+	 */
+	siteIsPrivate?: boolean;
+
+	/**
+	 * Read-only prop to inform the settings section which type is the site
+	 */
+	siteType?: 'atomic' | 'jetpack' | 'simple';
+
+	/**
 	 * Callback function to be invoked when the privacy settings changes.
 	 */
 	onPrivacyChange?: ( isPrivate: boolean ) => void;
