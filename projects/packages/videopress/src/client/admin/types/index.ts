@@ -223,6 +223,8 @@ export type MetadataVideo = {
 
 export type VideoPressSettings = {
 	videoPressVideosPrivateForSite: boolean;
+	siteIsPrivate: boolean;
+	siteType: 'atomic' | 'jetpack' | 'simple';
 };
 
 export type VideopressSelectors = {
