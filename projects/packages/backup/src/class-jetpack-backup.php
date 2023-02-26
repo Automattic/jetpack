@@ -19,6 +19,8 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Class Jetpack_Backup
@@ -155,6 +157,18 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
+
+	/**
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
@@ -176,8 +190,8 @@ class Jetpack_Backup {
 		wp_add_inline_script( 'jetpack-backup', Connection_Initial_State::render(), 'before' );
 
 		// Load script for analytics.
-		if ( ! $status->is_offline_mode() && $manager->is_connected() ) {
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
 		}
 	}
 
