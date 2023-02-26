@@ -3071,7 +3071,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$args = $attributes['args'][ $param ];
 		if ( ! empty( $args['enum'] ) ) {
 			// If it's an associative array, use the keys to check that the value is among those admitted.
-			$enum = ( count( array_filter( array_keys( $args['enum'] ), 'is_string' ) ) > 0 )
+			$enum = ( array_filter( array_keys( $args['enum'] ), 'is_string' ) !== array() )
 				? array_keys( $args['enum'] )
 				: $args['enum'];
 			$enum = array_map( 'strval', $enum );
@@ -3198,7 +3198,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', self::$stats_roles )
+					implode( ', ', self::$stats_roles )
 				)
 			);
 		}
@@ -3235,7 +3235,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $views )
+					implode( ', ', $views )
 				)
 			);
 		}
@@ -3291,7 +3291,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
 					esc_html__( '%1$s visible and hidden items must be a list of %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $services )
+					implode( ', ', $services )
 				)
 			);
 		}

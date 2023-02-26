@@ -1926,7 +1926,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			$parsed .= $parts[0]; # Text before current tag.
 
 			# If end of $text has been reached. Stop loop.
-			if (count($parts) < 3) {
+			if ((is_countable($parts) ? count($parts) : 0) < 3) {
 				$text = "";
 				break;
 			}
@@ -2047,7 +2047,8 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		return array($parsed, $text);
 	}
 	function _hashHTMLBlocks_inHTML($text, $hash_method, $md_attr) {
-	#
+	$base_tag_name_re = null;
+  #
 	# Parse HTML, calling _HashHTMLBlocks_InMarkdown for block tags.
 	#
 	# *   Calls $hash_method to convert any blocks.
@@ -2123,7 +2124,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			#
 			$parts = preg_split($tag_re, $text, 2, PREG_SPLIT_DELIM_CAPTURE);
 
-			if (count($parts) < 3) {
+			if ((is_countable($parts) ? count($parts) : 0) < 3) {
 				#
 				# End of $text reached with unbalenced tag(s).
 				# In that case, we return original text unchanged and pass the
@@ -2597,7 +2598,8 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		return $this->_doTable_callback(array($matches[0], $head, $underline, $content));
 	}
 	function _doTable_callback($matches) {
-		$head		= $matches[1];
+		$attr = [];
+  $head		= $matches[1];
 		$underline	= $matches[2];
 		$content	= $matches[3];
 
@@ -2619,7 +2621,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		# and inline HTML tags, so that pipes inside those gets ignored.
 		$head		= $this->parseSpan($head);
 		$headers	= preg_split('/ *[|] */', $head);
-		$col_count	= count($headers);
+		$col_count	= is_countable($headers) ? count($headers) : 0;
 		$attr       = array_pad($attr, $col_count, '');
 
 		# Write column headers.

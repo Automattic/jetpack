@@ -341,6 +341,7 @@ class Jetpack_Color {
 	 * @return  Array          The HSL representation
 	 */
 	public function toHsl() {
+		$h                 = null;
 		list( $r, $g, $b ) = array_values( $this->toRgbInt() );
 		$r                /= 255;
 		$g                /= 255;

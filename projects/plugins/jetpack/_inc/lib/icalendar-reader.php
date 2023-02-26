@@ -662,7 +662,7 @@ class iCalendarReader {
 				}
 			}
 			foreach ( $recurrences as $recurrence ) {
-				$count_vevent = count( $this->cal['VEVENT'] );
+				$count_vevent = is_countable( $this->cal['VEVENT'] ) ? count( $this->cal['VEVENT'] ) : 0;
 				for ( $i = 0; $i < $count_vevent; $i++ ) {
 					if (
 						$this->cal['VEVENT'][ $i ]['UID'] === $recurrence['UID']
@@ -687,7 +687,7 @@ class iCalendarReader {
 	public function key_value_from_string( $text = '' ) {
 		preg_match( '/([^:]+)(;[^:]+)?[:]([\w\W]*)/', $text, $matches );
 
-		if ( 0 === count( $matches ) ) {
+		if ( array() === $matches ) {
 			return false;
 		}
 
@@ -885,16 +885,16 @@ class iCalendarReader {
 						echo $this->escape( stripslashes( $event['LOCATION'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
 						?>
 					</span>
-				<?php endif; ?>
+<?php endif; ?>
 				<?php if ( ! empty( $event['DESCRIPTION'] ) ) : ?>
 					<span class="event-description">
 						<?php
 						echo wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- this method is built to escape.
 						?>
 						</span>
-				<?php endif; ?>
+<?php endif; ?>
 			</li>
-			<?php endforeach; ?>
+<?php endforeach; ?>
 		</ul>
 			<?php
 		endif;
@@ -936,7 +936,7 @@ class iCalendarReader {
 					?>
 					</td>
 				</tr>
-			<?php endforeach; ?>
+<?php endforeach; ?>
 			</tbody>
 		</table>
 			<?php
