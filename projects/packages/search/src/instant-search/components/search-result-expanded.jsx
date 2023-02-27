@@ -139,15 +139,17 @@ export default function SearchResultExpanded( props ) {
 							</li>
 						</>
 					) }
-					<li>
-						<span className="jetpack-instant-search__search-result-expanded__footer-date">
-							{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
-								year: 'numeric',
-								month: 'short',
-								day: 'numeric',
-							} ) }
-						</span>
-					</li>
+					{ showPostDate && (
+						<li>
+							<span className="jetpack-instant-search__search-result-expanded__footer-date">
+								{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
+									year: 'numeric',
+									month: 'short',
+									day: 'numeric',
+								} ) }
+							</span>
+						</li>
+					) }
 				</ul>
 			) }
 		</li>
