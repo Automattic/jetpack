@@ -401,11 +401,21 @@ class Grunion_Contact_Form_Plugin {
 
 		wp_enqueue_script(
 			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
+			plugins_url( 'extensions/blocks/contact-form/util/form-styles.js', JETPACK__PLUGIN_FILE ),
 			array(),
 			JETPACK__VERSION,
 			true
 		);
+
+		if ( ! is_admin() ) {
+			wp_enqueue_script(
+				'contact-form-styles-frontend',
+				plugins_url( 'js/form-styles.js', __FILE__ ),
+				array( 'contact-form-styles' ),
+				JETPACK__VERSION,
+				true
+			);
+		}
 	}
 
 	/**
@@ -415,7 +425,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $handle - script name.
 	 */
 	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+		if ( 'contact-form-styles' === $handle || 'contact-form-styles-frontend' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
