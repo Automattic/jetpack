@@ -48,6 +48,10 @@ import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import useEditDetails from './use-edit-details';
+/**
+ * Types
+ */
+import type { VideoGUID } from '../../../block-editor/blocks/video/types';
 
 const noop = () => {
 	// noop
@@ -57,10 +61,12 @@ const Header = ( {
 	saveDisabled = true,
 	saving = false,
 	onSaveChanges,
+	guid,
 }: {
 	saveDisabled?: boolean;
 	saving?: boolean;
 	onSaveChanges: () => void;
+	guid: VideoGUID;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const history = useHistory();
@@ -83,7 +89,7 @@ const Header = ( {
 					>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
-					<VideoDetailsActions />
+					<VideoDetailsActions guid={ guid } />
 				</div>
 			</div>
 		</div>
@@ -256,6 +262,7 @@ const EditVideoDetails = () => {
 							onSaveChanges={ handleSaveChanges }
 							saveDisabled={ ! hasChanges }
 							saving={ updating }
+							guid={ guid }
 						/>
 					</>
 				}
