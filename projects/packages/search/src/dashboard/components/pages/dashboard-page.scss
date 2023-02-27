@@ -104,3 +104,16 @@ body {
 		margin: 4px;
 	}
 }
+
+#wpbody-content {
+	& > .notice {
+		display: none;
+	}
+}
+
+.jetpack-search-jitm-card {
+	.jitm-card {
+		margin-right: 0;
+		margin-bottom: 0;
+	}
+}
