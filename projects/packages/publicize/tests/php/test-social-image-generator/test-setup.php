@@ -23,17 +23,7 @@ class Setup_Test extends BaseTestCase {
 	 *
 	 * @var Social_Image_Generator\Setup Instance of the setup class.
 	 */
-	public static $sig;
-
-	/**
-	 * Setup.
-	 *
-	 * @beforeClass
-	 */
-	public static function set_up_before_class() {
-		self::$sig = new Social_Image_Generator\Setup();
-		self::$sig->init();
-	}
+	public $sig;
 
 	/**
 	 * Setting up the test.
@@ -41,6 +31,8 @@ class Setup_Test extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
+		$this->sig = new Social_Image_Generator\Setup();
+		$this->sig->init();
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -50,12 +42,11 @@ class Setup_Test extends BaseTestCase {
 	/**
 	 * Returning the environment into its initial state.
 	 *
-	 * @after
+	 * @afterClass
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
-
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
 	}
@@ -95,7 +86,7 @@ class Setup_Test extends BaseTestCase {
 	public function create_post( $image_generator_settings = array() ) {
 		return wp_insert_post(
 			array(
-				'post_title'   => 'hello',
+				'post_title'   => uniqid( 'hello' ),
 				'post_content' => 'world',
 				'post_status'  => 'publish',
 				'meta_input'   => array(
@@ -124,7 +115,7 @@ class Setup_Test extends BaseTestCase {
 	 */
 	public function test_token_does_not_get_created_when_sig_is_disabled() {
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$post_id = $this->create_post( array( 'is_enabled' => false ) );
+		$post_id = $this->create_post( array( 'enabled' => false ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$extractor = new Social_Image_Generator\Extractor( $post_id );
@@ -136,10 +127,29 @@ class Setup_Test extends BaseTestCase {
 	 */
 	public function test_token_does_not_get_created_when_request_fails() {
 		add_filter( 'pre_http_request', array( $this, 'mock_failure_response' ) );
-		$post_id = $this->create_post( array( 'is_enabled' => false ) );
+		$post_id = $this->create_post( array( 'enabled' => false ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_failure_response' ) );
 
 		$extractor = new Social_Image_Generator\Extractor( $post_id );
 		$this->assertSame( '', $extractor->get_token() );
+	}
+
+	/**
+	 * Test that only a single token gets stored.
+	 */
+	public function test_token_only_gets_stored_a_single_time() {
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post( array( 'enabled' => true ) );
+		// Update the post to trigger another token generation.
+		wp_update_post(
+			array(
+				'ID'         => $post_id,
+				'post_title' => 'New title',
+			)
+		);
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$extractor = new Social_Image_Generator\Extractor( $post_id );
+		$this->assertEquals( 'testtoken', $extractor->get_token() );
 	}
 }

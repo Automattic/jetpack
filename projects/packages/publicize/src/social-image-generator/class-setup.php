@@ -35,7 +35,7 @@ class Setup {
 			$social_options = array();
 		}
 
-		$updated_options = array_merge_recursive( $social_options, array( 'image_generator_settings' => array( 'token' => sanitize_text_field( $token ) ) ) );
+		$updated_options = array_replace_recursive( $social_options, array( 'image_generator_settings' => array( 'token' => sanitize_text_field( $token ) ) ) );
 
 		update_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
 	}
