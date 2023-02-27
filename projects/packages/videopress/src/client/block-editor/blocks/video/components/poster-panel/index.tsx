@@ -41,7 +41,7 @@ export function PosterDropdown( {
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
 
 	const buttonRef = useRef< HTMLButtonElement >( null );
-	const videoRatio = Number( attributes?.videoRatio ) / 100 || 16 / 9;
+	const videoRatio = Number( attributes?.videoRatio ) / 100 || 9 / 16;
 
 	const [ buttonImageHeight, setButtonImageHeight ] = useState( 140 );
 
