@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { Text, Button, ThemeProvider } from '@automattic/jetpack-components';
-import { Popover, Dropdown, Modal } from '@wordpress/components';
+import { Text, Button } from '@automattic/jetpack-components';
+import { Popover, Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { image, trash, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import classNames from 'classnames';
@@ -23,6 +23,7 @@ import { usePermission } from '../../hooks/use-permission';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
+import DeleteVideoConfirmationModal from '../delete-video-confirmation-modal';
 import { VideoThumbnailDropdownButtons } from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
@@ -346,40 +347,13 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 
 	if ( showDeleteModal ) {
 		return (
-			<Modal
-				title={ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-				onRequestClose={ () => setShowDeleteModal( false ) }
-				className={ styles[ 'delete-video-modal' ] }
-			>
-				<ThemeProvider>
-					<div>
-						<Text>{ __( 'This action cannot be undone.', 'jetpack-videopress-pkg' ) }</Text>
-						<div className={ styles[ 'modal-actions' ] }>
-							<Button
-								className={ styles[ 'modal-action-button' ] }
-								variant="secondary"
-								weight="bold"
-								onClick={ () => setShowDeleteModal( false ) }
-							>
-								{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
-							</Button>
-
-							<Button
-								className={ styles[ 'modal-action-button' ] }
-								isDestructive
-								variant="primary"
-								weight="bold"
-								onClick={ () => {
-									setShowDeleteModal( false );
-									deleteVideo();
-								} }
-							>
-								{ __( 'Delete', 'jetpack-videopress-pkg' ) }
-							</Button>
-						</div>
-					</div>
-				</ThemeProvider>
-			</Modal>
+			<DeleteVideoConfirmationModal
+				onClose={ () => setShowDeleteModal( false ) }
+				onDelete={ () => {
+					setShowDeleteModal( false );
+					deleteVideo();
+				} }
+			/>
 		);
 	}
 
