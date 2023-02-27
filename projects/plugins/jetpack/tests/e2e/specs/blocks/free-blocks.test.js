@@ -172,7 +172,7 @@ test.describe( 'Site editor', () => {
 	test.beforeEach( async ( { page } ) => {
 		await test.step( 'Visit the site editor page', async () => {
 			siteEditor = await SiteEditorPage.visit( page );
-			//await siteEditor.edit();
+			await siteEditor.edit();
 			await siteEditor.closeWelcomeGuide();
 			await siteEditor.clearCustomizations();
 		} );

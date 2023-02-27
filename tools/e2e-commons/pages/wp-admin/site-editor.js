@@ -15,9 +15,9 @@ export default class SiteEditorPage extends WpPage {
 	}
 
 	async edit() {
-		const editIframeSelector = 'iframe.edit-site-visual-editor__editor-canvas';
-		if ( await this.isElementVisible( editIframeSelector, 2000 ) ) {
-			await this.click( editIframeSelector );
+		const editBtnSelector = 'button.edit-site-site-hub__edit-button';
+		if ( await this.isElementVisible( editBtnSelector, 2000 ) ) {
+			await this.click( editBtnSelector );
 		}
 	}
 
