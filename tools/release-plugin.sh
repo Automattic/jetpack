@@ -69,6 +69,10 @@ done
 shift "$(($OPTIND -1))"
 
 # Parse arguments in associated array of plugins/project => version format.
+if [ $# -eq 0 ]; then
+	usage
+fi
+
 declare -A PROJECTS
 while [[ $# -gt 0 ]]; do
 	if [[ "$1" =~ ^[a-zA-Z\-]+$ ]]; then
@@ -78,7 +82,7 @@ while [[ $# -gt 0 ]]; do
 	fi
 	
 	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
-		PROJECTS["$PLUGIN"]=$2
+		PROJECTS["$PLUGIN"]+=$2
 		SHIFT="2"
 	else
 		PROJECTS["$PLUGIN"]=''
@@ -88,8 +92,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 # If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
-if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
-	PROJECTS["plugins/mu-wpcom-plugin"]=''
+if [[ "${!PROJECTS[*]}" =~ "jetpack" ]]; then
+	PROJECTS["mu-wpcom-plugin"]=''
 fi
 
 # Check that the projects are valid.
@@ -99,9 +103,8 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	SLUG="${SLUG%/}" # Sanitize
 	SLUG="plugins/$SLUG"
 	if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
-		yellow "Project found: $SLUG"
-		PROJECTS["$PLUGIN"]="$SLUG"
-		unset "${PROJECTS[$PLUGIN]}"
+		PROJECTS["$SLUG"]="${PROJECTS[$PLUGIN]}"
+		unset "PROJECTS[$PLUGIN]"
 	else 
 		die "$SLUG isn't a valid project!"
 	fi
@@ -117,7 +120,6 @@ for SLUG in "${!PROJECTS[@]}"; do
 	fi
 done
 
-
 # Check the plugin version(s) to use for the plugin(s).
 function check_ver {
 	normalize_version_number "$1"
@@ -126,7 +128,7 @@ function check_ver {
 		return 1
 	fi
 	local CUR_VERSION
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "${PROJECTS[0]}")
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$2")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
 		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
@@ -135,14 +137,15 @@ function check_ver {
 	return 0
 }
 
-if ! check_ver "$2"; then
-	die "Please specify a valid version number."
-fi
-VERSION="$2"
+for PLUGIN in "${!PROJECTS[@]}"; do
+	if ! check_ver "${PROJECTS[$PLUGIN]}" "$PLUGIN"; then
+		die "Please specify a valid version number."
+	fi
+	echo "Releasing $PLUGIN ${PROJECTS[$PLUGIN]}"
+done
 
-
+proceed_p "" "Proceed releasing above projects?"
 exit
-proceed_p "Releasing $PROJECT $VERSION" "Proceed?"
 
 # Check if a remote branch for the release branch exits and ask to delete it if it does.
 PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$PROJECT"/composer.json)
