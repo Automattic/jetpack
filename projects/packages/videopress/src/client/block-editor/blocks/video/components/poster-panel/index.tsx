@@ -3,6 +3,7 @@
  */
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import { MenuItem, PanelBody, NavigableMenu, Dropdown, Button } from '@wordpress/components';
+import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 /**
@@ -39,9 +40,24 @@ export function PosterDropdown( {
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
 
-	const imageStyle = {
-		backgroundImage: poster ? `url(${ poster })` : undefined,
-	};
+	const buttonRef = useRef< HTMLButtonElement >( null );
+	const videoRatio = Number( attributes?.videoRatio ) / 100 || 16 / 9;
+
+	const [ buttonImageHeight, setButtonImageHeight ] = useState( 140 );
+
+	useEffect( () => {
+		if ( ! poster || ! buttonRef?.current ) {
+			return;
+		}
+
+		const { current: buttonElement } = buttonRef;
+		const buttonWidth = buttonElement.offsetWidth;
+		if ( ! buttonWidth ) {
+			return;
+		}
+
+		setButtonImageHeight( buttonWidth * videoRatio );
+	}, [ poster, buttonRef, videoRatio ] );
 
 	return (
 		<Dropdown
@@ -49,7 +65,11 @@ export function PosterDropdown( {
 			position="top left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
-					style={ imageStyle }
+					ref={ buttonRef }
+					style={ {
+						backgroundImage: poster ? `url(${ poster })` : undefined,
+						height: buttonImageHeight,
+					} }
 					className={ `poster-panel__button ${ poster ? 'has-poster' : '' }` }
 					variant="secondary"
 					onClick={ onToggle }
