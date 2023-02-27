@@ -1375,13 +1375,10 @@ function zeroBSCRM_html_home2() {
 		<div id="action-buttons" class='block'>
 		<h6>
 		<?php
-		esc_html_e( 'Jetpack CRM makes it easy for you to manage your customers using WordPress. To get started, ', 'zero-bs-crm' );
-		echo '<a href="https://jetpackcrm.com/learn/" target="_blank">';
-		esc_html_e( 'watch the video tutorial', 'zero-bs-crm' );
-		echo '</a> ';
-		esc_html_e( 'or read our guide on how create your first customer', 'zero-bs-crm' );
+		esc_html_e( 'Jetpack CRM makes it easy for you to manage your customers using WordPress. To get started, read our guide on how create your first customer', 'zero-bs-crm' );
+		echo ':';
 		?>
-		:</h6>
+		</h6>
 		<div class='zbs-button-wrap'>
 			<div class="left">
 			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Customer', 'zero-bs-crm' ); ?></a>
