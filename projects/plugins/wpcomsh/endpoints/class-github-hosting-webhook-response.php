@@ -248,6 +248,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			$this->log( 'Deployment failed.' );
 			$this->commit_log_file();
 			$this->update_status( array( 'status' => 'failed' ) );
+			wpcomsh_bump_github_deploy_stats( 'deploy-complete,deploy-failed' );
 			return $file_name;
 		}
 
@@ -257,6 +258,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 			$this->log( 'Deployment failed.' );
 			$this->commit_log_file();
 			$this->update_status( array( 'status' => 'failed' ) );
+			wpcomsh_bump_github_deploy_stats( 'deploy-complete,deploy-failed' );
 			return $result;
 		}
 
@@ -265,6 +267,19 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 		$this->log( 'Deployment completed.' );
 		$this->commit_log_file();
 		$this->update_status( array( 'status' => 'success' ) );
+
+		$bump_stats        = 'deploy-complete';
+		$deployment_status = get_option( self::$deployment_status_option, array() );
+		if ( ! empty( $deployment_status['move_failures'] ) ) {
+			$bump_stats .= ',deploy-move-failures';
+		}
+		if ( ! empty( $deployment_status['remove_failures'] ) ) {
+			$bump_stats .= ',deploy-remove-failures';
+		}
+		if ( empty( $deployment_status['move_failures'] ) && empty( $deployment_status['remove_failures'] ) ) {
+			$bump_stats .= ',deploy-clean';
+		}
+		wpcomsh_bump_github_deploy_stats( $bump_stats );
 	}
 
 	/**

@@ -18,3 +18,23 @@ function wpcomsh_register_github_deploy_log_cpt() {
 	);
 }
 add_action( 'init', 'wpcomsh_register_github_deploy_log_cpt' );
+
+/**
+ * Report a GitHub deploy stat to MC Stats.
+ *
+ * @param string $bin Bin name. Can use commas to bump multiple e.g. stat1,stat2
+ */
+function wpcomsh_bump_github_deploy_stats( $bin ) {
+	$query_args = array(
+		'x_github-deploy' => $bin,
+
+		// Ensure this request doesn't count as a pageview
+		'v'               => 'wpcom-no-pv',
+	);
+
+	$stats_track_url = 'http://pixel.wp.com/b.gif?' . http_build_query( $query_args );
+	$result          = wp_remote_get( $stats_track_url );
+	if ( $result instanceof \WP_Error ) {
+		error_log( 'WPComSH: ' . $result->get_error_message() ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions
+	}
+}
