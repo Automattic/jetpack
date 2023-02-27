@@ -8,6 +8,8 @@
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Publicize\Publicize;
+use Automattic\Jetpack\Publicize\REST_Controller;
 
 /**
  * Class for setting up Social Image Generator-related functionality.
@@ -27,7 +29,7 @@ class Setup {
 	 * @param string $token The image token for the post.
 	 */
 	public function set_token( $post_id, $token ) {
-		$social_options = get_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+		$social_options = get_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
 
 		if ( empty( $social_options ) ) {
 			$social_options = array();
@@ -35,7 +37,7 @@ class Setup {
 
 		$updated_options = array_merge_recursive( $social_options, array( 'image_generator_settings' => array( 'token' => sanitize_text_field( $token ) ) ) );
 
-		update_post_meta( $post_id, \Automattic\Jetpack\Publicize\Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
+		update_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
 	}
 
 	/**
@@ -59,7 +61,7 @@ class Setup {
 			'image_url' => $extractor->get_generated_image_background_image_url(),
 		);
 
-		$rest_controller = new \Automattic\Jetpack\Publicize\REST_Controller();
+		$rest_controller = new REST_Controller();
 		$response        = Client::wpcom_json_api_request_as_blog(
 			sprintf( 'sites/%d/jetpack-social/generate-image-token', absint( \Jetpack_Options::get_option( 'id' ) ) ),
 			'2',

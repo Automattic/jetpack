@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Publicize\Publicize;
+
 /**
  * Class for extracting SIG-related settings for a post.
  */
@@ -33,7 +35,7 @@ class Extractor {
 	 * @return array
 	 */
 	private function get_post_settings() {
-		$social_options = get_post_meta( $this->post_id, \Automattic\Jetpack\Publicize\Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
 
 		if ( ! is_array( $social_options ) || empty( $social_options['image_generator_settings'] ) ) {
 			return array();
