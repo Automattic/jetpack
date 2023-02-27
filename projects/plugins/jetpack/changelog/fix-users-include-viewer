@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix a bug in list user endpoint when include_viewers is true

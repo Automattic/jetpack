@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Recommendations: avoid applying the coupon code from the Assistant on product with trial prices.

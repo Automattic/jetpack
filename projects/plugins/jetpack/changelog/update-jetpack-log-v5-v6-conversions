@@ -1,0 +1,4 @@
+Significance: minor
+Type: major
+
+Jetpack: log event when converting video block to the new VideoPress video block

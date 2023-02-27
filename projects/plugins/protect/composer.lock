@@ -1334,10 +1334,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "dde6fea561444aebb688ecd90266bdf44ea30fe5"
+                "reference": "c93147d884aff0f808231bf84618ecbdfbb153e8"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "wikimedia/aho-corasick": "^1.0"

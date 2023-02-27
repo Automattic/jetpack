@@ -12,8 +12,11 @@
 }
 
 .jp-forms__inbox-content-column {
+	align-items: center;
 	box-sizing: border-box;
+	display: flex;
 	flex: 3;
+	flex-direction: column;
 
 	&:last-child {
 		display: none;
@@ -23,6 +26,10 @@
 			display: flex;
 			flex: 2;
 		}
+	}
+
+	.jp-forms__page-navigation {
+		margin: 16px 0;
 	}
 }
 

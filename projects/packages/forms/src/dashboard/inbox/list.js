@@ -1,5 +1,7 @@
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
+import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
 
 const COLUMNS = [
@@ -51,6 +53,8 @@ const DATA = [
 ];
 
 const InboxList = () => {
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+
 	return (
 		<>
 			<Table
@@ -58,6 +62,13 @@ const InboxList = () => {
 				columns={ COLUMNS }
 				items={ DATA }
 				onSelectionChange={ noop }
+			/>
+
+			<PageNavigation
+				currentPage={ currentPage }
+				pages={ 10 }
+				onSelectPage={ setCurrentPage }
+				expandedRange={ 2 }
 			/>
 		</>
 	);

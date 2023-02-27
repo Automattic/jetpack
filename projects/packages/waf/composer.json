@@ -5,6 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"wikimedia/aho-corasick": "^1.0"
