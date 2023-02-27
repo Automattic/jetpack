@@ -290,6 +290,7 @@ class WPCOM_Features {
 	public const SPACE                         = 'space';
 	public const SPACE_UPGRADED_STORAGE        = 'space-upgraded-storage';
 	public const SSH                           = 'ssh';
+	public const STAGING_SITES                 = 'staging-sites';
 	public const SUBSCRIBER_UNLIMITED_IMPORTS  = 'subscriber-unlimited-imports';
 	public const SUBSCRIPTION_GIFTING          = 'subscription-gifting';
 	public const SUPPORT                       = 'support';
@@ -770,6 +771,9 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_ALL_SITES,
+		),
+		self::STAGING_SITES                 => array(
+			self::WPCOM_BUSINESS_PLANS,
 		),
 
 		/*
