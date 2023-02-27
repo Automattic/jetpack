@@ -313,6 +313,7 @@ class WPCOM_Features {
 	public const VIDEO_HOSTING                 = 'video-hosting';
 	public const VIDEOPRESS                    = 'videopress';
 	public const VIDEOPRESS_1TB_STORAGE        = 'videopress-1tb-storage';
+	public const VIDEOPRESS_VIDEO              = 'videopress/video';
 	public const VIDEOPRESS_UNLIMITED_STORAGE  = 'videopress-unlimited-storage';
 	public const WHATSAPP_BUTTON               = 'whatsapp-button';
 	public const WOOP                          = 'woop';
@@ -919,7 +920,7 @@ class WPCOM_Features {
 		 * - Jetpack sites with Premium or up plan.
 		 */
 		self::VIDEO_HOSTING                 => array(
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
 			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		self::VIDEOPRESS                    => array(
@@ -929,7 +930,7 @@ class WPCOM_Features {
 			self::JETPACK_PREMIUM_PLANS,
 			self::JETPACK_VIDEOPRESS,
 			self::JETPACK_VIDEOPRESS_MONTHLY,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_VIDEOPRESS,
 			self::WPCOM_VIDEOPRESS_PRO,
 			self::WP_P2_PLUS_MONTHLY,
@@ -957,6 +958,13 @@ class WPCOM_Features {
 				self::JETPACK_VIDEOPRESS,
 				self::JETPACK_VIDEOPRESS_MONTHLY,
 			),
+		),
+		// VIDEOPRESS_VIDEO - videopress/video requires a paid plan.
+		self::VIDEOPRESS_VIDEO              => array(
+			self::WP_P2_PLUS_MONTHLY,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS_NO_TRIAL,
+			self::JETPACK_BUSINESS_PLANS,
+			self::JETPACK_PREMIUM_PLANS,
 		),
 		self::VIDEOPRESS_UNLIMITED_STORAGE  => array(
 			array(
