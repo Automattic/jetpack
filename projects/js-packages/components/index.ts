@@ -20,6 +20,7 @@ export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vau
 export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
+export { isFirstMonthTrial } from './tools/pricing-utils';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
