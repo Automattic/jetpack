@@ -51,6 +51,7 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		return $formatted;
 	}
+
 	/**
 	 * Gets the local Brute force protection whitelist
 	 *
@@ -73,7 +74,7 @@ class Brute_Force_Protection_Shared_Functions {
 				$whitelist = array();
 			}
 		} else {
-			$whitelist = Waf_Rules_Manager::ip_option_to_array( $whitelist );
+			$whitelist = IP_Utils::get_ip_addresses_from_string( $whitelist );
 			$whitelist = array_map(
 				function ( $ip_address ) {
 					return self::create_ip_object( $ip_address );
