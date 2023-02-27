@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Comment: fix
+Hide backup segments when Jetpack is connected but no backup plan
