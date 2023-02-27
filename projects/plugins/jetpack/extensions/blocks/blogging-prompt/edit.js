@@ -117,6 +117,18 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 		</>
 	);
 
+	const { answerCount, gravatars, prompt, promptId, showLabel, showResponses } = attributes;
+
+	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
+
+	const onShowLabelChange = newValue => {
+		setAttributes( { showLabel: newValue } );
+	};
+
+	const onShowResponsesChange = newValue => {
+		setAttributes( { showResponses: newValue } );
+	};
+
 	return (
 		<div { ...blockProps }>
 			{ noticeUI }
