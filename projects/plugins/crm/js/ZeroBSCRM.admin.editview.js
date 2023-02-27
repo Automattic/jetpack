@@ -167,10 +167,16 @@ function zeroBSCRMJS_hideNotificationsAfter() {
  */
 function zeroBSCRMJS_editContactInit() {
 	var picture_file_input = document.getElementById( 'zbsc_profile-picture-file' );
-	picture_file_input.addEventListener( 'change', jpcrm_customer_profile_picture_on_change );
+
+	if ( picture_file_input ) {
+		picture_file_input.addEventListener( 'change', jpcrm_customer_profile_picture_on_change );
+	}
 
 	var picture_file_remove_btn = document.getElementById( 'zbsc_remove-profile-picture-button' );
-	picture_file_remove_btn.addEventListener( 'click', jpcrm_customer_remove_profile_picture );
+
+	if ( picture_file_remove_btn ) {
+		picture_file_remove_btn.addEventListener( 'click', jpcrm_customer_remove_profile_picture );
+	}
 
 	jQuery( '.send-sms-none' ).on( 'click', function ( e ) {
 		swal(
@@ -493,7 +499,7 @@ function zeroBSCRMJS_events_bindCompanyLinkIf() {
 
 
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact, 
+    module.exports = { zbscrmjs_events_setContact, zbscrmjs_events_setCompany, zbscrmjs_events_changeContact,
 		zbscrmjs_events_changeCompany, zeroBSCRMJS_initEditView, zeroBSCRMJS_preLeaveEditView, zeroBSCRMJS_editViewLang,
 		zeroBSCRMJS_drawEditView, zeroBSCRMJS_editViewBinds, zeroBSCRMJS_hideNotificationsAfter,
 		zeroBSCRMJS_editContactInit, jpcrm_customer_profile_picture_on_change, jpcrm_customer_remove_profile_picture,

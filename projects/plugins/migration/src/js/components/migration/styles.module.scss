@@ -14,6 +14,10 @@
 
 	  	.jp-connection__connect-screen-layout__left {
 			padding: 64px;
+			
+			@media ( max-width: 450px ) {
+				padding: 24px
+			}
 		}
 
 	  	.jp-connection__connect-screen-layout__right {
@@ -59,6 +63,7 @@
 		.get-started-help {
 		  	font-size: 14px;
 			color: var( --jp-gray-50 );
+			margin-top: 12px !important;
 			margin-bottom: 0 !important;
 
 		  	.components-button {
@@ -79,6 +84,7 @@
 				padding: 20px;
 				min-width: 146px;
 				margin-right: 16px;
+				margin-bottom: 12px;
 				justify-content: center;
 				border-radius: 4px;
 
@@ -103,8 +109,8 @@
 			}
 
 		  	.components-notice {
+				margin-top: 20px;
 			  	margin-left: 0;
-			  	margin-top: 20px;
 			}
 		}
 	}

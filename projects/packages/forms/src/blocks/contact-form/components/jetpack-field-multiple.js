@@ -1,9 +1,10 @@
 import { Button } from '@wordpress/components';
-import { withInstanceId } from '@wordpress/compose';
+import { compose, withInstanceId } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { useFormStyle } from '../util/form';
+import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackOption from './jetpack-option';
@@ -67,6 +68,11 @@ function JetpackFieldMultiple( props ) {
 	};
 
 	const { blockStyle, fieldStyle } = useJetpackFieldStyles( attributes );
+	const optionStyle = {
+		color: fieldStyle.color,
+		fontSize: fieldStyle.fontSize,
+		lineHeight: fieldStyle.lineHeight,
+	};
 
 	return (
 		<>
@@ -99,20 +105,22 @@ function JetpackFieldMultiple( props ) {
 							onAddOption={ addNewOption }
 							isInFocus={ index === inFocus && isSelected }
 							isSelected={ isSelected }
-							style={ type !== 'select' ? fieldStyle : {} }
+							style={ type !== 'select' ? optionStyle : {} }
 						/>
 					) ) }
+					{ isSelected && (
+						<li>
+							<Button
+								className="jetpack-field-multiple__add-option"
+								icon="insert"
+								label={ __( 'Insert option', 'jetpack-forms' ) }
+								onClick={ addNewOption }
+							>
+								{ __( 'Add option', 'jetpack-forms' ) }
+							</Button>
+						</li>
+					) }
 				</ol>
-				{ isSelected && (
-					<Button
-						className="jetpack-field-multiple__add-option"
-						icon="insert"
-						label={ __( 'Insert option', 'jetpack-forms' ) }
-						onClick={ addNewOption }
-					>
-						{ __( 'Add option', 'jetpack-forms' ) }
-					</Button>
-				) }
 			</div>
 
 			<JetpackFieldControls
@@ -127,4 +135,18 @@ function JetpackFieldMultiple( props ) {
 	);
 }
 
-export default withInstanceId( JetpackFieldMultiple );
+export default compose(
+	withSharedFieldAttributes( [
+		'borderRadius',
+		'borderWidth',
+		'labelFontSize',
+		'fieldFontSize',
+		'lineHeight',
+		'labelLineHeight',
+		'inputColor',
+		'labelColor',
+		'fieldBackgroundColor',
+		'borderColor',
+	] ),
+	withInstanceId
+)( JetpackFieldMultiple );

@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Initializer;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Integration tests for the backwards-compatibility of the package.
@@ -173,6 +175,20 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 
 		// Test that the update query was run the correct number of times.
 		$this->assertSame( $expected_update_count, $update_count );
+	}
+
+	/**
+	 * Test that the automatic rules option inherits from the module status when it is doesn't exist.
+	 */
+	public function testAutomaticRulesOptionInheritsFromModuleStatus() {
+		// Enable the WAF module.
+		Waf_Runner::enable();
+
+		// Manually delete the automatic rules option to simulate a site that installed the WAF before the automatic rules option was introduced.
+		delete_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME );
+
+		// Check that the automatic rules option is enabled by default.
+		$this->assertTrue( Waf_Runner::is_enabled() );
 	}
 
 }
