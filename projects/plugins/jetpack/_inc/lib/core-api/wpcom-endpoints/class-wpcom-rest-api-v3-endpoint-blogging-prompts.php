@@ -114,7 +114,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 */
 	public function get_item( $request ) {
 		if ( ! $this->is_wpcom ) {
-			return $this->proxy_request_to_wpcom( $request );
+			return $this->proxy_request_to_wpcom( $request, $request->get_param( 'id' ) );
 		}
 
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
@@ -388,11 +388,12 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * Proxy request to wpcom servers for the site and user.
 	 *
 	 * @param  WP_Rest_Request $request Request to proxy.
+	 * @param  string          $path    Path to append to the rest base.
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
-	public function proxy_request_to_wpcom( $request ) {
+	public function proxy_request_to_wpcom( $request, $path = '' ) {
 		$blog_id  = \Jetpack_Options::get_option( 'id' );
-		$path     = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base );
+		$path     = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
 		$api_url  = add_query_arg( $request->get_query_params(), $path );
 		$response = Client::wpcom_json_api_request_as_user( $api_url, '3' );
 
