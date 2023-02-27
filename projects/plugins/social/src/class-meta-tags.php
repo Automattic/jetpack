@@ -293,7 +293,7 @@ class Meta_Tags {
 		}
 
 		// Add SIG image if enabled.
-		$tags = apply_filters( 'jetpack_open_graph_tags', $tags, null, $data->ID );
+		$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
 
 		if ( ! empty( $tags['og:image'] ) && $this->should_render_twitter_cards_tags() ) {
 			$tags = array_merge(

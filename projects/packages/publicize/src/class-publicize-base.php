@@ -217,7 +217,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'get_sig_image_for_post' ), 10, 3 );
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'get_sig_image_for_post' ), 10, 1 );
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -1480,16 +1480,14 @@ abstract class Publicize_Base {
 	 * Adds the sig image to the meta tags array.
 	 *
 	 * @param array $tags Current tags.
-	 * @param array $args Extra image arguments.
-	 * @param array $post_id Id of the current post.
 	 */
-	public function get_sig_image_for_post( $tags, $args, $post_id ) {
-		$sig = new Social_Image_Generator( $post_id );
+	public function get_sig_image_for_post( $tags ) {
+		$sig = new Social_Image_Generator( get_the_ID() );
 		if ( $sig->is_enabled() ) {
 			$tags = array_merge(
 				$tags,
 				array(
-					'og:image'        => $sig->get_image_url( $post_id ),
+					'og:image'        => $sig->get_image_url( get_the_ID() ),
 					'og:image:width'  => 1200,
 					'og:image:height' => 630,
 				)
