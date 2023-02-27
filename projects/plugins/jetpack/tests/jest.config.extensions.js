@@ -8,8 +8,8 @@ module.exports = {
 		...baseConfig.testPathIgnorePatterns,
 		'extensions/shared/test/block-fixtures.js',
 	],
-	moduleNameMapper:{
+	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
-		"\\.(css|less|sass|scss)$": "<rootDir>/tests/styles-mock.js",
-   }
+		'\\.(css|less|sass|scss)$': '<rootDir>/tests/styles-mock.js',
+	},
 };
