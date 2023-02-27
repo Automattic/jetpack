@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Publicize\Social_Image_Generator\Extractor;
 use WorDBless\BaseTestCase;
 
 /**
@@ -28,13 +29,6 @@ class Extractor_Test extends BaseTestCase {
 	protected $attachment_id;
 
 	/**
-	 * Instance of the Extractor class used for testing.
-	 *
-	 * @var Extractor Instance of the Extractor class.
-	 */
-	protected $extractor;
-
-	/**
 	 * Initialize tests
 	 *
 	 * @before
@@ -47,7 +41,6 @@ class Extractor_Test extends BaseTestCase {
 				'post_status'  => 'publish',
 			)
 		);
-		$this->extractor     = new Social_Image_Generator\Extractor( $this->post_id );
 		$this->attachment_id = $this->create_upload_object( realpath( __DIR__ . '/..' ) . '/images/jetpack-logo.png' );
 	}
 
@@ -109,9 +102,12 @@ class Extractor_Test extends BaseTestCase {
 	 * Test that the extractor correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertFalse( $this->extractor->is_enabled() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertFalse( $extractor->is_enabled() );
+
 		$this->update_image_generator_settings( array( 'is_enabled' => true ) );
-		$this->assertTrue( $this->extractor->is_enabled() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertTrue( $extractor->is_enabled() );
 	}
 
 	/**
@@ -119,33 +115,39 @@ class Extractor_Test extends BaseTestCase {
 	 */
 	public function test_correctly_returns_text_for_generated_image() {
 		$this->update_image_generator_settings( array( 'custom_text' => 'world' ) );
-		$this->assertEquals( 'world', $this->extractor->get_generated_image_text() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEquals( 'world', $extractor->get_generated_image_text() );
 	}
 
 	/**
 	 * Test that text for generated image defaults to post title if not set.
 	 */
 	public function test_text_for_generated_image_defaults_to_post_title() {
-		$this->assertEquals( 'hello', $this->extractor->get_generated_image_text() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEquals( 'hello', $extractor->get_generated_image_text() );
 	}
 
 	/**
 	 * Test that background image for generated image is returned correctly.
 	 */
 	public function test_correctly_returns_url_to_background_image_if_available() {
-		$this->assertEmpty( $this->extractor->get_generated_image_background_image_url() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEmpty( $extractor->get_generated_image_background_image_url() );
 		$this->update_image_generator_settings( array( 'image_id' => $this->attachment_id ) );
-		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $this->extractor->get_generated_image_background_image_url() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $extractor->get_generated_image_background_image_url() );
 	}
 
 	/**
 	 * Test that token is returned correctly.
 	 */
 	public function test_correctly_returns_token_if_available() {
-		$token = 'testtoken';
-		$this->assertEmpty( $this->extractor->get_token() );
+		$token     = 'testtoken';
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEmpty( $extractor->get_token() );
 		$this->update_image_generator_settings( array( 'token' => $token ) );
-		$this->assertEquals( $this->extractor->get_token(), $token );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEquals( $extractor->get_token(), $token );
 	}
 
 	/**
@@ -155,13 +157,15 @@ class Extractor_Test extends BaseTestCase {
 		$token = 'testtoken';
 		$this->update_image_generator_settings( array( 'token' => $token ) );
 		// TODO: update URL
-		$this->assertEquals( $this->extractor->get_image_url(), 'https://example.com/' . $token );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertEquals( $extractor->get_image_url(), 'https://example.com/' . $token );
 	}
 
 	/**
 	 * Test that image URL defaults to empty string.
 	 */
 	public function test_image_url_returns_empty_string_if_no_token_set() {
-		$this->assertSame( '', $this->extractor->get_image_url() );
+		$extractor = new Extractor( $this->post_id );
+		$this->assertSame( '', $extractor->get_image_url() );
 	}
 }

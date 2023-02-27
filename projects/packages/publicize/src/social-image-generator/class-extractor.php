@@ -21,12 +21,20 @@ class Extractor {
 	public $post_id;
 
 	/**
+	 * The post's settings.
+	 *
+	 * @var array $settings;
+	 */
+	public $settings;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param int $post_id Post to get information from.
 	 */
 	public function __construct( $post_id ) {
-		$this->post_id = $post_id;
+		$this->post_id  = $post_id;
+		$this->settings = $this->get_post_settings();
 	}
 
 	/**
@@ -50,9 +58,7 @@ class Extractor {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		$settings = $this->get_post_settings();
-
-		return ! empty( $settings['is_enabled'] );
+		return ! empty( $this->settings['is_enabled'] );
 	}
 
 	/**
@@ -61,10 +67,8 @@ class Extractor {
 	 * @return string
 	 */
 	public function get_generated_image_text() {
-		$settings = $this->get_post_settings();
-
-		if ( ! empty( $settings['custom_text'] ) ) {
-			return $settings['custom_text'];
+		if ( ! empty( $this->settings['custom_text'] ) ) {
+			return $this->settings['custom_text'];
 		}
 
 		return get_the_title( $this->post_id );
@@ -76,13 +80,11 @@ class Extractor {
 	 * @return string
 	 */
 	public function get_generated_image_background_image_url() {
-		$settings = $this->get_post_settings();
-
-		if ( empty( $settings['image_id'] ) ) {
+		if ( empty( $this->settings['image_id'] ) ) {
 			return '';
 		}
 
-		$image = wp_get_attachment_image_url( $settings['image_id'] );
+		$image = wp_get_attachment_image_url( $this->settings['image_id'] );
 
 		return $image ? $image : '';
 	}
@@ -93,9 +95,7 @@ class Extractor {
 	 * @return string
 	 */
 	public function get_token() {
-		$settings = $this->get_post_settings();
-
-		return ! empty( $settings['token'] ) ? $settings['token'] : '';
+		return ! empty( $this->settings['token'] ) ? $this->settings['token'] : '';
 	}
 
 	/**
