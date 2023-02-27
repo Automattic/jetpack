@@ -1,33 +1,49 @@
+import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl } from '@wordpress/components';
-// import { useState } from '@wordpress/element';
+import { PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 
-function BloggingPromptsBetaEdit( {
-	attributes,
-	// className,
-	// noticeOperations,
-	// noticeUI,
-	setAttributes,
-} ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	// const [ notice, setNotice ] = useState();
-
-	/* Call this function when you want to show an error in the placeholder. */
-	// const setErrorNotice = () => {
-	// 	noticeOperations.removeAllNotices();
-	// 	noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
-	// };
-
+function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
+	const [ isLoading, setLoading ] = useState( true );
 	const { answerCount, gravatars, prompt, promptId, showLabel, showResponses } = attributes;
-
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
+
+	useEffect( () => {
+		let path = '/wpcom/v3/blogging-prompts';
+
+		if ( promptId ) {
+			path += '/' + encodeURIComponent( promptId );
+		} else {
+			const date = new Date();
+
+			// Current month and day with leading zeros.
+			const month = ( '0' + ( date.getMonth() + 1 ).toString() ).slice( -2 );
+			const day = ( '0' + date.getDate().toString() ).slice( -2 );
+
+			path += '?after=--' + month + '-' + day + '&order=desc';
+		}
+
+		apiFetch( { path } )
+			.then( prompts => {
+				const promptData = promptId ? prompts : prompts[ 0 ];
+
+				setAttributes( {
+					answerCount: promptData.answered_users_count,
+					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
+					prompt: promptData.text,
+					promptId: promptData.id,
+				} );
+				setLoading( false );
+			} )
+			.catch( error => {
+				noticeOperations.removeAllNotices();
+				noticeOperations.createErrorNotice( error.message );
+				setLoading( false );
+			} );
+	}, [ noticeOperations, promptId, setAttributes ] );
 
 	const onShowLabelChange = newValue => {
 		setAttributes( { showLabel: newValue } );
@@ -37,8 +53,8 @@ function BloggingPromptsBetaEdit( {
 		setAttributes( { showResponses: newValue } );
 	};
 
-	return (
-		<div { ...blockProps }>
+	const renderControls = () => (
+		<>
 			<InspectorControls>
 				<PanelBody title={ _x( 'Settings', 'title of block settings sidebar section', 'jetpack' ) }>
 					<ToggleControl
@@ -53,7 +69,11 @@ function BloggingPromptsBetaEdit( {
 					/>
 				</PanelBody>
 			</InspectorControls>
+		</>
+	);
 
+	const renderPrompt = () => (
+		<>
 			{ showLabel && (
 				<div className="jetpack-blogging-prompts__label">
 					{ icon }
@@ -73,7 +93,6 @@ function BloggingPromptsBetaEdit( {
 									<img
 										className="jetpack-blogging-prompts__answers-gravatar"
 										// Gravatar are decorative, here.
-										aria-hidden="true"
 										src={ url }
 										key={ url }
 									/>
@@ -97,8 +116,23 @@ function BloggingPromptsBetaEdit( {
 					</a>
 				</div>
 			) }
+		</>
+	);
+
+	return (
+		<div { ...blockProps }>
+			{ noticeUI }
+			{ renderControls() }
+
+			{ isLoading ? (
+				<div className="jetpack-blogging-prompts__spinner">
+					<Spinner />
+				</div>
+			) : (
+				renderPrompt()
+			) }
 		</div>
 	);
 }
 
-export default BloggingPromptsBetaEdit;
+export default withNotices( BloggingPromptsBetaEdit );
