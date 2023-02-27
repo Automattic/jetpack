@@ -39,13 +39,17 @@ export function PosterDropdown( {
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
 
+	const imageStyle = {
+		backgroundImage: poster ? `url(${ poster })` : undefined,
+	};
+
 	return (
 		<Dropdown
 			contentClassName="poster-panel__dropdown"
 			position="top left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
-					style={ { backgroundImage: poster ? `url(${ poster })` : undefined } }
+					style={ imageStyle }
 					className={ `poster-panel__button ${ poster ? 'has-poster' : '' }` }
 					variant="secondary"
 					onClick={ onToggle }
