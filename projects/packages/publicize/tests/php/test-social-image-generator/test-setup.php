@@ -112,7 +112,7 @@ class Setup_Test extends BaseTestCase {
 	 */
 	public function test_token_gets_stored_when_post_is_saved() {
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$post_id = $this->create_post( array( 'is_enabled' => true ) );
+		$post_id = $this->create_post( array( 'enabled' => true ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$extractor = new Social_Image_Generator\Extractor( $post_id );

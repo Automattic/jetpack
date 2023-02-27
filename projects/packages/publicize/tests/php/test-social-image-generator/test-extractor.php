@@ -104,8 +104,7 @@ class Extractor_Test extends BaseTestCase {
 	public function test_correctly_returns_enabled_status() {
 		$extractor = new Extractor( $this->post_id );
 		$this->assertFalse( $extractor->is_enabled() );
-
-		$this->update_image_generator_settings( array( 'is_enabled' => true ) );
+		$this->update_image_generator_settings( array( 'enabled' => true ) );
 		$extractor = new Extractor( $this->post_id );
 		$this->assertTrue( $extractor->is_enabled() );
 	}

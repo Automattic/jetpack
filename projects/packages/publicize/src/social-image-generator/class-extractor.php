@@ -58,7 +58,7 @@ class Extractor {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return ! empty( $this->settings['is_enabled'] );
+		return ! empty( $this->settings['enabled'] );
 	}
 
 	/**
