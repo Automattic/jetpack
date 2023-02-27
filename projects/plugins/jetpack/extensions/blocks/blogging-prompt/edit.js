@@ -12,6 +12,11 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
 
 	useEffect( () => {
+		// If not initially rendering the block, don't fetch new data.
+		if ( ! isLoading ) {
+			return;
+		}
+
 		let path = '/wpcom/v3/blogging-prompts';
 
 		if ( promptId ) {
@@ -23,27 +28,27 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 			const month = ( '0' + ( date.getMonth() + 1 ).toString() ).slice( -2 );
 			const day = ( '0' + date.getDate().toString() ).slice( -2 );
 
-			path += '?after=--' + month + '-' + day + '&order=desc';
+			path += `?after=--${ month }-${ day }&order=desc`;
 		}
 
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
 
+				setLoading( false );
 				setAttributes( {
 					answerCount: promptData.answered_users_count,
 					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 					prompt: promptData.text,
 					promptId: promptData.id,
 				} );
-				setLoading( false );
 			} )
 			.catch( error => {
+				setLoading( false );
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( error.message );
-				setLoading( false );
 			} );
-	}, [ noticeOperations, promptId, setAttributes ] );
+	}, [ isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
 
 	const onShowLabelChange = newValue => {
 		setAttributes( { showLabel: newValue } );
