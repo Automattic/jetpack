@@ -37,7 +37,7 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"dependencies": {
-		"@automattic/calypso-color-schemes": "2.1.1",
+		"@automattic/calypso-color-schemes": "3.0.0",
 		"@automattic/color-studio": "2.5.0",
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",

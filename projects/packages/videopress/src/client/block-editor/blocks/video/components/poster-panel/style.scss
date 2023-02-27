@@ -1,0 +1,50 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+// Hack to hide the Image dropdown when the media modal is open
+body.modal-open .poster-panel__dropdown {
+	display: none;
+}
+
+.poster-panel {
+	.components-dropdown {
+		width: 100%;
+		display: flex;
+
+		.poster-panel__button {
+			width: 100%;
+			display: block;
+			text-align: center;
+			border-radius: 2px;
+			min-height: 90px;
+			background-color: #fAfAfA;
+			background-size: cover;
+			background-position: center center;
+
+			&.has-poster span {
+				display: none;
+			}
+
+			&:hover {
+				background-image: none !important; // stronger specificity than the inline style
+
+				span {
+					display: inline;
+				}
+			}
+		}
+	}
+}
+
+.poster-panel-control__help {
+	font-size: 12px;
+	font-style: normal;
+	color: rgb(117, 117, 117);
+}
+
+.poster-panel-card {
+	margin-top: $grid-unit-30;
+	margin-right: -$grid-unit-10;
+	margin-left: -$grid-unit-10;
+	padding-left: $grid-unit-20;
+	padding-right: $grid-unit-20;
+}
