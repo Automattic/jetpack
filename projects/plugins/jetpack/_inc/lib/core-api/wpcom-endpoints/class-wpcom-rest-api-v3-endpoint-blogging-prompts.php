@@ -422,7 +422,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$url = wpcom_get_avatar_url( $user->user_id, 96, 'identicon', false );
 			if ( has_gravatar( $user->user_id ) && ! empty( $url[0] ) && ! is_wp_error( $url[0] ) ) {
 				$users[] = array(
-					'avatar' => (string) esc_url_raw( htmlspecialchars_decode( $url[0] ) ),
+					'avatar' => (string) esc_url_raw( htmlspecialchars_decode( $url[0], ENT_COMPAT ) ),
 				);
 			}
 		}
