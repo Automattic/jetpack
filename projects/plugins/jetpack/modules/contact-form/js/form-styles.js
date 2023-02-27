@@ -1,3 +1,4 @@
+const { generateStyleVariables } = window.jetpackForms;
 const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 
 //Fallback in case of the page load event takes too long to fire up
@@ -11,7 +12,6 @@ window.addEventListener( 'load', () => {
 } );
 
 function handleFormStyles() {
-	/* eslint-disable-next-line no-undef */
 	const styleVariables = generateStyleVariables( FRONTEND_SELECTOR );
 
 	if ( ! styleVariables ) {

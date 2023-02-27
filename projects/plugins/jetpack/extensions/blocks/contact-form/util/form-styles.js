@@ -1,4 +1,6 @@
-function getBackgroundColor( backgroundColorNode ) {
+window.jetpackForms = window.jetpackForms || {};
+
+window.jetpackForms.getBackgroundColor = function ( backgroundColorNode ) {
 	let backgroundColor = window.getComputedStyle( backgroundColorNode ).backgroundColor;
 	while (
 		backgroundColor === 'rgba(0, 0, 0, 0)' &&
@@ -9,10 +11,9 @@ function getBackgroundColor( backgroundColorNode ) {
 		backgroundColor = window.getComputedStyle( backgroundColorNode ).backgroundColor;
 	}
 	return backgroundColor;
-}
+};
 
-/* eslint-disable-next-line no-unused-vars */
-function generateStyleVariables( selector ) {
+window.jetpackForms.generateStyleVariables = function ( selector ) {
 	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
@@ -45,8 +46,8 @@ function generateStyleVariables( selector ) {
 	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
-	const backgroundColor = getBackgroundColor( bodyNode );
-	const inputBackground = getBackgroundColor( inputNode );
+	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
+	const inputBackground = window.jetpackForms.getBackgroundColor( inputNode );
 	const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
 
 	const {
@@ -83,4 +84,4 @@ function generateStyleVariables( selector ) {
 		'--jetpack--contact-form--font-family': fontFamily,
 		'--jetpack--contact-form--line-height': lineHeight,
 	};
-}
+};
