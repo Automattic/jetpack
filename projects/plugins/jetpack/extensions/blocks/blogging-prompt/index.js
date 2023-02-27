@@ -35,6 +35,12 @@ export const settings = {
 		align: false,
 		alignWide: false,
 		anchor: false,
+		color: {
+			background: true,
+			gradients: true,
+			link: true,
+			text: true,
+		},
 		customClassName: true,
 		className: true,
 		html: false,
