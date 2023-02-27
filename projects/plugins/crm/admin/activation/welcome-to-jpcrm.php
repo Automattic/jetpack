@@ -267,7 +267,7 @@ $settings      = $zbs->settings->getAll();
 
 					<div style="width:100%;">
 						<div style="width:25%;float:left;">
-							<div class='yesplsess'><p><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_ess" value="zbs_ess" checked='checked'/></p></div>
+							<div class='yesplsess'><p><?php esc_html_e( 'Track CRM Usage', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_ess" value="zbs_ess"/></p></div>
 						</div>
 						<div style="width:75%;float:right;">
 							<div class="zbs-extrainfo">
