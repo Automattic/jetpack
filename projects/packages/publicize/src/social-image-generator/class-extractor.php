@@ -84,7 +84,7 @@ class Extractor {
 			return '';
 		}
 
-		$image = wp_get_attachment_image_url( $this->settings['image_id'] );
+		$image = wp_get_attachment_image_url( $this->settings['image_id'], 'large' );
 
 		return $image ? $image : '';
 	}
