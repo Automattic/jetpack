@@ -1,5 +1,5 @@
-import { JetpackLogo } from '@automattic/jetpack-components';
-import { ConnectButton, ToS } from '@automattic/jetpack-connection';
+import { JetpackLogo, TermsOfService } from '@automattic/jetpack-components';
+import { ConnectButton } from '@automattic/jetpack-connection';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -70,7 +70,9 @@ const ContextualizedConnection = props => {
 							redirectUri={ redirectUri }
 							connectLabel={ buttonLabel }
 						/>
-						<div className="jp-contextualized-connection__tos">{ ToS }</div>
+						<div className="jp-contextualized-connection__tos">
+							<TermsOfService agreeButtonLabel={ buttonLabel } />
+						</div>
 					</>
 				) }
 			</div>
