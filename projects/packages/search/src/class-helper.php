@@ -848,7 +848,7 @@ class Helper {
 			'overlayOptions'        => array(
 				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
-				'enablePostDate'    => get_option( $prefix . 'show_post_date', is_multisite() ? '1' : '0' ) === '1',
+				'enablePostDate'    => get_option( $prefix . 'show_post_date', '1' ) === '1',
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),

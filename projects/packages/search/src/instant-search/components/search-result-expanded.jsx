@@ -45,6 +45,7 @@ export default function SearchResultExpanded( props ) {
 			fields.author = fields.author.join( ', ' );
 		}
 	}
+
 	return (
 		<li
 			className={ [
@@ -113,43 +114,42 @@ export default function SearchResultExpanded( props ) {
 					</div>
 				</a>
 			</div>
-			{ isMultiSite ||
-				( showPostDate && (
-					<ul className="jetpack-instant-search__search-result-expanded__footer">
-						{ isMultiSite && (
-							<>
-								<li>
-									<PhotonImage
-										alt={ fields.blog_name }
-										className="jetpack-instant-search__search-result-expanded__footer-blog-image"
-										isPhotonEnabled={ false }
-										height={ 24 }
-										width={ 24 }
-										src={ fields.blog_icon_url }
-										lazyLoad={ false }
-									/>
-									<span className="jetpack-instant-search__search-result-expanded__footer-blog">
-										{ fields.blog_name }
-									</span>
-								</li>
-								<li>
-									<span className="jetpack-instant-search__search-result-expanded__footer-author">
-										{ fields.author }
-									</span>
-								</li>
-							</>
-						) }
-						<li>
-							<span className="jetpack-instant-search__search-result-expanded__footer-date">
-								{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
-									year: 'numeric',
-									month: 'short',
-									day: 'numeric',
-								} ) }
-							</span>
-						</li>
-					</ul>
-				) ) }
+			{ ( isMultiSite || showPostDate ) && (
+				<ul className="jetpack-instant-search__search-result-expanded__footer">
+					{ isMultiSite && (
+						<>
+							<li>
+								<PhotonImage
+									alt={ fields.blog_name }
+									className="jetpack-instant-search__search-result-expanded__footer-blog-image"
+									isPhotonEnabled={ false }
+									height={ 24 }
+									width={ 24 }
+									src={ fields.blog_icon_url }
+									lazyLoad={ false }
+								/>
+								<span className="jetpack-instant-search__search-result-expanded__footer-blog">
+									{ fields.blog_name }
+								</span>
+							</li>
+							<li>
+								<span className="jetpack-instant-search__search-result-expanded__footer-author">
+									{ fields.author }
+								</span>
+							</li>
+						</>
+					) }
+					<li>
+						<span className="jetpack-instant-search__search-result-expanded__footer-date">
+							{ new Date( fixDateFormat( fields.date ) ).toLocaleDateString( locale, {
+								year: 'numeric',
+								month: 'short',
+								day: 'numeric',
+							} ) }
+						</span>
+					</li>
+				</ul>
+			) }
 		</li>
 	);
 }
