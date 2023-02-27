@@ -162,7 +162,7 @@ class Jetpack_Backup {
 	 */
 	public static function can_use_analytics() {
 		$status     = new Status();
-		$connection = new Connection_Manager();
+		$connection = new Connection_Manager( 'jetpack-backup' );
 		$tracking   = new Tracking( 'jetpack', $connection );
 
 		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
@@ -172,9 +172,6 @@ class Jetpack_Backup {
 	 * Enqueue plugin admin scripts and styles.
 	 */
 	public static function enqueue_admin_scripts() {
-		$status  = new Status();
-		$manager = new Connection_Manager( 'jetpack-backup' );
-
 		Assets::register_script(
 			'jetpack-backup',
 			'../build/index.js',
