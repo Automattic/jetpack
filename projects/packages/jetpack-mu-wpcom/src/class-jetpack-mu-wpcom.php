@@ -49,6 +49,9 @@ class Jetpack_Mu_Wpcom {
 		 * On WoA sites, users may be using non-symlinked older versions of the FSE plugin.
 		 * If they are, check the active version to avoid redeclaration errors.
 		 */
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		$invalid_fse_version_active = is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) && version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php' )['Version'], '3.56084', '<' );
 		if ( $invalid_fse_version_active ) {
 			return;
