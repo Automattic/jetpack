@@ -224,8 +224,9 @@ function jetpack_og_tags() {
 	 *
 	 * @param array $tags Array of Open Graph Meta tags.
 	 * @param array $args Array of image size parameters.
+	 * @param number $id  ID of the current post for the tags
 	 */
-	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
+	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ), $data->ID );
 
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here.
 	$tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
