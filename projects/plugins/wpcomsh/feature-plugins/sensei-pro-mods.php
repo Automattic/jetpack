@@ -41,36 +41,6 @@ function sensei_onboarding_mods() {
 add_action( 'admin_init', 'sensei_onboarding_mods' );
 
 /**
- * Cache inconsistency fix. This function will flush the cache if it detects that it is corrupted.
- *
- * See https://github.com/Automattic/wp-calypso/issues/73547
- *
- * @return void
- */
-function sensei_cache_flush() {
-	if ( is_plugin_active( 'sensei-lms/sensei-lms.php' ) && ! get_option( 'sensei_cache_flushed' ) ) {
-		$notoptions = wp_cache_get( 'notoptions', 'options' );
-
-		$cache_incosistent = false;
-
-		if ( true === $notoptions['woocommerce_version'] && is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-			$cache_incosistent = true;
-		}
-
-		if ( true === $notoptions['senseilms_license_key__sensei-pro'] && is_plugin_active( 'sensei-pro/sensei-pro.php' ) ) {
-			$cache_incosistent = true;
-		}
-
-		if ( $cache_incosistent ) {
-			update_option( 'sensei_cache_flushed', 1 );
-			wp_cache_set( 'notoptions', array(), 'options' );
-		}
-	}
-}
-
-add_action( 'admin_init', 'sensei_cache_flush' );
-
-/**
  * Allow Sensei Home task complete option to be synced so we can use this status for the My Home Checklist
  *
  * @param array $options Jetpack sync allowed options.
