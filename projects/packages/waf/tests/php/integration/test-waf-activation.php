@@ -57,7 +57,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
 		// Initialize the firewall.
-		$activated = Waf_Initializer::on_activation();
+		$activated = Waf_Initializer::on_waf_activation();
 
 		// Ensure the WAF was activated successfully.
 		$this->assertTrue( $activated );
