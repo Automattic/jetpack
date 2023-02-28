@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Remove body font normalization for on contact-form module and package
