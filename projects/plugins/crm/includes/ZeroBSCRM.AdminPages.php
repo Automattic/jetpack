@@ -2166,38 +2166,29 @@ function zeroBSCRM_html_extensions() {
 			$top_woo_extension_slugs = array( 'advanced-segments', 'sales-dashboard', 'automations', 'client-portal-pro', 'csv-importer-pro', 'wordpress-utilities' );
 			$extensions_to_display   = array();
 			$top_woo_extensions      = array();
+			$has_woosync             = zeroBSCRM_isExtensionInstalled( 'woo-sync' );
 
 			// We want to prioritize the top 5 Woo modules in the list if 'woosync' is active, but otherwise alphabetize everything.
 			foreach ( $extensions->paid as $extension ) {
 
-				if ( in_array( $extension->slug, $top_woo_extension_slugs, true ) && zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
+				if ( $has_woosync && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
 					$top_woo_extensions[] = $extension;
-					usort(
-						$top_woo_extensions,
-						function (
-						$str1,
-						$str2
-						) {
-							return strcasecmp( $str1->name, $str2->name );
-						}
-					);
-				} else {
-					$extensions_to_display[] = $extension;
-					usort(
-						$extensions_to_display,
-						function (
-						$str1,
-						$str2
-						) {
-							return strcasecmp( $str1->name, $str2->name );
-						}
-					);
+					continue;
 				}
+				$extensions_to_display[] = $extension;
 			}
 
-			if ( zeroBSCRM_isExtensionInstalled( 'woo-sync' ) ) {
-				$extensions_to_display = array_merge( $top_woo_extensions, $extensions_to_display );
-			}
+			usort(
+				$extensions_to_display,
+				function (
+				$str1,
+				$str2
+				) {
+					return strcasecmp( $str1->name, $str2->name );
+				}
+			);
+
+			$extensions_to_display = array_merge( $top_woo_extensions, $extensions_to_display );
 
 			foreach ( $extensions_to_display as $extension ) {
 				// hide bundles
