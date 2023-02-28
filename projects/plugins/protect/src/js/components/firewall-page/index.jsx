@@ -506,11 +506,7 @@ const FirewallPage = () => {
 					/>
 				</div>
 			) }
-			<div
-				className={ `${ styles[ 'toggle-section' ] } ${
-					! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
-				}` }
-			>
+			<div className={ styles[ 'toggle-section' ] }>
 				<div className={ styles[ 'toggle-section__control' ] }>
 					<FormToggle
 						id="brute_force_protection_is_enabled"
