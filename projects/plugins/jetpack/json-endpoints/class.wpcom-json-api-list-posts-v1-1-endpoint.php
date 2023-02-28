@@ -222,7 +222,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['include'] ) ) {
-			$query['post__in'] = $args['include'];
+			$query['post__in'] = is_array( $args['include'] ) ? $args['include'] : array( (int) $args['include'] );
 		}
 
 		if ( isset( $args['meta_key'] ) ) {
@@ -256,7 +256,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		} elseif ( 'require' === $args['sticky'] ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) && ! empty( $sticky ) ) {
-				$query['post__in'] = $sticky;
+				$query['post__in'] = isset( $args['include'] ) ? array_merge( $query['post__in'], $sticky ) : $sticky;
 			} else {
 				// no sticky posts exist.
 				return array(
