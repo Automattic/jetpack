@@ -38,6 +38,16 @@ const supportContext = __(
 	'jetpack-boost'
 );
 
+const automaticallyUpdatedContext = __(
+	`It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.<br><br>Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.`,
+	'jetpack-boost'
+);
+
+const manuallyUpdatedContext = __(
+	`To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:<br><br><ul><li>Make theme changes.</li><li>Write a new post/page.</li><li>Edit a post/page.</li><li>Activate, deactivate, or update plugins that impact your site layout or HTML structure.</li><li>Change settings of plugins that impact your site layout or HTML structure.</li><li>Upgrade your WordPress version if the new release includes core CSS changes.</li></ul>`,
+	'jetpack-boost'
+);
+
 export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 	const [ choosePremiumPlan, setChoosePremiumPlan ] = useState( false );
 	const [ chooseFreePlan, setChooseFreePlan ] = useState( false );
@@ -76,7 +86,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					tooltipInfo: lazyLoadingContext,
 				},
 				{
-					name: __( 'Dedicated support', 'jetpack-boost' ),
+					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
 				},
 			] }
@@ -101,7 +111,11 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 				</PricingTableHeader>
 				<PricingTableItem
 					isIncluded={ true }
-					label={ __( 'Automatic Critical CSS Generation', 'jetpack-boost' ) }
+					label={ <strong>{ __( 'Automatically updated', 'jetpack-boost' ) }</strong> }
+					tooltipTitle={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
+					tooltipInfo={
+						<span dangerouslySetInnerHTML={ { __html: automaticallyUpdatedContext } }></span>
+					}
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -126,15 +140,16 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					</Button>
 				</PricingTableHeader>
 				<PricingTableItem
-					isIncluded={ false }
-					label={ __( 'Manual Critical CSS Generation', 'jetpack-boost' ) }
+					isIncluded={ true }
+					label={ __( 'Must be done manually', 'jetpack-boost' ) }
+					tooltipTitle={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
+					tooltipInfo={
+						<span dangerouslySetInnerHTML={ { __html: manuallyUpdatedContext } }></span>
+					}
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
-				<PricingTableItem
-					isIncluded={ false }
-					label={ __( 'No dedicated support', 'jetpack-boost' ) }
-				/>
+				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />
 			</PricingTableColumn>
 		</PricingTable>
 	);
