@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import icon from './icon';
 
 function BloggingPromptsSave( { attributes } ) {
-	const { gravatars, prompt, prompt_id, showLabel, showResponses } = attributes;
+	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
 	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompts' } );
 
 	return (
@@ -33,7 +33,7 @@ function BloggingPromptsSave( { attributes } ) {
 					} ) }
 					<a
 						className="jetpack-blogging-prompts__answers-link"
-						href={ `https://wordpress.com/tag/dailyprompt-${ prompt_id }` }
+						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
 					>
 						{ __( 'View all responses', 'jetpack' ) }
 					</a>
