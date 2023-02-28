@@ -1,7 +1,4 @@
 export default {
-	answerCount: {
-		type: 'number',
-	},
 	gravatars: {
 		type: 'array',
 		source: 'query',

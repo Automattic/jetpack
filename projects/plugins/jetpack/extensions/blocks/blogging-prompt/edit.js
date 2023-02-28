@@ -2,13 +2,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 
 function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
 	const [ isLoading, setLoading ] = useState( true );
-	const { answerCount, gravatars, prompt, promptId, showLabel, showResponses } = attributes;
+	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
 
 	useEffect( () => {
@@ -37,7 +37,6 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 
 				setLoading( false );
 				setAttributes( {
-					answerCount: promptData.answered_users_count,
 					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
 					prompt: promptData.text,
 					promptId: promptData.id,
@@ -111,13 +110,7 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 						target="_blank"
 						rel="noreferrer"
 					>
-						{ answerCount > 0
-							? sprintf(
-									// translators: %s is the number of responses.
-									_n( 'View %s response', 'View all %s responses', answerCount, 'jetpack' ),
-									answerCount
-							  )
-							: __( 'No other responses, yet.', 'jetpack' ) }
+						{ __( 'View all responses', 'jetpack' ) }
 					</a>
 				</div>
 			) }
