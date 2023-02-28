@@ -55,6 +55,7 @@ add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
  * @param WP_Post $post       Post object.
  */
 function jetpack_mark_if_post_answers_blogging_prompt( $new_status, $old_status, $post ) {
+	// Make sure we are publishing a post, and it's not already published.
 	if ( 'post' !== $post->post_type || 'publish' !== $new_status || 'publish' === $old_status ) {
 		return;
 	}
@@ -64,7 +65,7 @@ function jetpack_mark_if_post_answers_blogging_prompt( $new_status, $old_status,
 		if ( 'jetpack/blogging-prompt' === $block['blockName'] ) {
 			$prompt_id = $block['attrs']['promptId'];
 
-			if ( $prompt_id ) {
+			if ( $prompt_id && count( $blocks ) > 1 ) {
 				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
 				break;
 			}
