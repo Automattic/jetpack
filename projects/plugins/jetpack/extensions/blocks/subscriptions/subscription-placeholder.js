@@ -32,11 +32,13 @@ export const SubscriptionsPlaceholder = ( { changeStatus, isLoading, isModuleAct
 				onClick={ enableSubscriptionsModule }
 				variant="secondary"
 			>
-				{ __( 'Activate Subscriptions', 'jetpack' ) }
+				{ isLoading
+					? __( 'Activating Subscriptions', 'jetpack' )
+					: __( 'Activate Subscriptions', 'jetpack' ) }
 			</Button>
 			<div className="membership-button__disclaimer">
 				<ExternalLink href="https://jetpack.com/support/subscriptions/">
-					{ __( 'Learn more about the Subscriptions feature here.', 'jetpack' ) }
+					{ __( 'Learn more about the Subscriptions feature.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		</Placeholder>

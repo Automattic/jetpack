@@ -36,7 +36,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 			<FlexItem>{ children }</FlexItem>
 			<FlexItem>
 				<ExternalLink href="https://jetpack.com/support/subscriptions/">
-					{ __( 'Learn more about the Subscriptions feature here.', 'jetpack' ) }
+					{ __( 'Learn more about the Subscriptions feature.', 'jetpack' ) }
 				</ExternalLink>
 			</FlexItem>
 		</Flex>
@@ -176,7 +176,9 @@ export default function SubscribePanels() {
 							onClick={ enableSubscriptionsModule }
 							variant="secondary"
 						>
-							{ __( 'Activate Subscriptions', 'jetpack' ) }
+							{ isChangingStatus
+								? __( 'Activating Subscriptions', 'jetpack' )
+								: __( 'Activate Subscriptions', 'jetpack' ) }
 						</Button>
 					</SubscriptionsPanelPlaceholder>
 				) }
