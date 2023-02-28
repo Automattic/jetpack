@@ -2178,6 +2178,18 @@ function zeroBSCRM_html_extensions() {
 				$extensions_to_display[] = $extension;
 			}
 
+			if ( count( $top_woo_extensions ) !== 0 ) {
+				usort(
+					$top_woo_extensions,
+					function (
+					$str1,
+					$str2
+					) {
+						return strcasecmp( $str1->name, $str2->name );
+					}
+				);
+			}
+
 			usort(
 				$extensions_to_display,
 				function (
