@@ -93,18 +93,51 @@ class Post_Settings {
 	}
 
 	/**
-	 * Get the image to use for the generated image.
+	 * Get the image type for the generated image.
 	 *
 	 * @return string
 	 */
-	public function get_image_url() {
-		if ( empty( $this->settings['image_id'] ) ) {
-			return '';
+	public function get_image_type() {
+		$type = isset( $this->settings['image_type'] ) ? $this->settings['image_type'] : null;
+
+		// By default, we use the featured image.
+		if ( empty( $type ) ) {
+			return 'featured';
 		}
 
-		$image = wp_get_attachment_image_url( $this->settings['image_id'], 'large' );
+		return $type;
+	}
 
-		return $image ? $image : '';
+	/**
+	 * Get the image to use for the generated image.
+	 *
+	 * @return ?string
+	 */
+	public function get_image_url() {
+		$type = $this->get_image_type();
+
+		switch ( $type ) {
+			case 'featured':
+				$image_id = get_post_thumbnail_id( $this->post_id );
+				break;
+			case 'custom':
+				$image_id = isset( $this->settings['image_id'] ) ? $this->settings['image_id'] : null;
+				break;
+			case 'none':
+				return null;
+		}
+
+		if ( empty( $image_id ) ) {
+			return null;
+		}
+
+		$url = wp_get_attachment_image_url( $image_id, 'large' );
+
+		if ( ! $url ) {
+			return null;
+		}
+
+		return $url;
 	}
 
 	/**

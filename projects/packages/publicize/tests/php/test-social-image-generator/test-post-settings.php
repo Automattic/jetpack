@@ -127,14 +127,45 @@ class Post_Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that image for generated image is returned correctly.
+	 * Test that image for generated image defaults to featured image.
 	 */
-	public function test_correctly_returns_url_to_image_if_available() {
+	public function test_image_defaults_to_featured_image() {
 		$settings = new Post_Settings( $this->post_id );
-		$this->assertEmpty( $settings->get_image_url() );
-		$this->update_image_generator_settings( array( 'image_id' => $this->attachment_id ) );
+		$this->assertNull( $settings->get_image_url() );
+		set_post_thumbnail( $this->post_id, $this->attachment_id );
+		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $settings->get_image_url() );
+		delete_post_thumbnail( $this->post_id );
+	}
+
+	/**
+	 * Test that a custom image returns correctly if it is available.
+	 */
+	public function test_custom_image_returns_correctly_if_set() {
+		$this->update_image_generator_settings( array( 'image_type' => 'custom' ) );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertNull( $settings->get_image_url() );
+		$this->update_image_generator_settings(
+			array(
+				'image_type' => 'custom',
+				'image_id'   => $this->attachment_id,
+			)
+		);
 		$settings = new Post_Settings( $this->post_id );
 		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $settings->get_image_url() );
+	}
+
+	/**
+	 * Test that no image is returned when user picks the "No Image" option.
+	 */
+	public function test_no_image_is_returned_when_image_is_set_to_none() {
+		$this->update_image_generator_settings(
+			array(
+				'image_type' => 'none',
+				'image_id'   => $this->attachment_id,
+			)
+		);
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertNull( $settings->get_image_url() );
 	}
 
 	/**
