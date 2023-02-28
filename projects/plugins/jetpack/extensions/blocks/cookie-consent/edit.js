@@ -36,7 +36,7 @@ function CookieConsentBlockEdit( { attributes, setAttributes } ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Cookie Consent Block Settings', 'jetpack' ) }>
+				<PanelBody title={ __( 'Block Settings', 'jetpack' ) }>
 					<SelectControl
 						label={ __( 'Alignment', 'jetpack' ) }
 						value={ align }
