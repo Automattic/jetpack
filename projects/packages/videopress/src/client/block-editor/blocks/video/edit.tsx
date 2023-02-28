@@ -28,6 +28,7 @@ import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PosterImageBlockControl from './components/poster-image-block-control';
+import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
@@ -517,11 +518,22 @@ export default function VideoPressEdit( {
 
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
 
+				<PosterPanel
+					clientId={ clientId }
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+				/>
+
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
 				/>
 			</InspectorControls>
 
+			{ /*
+			 * __experimentalGroup is a temporary prop to allow us to group the color panel,
+			 * and it will be replaced with the `group` prop once it's stabilized.
+			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
+			 */ }
 			<InspectorControls __experimentalGroup="color">
 				<ColorPanel
 					clientId={ clientId }
