@@ -29,8 +29,9 @@ function CookieConsentBlockEdit( { attributes, setAttributes } ) {
 		} );
 	}
 
-	const { className, ...blockProps } = { ...useBlockProps() };
-	const classWithAlignment = className + ' align' + align;
+	const blockProps = useBlockProps( {
+		className: `wp-block-jetpack-cookie-consent align${ align }`,
+	} );
 
 	return (
 		<>
@@ -75,7 +76,7 @@ function CookieConsentBlockEdit( { attributes, setAttributes } ) {
 					</p>
 				</PanelBody>
 			</InspectorControls>
-			<div { ...blockProps } style={ blockProps.style } className={ classWithAlignment }>
+			<div { ...blockProps } style={ blockProps.style }>
 				<RichText
 					tagName="p"
 					value={ text }
