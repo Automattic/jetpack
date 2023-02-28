@@ -412,7 +412,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return array A list of block and plugins and their availability status.
 	 */
-	public function get_extensions() {
+	public static function get_extensions() {
 		return self::$extensions;
 	}
 
