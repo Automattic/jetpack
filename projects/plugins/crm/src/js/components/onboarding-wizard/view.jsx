@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
-import OnboardingWizardPage from './components/onboarding-wizard';
+import OnboardingWizardPage from '.';
 
 /**
  * Initial render function.

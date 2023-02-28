@@ -66,6 +66,27 @@ function getWelcomeZBSCSSEntries() {
 	return entries;
 }
 
+/**
+ * Return object with React component view file mapping.
+ *
+ * We look for "view.{js,jsx,ts,tsx}" files in React component directories to determine
+ * if we should build the component or not. This is useful for bootstrap/app components
+ * that import other components.
+ *
+ * @returns {object} An object with a build path and a corresponding file path.
+ */
+function getReactComponentViewMapping() {
+	const entries = {};
+
+	glob.sync( 'src/js/components/**/view.{js,jsx,ts,tsx}' ).forEach( file => {
+		const pathDetails = path.parse( file );
+		const directoryName = pathDetails.dir.substring( pathDetails.dir.lastIndexOf( '/' ) + 1 );
+		entries[ `${ directoryName }/index` ] = './' + file;
+	} );
+
+	return entries;
+}
+
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
@@ -188,9 +209,7 @@ module.exports = [
 		],
 	},
 	{
-		entry: {
-			'onboarding-wizard': './src/js/onboarding-wizard-index.jsx',
-		},
+		entry: getReactComponentViewMapping(),
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {

@@ -88,7 +88,7 @@ final class Bootstrap {
 	public function enqueue_admin_scripts() {
 		Assets::register_script(
 			'jetpack-crm-onboarding-wizard',
-			'build/onboarding-wizard.js',
+			'build/onboarding-wizard/index.js',
 			ZBS_ROOTFILE,
 			array(
 				'in_footer'  => true,
