@@ -1,20 +1,22 @@
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+// import { createStore, applyMiddleware, compose } from 'redux';
+import { createReduxStore, register } from '@wordpress/data';
+import * as actions from './actions';
+import controls from './controls';
 import reducer from './reducer';
+import resolvers from './resolvers';
+import * as selectors from './selectors';
 
-export default createJetpackStore();
+export const STORE_NAME = 'FORM_RESPONSES';
 
-/**
- * Creates redux store
- *
- * @returns {object} store
- */
-function createJetpackStore() {
-	const finalCreateStore = compose(
-		applyMiddleware( thunk ),
-		typeof window === 'object' && typeof window.__REDUX_DEVTOOLS_EXTENSION__ !== 'undefined'
-			? window.__REDUX_DEVTOOLS_EXTENSION__()
-			: f => f
-	)( createStore );
-	return finalCreateStore( reducer );
-}
+const storeConfig = {
+	actions: { ...actions },
+	reducer,
+	selectors: { ...selectors },
+	controls,
+	resolvers,
+};
+
+console.log( storeConfig );
+const store = createReduxStore( STORE_NAME, storeConfig );
+
+register( store );

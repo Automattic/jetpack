@@ -3,13 +3,12 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	SelectControl,
 } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { find, includes, map } from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
 import Layout from '../components/layout';
-import { fetchResponses } from '../state/actions';
-import { getResponses, getTotalResponses, isFetchingResponses } from '../state/selectors';
+import { STORE_NAME } from '../state';
 import InboxList from './list';
 import InboxResponse from './response';
 
@@ -22,15 +21,16 @@ const Inbox = () => {
 	// const [ showResponseView, setShowResponseView ] = useState( false );
 	const [ searchText, setSearchText ] = useState( '' );
 
-	const dispatch = useDispatch();
+	const { dispatch } = useDispatch( STORE_NAME );
 
-	const [ loading, responses, total ] = useSelector( state => {
-		return [ isFetchingResponses( state ), getResponses( state ), getTotalResponses( state ) ];
+	const [ loading, responses, total ] = useSelect( select => {
+		const stateSelector = select( STORE_NAME );
+		return [
+			stateSelector.isFetchingResponses(),
+			stateSelector.getResponses(),
+			stateSelector.getTotalResponses(),
+		];
 	} );
-
-	useEffect( () => {
-		fetchResponses( {}, RESPONSES_PER_PAGE )( dispatch );
-	}, [ dispatch ] );
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -41,13 +41,13 @@ const Inbox = () => {
 	}, [ responses, currentResponseId ] );
 
 	const handleLoadMore = useCallback( () => {
-		fetchResponses( { search: searchText }, RESPONSES_PER_PAGE, responses.length )( dispatch );
+		// fetchResponses( { search: searchText }, RESPONSES_PER_PAGE, responses.length )( dispatch );
 	}, [ searchText, responses, dispatch ] );
 
 	const handleSearch = useCallback(
 		event => {
 			event.preventDefault();
-			fetchResponses( { search: searchText }, RESPONSES_PER_PAGE )( dispatch );
+			// fetchResponses( { search: searchText }, RESPONSES_PER_PAGE )( dispatch );
 		},
 		[ searchText, dispatch ]
 	);
