@@ -1,5 +1,3 @@
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -17,18 +15,9 @@ export const title = __( 'Cookie Consent', 'jetpack' );
 export const cookieName = 'eucookielaw';
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href="#">
-				{ __( 'Learn more about the Cookie Consent block', 'jetpack' ) }
-			</ExternalLink>
-		</Fragment>
+	description: __(
+		'To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.',
+		'jetpack'
 	),
 	icon: {
 		src: icon,
@@ -58,8 +47,6 @@ export const settings = {
 	save,
 	attributes,
 	example: {
-		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
-		},
+		attributes: {},
 	},
 };
