@@ -5,7 +5,6 @@ import { Button, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
@@ -121,7 +120,9 @@ export function Migration( props: Props ) {
 					isPrimary={ true }
 					isBusy={ buttonIsLoading }
 					disabled={ buttonIsLoading }
-					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
+					href={ getRedirectUrl( 'wpcom-migration-handler-route', {
+						query: `from=${ sourceSiteSlug }`,
+					} ) }
 					onClick={ onGetStartedClick }
 				>
 					{ __( 'Get started', 'wpcom-migration' ) }
@@ -129,9 +130,7 @@ export function Migration( props: Props ) {
 				<Button
 					isSecondary={ true }
 					target={ '_blank' }
-					href={ getRedirectUrl(
-						'https://wordpress.com/support/import/import-an-entire-wordpress-site/'
-					) }
+					href={ getRedirectUrl( 'wpcom-migration-doc-link' ) }
 				>
 					{ createInterpolateElement( __( 'Learn more <ExternalLink />', 'wpcom-migration' ), {
 						ExternalLink: <ExternalLink size={ 20 } />,
@@ -148,10 +147,7 @@ export function Migration( props: Props ) {
 					__( 'Do you need help? <Button>Contact us.</Button>', 'wpcom-migration' ),
 					{
 						Button: (
-							<Button
-								href={ getRedirectUrl( 'https://wordpress.com/support/help-support-options/' ) }
-								target={ '_blank' }
-							/>
+							<Button href={ getRedirectUrl( 'wpcom-migration-contact-us' ) } target={ '_blank' } />
 						),
 					}
 				) }
