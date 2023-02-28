@@ -30,6 +30,9 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	const { canPerformAction } = usePermission();
 	const siteIsAtomicPrivate = siteIsPrivate && siteType === 'atomic';
 	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
+	const disabledReason = siteIsAtomicPrivate
+		? 'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.'
+		: null;
 
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
@@ -48,6 +51,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					onChange={ onPrivacyChange }
 					checked={ videoPressVideosPrivateForSite }
 					disabled={ disablePrivacyToggle }
+					disabledReason={ disabledReason }
 				/>
 			</Col>
 		</Container>
