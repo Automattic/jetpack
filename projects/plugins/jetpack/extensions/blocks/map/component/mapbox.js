@@ -216,7 +216,7 @@ export class MapBoxComponent extends Component {
 		const { map } = this.state;
 
 		map.setZoom( zoom );
-		map.updateZoom( zoom );
+		//map.updateZoom( zoom );
 	};
 	setBoundsByMarkers = () => {
 		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;

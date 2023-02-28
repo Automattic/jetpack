@@ -1,17 +1,15 @@
-import { Component } from '@wordpress/element';
+import { forwardRef } from '@wordpress/element';
 import { getMapProvider } from '../utils';
 import MapboxComponent from './mapbox';
 import MapkitComponent from './mapkit';
 
-class MapComponent extends Component {
-	render() {
-		const props = this.props;
-		const mapProvider = getMapProvider();
-		if ( mapProvider === 'mapkit' ) {
-			return <MapkitComponent { ...props } />;
-		}
-		return <MapboxComponent { ...props } />;
+const MapComponent = forwardRef( ( props, ref ) => {
+	const mapProvider = getMapProvider();
+	if ( mapProvider === 'mapkit' ) {
+		const mapkitProps = { ...props, ref: null };
+		return <MapkitComponent { ...mapkitProps } />;
 	}
-}
+	return <MapboxComponent { ...props } ref={ ref } />;
+} );
 
 export default MapComponent;

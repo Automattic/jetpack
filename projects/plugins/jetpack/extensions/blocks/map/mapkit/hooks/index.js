@@ -9,6 +9,10 @@ import {
 } from '../../mapkit-utils';
 import { MapkitContext } from '../context';
 
+const useMapkit = () => {
+	return useContext( MapkitContext );
+};
+
 // mapRef can be a ref to the element that will render the map
 // or a ref to the element that will be on the page when the map is rendered.
 // It is only used here to determine the document and window to use.
@@ -16,6 +20,8 @@ const useMapkitSetup = mapRef => {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ error, setError ] = useState( false );
 	const [ mapkit, setMapkit ] = useState( null );
+	const [ _currentWindow, setCurrentWindow ] = useState( null );
+	const [ _currentDoc, setCurrentDoc ] = useState( null );
 
 	useEffect( () => {
 		const blog_id = select( CONNECTION_STORE_ID ).getBlogId();
@@ -28,6 +34,7 @@ const useMapkitSetup = mapRef => {
 					'load',
 					async () => {
 						const { currentWindow } = getLoadContext( mapRef.current );
+
 						const mapkitObj = await waitForObject( currentWindow, 'mapkit' );
 
 						resolve( mapkitObj );
@@ -60,7 +67,9 @@ const useMapkitSetup = mapRef => {
 		};
 
 		if ( mapRef.current ) {
-			const { currentWindow } = getLoadContext( mapRef.current );
+			const { currentWindow, currentDoc } = getLoadContext( mapRef.current );
+			setCurrentWindow( currentWindow );
+			setCurrentDoc( currentDoc );
 
 			// if mapkit is already loaded, reuse it.
 			if ( currentWindow.mapkit ) {
@@ -78,7 +87,7 @@ const useMapkitSetup = mapRef => {
 		}
 	}, [ mapRef ] );
 
-	return { loaded, error, mapkit };
+	return { loaded, error, mapkit, currentDoc: _currentDoc, currentWindow: _currentWindow };
 };
 
 const useMapkitInit = ( mapkit, loaded, mapRef ) => {
@@ -92,7 +101,7 @@ const useMapkitInit = ( mapkit, loaded, mapRef ) => {
 };
 
 const useMapkitCenter = ( center, setCenter ) => {
-	const { mapkit, map } = useContext( MapkitContext );
+	const { mapkit, map } = useMapkit();
 	const memoizedCenter = useRef( center );
 
 	useEffect( () => {
@@ -123,7 +132,7 @@ const useMapkitCenter = ( center, setCenter ) => {
 };
 
 const useMapkitType = mapStyle => {
-	const { mapkit, map } = useContext( MapkitContext );
+	const { mapkit, map } = useMapkit();
 
 	useEffect( () => {
 		if ( ! mapkit || ! map ) {
@@ -145,7 +154,7 @@ const useMapkitType = mapStyle => {
 };
 
 const useMapkitZoom = ( zoom, setZoom ) => {
-	const { mapkit, map } = useContext( MapkitContext );
+	const { mapkit, map } = useMapkit();
 
 	useEffect( () => {
 		if ( mapkit && map ) {
@@ -169,4 +178,35 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 	}, [ mapkit, map, setZoom ] );
 };
 
-export { useMapkitSetup, useMapkitInit, useMapkitZoom, useMapkitType, useMapkitCenter };
+const useMapkitPoints = ( points, markerColor, delegate = {}, onSelect = null ) => {
+	const { mapkit, map, loaded } = useMapkit();
+	useEffect( () => {
+		if ( loaded ) {
+			map.removeAnnotations( map.annotations );
+			const annotations = points.map( point => {
+				const marker = new mapkit.MarkerAnnotation(
+					new mapkit.Coordinate( point.coordinates.latitude, point.coordinates.longitude ),
+					{ color: markerColor }
+				);
+				marker.calloutEnabled = true;
+				marker.title = point.title;
+				marker.callout = delegate;
+				if ( onSelect ) {
+					marker.addEventListener( 'select', () => onSelect( point, map ) );
+				}
+				return marker;
+			} );
+			map.showItems( annotations );
+		}
+	}, [ points, loaded, map, mapkit, markerColor, onSelect, delegate ] );
+};
+
+export {
+	useMapkit,
+	useMapkitSetup,
+	useMapkitInit,
+	useMapkitZoom,
+	useMapkitType,
+	useMapkitCenter,
+	useMapkitPoints,
+};

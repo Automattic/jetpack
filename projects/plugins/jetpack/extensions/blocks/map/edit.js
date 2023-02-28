@@ -184,13 +184,15 @@ class MapEdit extends Component {
 
 		onResizeStop();
 
-		const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+		if ( this.mapRef && this.mapRef.current ) {
+			const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
 
-		setAttributes( {
-			mapHeight: height,
-		} );
+			setAttributes( {
+				mapHeight: height,
+			} );
 
-		setTimeout( this.mapRef.current.sizeMap, 0 );
+			setTimeout( this.mapRef.current.sizeMap, 0 );
+		}
 	};
 
 	render() {
@@ -221,6 +223,7 @@ class MapEdit extends Component {
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
+
 		const inspectorControls = (
 			<>
 				<BlockControls>
