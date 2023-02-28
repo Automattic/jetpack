@@ -51,6 +51,7 @@
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 
 // back to working through the list to see if any particularly bad ones are left.
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
@@ -1529,7 +1530,7 @@ function wpsc_update_direct_pages() {
 		if ( substr( $page, 0, 1 ) != '/' ) {
 			$page = '/' . $page;
 		}
-		if ( $page != '/' || false == is_array( $cached_direct_pages ) || in_array( $page, $cached_direct_pages ) == false ) {
+		if ( $page != '/' || false == is_array( $cached_direct_pages ) || in_array( $page, $cached_direct_pages, true ) == false ) {
 			$cached_direct_pages[] = $page;
 			$out                  .= "'$page', ";
 
@@ -1601,7 +1602,8 @@ function RecursiveFolderDelete( $folderPath ) {
 	}
 	if ( @is_dir( $folderPath ) ) {
 		$dh = @opendir( $folderPath );
-		while ( false !== ( $value = @readdir( $dh ) ) ) {
+		while ( false !== @readdir( $dh ) ) {
+			$value = @readdir( $dh );
 			if ( $value != '.' && $value != '..' ) {
 				$value = $folderPath . '/' . $value;
 				if ( @is_dir( $value ) ) {
