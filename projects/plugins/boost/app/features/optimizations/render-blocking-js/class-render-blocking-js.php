@@ -114,6 +114,11 @@ class Render_Blocking_JS implements Feature {
 			return;
 		}
 
+		// Disable in customizer previews
+		if ( is_customize_preview() ) {
+			return;
+		}
+
 		// Disable in feeds, AJAX, Cron, XML.
 		if ( is_feed() || wp_doing_ajax() || wp_doing_cron() || wp_is_xml_request() ) {
 			return;

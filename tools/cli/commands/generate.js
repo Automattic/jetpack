@@ -190,10 +190,38 @@ export function getQuestions( type ) {
 	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
+			type: 'list',
+			name: 'versioningMethod',
+			message: 'How do you want versioning to work for your plugin?',
+			choices: [
+				// Note: There's no actual reason for recommending either option. Neither method is
+				// objectively better. We're not going to actually have consistency, tooling is
+				// already pretty simple in this respect (and without mandatory consistency it can't
+				// be simplified anyway), cognitive load would need research to determine the extent
+				// to which it's an issue, and WordPress core explicitly doesn't take a side on it.
+				// It comes down to which way the developers actually working on the plugin think
+				// about versioning for it.
+				//
+				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
+				{
+					name:
+						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					checked: true,
+					value: 'wordpress',
+				},
+				{
+					name:
+						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					checked: true,
+					value: 'semver',
+				},
+			],
+		},
+		{
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '0.1.0-alpha',
+			default: answers => ( answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha' ),
 		},
 		{
 			type: 'list',
@@ -243,6 +271,8 @@ export async function generateProject(
 		fileURLToPath( new URL( './', import.meta.url ) ),
 		`../../../projects/${ type }/${ answers.name }`
 	);
+	answers.project = project;
+	answers.projDir = projDir;
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
 		return generatePluginFromStarter( projDir, answers );
@@ -356,6 +386,13 @@ async function generatePluginFromStarter( projDir, answers ) {
 		path.join( projDir, 'src/class-jetpack-starter-plugin.php' ),
 		path.join( projDir, 'src/class-jetpack-' + answers.name + '.php' )
 	);
+
+	// Update composer.json.
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra ||= {};
+	composerJson.extra.changelogger ||= {};
+	composerJson.extra.changelogger.versioning = answers.versioningMethod;
+	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
 /**
@@ -526,6 +563,8 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
+			composerJson.extra.changelogger ||= {};
+			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
 			composerJson.scripts = {
