@@ -1,10 +1,6 @@
 const FRONTEND_SELECTOR = '.wp-block-jetpack-contact-form-container';
 const EDITOR_SELECTOR = '[data-type="jetpack/contact-form"]';
 
-const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
-const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
-const bodyNode = doc.querySelector( 'body' );
-
 //Fallback in case of the page load event takes too long to fire up
 const fallbackTimer = setTimeout( () => {
 	handleFormStyles();
@@ -45,6 +41,10 @@ function generateStyleVariables( selector, outputSelector = 'body' ) {
 			</div>
 		</div>
 	`;
+
+	const iframeCanvas = document.querySelector( 'iframe[name="editor-canvas"]' );
+	const doc = iframeCanvas ? iframeCanvas.contentDocument : document;
+	const bodyNode = doc.querySelector( 'body' );
 
 	setTimeout( () => {
 		clearTimeout( fallbackTimer );

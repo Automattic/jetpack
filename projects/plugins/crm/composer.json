@@ -37,7 +37,7 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_5_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_4_a_2",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -71,10 +71,12 @@
 		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
+		"dev-releases": true,
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/zero-bs-crm/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
 		},
 		"release-branch-prefix": "crm",
-		"wp-plugin-slug": "zero-bs-crm"
+		"wp-plugin-slug": "zero-bs-crm",
+		"wp-svn-autopublish": true
 	}
 }
