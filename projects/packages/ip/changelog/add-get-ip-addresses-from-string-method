@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added a utility function to extract an array of IP addresses from a given string.

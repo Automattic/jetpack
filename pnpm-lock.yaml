@@ -1730,8 +1730,8 @@ importers:
   projects/packages/search:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 2.1.1
-        version: 2.1.1
+        specifier: 3.0.0
+        version: 3.0.0
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -1784,8 +1784,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       preact:
-        specifier: 10.5.15
-        version: 10.5.15
+        specifier: 10.12.1
+        version: 10.12.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -1848,8 +1848,8 @@ importers:
         specifier: 8.19.1
         version: 8.19.1
       '@testing-library/preact':
-        specifier: 3.2.2
-        version: 3.2.2(@testing-library/dom@8.19.1)(preact@10.5.15)
+        specifier: 3.2.3
+        version: 3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1)
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(@testing-library/dom@8.19.1)(react-dom@18.2.0)(react@18.2.0)
@@ -2003,8 +2003,8 @@ importers:
         version: 2.3.0
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 2.1.1
-        version: 2.1.1
+        specifier: 3.0.0
+        version: 3.0.0
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -2093,8 +2093,8 @@ importers:
   projects/packages/wordads:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 2.1.1
-        version: 2.1.1
+        specifier: 3.0.0
+        version: 3.0.0
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -2141,8 +2141,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0
       preact:
-        specifier: 10.5.15
-        version: 10.5.15
+        specifier: 10.12.1
+        version: 10.12.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -2205,8 +2205,8 @@ importers:
         specifier: 8.19.1
         version: 8.19.1
       '@testing-library/preact':
-        specifier: 3.2.2
-        version: 3.2.2(@testing-library/dom@8.19.1)(preact@10.5.15)
+        specifier: 3.2.3
+        version: 3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1)
       '@testing-library/react':
         specifier: 13.4.0
         version: 13.4.0(@testing-library/dom@8.19.1)(react-dom@18.2.0)(react@18.2.0)
@@ -2436,8 +2436,8 @@ importers:
   projects/plugins/jetpack:
     dependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 2.1.1
-        version: 2.1.1
+        specifier: 3.0.0
+        version: 3.0.0
       '@automattic/components':
         specifier: 2.0.1
         version: 2.0.1(@wordpress/data@8.3.0)(react-dom@18.2.0)(react@18.2.0)
@@ -3036,8 +3036,8 @@ importers:
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@automattic/calypso-color-schemes':
-        specifier: 2.1.1
-        version: 2.1.1
+        specifier: 3.0.0
+        version: 3.0.0
       '@automattic/color-studio':
         specifier: 2.5.0
         version: 2.5.0
@@ -3622,8 +3622,8 @@ packages:
     resolution: {integrity: sha512-dRmLP0Ytf2oDNbUbO8MXLKYnPZfqhtFQ8v1hgDo2Fde1Y0bUz2Ll1UmUOHdyZudnrN/8Zt95cG/fIOJ0dxHi8Q==}
     dev: false
 
-  /@automattic/calypso-color-schemes@2.1.1:
-    resolution: {integrity: sha512-X5gmQEDJVtw8N9NARgZGM/pmalfapV8ZyRzEn2o0sCLmTAXGYg6A28ucLCQdBIn1l9t2rghBDFkY71vyqjyyFQ==}
+  /@automattic/calypso-color-schemes@3.0.0:
+    resolution: {integrity: sha512-nebu4pXXN1BrUhTAZZmrHhjubsHcQF81CEx/c29MSQHeamgnRrhlgiqREsU26KwwXQkcDPB6x84Dhtv90vQifQ==}
 
   /@automattic/calypso-url@1.0.0:
     resolution: {integrity: sha512-d2odYhxkIFlpCcJ7r+FDI7yBAcm86gtDHteYLcijkOu/2cM+u5D47x/ttYR1+dux9RtT12usBTNc0gGHb89hkA==}
@@ -9329,15 +9329,15 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/preact@3.2.2(@testing-library/dom@8.19.1)(preact@10.5.15):
-    resolution: {integrity: sha512-mMPEp/9TOOqf3QqDHY02ieGFfRbi8fAxZvRifn+vOzrdNcCR1zchwPA6BvqXG3wAweRan4QJioYgEc1cePeC3g==}
+  /@testing-library/preact@3.2.3(@testing-library/dom@8.19.1)(preact@10.12.1):
+    resolution: {integrity: sha512-y6Kklp1XK3f1X2fWCbujmJyzkf+1BgLYXNgAx21j9+D4CoqMTz5qC4SQufb1L6q/jxLGACzrQ90ewVOTBvHOfg==}
     engines: {node: '>= 12'}
     peerDependencies:
       '@testing-library/dom': ^8.11.1
       preact: '>=10 || ^10.0.0-alpha.0 || ^10.0.0-beta.0'
     dependencies:
       '@testing-library/dom': 8.19.1
-      preact: 10.5.15
+      preact: 10.12.1
     dev: true
 
   /@testing-library/react@13.4.0(@testing-library/dom@8.19.1)(react-dom@18.2.0)(react@18.2.0):
@@ -19640,8 +19640,8 @@ packages:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
     dev: false
 
-  /preact@10.5.15:
-    resolution: {integrity: sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==}
+  /preact@10.12.1:
+    resolution: {integrity: sha512-l8386ixSsBdbreOAkqtrwqHwdvR35ID8c3rKPa8lCWuO86dBi32QWHV4vfsZK1utLLFMvw+Z5Ad4XLkZzchscg==}
 
   /prelude-ls@1.1.2:
     resolution: {integrity: sha512-ESF23V4SKG6lVSGZgYNpbsiaAkdab6ZgOxe52p7+Kid3W3u3bxR4Vfd/o21dmN7jSt0IwgZ4v5MUd26FEtXE9w==}

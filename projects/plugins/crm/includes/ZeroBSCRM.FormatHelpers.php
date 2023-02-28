@@ -417,7 +417,7 @@ function zeroBSCRM_html_contactTimeline($contactID=-1,$logs=false,$contactObj=fa
 						<div>
 							<?php
 							if ( isset( $log['shortdesc'] ) ) {
-								echo esc_html( $log['shortdesc'] );
+								echo wp_kses( $log['shortdesc'], array( 'i' => array( 'class' => true ) ) );
 							}
 							if ( !empty( $log['author'] ) ) {
 								echo ' &mdash; ' . esc_html( $log['author'] );
@@ -799,7 +799,19 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
                          	if (isset($log['type'])) echo esc_html( $log['type'] ); 
                          }
                          ?></h3>
-                        <p><?php if (isset($log['shortdesc'])) echo esc_html( $log['shortdesc'] ); ?><?php if (isset($log['author'])) echo " &mdash; " . esc_html( $log['author'] ) ?><?php if (isset($log['nicetime'])) echo ' &mdash; <i class="clock icon"></i>' . esc_html( $log['nicetime'] ) ?></p>
+						<p>
+						<?php
+						if ( isset( $log['shortdesc'] ) ) {
+							echo wp_kses( $log['shortdesc'], array( 'i' => array( 'class' => true ) ) );
+							if ( isset( $log['author'] ) ) {
+								echo ' &mdash; ' . esc_html( $log['author'] );
+							}
+							if ( isset( $log['nicetime'] ) ) {
+								echo ' &mdash; <i class="clock icon"></i>' . esc_html( $log['nicetime'] );
+							}
+						}
+						?>
+						</p>
                     </div>
                 </li>
                 <?php $i++; } ?>
