@@ -169,6 +169,8 @@ class Waf_Initializer {
 				return true;
 			}
 
+			Waf_Compatibility::run_compatibility_migrations();
+
 			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
 				return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );

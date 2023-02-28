@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use WAF IP allow list option in brute force protection feature.
