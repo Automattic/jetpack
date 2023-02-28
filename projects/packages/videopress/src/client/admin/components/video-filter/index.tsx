@@ -56,7 +56,7 @@ export const FilterButton = ( props: {
 const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
 	return (
 		<Tooltip position="middle center" text={ props.message }>
-			<span className={ classnames( styles[ 'title-adornment' ] ) }>
+			<span className={ styles[ 'title-adornment' ] }>
 				<Icon icon={ info } />
 			</span>
 		</Tooltip>
