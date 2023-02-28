@@ -218,18 +218,6 @@ export default function SubscribePanels() {
 						) }
 					</InspectorNotice>
 				) }
-				{ ! isModuleActive && ! isLoadingModules && (
-					<SubscriptionsPanelPlaceholder>
-						<Button
-							disabled={ isModuleActive || isChangingStatus }
-							isBusy={ isChangingStatus }
-							onClick={ enableSubscriptionsModule }
-							variant="secondary"
-						>
-							{ __( 'Activate Subscriptions', 'jetpack' ) }
-						</Button>
-					</SubscriptionsPanelPlaceholder>
-				) }
 			</PluginPostPublishPanel>
 		</>
 	);
