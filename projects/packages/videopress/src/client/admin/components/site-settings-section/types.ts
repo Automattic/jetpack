@@ -1,3 +1,5 @@
+export type SiteType = 'atomic' | 'jetpack' | 'simple';
+
 export type SiteSettingsSectionProps = {
 	/**
 	 * Optional classname to apply to the root element.
@@ -17,7 +19,7 @@ export type SiteSettingsSectionProps = {
 	/**
 	 * Read-only prop to inform the settings section which type is the site
 	 */
-	siteType?: 'atomic' | 'jetpack' | 'simple';
+	siteType?: SiteType;
 
 	/**
 	 * Callback function to be invoked when the privacy settings changes.
