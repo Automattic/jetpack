@@ -1,0 +1,18 @@
+// Common styles for both views (editor and frontend).
+.wp-block-jetpack-cookie-consent {
+	position: fixed;
+	bottom: 50px;
+	transition: opacity 1s ease-in-out;
+	animation: cookie-consent-slide-in 0.5s ease-in-out;
+	z-index: 50001;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	box-sizing: border-box;
+	align-items: center;
+	gap: 10px;
+
+	.wp-block-button__link {
+		white-space: nowrap !important;
+	}
+}
