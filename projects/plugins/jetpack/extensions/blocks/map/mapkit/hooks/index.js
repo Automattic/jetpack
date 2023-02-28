@@ -178,8 +178,9 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 	}, [ mapkit, map, setZoom ] );
 };
 
-const useMapkitPoints = ( points, markerColor, delegate = {}, onSelect = null ) => {
+const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect = null ) => {
 	const { mapkit, map, loaded } = useMapkit();
+
 	useEffect( () => {
 		if ( loaded ) {
 			map.removeAnnotations( map.annotations );
@@ -190,7 +191,11 @@ const useMapkitPoints = ( points, markerColor, delegate = {}, onSelect = null ) 
 				);
 				marker.calloutEnabled = true;
 				marker.title = point.title;
-				marker.callout = delegate;
+				if ( callOutElement ) {
+					marker.callout = {
+						calloutElementForAnnotation: callOutElement,
+					};
+				}
 				if ( onSelect ) {
 					marker.addEventListener( 'select', () => onSelect( point, map ) );
 				}
@@ -198,7 +203,7 @@ const useMapkitPoints = ( points, markerColor, delegate = {}, onSelect = null ) 
 			} );
 			map.showItems( annotations );
 		}
-	}, [ points, loaded, map, mapkit, markerColor, onSelect, delegate ] );
+	}, [ points, loaded, map, mapkit, markerColor, onSelect, callOutElement ] );
 };
 
 export {

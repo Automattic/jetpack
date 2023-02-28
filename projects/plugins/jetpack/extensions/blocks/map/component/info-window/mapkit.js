@@ -29,6 +29,7 @@ const InfoWindow = () => {
 	};
 
 	useEffect( () => {
+		//console.log( 'Dirty check' );
 		if ( ! activeMarker && isDirty ) {
 			// commit the points when callout is closed, and content is dirty
 			setPoints( pointsCopy );

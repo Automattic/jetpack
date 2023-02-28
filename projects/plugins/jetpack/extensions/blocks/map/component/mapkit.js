@@ -1,4 +1,4 @@
-import { Children, memo, useEffect, useRef } from '@wordpress/element';
+import { Children, memo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
@@ -63,37 +63,41 @@ const MapkitHelpers = memo(
 		onMapLoaded,
 	} ) => {
 		const { map, mapkit, loaded, setActiveMarker, setCalloutReference, currentDoc } = useMapkit();
-
+		const loadedCallback = onMapLoaded;
 		useMapkitCenter( mapCenter, onSetMapCenter );
 		useMapkitType( mapStyle );
 		useMapkitZoom( zoom, onSetZoom );
 		useMapkitPoints(
 			points,
 			markerColor,
-			{
-				calloutElementForAnnotation: () => {
-					const element = currentDoc.createElement( 'div' );
-					element.classList.add( 'mapkit-popup-content' );
-					setCalloutReference( element );
-					return element;
+			useCallback( () => {
+				const element = currentDoc.createElement( 'div' );
+				element.classList.add( 'mapkit-popup-content' );
+				setCalloutReference( element );
+				return element;
+			}, [ currentDoc, setCalloutReference ] ),
+			useCallback(
+				marker => {
+					setActiveMarker( marker );
+					onMarkerClick( marker );
+					map.setCenterAnimated(
+						new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
+					);
 				},
-			},
-			marker => {
-				setActiveMarker( marker );
-				onMarkerClick( marker );
-				map.setCenterAnimated(
-					new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
-				);
-			}
+				[ map, mapkit, onMarkerClick, setActiveMarker ]
+			)
 		);
 
 		useEffect( () => {
+			//console.log( 'loaded' );
 			if ( loaded && map ) {
-				onMapLoaded( map );
+				loadedCallback( map );
 			}
-		}, [ loaded, onMapLoaded, map ] );
+		}, [ loaded, loadedCallback, map ] );
 
 		useEffect( () => {
+			// console.log( 'register tap' );
+
 			if ( loaded ) {
 				map.addEventListener( 'single-tap', () => {
 					setActiveMarker( null );
