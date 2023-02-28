@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { usePermission } from '../../hooks/use-permission';
 import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import { CheckboxCheckmark } from '../video-filter';
+import { SITE_TYPE_ATOMIC } from './constants';
 import { SiteSettingsSectionProps } from './types';
 /**
  * Types
@@ -28,7 +29,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	onPrivacyChange,
 } ) => {
 	const { canPerformAction } = usePermission();
-	const siteIsAtomicPrivate = siteIsPrivate && siteType === 'atomic';
+	const siteIsAtomicPrivate = siteIsPrivate && siteType === SITE_TYPE_ATOMIC;
 	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
 	const disabledReason = siteIsAtomicPrivate
 		? 'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.'
