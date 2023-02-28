@@ -99,6 +99,30 @@ class Setup_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that SIG gets enabled by default.
+	 */
+	public function test_sig_gets_enabled_by_default_when_a_post_gets_saved() {
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post();
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertTrue( $settings->is_enabled() );
+	}
+
+	/**
+	 * Test that SIG stays disabled when it is toggled off by user.
+	 */
+	public function test_sig_stays_disabled_when_toggled_off_by_user() {
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post( array( 'enabled' => false ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertFalse( $settings->is_enabled() );
+	}
+
+	/**
 	 * Test that the token gets saved when a post is saved.
 	 */
 	public function test_token_gets_stored_when_post_is_saved() {

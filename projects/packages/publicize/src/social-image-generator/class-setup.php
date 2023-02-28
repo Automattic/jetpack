@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\REST_Controller;
 
 /**
@@ -19,25 +18,9 @@ class Setup {
 	 * Initialise SIG-related functionality.
 	 */
 	public function init() {
-		add_action( 'save_post', array( $this, 'generate_token' ) );
-	}
-
-	/**
-	 * Set an image token.
-	 *
-	 * @param int    $post_id The post ID to set the token for.
-	 * @param string $token The image token for the post.
-	 */
-	public function set_token( $post_id, $token ) {
-		$social_options = get_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
-
-		if ( empty( $social_options ) ) {
-			$social_options = array();
-		}
-
-		$updated_options = array_replace_recursive( $social_options, array( 'image_generator_settings' => array( 'token' => sanitize_text_field( $token ) ) ) );
-
-		update_post_meta( $post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
+		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
+		// of 10 we make sure that our code runs before Sync processes the post.
+		add_action( 'wp_after_insert_post', array( $this, 'set_meta' ), 10, 2 );
 	}
 
 	/**
@@ -46,10 +29,6 @@ class Setup {
 	 * @param int $post_id Post ID.
 	 */
 	public function generate_token( $post_id ) {
-		if ( wp_is_post_revision( $post_id ) ) {
-			return;
-		}
-
 		$post_settings = new Post_Settings( $post_id );
 
 		if ( ! $post_settings->is_enabled() ) {
@@ -78,6 +57,35 @@ class Setup {
 			return;
 		}
 
-		$this->set_token( $post_id, $token );
+		$post_settings->update_setting( 'token', sanitize_text_field( $token ) );
+	}
+
+	/**
+	 * Explicitly enable or disable SIG for a post. If it's enabled, also generate a token.
+	 *
+	 * @param int      $post_id Post ID.
+	 * @param \WP_Post $post Post that's being updated.
+	 */
+	public function set_meta( $post_id, $post ) {
+		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
+			return;
+		}
+
+		if ( wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		$post_settings = new Post_Settings( $post_id );
+		$settings      = $post_settings->get_settings();
+
+		// If SIG has explicitly been disabled for this post, we don't need to do anything else.
+		if ( isset( $settings['enabled'] ) && $settings['enabled'] === false ) {
+			return;
+		}
+
+		// If we're here, it's safe to assume SIG should be enabled.
+		$post_settings->update_setting( 'enabled', true );
+
+		$this->generate_token( $post_id );
 	}
 }

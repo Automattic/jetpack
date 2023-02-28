@@ -34,15 +34,15 @@ class Post_Settings {
 	 */
 	public function __construct( $post_id ) {
 		$this->post_id  = $post_id;
-		$this->settings = $this->get_post_settings();
+		$this->settings = $this->get_settings();
 	}
 
 	/**
-	 * Get the SIG settings for a post.
+	 * Get the SIG settings.
 	 *
 	 * @return array
 	 */
-	private function get_post_settings() {
+	public function get_settings() {
 		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
 
 		if ( ! is_array( $social_options ) || empty( $social_options['image_generator_settings'] ) ) {
@@ -50,6 +50,24 @@ class Post_Settings {
 		}
 
 		return $social_options['image_generator_settings'];
+	}
+
+	/**
+	 * Update a SIG setting.
+	 *
+	 * @param string $key The key to update.
+	 * @param mixed  $value The value to set for the key.
+	 */
+	public function update_setting( $key, $value ) {
+		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		if ( empty( $social_options ) ) {
+			$social_options = array();
+		}
+
+		$updated_options = array_replace_recursive( $social_options, array( 'image_generator_settings' => array( $key => $value ) ) );
+
+		update_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
 	}
 
 	/**
