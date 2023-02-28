@@ -139,28 +139,27 @@ if ( isset( $sbupdated ) ) {
 						<div class="content">
 							<div class="header"><?php esc_html_e( 'No Tax Rates', 'zero-bs-crm' ); ?></div>
 							<p>
-								<p>
-									<?php
-										echo sprintf(
-											wp_kses(
-												/* Translators: placeholder is an anchor, which gets changed via Javascript elsewhere to create new tax rate entry fields. */
-												__(
-													'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?',
-													'zero-bs-crm'
-												),
-												array(
-													'a' => array(
-														'href' => array(),
-														'id'   => array(),
-													),
-												)
+								<?php
+									echo sprintf(
+										wp_kses(
+											/* Translators: placeholder is an anchor, which gets changed via Javascript elsewhere to create new tax rate entry fields. */
+											__(
+												'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?',
+												'zero-bs-crm'
 											),
-											'#'
-										);
-										?>
-								</p>
+											array(
+												'a' => array(
+													'href' => array(),
+													'id'   => array(),
+												),
+											)
+										),
+										'#'
+									);
+									?>
 							</p>
 						</div>
+					</div>
 				</td>
 			</tr>
 
