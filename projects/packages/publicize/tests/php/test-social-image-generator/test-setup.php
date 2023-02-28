@@ -106,8 +106,8 @@ class Setup_Test extends BaseTestCase {
 		$post_id = $this->create_post( array( 'enabled' => true ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
-		$extractor = new Social_Image_Generator\Extractor( $post_id );
-		$this->assertEquals( 'testtoken', $extractor->get_token() );
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertEquals( 'testtoken', $settings->get_token() );
 	}
 
 	/**
@@ -118,8 +118,8 @@ class Setup_Test extends BaseTestCase {
 		$post_id = $this->create_post( array( 'enabled' => false ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
-		$extractor = new Social_Image_Generator\Extractor( $post_id );
-		$this->assertSame( '', $extractor->get_token() );
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertSame( '', $settings->get_token() );
 	}
 
 	/**
@@ -130,8 +130,8 @@ class Setup_Test extends BaseTestCase {
 		$post_id = $this->create_post( array( 'enabled' => false ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_failure_response' ) );
 
-		$extractor = new Social_Image_Generator\Extractor( $post_id );
-		$this->assertSame( '', $extractor->get_token() );
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertSame( '', $settings->get_token() );
 	}
 
 	/**
@@ -149,7 +149,7 @@ class Setup_Test extends BaseTestCase {
 		);
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
-		$extractor = new Social_Image_Generator\Extractor( $post_id );
-		$this->assertEquals( 'testtoken', $extractor->get_token() );
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertEquals( 'testtoken', $settings->get_token() );
 	}
 }

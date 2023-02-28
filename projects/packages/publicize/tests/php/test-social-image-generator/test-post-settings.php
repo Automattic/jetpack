@@ -1,19 +1,19 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
- * Testing the Extractor.
+ * Testing the Post_Settings class.
  *
  * @package automattic/jetpack-publicize
  */
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Publicize\Social_Image_Generator\Extractor;
+use Automattic\Jetpack\Publicize\Social_Image_Generator\Post_Settings;
 use WorDBless\BaseTestCase;
 
 /**
- * Testing the SIG Extractor.
+ * Testing the Post_Settings class.
  */
-class Extractor_Test extends BaseTestCase {
+class Post_Settings_Test extends BaseTestCase {
 	/**
 	 * Post ID of the testing post.
 	 *
@@ -99,72 +99,53 @@ class Extractor_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the extractor correctly returns enabled or disabled.
+	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$extractor = new Extractor( $this->post_id );
-		$this->assertFalse( $extractor->is_enabled() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertFalse( $settings->is_enabled() );
 		$this->update_image_generator_settings( array( 'enabled' => true ) );
-		$extractor = new Extractor( $this->post_id );
-		$this->assertTrue( $extractor->is_enabled() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertTrue( $settings->is_enabled() );
 	}
 
 	/**
-	 * Test that extractor returns correct text for generated image.
+	 * Test that it returns correct text for generated image.
 	 */
 	public function test_correctly_returns_text_for_generated_image() {
 		$this->update_image_generator_settings( array( 'custom_text' => 'world' ) );
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEquals( 'world', $extractor->get_generated_image_text() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( 'world', $settings->get_custom_text() );
 	}
 
 	/**
 	 * Test that text for generated image defaults to post title if not set.
 	 */
 	public function test_text_for_generated_image_defaults_to_post_title() {
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEquals( 'hello', $extractor->get_generated_image_text() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( 'hello', $settings->get_custom_text() );
 	}
 
 	/**
-	 * Test that background image for generated image is returned correctly.
+	 * Test that image for generated image is returned correctly.
 	 */
-	public function test_correctly_returns_url_to_background_image_if_available() {
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEmpty( $extractor->get_generated_image_background_image_url() );
+	public function test_correctly_returns_url_to_image_if_available() {
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEmpty( $settings->get_image_url() );
 		$this->update_image_generator_settings( array( 'image_id' => $this->attachment_id ) );
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $extractor->get_generated_image_background_image_url() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( '/wp-content/uploads/jetpack-logo.png', $settings->get_image_url() );
 	}
 
 	/**
 	 * Test that token is returned correctly.
 	 */
 	public function test_correctly_returns_token_if_available() {
-		$token     = 'testtoken';
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEmpty( $extractor->get_token() );
+		$token    = 'testtoken';
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEmpty( $settings->get_token() );
 		$this->update_image_generator_settings( array( 'token' => $token ) );
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEquals( $extractor->get_token(), $token );
-	}
-
-	/**
-	 * Test that image URL is returned when token is set.
-	 */
-	public function test_image_url_returns_url_if_token_set() {
-		$token = 'testtoken';
-		$this->update_image_generator_settings( array( 'token' => $token ) );
-		// TODO: update URL
-		$extractor = new Extractor( $this->post_id );
-		$this->assertEquals( $extractor->get_image_url(), 'https://example.com/' . $token );
-	}
-
-	/**
-	 * Test that image URL defaults to empty string.
-	 */
-	public function test_image_url_returns_empty_string_if_no_token_set() {
-		$extractor = new Extractor( $this->post_id );
-		$this->assertSame( '', $extractor->get_image_url() );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( $settings->get_token(), $token );
 	}
 }

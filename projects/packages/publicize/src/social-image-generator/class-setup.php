@@ -50,15 +50,15 @@ class Setup {
 			return;
 		}
 
-		$extractor = new Extractor( $post_id );
+		$post_settings = new Post_Settings( $post_id );
 
-		if ( ! $extractor->is_enabled() ) {
+		if ( ! $post_settings->is_enabled() ) {
 			return;
 		}
 
 		$body = array(
-			'text'      => $extractor->get_generated_image_text(),
-			'image_url' => $extractor->get_generated_image_background_image_url(),
+			'text'      => $post_settings->get_custom_text(),
+			'image_url' => $post_settings->get_image_url(),
 		);
 
 		$rest_controller = new REST_Controller();

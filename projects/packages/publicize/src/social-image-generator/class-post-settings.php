@@ -1,6 +1,6 @@
 <?php
 /**
- * Extractor class.
+ * PostSettings class.
  *
  * @package automattic/jetpack-publicize
  */
@@ -10,9 +10,9 @@ namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 use Automattic\Jetpack\Publicize\Publicize;
 
 /**
- * Class for extracting SIG-related settings for a post.
+ * This class is used to get SIG-specific information from a post.
  */
-class Extractor {
+class Post_Settings {
 	/**
 	 * Post to get information from.
 	 *
@@ -66,7 +66,7 @@ class Extractor {
 	 *
 	 * @return string
 	 */
-	public function get_generated_image_text() {
+	public function get_custom_text() {
 		if ( ! empty( $this->settings['custom_text'] ) ) {
 			return $this->settings['custom_text'];
 		}
@@ -75,11 +75,11 @@ class Extractor {
 	}
 
 	/**
-	 * Get the background image to use for the generated image.
+	 * Get the image to use for the generated image.
 	 *
 	 * @return string
 	 */
-	public function get_generated_image_background_image_url() {
+	public function get_image_url() {
 		if ( empty( $this->settings['image_id'] ) ) {
 			return '';
 		}
@@ -96,21 +96,5 @@ class Extractor {
 	 */
 	public function get_token() {
 		return ! empty( $this->settings['token'] ) ? $this->settings['token'] : '';
-	}
-
-	/**
-	 * Get the image url for a post.
-	 *
-	 * @return string
-	 */
-	public function get_image_url() {
-		$token = $this->get_token();
-
-		if ( empty( $token ) ) {
-			return '';
-		}
-
-		// TODO: update URL
-		return 'https://example.com/' . $token;
 	}
 }
