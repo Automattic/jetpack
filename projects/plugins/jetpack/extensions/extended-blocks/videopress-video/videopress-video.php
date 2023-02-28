@@ -14,7 +14,7 @@ add_action(
 	'init',
 	function () {
 		$availability                  = \Jetpack_Gutenberg::get_availability();
-		$is_videopress_video_available = true;
+		$is_videopress_video_available = $availability || true;
 
 		if (
 			$is_videopress_video_available &&
