@@ -18,8 +18,7 @@
 		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
 		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" build-storybook -s ./public -c ./storybook -o ./docs",
 		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" start-storybook -c ./storybook -p 50240 -s ./public",
-		"test": "jest tests/",
-		"test-coverage": "jest tests/ --coverage --collectCoverageFrom='src/**/*.js' --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+		"test": "jest tests/"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",

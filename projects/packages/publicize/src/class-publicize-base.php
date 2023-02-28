@@ -1066,7 +1066,7 @@ abstract class Publicize_Base {
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media' => array(
+						'attached_media'           => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1077,6 +1077,24 @@ abstract class Publicize_Base {
 									'url' => array(
 										'type' => 'string',
 									),
+								),
+							),
+						),
+						'image_generator_settings' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'enabled'     => array(
+									'type' => 'boolean',
+								),
+								'custom_text' => array(
+									'type' => 'string',
+								),
+								'image_type'  => array(
+									'type' => 'string',
+								),
+								'image_id'    => array(
+									'type'    => 'number',
+									'default' => 0,
 								),
 							),
 						),
@@ -1565,6 +1583,22 @@ abstract class Publicize_Base {
 		}
 
 		return ! empty( $data['is_enhanced_publishing_enabled'] );
+	}
+
+	/**
+	 * Check if the social image generator is enabled.
+	 *
+	 * @param int $blog_id The blog ID for the current blog.
+	 * @return bool
+	 */
+	public function is_social_image_generator_enabled( $blog_id ) {
+		$data = $this->get_api_data( $blog_id );
+
+		if ( empty( $data ) ) {
+			return false;
+		}
+
+		return ! empty( $data['is_social_image_generator_enabled'] );
 	}
 
 	/**

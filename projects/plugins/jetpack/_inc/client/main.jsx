@@ -103,6 +103,8 @@ const recommendationsRoutes = [
 	'/recommendations/backup-plan',
 	'/recommendations/boost',
 	'/recommendations/summary',
+	'/recommendations/vaultpress-backup',
+	'/recommendations/vaultpress-for-woocommerce',
 ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
@@ -503,6 +505,8 @@ class Main extends React.Component {
 			case '/recommendations/backup-plan':
 			case '/recommendations/boost':
 			case '/recommendations/summary':
+			case '/recommendations/vaultpress-backup':
+			case '/recommendations/vaultpress-for-woocommerce':
 			case '/recommendations/welcome-backup':
 			case '/recommendations/welcome-complete':
 			case '/recommendations/welcome-security':

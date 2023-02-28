@@ -6,7 +6,6 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
@@ -70,13 +69,11 @@ class Generator_Success implements Endpoint {
 			);
 		}
 
-		$storage         = new Critical_CSS_Storage();
-		$recommendations = new Recommendations();
-		$generator       = new Generator();
+		$storage   = new Critical_CSS_Storage();
+		$generator = new Generator();
 
 		$storage->store_css( $cache_key, $params['data'] );
 		$generator->state->set_source_success( $cache_key );
-		$recommendations->reset();
 
 		Regenerate_Admin_Notice::dismiss();
 		Critical_CSS_State::set_fresh();

@@ -4184,6 +4184,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public $field_styles = '';
 
 	/**
+	 * Styles to be applied to the field option
+	 *
+	 * @var string
+	 */
+	public $option_styles = '';
+
+	/**
 	 * Styles to be applied to the field
 	 *
 	 * @var string
@@ -4413,24 +4420,27 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
 		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
-			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+			$this->field_styles  .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->option_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
 		}
 
 		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
@@ -4705,7 +4715,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -4757,7 +4767,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
-		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
+		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "' style='" . $this->label_styles . "'>";
 
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' style='display:none;' /> \n";
@@ -4786,7 +4796,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -5044,11 +5054,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="';
-		if ( $type === 'select' || in_array( $form_style, array( 'outlined', 'animated' ), true ) ) {
-			$block_style .= $this->block_styles;
-		}
-		$block_style .= '"';
+		$block_style = 'style="' . $this->block_styles . '"';
 
 		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 
