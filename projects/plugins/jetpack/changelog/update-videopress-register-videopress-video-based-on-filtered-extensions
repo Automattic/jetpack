@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack: register VideoPress video block based on the filtered extensions

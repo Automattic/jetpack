@@ -244,20 +244,59 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.5 - 2023-02-20
+### 11.9-beta - 2023-02-28
+#### Major Enhancements
+- Jetpack: log event when converting video block to the new VideoPress video block
+
 #### Enhancements
+- Add an upgrade nudge for Odyssey Stats
+- Add block support for font family in Related Posts block server block renderer
+- Add block support for font family in Related Posts block
+- Add options panel for Social Image Generator to Jetpack Social sidebar.
+- Add Social Image Generator feature flag to Jetpack Social
+- Allow Form fields style synchronization
+- Assistant: added a new card to highlight the advantages of VaultPress Backup
 - Import: add new `automattic/jetpack-import` package.
+- Increase form fields padding based on user-defined border-radius
 - Jetpack: improve design of MediaButton component.
+- Jetpack: log when transforming from video block v5 to v6
+- Jetpack: tidy registering VideoPress video block
+- Remove NewDash nudges in legacy stats
+- Sharing: add Mastodon sharing button.
 - Sharing: update look and feel of sharing buttons when in "official" mode.
+- Site editor: display location-aware snackbar in edit mode.
+- Social: visual update to social buttons.
+- Stats: added a notice with a link to a survey when the new stats interface is disabled.
+- Stats: adds filter to hide stats widget based on user capability.
+- Subscriptions: updated submit messages text for subscriptions.
 
 #### Improved compatibility
+- Added support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode.
+- Prevent launchpad modal from rendering on top of the first post published modal
+- Social: update icon font to remove support for older browsers (IE11-).
 - Stats: adjust margin for WordPress.com stats link in Jetpack dashboard.
+- Themes: ensure redesigned sharing buttons look good in default themes (Twenty Nineteen, Twenty Sixteen).
 - VideoPress: extend media button for VideoPress video block.
 - VideoPress: restore v5/v6 transform for all platforms.
 
 #### Bug fixes
+- Custom CSS: ensure the link to enable Custom CSS works in all languages.
+- Fix a bug in list user endpoint when include_viewers is true
 - Form block: update form-styles script to prevent blurred forms on slow loading pages.
+- Forms block: add filter to prevent contact-form-styles script from being concatenated.
+- Forms block: add new method to parse the form fields, fallback to old method.
+- Forms block: prevent blur effect on AMP pages.
+- Presentation shortcode: always add presentation container
+- Recommendations: avoid applying the coupon code from the Assistant on product with trial prices.
+- Remove body font normalization for on contact-form module and package
+- Revise Jetpack connection agreement text to comply with our User Agreement
+- Sharing: fix display issues when choosing the Icon-only option.
 - Story block: remove dependency on wp-components from the frontend code.
+- Subscriptions: fix premium content block where it would only allow access to site subscribers.
+- Subscriptions: fix subscribe-block button to behave the same as in the fronted.
+- Test fix: adapted the Sync test to WordPress Core changes in post deletion mechanics.
+- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag.
+- WPCOM Only: Make sure the email field in the subscribe block is required
 
 --------
 
