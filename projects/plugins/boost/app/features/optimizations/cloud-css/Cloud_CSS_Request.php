@@ -19,12 +19,21 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 class Cloud_CSS_Request {
 	public function request_generate() {
 		// Provide the Cloud with URLs to generate CSS for.
-		$providers    = new Source_Providers();
-		$sources      = $providers->get_sources();
-		$state = new Cloud_CSS_State();
-		$state->set_pending_providers( $sources )->save();
+		$source_providers = new Source_Providers();
+		$providers        = $source_providers->get_provider_sources();
+		$state            = new Cloud_CSS_State();
+
+		// @TODO:
+		// Now implement JS to read these providers instead of critical css providers
+		// Or refactor critical css provider shape, because it too has `providers`
+		// that should probably fix the state.
+
+		$state->prepare_request()
+				->set_pending_providers( $providers )
+				->save();
 		$grouped_urls = array();
-		foreach ( $sources as $provider => $source ) {
+		foreach ( $providers as $source ) {
+			$provider                  = $source['key'];
 			$grouped_urls[ $provider ] = $source['urls'];
 		}
 

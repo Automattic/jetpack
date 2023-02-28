@@ -63,7 +63,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
+				show={$suggestRegenerate && $criticalCssStatus.status !== 'pending'}
 			/>
 		</div>
 	</Module>

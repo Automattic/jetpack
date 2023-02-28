@@ -102,7 +102,7 @@ class Source_Providers {
 	 *
 	 * @return array
 	 */
-	public function get_sources() {
+	public function get_provider_sources() {
 		$sources = array();
 
 		foreach ( $this->get_providers() as $provider ) {
@@ -115,9 +115,10 @@ class Source_Providers {
 
 				// For each URL
 				// Track the state and errors in a state array.
-				$sources[ $key ] = array(
-					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
+				$sources[] = array(
+					'key'           => $key,
 					'label'         => $provider::describe_key( $key ),
+					'urls'          => apply_filters( 'jetpack_boost_critical_css_urls', $urls ),
 					'success_ratio' => $provider::get_success_ratio(),
 				);
 			}

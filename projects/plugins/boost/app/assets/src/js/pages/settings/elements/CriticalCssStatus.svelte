@@ -4,7 +4,7 @@
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
 	import { failedProviderKeyCount } from '../../../stores/critical-css-recommendations';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { criticalCssProgress, criticalCssStatus } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -15,33 +15,30 @@
 
 	const dispatch = createEventDispatcher();
 	const { navigate } = routerHistory;
+	$: successCount = $criticalCssStatus.providers.filter( provider => provider.status !== 'pending' )
+		.length;
 </script>
 
 <div class="jb-critical-css__meta">
 	<div class="summary">
-		{#if ! $criticalCssStatus.success_count}
+		{#if ! successCount}
 			<div class="generating">{generateText}</div>
 		{:else}
 			<div class="successes">
 				{sprintf(
 					/* translators: %d is a number of CSS Files which were successfully generated */
-					_n(
-						'%d file generated',
-						'%d files generated',
-						$criticalCssStatus.success_count || 0,
-						'jetpack-boost'
-					),
-					$criticalCssStatus.success_count || 0
+					_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+					successCount
 				)}
 				{#if $criticalCssStatus.updated}
 					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
 				{/if}
-				{#if $criticalCssStatus.progress < 100}
+				{#if $criticalCssProgress < 100}
 					<span>{generateMoreText}</span>
 				{/if}
 			</div>
 
-			{#if $criticalCssStatus.status !== 'requesting' && $failedProviderKeyCount > 0}
+			{#if $criticalCssStatus.status !== 'pending' && $failedProviderKeyCount > 0}
 				<div class="failures">
 					<InfoIcon />
 
@@ -64,7 +61,7 @@
 			{/if}
 		{/if}
 	</div>
-	{#if $criticalCssStatus.status !== 'requesting'}
+	{#if $criticalCssStatus.status !== 'pending'}
 		<button type="button" class="components-button is-link" on:click={() => dispatch( 'retry' )}>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}

@@ -1,231 +1,291 @@
-import { derived, get } from 'svelte/store';
+import { derived, get, writable } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { z } from 'zod';
 import api from '../api/api';
-import { CriticalCssIssue, criticalCssDS, CriticalCssStatusSchema } from './critical-css-status-ds';
+import {
+	CriticalCssIssue,
+	criticalCssDS,
+	CriticalCssStatusSchema,
+	Provider,
+} from './critical-css-status-ds';
+import { JSONObject } from './data-sync-client';
 import { modules } from './modules';
-import type { JSONObject } from '../utils/json-types';
 
-export type CriticalCssStatus = z.infer< typeof CriticalCssStatusSchema >;
-
-const SUCCESS = 'success';
-const FAIL = 'fail';
-const REQUESTING = 'requesting';
+export type CriticalCssStatus = z.infer<typeof CriticalCssStatusSchema>;
 
 const resetState = {
-	progress: 0,
-	success_count: 0,
 	retried_show_stopper: false,
 	status: 'not_generated',
 	issues: [],
 };
 
-const store = criticalCssDS.store;
-const { subscribe, update, set } = store;
+const criticalCssState = criticalCssDS.store;
 
 /**
  * Derived datastore: Returns true if the Critical CSS status indicates the process
  * is complete - i.e.: is success or fail.
  */
-export const isFinished = derived( { subscribe }, state =>
-	[ SUCCESS, FAIL ].includes( state.status )
+export const isFinished = derived(criticalCssState, $criticalCssState => {
+	return $criticalCssState.status === 'generated' ||
+		$criticalCssState.status === 'error'
+
+});
+
+export const localCriticalCSSProgress = writable<undefined | number>(undefined);
+
+export const criticalCssProgress = derived(
+	[criticalCssState, localCriticalCSSProgress],
+	([$criticalCssState, $localProgress]) => {
+		if ($criticalCssState.status === 'generated') {
+			return 100;
+		}
+
+		if ($criticalCssState.status === 'not_generated') {
+			return 0;
+		}
+
+		const totalCount = $criticalCssState.providers.length;
+		const doneCount = $criticalCssState.providers.filter(
+			provider => provider.status !== 'pending'
+		).length;
+
+		// `localProgress` provides a percentage 0-100 for each step for the Local critical CSS Generation
+		// Convert that to a percentage of the total progress.
+		let percent = Math.round((doneCount / totalCount) * 100);
+		if (
+			$localProgress !== undefined &&
+			$localProgress > 0 &&
+			$localProgress < 1 &&
+			doneCount < totalCount &&
+			doneCount > 0
+		) {
+			const percentPerStep = 100 / totalCount;
+			percent += $localProgress * percentPerStep;
+		}
+
+		return percent;
+	}
 );
 
 /**
  * Derived datastore: Returns whether to show an error.
  * Show an error if in error state, or if a success has 0 results.
  */
-export const showError = derived(
-	{ subscribe },
-	state =>
-		state.status === 'error' ||
-		state.success_count === undefined ||
-		( state.status === 'success' && state.success_count === 0 )
-);
-
-export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
-	const statusIsRequesting = REQUESTING === $store.status;
-	const criticalCssIsEnabled = $modules[ 'critical-css' ] && $modules[ 'critical-css' ].enabled;
-	const cloudCssIsEnabled = $modules[ 'cloud-css' ] && $modules[ 'cloud-css' ].enabled;
-
-	return statusIsRequesting && ( criticalCssIsEnabled || cloudCssIsEnabled );
-} );
-
-type CriticalCssApiResponse = {
-	status: string;
-	code?: string;
-	status_update?: CriticalCssStatus;
-};
-
-/**
- * Call a Critical CSS endpoint which may return a status update, returning the
- * status update (and updating the status accordingly).
- *
- * @param {'post' | 'get'}         method HTTP method to use.
- * @param {string}                 url    endpoint to call
- * @param {JSONObject | undefined} body   optional body to include in request.
- * @return {Promise< CriticalCssStatus | false >} Critical CSS status, or false if module not enabled.
- */
-async function callCriticalCssEndpoint(
-	method: 'post' | 'get',
-	url: string,
-	body?: JSONObject
-): Promise< CriticalCssStatus | false > {
-	const response = await api[ method ]< CriticalCssApiResponse >( url, body );
-	if ( response.status === 'module-unavailable' ) {
+export const showError = derived(criticalCssState, $criticalCssState => {
+	if ($criticalCssState.status === 'not_generated') {
 		return false;
 	}
 
-	if ( response.status !== SUCCESS ) {
-		throw new Error(
-			response.code ||
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				( response as any ).message ||
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				( response as any ).error ||
-				JSON.stringify( response )
+	if ($criticalCssState.status === 'pending') {
+		return false;
+	}
+
+	if ($criticalCssState.status === 'generated') {
+		return (
+			$criticalCssState.providers.filter((provider: Provider) => provider.status === 'error')
+				.length > 0
 		);
 	}
 
-	return get( store );
-}
+	return true;
+});
 
-export function increaseSuccessCount( count: number ): void {
-	update( state => ( {
-		...state,
-		success_count: state.success_count + count,
-	} ) );
-}
+export const isGenerating = derived(
+	[criticalCssState, modules],
+	([$criticalCssState, $modules]) => {
+		const statusIsRequesting = $criticalCssState.status === 'pending';
+		const criticalCssIsEnabled = $modules['critical-css'] && $modules['critical-css'].enabled;
+		const cloudCssIsEnabled = $modules['cloud-css'] && $modules['cloud-css'].enabled;
 
-/**
- * Helper method to update Critical CSS generation progress status.
- *
- * @param {CriticalCssStatus} cssStatus Critical CSS generation status.
- */
-export function updateGenerateStatus( cssStatus: CriticalCssStatus ): void {
-	return update( state => ( {
-		...state,
-		...cssStatus,
-	} ) );
-}
+		return statusIsRequesting && (criticalCssIsEnabled || cloudCssIsEnabled);
+	}
+);
 
 /**
- * Send a request to the server requesting that Critical CSS gets regenerated.
+ * Start generating Critical CSS.
  *
  * @param {boolean} reset              True if existing results should be thrown away before starting.
  * @param {boolean} isShowstopperRetry True if this request is kicking off a retry after a showstopper error.
  */
+type GenerationResponse = {
+	// @REFACTORING: Implement error handling. Or see @REFACTOR below
+	status: "success";
+	data: CriticalCssStatus;
+}
 export async function requestGeneration(
 	reset: boolean,
 	isShowstopperRetry: boolean
-): Promise< CriticalCssStatus | false > {
-	if ( reset ) {
+): Promise<CriticalCssStatus | false> {
+	if (reset) {
 		// @REFACTOR: Use the WP JS Stores API instead and ensure that the CSS has indeed been reset.
-		const result = await api.post( '/critical-css/start' );
-		if ( result.status !== SUCCESS ) {
-			throw new Error( JSON.stringify( result ) );
+		const result = await api.post<GenerationResponse>('/critical-css/start');
+		if (result.status !== 'success') {
+			throw new Error(JSON.stringify(result));
 		}
-		const data = result.data as Partial< CriticalCssStatus >;
-		const newState = {
+		const data = result.data as Partial<CriticalCssStatus>;
+		const newState: CriticalCssStatus = {
 			...resetState,
 			created: Date.now(),
-			update: Date.now(),
-			status: REQUESTING,
+			updated: Date.now(),
+			status: 'pending',
 			viewports: data.viewports,
 			generation_nonce: data.generation_nonce,
 			proxy_nonce: data.proxy_nonce,
 			callback_passthrough: data.callback_passthrough,
-			sources: data.sources,
+			providers: data.providers.map(provider => ({
+				...provider,
+				status: 'pending',
+			})),
 		};
-		set( newState );
+		criticalCssState.set(newState);
 	} else {
-		update( state => ( {
+		criticalCssState.update(state => ({
 			...state,
 			retried_show_stopper: isShowstopperRetry,
-		} ) );
+		}));
 	}
 
-	return get( store );
+	return get(criticalCssState);
 }
 
 export function stopTheShow(): void {
-	return update( state => ( {
+	return criticalCssState.update(state => ({
 		...state,
 		show_stopper: true,
 		status: 'error',
-	} ) );
+	}));
 }
 
-export async function sendGenerationResult(
+type CriticalCssInsertResponse = {
+	status: "success" | "error" | "module-unavailable";
+	code: string;
+}
+export async function saveCriticalCssChunk(
 	providerKey: string,
-	endpoint: 'insert',
-	body: JSONObject
-): Promise< CriticalCssStatus | false > {
-	const result = callCriticalCssEndpoint(
-		'post',
-		`/critical-css/${ providerKey }/${ endpoint }`,
-		body
+	css: string,
+	passthrough: JSONObject
+): Promise<boolean> {
+	const response = await api.post<CriticalCssInsertResponse>(
+		`/critical-css/${providerKey}/insert`,
+		{
+			data: css,
+			passthrough,
+		}
 	);
-	increaseSuccessCount( 1 );
-	return result;
+
+	if (response.status === 'module-unavailable') {
+		return false;
+	}
+
+	if (response.status !== 'success') {
+		throw new Error(
+			response.code ||
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(response as any).message ||
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			(response as any).error ||
+			JSON.stringify(response)
+		);
+	}
+
+	return true;
 }
 
-export default function setProviderIssue( providerKey: string, issue: CriticalCssIssue ): void {
-	update( state => {
+export default function setProviderIssue(providerKey: string, issue: CriticalCssIssue): void {
+	criticalCssState.update(state => {
 		let providerIndex = -1;
-		if ( ! state.issues ) {
-			providerIndex = state.issues.findIndex( el => el.provider_name === providerKey );
+		if (!state.issues) {
+			providerIndex = state.issues.findIndex(el => el.provider_name === providerKey);
 		}
-		if ( providerIndex !== -1 ) {
-			const existingIssue = state.issues[ providerIndex ];
+		if (providerIndex !== -1) {
+			const existingIssue = state.issues[providerIndex];
 			const updatedIssue = { ...existingIssue, ...issue };
-			state.issues.splice( providerIndex, 1, updatedIssue );
+			state.issues.splice(providerIndex, 1, updatedIssue);
 		} else {
-			state.issues.push( issue );
+			state.issues.push(issue);
 		}
 		return state;
-	} );
+	});
 }
 
-export function storeGenerateError( error: Error ): void {
-	update( oldState => ( {
-		...oldState,
+export function storeGenerateError(error: Error): void {
+	criticalCssState.update($criticalCssState => ({
+		...$criticalCssState,
 		status: 'error',
 		status_error: error,
-	} ) );
+	}));
 }
 
 export function setRequesting(): void {
-	return update( state => ( {
+	console.log('setRequesting');
+	return criticalCssState.update(state => ({
 		...state,
 		...resetState,
-		status: REQUESTING,
-	} ) );
+		status: 'pending',
+		issues: [],
+	}));
 }
 
 export function resetCloudRetryStatus(): void {
-	return update( state => ( {
+	console.log('resetCloudRetryStatus');
+	return criticalCssState.update(state => ({
 		...state,
 		...resetState,
-		status: REQUESTING,
+		status: 'pending',
 		retried_show_stopper: true,
-	} ) );
+	}));
 }
 
 export function setError(): void {
-	return update( state => ( {
+	return criticalCssState.update(state => ({
 		...state,
 		status: 'error',
-	} ) );
+	}));
 }
 
-export function updateIssues( issues: CriticalCssIssue[] ): void {
-	return update( state => ( {
+export function updateIssues(issues: CriticalCssIssue[]): void {
+	return criticalCssState.update(state => ({
 		...state,
-		issues: [ ...issues ],
-	} ) );
+		issues: [...issues],
+	}));
+}
+
+
+export function generationComplete(): void {
+	return criticalCssState.update(state => ({
+		...state,
+		status: 'generated',
+	}));
+}
+
+export function updateProvider(providerKey: string, data: Partial<Provider>): void {
+	return criticalCssState.update($state => {
+		const providerIndex = $state.providers.findIndex(provider => provider.key === providerKey);
+
+		$state.providers[providerIndex] = {
+			...$state.providers[providerIndex],
+			...data,
+		};
+
+		return $state;
+	});
 }
 
 export const criticalCssStatus = {
-	subscribe,
+	subscribe: criticalCssState.subscribe,
 };
+
+export const refreshCriticalCssStatus = async () => {
+	const state = await criticalCssDS.endpoint.GET();
+	criticalCssState.override(state);
+	return state;
+};
+
+
+window.store = criticalCssState;
+window.storeUpdate = (data: Partial<CriticalCssStatus>) => {
+	criticalCssState.update(state => ({
+		...state,
+		...data,
+	}));
+}

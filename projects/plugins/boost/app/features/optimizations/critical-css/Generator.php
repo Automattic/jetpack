@@ -94,7 +94,7 @@ class Generator {
 			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
 		);
 
-		$status['sources'] = $this->paths->get_sources();
+		$status['providers'] = $this->paths->get_provider_sources();
 
 		return $status;
 	}

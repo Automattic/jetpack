@@ -40,27 +40,35 @@ export const ErrorSetSchema = z.object( {
 	byUrl: z.record( CriticalCssErrorDetailsSchema ),
 } );
 
-const ProviderSourcesSchema = z.record(
-	z.object( {
-		urls: z.array( z.coerce.string() ),
-		success_ratio: z.coerce.number(),
-		label: z.coerce.string(),
-	} )
-);
-export type ProviderSources = z.infer< typeof ProviderSourcesSchema >;
+const ProviderSchema = z.object( {
+	// Unique provider key, for example "single_post"
+	key: z.coerce.string(),
+	// The label. For example "Single Post"
+	label: z.coerce.string(),
+	// URLs to generate CSS for.
+	urls: z.array( z.coerce.string() ),
+	// Required success ratio defined by the Provider class.
+	success_ratio: z.coerce.number(),
+	// Status
+	status: z.enum( [ 'success', 'pending', 'error' ] ).catch( 'error' ),
+	// Status message
+	// @REFACTORING: Unused right now
+	status_message: z.coerce.string().optional(),
+	// Error details
+	errors: z.array( CriticalCssErrorDetailsSchema ).optional(),
+} );
+export type Provider = z.infer< typeof ProviderSchema >;
 export const CriticalCssStatusSchema = z
 	.object( {
-		progress: z.coerce.number(),
 		retried_show_stopper: z.coerce.boolean(),
 		callback_passthrough: z.record( z.unknown() ).optional(),
 		generation_nonce: z.coerce.string().optional(),
 		proxy_nonce: z.coerce.string().optional(),
 		// Source provider information - which URLs to generate CSS for.
-		sources: ProviderSourcesSchema,
-		status: z.coerce.string(),
+		providers: z.array( ProviderSchema ),
+		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
 		updated: z.coerce.number().optional(),
 		status_error: z.union( [ z.coerce.string(), CriticalCssErrorDetailsSchema ] ).optional(),
-		success_count: z.coerce.number(),
 		created: z.coerce.number().optional(),
 		viewports: z
 			.array(
@@ -74,16 +82,14 @@ export const CriticalCssStatusSchema = z
 		issues: z.array( CriticalCssIssueSchema ).optional(),
 	} )
 	.catch( {
-		progress: 0,
 		retried_show_stopper: false,
 		callback_passthrough: {},
 		generation_nonce: '',
 		proxy_nonce: '',
-		sources: {},
+		providers: [],
 		status: 'not_generated',
 		updated: 0,
 		status_error: '',
-		success_count: 0,
 		created: 0,
 		viewports: [],
 		issues: [],

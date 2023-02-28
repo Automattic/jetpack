@@ -129,7 +129,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 			$unknown_error = __( 'An unknown error occurred', 'jetpack-boost' );
 
-			foreach ( $providers as $provider => $result ) {
+			foreach ( $providers as $provider_key => $result ) {
 				if ( ! isset( $result['data'] ) ) {
 					$state->critical_css_state->set_error( $unknown_error );
 					continue;
@@ -138,8 +138,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 				// Success
 				if ( ! empty( $result['success'] ) ) {
-					$state->set_source_success( $provider );
-					$storage->store_css( $provider, $data['css'] );
+					$state->set_source_success( $provider_key );
+					$storage->store_css( $provider_key, $data['css'] );
 					continue;
 				}
 
@@ -151,11 +151,11 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 				// Non show stopping failure with an error message.
 				if ( ! empty( $data['urls'] ) && is_array( $data['urls'] ) ) {
-					$state->set_source_error( $provider, $data['urls'] );
+					$state->set_source_error( $provider_key, $data['urls'] );
 					continue;
 				}
 
-				$state->set_source_error( $provider, $data['error'] );
+				$state->set_source_error( $provider_key, $data['error'] );
 			}
 			$state->save();
 

@@ -6,12 +6,13 @@ class Critical_CSS_State {
 
 	const SUCCESS    = 'success';
 	const ERROR      = 'error';
-	const REQUESTING = 'requesting';
+	const REQUESTING = 'pending';
 
-	private $state;
+	// @REFACTORING: Temporarily open up to public while refactoring.
+	public $state;
 
 	public function __construct() {
-		$this->state = jetpack_boost_ds_get( 'critical_css_state', array() );
+		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 	}
 
 	public function save() {

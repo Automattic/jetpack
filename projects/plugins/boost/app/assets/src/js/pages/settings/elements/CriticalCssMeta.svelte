@@ -1,12 +1,16 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import { criticalCssStatus, showError } from '../../../stores/critical-css-status';
+	import {
+		criticalCssProgress,
+		criticalCssStatus,
+		showError,
+	} from '../../../stores/critical-css-status';
 	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
 
-{#if $criticalCssStatus.status === 'requesting'}
+{#if $criticalCssStatus.status === 'pending'}
 	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
 			{__(
@@ -18,13 +22,13 @@
 			role="progressbar"
 			aria-valuemax={100}
 			aria-valuemin={0}
-			aria-valuenow={$criticalCssStatus.progress}
+			aria-valuenow={$criticalCssProgress}
 			class="jb-progress-bar"
 		>
 			<div
 				class="jb-progress-bar__filler"
 				aria-hidden="true"
-				style={`width: ${ $criticalCssStatus.progress }%;`}
+				style={`width: ${ $criticalCssProgress }%;`}
 			/>
 		</div>
 	</div>

@@ -1,15 +1,13 @@
 import { get } from 'svelte/store';
 import api from '../api/api';
 import {
-	setRequesting,
 	resetCloudRetryStatus,
 	setError,
-	CriticalCssStatus,
+	criticalCssProgress,
 } from '../stores/critical-css-status';
 import { criticalCssDS } from '../stores/critical-css-status-ds';
 
 export async function requestCloudCss(): Promise< void > {
-	setRequesting();
 	await startCloudCssRequest();
 }
 
@@ -33,8 +31,9 @@ async function startCloudCssRequest(): Promise< void > {
 
 let statusIntervalId = null;
 
-function calcIntervalDuration( status: CriticalCssStatus ) {
-	return status.progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
+function calcIntervalDuration() {
+	const progress = get( criticalCssProgress );
+	return progress < 100 ? 5 * 1000 : 2 * 60 * 1000;
 }
 
 /**
@@ -50,7 +49,7 @@ function calcIntervalDuration( status: CriticalCssStatus ) {
 export function pollCloudCssStatus() {
 	// If we are creating a new poll, clear the previous one.
 	stopPollingCloudCssStatus();
-	const duration = calcIntervalDuration( get( criticalCssDS.store ) );
+	const duration = calcIntervalDuration();
 
 	statusIntervalId = setInterval( async () => {
 		const status = await criticalCssDS.endpoint.GET();
@@ -60,7 +59,7 @@ export function pollCloudCssStatus() {
 			criticalCssDS.store.override( status );
 		}
 
-		if ( duration !== calcIntervalDuration( status ) ) {
+		if ( duration !== calcIntervalDuration() ) {
 			pollCloudCssStatus();
 		}
 	}, duration );

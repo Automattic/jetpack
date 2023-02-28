@@ -5,22 +5,21 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 
 class Cloud_CSS_State {
-	const SUCCESS    = 'success';
-	const ERROR      = 'error';
-	const REQUESTING = 'requesting';
+	const SUCCESS = 'success';
+	const ERROR   = 'error';
+	const PENDING = 'pending';
 
 	public function __construct() {
-		$this->state              = jetpack_boost_ds_get( 'cloud_critical_css_state', array() );
 		$this->critical_css_state = new Critical_CSS_State();
 	}
 
 	public function save() {
-		jetpack_boost_ds_set( 'cloud_critical_css_state', $this->state );
 		$this->critical_css_state->save();
 	}
 
 	private function validate_provider_key( $provider_key ) {
-		if ( ! isset( $this->state['sources'][ $provider_key ] ) ) {
+		$provider = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		if ( false === $provider ) {
 			error_log( 'Cloud CSS: validate_provider_key() called with unknown provider key: "' . $provider_key . '"' );
 			return false;
 		}
@@ -38,8 +37,14 @@ class Cloud_CSS_State {
 		if ( ! $this->validate_provider_key( $provider_key ) ) {
 			return $this;
 		}
-		$this->state['sources'][ $provider_key ]['status'] = self::ERROR;
-		$this->state['sources'][ $provider_key ]['error']  = $message;
+
+		$this->update_provider(
+			$provider_key,
+			array(
+				'status' => self::ERROR,
+				'error'  => $message,
+			)
+		);
 
 		return $this;
 	}
@@ -48,20 +53,27 @@ class Cloud_CSS_State {
 		if ( ! $this->validate_provider_key( $provider_key ) ) {
 			return $this;
 		}
-		$this->state['sources'][ $provider_key ]['status'] = self::SUCCESS;
-		$this->state['sources'][ $provider_key ]['error']  = null;
+
+		$this->update_provider(
+			$provider_key,
+			array(
+				'status' => self::SUCCESS,
+				'error'  => null,
+			)
+		);
 
 		return $this;
 	}
 
 	public function has_pending_provider( $providers = array() ) {
 		if ( empty( $providers ) ) {
-			$providers = array_keys( $this->state['sources'] );
+			$providers = $this->critical_css_state->state['providers'];
 		}
 
 		$pending = false;
-		foreach ( $this->state['sources'] as $provider_key => $source_state ) {
-			if ( in_array( $provider_key, $providers, true ) && self::REQUESTING === $source_state['status'] ) {
+		foreach ( $this->critical_css_state->state['providers'] as $provider ) {
+			$provider_key = $provider['key'];
+			if ( in_array( $provider_key, $providers, true ) && isset( $provider['status'] ) && self::PENDING === $provider['status'] ) {
 				$pending = true;
 				break;
 			}
@@ -70,11 +82,37 @@ class Cloud_CSS_State {
 	}
 
 	public function set_pending_providers( $providers ) {
-		foreach ($providers as $provider) {
-			$provider['status'] = self::REQUESTING;
+		foreach ( $providers as $key => $provider ) {
+			$providers[ $key ]['status'] = self::PENDING;
+		}
+		$this->critical_css_state->state['providers'] = $providers;
+		return $this;
+	}
+
+	private function update_provider( $provider_key, $partial_data ) {
+		if ( ! $this->validate_provider_key( $provider_key ) ) {
+			return $this;
 		}
 
-		$this->state['sources'] = $providers;
+		$provider_index   = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		$current_provider = $this->critical_css_state->state['providers'][ $provider_index ];
+		$this->critical_css_state->state['providers'][ $provider_index ] = array_merge(
+			$current_provider,
+			$partial_data
+		);
+
+		return $this;
+	}
+
+	public function prepare_request() {
+		$this->critical_css_state->state = array(
+			'status'               => 'pending',
+			'retried_show_stopper' => false,
+			'providers'            => array(),
+			'issues'               => array(),
+			'created'              => microtime( true ),
+			'updated'              => microtime( true ),
+		);
 
 		return $this;
 	}

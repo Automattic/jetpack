@@ -24,7 +24,7 @@ final class Cloud_CSS_Sync extends Data_Sync_Entry_Handler {
 
 	public function get_default_value() {
 		return array(
-			'sources' => array(),
+			'providers' => array(),
 		);
 	}
 }

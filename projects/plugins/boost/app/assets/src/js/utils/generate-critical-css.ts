@@ -1,19 +1,20 @@
 import { get } from 'svelte/store';
-import { __ } from '@wordpress/i18n';
 import setProviderIssue, {
+	generationComplete,
+	localCriticalCSSProgress,
 	requestGeneration,
-	sendGenerationResult,
+	saveCriticalCssChunk,
 	stopTheShow,
 	storeGenerateError,
-	updateGenerateStatus,
+	updateProvider,
 } from '../stores/critical-css-status';
 import {
 	CriticalCssIssue,
 	Critical_CSS_Error_Type,
-	ProviderSources,
+	Provider,
 } from '../stores/critical-css-status-ds';
 import { JSONObject, suggestRegenerateDS } from '../stores/data-sync-client';
-import { modules, isModuleEnabledStore } from '../stores/modules';
+import { modules } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
@@ -65,11 +66,10 @@ export default async function generateCriticalCss(
 	isShowstopperRetry = false
 ): Promise< void > {
 	hasGenerateRun = true;
-	let cancelling = false;
+	const cancelling = false;
 
 	try {
 		if ( reset ) {
-			updateGenerateStatus( { status: 'requesting', progress: 0, issues: [] } );
 			suggestRegenerateDS.store.set( false );
 		}
 
@@ -77,56 +77,44 @@ export default async function generateCriticalCss(
 		const cssStatus = await requestGeneration( reset, isShowstopperRetry );
 
 		// Abort early if css module deactivated or nothing needs doing
-		if ( ! cssStatus || cssStatus.status !== 'requesting' ) {
+		if ( ! cssStatus || cssStatus.status !== 'pending' ) {
 			return;
 		}
 
-		updateGenerateStatus( { status: 'requesting', progress: 0 } );
-
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
-
-		// Prepare a wrapped callback to gather major/minor steps and convert to
-		// percent. Also check for module deactivation and cancel if need be.
-		const offset = cssStatus.success_count || 0;
-		const wrappedCallback = wrapCallback( offset, percent => {
-			if ( ! get( isModuleEnabledStore( 'critical-css' ) ) ) {
-				cancelling = true;
-				throw new Error( __( 'Operation cancelled', 'jetpack-boost' ) );
-			}
-
-			updateGenerateStatus( { status: 'requesting', progress: Math.round( percent ) } );
-		} );
 
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
 			'jb-generate-critical-css': cssStatus.generation_nonce,
 		};
 
-		// Run generator on each configuration.
-		updateGenerateStatus( { status: 'requesting', progress: 0 } );
 		logPreCriticalCSSGeneration();
 
 		// @REFACTORING: Add Toast error handling if sources missing
-		if ( Object.keys( cssStatus.sources ).length > 0 ) {
+		if ( cssStatus.providers.length > 0 ) {
 			await generateForKeys(
-				cssStatus.sources,
+				cssStatus.providers,
 				requestGetParameters,
 				cssStatus.viewports as Viewport[],
 				cssStatus.callback_passthrough as JSONObject,
-				wrappedCallback,
 				cssStatus.proxy_nonce
 			);
 		}
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
+		console.error( err );
 		if ( ! cancelling ) {
 			// Record thrown errors as Critical CSS status.
 			storeGenerateError( err );
 		}
 	} finally {
-		// Always update generate status to not generating at the end.
-		updateGenerateStatus( { status: 'success', progress: 0 } );
+
+		if( reset ) {
+			// If the generation was reset, we need to update the status to complete.
+			generationComplete();
+		}
+
 	}
 }
 
@@ -164,7 +152,7 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {Object}             sources              - Set of URLs to use for each provider key
+ * @param {Object}             providers            - Set of URLs to use for each provider key
  * @param {Object}             requestGetParameters - GET parameters to include with each request.
  * @param {Viewport[]}         viewports            - Viewports to generate with.
  * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
@@ -172,16 +160,12 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
-	sources: ProviderSources,
+	providers: Provider[],
 	requestGetParameters: { [ key: string ]: string },
 	viewports: Viewport[],
 	passthrough: JSONObject,
-	callback: MajorMinorCallback,
 	proxyNonce: string
 ): Promise< void > {
-	const majorSteps = Object.keys( sources ).length + 1;
-	let majorStep = 0;
-
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 	let totalSize = 0;
@@ -190,16 +174,14 @@ async function generateForKeys(
 	let maxSize = 0;
 
 	// Run through each set of URLs.
-	for ( const [ providerKey, provider ] of Object.entries( sources ) ) {
-		const { urls, success_ratio, label } = provider;
-		callback( ++majorStep, majorSteps, 0, 0 );
+	for ( const { urls, success_ratio, label, key } of providers ) {
 		try {
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
 				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
 				urls,
 				viewports,
-				progressCallback: ( step: number, stepCount: number ) => {
-					callback( majorStep, majorSteps, step, stepCount );
+				progressCallback: ( step: number, total: number ) => {
+					localCriticalCSSProgress.set( step / total  );
 				},
 				filters: {
 					atRules: keepAtRule,
@@ -208,10 +190,12 @@ async function generateForKeys(
 				successRatio: success_ratio,
 			} );
 
-			const updateResult = await sendGenerationResult( providerKey, 'insert', {
-				data: css,
-				warnings: warnings.map( x => x.toString() ),
-				passthrough,
+			const updateResult = await saveCriticalCssChunk( key, css, passthrough);
+
+			const status = warnings.length > 0 ? 'error' : 'success';
+			updateProvider( key, {
+				status,
+				errors: warnings,
 			} );
 
 			if ( updateResult === false ) {
@@ -242,19 +226,19 @@ async function generateForKeys(
 					};
 				} );
 				const issue: CriticalCssIssue = {
+					key,
 					provider_name: label,
-					key: providerKey,
 					status: 'active',
 					errors: errorsWithURLs,
 				};
-				if ( providerKey ) {
-					setProviderIssue( providerKey, issue );
+				if ( key ) {
+					setProviderIssue( key, issue );
 				}
 				for ( const [ url, error ] of Object.entries( urlErrors ) ) {
 					// Track individual Critical CSS generation error.
 					const eventProps: TracksEventProperties = {
 						url,
-						provider_key: providerKey,
+						provider_key: key,
 						error_message: error.message,
 						error_type: error.type,
 					};
@@ -274,7 +258,7 @@ async function generateForKeys(
 				// Track showstopper Critical CSS generation error.
 				const eventProps = {
 					time: Date.now() - startTime,
-					provider_key: providerKey,
+					provider_key: key,
 					error_message: err.message,
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
@@ -299,13 +283,10 @@ async function generateForKeys(
 			error_count: stepsFailed,
 			average_size: totalSize / Math.max( 1, stepsPassed ),
 			max_size: maxSize,
-			provider_keys: Object.keys( sources ).join( ',' ),
+			provider_keys: Object.keys( providers ).join( ',' ),
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}
-	updateGenerateStatus( {
-		status: 'success',
-	} );
 }
 
 /**
@@ -350,25 +331,6 @@ function keepAtRule( name: string ): boolean {
 function keepProperty( name: string, _value: string ): boolean {
 	const stripped = stripVendorPrefix( name );
 	return ! stripped.startsWith( 'animation' );
-}
-
-/**
- * Helper for tracking multiple "levels" of progress; minor and major. Calls the
- * supplied callback with major / minor step information converted to a raw
- * percentage. Also takes an offset for major steps, to represent progress that
- * may have already passed before counting here.
- *
- * @param {number}                    offset Major steps to assume have already passed.
- * @param {(percent: number) => void} cb     Callback to call with progress.
- * @return {Function} Function to call with full progress details.
- */
-function wrapCallback( offset: number, cb: ( percent: number ) => void ): MajorMinorCallback {
-	return ( majorStep, majorSteps, minorStep, minorSteps ) => {
-		const stepSize = 100 / Math.max( 1, majorSteps + offset );
-		const minorProgress = minorStep / Math.max( 1, minorSteps );
-
-		cb( ( majorStep + offset + minorProgress ) * stepSize );
-	};
 }
 
 /**
