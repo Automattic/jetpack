@@ -1,4 +1,4 @@
-export type SiteType = 'atomic' | 'jetpack' | 'simple';
+import { SiteType } from '../../types';
 
 export type SiteSettingsSectionProps = {
 	/**

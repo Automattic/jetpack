@@ -221,10 +221,12 @@ export type MetadataVideo = {
 	uploadProgress?: number;
 };
 
+export type SiteType = 'atomic' | 'jetpack' | 'simple';
+
 export type VideoPressSettings = {
 	videoPressVideosPrivateForSite: boolean;
 	siteIsPrivate: boolean;
-	siteType: 'atomic' | 'jetpack' | 'simple';
+	siteType: SiteType;
 };
 
 export type VideopressSelectors = {
