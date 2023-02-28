@@ -25,8 +25,8 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 			const date = new Date();
 
 			// Current month and day with leading zeros.
-			const month = ( '0' + ( date.getMonth() + 1 ).toString() ).slice( -2 );
-			const day = ( '0' + date.getDate().toString() ).slice( -2 );
+			const month = ( date.getMonth() + 1 ).toString().padStart( 2, '0' );
+			const day = date.getDate().toString().padStart( 2, '0' );
 
 			path += `?after=--${ month }-${ day }&order=desc`;
 		}
