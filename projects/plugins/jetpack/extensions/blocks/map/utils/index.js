@@ -1,4 +1,6 @@
-export function resizeMapContainer( container, fixedHeight = null ) {
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
+const resizeMapContainer = ( container, fixedHeight = null ) => {
 	if ( fixedHeight ) {
 		container.style.height = fixedHeight + 'px';
 	} else {
@@ -10,4 +12,13 @@ export function resizeMapContainer( container, fixedHeight = null ) {
 		const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
 		container.style.height = blockHeight + 'px';
 	}
-}
+};
+
+const getMapProvider = () => {
+	if ( isAtomicSite() || isSimpleSite() || window.location.search.includes( 'mapkit' ) ) {
+		return 'mapkit';
+	}
+	return 'mapbox';
+};
+
+export { resizeMapContainer, getMapProvider };

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+WPCOM Only: Make sure the email field in the subscribe block is required

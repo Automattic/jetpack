@@ -232,10 +232,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                         $page = (int)$page-1;
                         if ($page < 0) $page = 0;
 
-                        // check params realistic
-                        // todo, for now, brute pass
-                        $orderByStr .= ' LIMIT '.(int)$page.','.(int)$perPage;
-
+						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$orderByStr .= sprintf( ' LIMIT %d, %d ', (int) $page * (int) $perPage, (int) $perPage );
                     }
 
                     // append to sql

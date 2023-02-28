@@ -12,6 +12,7 @@ declare global {
 			isStandaloneActive: '' | '1';
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
+			playerBridgeUrl: string;
 		};
 
 		JP_CONNECTION_INITIAL_STATE: {
