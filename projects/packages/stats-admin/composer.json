@@ -6,7 +6,9 @@
 	"require": {
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-stats": "@dev"
+		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-jitm": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
@@ -21,9 +23,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -48,7 +47,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.6.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

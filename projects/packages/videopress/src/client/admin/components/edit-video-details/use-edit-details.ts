@@ -14,6 +14,10 @@ import { VIDEO_PRIVACY_LEVELS } from '../../../state/constants';
 import usePlaybackToken from '../../hooks/use-playback-token';
 import usePosterEdit from '../../hooks/use-poster-edit';
 import useVideo from '../../hooks/use-video';
+/**
+ * Types
+ */
+import type { RatingProp } from '../../../types';
 
 const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	const updateMeta = useMetaUpdate( videoId );
@@ -29,7 +33,13 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [ 'title', 'description' ].some( field => hasFieldChanged( field ) );
+	const metaChanged = [
+		'title',
+		'description',
+		'rating',
+		'allowDownload',
+		'displayEmbed',
+	].some( field => hasFieldChanged( field ) );
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -37,6 +47,18 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 
 	const setDescription = ( description: string ) => {
 		updateData( { description } );
+	};
+
+	const setRating = ( rating: RatingProp ) => {
+		updateData( { rating } );
+	};
+
+	const setAllowDownload = ( allowDownload: number ) => {
+		updateData( { allowDownload } );
+	};
+
+	const setDisplayEmbed = ( displayEmbed: number ) => {
+		updateData( { displayEmbed } );
 	};
 
 	const handleMetaUpdate = () => {
@@ -52,6 +74,9 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	return {
 		setTitle,
 		setDescription,
+		setRating,
+		setAllowDownload,
+		setDisplayEmbed,
 		handleMetaUpdate,
 		metaChanged,
 	};
@@ -86,6 +111,9 @@ export default () => {
 	const [ formData, setFormData ] = useState( {
 		title: video?.title,
 		description: video?.description,
+		rating: video?.rating,
+		allowDownload: video?.allowDownload,
+		displayEmbed: video?.displayEmbed,
 	} );
 
 	const updateData = newData => {
@@ -149,7 +177,6 @@ export default () => {
 		// TODO: handle errors
 		Promise.allSettled( promises ).then( () => {
 			const videoData = { ...video, ...formData };
-
 			// posterImage already set by the action
 			delete videoData.posterImage;
 
@@ -175,6 +202,9 @@ export default () => {
 			setFormData( {
 				title: video?.title,
 				description: video?.description,
+				rating: video?.rating,
+				allowDownload: video?.allowDownload,
+				displayEmbed: video?.displayEmbed,
 			} );
 		}
 

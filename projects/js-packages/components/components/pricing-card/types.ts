@@ -41,4 +41,12 @@ export type PricingCardProps = {
 	 * Optional informative text.
 	 */
 	infoText?: React.ReactNode;
+	/**
+	 * The TOS copy.
+	 */
+	tosText?: React.ReactNode;
+	/**
+	 * Optional Child nodes
+	 */
+	children?: React.ReactNode;
 };

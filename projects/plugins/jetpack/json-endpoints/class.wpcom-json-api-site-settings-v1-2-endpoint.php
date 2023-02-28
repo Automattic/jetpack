@@ -43,6 +43,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint(
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
+			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
+			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',

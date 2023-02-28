@@ -3,7 +3,8 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
+	import { failedProviderKeyCount } from '../../../stores/critical-css-recommendations';
+	import { criticalCssStatus } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -18,7 +19,7 @@
 
 <div class="jb-critical-css__meta">
 	<div class="summary">
-		{#if $criticalCssStatus.success_count === 0}
+		{#if ! $criticalCssStatus.success_count}
 			<div class="generating">{generateText}</div>
 		{:else}
 			<div class="successes">
@@ -27,10 +28,10 @@
 					_n(
 						'%d file generated',
 						'%d files generated',
-						$criticalCssStatus.success_count,
+						$criticalCssStatus.success_count || 0,
 						'jetpack-boost'
 					),
-					$criticalCssStatus.success_count
+					$criticalCssStatus.success_count || 0
 				)}
 				{#if $criticalCssStatus.updated}
 					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.

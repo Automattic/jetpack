@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $post_id;
 	protected $test_already = false;
 
 	/**
@@ -133,7 +134,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+
+		// Only getting the deleted_post event types because the latest might be
+		// an option update for post counts.
+		// @see https://core.trac.wordpress.org/changeset/55419/trunk
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 
 		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );

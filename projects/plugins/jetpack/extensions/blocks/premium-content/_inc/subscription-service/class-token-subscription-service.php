@@ -17,10 +17,15 @@ use Automattic\Jetpack\Extensions\Premium_Content\JWT;
  */
 abstract class Token_Subscription_Service implements Subscription_Service {
 
-	const JWT_AUTH_TOKEN_COOKIE_NAME = 'jp-premium-content-session';
-	const DECODE_EXCEPTION_FEATURE   = 'memberships';
-	const DECODE_EXCEPTION_MESSAGE   = 'Problem decoding provided token';
-	const REST_URL_ORIGIN            = 'https://subscribe.wordpress.com/';
+	const JWT_AUTH_TOKEN_COOKIE_NAME         = 'jp-premium-content-session';
+	const DECODE_EXCEPTION_FEATURE           = 'memberships';
+	const DECODE_EXCEPTION_MESSAGE           = 'Problem decoding provided token';
+	const REST_URL_ORIGIN                    = 'https://subscribe.wordpress.com/';
+	const BLOG_SUB_ACTIVE                    = 'active';
+	const BLOG_SUB_PENDING                   = 'pending';
+	const POST_ACCESS_LEVEL_EVERYBODY        = 'everybody';
+	const POST_ACCESS_LEVEL_SUBSCRIBERS      = 'subscribers';
+	const POST_ACCESS_LEVEL_PAID_SUBSCRIBERS = 'paid_subscribers';
 
 	/**
 	 * Initialize the token subscription service.
@@ -46,8 +51,9 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @inheritDoc
 	 *
 	 * @param array $valid_plan_ids List of valid plan IDs.
+	 * @param array $access_level Access level for content.
 	 */
-	public function visitor_can_view_content( $valid_plan_ids ) {
+	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
 
 		// URL token always has a precedence, so it can overwrite the cookie when new data available.
 		$token = $this->token_from_request();
@@ -70,40 +76,62 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 		}
 
 		if ( $is_valid_token ) {
-			$subscriptions = (array) $payload['subscriptions'];
-		} elseif ( is_user_logged_in() ) {
-			/*
-			 * If there is no token, but the user is logged in,
-			 * get current subscriptions and determine if the user has
-			 * a valid subscription to match the plan ID.
-			 */
-
 			/**
-			 * Filter the subscriptions attached to a specific user on a given site.
+			 * Allow access to the content if:
 			 *
-			 * @since 9.4.0
-			 *
-			 * @param array $subscriptions Array of subscriptions.
-			 * @param int   $user_id The user's ID.
-			 * @param int   $site_id ID of the current site.
+			 * Active: user has a valid subscription
+			 * Pending: user has subscribed to a free plan
 			 */
-			$subscriptions = apply_filters(
-				'earn_get_user_subscriptions_for_site_id',
-				array(),
-				wp_get_current_user()->ID,
-				$this->get_site_id()
+			$is_blog_subscriber = in_array(
+				$payload['blog_sub'],
+				array(
+					self::BLOG_SUB_ACTIVE,
+					self::BLOG_SUB_PENDING,
+				),
+				true
 			);
-
-			if ( empty( $subscriptions ) ) {
-				return false;
-			}
-			// format the subscriptions so that they can be validated.
-			$subscriptions = self::abbreviate_subscriptions( $subscriptions );
+			$subscriptions      = (array) $payload['subscriptions'];
+			$is_paid_subscriber = $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
 		} else {
-			return false;
+			// Token not valid. We bail even unless the post can be accessed publicly.
+			return $this->user_has_access( $access_level, false, false, get_the_ID() );
 		}
 
-		return $this->validate_subscriptions( $valid_plan_ids, $subscriptions );
+		return $this->user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, get_the_ID() );
+	}
+
+	/**
+	 * Return if the user has access to the content depending on the access level and the user rights
+	 *
+	 * @param string $access_level Post or blog access level.
+	 * @param bool   $is_blog_subscriber Is user a subscriber of the blog.
+	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
+	 * @param int    $post_id Post ID.
+	 *
+	 * @return bool does the user have access to the post/blog.
+	 */
+	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
+
+		if ( is_user_logged_in() && current_user_can( 'edit_post', $post_id ) ) {
+			// Admin has access
+			return true;
+		}
+
+		if ( empty( $access_level ) || $access_level === self::POST_ACCESS_LEVEL_EVERYBODY ) {
+			// empty level means the post is not gated for paid users
+			return true;
+		}
+
+		if ( $access_level === self::POST_ACCESS_LEVEL_SUBSCRIBERS ) {
+			return $is_blog_subscriber || $is_paid_subscriber;
+		}
+
+		if ( $access_level === self::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ) {
+			return $is_paid_subscriber;
+		}
+
+		// This should not be a use case
+		return false;
 	}
 
 	/**
@@ -128,13 +156,6 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return string|false
 	 */
 	abstract public function get_key();
-
-	/**
-	 * Get the ID of the current site.
-	 *
-	 * @return int
-	 */
-	abstract public function get_site_id();
 
 	// phpcs:disable
 	/**
@@ -173,6 +194,10 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return void
 	 */
 	private function set_token_cookie( $token ) {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			return;
+		}
+
 		if ( ! empty( $token ) ) {
 			setcookie( self::JWT_AUTH_TOKEN_COOKIE_NAME, $token, 0, '/', COOKIE_DOMAIN, is_ssl(), true ); // httponly -- used by visitor_can_view_content() within the PHP context.
 		}
@@ -205,7 +230,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @return bool
 	 */
-	protected function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
+	public static function validate_subscriptions( $valid_plan_ids, $token_subscriptions ) {
 		// Create a list of product_ids to compare against.
 		$product_ids = array();
 		foreach ( $valid_plan_ids as $plan_id ) {
@@ -214,9 +239,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 				$product_ids[] = $product_id;
 			}
 		}
-
 		foreach ( $token_subscriptions as $product_id => $token_subscription ) {
-			if ( in_array( $product_id, $product_ids, true ) ) {
+			if ( in_array( intval( $product_id ), $product_ids, true ) ) {
 				$end = is_int( $token_subscription->end_date ) ? $token_subscription->end_date : strtotime( $token_subscription->end_date );
 				if ( $end > time() ) {
 					return true;
@@ -247,6 +271,11 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @return array<int, array>
 	 */
 	public static function abbreviate_subscriptions( $subscriptions_from_bd ) {
+
+		if ( empty( $subscriptions_from_bd ) ) {
+			return array();
+		}
+
 		$subscriptions = array();
 		foreach ( $subscriptions_from_bd as $subscription ) {
 			// We are picking the expiry date that is the most in the future.

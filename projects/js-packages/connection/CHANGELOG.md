@@ -2,6 +2,33 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.25.1 - 2023-02-20
+### Fixed
+- Add External link icon to links at the bottom of the disconnect modal. [#28922]
+
+## 0.25.0 - 2023-02-15
+### Added
+- Export ConnectScreenLayout component [#28770]
+
+### Changed
+- Update to React 18. [#28710]
+
+## 0.24.9 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## 0.24.8 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.24.7 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.24.6 - 2023-01-18
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
 ## 0.24.5 - 2023-01-11
 ### Changed
 - Updated package dependencies.

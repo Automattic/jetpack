@@ -58,7 +58,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_resource_stats' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -69,7 +69,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_stats_resource' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -80,7 +80,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -91,7 +91,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_single_post_likes' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -102,7 +102,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_stats' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -113,7 +113,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'site_has_never_published_post' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
@@ -124,7 +124,67 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_site_posts' ),
-				'permission_callback' => array( $this, 'check_user_privileges_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
+		// WordAds Earnings.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/earnings', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_wordads_earnings' ),
+				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+			)
+		);
+
+		// WordAds Stats.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/wordads/stats', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_wordads_stats' ),
+				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+			)
+		);
+
+		// Stats notices.
+		register_rest_route(
+			static::$namespace,
+			'/stats/notices',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'update_notice_status' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'id'            => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'ID of the notice',
+						'enum'        => array(
+							Notices::OPT_IN_NEW_STATS_NOTICE_ID,
+							Notices::OPT_OUT_NEW_STATS_NOTICE_ID,
+							Notices::NEW_STATS_FEEDBACK_NOTICE_ID,
+						),
+					),
+					'status'        => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Status of the notice',
+						'enum'        => array(
+							Notices::NOTICE_STATUS_DISMISSED,
+							Notices::NOTICE_STATUS_POSTPONED,
+						),
+					),
+					'postponed_for' => array(
+						'type'        => 'number',
+						'default'     => null,
+						'description' => 'Postponed for (in seconds)',
+						'minimum'     => 0,
+					),
+				),
 			)
 		);
 	}
@@ -134,8 +194,20 @@ class REST_Controller {
 	 *
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
-	public function check_user_privileges_callback() {
+	public function can_user_view_general_stats_callback() {
 		if ( current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) ) {
+			return true;
+		}
+
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Only administrators or users with capability `activate_wordads` can access the API.
+	 */
+	public function can_user_view_wordads_stats_callback() {
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'activate_wordads' ) ) {
 			return true;
 		}
 
@@ -218,8 +290,9 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query(
-					$req->get_params()
+				$this->filter_and_build_query_string(
+					$req->get_params(),
+					array( 'resource_id' )
 				)
 			),
 			array( 'timeout' => 5 )
@@ -313,7 +386,7 @@ class REST_Controller {
 				Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
 				Jetpack_Options::get_option( 'id' ),
 				$req->get_param( 'resource_id' ),
-				http_build_query( $params )
+				$this->filter_and_build_query_string( $params, array( 'resource_id' ) )
 			),
 			array( 'timeout' => 5 )
 		);
@@ -347,7 +420,7 @@ class REST_Controller {
 			sprintf(
 				'/sites/%d/site-has-never-published-post?%s',
 				Jetpack_Options::get_option( 'id' ),
-				http_build_query(
+				$this->filter_and_build_query_string(
 					$req->get_params()
 				)
 			),
@@ -356,6 +429,56 @@ class REST_Controller {
 			null,
 			'wpcom'
 		);
+	}
+
+	/**
+	 * Get detailed WordAds earnings information for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_wordads_earnings( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/wordads/earnings?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 5 )
+		);
+	}
+
+	/**
+	 * Get WordAds stats for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_wordads_stats( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/wordads/stats?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array( 'timeout' => 5 )
+		);
+	}
+
+	/**
+	 * Dismiss or delay stats notices.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function update_notice_status( $req ) {
+		return ( new Notices() )->update_notice( $req->get_param( 'id' ), $req->get_param( 'status' ), $req->get_param( 'postponed_for' ) );
 	}
 
 	/**
@@ -374,33 +497,30 @@ class REST_Controller {
 		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
-			$response_body = get_transient( $cache_key );
-			if ( false !== $response_body ) {
-				return json_decode( $response_body, true );
+			$response_body_content = get_transient( $cache_key );
+			if ( false !== $response_body_content ) {
+				return json_decode( $response_body_content, true );
 			}
 		}
 
-		$response              = Client::wpcom_json_api_request_as_blog(
+		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			$version,
 			$args,
 			$body,
 			$base_api_path
 		);
-		$response_code         = wp_remote_retrieve_response_code( $response );
-		$response_body_content = wp_remote_retrieve_body( $response );
-		$response_body         = json_decode( $response_body, true );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
+		$response_code         = wp_remote_retrieve_response_code( $response );
+		$response_body_content = wp_remote_retrieve_body( $response );
+		$response_body         = json_decode( $response_body_content, true );
+
 		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				isset( $response_body['error'] ) ? 'remote-error-' . $response_body['error'] : 'remote-error',
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
-				array( 'status' => $response_code )
-			);
+			return $this->get_wp_error( $response_body, $response_code );
 		}
 
 		// Cache the successful JSON response for 5 minutes.
@@ -418,5 +538,51 @@ class REST_Controller {
 		);
 
 		return new WP_Error( 'rest_forbidden', $error_msg, array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Filter and build query string from all the requested params.
+	 *
+	 * @param array $params The params to filter.
+	 * @param array $keys_to_unset The keys to unset from the params array.
+	 * @return string The filtered and built query string.
+	 */
+	protected function filter_and_build_query_string( $params, $keys_to_unset = array() ) {
+		if ( isset( $params['rest_route'] ) ) {
+			unset( $params['rest_route'] );
+		}
+		if ( ! empty( $keys_to_unset ) && is_array( $keys_to_unset ) ) {
+			foreach ( $keys_to_unset as $key ) {
+				if ( isset( $params[ $key ] ) ) {
+					unset( $params[ $key ] );
+				}
+			}
+		}
+		return http_build_query( $params );
+	}
+
+	/**
+	 * Build error object from remote response body and status code.
+	 *
+	 * @param array $response_body Remote response body.
+	 * @param int   $response_code Http response code.
+	 * @return WP_Error
+	 */
+	protected function get_wp_error( $response_body, $response_code = 500 ) {
+		$error_code = 'remote-error';
+		foreach ( array( 'code', 'error' ) as $error_code_key ) {
+			if ( isset( $response_body[ $error_code_key ] ) ) {
+				$error_code = $response_body[ $error_code_key ];
+				break;
+			}
+		}
+
+		$error_message = isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error';
+
+		return new WP_Error(
+			$error_code,
+			$error_message,
+			array( 'status' => $response_code )
+		);
 	}
 }

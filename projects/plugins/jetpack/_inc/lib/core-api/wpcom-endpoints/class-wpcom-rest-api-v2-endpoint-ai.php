@@ -28,18 +28,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * WPCOM_REST_API_V2_Endpoint_AI constructor.
 	 */
 	public function __construct() {
-		$this->is_wpcom = false;
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->is_wpcom                     = true;
-			$this->wpcom_is_wpcom_only_endpoint = true;
-		} elseif ( ! ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			// If this is not an atomic site, we want to bail and not even load the endpoint for now.
-			return;
-		}
+		$this->is_wpcom                     = true;
+		$this->wpcom_is_wpcom_only_endpoint = true;
 
 		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
+		}
+
+		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+			return;
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -59,8 +56,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'content' => array( 'required' => true ),
-					'token'   => array( 'required' => false ),
+					'content' => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
@@ -74,8 +78,15 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'prompt' => array( 'required' => true ),
-					'token'  => array( 'required' => false ),
+					'prompt'  => array(
+						'type'              => 'string',
+						'required'          => true,
+						'sanitize_callback' => 'sanitize_textarea_field',
+					),
+					'post_id' => array(
+						'required' => false,
+						'type'     => 'integer',
+					),
 				),
 			)
 		);
@@ -87,7 +98,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_AI_Helper::get_gpt_completion( $request['content'] );
+		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
 	}
 
 	/**
@@ -96,7 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_dalle_generation( $request ) {
-		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'] );
+		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'], $request['post_id'] );
 	}
 }
 

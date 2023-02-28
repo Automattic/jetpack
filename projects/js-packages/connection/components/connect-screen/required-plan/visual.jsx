@@ -1,4 +1,4 @@
-import { getRedirectUrl, PricingCard, ActionButton } from '@automattic/jetpack-components';
+import { ActionButton, PricingCard, TermsOfService } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -29,25 +29,6 @@ const ConnectScreenRequiredPlanVisual = props => {
 		buttonIsLoading,
 		logo,
 	} = props;
-
-	const tos = createInterpolateElement(
-		__(
-			'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-			'jetpack'
-		),
-		{
-			tosLink: (
-				<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-			),
-			shareDetailsLink: (
-				<a
-					href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-					rel="noopener noreferrer"
-					target="_blank"
-				/>
-			),
-		}
-	);
 
 	const withSubscription = createInterpolateElement(
 		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
@@ -81,15 +62,17 @@ const ConnectScreenRequiredPlanVisual = props => {
 						priceBefore={ priceBefore }
 						currencyCode={ pricingCurrencyCode }
 						priceAfter={ priceAfter }
-						infoText={ showConnectButton ? tos : '' }
 					>
 						{ showConnectButton && (
-							<ActionButton
-								label={ buttonLabel }
-								onClick={ handleButtonClick }
-								displayError={ displayButtonError }
-								isLoading={ buttonIsLoading }
-							/>
+							<>
+								<TermsOfService agreeButtonLabel={ buttonLabel } />
+								<ActionButton
+									label={ buttonLabel }
+									onClick={ handleButtonClick }
+									displayError={ displayButtonError }
+									isLoading={ buttonIsLoading }
+								/>
+							</>
 						) }
 					</PricingCard>
 				</div>

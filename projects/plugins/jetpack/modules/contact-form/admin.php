@@ -313,21 +313,37 @@ function grunion_manage_post_column_from( $post ) {
  * @return void
  */
 function grunion_manage_post_column_response( $post ) {
-	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
-
-	$response_fields = array_diff_key(
-		isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array(),
-		array(
-			'email_marketing_consent' => '',
-			'entry_title'             => '',
-			'entry_permalink'         => '',
-			'feedback_id'             => '',
-		)
+	$non_printable_keys = array(
+		'email_marketing_consent',
+		'entry_title',
+		'entry_permalink',
+		'feedback_id',
 	);
+
+	$post_content = get_post_field( 'post_content', $post->ID );
+	$content      = explode( '<!--more-->', $post_content );
+	$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+	$chunks       = explode( "\nArray", $content );
+	if ( $chunks[1] ) {
+		// re-construct the array string
+		$array = 'Array' . $chunks[1];
+		// re-construct the array
+		$rearray         = Grunion_Contact_Form_Plugin::reverse_that_print( $array, true );
+		$response_fields = is_array( $rearray ) ? $rearray : array();
+	} else {
+		// couldn't reconstruct array, use the old method
+		$content_fields  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+		$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+	}
+
+	$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
 
 	echo '<hr class="feedback_response__mobile-separator" />';
 	echo '<div class="feedback_response__item">';
 	foreach ( $response_fields as $key => $value ) {
+		if ( is_array( $value ) ) {
+			$value = implode( ', ', $value );
+		}
 		printf(
 			'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 			esc_html( preg_replace( '#^\d+_#', '', $key ) ),
@@ -1288,8 +1304,18 @@ class Grunion_Admin {
 			$sheet_data[] = $current_row;
 		}
 
-		$user_id           = (int) get_current_user_id();
-		$spreadsheet_title = sprintf( '%s - %s', __( 'Responses', 'jetpack' ), gmdate( 'Y-m-d H:i' ) );
+		$user_id = (int) get_current_user_id();
+
+		if ( ! empty( $post_data['post'] ) && $post_data['post'] !== 'all' ) {
+			$spreadsheet_title = sprintf(
+				'%1$s - %2$s',
+				$this->get_export_filename( get_the_title( (int) $post_data['post'] ) ),
+				gmdate( 'Y-m-d H:i' )
+			);
+		} else {
+			$spreadsheet_title = sprintf( '%s - %s', $this->get_export_filename(), gmdate( 'Y-m-d H:i' ) );
+		}
+
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
@@ -1455,6 +1481,27 @@ class Grunion_Admin {
 			false,
 			array( 'data-nonce-name' => $this->export_nonce_field_gdrive )
 		);
+	}
+
+	/**
+	 * Get a filename for export tasks
+	 *
+	 * @param string $source The filtered source for exported data.
+	 * @return string The filename without source nor date suffix.
+	 */
+	public function get_export_filename( $source = '' ) {
+		return $source === ''
+			? sprintf(
+				/* translators: Site title, used to craft the export filename, eg "MySite - Jetpack Form Responses" */
+				__( '%s - Jetpack Form Responses', 'jetpack' ),
+				sanitize_file_name( get_bloginfo( 'name' ) )
+			)
+			: sprintf(
+				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
+				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack' ),
+				sanitize_file_name( get_bloginfo( 'name' ) ),
+				sanitize_file_name( $source )
+			);
 	}
 }
 

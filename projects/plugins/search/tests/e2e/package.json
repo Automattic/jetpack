@@ -34,16 +34,11 @@
 		"jetpack-e2e-commons": "workspace:*"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [
-			"plugins/search",
-			"packages/search",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "search",
 		"mirrorName": "jetpack-search-plugin"
 	}

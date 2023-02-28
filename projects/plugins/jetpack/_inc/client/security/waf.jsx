@@ -7,7 +7,6 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
-import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
@@ -20,20 +19,30 @@ import { connect } from 'react-redux';
 import { getSitePlan, siteHasFeature } from 'state/site';
 import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
+import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
-import { getWafBootstrapPath, isFetchingWafSettings } from '../state/waf/reducer';
+import {
+	getAutomaticRulesAvailable,
+	getWafBootstrapPath,
+	isFetchingWafSettings,
+} from '../state/waf/reducer';
 
 export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {{jetpack_waf_ip_list: *, jetpack_waf_share_data: *}}
+	 * @returns {object}
 	 */
 	state = {
+		jetpack_waf_automatic_rules: this.props.getOptionValue( 'jetpack_waf_automatic_rules' ),
 		jetpack_waf_ip_list: this.props.getOptionValue( 'jetpack_waf_ip_list' ),
 		jetpack_waf_ip_allow_list: this.props.getOptionValue( 'jetpack_waf_ip_allow_list' ),
 		jetpack_waf_ip_block_list: this.props.getOptionValue( 'jetpack_waf_ip_block_list' ),
 		jetpack_waf_share_data: this.props.getOptionValue( 'jetpack_waf_share_data' ),
+	};
+
+	handleAutomaticRulesToggleChange = () => {
+		this.updateOptions( 'jetpack_waf_automatic_rules' );
 	};
 
 	handleIpListToggleChange = () => {
@@ -85,6 +94,32 @@ export const Waf = class extends Component {
 				>
 					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
 				</a>
+			</div>
+		);
+
+		const automaticRulesSettings = (
+			<div className="waf__settings__toggle-setting">
+				<CompactFormToggle
+					checked={
+						this.props.hasScan || this.props.automaticRulesAvailable
+							? this.state.jetpack_waf_automatic_rules
+							: false
+					}
+					disabled={
+						! isWafActive ||
+						( ! this.props.hasScan && ! this.props.automaticRulesAvailable ) ||
+						unavailableInOfflineMode ||
+						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_automatic_rules' ] )
+					}
+					onChange={ this.handleAutomaticRulesToggleChange }
+				>
+					<span className="jp-form-toggle-explanation">
+						{ __(
+							'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
+							'jetpack'
+						) }
+					</span>
+				</CompactFormToggle>
 			</div>
 		);
 
@@ -232,16 +267,28 @@ export const Waf = class extends Component {
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={
 					<>
-						{ __( 'Your site is not receiving the latest updates to Firewall rules', 'jetpack' ) }
+						{ ! this.props.automaticRulesAvailable
+							? __( 'Upgrade to enable automatic rules', 'jetpack' )
+							: __(
+									'Upgrade to keep your site secure with up-to-date firewall rules',
+									'jetpack',
+									/* dummy arg to avoid bad minification */ 0
+							  ) }
 						<InfoPopover
 							position="right"
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
 							className="waf__settings__upgrade-popover"
 						>
-							{ __(
-								'Upgrade your protection to keep your site secure from the latest malicious requests with up-to-date firewall rules.',
-								'jetpack'
-							) }
+							{ ! this.props.automaticRulesAvailable
+								? __(
+										'The free version of the firewall only allows for use of manual rules.',
+										'jetpack'
+								  )
+								: __(
+										'The free version of the firewall does not receive updates to automatic firewall rules.',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</InfoPopover>
 					</>
 				}
@@ -285,6 +332,7 @@ export const Waf = class extends Component {
 
 					{ isWafActive && (
 						<FormFieldset className="waf__settings">
+							{ automaticRulesSettings }
 							{ ipListSettings }
 							{ shareDataSettings }
 						</FormFieldset>
@@ -303,6 +351,7 @@ export default connect( state => {
 	return {
 		hasScan: siteHasFeature( state, 'scan' ),
 		bootstrapPath: getWafBootstrapPath( state ),
+		automaticRulesAvailable: getAutomaticRulesAvailable( state ),
 		isFetchingWafSettings: isFetchingWafSettings( state ),
 		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 		sitePlan,

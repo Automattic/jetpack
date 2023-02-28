@@ -113,8 +113,7 @@ const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 
 		Promise.allSettled( updates ).then( () => {
 			setIsFinishingUpdate( false );
-			setAttributes( videoData );
-			onDone();
+			onDone( videoData );
 		} );
 	};
 

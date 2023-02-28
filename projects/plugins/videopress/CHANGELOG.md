@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.0 - 2023-02-15
+### Added
+- Added connect banner to video block when required
+- Added Share and Download sections to the video details page
+- Added site default privacy in video block privacy control
+- Added manual conversion panel to video block sidebar
+- Added Preload Metadata control to the video block Playback panel
+
+### Changed
+- Updated package dependencies
+- Updated video block transform to/from embed block
+- Updated layout of video block when uploading a new file
+- Updated videos gallery rendering with page and search parameters
+- Updated chapters parser limitations
+- Updated data request of private videos
+- Updated the request handling when a user is not connected
+
+### Removed
+- Removed prompt to convert embed block to video block
+
+### Fixed
+- Fixed adding videos from the WordPress.com media library
+- Fixed minor visual issues of the video block
+- Fixed uploading video tracks for private videos
+- Fixed error when local videos cannot be read
+- Fixed block visualization for private videos
+- Fixed custom CSS classes removed issue
+
+## 1.3.0 - 2023-01-18
+### Added
+- Added Replace Control to the block
+- Added anchor support to the block
+- Added rating selector on video details edit page
+- Added "publish first video" popover
+- Added embed block transform from/to video block
+- Added "Show video sharing menu" control to VideoPress block
+- Added VideoPress shortcode
+- Added privacy to the edit details page
+
+### Changed
+- Updated no video dashboard UI
+- Updated footer of the uploader component
+- Enhanced behavior when deleting multiple videos
+- Filtered the video fields that re-render the player when changed
+
+### Removed
+- Removed src/client files from the final bundle
+- Removed video chapters block
+
+### Fixed
+- Fixed layout visual issues
+- Fixed issues when setting the video block video from the media library
+- Fixed video attributes not being cleaned when replacing a video file
+- Fixed duplicate uploads when replacing a video
+- Fixed local videos listed as VideoPress videos
+- Fixed player not rendering once file uploads
+- Fixed title and description rendering on the block
+- Fixed exception when deleting the last video of the page
+
+## 1.2.1 - 2023-01-18
+### Changed
+- Updated package dependencies.
+
 ## 1.2.0 - 2022-12-05
 ### Added
 - Added a static image for when the block acts as an example in Editor inserter.

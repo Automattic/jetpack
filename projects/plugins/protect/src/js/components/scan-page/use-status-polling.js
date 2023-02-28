@@ -35,12 +35,12 @@ const useStatusPolling = () => {
 				} )
 					.then( newStatus => {
 						if ( newStatus?.error ) {
-							throw newStatus?.errorMessage;
+							throw newStatus?.error_message;
 						}
 
 						if (
 							statusIsInProgress( newStatus?.status ) ||
-							scanIsInitializing( newStatus?.status, newStatus?.lastChecked )
+							scanIsInitializing( newStatus?.status, newStatus?.last_checked )
 						) {
 							setStatusProgress( newStatus?.current_progress );
 							pollTimeout = setTimeout( () => {

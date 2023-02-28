@@ -10,6 +10,8 @@
  *
  * @package automattic/jetpack
  **/
+
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class.json-api-date.php';
@@ -717,7 +719,7 @@ abstract class SAL_Site {
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Could be a string or int.
+			( new Status() )->is_private_site() &&
 			/**
 			 * Filter access to a specific post.
 			 *
@@ -1360,6 +1362,17 @@ abstract class SAL_Site {
 	 */
 	public function get_site_creation_flow() {
 		return get_option( 'site_creation_flow' );
+	}
+
+	/**
+	 * Whether a site has a 'site_source_slug' option set - only applicable on WordPress.com
+	 *
+	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
+	 *
+	 * @return bool
+	 */
+	public function get_site_source_slug() {
+			return get_option( 'site_source_slug' );
 	}
 
 	/**

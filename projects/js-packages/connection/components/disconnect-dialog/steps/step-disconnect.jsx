@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { Button, ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -93,7 +93,7 @@ const StepDisconnect = props => {
 	 * Show some fallback output if there are no connected plugins to show and no passed disconnect component.
 	 * This is a more generic message about disconnecting Jetpack.
 	 *
-	 * @returns {React.ElementType} - Fallback message for when there are no connected plugins or passed components to show.
+	 * @returns {React.ElementType|undefined} - Fallback message for when there are no connected plugins or passed components to show.
 	 */
 	const renderFallbackOutput = () => {
 		const hasOtherConnectedPlugins =
@@ -111,6 +111,8 @@ const StepDisconnect = props => {
 				</div>
 			);
 		}
+
+		return undefined;
 	};
 
 	return (
@@ -127,7 +129,7 @@ const StepDisconnect = props => {
 
 			<div className="jp-connection__disconnect-dialog__actions">
 				<div className="jp-row">
-					<div className="lg-col-span-7 md-col-span-8 sm-col-span-4">
+					<div className="lg-col-span-8 md-col-span-9 sm-col-span-4">
 						<p>
 							{ createInterpolateElement(
 								__(
@@ -137,21 +139,17 @@ const StepDisconnect = props => {
 								{
 									strong: <strong></strong>,
 									jpConnectionInfoLink: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl(
 												'why-the-wordpress-com-connection-is-important-for-jetpack'
 											) }
-											rel="noopener noreferrer"
-											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
 											onClick={ trackLearnClick }
 										/>
 									),
 									jpSupportLink: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-support' ) }
-											rel="noopener noreferrer"
-											target="_blank"
 											className="jp-connection__disconnect-dialog__link"
 											onClick={ trackSupportClick }
 										/>
@@ -160,7 +158,7 @@ const StepDisconnect = props => {
 							) }
 						</p>
 					</div>
-					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-5 md-col-span-8 sm-col-span-4">
+					<div className="jp-connection__disconnect-dialog__button-wrap lg-col-span-4 md-col-span-7 sm-col-span-4">
 						<Button
 							variant="primary"
 							disabled={ isDisconnecting }

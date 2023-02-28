@@ -5,18 +5,22 @@ import { __ } from '@wordpress/i18n';
 import { Icon, help } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useState, useCallback } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import useWafData from '../../hooks/use-waf-data';
-import { JETPACK_SCAN } from '../admin-page';
 import styles from './styles.module.scss';
 
 const UpgradePrompt = () => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const firewallUrl = adminUrl + '#/firewall';
 
+	const {
+		config: { automaticRulesAvailable },
+	} = useWafData();
+
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: firewallUrl,
 	} );
 
@@ -36,7 +40,15 @@ const UpgradePrompt = () => {
 	return (
 		<>
 			<div className={ styles[ 'manual-rules-notice' ] }>
-				<Text weight={ 600 }>{ __( 'Only manual rules will be applied', 'jetpack-protect' ) }</Text>
+				<Text weight={ 600 }>
+					{ ! automaticRulesAvailable
+						? __( 'Only manual rules will be applied', 'jetpack-protect' )
+						: __(
+								'Your site is not receiving the latest updates to automatic rules.',
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</Text>
 				<div
 					className={ styles[ 'icon-popover' ] }
 					onMouseLeave={ handleOut }
@@ -50,42 +62,40 @@ const UpgradePrompt = () => {
 					{ showPopover && (
 						<Popover noArrow={ false } offset={ 5 }>
 							<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-								{ __(
-									'The free version of the firewall only allows for use of manual rules.',
-									'jetpack-protect'
-								) }
+								{ ! automaticRulesAvailable
+									? __(
+											'The free version of the firewall only allows for use of manual rules.',
+											'jetpack-protect'
+									  )
+									: __(
+											'The free version of the firewall does not receive updates to automatic firewall rules.',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</Text>
 						</Popover>
 					) }
 				</div>
 			</div>
 			<Button onClick={ getScan }>
-				{ __( 'Upgrade to enable automatic rules', 'jetpack-protect' ) }
+				{ ! automaticRulesAvailable
+					? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+					: __(
+							'Upgrade to update automatic rules',
+							'jetpack-protect',
+							/* dummy arg to avoid bad minification */ 0
+					  ) }
 			</Button>
 		</>
 	);
 };
 
-const CurrentlyEnabledFeatures = ( { manualRulesEnabled, status } ) => {
-	let enabledFeatures = '';
-
-	if ( status === 'on' ) {
-		enabledFeatures = manualRulesEnabled
-			? __( 'Automatic and manual rules are currently active.', 'jetpack-protect' )
-			: __(
-					'Automatic rules are currently active.',
-					'jetpack-protect',
-					/* dummy arg to avoid bad minification */ 0
-			  );
-	}
-	if ( status === 'off' ) {
-		enabledFeatures = __( 'Automatic and manual rules are available.', 'jetpack-protect' );
-	}
-
-	return <Text weight={ 600 }>{ enabledFeatures }</Text>;
-};
-
-const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
+const FirewallHeader = ( {
+	status,
+	hasRequiredPlan,
+	automaticRulesEnabled,
+	automaticRulesAvailable,
+} ) => {
 	return (
 		<AdminSectionHero>
 			<Container
@@ -100,22 +110,15 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 								{ __( 'Active', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 1 } mt={ 2 }>
-								{ hasRequiredPlan
+								{ automaticRulesEnabled
 									? __( 'Automatic firewall is on', 'jetpack-protect' )
 									: __(
-											'Jetpack firewall is on',
+											'Firewall is on',
 											'jetpack-protect',
 											/* dummy arg to avoid bad minification */ 0
 									  ) }
 							</H3>
-							{ hasRequiredPlan ? (
-								<CurrentlyEnabledFeatures
-									status={ status }
-									manualRulesEnabled={ config?.jetpackWafIpList }
-								/>
-							) : (
-								<UpgradePrompt />
-							) }
+							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'off' === status && (
@@ -124,16 +127,15 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 								{ __( 'Inactive', 'jetpack-protect' ) }
 							</Text>
 							<H3 className={ styles[ 'firewall-heading' ] } mb={ 2 } mt={ 2 }>
-								{ __( 'Automatic firewall is off', 'jetpack-protect' ) }
+								{ automaticRulesAvailable
+									? __( 'Automatic firewall is off', 'jetpack-protect' )
+									: __(
+											'Firewall is off',
+											'jetpack-protect',
+											/* dummy arg to avoid bad minification */ 0
+									  ) }
 							</H3>
-							{ hasRequiredPlan ? (
-								<CurrentlyEnabledFeatures
-									status={ status }
-									manualRulesEnabled={ config?.jetpackWafIpList }
-								/>
-							) : (
-								<UpgradePrompt />
-							) }
+							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'loading' === status && (
@@ -157,17 +159,23 @@ const FirewallHeader = ( { config, status, hasRequiredPlan } ) => {
 };
 
 const ConnectedFirewallHeader = () => {
-	const { isEnabled, config } = useWafData();
+	const {
+		config: { jetpackWafAutomaticRules, jetpackWafIpList, automaticRulesAvailable },
+		isToggling,
+	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
+	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
 
-	// To Do: Add loading status
 	return (
 		<FirewallHeader
-			status={ isEnabled ? 'on' : 'off' }
+			status={ isToggling ? 'loading' : currentStatus }
 			hasRequiredPlan={ hasRequiredPlan }
-			config={ config }
+			automaticRulesEnabled={ jetpackWafAutomaticRules }
+			automaticRulesAvailable={ automaticRulesAvailable }
 		/>
 	);
 };
+
+export { FirewallHeader };
 
 export default ConnectedFirewallHeader;

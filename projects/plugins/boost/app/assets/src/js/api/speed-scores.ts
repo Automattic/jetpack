@@ -184,7 +184,7 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 /**
  * Determine the change in scores to pass through to other functions.
  *
- * @param  scores
+ * @param scores
  * @return percentage
  */
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {

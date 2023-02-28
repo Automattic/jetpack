@@ -181,7 +181,7 @@ export function mapFilterKeyToFilter( filterKey ) {
  * Returns the type of the inputted filter object.
  *
  * @param {object} filter - filter key string to be mapped.
- * @returns {string} output
+ * @returns {string|undefined} output
  */
 export function mapFilterToType( filter ) {
 	if ( filter.type === 'date_histogram' ) {
@@ -197,4 +197,5 @@ export function mapFilterToType( filter ) {
 	} else if ( filter.type === 'group' ) {
 		return 'group';
 	}
+	return undefined;
 }

@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.0] - 2023-02-20
+### Added
+- Adds a "show post date" selector to Search customberg, allows non-multisite sites to show the post date in the "expanded" search result format. [#28918]
+
+### Fixed
+- Fixed unit tests without internet [#28985]
+- Separated authors by comments if there are multiple authors in a search result [#28975]
+
+## [0.32.0] - 2023-02-15
+### Added
+- Search: Adds assigned post categories as classnames to search results [#28816]
+
+### Changed
+- Update to React 18. [#28710]
+
+## [0.31.7] - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## [0.31.6] - 2023-01-30
+### Changed
+- Increased Jetpack Search filters caching from one hour to four hours [#28632]
+
+## [0.31.5] - 2023-01-26
+### Changed
+- Minor internal updates.
+
+## [0.31.4] - 2023-01-23
+### Changed
+- Start using utilities from Status package to detect whether a site is private or "coming-soon" (unlaunched). [#28328]
+
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+
 ## [0.31.3] - 2023-01-11
 ### Changed
 - Updated package dependencies.
@@ -636,6 +670,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.33.0]: https://github.com/Automattic/jetpack-search/compare/v0.32.0...v0.33.0
+[0.32.0]: https://github.com/Automattic/jetpack-search/compare/v0.31.7...v0.32.0
+[0.31.7]: https://github.com/Automattic/jetpack-search/compare/v0.31.6...v0.31.7
+[0.31.6]: https://github.com/Automattic/jetpack-search/compare/v0.31.5...v0.31.6
+[0.31.5]: https://github.com/Automattic/jetpack-search/compare/v0.31.4...v0.31.5
+[0.31.4]: https://github.com/Automattic/jetpack-search/compare/v0.31.3...v0.31.4
 [0.31.3]: https://github.com/Automattic/jetpack-search/compare/v0.31.2...v0.31.3
 [0.31.2]: https://github.com/Automattic/jetpack-search/compare/v0.31.1...v0.31.2
 [0.31.1]: https://github.com/Automattic/jetpack-search/compare/v0.31.0...v0.31.1

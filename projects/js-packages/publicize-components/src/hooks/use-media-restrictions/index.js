@@ -1,13 +1,10 @@
 import { useCallback, useMemo } from 'react';
-import { RESTRICTIONS } from './restrictions';
+import { DEFAULT_RESTRICTIONS, RESTRICTIONS, GLOBAL_MAX_SIZE } from './restrictions';
 
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
-export const VIDEO_LENGTH_ERROR = 'VIDEO_LENGTH_ERROR';
-
-// Global max size: 100 GB;
-const GLOBAL_MAX_SIZE = 100000;
-
+export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
+export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
 /**
  * Checks whether a media is a video.
  *
@@ -30,13 +27,12 @@ const reduceVideoLimits = ( prev, current ) => ( {
 
 const getVideoLimits = enabledConnections =>
 	enabledConnections
-		.map( connection => RESTRICTIONS[ connection.service_name ].video )
-		.reduce( reduceVideoLimits, {
-			minSize: 0,
-			maxSize: GLOBAL_MAX_SIZE,
-			maxLength: GLOBAL_MAX_SIZE,
-			minLength: 0,
-		} );
+		.map( connection =>
+			RESTRICTIONS[ connection.service_name ]
+				? RESTRICTIONS[ connection.service_name ].video
+				: DEFAULT_RESTRICTIONS.video
+		)
+		.reduce( reduceVideoLimits );
 
 /**
  * Returns the currently allowed media types
@@ -45,12 +41,16 @@ const getVideoLimits = enabledConnections =>
  * @returns {Array} Array of allowed types
  */
 export const getAllowedMediaTypes = enabledConnections => {
-	const typeArrays = enabledConnections.map(
-		connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+	const typeArrays = enabledConnections.map( connection =>
+		RESTRICTIONS[ connection.service_name ]
+			? RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+			: DEFAULT_RESTRICTIONS.allowedMediaTypes
 	);
+
 	if ( typeArrays.length === 0 ) {
 		return [];
 	}
+
 	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
 };
 
@@ -62,7 +62,11 @@ export const getAllowedMediaTypes = enabledConnections => {
  */
 export default function useMediaRestrictions( enabledConnections ) {
 	const maxImageSize = Math.min(
-		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].image.maxSize )
+		...enabledConnections.map( connection =>
+			RESTRICTIONS[ connection.service_name ]
+				? RESTRICTIONS[ connection.service_name ].image.maxSize
+				: DEFAULT_RESTRICTIONS.image.maxSize
+		)
 	);
 
 	const [ videoLimits, allowedMediaTypes ] = useMemo(
@@ -92,7 +96,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 *
 	 * @param {number} sizeInMb - The fileSize in bytes.
 	 * @param {number} length - Video length in seconds and.
-	 * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 * @returns {(FILE_SIZE_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR)} Returns validation error.
 	 */
 	const getVideoValidationError = useCallback(
 		( sizeInMb, length ) => {
@@ -102,8 +106,12 @@ export default function useMediaRestrictions( enabledConnections ) {
 				return FILE_SIZE_ERROR;
 			}
 
-			if ( ! length || length > maxLength || length < minLength ) {
-				return VIDEO_LENGTH_ERROR;
+			if ( ! length || length < minLength ) {
+				return VIDEO_LENGTH_TOO_SHORT_ERROR;
+			}
+
+			if ( length > maxLength ) {
+				return VIDEO_LENGTH_TOO_LONG_ERROR;
 			}
 
 			return null;
@@ -115,7 +123,7 @@ export default function useMediaRestrictions( enabledConnections ) {
 	 * Checks whether the media with the provided metaData is valid. It can validate images or videos.
 	 *
 	 * @param {number} metaData - Data for media.
-	 * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_ERROR)} Returns validation error.
+	 * @returns {(FILE_SIZE_ERROR | FILE_TYPE_ERROR | VIDEO_LENGTH_TOO_SHORT_ERROR | VIDEO_LENGTH_TOO_LONG_ERROR)} Returns validation error.
 	 */
 	const getValidationError = useCallback(
 		metaData => {

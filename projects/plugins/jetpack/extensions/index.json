@@ -42,12 +42,14 @@
 		"wordads",
 		"payments-intro",
 		"post-publish-qr-post-panel",
-		"payment-buttons"
+		"payment-buttons",
+		"site-editor-snackbars"
 	],
 	"beta": [
-		"ai-image",
-		"ai-paragraph",
 		"amazon",
+		"blogging-prompt",
+		"conversation",
+		"dialogue",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
@@ -56,11 +58,11 @@
 		"videopress/video-chapters"
 	],
 	"experimental": [
+		"ai-image",
+		"ai-paragraph",
 		"anchor-fm",
 		"blogging-prompts",
-		"premium-content",
-		"conversation",
-		"dialogue"
+		"premium-content"
 	],
 	"no-post-editor": [
 		"business-hours",

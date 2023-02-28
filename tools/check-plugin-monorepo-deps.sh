@@ -103,6 +103,7 @@ for PLUGIN in "${PLUGINS[@]}"; do
 
 	# Check lock file versions
 	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked[] | select( $packages[.name] ) | [ .name, .version, $packages[.name].rel ] | @tsv')"
+	[[ -n "$TMP" ]] || continue
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
 		if [[ "$WHAT" == "dev" ]]; then
 			if [[ "$LOCKVER" != "dev-trunk" ]]; then

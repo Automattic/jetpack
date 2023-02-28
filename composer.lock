@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "184fb6765b72e0f2538a2680d510e794",
+    "content-hash": "fbfdcee87a9b0532a84c3dc7fbfc6e9f",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "a70b0aab252faa30c07064b7c076ead119064127"
+                "reference": "31f201510fb6b93e6dc48d090104ecb02ab14eed"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -40,9 +40,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -61,7 +58,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "fa645eb94c212a4b8b636ecc6c7a9503b4c1a521"
+                "reference": "5ab1c381b42d86c04a07d55d196bc8789d2842bb"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -99,9 +96,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "skip-test-php": [
                     "./tests/action-skip-test-php.sh"
                 ],
@@ -123,7 +117,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "c7e65316a187ec27a41f994a55c420e5ef98719c"
+                "reference": "aa4cad3c64e699db37405b2528bc2f9dce1f7519"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -147,9 +141,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -736,16 +727,16 @@
         },
         {
             "name": "phpcsstandards/phpcsextra",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSExtra.git",
-                "reference": "0f55c12dc6a81c7728794b01a4aea44f11c83991"
+                "reference": "a077c4ad65b906768ed2f820701958b57f605be0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSExtra/zipball/0f55c12dc6a81c7728794b01a4aea44f11c83991",
-                "reference": "0f55c12dc6a81c7728794b01a4aea44f11c83991",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSExtra/zipball/a077c4ad65b906768ed2f820701958b57f605be0",
+                "reference": "a077c4ad65b906768ed2f820701958b57f605be0",
                 "shasum": ""
             },
             "require": {
@@ -795,7 +786,7 @@
                 "issues": "https://github.com/PHPCSStandards/PHPCSExtra/issues",
                 "source": "https://github.com/PHPCSStandards/PHPCSExtra"
             },
-            "time": "2023-01-05T12:35:58+00:00"
+            "time": "2023-01-09T22:15:31+00:00"
         },
         {
             "name": "phpcsstandards/phpcsutils",
@@ -873,16 +864,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.10.0",
+            "version": "v2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "ba049e6f7da40d64056f7b6c4078e87f0f292d6b"
+                "reference": "a5c3be6ec84395b168e7deadf8b167e50449e7a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/ba049e6f7da40d64056f7b6c4078e87f0f292d6b",
-                "reference": "ba049e6f7da40d64056f7b6c4078e87f0f292d6b",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/a5c3be6ec84395b168e7deadf8b167e50449e7a3",
+                "reference": "a5c3be6ec84395b168e7deadf8b167e50449e7a3",
                 "shasum": ""
             },
             "require": {
@@ -890,9 +881,8 @@
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.1",
-                "phpstan/phpstan": "^0.12.33",
+                "phpstan/phpstan": "1.4.10 || ^1.7",
                 "phpunit/phpunit": "^6.4 || ^9.5",
-                "sirbrillig/phpcs-import-detection": "^1.1.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.1.3",
                 "squizlabs/php_codesniffer": "^3.2.1"
             },
@@ -924,9 +914,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.10.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.10.1"
             },
-            "time": "2022-03-09T18:16:50+00:00"
+            "time": "2023-01-25T17:08:01+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

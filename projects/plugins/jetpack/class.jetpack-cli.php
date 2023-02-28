@@ -2097,8 +2097,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			if ( 'beta' === $variation || 'experimental' === $variation ) {
 				$block_constant = sprintf(
 					/* translators: the placeholder is a constant name */
-					esc_html__( 'To load the block, add the constant %1$s as true to your wp-config.php file', 'jetpack' ),
-					( 'beta' === $variation ? 'JETPACK_BETA_BLOCKS' : 'JETPACK_EXPERIMENTAL_BLOCKS' )
+					esc_html__( 'To load the block, add the constant JETPACK_BLOCKS_VARIATION set to %1$s to your wp-config.php file', 'jetpack' ),
+					$variation
 				);
 			} else {
 				$block_constant = '';

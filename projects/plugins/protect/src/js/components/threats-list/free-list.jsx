@@ -2,8 +2,8 @@ import { Text, Button, ContextualUpgradeTrigger } from '@automattic/jetpack-comp
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
-import { JETPACK_SCAN } from '../admin-page';
 import FreeAccordion, { FreeAccordionItem } from '../free-accordion';
 import styles from './styles.module.scss';
 
@@ -22,7 +22,7 @@ const ThreatAccordionItem = ( {
 } ) => {
 	const { adminUrl } = window.jetpackProtectInitialState || {};
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
 	} );
 

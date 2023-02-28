@@ -3,13 +3,26 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
+import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
 import getMediaToken from '../../../lib/get-media-token';
+import { MediaTokenProps } from '../../../lib/get-media-token/types';
 /**
  * Types
  */
-import { WPCOMRestAPIVideosGetEndpointResponseProps } from '../../../types';
+import {
+	WPCOMRestAPIVideosGetEndpointRequestArguments,
+	WPCOMRestAPIVideosGetEndpointResponseProps,
+} from '../../../types';
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
+const debug = debugFactory( 'videopress:video:use-video-data' );
+
+const isUserConnected = getIsUserConnected();
 /**
  * React hook to fetch the video data from the media library.
  *
@@ -19,23 +32,53 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 export default function useVideoData( {
 	id,
 	guid,
+	skipRatingControl = false,
+	maybeIsPrivate = false,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
+		if ( ! isUserConnected ) {
+			debug( 'User is not connected' );
+			return;
+		}
+
+		let gettingTokenAttempt = 0;
+
 		/**
 		 * Fetches the video videoData from the API.
+		 *
+		 * @param {string} token - The token to use in the request.
 		 */
-		async function fetchVideoItem() {
+		async function fetchVideoItem( token: string | null = null ) {
 			try {
-				const tokenData = await getMediaToken( 'playback', { id, guid } );
-				const params = tokenData?.token
-					? `?${ new URLSearchParams( { metadata_token: tokenData.token } ).toString() }`
+				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
+
+				// Try to anticipate the video privacy, based on the block attributes.
+				let tokenData: MediaTokenProps;
+				if ( maybeIsPrivate ) {
+					tokenData = await getMediaToken( 'playback', { guid } );
+				}
+
+				// Add the token to the request if it exists.
+				if ( token || tokenData?.token ) {
+					params.metadata_token = token || tokenData.token;
+				}
+
+				// Add the birthdate to skip the rating check if it's required.
+				if ( skipRatingControl ) {
+					params.birth_day = '1';
+					params.birth_month = '1';
+					params.birth_year = '2000';
+				}
+
+				const requestArgs = Object.keys( params ).length
+					? `?${ new URLSearchParams( params ).toString() }`
 					: '';
 
 				const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ params }`,
+					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
 					credentials: 'omit',
 					global: true,
 				} );
@@ -49,18 +92,42 @@ export default function useVideoData( {
 					allow_download: response.allow_download,
 					post_id: response.post_id,
 					guid: response.guid,
-					title: response.title,
-					description: response.description,
+					title: decodeEntities( response.title ),
+					description: decodeEntities( response.description ),
 					display_embed: response.display_embed,
 					privacy_setting: response.privacy_setting,
 					rating: response.rating,
 					filename,
 					tracks: response.tracks,
 					is_private: response.is_private,
+					private_enabled_for_site: response.private_enabled_for_site,
 				} );
-			} catch ( error ) {
+			} catch ( errorData ) {
+				/*
+				 * When the request fails because of an authentication error,
+				 * try to get a new token and retry the request.
+				 */
+				if ( errorData?.error === 'auth' ) {
+					gettingTokenAttempt++;
+					debug( 'Authenticating error. Reattempt %o', gettingTokenAttempt + '/3' );
+					if ( gettingTokenAttempt > 2 ) {
+						debug( 'Too many attempts to get token. Aborting.' );
+						setIsRequestingVideoData( false );
+						throw new Error( errorData?.message ?? errorData );
+					}
+
+					const tokenData = await getMediaToken( 'playback', { guid, flushToken: true } );
+					if ( ! tokenData?.token ) {
+						debug( 'Token is missing. Aborting.' );
+						setIsRequestingVideoData( false );
+						return;
+					}
+
+					return fetchVideoItem( tokenData.token );
+				}
+
 				setIsRequestingVideoData( false );
-				throw new Error( error?.message ?? error );
+				throw new Error( errorData?.message ?? errorData );
 			}
 		}
 

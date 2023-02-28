@@ -1,56 +1,44 @@
-## Jetpack 11.7
+## Jetpack 11.9
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Blaze
-
-There have been some behind the scenes changes to Blaze (including renaming, and moving it into it's own package), as well as feature additions. To test:
-
-- Make sure your site is connected to Jetpack and your WordPress.com account is connected. Make sure the site is public.
-- On WoA (not Jetpack self-hosted): Publish a new post (or unpublish then republish a post). Notice the post-publish sidebar - it should show a 'Blaze your post' message and button saying 'Blaze'.
-- On a Jetpack test site (not WoA): Hover over a post in the posts list (wp-admin/edit.php), and you should see a "promote" link. Clicking it should take you to Blaze page.
-
 ### Form Block
 
-The Form Block received several updates and bug fixes in this version. To test:
+The Form block received several updates, to test:
 
-- On a Jetpack-connected test site, add a Form block. While in the form variation picker, you should see the Salesforce Lead form available.
-- Make form fields required and check if the "(required)" text can be changed.
-- Add other fields to the form, and check if those fields allow 'empty' labels.
-- Save the changes and check if they are applied to the live view.
-- On the front-end after adding a Form block, submit a test email, then view the email received in plain text to make sure there are now line breaks. In HTML it should also be properly formatted.
-- There have been various other minor UI changes, so make sure that the general Form block user flow and labels / icons appear as they should.
+- Create a new test post and add a Form block (contact form template will work).
+- Add a 'Multiple Choice (checkbox)' field with a few options to select from.
+- Add a 'Text Input Field' with some dummy 'Placeholder Text' in the sidebar settings. Then change the border-radius for the text field to a large value.
+	- While editing or viewing the form on the frontend, the placeholder text should remain visible even with a large border-radius set.
+- While still having the text input field selected, make sure the 'Sync fields style' is enabled. Then, change the background color or other style settings from the sidebar.
+- Add an additional text input field. This new field should retain the same style settings previously applied from the other text field.
+- On the frontend in a new private/guest browser window, submit a test form submission.
+	- You may notice the form having a brief blur while while it is loading, this is expected.
+- Check the form responses in 'Feedback > Form Responses' for the test submission. Make sure that the output looks ok and that you don't see an 'Array()' wrapped around the multiple choice checkbox field data.
 
-#### Form Responses
+Related PRs: [28815](https://github.com/Automattic/jetpack/pull/28815), [28988](https://github.com/Automattic/jetpack/pull/28988), [28820](https://github.com/Automattic/jetpack/pull/28820), [28973](https://github.com/Automattic/jetpack/pull/28973)
 
-As well as changes to the Form block, there is now an option to export form responses to Google Sheets. To test:
+### Sharing Buttons
 
-- On a Jetpack-connected test site, make sure you have some contact form responses on your test site (showing in the Feedback area in wp-admin).
-- From that Feedback area, you should see a single "Export" button. Click it to open the Export modal.
-- From the Export modal, use either option to download a CSV file or export to Google Sheets.
-- If you didn't successfully connect to Google Drive, the Export button should read "Connect Google Drive").
+The Sharing buttons also received updates in this version, to test:
 
-### Revue Block
+- Verify that the sharing buttons are enabled in 'Jetpack > Settings > Sharing'.
+- Click on the 'Configure your sharing buttons' link.
+- Add some different sharing buttons including the new Mastadon button. Save those changes.
+- Have at least one blog post published, then visit a post on the frontend.
+- Make sure the sharing buttons are displayed as expected.
+	- Be sure to test the sharing buttons displayed on the frontend in a variety of different browsers and screen sizes.
+	- If you aren't seeing any sharing buttons at all, try disabling any adblock extensions.
+- Activate the 'Twenty Nineteen' theme on your site and check the sharing buttons on the frontend again, they should look the same.
+- Test additional sharing button settings such as 'official buttons' versus 'icon only' for example.
 
-The Revue newsletter service is shutting down on 18th January, so as part of preparing for that the Revue block is now no longer discoverable. Existing instances of the Revue block will show a message leading to our WordPress.com article explaining more about the shut-down and how to migrate subcribers to WordPress.com (there is no Jetpack specific article at this time). To test:
-
-- On a Jetpack-connected test site, it is possible to test the Revue block notice on the back and front end by adding the following markup to a post/page: `<!-- wp:jetpack/revue --> <div class="wp-block-jetpack-revue"><a class="wp-block-jetpack-revue__fallback" href="https://www.getrevue.co/profile/undefined">https://www.getrevue.co/profile/undefined</a></div> <!-- /wp:jetpack/revue -->`.
-- The editor should now show a message and link related to Revue shutting down, suggesting the block should be removed and adding a CTA to migrate subscribers via WordPress.com.
-- On the front-end, if you are logged in as an admin you should see an info notice with similar messaging. View the same post / page whilst not logged in or not as an admin and you shouldn't see that notice.
-- Search for the Revue block to add to a post / page - it shouldn't be visible.
-
-### Subscription Block
-
-The Subscription Block received several updates and bug fixes in this version. To test:
-- On a Jetpack-connected test site, add a Subscription block. Make sure subscribing is enabled first, via Jetpack -> Settings -> Discussion.
-- In the block settings sidebar, under Settings, there should be a toggle to include social followers in the count. Make sure the follower amounts match the subscribers and connected social followers, if there are any.
-- If you have a social network connected via the WordPress.com dashboard at Tools -> Marketing -> Connections, you can also test the social followers are included when publishing if the toggle is enabled.
+Related PRs: [28874](https://github.com/Automattic/jetpack/pull/28874), [28694](https://github.com/Automattic/jetpack/pull/28694)
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.6/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.9/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

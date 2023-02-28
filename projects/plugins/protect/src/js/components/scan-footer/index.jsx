@@ -8,9 +8,9 @@ import {
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
+import { JETPACK_SCAN_SLUG } from '../../constants';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
-import { JETPACK_SCAN } from '../admin-page';
 import SeventyFiveLayout from '../seventy-five-layout';
 import styles from './styles.module.scss';
 
@@ -18,7 +18,7 @@ const ProductPromotion = () => {
 	const { adminUrl, siteSuffix } = window.jetpackProtectInitialState || {};
 
 	const { run } = useProductCheckoutWorkflow( {
-		productSlug: JETPACK_SCAN,
+		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: adminUrl,
 	} );
 

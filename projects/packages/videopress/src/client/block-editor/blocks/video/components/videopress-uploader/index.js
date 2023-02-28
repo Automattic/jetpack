@@ -101,16 +101,15 @@ const VideoPressUploader = ( {
 	 */
 	function onSelectURL( videoSource, id ) {
 		// If the video source is a VideoPress URL, we can use it directly.
-		const videoUrlData = buildVideoPressURL( videoSource );
-		if ( ! videoUrlData ) {
+		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+		if ( ! guidFromSource ) {
 			setUploadErrorDataState( {
 				data: { message: __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) },
 			} );
 			return;
 		}
 
-		setAttributes( { guid: videoUrlData.guid, src: videoUrlData.url, id } );
-		handleDoneUpload();
+		handleDoneUpload( { guid: guidFromSource, src: srcFromSource, id } );
 	}
 
 	const startUpload = file => {
@@ -185,8 +184,7 @@ const VideoPressUploader = ( {
 				? media.videopress_guid[ 0 ] // <- pick the first item when it's an array
 				: media.videopress_guid;
 
-			const videoUrl = `https://videopress.com/v/${ videoGuid }`;
-			onSelectURL( videoUrl, media?.id );
+			onSelectURL( videoGuid, media?.id );
 			return;
 		}
 
@@ -207,8 +205,7 @@ const VideoPressUploader = ( {
 						setIsUploadingInProgress( true );
 						startUploadFromLibrary( media.id );
 					} else if ( 'uploaded' === result.status ) {
-						const videoUrl = `https://videopress.com/v/${ result.uploaded_video_guid }`;
-						onSelectURL( videoUrl );
+						onSelectURL( result.uploaded_video_guid );
 					} else {
 						setUploadErrorDataState( {
 							data: {

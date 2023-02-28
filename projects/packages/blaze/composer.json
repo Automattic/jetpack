@@ -11,7 +11,6 @@
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/jetpack-status": "@dev",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
@@ -22,9 +21,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -60,7 +56,7 @@
 			"link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.3.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"textdomain": "jetpack-blaze",
 		"version-constants": {

@@ -257,6 +257,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 		add_submenu_page( $slug, esc_attr__( 'Security', 'jetpack' ), __( 'Security', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/security/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Performance', 'jetpack' ), __( 'Performance', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/performance/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Writing', 'jetpack' ), __( 'Writing', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/writing/' . $this->domain );
+		add_submenu_page( $slug, esc_attr__( 'Reading', 'jetpack' ), __( 'Reading', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/reading/' . $this->domain );
 		add_submenu_page( $slug, esc_attr__( 'Discussion', 'jetpack' ), __( 'Discussion', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/discussion/' . $this->domain );
 
 		$plan_supports_scan = \Jetpack_Plan::supports( 'scan' );

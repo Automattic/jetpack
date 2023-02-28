@@ -56,7 +56,7 @@ async function hasManySupportReferences( issueComments ) {
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {Object} Object containing the slack message and its formatting.
+ * @returns {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;

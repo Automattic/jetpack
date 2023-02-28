@@ -4,7 +4,7 @@ Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, 
 
 Requires at least: 6.0
 Tested up to: 6.1
-Stable tag: 1.2.0
+Stable tag: 1.4.0
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,22 +73,31 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.2.0 - 2022-12-05
+### 1.4.0 - 2023-02-15
 #### Added
-- Added a static image for when the block acts as an example in Editor inserter.
-- Added example image to the dynamic colors panel.
-- Implemented tracks control implementation.
+- Added connect banner to video block when required
+- Added Share and Download sections to the video details page
+- Added site default privacy in video block privacy control
+- Added manual conversion panel to video block sidebar
+- Added Preload Metadata control to the video block Playback panel
 
 #### Changed
-- Updated tracks icon.
-- We now include videos with Site Default privacy setting on the search results.
+- Updated package dependencies
+- Updated video block transform to/from embed block
+- Updated layout of video block when uploading a new file
+- Updated videos gallery rendering with page and search parameters
+- Updated chapters parser limitations
+- Updated data request of private videos
+- Updated the request handling when a user is not connected
 
 #### Removed
-- Removeed caption field from edit page.
+- Removed prompt to convert embed block to video block
 
 #### Fixed
-- Fixed handling of chapters edition which previously overwrote existing video track file.
-- Fixed issue where video meta could not be saved on a WP.com simple site.
-- Fixed the thumbnail selection to allow selecting the last frame of the video.
-- Fixed video block conversion from core/video.
+- Fixed adding videos from the WordPress.com media library
+- Fixed minor visual issues of the video block
+- Fixed uploading video tracks for private videos
+- Fixed error when local videos cannot be read
+- Fixed block visualization for private videos
+- Fixed custom CSS classes removed issue
 

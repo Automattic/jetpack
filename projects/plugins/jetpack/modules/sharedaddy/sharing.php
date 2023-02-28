@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Status;
 
 if ( ! defined( 'WP_SHARING_PLUGIN_URL' ) ) {
 	define( 'WP_SHARING_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -400,7 +401,7 @@ class Sharing_Admin {
 							<?php endforeach; ?>
 						</ul>
 						<?php
-						if ( -1 === get_option( 'blog_public' ) ) {
+						if ( ( new Status() )->is_private_site() ) {
 							echo '<p><strong>' . esc_html__( 'Please note that your services have been restricted because your site is private.', 'jetpack' ) . '</strong></p>';
 						}
 						?>

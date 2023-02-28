@@ -6,6 +6,7 @@
  */
 const MP4 = 'video/mp4';
 const MOV = 'video/mov';
+const VIDEOPRESS = 'video/videopress';
 const allowedImageTypes = [ 'image/jpeg', 'image/jpg', 'image/png' ];
 const facebookImageTypes = allowedImageTypes.concat( [
 	'image/gif',
@@ -45,10 +46,34 @@ const facebookVideoTypes = [
 	'video/vob',
 	'video/wmv',
 ];
+const mastodonImageTypes = allowedImageTypes.concat( [
+	'image/gif',
+	'image/heic',
+	'image/heif',
+	'image/webp',
+	'image/avif',
+] );
+const mastodonVideoTypes = [ 'video/webm', 'video/quicktime', 'video/ogg' ];
+
+// Global max size: 100 GB;
+export const GLOBAL_MAX_SIZE = 100000;
+
+export const DEFAULT_RESTRICTIONS = {
+	allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS, MOV ] ),
+	image: {
+		maxSize: 4,
+	},
+	video: {
+		minLength: 0,
+		minSize: 0,
+		maxSize: GLOBAL_MAX_SIZE,
+		maxLength: GLOBAL_MAX_SIZE,
+	},
+};
 
 export const RESTRICTIONS = {
 	twitter: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 5,
 		},
@@ -58,7 +83,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	facebook: {
-		allowedMediaTypes: facebookImageTypes.concat( facebookVideoTypes ),
+		allowedMediaTypes: facebookImageTypes.concat( [ VIDEOPRESS, ...facebookVideoTypes ] ),
 		image: {
 			maxSize: 4,
 		},
@@ -68,7 +93,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	tumblr: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, MOV, VIDEOPRESS ] ),
 		image: {
 			maxSize: 20,
 		},
@@ -78,7 +103,7 @@ export const RESTRICTIONS = {
 		},
 	},
 	linkedin: {
-		allowedMediaTypes: allowedImageTypes.concat( [ MP4 ] ),
+		allowedMediaTypes: allowedImageTypes.concat( [ MP4, VIDEOPRESS ] ),
 		image: {
 			maxSize: 20,
 		},
@@ -87,6 +112,15 @@ export const RESTRICTIONS = {
 			maxSize: 200,
 			maxLength: 600,
 			minLength: 3,
+		},
+	},
+	mastodon: {
+		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
+		image: {
+			maxSize: 10,
+		},
+		video: {
+			maxSize: 40,
 		},
 	},
 };

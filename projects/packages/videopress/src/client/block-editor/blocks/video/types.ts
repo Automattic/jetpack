@@ -53,6 +53,23 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	rating?: string;
 
 	isPrivate?: boolean;
+
+	// CSS classes
+	className?: string;
+};
+
+export type CoreEmbedBlockAttributes = {
+	className: string;
+	allowResponsive: boolean;
+	providerNameSlug: string;
+	responsive: boolean;
+	type: string;
+	url: string;
+};
+
+export type CoreEmbedVideoPressVariationBlockAttributes = CoreEmbedBlockAttributes & {
+	providerNameSlug: 'videopress';
+	type: 'video';
 };
 
 export type VideoBlockSetAttributesProps = ( attributes: VideoBlockAttributes ) => void;
@@ -66,6 +83,8 @@ export type VideoControlProps = {
 	setAttributes: VideoBlockSetAttributesProps;
 
 	clientId?: string;
+
+	privateEnabledForSite?: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;

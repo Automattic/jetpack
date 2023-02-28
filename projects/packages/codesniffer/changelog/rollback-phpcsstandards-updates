@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Rolled back a dependency update that caused breaking changes in Jetpack trunk.

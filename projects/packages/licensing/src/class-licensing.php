@@ -283,4 +283,77 @@ class Licensing {
 
 		return $default;
 	}
+
+	/**
+	 * Load current user's licenses.
+	 *
+	 * @param bool $unattached_only Only return unattached licenses.
+	 *
+	 * @return array
+	 */
+	public function get_user_licenses( $unattached_only = false ) {
+		$licenses = Endpoints::get_user_licenses();
+
+		if ( empty( $licenses->items ) ) {
+			return array();
+		}
+
+		$items = $licenses->items;
+
+		if ( $unattached_only ) {
+			$items = array_filter(
+				$items,
+				static function ( $item ) {
+					return $item->attached_at === null;
+				}
+			);
+		}
+
+		return $items;
+	}
+
+	/**
+	 * If the destination URL is checkout page,
+	 * see if there are unattached licenses they could use instead of getting a new one.
+	 * If found, redirect the user to license activation.
+	 *
+	 * @param string $dest_url User's destination URL.
+	 *
+	 * @return void
+	 */
+	public function handle_user_connected_redirect( $dest_url ) {
+		if ( ! preg_match( '#^https://[^/]+/checkout/#i', $dest_url ) ) {
+			return;
+		}
+
+		$licenses    = $this->get_user_licenses( true );
+		$plugin_slug = null;
+
+		$query_string = wp_parse_url( $dest_url, PHP_URL_QUERY );
+		if ( $query_string ) {
+			parse_str( $query_string, $query_args );
+
+			if ( $query_args['redirect_to']
+				&& preg_match( '/^admin\.php\?page=(jetpack-\w+)/i', $query_args['redirect_to'], $matches )
+			) {
+				$plugin_slug = $matches[1];
+			}
+		}
+
+		/**
+		 * Check for the user's unattached licenses.
+		 *
+		 * @since 3.8.2
+		 *
+		 * @param bool   $has_license Whether a license was already found.
+		 * @param array  $licenses Unattached licenses belonging to the user.
+		 * @param string $plugin_slug Slug of the plugin that initiated the flow.
+		 */
+		if ( $plugin_slug && count( $licenses )
+			&& apply_filters( 'jetpack_connection_user_has_license', false, $licenses, $plugin_slug )
+		) {
+			wp_safe_redirect( '/wp-admin/admin.php?page=my-jetpack#/add-license' );
+			exit;
+		}
+	}
 }

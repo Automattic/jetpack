@@ -6,7 +6,7 @@ import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -142,6 +142,7 @@ export const VideoRow = ( {
 	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
+		showActions &&
 		! loading &&
 		( showActionButton ||
 			Boolean( duration ) ||
@@ -204,6 +205,12 @@ export const VideoRow = ( {
 			handleClick( e );
 		}
 	};
+
+	useEffect( () => {
+		if ( disabled ) {
+			setExpanded( false );
+		}
+	}, [ disabled ] );
 
 	return (
 		<div
@@ -311,7 +318,7 @@ export const VideoRow = ( {
 							loading={ loading }
 						/>
 
-						{ isSmall && (
+						{ isSmall && showActions && (
 							<div className={ styles[ 'mobile-actions' ] }>
 								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }

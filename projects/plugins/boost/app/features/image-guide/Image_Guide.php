@@ -46,13 +46,9 @@ class Image_Guide implements Feature {
 		return 'image-guide';
 	}
 
-	public function setup_trigger() {
-		return 'init';
-	}
-
 	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-boost-image-guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
-		wp_enqueue_style( 'jetpack-boost-image-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
+		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.js', __FILE__ ), array(), JETPACK_BOOST_VERSION, true );
+		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
 	}
 
 	/**
@@ -66,14 +62,14 @@ class Image_Guide implements Feature {
 
 		$bar->add_menu(
 			array(
-				'id'     => 'jetpack-boost-image-guide',
+				'id'     => 'jetpack-boost-guide',
 				'parent' => null,
 				'group'  => null,
 				'title'  => __( 'Jetpack Boost', 'jetpack-boost' ),
 				'href'   => admin_url( 'admin.php?page=' . Admin::MENU_SLUG ),
 				'meta'   => array(
 					'target' => '_self',
-					'class'  => 'jetpack-boost-image-guide',
+					'class'  => 'jetpack-boost-guide',
 				),
 			)
 		);

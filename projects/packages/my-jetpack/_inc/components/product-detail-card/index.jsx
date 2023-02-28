@@ -92,6 +92,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
 		wpcomFreeProductSlug,
+		introductoryOffer,
 	} = pricingForUi;
 
 	const { recordEvent } = useAnalytics();
@@ -145,6 +146,19 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				} )
 		: null;
 
+	const priceDescription =
+		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
+			? sprintf(
+					// translators: %s is the monthly price for a product
+					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
+					price
+			  )
+			: __(
+					'/month, paid yearly',
+					'jetpack-my-jetpack',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
 		onClick?.( mainCheckoutRedirect );
@@ -177,7 +191,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );
 		if ( ! ProIcon ) {
-			return () => null;
+			return null;
 		}
 
 		return (
@@ -224,9 +238,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
-						<Text className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-						</Text>
+						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>
 				) }
 

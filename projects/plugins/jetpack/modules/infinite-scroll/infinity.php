@@ -1859,7 +1859,7 @@ class The_Neverending_Home_Page {
 			add_action( 'template_redirect', array( $this, 'amp_start_output_buffering' ), 0 );
 			add_action( 'shutdown', array( $this, 'amp_output_buffer' ), 1 );
 
-			if ( is_callable( "amp_{$template}_hooks" ) ) {
+			if ( is_string( $template ) && strpos( $template, '::' ) === false && is_callable( "amp_{$template}_hooks" ) ) {
 				call_user_func( "amp_{$template}_hooks" );
 			}
 

@@ -5,6 +5,121 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.12] - 2023-02-20
+### Added
+- VideoPress: flush token when the requester retries [#28930]
+- VideoPress: improve requesting data for private videos [#28797]
+- VideoPress: propagate custom CSS from VideoPress video block to core/embed when transforming block [#29035]
+
+### Changed
+- Auto-formatting of some files. [#28516]
+- VideoPress: enqueue video block assets by using the Assets class [#28965]
+- VideoPress: fix detecting auto-generated issue [#28945]
+- VideoPress: tweak poster control styles [#29033]
+
+### Fixed
+- VideoPress: Fix dashboard fatal mistake when reading malformed local video [#29011]
+
+## [0.10.11] - 2023-02-15
+### Fixed
+- VideoPress: Disable local library upload button when video is already uploaded (mobile) [#28958]
+
+## [0.10.10] - 2023-02-15
+### Added
+- VideoPress: Register block for native [#28812]
+
+### Changed
+- Update to React 18. [#28710]
+- VideoPress: do not use JS template to build queryString of the chapter file to avoid concat_js=no issues [#28915]
+
+### Fixed
+- VideoPress: Fix custom CSS classes removal [#28882]
+- VideoPress: Fix image URLs in the block editor [#28852]
+
+## [0.10.9] - 2023-02-08
+### Added
+- Add allow download option to VideoPress videos in VP dashboard [#28804]
+- Add preload toggle to VideoPress block [#28705]
+- VideoPress: anticipate privacy state of the video [#28664]
+- VideoPress: Enforce chapters restrictions on description parsing [#28731]
+- VideoPress: handle VideoPress module connection from video block [#28722]
+- VideoPress: re-write token bridge lib [#28659]
+- VideoPress: set isPravate attribute based also on private_enabled_for_site [#28769]
+
+### Changed
+- Updated package dependencies. [#28682]
+- Updated package dependencies. [#28700]
+- VideoPress: do not depend on window.wp.media in getMediaToken() lib [#28660]
+- VideoPress: enqueue extensions when registrant plugin is active [#28717]
+- VideoPress: improve requesting video data [#28663]
+
+### Fixed
+- VideoPress: Fix fatal error when local video cannot be read [#28817]
+- VideoPress: Fix token bridge issue in development environment [#28788]
+
+## [0.10.8] - 2023-01-30
+### Added
+- VideoPress: Add video chapters validation function [#28628]
+
+### Changed
+- VideoPress: change how we detect search parameters on the home page to prevent the stuck edit video details page [#28611]
+- VideoPress: fix loading state bug on VideoPress video library when the query string parameters are `page=1` [#28627]
+- VideoPress: replace the usage of useContext() by local helper function [#28618]
+
+### Fixed
+- VideoPress: fix error when uploading tracks in Atomic sites [#28597]
+
+## [0.10.7] - 2023-01-26
+### Added
+- VideoPress: show Connect banner above video player when the site is not connected [#28585]
+
+### Changed
+- Use `flex-end` instead of `end` for better browser compatibility. [#28530]
+- VideoPress: change the logic to enqueue video block scripts [#28564]
+
+## [0.10.6] - 2023-01-25
+### Changed
+- VideoPress: Refactor video data check when populating block attributes [#28566]
+- VideoPress: Show site default privacy setting in video block control [#28553]
+
+## [0.10.5] - 2023-01-23
+### Added
+- VideoPress: add connect banner when user is not connected [#28501]
+- VideoPress: do not prompt to convert embed block to VideoPress video block [#28474]
+- VideoPress: do not request video data when user is not connected [#28493]
+- VideoPress: improve buildVideoPressURL(). Add tests. [#28465]
+
+### Changed
+- Block bundling: sunset existing methods in favor of new `JETPACK_BLOCKS_VARIATION` constant [#28390]
+- VideoPress: Prevent flash of initial state when there are search params [#28528]
+- VideoPress: remove undesired border of the video player [#28484]
+- VideoPress: tweak uploader layout of the VideoPress video block [#28482]
+
+### Fixed
+- VideoPress: fix replace video by uploading a new file issue [#28451]
+
+## [0.10.4] - 2023-01-18
+### Added
+- VideoPress: check source language length of the video chapters [#28406]
+
+## [0.10.3] - 2023-01-16
+### Added
+- VideoPress: add anchor support to VideoPress video block [#28377]
+- VideoPress: add rating selector on video details edit page [#28347]
+
+### Changed
+- VideoPress: avoid requesting unneeded preview when block mounts [#28311]
+- VideoPress: fix exception when deleting last video of page [#28281]
+- VideoPress: skip rating checking when pulling video data for the block [#28374]
+- VideoPress: tweak the footer of the uploader component [#28337]
+- VideoPress: use @wordpress/html-entities to handle html entities [#28376]
+
+### Fixed
+- VideoPress: enhance behavior when deleting multiple videos [#28302]
+- VideoPress: fix render player once file uploads issue [#28296]
+- VideoPress: fix setting title when uploading video file [#28329]
+- VideoPress: render properly title and description inputs of the video block [#28341]
+
 ## [0.10.2] - 2023-01-11
 ### Added
 - VideoPress: add Cancel button to uploading file component when replacing file [#28188]
@@ -612,6 +727,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.10.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.11...v0.10.12
+[0.10.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.10...v0.10.11
+[0.10.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.9...v0.10.10
+[0.10.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.8...v0.10.9
+[0.10.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.7...v0.10.8
+[0.10.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.6...v0.10.7
+[0.10.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.5...v0.10.6
+[0.10.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.4...v0.10.5
+[0.10.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.3...v0.10.4
+[0.10.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.2...v0.10.3
 [0.10.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.9.2...v0.10.0

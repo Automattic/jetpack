@@ -9,35 +9,74 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
-	const { setWafConfig, setWafIsEnabled, setWafIsLoading } = useDispatch( STORE_ID );
+	const {
+		setWafConfig,
+		setWafStats,
+		setWafIsEnabled,
+		setWafIsUpdating,
+		setWafIsToggling,
+	} = useDispatch( STORE_ID );
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
 	/**
-	 * Refresh WAF
+	 * Refresh WAF Configuration
 	 *
 	 * Fetches the firewall data and updates it in application state.
 	 */
 	const refreshWaf = useCallback( () => {
-		setWafIsLoading( true );
+		setWafIsUpdating( true );
 		return API.fetchWaf()
 			.then( response => {
 				setWafIsEnabled( response?.isEnabled );
 				setWafConfig( response?.config );
+				setWafStats( response?.stats );
 			} )
-			.finally( setWafIsLoading( false ) );
-	}, [ setWafConfig, setWafIsEnabled, setWafIsLoading ] );
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ setWafConfig, setWafStats, setWafIsEnabled, setWafIsUpdating ] );
 
 	/**
-	 * Toggle WAF
+	 * Toggle WAF Module
 	 *
 	 * Flips the switch on the WAF module, and then refreshes the data.
 	 */
 	const toggleWaf = useCallback( () => {
-		setWafIsLoading( true );
+		if ( ! waf.isEnabled ) {
+			setWafIsToggling( true );
+		}
+		setWafIsUpdating( true );
 		return API.toggleWaf()
 			.then( refreshWaf )
-			.finally( () => setWafIsLoading( false ) );
-	}, [ refreshWaf, setWafIsLoading ] );
+			.finally( () => {
+				setWafIsToggling( false );
+				setWafIsUpdating( false );
+			} );
+	}, [ refreshWaf, waf.isEnabled, setWafIsToggling, setWafIsUpdating ] );
+
+	/**
+	 * Ensure WAF Module Is Enabled
+	 */
+	const ensureModuleIsEnabled = useCallback( () => {
+		if ( ! waf.isEnabled ) {
+			return toggleWaf();
+		}
+
+		return Promise.resolve();
+	}, [ toggleWaf, waf.isEnabled ] );
+
+	/**
+	 * Toggle Automatic Rules
+	 *
+	 * Flips the switch on the WAF automatic rules feature, and then refreshes the data.
+	 */
+	const toggleAutomaticRules = useCallback( () => {
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () =>
+				API.updateWaf( { jetpack_waf_automatic_rules: ! waf.config.jetpackWafAutomaticRules } )
+			)
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafAutomaticRules ] );
 
 	/**
 	 * Toggle Manual Rules
@@ -45,11 +84,12 @@ const useWafData = () => {
 	 * Flips the switch on the WAF IP list feature, and then refreshes the data.
 	 */
 	const toggleManualRules = useCallback( () => {
-		setWafIsLoading( true );
-		return API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } )
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () => API.updateWaf( { jetpack_waf_ip_list: ! waf.config.jetpackWafIpList } ) )
 			.then( refreshWaf )
-			.finally( () => setWafIsLoading( false ) );
-	}, [ refreshWaf, setWafIsLoading, waf.config.jetpackWafIpList ] );
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
 
 	/**
 	 * Toggle Share Data
@@ -57,20 +97,25 @@ const useWafData = () => {
 	 * Flips the switch on the share data option, and then refreshes the data.
 	 */
 	const toggleShareData = useCallback( () => {
-		setWafIsLoading( true );
-		return API.updateWaf( { jetpack_waf_share_data: ! waf.config.jetpackWafShareData } )
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () => API.updateWaf( { jetpack_waf_share_data: ! waf.config.jetpackWafShareData } ) )
 			.then( refreshWaf )
-			.finally( () => setWafIsLoading( false ) );
-	}, [ refreshWaf, setWafIsLoading, waf.config.jetpackWafShareData ] );
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafShareData ] );
 
+	/**
+	 * Update Config
+	 */
 	const updateConfig = useCallback(
 		update => {
-			setWafIsLoading( true );
-			return API.updateWaf( update )
+			setWafIsUpdating( true );
+			return ensureModuleIsEnabled()
+				.then( () => API.updateWaf( update ) )
 				.then( refreshWaf )
-				.finally( () => setWafIsLoading( false ) );
+				.finally( () => setWafIsUpdating( false ) );
 		},
-		[ refreshWaf, setWafIsLoading ]
+		[ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating ]
 	);
 
 	/**
@@ -80,12 +125,13 @@ const useWafData = () => {
 		if ( waf.config === undefined && ! waf.isFetching ) {
 			refreshWaf();
 		}
-	}, [ waf.config, waf.isFetching, refreshWaf ] );
+	}, [ waf.config, waf.isFetching, setWafIsUpdating, refreshWaf ] );
 
 	return {
 		...waf,
 		refreshWaf,
 		toggleWaf,
+		toggleAutomaticRules,
 		toggleManualRules,
 		toggleShareData,
 		updateConfig,

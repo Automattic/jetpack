@@ -318,7 +318,7 @@ class Status {
 	 * Whether the site is currently private or not.
 	 * On WordPress.com and WoA, sites can be marked as private
 	 *
-	 * @since $$next-version$$
+	 * @since 1.16.0
 	 *
 	 * @return bool True if the site is private.
 	 */
@@ -326,6 +326,16 @@ class Status {
 		$ret = Cache::get( 'is_private_site' );
 		if ( null === $ret ) {
 			$is_private_site = '-1' === get_option( 'blog_public' );
+
+			/**
+			 * Filters the is_private_site check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_private_site True if the site is private.
+			 */
+			$is_private_site = apply_filters( 'jetpack_is_private_site', $is_private_site );
+
 			Cache::set( 'is_private_site', $is_private_site );
 			return $is_private_site;
 		}
@@ -336,7 +346,7 @@ class Status {
 	 * Whether the site is currently unlaunched or not.
 	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
 	 *
-	 * @since $$next-version$$
+	 * @since 1.16.0
 	 *
 	 * @return bool True if the site is not launched.
 	 */
@@ -345,6 +355,16 @@ class Status {
 		if ( null === $ret ) {
 			$is_coming_soon = (bool) ( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
 				|| get_option( 'wpcom_public_coming_soon' );
+
+			/**
+			 * Filters the is_coming_soon check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_coming_soon True if the site is coming soon (i.e. unlaunched).
+			 */
+			$is_coming_soon = apply_filters( 'jetpack_is_coming_soon', $is_coming_soon );
+
 			Cache::set( 'is_coming_soon', $is_coming_soon );
 			return $is_coming_soon;
 		}

@@ -1,4 +1,5 @@
-import { useBlockProps } from '@wordpress/block-editor';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
@@ -19,21 +20,32 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Automatically generate an illustration for your post, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.',
+					'Automatically generate an illustration for your post, powered by AI magic.',
 					'jetpack'
 				) }
 			</p>
+			<p>
+				{ __(
+					'We are experimenting with this feature and can tweak or remove it at any point.',
+					'jetpack'
+				) }
+			</p>
+			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
+				{ __( 'Share your feedback.', 'jetpack' ) }
+			</ExternalLink>
 		</Fragment>
 	),
 	icon: {
-		src: 'welcome-write-blog',
+		src: 'superhero',
 		foreground: getIconColor(),
 	},
 	category: 'media',
 	keywords: [
 		_x( 'AI', 'block search term', 'jetpack' ),
+		_x( 'AL', 'block search term', 'jetpack' ),
 		_x( 'DALLe', 'block search term', 'jetpack' ),
 		_x( 'Diffusion', 'block search term', 'jetpack' ),
+		_x( 'Magic', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
@@ -59,10 +71,7 @@ export const settings = {
 	},
 	edit,
 	/* @TODO Write the block editor output */
-	save: args => {
-		const blockProps = useBlockProps.save();
-		return <div { ...blockProps }>{ args.attributes.content }</div>;
-	},
+	save: () => '',
 	attributes,
 	example: {
 		attributes: {

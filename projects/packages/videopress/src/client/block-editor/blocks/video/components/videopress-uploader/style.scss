@@ -9,6 +9,7 @@
 	align-items: center;
 	justify-content: space-between;
 	border-top: 1px solid $gray-200;
+	padding-top: 8px;
 	gap: 16px;
 
 	&__file-info {
@@ -52,7 +53,7 @@
 
 .uploading-editor {
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: 8px;
 
 	.components-base-control__label {
 		font-weight: 600;

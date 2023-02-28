@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 
@@ -12,33 +12,90 @@ export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const isSaving = useSelect(
-			select => select( editorStore ).isSavingNonPostEntityChanges(),
-			[]
+		const { isSavingSite, isSavingPost, isPublishingPost, isCurrentPostPublished } = useSelect(
+			selector => ( {
+				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
+				isSavingPost: selector( editorStore ).isSavingPost(),
+				isPublishingPost: selector( editorStore ).isPublishingPost(),
+				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
+			} )
 		);
-		const prevIsSaving = usePrevious( isSaving );
+
+		const prevIsSavingSite = usePrevious( isSavingSite );
+		const prevIsSavingPost = usePrevious( isSavingPost );
+		const prevIsPublishingPost = usePrevious( isPublishingPost );
+
+		// We use this state as a flag to manually handle the modal close on first post publish
+		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
+
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
 		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
-		const { launchpadScreenOption, siteIntentOption } = window?.Jetpack_LaunchpadSaveModal || {};
+		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
+			window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
+		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
+		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
-		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup-link-in-bio', {
+		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 
+		const { tracks } = useAnalytics();
+
+		const recordTracksEvent = eventName =>
+			tracks.recordEvent( eventName, {
+				site_intent: siteIntentOption,
+				launchpad_screen: launchpadScreenOption,
+				dont_show_again: isChecked,
+				editor_type: isInsideSiteEditor ? 'site' : 'post',
+			} );
+
 		useEffect( () => {
-			if ( prevIsSaving === true && isSaving === false ) {
+			// We want to prevent the launchpad modal from rendering on top of the first
+			// post published modal that exists in the editing toolkit. The following
+			// conditional is a stopgap solution for the time being, and the end goal is
+			// to migrate the first post published modal logic into jetpack, abstract code from
+			// both modals and their rendering behavior, and remove this solution afterwards.
+			if (
+				prevIsPublishingPost === true &&
+				isPublishingPost === false &&
+				prevHasNeverPublishedPostOption.current &&
+				siteIntentOption === 'write' &&
+				isInsidePostEditor
+			) {
+				setIsModalOpen( false );
+				prevHasNeverPublishedPostOption.current = '';
+				return;
+			} else if (
+				( prevIsSavingSite === true && isSavingSite === false ) ||
+				( prevIsSavingPost === true && isSavingPost === false )
+			) {
 				setIsModalOpen( true );
 			}
-		}, [ isSaving, prevIsSaving ] );
+		}, [
+			isSavingSite,
+			prevIsSavingSite,
+			isSavingPost,
+			prevIsSavingPost,
+			siteIntentOption,
+			isInsidePostEditor,
+			isPublishingPost,
+			prevIsPublishingPost,
+		] );
+
+		useEffect( () => {
+			// if the isCurrentPostPublished is ever false it means this current post hasn't been published yet so we set the initialPostPublish state
+			if ( isCurrentPostPublished === false ) {
+				setIsInitialPostPublish( true );
+			}
+		}, [ isCurrentPostPublished ] );
 
 		const showModal =
-			isInsideSiteEditor &&
+			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
-			siteIntentOption === 'link-in-bio' &&
 			! dontShowAgain &&
 			isModalOpen;
 
@@ -48,18 +105,24 @@ export const settings = {
 					isDismissible={ true }
 					className="launchpad__save-modal"
 					onRequestClose={ () => {
+						// bypass the onRequestClose function the first time it's called when you publish a post because it closes the modal immediately
+						if ( isInitialPostPublish ) {
+							setIsInitialPostPublish( false );
+							return;
+						}
 						setIsModalOpen( false );
 						setDontShowAgain( isChecked );
+						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Your site is ready to launch!', 'jetpack' ) }
+								{ __( 'Great progress!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
 								{ __(
-									'Launching your Link in Bio will allow you to share a link with others and promote your site.',
+									'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
 									'jetpack'
 								) }
 							</p>
@@ -76,11 +139,17 @@ export const settings = {
 									onClick={ () => {
 										setDontShowAgain( isChecked );
 										setIsModalOpen( false );
+										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
 								>
 									{ __( 'Back to Edit', 'jetpack' ) }
 								</Button>
-								<Button variant="primary" href={ launchPadUrl } target="_top">
+								<Button
+									variant="primary"
+									href={ launchPadUrl }
+									onClick={ () => recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' ) }
+									target="_top"
+								>
 									{ __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>

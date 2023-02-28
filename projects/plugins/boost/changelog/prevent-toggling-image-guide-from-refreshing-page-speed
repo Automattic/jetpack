@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix enabling/disabling image guide from the Settings page requesting a page speed score refresh.

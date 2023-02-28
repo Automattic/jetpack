@@ -32,10 +32,10 @@
 		"pm2": "5.2.0",
 		"shell-escape": "0.2.0",
 		"winston": "3.8.1",
-		"yargs": "17.5.1"
+		"yargs": "17.6.2"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
