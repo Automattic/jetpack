@@ -45,34 +45,27 @@ add_action( 'admin_init', 'sensei_onboarding_mods' );
  *
  * See https://github.com/Automattic/wp-calypso/issues/73547
  *
- * @return void
+ * @param bool   $result The result of the licensing configuration.
+ * @param array  $payload The payload received from SenseiLMS.com back-end API.
+ * @param string $event_type The event type that triggered this filter.
+ *
+ * @return bool
  */
-function sensei_cache_flush() {
-	if ( is_plugin_active( 'sensei-lms/sensei-lms.php' ) && ! get_option( 'sensei_cache_flushed' ) ) {
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-			return;
-		}
-
-		$notoptions = wp_cache_get( 'notoptions', 'options' );
-
-		$cache_incosistent = false;
-
-		if ( true === $notoptions['woocommerce_version'] && is_plugin_active( 'woocommerce/woocommerce.php' ) ) {
-			$cache_incosistent = true;
-		}
-
-		if ( true === $notoptions['senseilms_license_key__sensei-pro'] && is_plugin_active( 'sensei-pro/sensei-pro.php' ) ) {
-			$cache_incosistent = true;
-		}
-
-		if ( $cache_incosistent ) {
-			update_option( 'sensei_cache_flushed', 1 );
-			wp_cache_set( 'notoptions', array(), 'options' );
-		}
+function sensei_activation_cache_flush( $result, $payload, $event_type ) {
+	if ( 'provision_license' !== $event_type ) {
+		return $result;
 	}
+
+	$notoptions = wp_cache_get( 'notoptions', 'options' );
+
+	if ( isset( $notoptions['senseilms_license_key__sensei-pro'] ) && true === $notoptions['senseilms_license_key__sensei-pro'] ) {
+		wp_cache_set( 'notoptions', array(), 'options' );
+	}
+
+	return $result;
 }
 
-add_action( 'admin_init', 'sensei_cache_flush' );
+add_filter( 'wpcom_marketplace_webhook_response_sensei-pro', 'sensei_activation_cache_flush', 11, 3 );
 
 /**
  * Allow Sensei Home task complete option to be synced so we can use this status for the My Home Checklist
