@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
+use Automattic\Jetpack\Tracking;
+
 /**
  * Stats Main class.
  *
@@ -18,7 +22,7 @@ class Main {
 	/**
 	 * Stats version.
 	 */
-	const VERSION = '0.6.1';
+	const VERSION = '0.6.2';
 
 	/**
 	 * Singleton Main instance.
@@ -48,5 +52,32 @@ class Main {
 	 */
 	private function __construct() {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Update New Stats status.
+	 *
+	 * @param bool $status true to enable or false to disable.
+	 * @return bool
+	 */
+	public static function update_new_stats_status( $status ) {
+		$status = (bool) $status;
+
+		$stats_options = array(
+			'enable_odyssey_stats'     => $status,
+			'odyssey_stats_changed_at' => time(),
+		);
+		$updated       = Stats_Options::set_options( $stats_options );
+
+		// Track the event.
+		$event_name = 'calypso_stats_disabled';
+		if ( $status ) {
+			$event_name = 'calypso_stats_enabled';
+		}
+		$connection_manager = new Manager( 'jetpack' );
+		$tracking           = new Tracking( 'jetpack', $connection_manager );
+		$tracking->record_user_event( $event_name, array_merge( $stats_options, array( 'updated' => $updated ) ) );
+
+		return $updated;
 	}
 }

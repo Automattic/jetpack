@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '0.2.2';
+	const PACKAGE_VERSION = '1.0.1';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -29,10 +29,9 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
-		// Todo: once coming-soon is removed from ETK, we can remove the has_action check.
-		if ( has_action( 'plugins_loaded', 'A8C\FSE\load_coming_soon' ) === false ) {
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
-		}
+
+		// Coming Soon feature.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -46,6 +45,18 @@ class Jetpack_Mu_Wpcom {
 	 * Load the Coming Soon feature.
 	 */
 	public static function load_coming_soon() {
+		/**
+		 * On WoA sites, users may be using non-symlinked older versions of the FSE plugin.
+		 * If they are, check the active version to avoid redeclaration errors.
+		 */
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$invalid_fse_version_active = is_plugin_active( 'full-site-editing/full-site-editing-plugin.php' ) && version_compare( get_plugin_data( WP_PLUGIN_DIR . '/full-site-editing/full-site-editing-plugin.php' )['Version'], '3.56084', '<' );
+		if ( $invalid_fse_version_active ) {
+			return;
+		}
+
 		if (
 			( defined( 'WPCOM_PUBLIC_COMING_SOON' ) && WPCOM_PUBLIC_COMING_SOON ) ||
 			apply_filters( 'a8c_enable_public_coming_soon', false )

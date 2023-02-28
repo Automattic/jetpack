@@ -150,7 +150,47 @@ abstract class Sharing_Source {
 		 */
 		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
-		return html_entity_decode( wp_kses( $title, null ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		return html_entity_decode( wp_kses( $title, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+	}
+
+	/**
+	 * Get a comma-separated list of the post's tags to use for sharing.
+	 * Prepends a '#' to each tag.
+	 *
+	 * @param int $post_id Post ID.
+	 *
+	 * @return string
+	 */
+	public function get_share_tags( $post_id ) {
+		$tags = get_the_tags( $post_id );
+		if ( ! $tags ) {
+			return '';
+		}
+
+		$tags = array_map(
+			function ( $tag ) {
+				// Camel case the tag name and remove spaces as well as apostrophes.
+				$tag = preg_replace( '/\s+|\'/', '', ucwords( $tag->name ) );
+
+				// Return with a '#' prepended.
+				return '#' . $tag;
+			},
+			$tags
+		);
+
+		/**
+		 * Allow customizing how the list of tags is displayed.
+		 *
+		 * @module sharedaddy
+		 * @since 11.9
+		 *
+		 * @param string $tags     Comma-separated list of tags.
+		 * @param int    $post_id  Post ID.
+		 * @param int    $this->id Sharing ID.
+		 */
+		$tag_list = (string) apply_filters( 'jetpack_sharing_tag_list', implode( ', ', $tags ), $post_id, $this->id );
+
+		return html_entity_decode( wp_kses( $tag_list, '' ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 	}
 
 	/**
@@ -3039,5 +3079,117 @@ class Share_Skype extends Sharing_Source {
 				)
 			);
 		endif;
+	}
+}
+
+/**
+ * Mastodon sharing service.
+ */
+class Share_Mastodon extends Sharing_Source {
+	/**
+	 * Service short name.
+	 *
+	 * @var string
+	 */
+	public $shortname = 'mastodon';
+
+	/**
+	 * Service icon font code.
+	 *
+	 * @var string
+	 */
+	public $icon = '\f10a';
+
+	/**
+	 * Service name.
+	 *
+	 * @return string
+	 */
+	public function get_name() {
+		return __( 'Mastodon', 'jetpack' );
+	}
+
+	/**
+	 * Get the markup of the sharing button.
+	 *
+	 * @param WP_Post $post Post object.
+	 *
+	 * @return string
+	 */
+	public function get_display( $post ) {
+		return $this->get_link(
+			$this->get_process_request_url( $post->ID ),
+			_x( 'Mastodon', 'share to', 'jetpack' ),
+			__( 'Click to share on Mastodon', 'jetpack' ),
+			'share=mastodon',
+			'sharing-mastodon-' . $post->ID
+		);
+	}
+
+	/**
+	 * Process sharing request. Add actions that need to happen when sharing here.
+	 *
+	 * @param WP_Post $post Post object.
+	 * @param array   $post_data Array of information about the post we're sharing.
+	 *
+	 * @return void
+	 */
+	public function process_request( $post, array $post_data ) {
+		if ( empty( $_POST['jetpack-mastodon-instance'] ) ) {
+			require_once WP_SHARING_PLUGIN_DIR . 'services/class-jetpack-mastodon-modal.php';
+			add_action( 'template_redirect', array( 'Jetpack_Mastodon_Modal', 'modal' ) );
+			return;
+		}
+
+		check_admin_referer( 'jetpack_share_mastodon_instance' );
+
+		$mastodon_instance = isset( $_POST['jetpack-mastodon-instance'] )
+			? trailingslashit( sanitize_text_field( wp_unslash( $_POST['jetpack-mastodon-instance'] ) ) )
+			: null;
+
+		$post_title = $this->get_share_title( $post->ID );
+		$post_link  = $this->get_share_url( $post->ID );
+		$post_tags  = $this->get_share_tags( $post->ID );
+
+		/**
+		 * Allow filtering the default message that gets posted to Mastodon.
+		 *
+		 * @module sharedaddy
+		 * @since 11.9
+		 *
+		 * @param string  $share_url The default message that gets posted to Mastodon.
+		 * @param WP_Post $post      The post object.
+		 * @param array   $post_data Array of information about the post we're sharing.
+		 */
+		$shared_message = apply_filters(
+			'jetpack_sharing_mastodon_default_message',
+			$post_title . ' ' . $post_link . ' ' . $post_tags,
+			$post,
+			$post_data
+		);
+
+		$share_url = sprintf(
+			'%1$sshare?text=%2$s',
+			$mastodon_instance,
+			rawurlencode( $shared_message )
+		);
+
+			// Record stats
+		parent::process_request( $post, $post_data );
+
+		parent::redirect_request( $share_url );
+	}
+
+	/**
+	 * Add content specific to a service in the footer.
+	 */
+	public function display_footer() {
+		$this->js_dialog(
+			$this->shortname,
+			array(
+				'width'  => 460,
+				'height' => 400,
+			)
+		);
 	}
 }
