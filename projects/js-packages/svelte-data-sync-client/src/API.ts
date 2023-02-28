@@ -65,7 +65,7 @@ export class API {
 			body: null,
 		};
 
-		if ( method === 'POST' && params ) {
+		if ( method === 'POST' ) {
 			args.body = JSON.stringify( { JSON: params } );
 		}
 
