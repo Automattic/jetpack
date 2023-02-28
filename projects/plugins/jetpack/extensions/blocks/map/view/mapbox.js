@@ -13,7 +13,7 @@ import {
 	googlePoint2Mapbox,
 	setMarkerHTML,
 } from '../mapbox-utils';
-import { resizeMapContainer } from '../utils';
+import resizeMapContainer from '../utils/resize-map-container';
 
 import '../style.scss';
 import '../map-marker/style.scss';

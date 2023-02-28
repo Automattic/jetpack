@@ -1,6 +1,6 @@
 import { debounce } from '../../../shared/debounce';
 import { convertZoomLevelToCameraDistance } from '../mapkit-utils';
-import { resizeMapContainer } from '../utils';
+import resizeMapContainer from '../utils/resize-map-container';
 
 class MapkitBlock {
 	constructor( root ) {
