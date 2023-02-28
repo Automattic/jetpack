@@ -16,7 +16,7 @@ export const cookieName = 'eucookielaw';
 export const settings = {
 	title,
 	description: __(
-		'To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.',
+		'Displays a customizable cookie consent banner. To display this block on all pages of your site, please add it inside a Template Part that is present on all your templates, like a Header or a Footer.',
 		'jetpack'
 	),
 	icon: {
