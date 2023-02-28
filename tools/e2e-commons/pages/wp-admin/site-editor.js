@@ -24,13 +24,16 @@ export default class SiteEditorPage extends WpPage {
 	async clearCustomizations() {
 		logger.step( 'Attempting clear customizations' );
 		await this.waitForNoticeToDisappear();
-		await this.click( "button[aria-label='Show template details']" );
-		const clearCustomizationsBtn = 'span:text("Clear customizations")';
-		if ( await this.isElementVisible( clearCustomizationsBtn, 1000 ) ) {
-			logger.info( 'Clearing customizations' );
-			await this.click( clearCustomizationsBtn );
-			await this.waitForNoticeToAppear();
-			await this.savePage();
+		const TemplateDetailsButtonSelector = "button[aria-label='Show template details']";
+		if ( await this.isElementVisible( TemplateDetailsButtonSelector, 2000 ) ) {
+			await this.click( TemplateDetailsButtonSelector );
+			const clearCustomizationsBtn = 'span:text("Clear customizations")';
+			if ( await this.isElementVisible( clearCustomizationsBtn, 1000 ) ) {
+				logger.info( 'Clearing customizations' );
+				await this.click( clearCustomizationsBtn );
+				await this.waitForNoticeToAppear();
+				await this.savePage();
+			}
 		}
 	}
 
