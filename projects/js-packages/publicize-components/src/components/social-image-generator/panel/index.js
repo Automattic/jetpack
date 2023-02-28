@@ -43,15 +43,9 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 							value: 'featured',
 						},
 						{ label: __( 'Custom Image', 'jetpack' ), value: 'custom' },
-						{ label: __( 'Default Image', 'jetpack' ), value: 'default' },
 						{ label: __( 'No Image', 'jetpack' ), value: 'none' },
 					] }
 					onChange={ setImageType }
-					help={
-						imageType === 'default'
-							? __( 'You can change the default image by clicking the Edit link below.', 'jetpack' )
-							: null
-					}
 				/>
 
 				{ imageType === 'custom' && (
