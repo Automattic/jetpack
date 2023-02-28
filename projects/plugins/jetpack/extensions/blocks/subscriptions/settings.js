@@ -63,13 +63,13 @@ export function MisconfigurationWarning( { accessLevel } ) {
 }
 
 function NewsletterAccessChoices( { accessLevel, onChange } ) {
-	const [ subscribersCount, setsubscribersCount ] = useState( null );
+	const [ subscribersCount, setSubscribersCount ] = useState( null );
 	const [ paidSubscribersCount, setPaidSubscribersCount ] = useState( null );
 	const [ followerCount, setFollowerCount ] = useState( null );
 
 	useEffect( () => {
 		getSubscriberCounts( counts => {
-			setsubscribersCount( counts.email_subscribers );
+			setSubscribersCount( counts.email_subscribers );
 			setFollowerCount( counts.social_followers );
 			setPaidSubscribersCount( counts.paid_subscribers );
 		} );
