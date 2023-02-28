@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { combineReducers } from 'redux';
+import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -11,7 +11,7 @@ import {
 	JETPACK_FORMS_RESPONSES_FETCH_FAIL,
 } from './action-types';
 
-export const loading = ( state = false, action ) => {
+const loading = ( state = false, action ) => {
 	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH ) {
 		return true;
 	}
@@ -26,7 +26,7 @@ export const loading = ( state = false, action ) => {
 	return state;
 };
 
-export const responses = ( state = [], action ) => {
+const responses = ( state = [], action ) => {
 	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH && action.offset === 0 ) {
 		return [];
 	}
@@ -38,7 +38,7 @@ export const responses = ( state = [], action ) => {
 	return state;
 };
 
-export const total = ( state = 0, action ) => {
+const total = ( state = 0, action ) => {
 	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH && action.offset === 0 ) {
 		return 0;
 	}
