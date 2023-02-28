@@ -457,7 +457,7 @@ $settings      = $zbs->settings->getAll();
 				</p>
 
 				<div class='clear'></div>
-				<div class='yespls'><p style="text-align: center;margin-top: 6px;"><?php esc_html_e( 'Get updates', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_sub" value="zbs_sub" checked='checked'/></p></div>
+				<div class='yespls'><p style="text-align: center;margin-top: 6px;"><?php esc_html_e( 'Get updates', 'zero-bs-crm' ); ?> <input type="checkbox" id="zbs_sub" value="zbs_sub"/></p></div>
 
 
 
