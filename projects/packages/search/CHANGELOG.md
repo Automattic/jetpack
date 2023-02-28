@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.33.1] - 2023-02-28
+### Added
+- Search: Add JITM container [#29106]
+
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix CSS for products in search results [#29110]
+
 ## [0.33.0] - 2023-02-20
 ### Added
 - Adds a "show post date" selector to Search customberg, allows non-multisite sites to show the post date in the "expanded" search result format. [#28918]
@@ -670,6 +680,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[0.33.1]: https://github.com/Automattic/jetpack-search/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/Automattic/jetpack-search/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/Automattic/jetpack-search/compare/v0.31.7...v0.32.0
 [0.31.7]: https://github.com/Automattic/jetpack-search/compare/v0.31.6...v0.31.7
