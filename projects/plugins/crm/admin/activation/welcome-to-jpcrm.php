@@ -108,12 +108,8 @@ $settings      = $zbs->settings->getAll();
 					<label><?php esc_html_e( jpcrm_label_company() . ' Name / CRM Name:', 'zero-bs-crm' ); ?></label>
 					<p style="margin-bottom:0"><?php esc_html_e( "This name will be shown at the top left of your CRM (as shown below). E.g. 'Widget Co CRM'", 'zero-bs-crm' ); ?></p>
 					<div style="width:90%;">
-						<div style="width:48%;float:left">
+						<div style="width:50%;float:left">
 							<input class='form-control' type="text" name="zbs_crm_name" id='zbs_crm_name' value="" placeholder="<?php esc_html_e( 'Name of your CRM (e.g Jetpack CRM)', 'zero-bs-crm' ); ?>" style="width:90%" onchange="zbs_crm_name_change();"/>
-						</div>
-						<div style="width:48%;float:right;overflow:hidden;border: 1px solid #ccc;" class='pos-rel'>
-							<img src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/welcome-to-zbs/crm-name.png" alt="Jetpack CRM" id="crm-name-img" style="border:0;margin-bottom: 0;" />
-							<div id='crm-name'>Jetpack CRM</div>
 						</div>
 					</div>
 
