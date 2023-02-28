@@ -2178,7 +2178,7 @@ function zeroBSCRM_html_extensions() {
 						$str1,
 						$str2
 						) {
-							return strcmp( $str1->name, $str2->name );
+							return strcasecmp( $str1->name, $str2->name );
 						}
 					);
 				} else {
@@ -2189,7 +2189,7 @@ function zeroBSCRM_html_extensions() {
 						$str1,
 						$str2
 						) {
-							return strcmp( $str1->name, $str2->name );
+							return strcasecmp( $str1->name, $str2->name );
 						}
 					);
 				}
