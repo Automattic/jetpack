@@ -1,15 +1,10 @@
 import { derived, writable } from 'svelte/store';
 import api from '../api/api';
 import { modules } from './modules';
+import type { CriticalCssIssue } from './critical-css-recommendations';
 import type { ProviderKeyUrls, ProvidersSuccessRatio } from '../utils/generate-critical-css';
 import type { JSONObject } from '../utils/json-types';
 import type { Viewport } from '../utils/types';
-
-export interface CriticalCssErrorDetails {
-	message: string;
-	type: string;
-	meta: JSONObject;
-}
 
 export interface CriticalCssStatus {
 	progress: number;
@@ -24,15 +19,10 @@ export interface CriticalCssStatus {
 	core_providers?: string[];
 	core_providers_status?: string;
 	status_error?: Error | string;
-	providers_errors?: {
-		[ providerKey: string ]: {
-			[ url: string ]: CriticalCssErrorDetails;
-		};
-	};
-	provider_key_labels?: { [ name: string ]: string };
 	success_count?: number;
 	created?: number;
 	viewports?: Viewport[];
+	issues?: CriticalCssIssue[];
 }
 
 const SUCCESS = 'success';
@@ -59,14 +49,6 @@ export function getStatus() {
 }
 
 /**
- * Derived datastore: contains the number of provider keys which failed in the
- * latest Critical CSS generation run.
- */
-export const failedProviderKeyCount = derived( { subscribe }, state =>
-	state.providers_errors ? Object.keys( state.providers_errors ).length : 0
-);
-
-/**
  * Derived datastore: Returns true if the Critical CSS status indicates the process
  * is complete - i.e.: is success or fail.
  */
@@ -80,7 +62,10 @@ export const isFinished = derived( { subscribe }, state =>
  */
 export const showError = derived(
 	{ subscribe },
-	state => state.status === 'error' || ( state.status === 'success' && state.success_count === 0 )
+	state =>
+		state.status === 'error' ||
+		state.success_count === undefined ||
+		( state.status === 'success' && state.success_count === 0 )
 );
 
 export const isGenerating = derived( [ store, modules ], ( [ $store, $modules ] ) => {
@@ -204,6 +189,13 @@ export function setError(): void {
 	return update( state => ( {
 		...state,
 		status: 'error',
+	} ) );
+}
+
+export function updateIssues( issues: CriticalCssIssue[] ): void {
+	return update( state => ( {
+		...state,
+		issues,
 	} ) );
 }
 

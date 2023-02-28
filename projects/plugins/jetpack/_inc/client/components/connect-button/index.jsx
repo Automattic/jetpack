@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getFragment } from '@wordpress/url';
@@ -214,18 +215,10 @@ export class ConnectButton extends React.Component {
 								'jetpack'
 							),
 							{
-								tosLink: (
-									<a
-										href={ getRedirectUrl( 'wpcom-tos' ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
+								tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 								shareDetailsLink: (
-									<a
+									<ExternalLink
 										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-										rel="noopener noreferrer"
-										target="_blank"
 									/>
 								),
 							}
@@ -233,7 +226,6 @@ export class ConnectButton extends React.Component {
 					</p>
 				) }
 				{ this.renderContent() }
-				{ this.props.children }
 				<DisconnectDialog
 					apiNonce={ this.props.apiNonce }
 					apiRoot={ this.props.apiRoot }

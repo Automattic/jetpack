@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
-use Jetpack_Options;
+use Automattic\Jetpack\Waf\Waf_Rules_Manager;
 
 /**
  * Shared Functions class.
@@ -51,6 +51,7 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		return $formatted;
 	}
+
 	/**
 	 * Gets the local Brute force protection whitelist
 	 *
@@ -62,7 +63,7 @@ class Brute_Force_Protection_Shared_Functions {
 	 * @return array A list of IP Address objects or an empty array
 	 */
 	public static function get_local_whitelist() {
-		$whitelist = Jetpack_Options::get_option( 'protect_whitelist' );
+		$whitelist = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
 		if ( false === $whitelist ) {
 			// The local whitelist has never been set.
 			if ( is_multisite() ) {
@@ -72,6 +73,14 @@ class Brute_Force_Protection_Shared_Functions {
 				// On a single site, we can just use an empty array.
 				$whitelist = array();
 			}
+		} else {
+			$whitelist = IP_Utils::get_ip_addresses_from_string( $whitelist );
+			$whitelist = array_map(
+				function ( $ip_address ) {
+					return self::create_ip_object( $ip_address );
+				},
+				$whitelist
+			);
 		}
 		return $whitelist;
 	}
@@ -90,6 +99,29 @@ class Brute_Force_Protection_Shared_Functions {
 			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 		}
 		return $whitelist;
+	}
+
+	/**
+	 * Convert a string into an IP Address object.
+	 *
+	 * @param string $ip_address The IP Address to convert.
+	 * @return object An IP Address object.
+	 */
+	private static function create_ip_object( $ip_address ) {
+		$range = false;
+		if ( strpos( $ip_address, '-' ) ) {
+			$ip_address = explode( '-', $ip_address );
+			$range      = true;
+		}
+		$new_item        = new \stdClass();
+		$new_item->range = $range;
+		if ( ! empty( $range ) ) {
+			$new_item->range_low  = trim( $ip_address[0] );
+			$new_item->range_high = trim( $ip_address[1] );
+		} else {
+			$new_item->ip_address = $ip_address;
+		}
+		return $new_item;
 	}
 
 	/**
@@ -118,36 +150,25 @@ class Brute_Force_Protection_Shared_Functions {
 			if ( empty( $item ) ) {
 				continue;
 			}
-			$range = false;
-			if ( strpos( $item, '-' ) ) {
-				$item  = explode( '-', $item );
-				$range = true;
-			}
-			$new_item        = new \stdClass();
-			$new_item->range = $range;
-			if ( ! empty( $range ) ) {
-				$low  = trim( $item[0] );
-				$high = trim( $item[1] );
-				if ( ! filter_var( $low, FILTER_VALIDATE_IP ) || ! filter_var( $high, FILTER_VALIDATE_IP ) ) {
+			$new_item = self::create_ip_object( $item );
+			if ( $new_item->range ) {
+				if ( ! filter_var( $new_item->range_low, FILTER_VALIDATE_IP ) || ! filter_var( $new_item->range_high, FILTER_VALIDATE_IP ) ) {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! IP_Utils::convert_ip_address( $low ) || ! IP_Utils::convert_ip_address( $high ) ) {
+				if ( ! IP_Utils::convert_ip_address( $new_item->range_low ) || ! IP_Utils::convert_ip_address( $new_item->range_high ) ) {
 					$whitelist_error = true;
 					break;
 				}
-				$new_item->range_low  = $low;
-				$new_item->range_high = $high;
 			} else {
-				if ( ! filter_var( $item, FILTER_VALIDATE_IP ) ) {
+				if ( ! filter_var( $new_item->ip_address, FILTER_VALIDATE_IP ) ) {
 					$whitelist_error = true;
 					break;
 				}
-				if ( ! IP_Utils::convert_ip_address( $item ) ) {
+				if ( ! IP_Utils::convert_ip_address( $new_item->ip_address ) ) {
 					$whitelist_error = true;
 					break;
 				}
-				$new_item->ip_address = $item;
 			}
 			$new_items[] = $new_item;
 		} // End item loop.
@@ -159,7 +180,16 @@ class Brute_Force_Protection_Shared_Functions {
 			// Once a user has saved their global whitelist, we can permanently remove the legacy option.
 			delete_site_option( 'jetpack_protect_whitelist' );
 		} else {
-			Jetpack_Options::update_option( 'protect_whitelist', $new_items );
+			$new_items = array_map(
+				function ( $item ) {
+					if ( $item->range ) {
+							return $item->range_low . '-' . $item->range_high;
+					}
+					return $item->ip_address;
+				},
+				$new_items
+			);
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, implode( ' ', $new_items ) );
 		}
 		return true;
 	}

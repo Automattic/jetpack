@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Increase form fields padding based on user-defined border-radius

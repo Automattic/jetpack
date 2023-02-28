@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * Components.
  */
 export { default as ConnectScreen } from './components/connect-screen/basic';
-export { ToS } from './components/connect-screen/basic/visual';
+export { default as ConnectScreenLayout } from './components/connect-screen/layout';
 export { default as ConnectScreenRequiredPlan } from './components/connect-screen/required-plan';
 export { default as ConnectButton } from './components/connect-button';
 export { default as InPlaceConnection } from './components/in-place-connection';

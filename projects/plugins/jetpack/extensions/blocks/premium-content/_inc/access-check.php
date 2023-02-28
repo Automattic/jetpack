@@ -9,7 +9,7 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 
-require __DIR__ . '/subscription-service/include.php';
+require_once __DIR__ . '/subscription-service/include.php';
 
 /**
  * Determines if the memberships module is set up.
@@ -75,6 +75,7 @@ function current_visitor_can_access( $attributes, $block ) {
 	 * If the current WordPress install has as signed in user
 	 * they can see the content.
 	 */
+
 	if ( current_user_can_edit() ) {
 		return true;
 	}
@@ -94,7 +95,7 @@ function current_visitor_can_access( $attributes, $block ) {
 	}
 
 	$paywall      = subscription_service();
-	$access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS; // Only subscribers should be granted access to the premium content
+	$access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS; // Only paid subscribers should be granted access to the premium content
 	$can_view     = $paywall->visitor_can_view_content( array( $selected_plan_id ), $access_level );
 
 	if ( $can_view ) {

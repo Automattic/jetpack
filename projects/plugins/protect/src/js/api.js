@@ -17,7 +17,7 @@ const API = {
 	toggleBruteForceProtection: () =>
 		apiFetch( {
 			method: 'POST',
-			path: 'jetpack-protect/v1/toggle-brute_force_protection',
+			path: 'jetpack-protect/v1/toggle-brute-force-protection',
 		} ),
 
 	updateWaf: data =>

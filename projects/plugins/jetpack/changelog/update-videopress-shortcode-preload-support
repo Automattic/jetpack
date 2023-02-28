@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Added support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode.

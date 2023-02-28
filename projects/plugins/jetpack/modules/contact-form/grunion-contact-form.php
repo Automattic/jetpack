@@ -397,6 +397,8 @@ class Grunion_Contact_Form_Plugin {
 	 * Enqueue scripts responsible for handling contact form styles.
 	 */
 	private static function enqueue_contact_forms_style_script() {
+		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
+
 		wp_enqueue_script(
 			'contact-form-styles',
 			plugins_url( 'js/form-styles.js', __FILE__ ),
@@ -404,6 +406,19 @@ class Grunion_Contact_Form_Plugin {
 			JETPACK__VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Prevent 'contact-form-styles' script from being concatenated.
+	 *
+	 * @param array  $do_concat - the concatenation flag.
+	 * @param string $handle - script name.
+	 */
+	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
+		if ( 'contact-form-styles' === $handle ) {
+			$do_concat = false;
+		}
+		return $do_concat;
 	}
 
 	/**
@@ -2179,6 +2194,81 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public function use_block_editor_for_post_type( $can_edit, $post_type ) {
 		return 'feedback' === $post_type ? false : $can_edit;
+	}
+
+	/**
+	 * Kludge method: reverses the output of a standard print_r( $array ).
+	 * Sort of what unserialize does to a serialized object.
+	 * This is here while we work on a better data storage inside the posts. See:
+	 * - p1675781140892129-slack-C01CSBEN0QZ
+	 * - https://www.php.net/manual/en/function.print-r.php#93529
+	 *
+	 * @param string $print_r_output The array string to be reverted. Needs to being with 'Array'.
+	 * @param bool   $parse_html Whether to run html_entity_decode on each line.
+	 *                           As strings are stored right now, they are all escaped, so '=>' are '&gt;'.
+	 * @return array|string Array when succesfully reconstructed, string otherwise. Output will always be esc_html'd.
+	 */
+	public static function reverse_that_print( $print_r_output, $parse_html = false ) {
+		$lines = explode( "\n", trim( $print_r_output ) );
+		if ( $parse_html ) {
+			$lines = array_map( 'html_entity_decode', $lines );
+		}
+
+		if ( trim( $lines[0] ) !== 'Array' ) {
+			// bottomed out to something that isn't an array, escape it and be done
+			return esc_html( $print_r_output );
+		} else {
+			// this is an array, lets parse it
+			if ( preg_match( '/(\s{5,})\(/', $lines[1], $match ) ) {
+				// this is a tested array/recursive call to this function
+				// take a set of spaces off the beginning
+				$spaces        = $match[1];
+				$spaces_length = strlen( $spaces );
+				$lines_total   = count( $lines );
+
+				for ( $i = 0; $i < $lines_total; $i++ ) {
+					if ( substr( $lines[ $i ], 0, $spaces_length ) === $spaces ) {
+						$lines[ $i ] = substr( $lines[ $i ], $spaces_length );
+					}
+				}
+			}
+
+			array_shift( $lines ); // Array
+			array_shift( $lines ); // (
+			array_pop( $lines ); // )
+			$print_r_output = implode( "\n", $lines );
+
+			// make sure we only match stuff with 4 preceding spaces (stuff for this array and not a nested one
+			preg_match_all( '/^\s{4}\[(.+?)\] \=\> /m', $print_r_output, $matches, PREG_OFFSET_CAPTURE | PREG_SET_ORDER );
+
+			$pos          = array();
+			$previous_key = '';
+			$in_length    = strlen( $print_r_output );
+
+			// store the following in $pos:
+			// array with key = key of the parsed array's item
+			// value = array(start position in $print_r_output, $end position in $print_r_output)
+			foreach ( $matches as $match ) {
+				$key         = $match[1][0];
+				$start       = $match[0][1] + strlen( $match[0][0] );
+				$pos[ $key ] = array( $start, $in_length );
+
+				if ( $previous_key !== '' ) {
+					$pos[ $previous_key ][1] = $match[0][1] - 1;
+				}
+
+				$previous_key = $key;
+			}
+
+			$ret = array();
+
+			foreach ( $pos as $key => $where ) {
+				// recursively see if the parsed out value is an array too
+				$ret[ $key ] = self::reverse_that_print( substr( $print_r_output, $where[0], $where[1] - $where[0] ), $parse_html );
+			}
+
+			return $ret;
+		}
 	}
 }
 
@@ -4094,6 +4184,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public $field_styles = '';
 
 	/**
+	 * Styles to be applied to the field option
+	 *
+	 * @var string
+	 */
+	public $option_styles = '';
+
+	/**
 	 * Styles to be applied to the field
 	 *
 	 * @var string
@@ -4323,24 +4420,27 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
 		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
-			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+			$this->field_styles  .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->option_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
 		}
 
 		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
@@ -4615,7 +4715,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -4667,7 +4767,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
-		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
+		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "' style='" . $this->label_styles . "'>";
 
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' style='display:none;' /> \n";
@@ -4696,7 +4796,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -4954,11 +5054,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="';
-		if ( $type === 'select' || in_array( $form_style, array( 'outlined', 'animated' ), true ) ) {
-			$block_style .= $this->block_styles;
-		}
-		$block_style .= '"';
+		$block_style = 'style="' . $this->block_styles . '"';
 
 		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 
