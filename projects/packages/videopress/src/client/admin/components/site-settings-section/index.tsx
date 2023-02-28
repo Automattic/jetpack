@@ -32,7 +32,10 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	const siteIsAtomicPrivate = siteIsPrivate && siteType === SITE_TYPE_ATOMIC;
 	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
 	const disabledReason = siteIsAtomicPrivate
-		? __( 'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.', 'jetpack-videopress-pkg' )
+		? __(
+				'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.',
+				'jetpack-videopress-pkg'
+		  )
 		: null;
 
 	return (
@@ -42,7 +45,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					{ __( 'Settings', 'jetpack-videopress-pkg' ) }
 				</Text>
 			</Col>
-			<Col sm={ 12 } md={ 6 } lg={ 6 }>
+			<Col sm={ 12 } md={ 12 } lg={ 12 }>
 				<CheckboxCheckmark
 					for={ 'settings-site-privacy' }
 					label={ __(
