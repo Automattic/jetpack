@@ -7,7 +7,6 @@ import { __ } from '@wordpress/i18n';
 import { moreVertical, media, trash } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback, useState } from 'react';
-import { useHistory } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -18,12 +17,13 @@ import styles from './style.module.scss';
 const VideoDetailsActions = ( {
 	disabled = false,
 	videoId,
+	onDelete,
 }: {
 	disabled?: boolean;
 	videoId: string | number;
+	onDelete: () => void;
 } ) => {
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
-	const history = useHistory();
 
 	const {
 		data: { guid },
@@ -39,8 +39,8 @@ const VideoDetailsActions = ( {
 	const handleDelete = useCallback( async () => {
 		setShowDeleteModal( false );
 		await deleteVideo();
-		history.push( '/' );
-	}, [ deleteVideo, history ] );
+		onDelete();
+	}, [ deleteVideo, onDelete ] );
 
 	return (
 		<>
@@ -65,6 +65,7 @@ const VideoDetailsActions = ( {
 							icon={ media }
 							href={ newPostURL }
 							target="_blank"
+							disabled={ disabled }
 							onClick={ onClose }
 						>
 							{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
@@ -76,6 +77,7 @@ const VideoDetailsActions = ( {
 							variant="tertiary"
 							icon={ trash }
 							className={ styles.delete }
+							disabled={ disabled }
 							onClick={ () => {
 								setShowDeleteModal( true );
 								onClose();
