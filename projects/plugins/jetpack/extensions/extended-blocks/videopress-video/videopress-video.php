@@ -13,10 +13,7 @@ use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 add_action(
 	'init',
 	function () {
-		// $availability                  = \Jetpack_Gutenberg::get_availability();
-		// $is_videopress_video_available = isset( $availability['videopress/video']['available'] ) && $availability['videopress/video']['available'] === true;
 		$is_videopress_video_available = true;
-
 		if (
 			$is_videopress_video_available &&
 			method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' )
