@@ -24,7 +24,16 @@ export const settings = {
 		foreground: getIconColor(),
 	},
 	category: 'jetpack',
-	keywords: [],
+	keywords: [
+		'cookie',
+		'consent',
+		'privacy',
+		'GDPR',
+		'EU',
+		__( 'cookies', 'jetpack' ),
+		__( 'privacy', 'jetpack' ),
+		__( 'EU', 'jetpack' ),
+	],
 	supports: {
 		align: [ 'left', 'right', 'wide', 'full' ],
 		alignWide: true,
