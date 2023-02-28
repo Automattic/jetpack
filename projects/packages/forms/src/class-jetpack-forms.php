@@ -22,18 +22,7 @@ class Jetpack_Forms {
 	public static function load_contact_form() {
 		Util::init();
 
-		if (
-			is_admin()
-			/**
-			 * Enable the new Jetpack Forms dashboard.
-			 *
-			 * @module contact-form
-			 * @since 0.3.0
-			 *
-			 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
-			 */
-			&& apply_filters( 'jetpack_forms_dashboard_enable', false )
-		) {
+		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
 			$dashboard = new Dashboard();
 			$dashboard->init();
 		}
@@ -52,5 +41,22 @@ class Jetpack_Forms {
 	 */
 	public static function plugin_url() {
 		return plugin_dir_url( __FILE__ );
+	}
+
+	/**
+	 * Returns true if the feedback dashboard is enabled.
+	 *
+	 * @return boolean
+	 */
+	public static function is_feedback_dashboard_enabled() {
+		/**
+		 * Enable the new Jetpack Forms dashboard.
+		 *
+		 * @module contact-form
+		 * @since 0.3.0
+		 *
+		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
+		 */
+		return apply_filters( 'jetpack_forms_dashboard_enable', false );
 	}
 }
