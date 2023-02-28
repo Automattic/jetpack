@@ -31,17 +31,19 @@ function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
 
 export default function SubscribePanels() {
 	const [ subscriberCount, setSubscriberCount ] = useState( null );
+	const [ paidSubscriberCount, setPaidSubscriberCount ] = useState( null );
+	const [ followerCount, setFollowerCount ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
-	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
 		getSubscriberCounts( counts => {
 			setSubscriberCount( counts.email_subscribers );
 			setFollowerCount( counts.social_followers );
+			setPaidSubscriberCount( counts.paid_subscribers );
 		} );
 	}, [] );
 
@@ -78,13 +80,19 @@ export default function SubscribePanels() {
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
 	if (
 		( ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ) &&
+		( ! Number.isFinite( paidSubscriberCount ) || paidSubscriberCount <= 0 ) &&
 		( ! Number.isFinite( followerCount ) || followerCount <= 0 )
 	) {
 		return null;
 	}
 
-	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
+	// In the paid-subscriber only, we send to a restricted number of subscribers
+	const realSubscriberCount =
+		accessLevel === accessOptions.paid_subscribers.label ? paidSubscriberCount : subscriberCount;
+	// We send to the social followers only when it is "everybody"
+	const realFollowerCount = accessLevel === accessOptions.everybody.label ? followerCount : 0;
 
+	const showNotices = Number.isFinite( realSubscriberCount ) && realSubscriberCount > 0;
 	return (
 		<>
 			<AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
@@ -112,7 +120,7 @@ export default function SubscribePanels() {
 				{ ! showMisconfigurationMessage && showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							followerCount !== 0
+							realFollowerCount !== 0
 								? sprintf(
 										/* translators: 1$s will be subscribers, %2$s will be social followers */
 										__(
@@ -121,13 +129,18 @@ export default function SubscribePanels() {
 										),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscriberCount, 'jetpack' ),
+											numberFormat( realSubscriberCount )
 										),
 										sprintf(
 											/* translators: %s will be a number of social followers */
-											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-											numberFormat( followerCount )
+											_n(
+												'%s social follower',
+												'%s social followers',
+												realFollowerCount,
+												'jetpack'
+											),
+											numberFormat( realFollowerCount )
 										)
 								  )
 								: sprintf(
@@ -135,8 +148,8 @@ export default function SubscribePanels() {
 										__( 'This post will reach <span>%1$s</span>.', 'jetpack' ),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscriberCount, 'jetpack' ),
+											numberFormat( realSubscriberCount )
 										)
 								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }

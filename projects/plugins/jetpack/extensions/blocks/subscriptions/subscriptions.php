@@ -127,6 +127,7 @@ function fetch_subscriber_counts() {
 		$subs_count = array(
 			'value' => array(
 				'email_subscribers' => \wpcom_subs_total_for_blog(),
+				'paid_subscribers'  => \wpcom_subs_total_paid_for_blog(),
 				'social_followers'  => \wpcom_social_followers_total_for_blog(),
 			),
 		);

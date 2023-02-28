@@ -5,8 +5,10 @@ import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wo
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
+const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
+import {  useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getSubscriberCounts } from './api';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
@@ -27,6 +29,23 @@ export const accessOptions = {
 	},
 };
 
+function getReachForAccessLevel( key, subscribersCount, paidSubscribersCount, followersCount ) {
+	if ( subscribersCount === null || paidSubscribersCount === null || followersCount === null ) {
+		return '';
+	}
+
+	switch ( key ) {
+		case accessOptions.everybody.label:
+			return '(' + subscribersCount + followersCount + '+)';
+		case accessOptions.subscribers.label:
+			return '(' + subscribersCount + ')';
+		case accessOptions.paid_subscribers.label:
+			return '(' + paidSubscribersCount + ')';
+		default:
+			return '';
+	}
+}
+
 export function MisconfigurationWarning( { accessLevel } ) {
 	return (
 		<div className="jetpack-subscribe-notice-misconfiguration warning">
@@ -44,6 +63,18 @@ export function MisconfigurationWarning( { accessLevel } ) {
 }
 
 function NewsletterAccessChoices( { accessLevel, onChange } ) {
+	const [ subscribersCount, setsubscribersCount ] = useState( null );
+	const [ paidSubscribersCount, setPaidSubscribersCount ] = useState( null );
+	const [ followerCount, setFollowerCount ] = useState( null );
+
+	useEffect( () => {
+		getSubscriberCounts( counts => {
+			setsubscribersCount( counts.email_subscribers );
+			setFollowerCount( counts.social_followers );
+			setPaidSubscribersCount( counts.paid_subscribers );
+		} );
+	}, [] );
+
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -74,7 +105,8 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 						id={ `editor-post-${ key }-${ instanceId }-description` }
 						className="editor-post-visibility__info"
 					>
-						{ accessOptions[ key ].info }
+						{ accessOptions[ key ].info }{ ' ' }
+						{ getReachForAccessLevel( key, subscribersCount, paidSubscribersCount, followerCount ) }
 					</p>
 				</div>
 			) ) }
