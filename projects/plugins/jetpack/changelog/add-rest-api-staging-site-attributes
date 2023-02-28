@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Adds `is_wpcom_staging_site`, `wpcom_production_blog_id`, and `wpcom_staging_blog_ids` attributes to the site object
