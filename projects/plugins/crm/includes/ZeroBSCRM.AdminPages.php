@@ -1375,7 +1375,7 @@ function zeroBSCRM_html_home2() {
 		<div id="action-buttons" class='block'>
 		<h6>
 		<?php
-		esc_html_e( 'Jetpack CRM makes it easy for you to manage your customers using WordPress. To get started, read our guide on how create your first customer', 'zero-bs-crm' );
+		esc_html_e( 'Jetpack CRM makes it easy for you to manage your contacts using WordPress. To get started, read our guide on how create your first contact', 'zero-bs-crm' );
 		echo ':';
 		?>
 		</h6>
