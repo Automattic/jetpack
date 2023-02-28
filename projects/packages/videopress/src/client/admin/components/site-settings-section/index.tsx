@@ -32,7 +32,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	const siteIsAtomicPrivate = siteIsPrivate && siteType === SITE_TYPE_ATOMIC;
 	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
 	const disabledReason = siteIsAtomicPrivate
-		? 'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.'
+		? __( 'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.', 'jetpack-videopress-pkg' )
 		: null;
 
 	return (
