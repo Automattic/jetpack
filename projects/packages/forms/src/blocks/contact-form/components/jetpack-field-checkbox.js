@@ -5,8 +5,9 @@ import {
 	PanelColorSettings,
 } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
-import { withInstanceId } from '@wordpress/compose';
+import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
@@ -69,8 +70,14 @@ function JetpackFieldCheckbox( props ) {
 						help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 					/>
 					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
-				</PanelBody>
 
+					<ToggleControl
+						label={ __( 'Sync fields style', 'jetpack-forms' ) }
+						checked={ attributes.shareFieldAttributes }
+						onChange={ value => setAttributes( { shareFieldAttributes: value } ) }
+						help={ __( 'Deactivate for individual styling of this block', 'jetpack-forms' ) }
+					/>
+				</PanelBody>
 				<PanelColorSettings
 					title={ __( 'Color', 'jetpack-forms' ) }
 					initialOpen={ false }
@@ -81,7 +88,7 @@ function JetpackFieldCheckbox( props ) {
 							label: __( 'Label Text', 'jetpack-forms' ),
 						},
 					] }
-				></PanelColorSettings>
+				/>
 				<PanelBody
 					title={ __( 'Label Styles', 'jetpack-forms' ) }
 					initialOpen={ attributes.labelFontSize }
@@ -104,4 +111,18 @@ function JetpackFieldCheckbox( props ) {
 	);
 }
 
-export default withInstanceId( JetpackFieldCheckbox );
+export default compose(
+	withSharedFieldAttributes( [
+		'borderRadius',
+		'borderWidth',
+		'labelFontSize',
+		'fieldFontSize',
+		'lineHeight',
+		'labelLineHeight',
+		'inputColor',
+		'labelColor',
+		'fieldBackgroundColor',
+		'borderColor',
+	] ),
+	withInstanceId
+)( JetpackFieldCheckbox );

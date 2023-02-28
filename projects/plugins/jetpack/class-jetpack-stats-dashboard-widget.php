@@ -38,6 +38,20 @@ class Jetpack_Stats_Dashboard_Widget {
 	 * Sets up the Jetpack Stats widget in the WordPress admin dashboard.
 	 */
 	public static function wp_dashboard_setup() {
+
+		/**
+		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
+		 * By default, the dashboard widget is shown to users who can view_stats.
+		 *
+		 * @module stats
+		 * @since 11.9
+		 *
+		 * @param bool Whether to show the widget to the current user.
+		 */
+		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', current_user_can( 'view_stats' ) ) ) {
+			return;
+		}
+
 		if ( Jetpack::is_connection_ready() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
 		}
