@@ -2,14 +2,14 @@
 /**
  * Launchpad API endpoint
  *
- * @package automattic/jetpack
- * @since 9.5.0
+ * @package automattic/jetpack-mu-wpcom
+ * @since 1.1.0
  */
 
 /**
  * Fetches Launchpad-related data for the site
  *
- * @since 9.5.0
+ * @since 1.1.0
  */
 class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
