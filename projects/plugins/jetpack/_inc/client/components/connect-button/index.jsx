@@ -226,7 +226,6 @@ export class ConnectButton extends React.Component {
 					</p>
 				) }
 				{ this.renderContent() }
-				{ this.props.children }
 				<DisconnectDialog
 					apiNonce={ this.props.apiNonce }
 					apiRoot={ this.props.apiRoot }
