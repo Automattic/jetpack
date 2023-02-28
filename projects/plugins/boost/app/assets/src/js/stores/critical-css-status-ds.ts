@@ -50,7 +50,9 @@ const ProviderSchema = z.object( {
 	// Required success ratio defined by the Provider class.
 	success_ratio: z.coerce.number(),
 	// Status
-	status: z.enum( [ 'success', 'pending', 'error' ] ).catch( 'error' ),
+	status: z
+		.enum( [ 'success', 'pending', 'error', 'validation-error' ] )
+		.catch( 'validation-error' ),
 	// Status message
 	// @REFACTORING: Unused right now
 	status_message: z.coerce.string().optional(),

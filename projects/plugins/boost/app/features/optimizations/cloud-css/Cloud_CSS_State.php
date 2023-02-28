@@ -57,8 +57,7 @@ class Cloud_CSS_State {
 		$this->update_provider(
 			$provider_key,
 			array(
-				'status' => self::SUCCESS,
-				'error'  => null,
+				'status' => self::SUCCESS
 			)
 		);
 
@@ -66,12 +65,16 @@ class Cloud_CSS_State {
 	}
 
 	public function has_pending_provider( $providers = array() ) {
+		if ( empty( $this->critical_css_state->state['providers'] ) ) {
+			return false;
+		}
+
 		if ( empty( $providers ) ) {
 			$providers = $this->critical_css_state->state['providers'];
 		}
 
 		$pending = false;
-		foreach ( $this->critical_css_state->state['providers'] as $provider ) {
+		foreach ( $providers as $provider ) {
 			$provider_key = $provider['key'];
 			if ( in_array( $provider_key, $providers, true ) && isset( $provider['status'] ) && self::PENDING === $provider['status'] ) {
 				$pending = true;
@@ -101,6 +104,19 @@ class Cloud_CSS_State {
 			$partial_data
 		);
 
+		return $this;
+	}
+
+	public function maybe_set_generated() {
+		$providers = $this->critical_css_state->state['providers'];
+		if( count( $providers) === 0 ) {
+			return $this;
+		}
+		$provider_states = array_column( $providers, 'status' );
+		$is_done = ! in_array( self::PENDING, $provider_states, true );
+		if ( $is_done ) {
+			$this->critical_css_state->state['status'] = self::SUCCESS;
+		}
 		return $this;
 	}
 

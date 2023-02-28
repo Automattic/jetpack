@@ -157,7 +157,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 				$state->set_source_error( $provider_key, $data['error'] );
 			}
-			$state->save();
+
+			$state->maybe_set_generated()->save();
 
 			return array( 'success' => true );
 		} catch ( \Exception $e ) {
