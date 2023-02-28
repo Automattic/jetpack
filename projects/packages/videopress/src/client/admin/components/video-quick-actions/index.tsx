@@ -45,15 +45,15 @@ const PopoverWithAnchor = ( {
 	anchor,
 	children = null,
 }: PopoverWithAnchorProps ) => {
-	if ( ! anchor || ! showPopover ) {
-		return null;
-	}
-
 	useEffect( () => {
 		if ( showPopover && ! isAnchorFocused ) {
 			( anchor?.querySelector( '.components-popover' ) as HTMLElement | null )?.focus();
 		}
 	}, [ showPopover ] );
+
+	if ( ! anchor || ! showPopover ) {
+		return null;
+	}
 
 	const popoverProps = {
 		anchor,
