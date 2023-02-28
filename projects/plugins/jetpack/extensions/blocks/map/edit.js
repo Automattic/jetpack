@@ -38,6 +38,7 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 	bottomLeft: false,
 	topLeft: false,
 };
+
 class MapEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -47,6 +48,7 @@ class MapEdit extends Component {
 		};
 		this.mapRef = createRef();
 	}
+
 	geoCodeAddress = ( address, apiKey ) => {
 		if ( ! apiKey ) {
 			return;
@@ -121,6 +123,7 @@ class MapEdit extends Component {
 	removeAPIKey = () => {
 		this.apiCall( null, 'DELETE' );
 	};
+
 	apiCall( serviceApiKey = null, method = 'GET' ) {
 		return new Promise( ( resolve, reject ) => {
 			const { noticeOperations } = this.props;
@@ -157,6 +160,7 @@ class MapEdit extends Component {
 			} );
 		} );
 	}
+
 	componentDidMount() {
 		this.apiCall().then( () => {
 			if ( this.props.attributes?.address ) {
@@ -164,6 +168,7 @@ class MapEdit extends Component {
 			}
 		} );
 	}
+
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
 		noticeOperations.removeAllNotices();
@@ -184,14 +189,18 @@ class MapEdit extends Component {
 
 		onResizeStop();
 
-		if ( this.mapRef && this.mapRef.current ) {
-			const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+		const ref = this.mapRef?.current?.mapRef ?? this.mapRef;
+
+		if ( ref ) {
+			const height = parseInt( ref.current.offsetHeight + delta.height, 10 );
 
 			setAttributes( {
 				mapHeight: height,
 			} );
 
-			setTimeout( this.mapRef.current.sizeMap, 0 );
+			if ( ref.current.sizeMap ) {
+				setTimeout( ref.current.sizeMap, 0 );
+			}
 		}
 	};
 

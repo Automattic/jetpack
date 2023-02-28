@@ -6,6 +6,7 @@ import { getLoadContext, waitForObject } from '../../../../shared/block-editor-a
 import {
 	convertZoomLevelToCameraDistance,
 	convertCameraDistanceToZoomLevel,
+	pointsToMapRegion,
 } from '../../mapkit-utils';
 import { MapkitContext } from '../context';
 
@@ -154,16 +155,20 @@ const useMapkitType = mapStyle => {
 };
 
 const useMapkitZoom = ( zoom, setZoom ) => {
-	const { mapkit, map } = useMapkit();
+	const { mapkit, map, points } = useMapkit();
 
 	useEffect( () => {
 		if ( mapkit && map ) {
-			const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
-			if ( cameraDistance !== map.cameraDistance ) {
-				map.cameraDistance = cameraDistance;
+			if ( points && points.length <= 1 ) {
+				const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
+				if ( cameraDistance !== map.cameraDistance ) {
+					map.cameraDistance = cameraDistance;
+				}
+			} else {
+				map.region = pointsToMapRegion( mapkit, points );
 			}
 		}
-	}, [ mapkit, map, zoom ] );
+	}, [ mapkit, map, zoom, points ] );
 
 	useEffect( () => {
 		const changeZoom = () => {
@@ -181,6 +186,10 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect = null ) => {
 	const { mapkit, map, loaded } = useMapkit();
 
+	// avoid rerenders by making these refs
+	const callOutElementRef = useRef( callOutElement );
+	const onSelectRef = useRef( onSelect );
+
 	useEffect( () => {
 		if ( loaded ) {
 			map.removeAnnotations( map.annotations );
@@ -191,19 +200,19 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 				);
 				marker.calloutEnabled = true;
 				marker.title = point.title;
-				if ( callOutElement ) {
+				if ( callOutElementRef.current ) {
 					marker.callout = {
-						calloutElementForAnnotation: callOutElement,
+						calloutElementForAnnotation: callOutElementRef.current,
 					};
 				}
-				if ( onSelect ) {
-					marker.addEventListener( 'select', () => onSelect( point, map ) );
+				if ( onSelectRef.current ) {
+					marker.addEventListener( 'select', () => onSelectRef.current( point, map ) );
 				}
 				return marker;
 			} );
 			map.showItems( annotations );
 		}
-	}, [ points, loaded, map, mapkit, markerColor, onSelect, callOutElement ] );
+	}, [ points, loaded, map, mapkit, markerColor, callOutElementRef, onSelectRef ] );
 };
 
 export {

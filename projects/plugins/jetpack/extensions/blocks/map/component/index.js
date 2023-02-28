@@ -7,7 +7,7 @@ const MapComponent = forwardRef( ( props, ref ) => {
 	const mapProvider = getMapProvider();
 	if ( mapProvider === 'mapkit' ) {
 		const mapkitProps = { ...props, ref: null };
-		return <MapkitComponent { ...mapkitProps } />;
+		return <MapkitComponent { ...mapkitProps } ref={ ref } />;
 	}
 	return <MapboxComponent { ...props } ref={ ref } />;
 } );

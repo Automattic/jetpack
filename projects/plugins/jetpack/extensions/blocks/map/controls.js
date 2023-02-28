@@ -32,7 +32,7 @@ export default ( {
 		setAttributes( { align: value } );
 
 		// Allow one cycle for alignment change to take effect
-		if ( mapRef.current ) {
+		if ( mapRef.current && mapRef.current.sizeMap ) {
 			setTimeout( mapRef.current.sizeMap, 0 );
 		}
 	};
@@ -53,7 +53,8 @@ export default ( {
 			height = null;
 		} else if ( null == mapHeight ) {
 			// There was previously no height defined, so set the default.
-			height = mapRef.current.mapRef.current.offsetHeight;
+			const ref = mapRef?.current?.mapRef ?? mapRef;
+			height = ref?.current.offsetHeight;
 		} else if ( height < minHeight ) {
 			// Set map height to minimum size
 			height = minHeight;
@@ -63,7 +64,9 @@ export default ( {
 			mapHeight: height,
 		} );
 
-		setTimeout( mapRef.current.sizeMap, 0 );
+		if ( mapRef.current.sizeMap ) {
+			setTimeout( mapRef.current.sizeMap, 0 );
+		}
 	};
 
 	if ( context === 'toolbar' ) {
@@ -136,7 +139,7 @@ export default ( {
 					value={ attributes.zoom }
 					onChange={ value => {
 						setAttributes( { zoom: value } );
-						if ( mapRef.current ) {
+						if ( mapRef.current && mapRef.current.updateZoom ) {
 							setTimeout( mapRef.current.updateZoom, 0 );
 						}
 					} }

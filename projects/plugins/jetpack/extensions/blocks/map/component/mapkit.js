@@ -1,4 +1,4 @@
-import { Children, memo, useCallback, useEffect, useRef } from '@wordpress/element';
+import { Children, forwardRef, memo, useEffect, useRef } from '@wordpress/element';
 import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
@@ -12,9 +12,8 @@ import {
 } from '../mapkit/hooks';
 import InfoWindow from './info-window';
 
-const MapkitComponent = props => {
+const MapkitComponent = forwardRef( ( props, mapRef ) => {
 	const { admin, points, onSetPoints } = props;
-	const mapRef = useRef( null );
 	const { loaded, mapkit, currentDoc, currentWindow } = useMapkitSetup( mapRef );
 	const { map } = useMapkitInit( mapkit, loaded, mapRef );
 	const addPoint = Children.map( props.children, child => {
@@ -40,7 +39,7 @@ const MapkitComponent = props => {
 		>
 			{ loaded && mapkit && map ? <MapkitHelpers { ...props } /> : null }
 			<div
-				style={ { height: '400px' } }
+				style={ { height: props.mapHeight ? `${ props.mapHeight }px` : '400px' } }
 				className="wp-block-jetpack-map__gm-container"
 				ref={ mapRef }
 			></div>
@@ -48,7 +47,7 @@ const MapkitComponent = props => {
 			<InfoWindow />
 		</MapkitProvider>
 	);
-};
+} );
 
 const MapkitHelpers = memo(
 	( {
@@ -63,41 +62,41 @@ const MapkitHelpers = memo(
 		onMapLoaded,
 	} ) => {
 		const { map, mapkit, loaded, setActiveMarker, setCalloutReference, currentDoc } = useMapkit();
-		const loadedCallback = onMapLoaded;
+
+		// Save these in a ref to prevent unwanted rerenders
+		const onMapLoadedRef = useRef( onMapLoaded );
+		const onMarkerClickRef = useRef( onMarkerClick );
+
 		useMapkitCenter( mapCenter, onSetMapCenter );
 		useMapkitType( mapStyle );
 		useMapkitZoom( zoom, onSetZoom );
 		useMapkitPoints(
 			points,
 			markerColor,
-			useCallback( () => {
+			() => {
 				const element = currentDoc.createElement( 'div' );
 				element.classList.add( 'mapkit-popup-content' );
 				setCalloutReference( element );
 				return element;
-			}, [ currentDoc, setCalloutReference ] ),
-			useCallback(
-				marker => {
-					setActiveMarker( marker );
-					onMarkerClick( marker );
-					map.setCenterAnimated(
-						new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
-					);
-				},
-				[ map, mapkit, onMarkerClick, setActiveMarker ]
-			)
+			},
+			marker => {
+				setActiveMarker( marker );
+				if ( onMarkerClickRef.current ) {
+					onMarkerClickRef.current( marker );
+				}
+				map.setCenterAnimated(
+					new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
+				);
+			}
 		);
 
 		useEffect( () => {
-			//console.log( 'loaded' );
-			if ( loaded && map ) {
-				loadedCallback( map );
+			if ( loaded && map && onMapLoadedRef.current ) {
+				onMapLoadedRef.current( map );
 			}
-		}, [ loaded, loadedCallback, map ] );
+		}, [ loaded, map, onMapLoadedRef ] );
 
 		useEffect( () => {
-			// console.log( 'register tap' );
-
 			if ( loaded ) {
 				map.addEventListener( 'single-tap', () => {
 					setActiveMarker( null );
