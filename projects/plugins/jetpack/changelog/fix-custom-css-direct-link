@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Custom CSS: ensure the link to enable Custom CSS works in all languages.
