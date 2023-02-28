@@ -209,27 +209,19 @@ module.exports = [
 		],
 	},
 	{
+		...crmWebpackConfig,
 		entry: getReactComponentViewMapping(),
-		mode: jetpackWebpackConfig.mode,
-		devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
 		output: {
 			...jetpackWebpackConfig.output,
 			path: path.resolve( './build' ),
 		},
-		optimization: {
-			...jetpackWebpackConfig.optimization,
-		},
-		resolve: {
-			...jetpackWebpackConfig.resolve,
-		},
-		node: false,
 		plugins: [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: { injectPolyfill: true },
 			} ),
 		],
 		module: {
-			strictExportPresence: true,
+			...crmWebpackConfig.module,
 			rules: [
 				// Transpile plugin JavaScript.
 				jetpackWebpackConfig.TranspileRule( {
@@ -250,14 +242,6 @@ module.exports = [
 				// Handle images.
 				jetpackWebpackConfig.FileRule(),
 			],
-		},
-		externals: {
-			...jetpackWebpackConfig.externals,
-			jetpackConfig: JSON.stringify( {
-				consumer_slug: 'zero-bs-crm',
-			} ),
-			'@wordpress/i18n': 'global wpI18n',
-			'@wordpress/jp-i18n-loader': 'global jpI18nLoader',
 		},
 	},
 ];
