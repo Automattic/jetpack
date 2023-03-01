@@ -12,15 +12,13 @@ export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const isSavingSite = useSelect(
-			select => select( editorStore ).isSavingNonPostEntityChanges(),
-			[]
-		);
-		const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
-		const isPublishingPost = useSelect( select => select( editorStore ).isPublishingPost(), [] );
-		const isCurrentPostPublished = useSelect(
-			select => select( editorStore ).isCurrentPostPublished(),
-			[]
+		const { isSavingSite, isSavingPost, isPublishingPost, isCurrentPostPublished } = useSelect(
+			selector => ( {
+				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
+				isSavingPost: selector( editorStore ).isSavingPost(),
+				isPublishingPost: selector( editorStore ).isPublishingPost(),
+				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
+			} )
 		);
 
 		const prevIsSavingSite = usePrevious( isSavingSite );

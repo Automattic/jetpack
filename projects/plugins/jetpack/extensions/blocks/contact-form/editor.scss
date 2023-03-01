@@ -353,6 +353,13 @@
 	}
 }
 
+:where(:not(.contact-form)) > .jetpack-field {
+	.jetpack-field__input, .jetpack-field__textarea {
+		padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+		padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+	}
+}
+
 .jetpack-field-label__width {
 	.components-button-group {
 		display: block;
