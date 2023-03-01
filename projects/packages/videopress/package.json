@@ -35,7 +35,7 @@
 		"@testing-library/react": "13.4.0",
 		"@types/jest": "29.2.5",
 		"@types/react": "18.0.27",
-		"@types/react-dom": "18.0.10",
+		"@types/react-dom": "18.0.11",
 		"@types/react-test-renderer": "18.0.0",
 		"@types/testing-library__jest-dom": "5.14.1",
 		"@types/wordpress__components": "23.0.1",

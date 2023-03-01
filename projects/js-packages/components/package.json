@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "0.28.0",
+	"version": "0.28.1-alpha",
 	"description": "Jetpack Components Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
@@ -29,7 +29,7 @@
 		"@types/jest": "29.2.5",
 		"@types/qrcode.react": "1.0.2",
 		"@types/react": "18.0.27",
-		"@types/react-dom": "18.0.10",
+		"@types/react-dom": "18.0.11",
 		"@types/react-test-renderer": "18.0.0",
 		"@types/testing-library__jest-dom": "5.14.1",
 		"@types/wordpress__components": "23.0.1",
