@@ -147,12 +147,7 @@ if ( isset( $sbupdated ) ) {
 												'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?',
 												'zero-bs-crm'
 											),
-											array(
-												'a' => array(
-													'href' => array(),
-													'id'   => array(),
-												),
-											)
+											$zbs->acceptable_restricted_html
 										),
 										'#'
 									);
