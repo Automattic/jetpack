@@ -43,7 +43,7 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
 		return;
 	}
 
-	return generateCriticalCss( false );
+	return generateCriticalCss( get( criticalCssState ) );
 }
 
 /**
