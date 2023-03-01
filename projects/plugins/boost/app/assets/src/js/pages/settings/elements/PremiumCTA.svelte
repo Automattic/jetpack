@@ -31,7 +31,7 @@
 		<p>{__( 'Save time by upgrading to Automatic Critical CSS generation', 'jetpack-boost' )}</p>
 		<p class="jb-premium-cta__action-line">
 			{sprintf(
-				/* translators: %s is the price */
+				/* translators: %s is the price including the currency symbol in front. */
 				__( `Upgrade now only %s`, 'jetpack-boost' ),
 				currencyObjectAfter.symbol + currencyObjectAfter.integer / 12
 			)}
