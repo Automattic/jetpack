@@ -1,4 +1,3 @@
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
@@ -18,9 +17,7 @@ const COLUMNS = [
 	},
 ];
 
-const InboxList = ( { responses, onSelectionChange } ) => {
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-
+const InboxList = ( { responses, onSelectionChange, currentPage, setCurrentPage, pages } ) => {
 	return (
 		<>
 			<Table
@@ -32,7 +29,7 @@ const InboxList = ( { responses, onSelectionChange } ) => {
 
 			<PageNavigation
 				currentPage={ currentPage }
-				pages={ 10 }
+				pages={ pages }
 				onSelectPage={ setCurrentPage }
 				expandedRange={ 2 }
 			/>

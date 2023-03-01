@@ -14,20 +14,28 @@ import InboxResponse from './response';
 
 import './style.scss';
 
+const RESPONSES_FETCH_LIMIT = 5;
+
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ searchText, setSearchText ] = useState( '' );
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const [ searchTerm, setSearchTerm ] = useState( searchText );
 
 	const [ loading, responses, total ] = useSelect(
 		select => {
 			const stateSelector = select( STORE_NAME );
 			return [
 				stateSelector.isFetchingResponses(),
-				stateSelector.getResponses( searchText ),
+				stateSelector.getResponses(
+					searchTerm,
+					RESPONSES_FETCH_LIMIT,
+					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				),
 				stateSelector.getTotalResponses(),
 			];
 		},
-		[ searchText ]
+		[ searchTerm, currentPage ]
 	);
 
 	useEffect( () => {
@@ -38,15 +46,14 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	const handleLoadMore = useCallback( () => {
-		// this only needs to change the offset for the query
-	}, [] );
-
-	const handleSearch = useCallback( event => {
-		event.preventDefault();
-		// this only needs to actually set a searchText (called differently) so we put as dependency on the useSelect
-		// currently the search is being triggered every time searchText changes
-	}, [] );
+	const handleSearch = useCallback(
+		event => {
+			event.preventDefault();
+			setSearchTerm( searchText );
+			setCurrentPage( 1 );
+		},
+		[ searchText ]
+	);
 
 	const numberOfResponses = sprintf(
 		/* translators: %s: Number of responses. */
@@ -80,9 +87,12 @@ const Inbox = () => {
 						currentResponseId={ currentResponseId }
 						hasMore={ responses.length < total }
 						loading={ loading }
-						onLoadMore={ handleLoadMore }
 						onSelectionChange={ setCurrentResponseId }
 						responses={ responses }
+						currentPage={ currentPage }
+						setCurrentPage={ setCurrentPage }
+						total={ total }
+						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 					/>
 				</div>
 
