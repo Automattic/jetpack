@@ -5,21 +5,14 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_FORMS_RESPONSES_FETCH,
-	JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
-	JETPACK_FORMS_RESPONSES_FETCH_FAIL,
-} from './action-types';
+import { RESPONSES_FETCH, RESPONSES_FETCH_RECEIVE, RESPONSES_FETCH_FAIL } from './action-types';
 
 const loading = ( state = false, action ) => {
-	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH ) {
+	if ( action.type === RESPONSES_FETCH ) {
 		return true;
 	}
 
-	if (
-		action.type === JETPACK_FORMS_RESPONSES_FETCH_RECEIVE ||
-		action.type === JETPACK_FORMS_RESPONSES_FETCH_FAIL
-	) {
+	if ( action.type === RESPONSES_FETCH_RECEIVE || action.type === RESPONSES_FETCH_FAIL ) {
 		return false;
 	}
 
@@ -27,11 +20,11 @@ const loading = ( state = false, action ) => {
 };
 
 const responses = ( state = [], action ) => {
-	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH && action.offset === 0 ) {
+	if ( action.type === RESPONSES_FETCH && action.offset === 0 ) {
 		return [];
 	}
 
-	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH_RECEIVE ) {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		return [ ...action.responses ];
 	}
 
@@ -39,11 +32,11 @@ const responses = ( state = [], action ) => {
 };
 
 const total = ( state = 0, action ) => {
-	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH && action.offset === 0 ) {
+	if ( action.type === RESPONSES_FETCH && action.offset === 0 ) {
 		return 0;
 	}
 
-	if ( action.type === JETPACK_FORMS_RESPONSES_FETCH_RECEIVE ) {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		return action.total;
 	}
 

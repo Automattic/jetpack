@@ -3,7 +3,7 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	SelectControl,
 } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { find, includes, map } from 'lodash';
@@ -14,23 +14,21 @@ import InboxResponse from './response';
 
 import './style.scss';
 
-const RESPONSES_PER_PAGE = 10;
-
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
-	// const [ showResponseView, setShowResponseView ] = useState( false );
 	const [ searchText, setSearchText ] = useState( '' );
 
-	const { dispatch } = useDispatch( STORE_NAME );
-
-	const [ loading, responses, total ] = useSelect( select => {
-		const stateSelector = select( STORE_NAME );
-		return [
-			stateSelector.isFetchingResponses(),
-			stateSelector.getResponses(),
-			stateSelector.getTotalResponses(),
-		];
-	} );
+	const [ loading, responses, total ] = useSelect(
+		select => {
+			const stateSelector = select( STORE_NAME );
+			return [
+				stateSelector.isFetchingResponses(),
+				stateSelector.getResponses( searchText ),
+				stateSelector.getTotalResponses(),
+			];
+		},
+		[ searchText ]
+	);
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -41,16 +39,14 @@ const Inbox = () => {
 	}, [ responses, currentResponseId ] );
 
 	const handleLoadMore = useCallback( () => {
-		// fetchResponses( { search: searchText }, RESPONSES_PER_PAGE, responses.length )( dispatch );
-	}, [ searchText, responses, dispatch ] );
+		// this only needs to change the offset for the query
+	}, [] );
 
-	const handleSearch = useCallback(
-		event => {
-			event.preventDefault();
-			// fetchResponses( { search: searchText }, RESPONSES_PER_PAGE )( dispatch );
-		},
-		[ searchText, dispatch ]
-	);
+	const handleSearch = useCallback( event => {
+		event.preventDefault();
+		// this only needs to actually set a searchText (called differently) so we put as dependency on the useSelect
+		// currently the search is being triggered every time searchText changes
+	}, [] );
 
 	const numberOfResponses = sprintf(
 		/* translators: %s: Number of responses. */

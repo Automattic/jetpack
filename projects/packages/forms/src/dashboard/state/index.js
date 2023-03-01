@@ -16,7 +16,6 @@ const storeConfig = {
 	resolvers,
 };
 
-console.log( storeConfig );
 const store = createReduxStore( STORE_NAME, storeConfig );
 
 register( store );
