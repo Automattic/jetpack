@@ -5,7 +5,11 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
+/**
+ * Types
+ */
+import type { PlayerProps } from './types';
+import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -34,23 +38,13 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
 	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
 }
 
-// Define a debug instance for block bridge.
-window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
-
 /**
  * VideoPlayer react component
  *
- * @param {object} props                 - Component props.
- * @param {object} props.html            - Player html to render in the sandbox.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {object} props.attributes      - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {Array} props.scripts          - Scripts to pass trough to the sandbox.
- * @param {object} props.preview         - oEmbed preview data.
- * @param {boolean} props.isRequestingEmbedPreview - oEmbed preview data.
- * @returns {object}                     - React component.
+ * @param {PlayerProps} props  - Component props.
+ * @returns {React.ReactElement} Playback block sidebar panel
  */
-export default function VideoPressPlayer( {
+export default function Player( {
 	html,
 	isSelected,
 	attributes,
@@ -58,9 +52,9 @@ export default function VideoPressPlayer( {
 	scripts = [],
 	preview,
 	isRequestingEmbedPreview,
-} ) {
-	const mainWrapperRef = useRef();
-	const videoWrapperRef = useRef();
+}: PlayerProps ): React.ReactElement {
+	const mainWrapperRef = useRef< HTMLDivElement >();
+	const videoWrapperRef = useRef< HTMLDivElement >();
 	const { maxWidth, caption, videoRatio } = attributes;
 
 	/*
@@ -70,7 +64,9 @@ export default function VideoPressPlayer( {
 	 * trying to reduce the flicker effects as much as possible.
 	 * Once the preview is fetched, the temporary height is ignored.
 	 */
-	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState();
+	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState<
+		number | string
+	>( 400 );
 
 	// todo: figure out why 12px are needed.
 	const temporaryHeighErrorCorrection = 12;
@@ -184,7 +180,11 @@ export default function VideoPressPlayer( {
 		[ setAttributes ]
 	);
 
-	const wrapperElementStyle = {};
+	const wrapperElementStyle: {
+		height?: number | string;
+		paddingBottom?: number;
+	} = {};
+
 	if ( videoPlayerTemporaryHeight !== 'auto' ) {
 		wrapperElementStyle.height = videoPlayerTemporaryHeight || 200;
 		wrapperElementStyle.paddingBottom = videoPlayerTemporaryHeight
@@ -202,7 +202,7 @@ export default function VideoPressPlayer( {
 					right: true,
 				} }
 				maxWidth="100%"
-				size={ { width: maxWidth } }
+				size={ { width: maxWidth, height: 'auto' } }
 				style={ { marginRight: 'auto' } }
 				onResizeStop={ onBlockResize }
 				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
