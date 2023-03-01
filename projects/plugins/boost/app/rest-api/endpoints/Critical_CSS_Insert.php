@@ -70,9 +70,6 @@ class Critical_CSS_Insert implements Endpoint {
 		$storage = new Critical_CSS_Storage();
 		$storage->store_css( $cache_key, $params['data'] );
 
-		// @REFACTORING TODO: Create a class that manages this
-		jetpack_boost_ds_set( 'critical_css_suggest_regenerate', true );
-
 		/**
 		 * Fires when Critical CSS has been generated - whether locally or remotely.
 		 *
