@@ -50,6 +50,15 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Return an invalid filesystem method.
+	 *
+	 * @return string
+	 */
+	public function return_invalid_filesystem_method() {
+		return 'Code is poetry.';
+	}
+
+	/**
 	 * Test WAF activation.
 	 */
 	public function testActivation() {
@@ -78,6 +87,46 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 
 		// Clean up
 		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+	}
+
+	/**
+	 * Test WAF activation when the filesystem is unavailable.
+	 */
+	public function testActivationReturnsWpErrorWhenFilesystemUnavailable() {
+		// Mock the WPCOM request for retrieving the automatic rules.
+		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+
+		// Break the filesystem.
+		add_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
+
+		// Initialize the firewall.
+		$activated = Waf_Initializer::on_activation();
+
+		// Validate the error.
+		$this->assertTrue( is_wp_error( $activated ) );
+		$this->assertSame( 'file_system_error', $activated->get_error_code() );
+
+		// Clean up.
+		remove_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
+		remove_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
+	}
+
+	/**
+	 * Test WAF deactivation when the filesystem is unavailable.
+	 */
+	public function testDeactivationWhenFilesystemUnavailable() {
+		// Break the filesystem.
+		add_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
+
+		// Deactivate the firewall.
+		$deactivated = Waf_Initializer::on_deactivation();
+
+		// Validate the error.
+		$this->assertTrue( is_wp_error( $deactivated ) );
+		$this->assertSame( 'file_system_error', $deactivated->get_error_code() );
+
+		// Clean up.
+		remove_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
 	}
 
 }
