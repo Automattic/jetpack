@@ -106,7 +106,7 @@ $settings      = $zbs->settings->getAll();
 				<div class="wizopt">
 
 					<label><?php esc_html_e( jpcrm_label_company() . ' Name / CRM Name:', 'zero-bs-crm' ); ?></label>
-					<p style="margin-bottom:0"><?php esc_html_e( "This name will be shown at the top left of your CRM (as shown below). E.g. 'Widget Co CRM'", 'zero-bs-crm' ); ?></p>
+					<p style="margin-bottom:0"><?php esc_html_e( "This name will be shown at the top left of your CRM. E.g. 'Widget Co CRM'", 'zero-bs-crm' ); ?></p>
 					<div style="width:90%;">
 						<div style="width:50%;float:left">
 							<input class='form-control' type="text" name="zbs_crm_name" id='zbs_crm_name' value="" placeholder="<?php esc_html_e( 'Name of your CRM (e.g Jetpack CRM)', 'zero-bs-crm' ); ?>" style="width:90%" onchange="zbs_crm_name_change();"/>
