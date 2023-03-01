@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Allowing getting posts by ids in GET /posts response using include array

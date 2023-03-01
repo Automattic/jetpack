@@ -105,7 +105,9 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching, processing, updateVideoPrivacy } = useVideo( Number( videoId ) );
+	const { data: video, isFetching, processing, isDeleting, updateVideoPrivacy } = useVideo(
+		Number( videoId )
+	);
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
@@ -116,6 +118,7 @@ export default () => {
 
 	const [ updating, setUpdating ] = useState( false );
 	const [ updated, setUpdated ] = useState( false );
+	const [ deleted, setDeleted ] = useState( false );
 	const [ privacySetting, setPrivacySetting ] = useState(
 		VIDEO_PRIVACY_LEVELS[ video?.privacySetting ]
 	);
@@ -255,6 +258,10 @@ export default () => {
 		} );
 	};
 
+	const handleDelete = () => {
+		setDeleted( true );
+	};
+
 	// Update the data when user enter directly to the edit page
 	// This moment we fetch the video data and update after fetching
 
@@ -291,10 +298,13 @@ export default () => {
 		libraryAttachment,
 		selectPosterImageFromLibrary,
 		handleSaveChanges,
+		handleDelete,
 		isFetching,
 		processing,
+		isDeleting,
 		updating,
 		updated,
+		deleted,
 		selectedTime,
 		setPrivacySetting,
 		privacySetting,
