@@ -300,7 +300,7 @@ export default function VideoPressEdit( {
 	] );
 
 	const { className: blockMainClassName, ...blockProps } = useBlockProps( {
-		className: 'wp-block-jetpack-videopress',
+		className: 'wp-block-jetpack-videopress wp-block-video',
 	} );
 
 	// Setting video media process
