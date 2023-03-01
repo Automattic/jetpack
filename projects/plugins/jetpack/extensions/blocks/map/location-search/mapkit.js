@@ -24,7 +24,7 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 						return;
 					}
 					// filter out results without coordinates
-					const filtered = results?.results.filter( result => result.coordinate );
+					const filtered = results?.results.filter( result => result.coordinate ) ?? [];
 
 					// add placeName
 					const withPlaceName = filtered.map( result => ( {
