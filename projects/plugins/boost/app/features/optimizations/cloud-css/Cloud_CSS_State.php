@@ -73,27 +73,22 @@ class Cloud_CSS_State {
 		return $this;
 	}
 
-	public function has_pending_provider( $providers = array() ) {
+	public function has_pending_provider( $needles = array() ) {
 		if ( empty( $this->critical_css_state->state['providers'] ) ) {
 			return false;
 		}
-
-		if ( empty( $providers ) ) {
-			$providers = $this->critical_css_state->state['providers'];
-		}
-
-		$pending = false;
+		$providers = $this->critical_css_state->state['providers'];
 		foreach ( $providers as $provider ) {
-			$provider_key = $provider['key'];
-			if ( in_array( $provider_key, $providers, true )
-				&& isset( $provider['status'] )
+			if (
+				! empty( $provider['key'] )
+				&& ! empty( $provider['status'] )
 				&& self::PROVIDER_STATES['pending'] === $provider['status']
+				&& in_array( $provider['key'], $needles, true )
 			) {
-				$pending = true;
-				break;
+				return true;
 			}
 		}
-		return $pending;
+		return false;
 	}
 
 	public function set_pending_providers( $providers ) {
@@ -109,8 +104,8 @@ class Cloud_CSS_State {
 			return $this;
 		}
 
-		$provider_index   = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
-		$current_provider = $this->critical_css_state->state['providers'][ $provider_index ];
+		$provider_index                                                  = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		$current_provider                                                = $this->critical_css_state->state['providers'][ $provider_index ];
 		$this->critical_css_state->state['providers'][ $provider_index ] = array_merge(
 			$current_provider,
 			$partial_data
