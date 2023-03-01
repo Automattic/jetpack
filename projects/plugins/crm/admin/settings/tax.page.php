@@ -28,12 +28,13 @@ if ( isset( $_POST['editzbstax'] ) ) {
 		// get unsanitised tax rate data
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- POST data is sanitized / defined when used below
 		$raw_submitted_rates = wp_unslash( $_POST['jpcrm-taxtable-line'] );
-		// max out at 128 tax rates for now
-		$max_tax_rates = min( count( $raw_submitted_rates['ids'] ), 128 );
 
 		if ( empty( $raw_submitted_rates['ids'] ) || ! is_array( $raw_submitted_rates['ids'] ) ) {
 			return;
 		}
+
+		// max out at 128 tax rates for now
+		$max_tax_rates = min( count( $raw_submitted_rates['ids'] ), 128 );
 
 		for ( $i = 0; $i < $max_tax_rates; $i++ ) {
 
