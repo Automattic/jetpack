@@ -454,6 +454,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 	min-width: 55px;
 }
 
+.sd-social-official .sd-content .share-tumblr iframe {
+	max-width: 53px;
+	width: unset;
+}
+
 body .sd-social-official li.share-print ,
 body .sd-social-official li.share-email a,
 body .sd-social-official li.share-custom a,
