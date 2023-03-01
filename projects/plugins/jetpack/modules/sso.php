@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
@@ -55,6 +56,8 @@ class Jetpack_SSO {
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
+
+		add_filter( 'wp_login_errors', array( $this, 'sso_reminder_logout_wpcom' ) );
 	}
 
 	/**
@@ -77,6 +80,23 @@ class Jetpack_SSO {
 	 **/
 	public static function module_configure_button() {
 		Jetpack::enable_module_configurable( __FILE__ );
+	}
+
+	/**
+	 * Safety heads-up added to the logout messages when SSO is enabled.
+	 * Some folks on a shared computer don't know that they need to log out of WordPress.com as well.
+	 *
+	 * @param WP_Error $errors WP_Error object.
+	 */
+	public function sso_reminder_logout_wpcom( $errors ) {
+		if ( ( new Host() )->is_wpcom_platform() ) {
+			return $errors;
+		}
+
+		if ( ! empty( $errors->errors['loggedout'] ) ) {
+			$errors->add( 'jetpack-sso-show-logout', __( 'If you are on a shared computer, remember to also log out of wordpress.com', 'jetpack' ), 'message' );
+		}
+		return $errors;
 	}
 
 	/**
