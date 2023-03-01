@@ -110,7 +110,7 @@ export async function requestLocalCriticalCss(): Promise<CriticalCssState | fals
 	return get(cssStateStore);
 }
 
-export function stopTheShow(): void {
+export function criticalCssFatalError(): void {
 	replaceCssState({ status: 'error' });
 }
 

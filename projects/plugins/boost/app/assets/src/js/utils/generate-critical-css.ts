@@ -3,7 +3,7 @@ import {
 	criticalCssState,
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
-	stopTheShow,
+	criticalCssFatalError,
 	storeGenerateError,
 	updateProvider,
 } from '../stores/critical-css-state';
@@ -229,7 +229,7 @@ async function generateForKeys(
 					recordBoostEvent( 'critical_css_url_error', eventProps );
 				}
 			} else {
-				stopTheShow();
+				criticalCssFatalError();
 
 				// Track showstopper Critical CSS generation error.
 				const eventProps = {
