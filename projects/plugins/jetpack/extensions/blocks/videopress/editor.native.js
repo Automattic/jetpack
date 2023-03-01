@@ -1,4 +1,10 @@
+import { Platform } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
+import deprecatedV1 from './deprecated/v1';
+import deprecatedV2 from './deprecated/v2';
+import deprecatedV3 from './deprecated/v3';
+import deprecatedV4 from './deprecated/v4';
+import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 
 const addVideoPressSupport = ( settings, name ) => {
@@ -7,7 +13,7 @@ const addVideoPressSupport = ( settings, name ) => {
 		return settings;
 	}
 
-	const { save } = settings;
+	const { deprecated, edit, save, supports } = settings;
 
 	const attributesDefinition = {
 		autoplay: {
@@ -93,11 +99,39 @@ const addVideoPressSupport = ( settings, name ) => {
 		},
 	};
 
-	return {
-		...settings,
-		attributes: attributesDefinition,
-		save: withVideoPressSave( save ),
-	};
+	return Platform.select( {
+		ios: {
+			...settings,
+			attributes: attributesDefinition,
+			supports: {
+				...supports,
+				reusable: false,
+			},
+			edit: withVideoPressEdit( edit ),
+			save: withVideoPressSave( save ),
+			deprecated: [
+				...( deprecated || [] ),
+				deprecatedV4,
+				deprecatedV3,
+				{
+					attributes: attributesDefinition,
+					isEligible: attrs => ! attrs.guid,
+					save,
+					supports,
+					isDeprecation: true,
+				},
+				deprecatedV2,
+				deprecatedV1,
+			],
+		},
+		// The VideoPress token fetch is not supported yet on Android.
+		// So for now, we keep using the edit component of the core Video block.
+		android: {
+			...settings,
+			attributes: attributesDefinition,
+			save: withVideoPressSave( save ),
+		},
+	} );
 };
 
 addFilter(
