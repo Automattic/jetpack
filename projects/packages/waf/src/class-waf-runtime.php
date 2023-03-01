@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\IP\Utils as IP_Utils;
+
 require_once __DIR__ . '/functions.php';
 
 // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- This class is all about sanitizing input.
@@ -663,14 +665,32 @@ class Waf_Runtime {
 	}
 
 	/**
-	 * Verifies is ip from request is in an array.
+	 * Verifies if the IP from the current request is in an array.
 	 *
-	 * @param array $array Array to verify ip against.
+	 * @param array $array Array of IP addresses to verify the request IP against.
+	 * @return bool
 	 */
 	public function is_ip_in_array( $array ) {
-		$real_ip = $this->request->get_real_user_ip_address();
+		$real_ip      = $this->request->get_real_user_ip_address();
+		$array_length = count( $array );
 
-		return in_array( $real_ip, $array, true );
+		for ( $i = 0; $i < $array_length; $i++ ) {
+			// Check if the IP matches a provided range.
+			$range = explode( '-', $array[ $i ] );
+			if ( count( $range ) === 2 ) {
+				if ( IP_Utils::ip_address_is_in_range( $real_ip, $range[0], $range[1] ) ) {
+					return true;
+				}
+				continue;
+			}
+
+			// Check if the IP is an exact match.
+			if ( $real_ip === $array[ $i ] ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

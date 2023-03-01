@@ -264,13 +264,13 @@ if ( isset( $sbupdated ) ) {
 
 			html += '<tr class="zbs-taxtable-line">';
 			html += '<td>';
-			html += '<input type="hidden" name="jpcrm-taxtable-line[ids][]" value="' + thisID + '" />';
-			html += '<div class="ui fluid input"><input type="text" class="winput form-control" name="jpcrm-taxtable-line[names][]" value="' + namestr + '" placeholder="' + window.zeroBSCRMJS_taxTableLang.defaultTaxName + '" /></div>';
+			html += '<input type="hidden" name="jpcrm-taxtable-line[ids][]" value="' + jpcrm.esc_attr( thisID ) + '" />';
+			html += '<div class="ui fluid input"><input type="text" class="winput form-control" name="jpcrm-taxtable-line[names][]" value="' + jpcrm.esc_attr( namestr ) + '" placeholder="' + jpcrm.esc_attr( window.zeroBSCRMJS_taxTableLang.defaultTaxName ) + '" /></div>';
 			html += '</td>';
 			html += '<td>';
 			html += '<div class="ui right labeled input">';
-			html += '<input type="text" class="winput form-control numbersOnly zbs-dc" name="jpcrm-taxtable-line[rates][]" value="' + rateval + '" placeholder="' + window.zeroBSCRMJS_taxTableLang.defaultTaxPerc + '"  />';
-			html += '<div class="ui basic label">' + window.zeroBSCRMJS_taxTableLang.percSymbol + '</div></div>';
+			html += '<input type="text" class="winput form-control numbersOnly zbs-dc" name="jpcrm-taxtable-line[rates][]" value="' + jpcrm.esc_attr( rateval ) + '" placeholder="' + jpcrm.esc_attr( window.zeroBSCRMJS_taxTableLang.defaultTaxPerc ) + '"  />';
+			html += '<div class="ui basic label">' + jpcrm.esc_html( window.zeroBSCRMJS_taxTableLang.percSymbol ) + '</div></div>';
 			html += '</td>';
 			html += '<td class="wmid">';
 			html += '<button type="button" class="ui icon button zbs-taxtable-remove-rate"><i class="close icon"></i></button>';

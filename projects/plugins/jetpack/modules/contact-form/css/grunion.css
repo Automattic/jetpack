@@ -35,6 +35,11 @@
 	height: 200px;
 }
 
+.contact-form .grunion-field {
+	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+}
+
 .contact-form .grunion-field-wrap input,
 .contact-form .grunion-field-wrap textarea {
 	margin: 0;
