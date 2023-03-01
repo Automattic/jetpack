@@ -52,23 +52,21 @@ class REST_Controller {
 
 	/**
 	 * Update rules endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function update_rules() {
-		$success = true;
-		$message = 'Rules updated succesfully';
-
 		try {
 			Waf_Rules_Manager::generate_automatic_rules();
 			Waf_Rules_Manager::generate_rules();
-		} catch ( \Exception $e ) {
-			$success = false;
-			$message = $e->getMessage();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
 		}
 
 		return rest_ensure_response(
 			array(
-				'success' => $success,
-				'message' => $message,
+				'success' => true,
+				'message' => __( 'Rules updated succesfully', 'jetpack-waf' ),
 			)
 		);
 	}
@@ -84,7 +82,8 @@ class REST_Controller {
 	 * Update WAF Endpoint
 	 *
 	 * @param WP_REST_Request $request The API request.
-	 * @return WP_REST_Response
+	 *
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function update_waf( $request ) {
 		// Automatic Rules Enabled
@@ -112,7 +111,11 @@ class REST_Controller {
 			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
 		}
 
-		Waf_Runner::update_waf();
+		try {
+			Waf_Runner::update_waf();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
+		}
 
 		return self::waf();
 	}

@@ -43,14 +43,14 @@ class Waf_Rules_Manager {
 	 */
 	public static function add_hooks() {
 		// Re-activate the WAF any time an option is added or updated.
-		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
-		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( Waf_Runner::class, 'activate' ), 10, 0 );
+		add_action( 'add_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::AUTOMATIC_RULES_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_LISTS_ENABLED_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_ALLOW_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'add_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
+		add_action( 'update_option_' . self::IP_BLOCK_LIST_OPTION_NAME, array( static::class, 'reactivate_on_rules_option_change' ), 10, 0 );
 		// Register the cron job.
 		add_action( 'jetpack_waf_rules_update_cron', array( static::class, 'update_rules_cron' ) );
 	}
@@ -58,12 +58,14 @@ class Waf_Rules_Manager {
 	/**
 	 * Schedule the cron job to update the WAF rules.
 	 *
-	 * @return void
+	 * @return bool|WP_Error True if the event is scheduled, WP_Error on failure.
 	 */
 	public static function schedule_rules_cron() {
 		if ( ! wp_next_scheduled( 'jetpack_waf_rules_update_cron' ) ) {
-			wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron' );
+			return wp_schedule_event( time(), 'twicedaily', 'jetpack_waf_rules_update_cron', array(), true );
 		}
+
+		return true;
 	}
 
 	/**
@@ -74,15 +76,15 @@ class Waf_Rules_Manager {
 	public static function update_rules_cron() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return new WP_Error( 'waf_cron_update_failed', 'Invalid firewall mode.' );
+			return new WP_Error( 'waf_invalid_mode', 'Invalid firewall mode.' );
 		}
 
 		try {
 			self::generate_automatic_rules();
 			self::generate_ip_rules();
 			self::generate_rules();
-		} catch ( \Exception $e ) {
-			return new WP_Error( 'waf_cron_update_failed', $e->getMessage() );
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
 		}
 
 		update_option( self::RULE_LAST_UPDATED_OPTION_NAME, time() );
@@ -90,14 +92,32 @@ class Waf_Rules_Manager {
 	}
 
 	/**
+	 * Re-activate the WAF any time an option is added or updated.
+	 *
+	 * @return bool|WP_Error True if re-activation is successful, WP_Error on failure.
+	 */
+	public static function reactivate_on_rules_option_change() {
+		try {
+			Waf_Runner::activate();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Updates the rule set if rules version has changed
 	 *
-	 * @return bool|WP_Error True if rules update is successful, WP_Error on failure.
+	 * @throws Waf_Exception If the firewall mode is invalid.
+	 * @throws Waf_Exception If the rules update fails.
+	 *
+	 * @return void
 	 */
 	public static function update_rules_if_changed() {
 		Waf_Constants::define_mode();
 		if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-			return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );
+			throw new Waf_Exception( 'Invalid firewall mode.' );
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
@@ -107,26 +127,25 @@ class Waf_Rules_Manager {
 				self::generate_automatic_rules();
 				self::generate_ip_rules();
 				self::generate_rules();
-			} catch ( \Exception $e ) {
-				return new WP_Error( 'waf_update_failed', $e->getMessage() );
+			} catch ( Waf_Exception $e ) {
+				throw $e;
 			}
 		}
-
-		return true;
 	}
 
 	/**
 	 * Retrieve rules from the API
 	 *
-	 * @throws \Exception If site is not registered.
-	 * @throws \Exception If API did not respond 200.
-	 * @throws \Exception If data is missing from response.
+	 * @throws Waf_Exception       If site is not registered.
+	 * @throws Rules_API_Exception If API did not respond 200.
+	 * @throws Rules_API_Exception If data is missing from response.
+	 *
 	 * @return array
 	 */
 	public static function get_rules_from_api() {
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		if ( ! $blog_id ) {
-			throw new \Exception( 'Site is not registered' );
+			throw new Waf_Exception( 'Site is not registered' );
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -140,14 +159,14 @@ class Waf_Rules_Manager {
 		$response_code = wp_remote_retrieve_response_code( $response );
 
 		if ( 200 !== $response_code ) {
-			throw new \Exception( 'API connection failed.', (int) $response_code );
+			throw new Rules_API_Exception( 'API connection failed.', (int) $response_code );
 		}
 
 		$rules_json = wp_remote_retrieve_body( $response );
 		$rules      = json_decode( $rules_json, true );
 
 		if ( empty( $rules['data'] ) ) {
-			throw new \Exception( 'Data missing from response.' );
+			throw new Rules_API_Exception( 'Data missing from response.' );
 		}
 
 		return $rules['data'];
@@ -167,7 +186,10 @@ class Waf_Rules_Manager {
 	/**
 	 * Generates the rules.php script
 	 *
-	 * @throws \Exception If file writing fails.
+	 * @throws Waf_Exception         If filesystem is unavailable.
+	 * @throws File_System_Exception If file writing fails initializing rule files.
+	 * @throws File_System_Exception If file writing fails writing to the rules entrypoint file.
+	 *
 	 * @return void
 	 */
 	public static function generate_rules() {
@@ -178,7 +200,11 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		try {
+			Waf_Runner::initialize_filesystem();
+		} catch ( Waf_Exception $e ) {
+			throw $e;
+		}
 
 		$rules                = "<?php\n";
 		$entrypoint_file_path = Waf_Runner::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
@@ -194,7 +220,7 @@ class Waf_Rules_Manager {
 			$rule_file = Waf_Runner::get_waf_file_path( $rule_file );
 			if ( ! $wp_filesystem->is_file( $rule_file ) ) {
 				if ( ! $wp_filesystem->put_contents( $rule_file, "<?php\n" ) ) {
-					throw new \Exception( 'Failed writing rules file to: ' . $rule_file );
+					throw new File_System_Exception( 'Failed writing rules file to: ' . $rule_file );
 				}
 			}
 		}
@@ -212,14 +238,17 @@ class Waf_Rules_Manager {
 
 		// Update the rules file
 		if ( ! $wp_filesystem->put_contents( $entrypoint_file_path, $rules ) ) {
-			throw new \Exception( 'Failed writing rules file to: ' . $entrypoint_file_path );
+			throw new File_System_Exception( 'Failed writing rules file to: ' . $entrypoint_file_path );
 		}
 	}
 
 	/**
 	 * Generates the automatic-rules.php script
 	 *
-	 * @throws \Exception If rules cannot be generated and saved.
+	 * @throws Waf_Exception         If filesystem is unavailable.
+	 * @throws Waf_Exception         If rules cannot be fetched from the API.
+	 * @throws File_System_Exception If file writing fails.
+	 *
 	 * @return void
 	 */
 	public static function generate_automatic_rules() {
@@ -230,7 +259,11 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		try {
+			Waf_Runner::initialize_filesystem();
+		} catch ( Waf_Exception $e ) {
+			throw $e;
+		}
 
 		$automatic_rules_file_path = Waf_Runner::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
 
@@ -241,10 +274,10 @@ class Waf_Rules_Manager {
 
 		try {
 			$rules = self::get_rules_from_api();
-		} catch ( \Exception $exception ) {
+		} catch ( Waf_Exception $e ) {
 			// Do not throw API exceptions for users who do not have access
-			if ( 401 !== $exception->getCode() ) {
-				throw $exception;
+			if ( 401 !== $e->getCode() ) {
+				throw $e;
 			}
 		}
 
@@ -254,7 +287,7 @@ class Waf_Rules_Manager {
 		}
 
 		if ( ! $wp_filesystem->put_contents( $automatic_rules_file_path, $rules ) ) {
-			throw new \Exception( 'Failed writing automatic rules file to: ' . $automatic_rules_file_path );
+			throw new File_System_Exception( 'Failed writing automatic rules file to: ' . $automatic_rules_file_path );
 		}
 
 		update_option( self::AUTOMATIC_RULES_LAST_UPDATED_OPTION_NAME, time() );
@@ -263,8 +296,10 @@ class Waf_Rules_Manager {
 	/**
 	 * Generates the rules.php script
 	 *
-	 * @throws \Exception If filesystem is not available.
-	 * @throws \Exception If file writing fails.
+	 * @throws Waf_Exception         If filesystem is not available.
+	 * @throws File_System_Exception If writing to IP allow list file fails.
+	 * @throws File_System_Exception If writing to IP block list file fails.
+	 *
 	 * @return void
 	 */
 	public static function generate_ip_rules() {
@@ -275,7 +310,11 @@ class Waf_Rules_Manager {
 		 */
 		global $wp_filesystem;
 
-		Waf_Runner::initialize_filesystem();
+		try {
+			Waf_Runner::initialize_filesystem();
+		} catch ( Waf_Exception $e ) {
+			throw $e;
+		}
 
 		$allow_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE );
 		$block_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE );
@@ -298,7 +337,7 @@ class Waf_Rules_Manager {
 		$allow_rules_content .= 'return $waf->is_ip_in_array( $waf_allow_list );' . "\n";
 
 		if ( ! $wp_filesystem->put_contents( $allow_ip_file_path, "<?php\n$allow_rules_content" ) ) {
-			throw new \Exception( 'Failed writing allow list file to: ' . $allow_ip_file_path );
+			throw new File_System_Exception( 'Failed writing allow list file to: ' . $allow_ip_file_path );
 		}
 
 		$block_rules_content = '';
@@ -308,7 +347,7 @@ class Waf_Rules_Manager {
 		$block_rules_content .= 'return $waf->is_ip_in_array( $waf_block_list );' . "\n";
 
 		if ( ! $wp_filesystem->put_contents( $block_ip_file_path, "<?php\n$block_rules_content" ) ) {
-			throw new \Exception( 'Failed writing block list file to: ' . $block_ip_file_path );
+			throw new File_System_Exception( 'Failed writing block list file to: ' . $block_ip_file_path );
 		}
 	}
 }
