@@ -223,7 +223,8 @@ class Admin {
 
 		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
-		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->record_user_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
 			array(

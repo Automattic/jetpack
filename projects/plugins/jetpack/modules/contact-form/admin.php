@@ -1319,7 +1319,8 @@ class Grunion_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-google-drive-helper.php';
 		$sheet = Jetpack_Google_Drive_Helper::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
-		$grunion->record_tracks_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->record_user_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
 			array(
