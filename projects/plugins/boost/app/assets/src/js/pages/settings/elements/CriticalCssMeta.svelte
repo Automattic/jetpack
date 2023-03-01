@@ -5,7 +5,6 @@
 		criticalCssStatus,
 		showError,
 	} from '../../../stores/critical-css-status';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
@@ -33,7 +32,7 @@
 		</div>
 	</div>
 {:else if $showError}
-	<CriticalCssShowStopperError on:retry={() => generateCriticalCss( true, true )} />
+	<CriticalCssShowStopperError />
 {:else}
-	<CriticalCssStatus on:retry={() => generateCriticalCss()} />
+	<CriticalCssStatus />
 {/if}

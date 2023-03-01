@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
 	import { failedProviderKeyCount } from '../../../stores/critical-css-recommendations';
-	import { criticalCssProgress, criticalCssStatus } from '../../../stores/critical-css-status';
+	import {
+		criticalCssProgress,
+		criticalCssStatus,
+		regenerateCriticalCss,
+	} from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -12,8 +15,6 @@
 
 	export let generateText = '';
 	export let generateMoreText = '';
-
-	const dispatch = createEventDispatcher();
 	const { navigate } = routerHistory;
 	$: successCount = $criticalCssStatus.providers.filter( provider => provider.status !== 'pending' )
 		.length;
@@ -62,7 +63,7 @@
 		{/if}
 	</div>
 	{#if $criticalCssStatus.status !== 'pending'}
-		<button type="button" class="components-button is-link" on:click={() => dispatch( 'retry' )}>
+		<button type="button" class="components-button is-link" on:click={regenerateCriticalCss}>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}
 		</button>

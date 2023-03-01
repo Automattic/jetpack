@@ -2,7 +2,7 @@ import { get } from 'svelte/store';
 import setProviderIssue, {
 	generationComplete,
 	localCriticalCSSProgress,
-	requestGeneration,
+	requestLocalCriticalCss,
 	saveCriticalCssChunk,
 	stopTheShow,
 	storeGenerateError,
@@ -22,13 +22,6 @@ import { isSameOrigin } from './is-same-origin';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 import type { Viewport } from './types';
-
-export type MajorMinorCallback = (
-	majorSteps: number,
-	majorStep: number,
-	minorSteps: number,
-	minorStep: number
-) => void;
 
 let hasGenerateRun = false;
 
@@ -74,7 +67,7 @@ export default async function generateCriticalCss(
 		}
 
 		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
-		const cssStatus = await requestGeneration( reset, isShowstopperRetry );
+		const cssStatus = await requestLocalCriticalCss( reset, isShowstopperRetry );
 
 		// Abort early if css module deactivated or nothing needs doing
 		if ( ! cssStatus || cssStatus.status !== 'pending' ) {
@@ -152,12 +145,11 @@ function createBrowserInterface( requestGetParameters, proxyNonce ) {
  * Generate Critical CSS for the specified Provider Keys, sending each block
  * to the server. Throws on error or cancellation.
  *
- * @param {Object}             providers            - Set of URLs to use for each provider key
- * @param {Object}             requestGetParameters - GET parameters to include with each request.
- * @param {Viewport[]}         viewports            - Viewports to generate with.
- * @param {JSONObject}         passthrough          - JSON data to include in callbacks to API.
- * @param {MajorMinorCallback} callback             - Callback to send minor / major progress step info to.
- * @param {string}             proxyNonce           - Nonce to use when proxying CSS requests.
+ * @param {Object}     providers            - Set of URLs to use for each provider key
+ * @param {Object}     requestGetParameters - GET parameters to include with each request.
+ * @param {Viewport[]} viewports            - Viewports to generate with.
+ * @param {JSONObject} passthrough          - JSON data to include in callbacks to API.
+ * @param {string}     proxyNonce           - Nonce to use when proxying CSS requests.
  */
 async function generateForKeys(
 	providers: Provider[],

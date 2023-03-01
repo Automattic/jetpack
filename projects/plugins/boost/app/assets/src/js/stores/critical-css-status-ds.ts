@@ -52,6 +52,7 @@ const ProviderSchema = z.object( {
 	// Status
 	status: z
 		.enum( [ 'success', 'pending', 'error', 'validation-error' ] )
+		// Validation Error only should occur in the UI, not in the API.
 		.catch( 'validation-error' ),
 	// Status message
 	// @REFACTORING: Unused right now

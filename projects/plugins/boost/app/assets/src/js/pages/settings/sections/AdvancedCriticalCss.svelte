@@ -12,18 +12,12 @@
 		dismissIssue,
 		groupErrorsByFrequency,
 	} from '../../../stores/critical-css-recommendations';
-	import { isFinished } from '../../../stores/critical-css-status';
+	import { criticalCssState } from '../../../stores/critical-css-status';
 	import InfoIcon from '../../../svg/info.svg';
-	import generateCriticalCss from '../../../utils/generate-critical-css';
 	import routerHistory from '../../../utils/router-history';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
 
 	const { navigate } = routerHistory;
-
-	function onRetry() {
-		generateCriticalCss();
-		navigate( -1 );
-	}
 
 	/**
 	 * Figure out heading based on state.
@@ -39,7 +33,8 @@
 	/**
 	 * Automatically navigate back to main Settings page if generator isn't done.
 	 */
-	$: if ( ! $isFinished ) {
+
+	$: if ( $criticalCssState.status !== 'generated' && $criticalCssState.status == 'error' ) {
 		navigate( -1 );
 	}
 </script>
@@ -88,10 +83,7 @@
 			</h4>
 
 			<div class="problem">
-				<CriticalCssErrorDescription
-					errorSet={groupErrorsByFrequency( issue )[ 0 ]}
-					on:retry={onRetry}
-				/>
+				<CriticalCssErrorDescription errorSet={groupErrorsByFrequency( issue )[ 0 ]} />
 			</div>
 		</div>
 	{/each}

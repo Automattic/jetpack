@@ -1,30 +1,19 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { criticalCssStatus, regenerateCriticalCss } from '../../../stores/critical-css-status';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 
 	// Show a Provider Key error if the process succeeded but there were errors.
 	let showingProviderError = false;
-	$: showingProviderError = $primaryErrorSet && $criticalCssStatus.status === 'success';
+	$: showingProviderError = $primaryErrorSet && $criticalCssStatus.status === 'generated';
 
 	const title = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
-
-	const dispatch = createEventDispatcher();
-
-	/**
-	 * When users click "refresh" on a showstopper, track that they have already
-	 * tried this approach.
-	 */
-	function retryShowstopper() {
-		dispatch( 'retry' );
-	}
 </script>
 
 <ErrorNotice {title}>
@@ -52,7 +41,6 @@
 						showSuggestion={true}
 						showClosingParagraph={false}
 						foldRawErrors={false}
-						on:retry={retryShowstopper}
 					/>
 				{:else}
 					{$criticalCssStatus.status_error}
@@ -67,7 +55,7 @@
 				{__( 'Contact Support', 'jetpack-boost' )}
 			</a>
 		{:else}
-			<button class="secondary" on:click={retryShowstopper}>
+			<button class="secondary" on:click={regenerateCriticalCss}>
 				{__( 'Refresh', 'jetpack-boost' )}
 			</button>
 		{/if}
