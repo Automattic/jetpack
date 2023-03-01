@@ -5,7 +5,6 @@ import api from '../api/api';
 import { startCloudCssRequest } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import {
-	CriticalCssIssue,
 	criticalCssDS,
 	type CriticalCssStatus,
 	Provider,
@@ -16,14 +15,13 @@ import { modules } from './modules';
 
 const resetState = {
 	status: 'not_generated',
-	issues: [],
 };
 
 // @REFACTORING: Make this a read-only export.
 export const criticalCssState = criticalCssDS.store;
 
 // @REFACTORING: Move this functionality to Svelte DataSync Client:
-const replaceState = (value: CriticalCssStatus) => {
+export const replaceCssState = (value: CriticalCssStatus) => {
 	criticalCssState.update(oldValue => {
 		return { ...oldValue, ...value };
 	});
@@ -122,7 +120,7 @@ export async function requestLocalCriticalCss(): Promise<CriticalCssStatus | fal
 }
 
 export function stopTheShow(): void {
-	replaceState({ status: 'error' });
+	replaceCssState({ status: 'error' });
 }
 
 type CriticalCssInsertResponse = {
@@ -160,25 +158,8 @@ export async function saveCriticalCssChunk(
 	return true;
 }
 
-export default function setProviderIssue(providerKey: string, issue: CriticalCssIssue): void {
-	criticalCssState.update(state => {
-		let providerIndex = -1;
-		if (!state.issues) {
-			providerIndex = state.issues.findIndex(el => el.provider_name === providerKey);
-		}
-		if (providerIndex !== -1) {
-			const existingIssue = state.issues[providerIndex];
-			const updatedIssue = { ...existingIssue, ...issue };
-			state.issues.splice(providerIndex, 1, updatedIssue);
-		} else {
-			state.issues.push(issue);
-		}
-		return state;
-	});
-}
-
 export function storeGenerateError(error: Error): void {
-	replaceState({
+	replaceCssState({
 		status: 'error',
 		status_error: error
 	});
@@ -186,27 +167,22 @@ export function storeGenerateError(error: Error): void {
 
 export function setRequesting(): void {
 	console.log('setRequesting');
-	replaceState({
+	replaceCssState({
 		...resetState,
 		status: 'pending',
-		issues: []
 	});
 }
 
 export function resetCloudRetryStatus(): void {
 	console.log('resetCloudRetryStatus');
-	return replaceState({
+	return replaceCssState({
 		...resetState,
 		status: 'pending',
-	}));
+	});
 }
 
 export function setError(): void {
-	return replaceState({status: 'error',});
-}
-
-export function updateIssues(issues: CriticalCssIssue[]): void {
-	return replaceState({ issues: [...issues], });
+	return replaceCssState({status: 'error',});
 }
 
 export function updateProvider(providerKey: string, data: Partial<Provider>): void {
@@ -250,7 +226,7 @@ export const regenerateCriticalCss = async () => {
 
 	await requestLocalCriticalCss();
 	await generateCriticalCss(get(criticalCssState));
-	replaceState({ status: 'generated' });
+	replaceCssState({ status: 'generated' });
 
 	// SECTION:
 	// Critical CSS: Activated
@@ -268,4 +244,4 @@ export const criticalCssStatus = {
 
 // @REFACTORING Utils: Remove in production
 window.store = criticalCssState;
-window.replaceState = replaceState;
+window.replaceState = replaceCssState;

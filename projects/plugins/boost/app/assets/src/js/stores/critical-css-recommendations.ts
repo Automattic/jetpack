@@ -1,11 +1,11 @@
 import { writable, derived, get, Readable } from 'svelte/store';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { criticalCssStatus, updateIssues } from './critical-css-status';
+import { criticalCssStatus, replaceCssState } from './critical-css-status';
 import {
 	CriticalCssErrorDetails,
-	CriticalCssIssue,
 	Critical_CSS_Error_Type,
+	Provider,
 } from './critical-css-status-ds';
 import { JSONObject } from './data-sync-client';
 
@@ -22,7 +22,7 @@ export type ErrorSet = {
 };
 
 const issuesStore = derived( criticalCssStatus, $status => {
-	return $status.issues;
+	return $status.providers.filter( provider => provider.errors?.length > 0 );
 } );
 
 const dismissalErrorStore = writable( null );
@@ -47,7 +47,7 @@ export const dismissedIssues = derived( issuesStore, $issues => {
 	if ( $issues.length === 0 ) {
 		return [];
 	}
-	return $issues.filter( r => r.status === 'dismissed' );
+	return $issues.filter( r => r.error_status === 'dismissed' );
 } );
 
 /**
@@ -57,7 +57,7 @@ export const activeIssues = derived( issuesStore, $issues => {
 	if ( $issues.length === 0 ) {
 		return [];
 	}
-	return $issues.filter( r => r.status === 'active' );
+	return $issues.filter( r => r.error_status === 'active' );
 } );
 
 /**
@@ -87,10 +87,10 @@ export const primaryErrorSet: Readable< ErrorSet > = derived( issuesStore, $issu
  * a SortedErrorSet; an array which contains each type of error grouped. Also
  * groups things like HTTP errors by code.
  *
- * @param issue The recommendation the errors belong to.
+ * @param provider The recommendation the errors belong to.
  */
-export function groupErrorsByFrequency( issue: CriticalCssIssue ): ErrorSet[] {
-	const { errors } = issue;
+export function groupErrorsByFrequency( provider: Provider ): ErrorSet[] {
+	const { errors } = provider;
 	const groupKeys = errors.map( error => groupKey( error ) );
 	const groupOrder = sortByFrequency( groupKeys );
 
@@ -141,24 +141,24 @@ export function groupKey( error: CriticalCssErrorDetails ) {
  * @param {string} key Key of recommendation to dismiss.
  */
 export async function dismissIssue( key: string ): Promise< void > {
-	const issues = get( issuesStore );
-	const issue = issues.find( el => el.key === key );
+	const providers = get( issuesStore );
+	const issue = providers.find( el => el.key === key );
 	if ( issue ) {
-		issue.status = 'dismissed';
-		updateIssues( issues );
+		issue.error_status = 'dismissed';
+		replaceCssState( { providers } );
 	}
 }
 /**
  * Show the previously dismissed recommendations.
  */
 export async function showDismissedIssues() {
-	const issues = get( issuesStore );
-	updateIssues(
-		issues.map( issue => {
-			issue.status = 'active';
+	const providers = get( issuesStore );
+	replaceCssState( {
+		providers: providers.map( issue => {
+			issue.error_status = 'active';
 			return issue;
-		} )
-	);
+		} ),
+	} );
 	// @REFACTORING: Restore dismissal error reporting:
 	// We need a toast these sorts of errors.
 	// That would address this as well:

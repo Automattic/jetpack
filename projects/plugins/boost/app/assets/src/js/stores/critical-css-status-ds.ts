@@ -25,15 +25,6 @@ const CriticalCssErrorDetailsSchema = z.object( {
 
 export type CriticalCssErrorDetails = z.infer< typeof CriticalCssErrorDetailsSchema >;
 
-const CriticalCssIssueSchema = z.object( {
-	provider_name: z.coerce.string(),
-	key: z.coerce.string(),
-	status: z.enum( [ 'active', 'dismissed' ] ).catch( 'active' ),
-	errors: z.array( CriticalCssErrorDetailsSchema ),
-} );
-
-export type CriticalCssIssue = z.infer< typeof CriticalCssIssueSchema >;
-
 export const ErrorSetSchema = z.object( {
 	type: CriticalCssErrorType,
 	firstMeta: z.record( z.unknown() ),
@@ -54,12 +45,12 @@ const ProviderSchema = z.object( {
 		.enum( [ 'success', 'pending', 'error', 'validation-error' ] )
 		// Validation Error only should occur in the UI, not in the API.
 		.catch( 'validation-error' ),
-	// Status message
-	// @REFACTORING: Unused right now
-	status_message: z.coerce.string().optional(),
 	// Error details
 	errors: z.array( CriticalCssErrorDetailsSchema ).optional(),
+	// If this an error, has it been dismissed?
+	error_status: z.enum( [ 'active', 'dismissed' ] ).optional(),
 } );
+
 export type Provider = z.infer< typeof ProviderSchema >;
 export const CriticalCssStatusSchema = z
 	.object( {
@@ -81,7 +72,6 @@ export const CriticalCssStatusSchema = z
 				} )
 			)
 			.optional(),
-		issues: z.array( CriticalCssIssueSchema ).optional(),
 	} )
 	.catch( {
 		callback_passthrough: {},
@@ -93,7 +83,6 @@ export const CriticalCssStatusSchema = z
 		status_error: '',
 		created: 0,
 		viewports: [],
-		issues: [],
 	} );
 export type CriticalCssStatus = z.infer< typeof CriticalCssStatusSchema >;
 

@@ -202,15 +202,15 @@ async function generateForKeys(
 						url,
 					};
 				} );
-				const issue: CriticalCssIssue = {
-					key,
-					provider_name: label,
-					status: 'active',
-					errors: errorsWithURLs,
-				};
+
 				if ( key ) {
-					setProviderIssue( key, issue );
+					updateProvider( key, {
+						status: 'error',
+						error_status: 'active',
+						errors: errorsWithURLs,
+					} );
 				}
+
 				for ( const [ url, error ] of Object.entries( urlErrors ) ) {
 					// Track individual Critical CSS generation error.
 					const eventProps: TracksEventProperties = {
