@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import { showError } from '../../../stores/critical-css-status';
+	import { isFatalError } from '../../../stores/critical-css-status';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
 
-{#if $showError}
+{#if $isFatalError}
 	<CriticalCssShowStopperError supportLink="https://jetpackme.wordpress.com/contact-support/" />
 {:else}
 	<CriticalCssStatus

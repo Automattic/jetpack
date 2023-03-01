@@ -16,7 +16,7 @@
 	export let generateText = '';
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
-	$: successCount = $criticalCssStatus.providers.filter( provider => provider.status !== 'pending' )
+	$: successCount = $criticalCssStatus.providers.filter( provider => provider.status === 'success' )
 		.length;
 </script>
 

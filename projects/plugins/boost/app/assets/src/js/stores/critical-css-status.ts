@@ -78,6 +78,16 @@ export const showError = derived(criticalCssState, $criticalCssState => {
 	return $criticalCssState.status === 'error';
 });
 
+/**
+ * Fatal error when no providers are successful.
+ */
+export const isFatalError = derived([criticalCssState, showError], ([$criticalCssState, $showError]) => {
+	if (!$showError) {
+		return false;
+	}
+	return ! $criticalCssState.providers.some( provider => provider.status === 'success' );
+});
+
 export const isGenerating = derived(
 	[criticalCssState, modules],
 	([$criticalCssState, $modules]) => {

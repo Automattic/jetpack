@@ -3,7 +3,7 @@
 	import {
 		criticalCssProgress,
 		criticalCssStatus,
-		showError,
+		isFatalError,
 	} from '../../../stores/critical-css-status';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
@@ -31,7 +31,7 @@
 			/>
 		</div>
 	</div>
-{:else if $showError}
+{:else if $isFatalError}
 	<CriticalCssShowStopperError />
 {:else}
 	<CriticalCssStatus />
