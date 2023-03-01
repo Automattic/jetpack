@@ -86,8 +86,8 @@ class Cloud_CSS_State {
 		foreach ( $providers as $provider ) {
 			$provider_key = $provider['key'];
 			if ( in_array( $provider_key, $providers, true )
-			     && isset( $provider['status'] )
-			     && self::PROVIDER_STATES['pending'] === $provider['status']
+				&& isset( $provider['status'] )
+				&& self::PROVIDER_STATES['pending'] === $provider['status']
 			) {
 				$pending = true;
 				break;
@@ -109,8 +109,8 @@ class Cloud_CSS_State {
 			return $this;
 		}
 
-		$provider_index                                                  = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
-		$current_provider                                                = $this->critical_css_state->state['providers'][ $provider_index ];
+		$provider_index   = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		$current_provider = $this->critical_css_state->state['providers'][ $provider_index ];
 		$this->critical_css_state->state['providers'][ $provider_index ] = array_merge(
 			$current_provider,
 			$partial_data
@@ -134,12 +134,11 @@ class Cloud_CSS_State {
 
 	public function prepare_request() {
 		$this->critical_css_state->state = array(
-			'status'               => self::GENERATION_STATES['pending'],
-			'retried_show_stopper' => false,
-			'providers'            => array(),
-			'issues'               => array(),
-			'created'              => microtime( true ),
-			'updated'              => microtime( true ),
+			'status'    => self::GENERATION_STATES['pending'],
+			'providers' => array(),
+			'issues'    => array(),
+			'created'   => microtime( true ),
+			'updated'   => microtime( true ),
 		);
 
 		return $this;
