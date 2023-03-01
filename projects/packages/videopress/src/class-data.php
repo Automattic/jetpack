@@ -56,8 +56,21 @@ class Data {
 	 * @return array The settings as an associative array.
 	 */
 	public static function get_videopress_settings() {
+		$site_type       = 'jetpack';
+		$site_is_private = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$site_type       = 'simple';
+			$site_is_private = video_is_private_wpcom_blog( get_current_blog_id() );
+		} elseif ( ( new Host() )->is_woa_site() ) {
+			$site_type       = 'atomic';
+			$site_is_private = intval( get_option( 'blog_public', '' ) ) === -1;
+		}
+
 		return array(
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
+			'site_is_private'                    => $site_is_private,
+			'site_type'                          => $site_type,
 		);
 	}
 
@@ -371,6 +384,8 @@ class Data {
 			'users'        => self::get_user_data(),
 			'siteSettings' => array(
 				'videoPressVideosPrivateForSite' => $site_settings['videopress_videos_private_for_site'],
+				'siteIsPrivate'                  => $site_settings['site_is_private'],
+				'siteType'                       => $site_settings['site_type'],
 			),
 			'videos'       => array(
 				'uploadedVideoCount'           => $videopress_data['total'],
