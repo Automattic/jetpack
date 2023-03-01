@@ -41,33 +41,6 @@ function sensei_onboarding_mods() {
 add_action( 'admin_init', 'sensei_onboarding_mods' );
 
 /**
- * Cache inconsistency fix. This function will flush the cache if it detects that it is corrupted.
- *
- * See https://github.com/Automattic/wp-calypso/issues/73547
- *
- * @param bool   $result The result of the licensing configuration.
- * @param array  $payload The payload received from SenseiLMS.com back-end API.
- * @param string $event_type The event type that triggered this filter.
- *
- * @return bool
- */
-function sensei_activation_cache_flush( $result, $payload, $event_type ) {
-	if ( 'provision_license' !== $event_type ) {
-		return $result;
-	}
-
-	$notoptions = wp_cache_get( 'notoptions', 'options' );
-
-	if ( isset( $notoptions['senseilms_license_key__sensei-pro'] ) && true === $notoptions['senseilms_license_key__sensei-pro'] ) {
-		wp_cache_set( 'notoptions', array(), 'options' );
-	}
-
-	return $result;
-}
-
-add_filter( 'wpcom_marketplace_webhook_response_sensei-pro', 'sensei_activation_cache_flush', 11, 3 );
-
-/**
  * Allow Sensei Home task complete option to be synced so we can use this status for the My Home Checklist
  *
  * @param array $options Jetpack sync allowed options.
