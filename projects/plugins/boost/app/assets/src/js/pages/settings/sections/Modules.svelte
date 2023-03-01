@@ -4,14 +4,10 @@
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { criticalCssStatus, regenerateCriticalCss } from '../../../stores/critical-css-status';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
-	import {
-		requestCloudCss,
-		pollCloudCssStatus,
-		stopPollingCloudCssStatus,
-	} from '../../../utils/cloud-css';
+	import { pollCloudCssStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
@@ -70,7 +66,7 @@
 
 	<Module
 		slug={'cloud-css'}
-		on:enabled={requestCloudCss}
+		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={pollCloudCssStatus}
 	>
