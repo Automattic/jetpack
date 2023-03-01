@@ -5,9 +5,18 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 
 class Cloud_CSS_State {
-	const SUCCESS = 'success';
-	const ERROR   = 'error';
-	const PENDING = 'pending';
+
+	const GENERATION_STATES = array(
+		'not_generated' => 'not_generated',
+		'pending'       => 'pending',
+		'generated'     => 'generated',
+		'error'         => 'error',
+	);
+	const PROVIDER_STATES   = array(
+		'pending' => 'pending',
+		'success' => 'success',
+		'error'   => 'error',
+	);
 
 	public function __construct() {
 		$this->critical_css_state = new Critical_CSS_State();
@@ -41,7 +50,7 @@ class Cloud_CSS_State {
 		$this->update_provider(
 			$provider_key,
 			array(
-				'status' => self::ERROR,
+				'status' => self::PROVIDER_STATES['error'],
 				'error'  => $message,
 			)
 		);
@@ -57,7 +66,7 @@ class Cloud_CSS_State {
 		$this->update_provider(
 			$provider_key,
 			array(
-				'status' => self::SUCCESS
+				'status' => self::PROVIDER_STATES['success'],
 			)
 		);
 
@@ -76,7 +85,10 @@ class Cloud_CSS_State {
 		$pending = false;
 		foreach ( $providers as $provider ) {
 			$provider_key = $provider['key'];
-			if ( in_array( $provider_key, $providers, true ) && isset( $provider['status'] ) && self::PENDING === $provider['status'] ) {
+			if ( in_array( $provider_key, $providers, true )
+			     && isset( $provider['status'] )
+			     && self::PROVIDER_STATES['pending'] === $provider['status']
+			) {
 				$pending = true;
 				break;
 			}
@@ -86,7 +98,7 @@ class Cloud_CSS_State {
 
 	public function set_pending_providers( $providers ) {
 		foreach ( $providers as $key => $provider ) {
-			$providers[ $key ]['status'] = self::PENDING;
+			$providers[ $key ]['status'] = self::PROVIDER_STATES['pending'];
 		}
 		$this->critical_css_state->state['providers'] = $providers;
 		return $this;
@@ -97,8 +109,8 @@ class Cloud_CSS_State {
 			return $this;
 		}
 
-		$provider_index   = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
-		$current_provider = $this->critical_css_state->state['providers'][ $provider_index ];
+		$provider_index                                                  = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		$current_provider                                                = $this->critical_css_state->state['providers'][ $provider_index ];
 		$this->critical_css_state->state['providers'][ $provider_index ] = array_merge(
 			$current_provider,
 			$partial_data
@@ -109,20 +121,20 @@ class Cloud_CSS_State {
 
 	public function maybe_set_generated() {
 		$providers = $this->critical_css_state->state['providers'];
-		if( count( $providers) === 0 ) {
+		if ( count( $providers ) === 0 ) {
 			return $this;
 		}
 		$provider_states = array_column( $providers, 'status' );
-		$is_done = ! in_array( self::PENDING, $provider_states, true );
+		$is_done         = ! in_array( self::GENERATION_STATES['pending'], $provider_states, true );
 		if ( $is_done ) {
-			$this->critical_css_state->state['status'] = self::SUCCESS;
+			$this->critical_css_state->state['status'] = self::GENERATION_STATES['generated'];
 		}
 		return $this;
 	}
 
 	public function prepare_request() {
 		$this->critical_css_state->state = array(
-			'status'               => 'pending',
+			'status'               => self::GENERATION_STATES['pending'],
 			'retried_show_stopper' => false,
 			'providers'            => array(),
 			'issues'               => array(),
