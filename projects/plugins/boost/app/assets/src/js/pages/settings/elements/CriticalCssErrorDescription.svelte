@@ -11,8 +11,8 @@
 	import MoreList from '../../../elements/MoreList.svelte';
 	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import { ErrorSet } from '../../../stores/critical-css-state-errors';
 	import { regenerateCriticalCss } from '../../../stores/critical-css-state';
+	import { ErrorSet } from '../../../stores/critical-css-state-errors';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { TemplateVars } from '../../../utils/copy-dom-template';
 	import {

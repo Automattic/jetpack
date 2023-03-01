@@ -8,7 +8,7 @@ import {
 	criticalCssDS,
 	type CriticalCssState,
 	Provider,
-} from './critical-css-state-ds';
+} from './critical-css-state-datasync';
 import { JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modules } from './modules';
 

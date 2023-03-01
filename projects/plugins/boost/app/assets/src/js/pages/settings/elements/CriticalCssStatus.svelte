@@ -2,12 +2,12 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
 	import {
 		criticalCssProgress,
 		criticalCssState,
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';

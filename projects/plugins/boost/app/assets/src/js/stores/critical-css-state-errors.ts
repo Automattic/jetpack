@@ -6,7 +6,7 @@ import {
 	CriticalCssErrorDetails,
 	Critical_CSS_Error_Type,
 	Provider,
-} from './critical-css-state-ds';
+} from './critical-css-state-datasync';
 import { JSONObject } from './data-sync-client';
 
 /**

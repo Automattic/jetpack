@@ -3,11 +3,11 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import BackButton from '../../../elements/BackButton.svelte';
 	import CloseButton from '../../../elements/CloseButton.svelte';
+	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import {
 		criticalCssIssues,
 		groupErrorsByFrequency,
 	} from '../../../stores/critical-css-state-errors';
-	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import InfoIcon from '../../../svg/info.svg';
 	import routerHistory from '../../../utils/router-history';
 	import CriticalCssErrorDescription from '../elements/CriticalCssErrorDescription.svelte';
