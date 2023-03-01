@@ -19,6 +19,26 @@ class Cloud_CSS_State {
 	);
 
 	public function __construct() {
+		/**
+		 * @REFACTORING
+		 * This is tricky.
+		 * There was no separation of concerns for Cloud CSS and Critical CSS before the rafactor,
+		 * and that didn't work out too well. Initially, I was thinking to create a brand new class (Cloud_CSS)
+		 * and handle the state completely separately from Critical CSS.
+		 * But after refactoring, I realized that a lot of code is shared between the two,
+		 * And the only real difference between Cloud CSS and Critical CSS is that Cloud CSS
+		 * is inserting CSS state from the cloud. Everything else, structure-wise is now the same.
+		 *
+		 * And so, the tricky part is - I don't want to methods to the main Critical_CSS class
+		 * that are only used by Cloud CSS.
+		 *
+		 * But also, exposing a `critical_css_state->state` doesn't seem like a good way to go.
+		 * I could just read the option using `jetpack_boost_ds_get()` and duplicate that bit of code,
+		 * but that too seems kind of messy.
+		 *
+		 * I haven't hought long enough about this, for now - leaving it as is.
+		 * (and no, inheritance is never the right answer. It's an easy answer, not the right one.)
+		 */
 		$this->critical_css_state = new Critical_CSS_State();
 	}
 
