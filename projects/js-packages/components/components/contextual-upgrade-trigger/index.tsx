@@ -1,10 +1,10 @@
-import { Icon, arrowRight } from '@wordpress/icons';
+import { Tooltip } from '@wordpress/components';
+import { Icon, arrowRight, info } from '@wordpress/icons';
 import classnames from 'classnames';
 import Text from '../text';
 import styles from './style.module.scss';
 import { CutBaseProps } from './types';
 import type React from 'react';
-
 const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	description,
 	cta,
@@ -12,6 +12,7 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	href,
 	openInNewTab = false,
 	className,
+	tooltipText = null,
 } ) => {
 	const Tag = href !== undefined ? 'a' : 'button';
 	const tagProps =
@@ -20,8 +21,19 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	return (
 		<div className={ classnames( styles.cut, className ) }>
 			<div>
-				<Text>{ description }</Text>
 				<Tag { ...tagProps }>
+					<Text>
+						{ description }{ ' ' }
+						{ tooltipText && (
+							<span className="tooltip">
+								<Tooltip position="middle center" text={ tooltipText }>
+									<span>
+										<Icon icon={ info } size={ 12 } />
+									</span>
+								</Tooltip>
+							</span>
+						) }{ ' ' }
+					</Text>
 					<Text className={ styles.cta }>{ cta }</Text>
 				</Tag>
 			</div>

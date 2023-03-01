@@ -14,22 +14,19 @@
 
 	button,
 	a {
-		all: unset;
+		text-decoration: none;
 		color: var(--jp-gray-80);
-		cursor: pointer;
+		cursor: pointer !important;
 
 		&::after {
-			content: '';
+			//content: '';
 			position: absolute;
 			top: 0;
 			left: 0;
 			width: 100%;
 			height: 100%;
+			cursor: pointer;
 		}
-	}
-
-	&:focus-within {
-		border-color: var( --jp-black );
 	}
 
 	&:focus-within,
