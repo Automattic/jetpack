@@ -7,7 +7,7 @@
 	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
-	import { pollCloudCssStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
@@ -68,7 +68,7 @@
 		slug={'cloud-css'}
 		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
-		on:mountEnabled={pollCloudCssStatus}
+		on:mountEnabled={startPollingCloudStatus}
 	>
 		<h3 slot="title">
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}

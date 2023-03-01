@@ -111,13 +111,7 @@ class Cloud_CSS_State {
 		return false;
 	}
 
-	public function set_pending_providers( $providers ) {
-		foreach ( $providers as $key => $provider ) {
-			$providers[ $key ]['status'] = self::PROVIDER_STATES['pending'];
-		}
-		$this->critical_css_state->state['providers'] = $providers;
-		return $this;
-	}
+
 
 	private function update_provider( $provider_key, $partial_data ) {
 		if ( ! $this->validate_provider_key( $provider_key ) ) {
@@ -147,15 +141,5 @@ class Cloud_CSS_State {
 		return $this;
 	}
 
-	public function prepare_request() {
-		$this->critical_css_state->state = array(
-			'status'    => self::GENERATION_STATES['pending'],
-			'providers' => array(),
-			'issues'    => array(),
-			'created'   => microtime( true ),
-			'updated'   => microtime( true ),
-		);
 
-		return $this;
-	}
 }

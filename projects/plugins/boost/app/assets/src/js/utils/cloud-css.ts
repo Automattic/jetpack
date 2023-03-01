@@ -1,19 +1,6 @@
 import { get } from 'svelte/store';
 import api from '../api/api';
-import { setError, criticalCssProgress, criticalCssState } from '../stores/critical-css-state';
-
-export async function startCloudCssRequest(): Promise< void > {
-	try {
-		await api.post( '/cloud-css/request-generate' );
-	} catch ( e ) {
-		if ( 200 !== e.httpCode ) {
-			setError();
-			stopPollingCloudCssStatus();
-			return;
-		}
-	}
-	pollCloudCssStatus();
-}
+import { criticalCssProgress, criticalCssState } from '../stores/critical-css-state';
 
 let statusIntervalId = null;
 
@@ -32,7 +19,7 @@ function calcIntervalDuration() {
  * poll the status with a short interval. Once there are no pending responses,
  * poll the status with a long interval.
  */
-export function pollCloudCssStatus() {
+export function startPollingCloudStatus() {
 	// If we are creating a new poll, clear the previous one.
 	stopPollingCloudCssStatus();
 	const duration = calcIntervalDuration();
@@ -40,7 +27,7 @@ export function pollCloudCssStatus() {
 	statusIntervalId = setInterval( async () => {
 		await criticalCssState.refresh();
 		if ( duration !== calcIntervalDuration() ) {
-			pollCloudCssStatus();
+			startPollingCloudStatus();
 		}
 	}, duration );
 }

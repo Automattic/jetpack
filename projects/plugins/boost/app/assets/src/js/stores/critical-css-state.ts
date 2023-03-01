@@ -2,7 +2,7 @@
 import { derived, get, writable } from 'svelte/store';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import api from '../api/api';
-import { startCloudCssRequest } from '../utils/cloud-css';
+import { startPollingCloudStatus } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import {
 	type CriticalCssState,
@@ -11,11 +11,6 @@ import {
 } from './critical-css-state-types';
 import { client, JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modules } from './modules';
-
-
-const resetState = {
-	status: 'not_generated',
-};
 
 const stateClient = client.createAsyncStore(
 	'critical_css_state',
@@ -85,29 +80,13 @@ type GenerationResponse = {
 	status: 'success';
 	data: CriticalCssState;
 };
-export async function requestLocalCriticalCss(): Promise<CriticalCssState | false> {
+export async function generateCriticalCssRequest(): Promise<CriticalCssState | false> {
 	// @REFACTOR: Use the WP JS Stores API instead and ensure that the CSS has indeed been reset.
 	const result = await api.post<GenerationResponse>('/critical-css/start');
 	if (result.status !== 'success') {
 		throw new Error(JSON.stringify(result));
 	}
-	const data = result.data as Partial<CriticalCssState>;
-	const newState: CriticalCssState = {
-		...resetState,
-		created: Date.now(),
-		updated: Date.now(),
-		status: 'pending',
-		viewports: data.viewports,
-		generation_nonce: data.generation_nonce,
-		proxy_nonce: data.proxy_nonce,
-		callback_passthrough: data.callback_passthrough,
-		providers: data.providers.map(provider => ({
-			...provider,
-			status: 'pending',
-		})),
-	};
-	cssStateStore.set(newState);
-	return get(cssStateStore);
+	return result.data as Partial<CriticalCssState>;
 }
 
 export function criticalCssFatalError(): void {
@@ -156,26 +135,6 @@ export function storeGenerateError(error: Error): void {
 	});
 }
 
-export function setRequesting(): void {
-	console.log('setRequesting');
-	replaceCssState({
-		...resetState,
-		status: 'pending',
-	});
-}
-
-export function resetCloudRetryStatus(): void {
-	console.log('resetCloudRetryStatus');
-	return replaceCssState({
-		...resetState,
-		status: 'pending',
-	});
-}
-
-export function setError(): void {
-	return replaceCssState({ status: 'error' });
-}
-
 export function updateProvider(providerKey: string, data: Partial<Provider>): void {
 	return cssStateStore.update($state => {
 		const providerIndex = $state.providers.findIndex(provider => provider.key === providerKey);
@@ -196,25 +155,29 @@ export const refreshCriticalCssState = async () => {
 };
 
 export const regenerateCriticalCss = async () => {
-	const $showError = get(showError);
 	const $modules = get(modules);
 	const $isCloudCssEnabled = $modules['cloud-css']?.enabled || false;
-
-	if ($isCloudCssEnabled) {
-		if ($showError) {
-			console.log('retryCloudCss');
-			await resetCloudRetryStatus();
-		}
-		await startCloudCssRequest();
-		return;
-	}
 
 	// Clear regeneration suggestions
 	suggestRegenerateDS.store.set(false);
 
-	await requestLocalCriticalCss();
-	await generateCriticalCss(get(cssStateStore));
-	replaceCssState({ status: 'generated' });
+	// This will clear the CSS from the database
+	// And return fresh nonce, provider and viewport data.
+	const freshState = await generateCriticalCssRequest();
+	if( ! freshState ) {
+		// @REFACTORING - Handle error. Currently this dies silently.
+		return false;
+	}
+
+	replaceCssState(freshState);
+
+	if ($isCloudCssEnabled) {
+		startPollingCloudStatus();
+	} else {
+		await generateCriticalCss(get(cssStateStore));
+		replaceCssState({ status: 'generated' });
+	}
+
 };
 
 
@@ -255,5 +218,5 @@ export const criticalCssProgress = derived(
 );
 
 // @REFACTORING Utils: Remove in production
-// window.store = cssStateStore;
-// window.replaceState = replaceCssState;
+window.store = cssStateStore;
+window.replaceState = replaceCssState;

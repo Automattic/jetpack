@@ -4,9 +4,18 @@ namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 class Critical_CSS_State {
 
-	const SUCCESS    = 'success';
-	const ERROR      = 'error';
-	const REQUESTING = 'pending';
+	const GENERATION_STATES = array(
+		'not_generated' => 'not_generated',
+		'pending'       => 'pending',
+		'generated'     => 'generated',
+		'error'         => 'error',
+	);
+
+	const PROVIDER_STATES   = array(
+		'pending' => 'pending',
+		'success' => 'success',
+		'error'   => 'error',
+	);
 
 	// @REFACTORING: Temporarily open up to public while refactoring.
 	public $state;
@@ -29,17 +38,39 @@ class Critical_CSS_State {
 
 		// @REFACTORING TODO: Rename to 'status_message'
 		$this->state['status_error'] = $message;
-		$this->state['status']       = self::ERROR;
+		$this->state['status']       = self::GENERATION_STATES['error'];
 
 		return $this;
 	}
 
 	public function has_errors() {
-		return self::ERROR === $this->state['status'];
+		return self::GENERATION_STATES['error'] === $this->state['status'];
 	}
 
 	public function is_requesting() {
-		return self::REQUESTING === $this->state['status'];
+		return self::GENERATION_STATES['pending'] === $this->state['status'];
 	}
 
+	public function prepare_request() {
+		$this->state = array(
+			'status'    => self::GENERATION_STATES['pending'],
+			'providers' => array(),
+			'created'   => microtime( true ),
+			'updated'   => microtime( true ),
+		);
+
+		return $this;
+	}
+
+	public function set_pending_providers( $providers ) {
+		foreach ( $providers as $key => $provider ) {
+			$providers[ $key ]['status'] = self::PROVIDER_STATES['pending'];
+		}
+		$this->state['providers'] = $providers;
+		return $this;
+	}
+
+	public function get() {
+		return $this->state;
+	}
 }

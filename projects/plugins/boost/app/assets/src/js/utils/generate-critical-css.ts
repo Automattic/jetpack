@@ -39,7 +39,7 @@ modules.subscribe( modulesState => {
  * Call generateCriticalCss if it hasn't been called before this app execution
  * (browser pageload), to verify if Critical CSS needs to be generated.
  */
-export async function maybeGenerateCriticalCss(): Promise< void > {
+export async function maybeGenerateCriticalCss(): Promise< boolean > {
 	if ( hasGenerateRun ) {
 		return;
 	}
@@ -60,7 +60,9 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
  *
  * @param {CriticalCssState} cssState
  */
-export default async function generateCriticalCss( cssState: CriticalCssState ): Promise< void > {
+export default async function generateCriticalCss(
+	cssState: CriticalCssState
+): Promise< boolean > {
 	hasGenerateRun = true;
 	const cancelling = false;
 
@@ -95,6 +97,7 @@ export default async function generateCriticalCss( cssState: CriticalCssState ):
 			storeGenerateError( err );
 		}
 	}
+	return true;
 }
 
 /**

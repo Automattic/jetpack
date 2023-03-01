@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
@@ -10,7 +11,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Request_Cloud_CSS;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
 class Cloud_CSS implements Feature, Has_Endpoints {
@@ -36,7 +37,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
-		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'generate_cloud_css' ) );
+		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'regenerate_cloud_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
@@ -52,8 +53,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 
 	public function get_endpoints() {
 		return array(
-			new Request_Cloud_CSS(),
 			new Update_Cloud_CSS(),
+			new Critical_CSS_Start()
 		);
 	}
 
@@ -97,21 +98,24 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 *
 	 * Initialize the Cloud CSS request. Provide $post parameter to limit generating to provider groups only associated
 	 * with a specific post.
-	 *
-	 * @param \WP_Post|null $post Post of any post type to limit provider groups.
 	 */
-	public function generate_cloud_css() {
-		$client   = new Cloud_CSS_Request();
-		$response = $client->request_generate();
-
+	// @REFACTORING @TODO RIGHT MEOW - Implement the other usage too ($providers)
+	public function generate_cloud_css( $providers = array() ) {
 		// Set a one off cron job one hour from now. This will resend the request in case it failed.
 		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
 
-		if ( is_wp_error( $response ) ) {
-			$state = new Critical_CSS_State();
-			$state->set_error( $response->get_error_message() );
+		$grouped_urls = array();
+
+		foreach ( $providers as $source ) {
+			$provider                  = $source['key'];
+			$grouped_urls[ $provider ] = $source['urls'];
 		}
-		return $response;
+
+		// Send the request to the Cloud.
+		$client               = Boost_API::get_client();
+		$payload              = array( 'providers' => $grouped_urls );
+		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
+		return $client->post( 'cloud-css', $payload );
 	}
 
 	/**
@@ -193,7 +197,36 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			return;
 		}
 
-		$this->generate_cloud_css();
+		$this->regenerate_cloud_css();
+	}
+
+	// @REFACTORING This needs a better design.
+	// The regeneration is still a bit scattered around.
+	// @see the long comment in Cloud_CSS_State
+	public function regenerate_cloud_css() {
+		$result = $this->generate_cloud_css( $this->get_existing_sources() );
+		if( is_wp_error($result)) {
+			$state = new Critical_CSS_State();
+			$state->set_error( $result->get_error_message() )->save();
+		}
+		return $result;
+	}
+
+	// @REFACTORING This is pretty bad
+	// Because Critical_CSS_Start now passes the providers
+	// to Cloud CSS via options instead as a parameter
+	// and that's not going to work well in the long run.
+	public function get_existing_sources() {
+		$state = new Critical_CSS_State();
+		$data  = $state->get();
+		if ( isset( $data['providers'] ) ) {
+			$providers = $data['providers'];
+		} else {
+			$source_providers = new Source_Providers();
+			$providers        = $source_providers->get_provider_sources();
+		}
+		return $providers;
+
 	}
 
 	/**
@@ -205,6 +238,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 * @return int
 	 */
 	public function update_total_problem_count( $count ) {
-		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
+		return ( new Critical_CSS_State() )->has_errors() ? ++ $count : $count;
 	}
 }

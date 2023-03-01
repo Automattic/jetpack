@@ -56,13 +56,13 @@ class Generator {
 	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
 	 * such as in response to a request-generate API call or during page initialization.
 	 */
-	public function get_local_critical_css_generation_info() {
+	public function get_generation_metadata() {
 
 		// @REFACTORING:
 		// This method should be moved inside critical_css_state DataSync handling class
 		// to pre-populate the data on request and strip it out when receiving the data
 		// so that it's not persisted in the db.
-		$status = array();
+
 
 		// Add viewport sizes.
 		$status['viewports'] = array(
@@ -93,8 +93,6 @@ class Generator {
 		$status['callback_passthrough'] = array(
 			'_nonce' => Nonce::create( self::CSS_CALLBACK_ACTION ),
 		);
-
-		$status['providers'] = $this->paths->get_provider_sources();
 
 		return $status;
 	}

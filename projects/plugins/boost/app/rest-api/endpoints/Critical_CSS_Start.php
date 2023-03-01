@@ -3,8 +3,12 @@
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
+use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
+use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -14,20 +18,47 @@ class Critical_CSS_Start implements Endpoint {
 		return \WP_REST_Server::EDITABLE;
 	}
 
+	public function is_cloud_css() {
+		$optimizations = ( new Optimizations() )->get_status();
+		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
+	}
+
 	public function response( $request ) {
 
-		$generator = new Generator();
+		// Get Critical CSS Source URLs
+		$source_providers = new Source_Providers();
+		$providers        = $source_providers->get_provider_sources();
 
+		// Store those URLs in the Critical CSS State
+		$state = new Critical_CSS_State();
+		$state->prepare_request()
+		      ->set_pending_providers( $providers )
+		      ->save();
+
+		// Get the data
+		$data = $state->get();
+
+		if ( $this->is_cloud_css() ) {
+			// If this is a cloud CSS request, we need to trigger the generation
+			// of the CSS and return the URL to the CSS file.
+			$cloud_css = new Cloud_CSS();
+			$cloud_css->regenerate_cloud_css();
+		} else {
+			$generator = new Generator();
+			$data      = array_merge( $data, $generator->get_generation_metadata() );
+		}
+
+		// Clear previous Critical CSS From storage
 		$storage = new Critical_CSS_Storage();
-
-		// Create a new Critical CSS Request block to track creation request.
 		$storage->clear();
+
+		// Dismiss admin notices
 		Regenerate_Admin_Notice::dismiss();
 
 		return rest_ensure_response(
 			array(
-				'status' => 'success',
-				'data'   => $generator->get_local_critical_css_generation_info(),
+				'status' => $state->has_errors() ? 'error' : 'success',
+				'data'   => $data,
 			)
 		);
 	}
