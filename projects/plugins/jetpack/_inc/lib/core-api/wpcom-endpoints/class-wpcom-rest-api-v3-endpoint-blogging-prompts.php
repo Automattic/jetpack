@@ -11,7 +11,6 @@ use Automattic\Jetpack\Connection\Client;
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */
 class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controller {
-	// 205876834 is the blog id for https://bloggingpromptstemplates.wordpress.com/
 	const TEMPLATE_BLOG_ID = 205876834;
 
 	/**
