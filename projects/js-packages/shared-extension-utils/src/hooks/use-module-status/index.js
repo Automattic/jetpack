@@ -1,6 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState, useMemo, useCallback } from '@wordpress/element';
-import { isSimpleSite } from '../site-type-utils';
+import { isSimpleSite } from '../../site-type-utils';
 
 /**
  * Fetch information about all Jetpack modules.
