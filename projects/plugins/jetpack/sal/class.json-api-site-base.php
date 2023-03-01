@@ -477,6 +477,18 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Detect whether a site is WordPress.com Staging Site.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_staging_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'staging_site' );
+		}
+		return false;
+	}
+
+	/**
 	 * Detect whether a site is an automated transfer site and WooCommerce is active.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
@@ -1457,5 +1469,23 @@ abstract class SAL_Site {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Get site option for the production blog id (if is a WP.com Staging Site).
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_production_blog_id() {
+		return get_option( 'wpcom_production_blog_id', '' );
+	}
+
+	/**
+	 * Get site option for the staging blog ids (if it has them)
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_staging_blog_ids() {
+		return get_option( 'wpcom_staging_blog_ids', array() );
 	}
 }
