@@ -33,10 +33,6 @@
 </script>
 
 <div class="jb-container--narrow">
-	{#if ! cloudCssAvailable}
-		<PremiumCTA />
-	{/if}
-
 	<Module
 		slug={'critical-css'}
 		on:enabled={maybeGenerateCriticalCss}
@@ -79,6 +75,12 @@
 				this={RegenerateCriticalCssSuggestion}
 				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
 			/>
+		</div>
+
+		<div slot="cta">
+			{#if ! cloudCssAvailable}
+				<PremiumCTA />
+			{/if}
 		</div>
 	</Module>
 
