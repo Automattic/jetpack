@@ -20,5 +20,5 @@ export const JSONSchema: z.ZodType< JSONObject > = z.lazy( () =>
  */
 export const suggestRegenerateDS = client.createAsyncStore(
 	'critical_css_suggest_regenerate',
-	z.boolean().catch( false )
+	z.coerce.boolean().catch( false )
 );
