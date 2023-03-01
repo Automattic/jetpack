@@ -94,7 +94,7 @@ class Jetpack_SSO {
 		}
 
 		if ( ! empty( $errors->errors['loggedout'] ) ) {
-			$errors->add( 'jetpack-sso-show-logout', __( 'If you are on a shared computer, remember to also log out of wordpress.com', 'jetpack' ), 'message' );
+			$errors->add( 'jetpack-sso-show-logout', __( 'If you are on a shared computer, remember to also log out of wordpress.com.', 'jetpack' ), 'message' );
 		}
 		return $errors;
 	}
