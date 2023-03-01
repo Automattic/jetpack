@@ -325,4 +325,4 @@ Note that the Launchpad plugin file is duplicated from WordPress.com. Any update
 
 ### GitHub Deploy
 
-Includes a simple REST API for the GitHub deployment on Atomic. Atomic sites that are connected to a GitHub repo will receive push notifications via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`. 
+Includes a simple REST API for the Gpet6gk-G-p2. Atomic sites that are connected to a GitHub repo will receive `git push` webhook events via WPCOM which are then forwarded onto the connected Atomic site so it can pull down the latest code from GitHub. The WPCOMSH code is also responsible for generating a log file which is returned back to WPCOM and displayed in the Calypso UI at `/hosting-config/:atomic-site`. 
