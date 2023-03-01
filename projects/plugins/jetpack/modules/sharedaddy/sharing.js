@@ -195,7 +195,7 @@
 		}
 	};
 
-	MoreButton.prototype.nonHoverOpen = function ( event ) {
+	MoreButton.prototype.nonHoverOpen = function () {
 		clearTimeout( this.openTimer );
 		clearTimeout( this.closeTimer );
 
