@@ -46,7 +46,7 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * @param {boolean} props.isRequestingEmbedPreview - oEmbed preview data.
  * @returns {object}                     - React component.
  */
-export default function VideoPressPlayer( {
+export default function Player( {
 	html,
 	isSelected,
 	attributes,
