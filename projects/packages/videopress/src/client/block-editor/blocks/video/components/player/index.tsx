@@ -5,6 +5,11 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Types
+ */
+import { PlayerProps } from './types';
+import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -36,15 +41,8 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
 /**
  * VideoPlayer react component
  *
- * @param {object} props                 - Component props.
- * @param {object} props.html            - Player html to render in the sandbox.
- * @param {boolean} props.isSelected     - Whether the block is selected.
- * @param {object} props.attributes      - Block attributes.
- * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {Array} props.scripts          - Scripts to pass trough to the sandbox.
- * @param {object} props.preview         - oEmbed preview data.
- * @param {boolean} props.isRequestingEmbedPreview - oEmbed preview data.
- * @returns {object}                     - React component.
+ * @param {PlayerProps} props  - Component props.
+ * @returns {React.ReactElement} Playback block sidebar panel
  */
 export default function Player( {
 	html,
@@ -54,7 +52,7 @@ export default function Player( {
 	scripts = [],
 	preview,
 	isRequestingEmbedPreview,
-} ) {
+}: PlayerProps ) {
 	const mainWrapperRef = useRef();
 	const videoWrapperRef = useRef();
 	const { maxWidth, caption, videoRatio } = attributes;
