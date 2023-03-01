@@ -52,9 +52,9 @@ export default function Player( {
 	scripts = [],
 	preview,
 	isRequestingEmbedPreview,
-}: PlayerProps ) {
-	const mainWrapperRef = useRef();
-	const videoWrapperRef = useRef();
+}: PlayerProps ): React.ReactElement {
+	const mainWrapperRef = useRef< HTMLDivElement >();
+	const videoWrapperRef = useRef< HTMLDivElement >();
 	const { maxWidth, caption, videoRatio } = attributes;
 
 	/*
@@ -64,7 +64,9 @@ export default function Player( {
 	 * trying to reduce the flicker effects as much as possible.
 	 * Once the preview is fetched, the temporary height is ignored.
 	 */
-	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState();
+	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState<
+		number | string
+	>( 400 );
 
 	// todo: figure out why 12px are needed.
 	const temporaryHeighErrorCorrection = 12;
@@ -178,7 +180,11 @@ export default function Player( {
 		[ setAttributes ]
 	);
 
-	const wrapperElementStyle = {};
+	const wrapperElementStyle: {
+		height?: number | string;
+		paddingBottom?: number;
+	} = {};
+
 	if ( videoPlayerTemporaryHeight !== 'auto' ) {
 		wrapperElementStyle.height = videoPlayerTemporaryHeight || 200;
 		wrapperElementStyle.paddingBottom = videoPlayerTemporaryHeight
@@ -196,7 +202,7 @@ export default function Player( {
 					right: true,
 				} }
 				maxWidth="100%"
-				size={ { width: maxWidth } }
+				size={ { width: maxWidth, height: 'auto' } }
 				style={ { marginRight: 'auto' } }
 				onResizeStop={ onBlockResize }
 				onResizeStart={ () => setVideoPlayerTemporaryHeightState( 'auto' ) }
