@@ -63,7 +63,6 @@ const ProviderSchema = z.object( {
 export type Provider = z.infer< typeof ProviderSchema >;
 export const CriticalCssStatusSchema = z
 	.object( {
-		retried_show_stopper: z.coerce.boolean(),
 		callback_passthrough: z.record( z.unknown() ).optional(),
 		generation_nonce: z.coerce.string().optional(),
 		proxy_nonce: z.coerce.string().optional(),
@@ -85,7 +84,6 @@ export const CriticalCssStatusSchema = z
 		issues: z.array( CriticalCssIssueSchema ).optional(),
 	} )
 	.catch( {
-		retried_show_stopper: false,
 		callback_passthrough: {},
 		generation_nonce: '',
 		proxy_nonce: '',
@@ -97,6 +95,7 @@ export const CriticalCssStatusSchema = z
 		viewports: [],
 		issues: [],
 	} );
+export type CriticalCssStatus = z.infer< typeof CriticalCssStatusSchema >;
 
 export const criticalCssDS = client.createAsyncStore(
 	'critical_css_state',

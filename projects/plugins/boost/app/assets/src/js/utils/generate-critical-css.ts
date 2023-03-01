@@ -1,8 +1,6 @@
 import { get } from 'svelte/store';
 import setProviderIssue, {
-	generationComplete,
 	localCriticalCSSProgress,
-	requestLocalCriticalCss,
 	saveCriticalCssChunk,
 	stopTheShow,
 	storeGenerateError,
@@ -10,6 +8,7 @@ import setProviderIssue, {
 } from '../stores/critical-css-status';
 import {
 	CriticalCssIssue,
+	CriticalCssStatus,
 	Critical_CSS_Error_Type,
 	Provider,
 } from '../stores/critical-css-status-ds';
@@ -53,22 +52,15 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
  *
  * @param {boolean} reset              - If true, reset any stored CSS before beginning.
  * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
+ * @param           cssStatus
  */
 export default async function generateCriticalCss(
-	reset = true,
-	isShowstopperRetry = false
+	cssStatus: CriticalCssStatus
 ): Promise< void > {
 	hasGenerateRun = true;
 	const cancelling = false;
 
 	try {
-		if ( reset ) {
-			suggestRegenerateDS.store.set( false );
-		}
-
-		// Fetch a list of provider keys and URLs while loading the Critical CSS lib.
-		const cssStatus = await requestLocalCriticalCss( reset, isShowstopperRetry );
-
 		// Abort early if css module deactivated or nothing needs doing
 		if ( ! cssStatus || cssStatus.status !== 'pending' ) {
 			return;
@@ -101,13 +93,6 @@ export default async function generateCriticalCss(
 			// Record thrown errors as Critical CSS status.
 			storeGenerateError( err );
 		}
-	} finally {
-
-		if( reset ) {
-			// If the generation was reset, we need to update the status to complete.
-			generationComplete();
-		}
-
 	}
 }
 

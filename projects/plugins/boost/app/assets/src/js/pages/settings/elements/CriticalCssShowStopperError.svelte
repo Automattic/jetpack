@@ -1,4 +1,9 @@
+<script lang="ts" context="module">
+	let firstTime = true;
+</script>
+
 <script lang="ts">
+	import { onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
@@ -13,12 +18,20 @@
 	let showingProviderError = false;
 	$: showingProviderError = $primaryErrorSet && $criticalCssStatus.status === 'generated';
 
+	// @REFACTORING: I need a review here.
+	// It seems we're preventing the user from regenerating CSS if they hit an error twice.
+	// I agree that the show stopper error should display a different message
+	// But I don't think we should prevent the user from regenerating CSS.
+	// For now - intentionally not persisting the show stopper error.
+	onDestroy( () => {
+		firstTime = false;
+	} );
 	const title = __( 'Failed to generate Critical CSS', 'jetpack-boost' );
 </script>
 
 <ErrorNotice {title}>
 	<p>
-		{$criticalCssStatus.retried_show_stopper
+		{firstTime === false
 			? __(
 					"Hmm, looks like something went wrong. We're still seeing an unexpected error. Please reach out to our support to get help.",
 					'jetpack-boost'
@@ -50,7 +63,7 @@
 	{/if}
 
 	<div slot="actionButton">
-		{#if $criticalCssStatus.retried_show_stopper}
+		{#if firstTime === false}
 			<a class="button button-secondary" href={supportLink} target="_blank" rel="noreferrer">
 				{__( 'Contact Support', 'jetpack-boost' )}
 			</a>
