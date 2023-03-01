@@ -2,7 +2,7 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import { criticalCssIssues } from '../../../stores/critical-css-recommendations';
+	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
 	import {
 		criticalCssProgress,
 		criticalCssState,

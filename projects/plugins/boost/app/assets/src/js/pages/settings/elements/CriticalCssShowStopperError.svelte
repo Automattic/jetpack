@@ -8,7 +8,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
-	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
+	import { primaryErrorSet } from '../../../stores/critical-css-state-errors';
 	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 

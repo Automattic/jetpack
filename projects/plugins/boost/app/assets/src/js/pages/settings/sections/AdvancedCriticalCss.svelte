@@ -6,7 +6,7 @@
 	import {
 		criticalCssIssues,
 		groupErrorsByFrequency,
-	} from '../../../stores/critical-css-recommendations';
+	} from '../../../stores/critical-css-state-errors';
 	import { replaceCssState, updateProvider } from '../../../stores/critical-css-state';
 	import InfoIcon from '../../../svg/info.svg';
 	import routerHistory from '../../../utils/router-history';
