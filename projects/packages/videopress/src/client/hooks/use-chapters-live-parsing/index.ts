@@ -11,7 +11,7 @@ import validateChapters from '../../utils/video-chapters/validate-chapters';
 
 const CHAPTERS_CHECK_INTERVAL = 3000;
 
-const useChaptersLiveParsing = description => {
+const useChaptersLiveParsing = ( description: string ) => {
 	const [ hasIncompleteChapters, setHasIncompleteChapters ] = useState( false );
 
 	const checkChapters = useCallback( () => {
