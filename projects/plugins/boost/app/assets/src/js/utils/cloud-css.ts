@@ -1,7 +1,6 @@
 import { get } from 'svelte/store';
 import api from '../api/api';
-import { setError, criticalCssProgress } from '../stores/critical-css-state';
-import { criticalCssDS } from '../stores/critical-css-state-datasync';
+import { setError, criticalCssProgress, criticalCssState } from '../stores/critical-css-state';
 
 export async function startCloudCssRequest(): Promise< void > {
 	try {
@@ -39,13 +38,7 @@ export function pollCloudCssStatus() {
 	const duration = calcIntervalDuration();
 
 	statusIntervalId = setInterval( async () => {
-		const status = await criticalCssDS.endpoint.GET();
-		if ( status ) {
-			// .override will set the store values without triggering
-			// an update back to the server.
-			criticalCssDS.store.override( status );
-		}
-
+		await criticalCssState.refresh();
 		if ( duration !== calcIntervalDuration() ) {
 			pollCloudCssStatus();
 		}

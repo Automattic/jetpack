@@ -5,11 +5,11 @@ import api from '../api/api';
 import { startCloudCssRequest } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import {
-	criticalCssDS,
 	type CriticalCssState,
-	Provider,
-} from './critical-css-state-datasync';
-import { JSONObject, suggestRegenerateDS } from './data-sync-client';
+	type Provider,
+	CriticalCssStateSchema,
+} from './critical-css-state-types';
+import { client, JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modules } from './modules';
 
 
@@ -17,10 +17,25 @@ const resetState = {
 	status: 'not_generated',
 };
 
-const cssStateStore = criticalCssDS.store;
+const stateClient = client.createAsyncStore(
+	'critical_css_state',
+	CriticalCssStateSchema
+);
+const cssStateStore = stateClient.store;
+
 export const criticalCssState = {
-	subscribe: cssStateStore.subscribe
+	subscribe: cssStateStore.subscribe,
+	// @REFACTORING: Move this functionality to Svelte DataSync Client:
+	refresh: async () => {
+		const status = await stateClient.endpoint.GET();
+		if (status) {
+			// .override will set the store values without triggering
+			// an update back to the server.
+			cssStateStore.override(status);
+		}
+	},
 };
+
 
 // @REFACTORING: Move this functionality to Svelte DataSync Client:
 export const replaceCssState = (value: CriticalCssState) => {
@@ -51,7 +66,7 @@ export const isFatalError = derived([cssStateStore, showError], ([$criticalCssSt
 	if (!$showError) {
 		return false;
 	}
-	return ! $criticalCssState.providers.some( provider => provider.status === 'success' );
+	return !$criticalCssState.providers.some(provider => provider.status === 'success');
 });
 
 export const isGenerating = derived(
@@ -158,7 +173,7 @@ export function resetCloudRetryStatus(): void {
 }
 
 export function setError(): void {
-	return replaceCssState({status: 'error'});
+	return replaceCssState({ status: 'error' });
 }
 
 export function updateProvider(providerKey: string, data: Partial<Provider>): void {
@@ -175,7 +190,7 @@ export function updateProvider(providerKey: string, data: Partial<Provider>): vo
 }
 
 export const refreshCriticalCssState = async () => {
-	const state = await criticalCssDS.endpoint.GET();
+	const state = await stateClient.endpoint.GET();
 	cssStateStore.override(state);
 	return state;
 };

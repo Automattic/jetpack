@@ -11,7 +11,7 @@ import {
 	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from '../stores/critical-css-state-datasync';
+} from '../stores/critical-css-state-types';
 import { JSONObject } from '../stores/data-sync-client';
 import { modules } from '../stores/modules';
 import { recordBoostEvent } from './analytics';

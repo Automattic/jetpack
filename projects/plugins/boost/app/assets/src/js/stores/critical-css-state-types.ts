@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import z from 'zod';
-import { client, JSONSchema } from './data-sync-client';
+import { JSONSchema } from './data-sync-client';
 
 const CriticalCssErrorType = z.enum( [
 	'SuccessTargetError',
@@ -42,7 +42,7 @@ const ProviderSchema = z.object( {
 	error_status: z.enum( [ 'active', 'dismissed' ] ).optional(),
 } );
 
-const CriticalCssStateSchema = z
+export const CriticalCssStateSchema = z
 	.object( {
 		callback_passthrough: z.record( z.unknown() ).optional(),
 		generation_nonce: z.coerce.string().optional(),
@@ -82,8 +82,3 @@ export type Provider = z.infer< typeof ProviderSchema >;
 export type CriticalCssState = z.infer< typeof CriticalCssStateSchema >;
 export type Critical_CSS_Error_Type = z.infer< typeof CriticalCssErrorType >;
 export type CriticalCssErrorDetails = z.infer< typeof CriticalCssErrorDetailsSchema >;
-
-export const criticalCssDS = client.createAsyncStore(
-	'critical_css_state',
-	CriticalCssStateSchema
-);
