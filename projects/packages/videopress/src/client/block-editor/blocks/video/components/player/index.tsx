@@ -230,10 +230,12 @@ export default function Player( {
 
 			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 				<RichText
+					identifier="caption"
 					tagName="figcaption"
-					placeholder={ __( 'Write caption…', 'jetpack-videopress-pkg' ) }
+					aria-label={ __( 'Video caption text', 'jetpack-videopress-pkg' ) }
+					placeholder={ __( 'Add caption', 'jetpack-videopress-pkg' ) }
 					value={ caption }
-					onChange={ value => setAttributes( { caption: value } ) }
+					onChange={ ( value: string ) => setAttributes( { caption: value } ) }
 					inlineToolbar
 				/>
 			) }
