@@ -1,39 +1,44 @@
 import apiFetch from '@wordpress/api-fetch';
 import {
-	JETPACK_FORMS_RESPONSES_FETCH,
-	JETPACK_FORMS_RESPONSES_FETCH_FAIL,
-	JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
-} from './action-types';
-import { dispatchAsync } from './actions';
+	dispatchAsync,
+	fetchResponses,
+	receiveResponsesFetch,
+	failResponsesFetch,
+} from './actions';
 
-const fetchResponses = ( query, limit = 20, offset = 0 ) => {
+/**
+ * Fetches responses from backend (API)
+ *
+ * @param {string} search - Some search term
+ * @param {number} limit  - Maximum results to get from backend
+ * @param {number} offset - The offset for the results (paging)
+ * @returns {Promise}     - The fetch promise
+ */
+const fetchResponsesFromApi = ( search, limit = 20, offset = 0 ) => {
 	const queryString = new URLSearchParams( {
-		...query,
+		search,
 		limit,
 		offset,
 	} ).toString();
 
-	return apiFetch( { path: `/wpcom/v2/formss/responses?${ queryString }` } );
+	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
 };
 
 /**
+ * getResponses resolver will trigger a backend request
  *
+ * @param {string} search - Some search term
+ * @param {number} limit  - Maximum results to get from backend
+ * @param {number} offset - The offset for the results (paging)
+ * @yields
  */
-function* getResponses() {
+function* getResponses( search, limit = 20, offset = 0 ) {
 	try {
-		yield { type: JETPACK_FORMS_RESPONSES_FETCH };
-		const response = yield dispatchAsync( fetchResponses, [] );
-		yield {
-			type: JETPACK_FORMS_RESPONSES_FETCH_RECEIVE,
-			responses: response.responses,
-			total: response.total,
-		};
+		yield fetchResponses();
+		const response = yield dispatchAsync( fetchResponsesFromApi, [ search, limit, offset ] );
+		yield receiveResponsesFetch( response );
 	} catch ( error ) {
-		yield {
-			type: JETPACK_FORMS_RESPONSES_FETCH_FAIL,
-			error,
-		};
-		console.error( error );
+		yield failResponsesFetch( error );
 	}
 }
 
