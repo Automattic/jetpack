@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
-import { PlayerProps } from './types';
+import type { PlayerProps } from './types';
 import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
