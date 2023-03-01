@@ -187,6 +187,16 @@ export default function Player( {
 		paddingBottom?: number;
 	} = {};
 
+	// Focus the caption when we click to add one.
+	const captionRef = useCallback(
+		( node: HTMLElement ) => {
+			if ( node && ! caption ) {
+				node.focus();
+			}
+		},
+		[ caption ]
+	);
+
 	if ( videoPlayerTemporaryHeight !== 'auto' ) {
 		wrapperElementStyle.height = videoPlayerTemporaryHeight || 200;
 		wrapperElementStyle.paddingBottom = videoPlayerTemporaryHeight
@@ -239,6 +249,7 @@ export default function Player( {
 					value={ caption }
 					onChange={ ( value: string ) => setAttributes( { caption: value } ) }
 					inlineToolbar
+					ref={ captionRef }
 				/>
 			) }
 		</figure>
