@@ -17,8 +17,7 @@ const resetState = {
 	status: 'not_generated',
 };
 
-// @REFACTORING: Make this a read-only export.
-export const criticalCssState = criticalCssDS.store;
+const criticalCssState = criticalCssDS.store;
 
 // @REFACTORING: Move this functionality to Svelte DataSync Client:
 export const replaceCssState = (value: CriticalCssState) => {
@@ -26,42 +25,6 @@ export const replaceCssState = (value: CriticalCssState) => {
 		return { ...oldValue, ...value };
 	});
 }
-
-export const localCriticalCSSProgress = writable<undefined | number>(undefined);
-
-export const criticalCssProgress = derived(
-	[criticalCssState, localCriticalCSSProgress],
-	([$criticalCssState, $localProgress]) => {
-		if ($criticalCssState.status === 'generated') {
-			return 100;
-		}
-
-		if ($criticalCssState.status === 'not_generated') {
-			return 0;
-		}
-
-		const totalCount = $criticalCssState.providers.length;
-		const doneCount = $criticalCssState.providers.filter(
-			provider => provider.status !== 'pending'
-		).length;
-
-		// `localProgress` provides a percentage 0-100 for each step for the Local critical CSS Generation
-		// Convert that to a percentage of the total progress.
-		let percent = Math.round((doneCount / totalCount) * 100);
-		if (
-			$localProgress !== undefined &&
-			$localProgress > 0 &&
-			$localProgress < 1 &&
-			doneCount < totalCount &&
-			doneCount > 0
-		) {
-			const percentPerStep = 100 / totalCount;
-			percent += $localProgress * percentPerStep;
-		}
-
-		return percent;
-	}
-);
 
 /**
  * Derived datastore: Returns whether to show an error.
@@ -247,6 +210,43 @@ export const regenerateCriticalCss = async () => {
 	// onMount: pollCloudCssStatus
 	// onActivate: requestCloudCss
 };
+
+
+export const localCriticalCSSProgress = writable<undefined | number>(undefined);
+
+export const criticalCssProgress = derived(
+	[criticalCssState, localCriticalCSSProgress],
+	([$criticalCssState, $localProgress]) => {
+		if ($criticalCssState.status === 'generated') {
+			return 100;
+		}
+
+		if ($criticalCssState.status === 'not_generated') {
+			return 0;
+		}
+
+		const totalCount = $criticalCssState.providers.length;
+		const doneCount = $criticalCssState.providers.filter(
+			provider => provider.status !== 'pending'
+		).length;
+
+		// `localProgress` provides a percentage 0-100 for each step for the Local critical CSS Generation
+		// Convert that to a percentage of the total progress.
+		let percent = Math.round((doneCount / totalCount) * 100);
+		if (
+			$localProgress !== undefined &&
+			$localProgress > 0 &&
+			$localProgress < 1 &&
+			doneCount < totalCount &&
+			doneCount > 0
+		) {
+			const percentPerStep = 100 / totalCount;
+			percent += $localProgress * percentPerStep;
+		}
+
+		return percent;
+	}
+);
 
 // @REFACTORING Utils: Remove in production
 window.store = criticalCssState;
