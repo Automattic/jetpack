@@ -2,7 +2,7 @@
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import { failedProviderKeyCount } from '../../../stores/critical-css-recommendations';
+	import { criticalCssIssues } from '../../../stores/critical-css-recommendations';
 	import {
 		criticalCssProgress,
 		criticalCssStatus,
@@ -39,7 +39,7 @@
 				{/if}
 			</div>
 
-			{#if $criticalCssStatus.status !== 'pending' && $failedProviderKeyCount > 0}
+			{#if $criticalCssStatus.status !== 'pending' && $criticalCssIssues.length > 0}
 				<div class="failures">
 					<InfoIcon />
 
@@ -49,10 +49,10 @@
 							_n(
 								'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
 								'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-								$failedProviderKeyCount,
+								$criticalCssIssues.length,
 								'jetpack-boost'
 							),
-							$failedProviderKeyCount
+							$criticalCssIssues.length
 						)}
 						vars={{
 							...actionLinkTemplateVar( () => navigate( 'critical-css-advanced' ), 'advanced' ),

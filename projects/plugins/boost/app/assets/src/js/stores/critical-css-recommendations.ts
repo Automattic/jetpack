@@ -1,7 +1,7 @@
-import { writable, derived, get, Readable } from 'svelte/store';
+import { derived, Readable } from 'svelte/store';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { criticalCssStatus, replaceCssState } from './critical-css-status';
+import { criticalCssStatus } from './critical-css-status';
 import {
 	CriticalCssErrorDetails,
 	Critical_CSS_Error_Type,
@@ -21,50 +21,15 @@ export type ErrorSet = {
 	};
 };
 
-const issuesStore = derived( criticalCssStatus, $status => {
+export const criticalCssIssues = derived( criticalCssStatus, $status => {
 	return $status.providers.filter( provider => provider.errors?.length > 0 );
-} );
-
-const dismissalErrorStore = writable( null );
-export const dismissalError = { subscribe: dismissalErrorStore.subscribe };
-
-/**
- * Derived datastore: contains the number of provider keys which failed in the
- * latest Critical CSS generation run.
- */
-export const failedProviderKeyCount = derived( issuesStore, $issues => {
-	if ( $issues.length === 0 ) {
-		return 0;
-	}
-	return $issues.reduce( ( acc, curr ) => ( curr.errors.length > 0 ? acc + 1 : acc ), 0 );
-} );
-
-/**
- * Store used to track Critical CSS Recommendations which have been dismissed.
- * Exported as a read-only store.
- */
-export const dismissedIssues = derived( issuesStore, $issues => {
-	if ( $issues.length === 0 ) {
-		return [];
-	}
-	return $issues.filter( r => r.error_status === 'dismissed' );
-} );
-
-/**
- * Derived store containing Critical CSS recommendations which have not been dismissed.
- */
-export const activeIssues = derived( issuesStore, $issues => {
-	if ( $issues.length === 0 ) {
-		return [];
-	}
-	return $issues.filter( r => r.error_status === 'active' );
 } );
 
 /**
  * Derived datastore: Returns the most important Set of errors among the recommendations.
  * Used for displaying the most important error as a showstopper if no URLS succeeded.
  */
-export const primaryErrorSet: Readable< ErrorSet > = derived( issuesStore, $issues => {
+export const primaryErrorSet: Readable< ErrorSet > = derived( criticalCssIssues, $issues => {
 	const importantProviders = [
 		'core_front_page',
 		'core_posts_page',
@@ -78,7 +43,6 @@ export const primaryErrorSet: Readable< ErrorSet > = derived( issuesStore, $issu
 			return groupErrorsByFrequency( issue )[ 0 ];
 		}
 	}
-
 	return undefined;
 } );
 
@@ -132,39 +96,4 @@ export function groupKey( error: CriticalCssErrorDetails ) {
 	}
 
 	return error.type;
-}
-
-/**
- * Dismiss the recommendation associated with the given provider key. Calls the
- * API to update the back end in lock-step.
- *
- * @param {string} key Key of recommendation to dismiss.
- */
-export async function dismissIssue( key: string ): Promise< void > {
-	const providers = get( issuesStore );
-	const issue = providers.find( el => el.key === key );
-	if ( issue ) {
-		issue.error_status = 'dismissed';
-		replaceCssState( { providers } );
-	}
-}
-/**
- * Show the previously dismissed recommendations.
- */
-export async function showDismissedIssues() {
-	const providers = get( issuesStore );
-	replaceCssState( {
-		providers: providers.map( issue => {
-			issue.error_status = 'active';
-			return issue;
-		} ),
-	} );
-	// @REFACTORING: Restore dismissal error reporting:
-	// We need a toast these sorts of errors.
-	// That would address this as well:
-	// https://github.com/orgs/Automattic/projects/548?pane=issue&itemId=20996239
-	// setDismissalError(
-	// 	__( 'Failed to show the dismissed recommendations', 'jetpack-boost' ),
-	// 	error
-	// );
 }

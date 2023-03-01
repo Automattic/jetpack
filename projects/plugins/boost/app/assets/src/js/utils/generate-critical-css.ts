@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
 import setProviderIssue, {
+	criticalCssState,
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	stopTheShow,
@@ -151,7 +152,7 @@ async function generateForKeys(
 	let maxSize = 0;
 
 	// Run through each set of URLs.
-	for ( const { urls, success_ratio, label, key } of providers ) {
+	for ( const { urls, success_ratio, key } of providers ) {
 		try {
 			const [ css, warnings ] = await CriticalCSSGenerator.generateCriticalCSS( {
 				browserInterface: createBrowserInterface( requestGetParameters, proxyNonce ),
