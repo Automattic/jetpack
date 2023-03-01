@@ -6,6 +6,7 @@ import {
 	criticalCssFatalError,
 	storeGenerateError,
 	updateProvider,
+	regenerateCriticalCss,
 } from '../stores/critical-css-state';
 import {
 	CriticalCssState,
@@ -43,7 +44,14 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
 		return;
 	}
 
-	return generateCriticalCss( get( criticalCssState ) );
+	const cssState = get( criticalCssState );
+	if ( ! cssState || cssState.status === 'not_generated' ) {
+		return regenerateCriticalCss();
+	}
+	// Abort early if css module deactivated or nothing needs doing
+	if ( cssState.status === 'pending' ) {
+		return generateCriticalCss( get( criticalCssState ) );
+	}
 }
 
 /**
@@ -52,18 +60,11 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
  *
  * @param {CriticalCssState} cssState
  */
-export default async function generateCriticalCss(
-	cssState: CriticalCssState
-): Promise< void > {
+export default async function generateCriticalCss( cssState: CriticalCssState ): Promise< void > {
 	hasGenerateRun = true;
 	const cancelling = false;
 
 	try {
-		// Abort early if css module deactivated or nothing needs doing
-		if ( ! cssState || cssState.status !== 'pending' ) {
-			return;
-		}
-
 		// Load Critical CSS gen library if not already loaded.
 		await loadCriticalCssLibrary();
 
@@ -87,6 +88,7 @@ export default async function generateCriticalCss(
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
 		// @REFACTORING - Logging errors for now.
+		// eslint-disable-next-line no-console
 		console.error( err );
 		if ( ! cancelling ) {
 			// Record thrown errors as Critical CSS status.
@@ -157,7 +159,7 @@ async function generateForKeys(
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
-					localCriticalCSSProgress.set( step / total  );
+					localCriticalCSSProgress.set( step / total );
 				},
 				filters: {
 					atRules: keepAtRule,
@@ -166,7 +168,7 @@ async function generateForKeys(
 				successRatio: success_ratio,
 			} );
 
-			const updateResult = await saveCriticalCssChunk( key, css, passthrough);
+			const updateResult = await saveCriticalCssChunk( key, css, passthrough );
 
 			const status = warnings.length > 0 ? 'error' : 'success';
 			updateProvider( key, {
