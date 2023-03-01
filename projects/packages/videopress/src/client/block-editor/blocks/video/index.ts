@@ -12,7 +12,6 @@ import Edit from './edit';
 import save from './save';
 import transforms from './transforms';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
-import './style.scss';
 
 export const { name, title, description, attributes } = metadata;
 

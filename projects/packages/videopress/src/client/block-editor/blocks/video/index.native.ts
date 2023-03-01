@@ -11,7 +11,6 @@ import { VideoPressIcon as icon } from './components/icons';
 import Edit from './edit';
 import save from './save';
 import transforms from './transforms';
-import './style.scss';
 
 export const { name, title, description, attributes } = metadata;
 
