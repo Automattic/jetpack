@@ -218,5 +218,5 @@ export const criticalCssProgress = derived(
 );
 
 // @REFACTORING Utils: Remove in production
-window.store = cssStateStore;
-window.replaceState = replaceCssState;
+// window.store = cssStateStore;
+// window.replaceState = replaceCssState;
