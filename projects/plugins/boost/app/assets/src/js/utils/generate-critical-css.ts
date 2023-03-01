@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import setProviderIssue, {
-	criticalCssState,
+	criticalCssStatus,
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	stopTheShow,
@@ -44,7 +44,7 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
 		return;
 	}
 
-	return generateCriticalCss( get( criticalCssState ) );
+	return generateCriticalCss( get( criticalCssStatus ) );
 }
 
 /**

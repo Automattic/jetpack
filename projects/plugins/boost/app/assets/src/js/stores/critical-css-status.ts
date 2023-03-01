@@ -18,11 +18,11 @@ const resetState = {
 };
 
 // @REFACTORING: Make this a read-only export.
-export const criticalCssState = criticalCssDS.store;
+export const criticalCssStatus = criticalCssDS.store;
 
 // @REFACTORING: Move this functionality to Svelte DataSync Client:
 export const replaceCssState = (value: CriticalCssStatus) => {
-	criticalCssState.update(oldValue => {
+	criticalCssStatus.update(oldValue => {
 		return { ...oldValue, ...value };
 	});
 }
@@ -30,7 +30,7 @@ export const replaceCssState = (value: CriticalCssStatus) => {
 export const localCriticalCSSProgress = writable<undefined | number>(undefined);
 
 export const criticalCssProgress = derived(
-	[criticalCssState, localCriticalCSSProgress],
+	[criticalCssStatus, localCriticalCSSProgress],
 	([$criticalCssState, $localProgress]) => {
 		if ($criticalCssState.status === 'generated') {
 			return 100;
@@ -67,7 +67,7 @@ export const criticalCssProgress = derived(
  * Derived datastore: Returns whether to show an error.
  * Show an error if in error state, or if a success has 0 results.
  */
-export const showError = derived(criticalCssState, $criticalCssState => {
+export const showError = derived(criticalCssStatus, $criticalCssState => {
 	if ($criticalCssState.status === 'generated') {
 		return (
 			$criticalCssState.providers.filter((provider: Provider) => provider.status === 'error')
@@ -81,7 +81,7 @@ export const showError = derived(criticalCssState, $criticalCssState => {
 /**
  * Fatal error when no providers are successful.
  */
-export const isFatalError = derived([criticalCssState, showError], ([$criticalCssState, $showError]) => {
+export const isFatalError = derived([criticalCssStatus, showError], ([$criticalCssState, $showError]) => {
 	if (!$showError) {
 		return false;
 	}
@@ -89,7 +89,7 @@ export const isFatalError = derived([criticalCssState, showError], ([$criticalCs
 });
 
 export const isGenerating = derived(
-	[criticalCssState, modules],
+	[criticalCssStatus, modules],
 	([$criticalCssState, $modules]) => {
 		const statusIsRequesting = $criticalCssState.status === 'pending';
 		const criticalCssIsEnabled = $modules['critical-css'] && $modules['critical-css'].enabled;
@@ -125,8 +125,8 @@ export async function requestLocalCriticalCss(): Promise<CriticalCssStatus | fal
 			status: 'pending',
 		})),
 	};
-	criticalCssState.set(newState);
-	return get(criticalCssState);
+	criticalCssStatus.set(newState);
+	return get(criticalCssStatus);
 }
 
 export function stopTheShow(): void {
@@ -196,7 +196,7 @@ export function setError(): void {
 }
 
 export function updateProvider(providerKey: string, data: Partial<Provider>): void {
-	return criticalCssState.update($state => {
+	return criticalCssStatus.update($state => {
 		const providerIndex = $state.providers.findIndex(provider => provider.key === providerKey);
 
 		$state.providers[providerIndex] = {
@@ -210,7 +210,7 @@ export function updateProvider(providerKey: string, data: Partial<Provider>): vo
 
 export const refreshCriticalCssStatus = async () => {
 	const state = await criticalCssDS.endpoint.GET();
-	criticalCssState.override(state);
+	criticalCssStatus.override(state);
 	return state;
 };
 
@@ -235,7 +235,7 @@ export const regenerateCriticalCss = async () => {
 	suggestRegenerateDS.store.set(false);
 
 	await requestLocalCriticalCss();
-	await generateCriticalCss(get(criticalCssState));
+	await generateCriticalCss(get(criticalCssStatus));
 	replaceCssState({ status: 'generated' });
 
 	// SECTION:
@@ -248,10 +248,6 @@ export const regenerateCriticalCss = async () => {
 	// onActivate: requestCloudCss
 };
 
-export const criticalCssStatus = {
-	subscribe: criticalCssState.subscribe,
-};
-
 // @REFACTORING Utils: Remove in production
-window.store = criticalCssState;
+window.store = criticalCssStatus;
 window.replaceState = replaceCssState;
