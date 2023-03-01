@@ -5,7 +5,6 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
 
 // Global scripts array to be run in the Sandbox context.
 const globalScripts = [];
@@ -33,9 +32,6 @@ if ( window.videopressAjax ) {
 if ( window?.videoPressEditorState?.playerBridgeUrl ) {
 	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
 }
-
-// Define a debug instance for block bridge.
-window.debugBridgeInstance = debugFactory( 'jetpack:vp-block:bridge' );
 
 /**
  * VideoPlayer react component
