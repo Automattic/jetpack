@@ -163,6 +163,13 @@ class Connection_Notice {
 						results.innerHTML = '';
 						results.classList.remove( 'error-message' );
 
+						const handleAPIError = ( message ) => {
+							submitBtn.disabled = false;
+
+							results.classList.add( 'error-message' );
+							results.innerHTML = message || "<?php esc_html_e( 'Something went wrong. Please try again.', 'jetpack-connection' ); ?>";
+						}
+
 						fetch(
 							<?php echo wp_json_encode( esc_url_raw( get_rest_url() . 'jetpack/v4/connection/owner' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 							{
@@ -175,8 +182,6 @@ class Connection_Notice {
 						)
 							.then( response => response.json() )
 							.then( data => {
-								submitBtn.disabled = false;
-
 								if ( data.hasOwnProperty( 'code' ) && data.code === 'success' ) {
 									// Owner successfully changed.
 									results.innerHTML = <?php echo wp_json_encode( esc_html__( 'Success!', 'jetpack-connection' ), JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
@@ -187,12 +192,9 @@ class Connection_Notice {
 									return;
 								}
 
-								// API returned an error, something went wrong.
-								results.classList.add( 'error-message' );
-								results.innerHTML = data.hasOwnProperty( 'message' )
-									? data.message
-									: "<?php esc_html_e( 'Something went wrong. Please try again.', 'jetpack-connection' ); ?>";
-							} );
+								handleAPIError( data?.message );
+							} )
+							.catch( () => handleAPIError() );
 					});
 				} )();
 			</script>
