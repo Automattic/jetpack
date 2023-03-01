@@ -5,6 +5,7 @@
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
 	import { failedProviderKeyCount } from '../../../stores/critical-css-recommendations';
 	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import { modules } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -15,6 +16,8 @@
 
 	const dispatch = createEventDispatcher();
 	const { navigate } = routerHistory;
+
+	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 </script>
 
 <div class="jb-critical-css__meta">
@@ -35,6 +38,12 @@
 				)}
 				{#if $criticalCssStatus.updated}
 					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{/if}
+				{#if ! cloudCssAvailable}
+					{__(
+						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+						'jetpack-boost'
+					)}
 				{/if}
 				{#if $criticalCssStatus.progress < 100}
 					<span>{generateMoreText}</span>
