@@ -21,6 +21,8 @@ class Waf_Runner {
 
 	/**
 	 * Run the WAF
+	 *
+	 * @return void
 	 */
 	public static function initialize() {
 		if ( ! self::is_enabled() ) {
@@ -128,6 +130,8 @@ class Waf_Runner {
 
 	/**
 	 * Enables the WAF module on the site.
+	 *
+	 * @return bool
 	 */
 	public static function enable() {
 		return ( new Modules() )->activate( self::WAF_MODULE_NAME, false, false );
@@ -135,6 +139,8 @@ class Waf_Runner {
 
 	/**
 	 * Disabled the WAF module on the site.
+	 *
+	 * @return bool
 	 */
 	public static function disable() {
 		return ( new Modules() )->deactivate( self::WAF_MODULE_NAME );
@@ -226,7 +232,7 @@ class Waf_Runner {
 				// phpcs:ignore
 				include $rules_file_path;
 			}
-} catch ( \Exception $err ) { // phpcs:ignore
+		} catch ( \Exception $err ) { // phpcs:ignore
 			// Intentionally doing nothing.
 		}
 
@@ -389,6 +395,8 @@ class Waf_Runner {
 	 *
 	 * @throws Waf_Exception If generating the standalone bootstrap file fails.
 	 * @throws Waf_Exception If generating the rule files fails.
+	 *
+	 * @return void
 	 */
 	public static function update_waf() {
 		$rules_generated_exception = null;

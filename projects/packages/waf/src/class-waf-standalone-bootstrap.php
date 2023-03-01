@@ -16,6 +16,8 @@ class Waf_Standalone_Bootstrap {
 
 	/**
 	 * Ensures that constants are initialized if this class is used.
+	 *
+	 * @return void
 	 */
 	public function __construct() {
 		$this->guard_against_missing_abspath();

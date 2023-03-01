@@ -177,6 +177,7 @@ class Waf_Rules_Manager {
 	 *
 	 * @param string $required_file The file to check if exists and require.
 	 * @param string $return_code   The PHP code to execute if the file require returns true. Defaults to 'return;'.
+	 *
 	 * @return string The wrapped require statement.
 	 */
 	private static function wrap_require( $required_file, $return_code = 'return;' ) {
@@ -186,6 +187,8 @@ class Waf_Rules_Manager {
 	/**
 	 * Generates the rules.php script
 	 *
+	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
+	 *
 	 * @throws Waf_Exception         If filesystem is unavailable.
 	 * @throws File_System_Exception If file writing fails initializing rule files.
 	 * @throws File_System_Exception If file writing fails writing to the rules entrypoint file.
@@ -193,11 +196,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function generate_rules() {
-		/**
-		 * WordPress filesystem abstraction.
-		 *
-		 * @var \WP_Filesystem_Base $wp_filesystem
-		 */
 		global $wp_filesystem;
 
 		try {
@@ -245,6 +243,8 @@ class Waf_Rules_Manager {
 	/**
 	 * Generates the automatic-rules.php script
 	 *
+	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
+	 *
 	 * @throws Waf_Exception         If filesystem is unavailable.
 	 * @throws Waf_Exception         If rules cannot be fetched from the API.
 	 * @throws File_System_Exception If file writing fails.
@@ -252,11 +252,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function generate_automatic_rules() {
-		/**
-		 * WordPress filesystem abstraction.
-		 *
-		 * @var \WP_Filesystem_Base $wp_filesystem
-		 */
 		global $wp_filesystem;
 
 		try {
@@ -296,6 +291,8 @@ class Waf_Rules_Manager {
 	/**
 	 * Generates the rules.php script
 	 *
+	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
+	 *
 	 * @throws Waf_Exception         If filesystem is not available.
 	 * @throws File_System_Exception If writing to IP allow list file fails.
 	 * @throws File_System_Exception If writing to IP block list file fails.
@@ -303,11 +300,6 @@ class Waf_Rules_Manager {
 	 * @return void
 	 */
 	public static function generate_ip_rules() {
-		/**
-		 * WordPress filesystem abstraction.
-		 *
-		 * @var \WP_Filesystem_Base $wp_filesystem
-		 */
 		global $wp_filesystem;
 
 		try {

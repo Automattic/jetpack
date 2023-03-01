@@ -49,7 +49,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * On module activation set up waf mode
+	 * Activate the WAF on module activation.
 	 *
 	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
@@ -68,7 +68,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * On module deactivation, unset waf mode
+	 * Deactivate the WAF on module deactivation.
 	 *
 	 * @return bool|WP_Error True if the WAF deactivation is successful, WP_Error otherwise.
 	 */

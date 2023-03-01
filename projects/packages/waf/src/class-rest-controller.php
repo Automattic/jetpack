@@ -17,6 +17,8 @@ use WP_REST_Server;
 class REST_Controller {
 	/**
 	 * Register REST API endpoints.
+	 *
+	 * @return void
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
@@ -73,6 +75,8 @@ class REST_Controller {
 
 	/**
 	 * WAF Endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function waf() {
 		return rest_ensure_response( Waf_Runner::get_config() );
