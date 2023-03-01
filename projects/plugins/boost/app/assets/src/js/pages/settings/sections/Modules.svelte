@@ -43,7 +43,7 @@
 		on:mountEnabled={maybeGenerateCriticalCss}
 	>
 		<h3 slot="title">
-			{__( 'Optimize CSS Loading', 'jetpack-boost' )}
+			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
 		</h3>
 		<p slot="description">
 			<TemplatedString
@@ -52,6 +52,18 @@
 					'jetpack-boost'
 				)}
 				vars={externalLinkTemplateVar( criticalCssLink )}
+			/>
+		</p>
+
+		<p>
+			<TemplatedString
+				template={__(
+					`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+					'jetpack-boost'
+				)}
+				vars={{
+					b: [ 'strong', {}, '' ],
+				}}
 			/>
 		</p>
 
