@@ -1,10 +1,11 @@
 /**
  * External dependencies
  */
-import { RichText } from '@wordpress/block-editor';
-import { ResizableBox, SandBox } from '@wordpress/components';
+import { RichText, BlockControls } from '@wordpress/block-editor';
+import { ResizableBox, SandBox, ToolbarButton } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { caption as captionIcon } from '@wordpress/icons';
 /**
  * Types
  */
@@ -55,7 +56,9 @@ export default function Player( {
 }: PlayerProps ): React.ReactElement {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
+
 	const { maxWidth, caption, videoRatio } = attributes;
+	const [ showCaption, setShowCaption ] = useState( !! caption );
 
 	/*
 	 * Temporary height is used to set the height of the video
@@ -192,8 +195,25 @@ export default function Player( {
 			: 0;
 	}
 
+	const removeCaptionLabel = __( 'Remove caption', 'jetpack-videopress-pkg' );
+	const addCaptionLabel = __( 'Add caption', 'jetpack-videopress-pkg' );
+
 	return (
 		<figure ref={ mainWrapperRef } className="jetpack-videopress-player">
+			<BlockControls group="block">
+				<ToolbarButton
+					onClick={ () => {
+						setShowCaption( ! showCaption );
+						if ( showCaption && caption ) {
+							setAttributes( { caption: undefined } );
+						}
+					} }
+					icon={ captionIcon }
+					isPressed={ showCaption }
+					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
+				/>
+			</BlockControls>
+
 			<ResizableBox
 				enable={ {
 					top: false,
@@ -228,7 +248,7 @@ export default function Player( {
 				</div>
 			</ResizableBox>
 
-			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+			{ showCaption && ( ! RichText.isEmpty( caption ) || isSelected ) && (
 				<RichText
 					identifier="caption"
 					tagName="figcaption"
