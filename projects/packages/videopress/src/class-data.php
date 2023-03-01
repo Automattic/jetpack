@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use WP_REST_Request;
 /**
  * The Data class.
@@ -30,11 +31,23 @@ class Data {
 	 * @return boolean If all the videos are private on the site
 	 */
 	public static function get_videopress_videos_private_for_site() {
+		/**
+		 * If it's a Simple site, returns the site privacy setting.
+		 */
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', false ) );
-		} else {
-			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
+			return video_is_private_wpcom_blog( get_current_blog_id() );
 		}
+		/**
+		 * If it's a private Atomic site, the default setting is private as well.
+		 */
+		if ( ( new Host() )->is_woa_site() ) {
+			if ( ( intval( get_option( 'blog_public', '' ) ) === -1 ) ) {
+				return true;
+			}
+		}
+
+		/* If it's a Jetpack site or a public Atomic site, check the settings */
+		return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
 	}
 
 	/**

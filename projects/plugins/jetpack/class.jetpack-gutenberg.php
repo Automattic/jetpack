@@ -406,6 +406,17 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return the list of extensions that are available.
+	 *
+	 * @since 11.9
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_extensions() {
+		return self::$extensions;
+	}
+
+	/**
 	 * Check if an extension/block is already registered
 	 *
 	 * @since 7.2
