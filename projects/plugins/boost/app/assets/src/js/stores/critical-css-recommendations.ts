@@ -1,12 +1,12 @@
 import { derived, Readable } from 'svelte/store';
 import { castToString } from '../utils/cast-to-string';
 import { sortByFrequency } from '../utils/sort-by-frequency';
-import { criticalCssStatus } from './critical-css-status';
+import { criticalCssState } from './critical-css-state';
 import {
 	CriticalCssErrorDetails,
 	Critical_CSS_Error_Type,
 	Provider,
-} from './critical-css-status-ds';
+} from './critical-css-state-ds';
 import { JSONObject } from './data-sync-client';
 
 /**
@@ -21,7 +21,7 @@ export type ErrorSet = {
 	};
 };
 
-export const criticalCssIssues = derived( criticalCssStatus, $status => {
+export const criticalCssIssues = derived( criticalCssState, $status => {
 	return $status.providers.filter( provider => provider.errors?.length > 0 );
 } );
 

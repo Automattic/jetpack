@@ -12,7 +12,7 @@
 	import NumberedList from '../../../elements/NumberedList.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { ErrorSet } from '../../../stores/critical-css-recommendations';
-	import { regenerateCriticalCss } from '../../../stores/critical-css-status';
+	import { regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
 	import { TemplateVars } from '../../../utils/copy-dom-template';
 	import {
@@ -28,7 +28,7 @@
 	export let showClosingParagraph = true;
 
 	/**
-	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssStatus.
+	 * A set of errors to display recommendations from, from a Recommendation or CriticalCssState.
 	 */
 	export let errorSet: ErrorSet;
 

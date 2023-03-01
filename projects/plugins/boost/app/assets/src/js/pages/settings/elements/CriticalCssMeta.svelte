@@ -2,14 +2,14 @@
 	import { __ } from '@wordpress/i18n';
 	import {
 		criticalCssProgress,
-		criticalCssStatus,
+		criticalCssState,
 		isFatalError,
-	} from '../../../stores/critical-css-status';
+	} from '../../../stores/critical-css-state';
 	import CriticalCssShowStopperError from './CriticalCssShowStopperError.svelte';
 	import CriticalCssStatus from './CriticalCssStatus.svelte';
 </script>
 
-{#if $criticalCssStatus.status === 'pending'}
+{#if $criticalCssState.status === 'pending'}
 	<div class="jb-critical-css-progress">
 		<span class="jb-critical-css-progress__label">
 			{__(

@@ -15,20 +15,11 @@ const CriticalCssErrorType = z.enum( [
 	'XFrameDenyError',
 ] );
 
-export type Critical_CSS_Error_Type = z.infer< typeof CriticalCssErrorType >;
 const CriticalCssErrorDetailsSchema = z.object( {
 	url: z.coerce.string(),
 	message: z.coerce.string(),
 	meta: z.record( JSONSchema ),
 	type: CriticalCssErrorType,
-} );
-
-export type CriticalCssErrorDetails = z.infer< typeof CriticalCssErrorDetailsSchema >;
-
-export const ErrorSetSchema = z.object( {
-	type: CriticalCssErrorType,
-	firstMeta: z.record( z.unknown() ),
-	byUrl: z.record( CriticalCssErrorDetailsSchema ),
 } );
 
 const ProviderSchema = z.object( {
@@ -51,8 +42,7 @@ const ProviderSchema = z.object( {
 	error_status: z.enum( [ 'active', 'dismissed' ] ).optional(),
 } );
 
-export type Provider = z.infer< typeof ProviderSchema >;
-export const CriticalCssStatusSchema = z
+const CriticalCssStateSchema = z
 	.object( {
 		callback_passthrough: z.record( z.unknown() ).optional(),
 		generation_nonce: z.coerce.string().optional(),
@@ -84,9 +74,16 @@ export const CriticalCssStatusSchema = z
 		created: 0,
 		viewports: [],
 	} );
-export type CriticalCssStatus = z.infer< typeof CriticalCssStatusSchema >;
+
+/**
+ * Infer Zod Types
+ */
+export type Provider = z.infer< typeof ProviderSchema >;
+export type CriticalCssState = z.infer< typeof CriticalCssStateSchema >;
+export type Critical_CSS_Error_Type = z.infer< typeof CriticalCssErrorType >;
+export type CriticalCssErrorDetails = z.infer< typeof CriticalCssErrorDetailsSchema >;
 
 export const criticalCssDS = client.createAsyncStore(
 	'critical_css_state',
-	CriticalCssStatusSchema
+	CriticalCssStateSchema
 );

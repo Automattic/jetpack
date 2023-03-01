@@ -1,7 +1,7 @@
 import { get } from 'svelte/store';
 import api from '../api/api';
-import { setError, criticalCssProgress } from '../stores/critical-css-status';
-import { criticalCssDS } from '../stores/critical-css-status-ds';
+import { setError, criticalCssProgress } from '../stores/critical-css-state';
+import { criticalCssDS } from '../stores/critical-css-state-ds';
 
 export async function startCloudCssRequest(): Promise< void > {
 	try {

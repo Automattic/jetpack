@@ -1,6 +1,6 @@
 import { get } from 'svelte/store';
 import config from '../stores/config';
-import { regenerateCriticalCss } from '../stores/critical-css-status';
+import { regenerateCriticalCss } from '../stores/critical-css-state';
 import { isModuleEnabledStore } from '../stores/modules';
 
 /**

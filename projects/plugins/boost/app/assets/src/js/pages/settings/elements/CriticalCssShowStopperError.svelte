@@ -9,14 +9,14 @@
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import FoldingElement from '../../../elements/FoldingElement.svelte';
 	import { primaryErrorSet } from '../../../stores/critical-css-recommendations';
-	import { criticalCssStatus, regenerateCriticalCss } from '../../../stores/critical-css-status';
+	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import CriticalCssErrorDescription from './CriticalCssErrorDescription.svelte';
 
 	export let supportLink = 'https://wordpress.org/support/plugin/jetpack-boost/';
 
 	// Show a Provider Key error if the process succeeded but there were errors.
 	let showingProviderError = false;
-	$: showingProviderError = $primaryErrorSet && $criticalCssStatus.status === 'generated';
+	$: showingProviderError = $primaryErrorSet && $criticalCssState.status === 'generated';
 
 	// @REFACTORING: I need a review here.
 	// It seems we're preventing the user from regenerating CSS if they hit an error twice.
@@ -42,7 +42,7 @@
 			  )}
 	</p>
 
-	{#if showingProviderError || $criticalCssStatus.status_error}
+	{#if showingProviderError || $criticalCssState.status_error}
 		<FoldingElement
 			showLabel={__( 'See error message', 'jetpack-boost' )}
 			hideLabel={__( 'Hide error message', 'jetpack-boost' )}
@@ -56,7 +56,7 @@
 						foldRawErrors={false}
 					/>
 				{:else}
-					{$criticalCssStatus.status_error}
+					{$criticalCssState.status_error}
 				{/if}
 			</div>
 		</FoldingElement>

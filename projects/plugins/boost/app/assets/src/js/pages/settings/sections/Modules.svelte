@@ -4,7 +4,7 @@
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import { criticalCssStatus, regenerateCriticalCss } from '../../../stores/critical-css-status';
+	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
 	import { pollCloudCssStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
@@ -59,7 +59,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$suggestRegenerate && $criticalCssStatus.status !== 'pending'}
+				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
 			/>
 		</div>
 	</Module>

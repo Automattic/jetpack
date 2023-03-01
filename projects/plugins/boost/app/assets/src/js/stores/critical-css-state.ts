@@ -6,9 +6,9 @@ import { startCloudCssRequest } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import {
 	criticalCssDS,
-	type CriticalCssStatus,
+	type CriticalCssState,
 	Provider,
-} from './critical-css-status-ds';
+} from './critical-css-state-ds';
 import { JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modules } from './modules';
 
@@ -18,11 +18,11 @@ const resetState = {
 };
 
 // @REFACTORING: Make this a read-only export.
-export const criticalCssStatus = criticalCssDS.store;
+export const criticalCssState = criticalCssDS.store;
 
 // @REFACTORING: Move this functionality to Svelte DataSync Client:
-export const replaceCssState = (value: CriticalCssStatus) => {
-	criticalCssStatus.update(oldValue => {
+export const replaceCssState = (value: CriticalCssState) => {
+	criticalCssState.update(oldValue => {
 		return { ...oldValue, ...value };
 	});
 }
@@ -30,7 +30,7 @@ export const replaceCssState = (value: CriticalCssStatus) => {
 export const localCriticalCSSProgress = writable<undefined | number>(undefined);
 
 export const criticalCssProgress = derived(
-	[criticalCssStatus, localCriticalCSSProgress],
+	[criticalCssState, localCriticalCSSProgress],
 	([$criticalCssState, $localProgress]) => {
 		if ($criticalCssState.status === 'generated') {
 			return 100;
@@ -67,7 +67,7 @@ export const criticalCssProgress = derived(
  * Derived datastore: Returns whether to show an error.
  * Show an error if in error state, or if a success has 0 results.
  */
-export const showError = derived(criticalCssStatus, $criticalCssState => {
+export const showError = derived(criticalCssState, $criticalCssState => {
 	if ($criticalCssState.status === 'generated') {
 		return (
 			$criticalCssState.providers.filter((provider: Provider) => provider.status === 'error')
@@ -81,7 +81,7 @@ export const showError = derived(criticalCssStatus, $criticalCssState => {
 /**
  * Fatal error when no providers are successful.
  */
-export const isFatalError = derived([criticalCssStatus, showError], ([$criticalCssState, $showError]) => {
+export const isFatalError = derived([criticalCssState, showError], ([$criticalCssState, $showError]) => {
 	if (!$showError) {
 		return false;
 	}
@@ -89,7 +89,7 @@ export const isFatalError = derived([criticalCssStatus, showError], ([$criticalC
 });
 
 export const isGenerating = derived(
-	[criticalCssStatus, modules],
+	[criticalCssState, modules],
 	([$criticalCssState, $modules]) => {
 		const statusIsRequesting = $criticalCssState.status === 'pending';
 		const criticalCssIsEnabled = $modules['critical-css'] && $modules['critical-css'].enabled;
@@ -102,16 +102,16 @@ export const isGenerating = derived(
 type GenerationResponse = {
 	// @REFACTORING: Implement error handling. Or see @REFACTOR below
 	status: 'success';
-	data: CriticalCssStatus;
+	data: CriticalCssState;
 };
-export async function requestLocalCriticalCss(): Promise<CriticalCssStatus | false> {
+export async function requestLocalCriticalCss(): Promise<CriticalCssState | false> {
 	// @REFACTOR: Use the WP JS Stores API instead and ensure that the CSS has indeed been reset.
 	const result = await api.post<GenerationResponse>('/critical-css/start');
 	if (result.status !== 'success') {
 		throw new Error(JSON.stringify(result));
 	}
-	const data = result.data as Partial<CriticalCssStatus>;
-	const newState: CriticalCssStatus = {
+	const data = result.data as Partial<CriticalCssState>;
+	const newState: CriticalCssState = {
 		...resetState,
 		created: Date.now(),
 		updated: Date.now(),
@@ -125,8 +125,8 @@ export async function requestLocalCriticalCss(): Promise<CriticalCssStatus | fal
 			status: 'pending',
 		})),
 	};
-	criticalCssStatus.set(newState);
-	return get(criticalCssStatus);
+	criticalCssState.set(newState);
+	return get(criticalCssState);
 }
 
 export function stopTheShow(): void {
@@ -196,7 +196,7 @@ export function setError(): void {
 }
 
 export function updateProvider(providerKey: string, data: Partial<Provider>): void {
-	return criticalCssStatus.update($state => {
+	return criticalCssState.update($state => {
 		const providerIndex = $state.providers.findIndex(provider => provider.key === providerKey);
 
 		$state.providers[providerIndex] = {
@@ -208,9 +208,9 @@ export function updateProvider(providerKey: string, data: Partial<Provider>): vo
 	});
 }
 
-export const refreshCriticalCssStatus = async () => {
+export const refreshCriticalCssState = async () => {
 	const state = await criticalCssDS.endpoint.GET();
-	criticalCssStatus.override(state);
+	criticalCssState.override(state);
 	return state;
 };
 
@@ -235,7 +235,7 @@ export const regenerateCriticalCss = async () => {
 	suggestRegenerateDS.store.set(false);
 
 	await requestLocalCriticalCss();
-	await generateCriticalCss(get(criticalCssStatus));
+	await generateCriticalCss(get(criticalCssState));
 	replaceCssState({ status: 'generated' });
 
 	// SECTION:
@@ -249,5 +249,5 @@ export const regenerateCriticalCss = async () => {
 };
 
 // @REFACTORING Utils: Remove in production
-window.store = criticalCssStatus;
+window.store = criticalCssState;
 window.replaceState = replaceCssState;

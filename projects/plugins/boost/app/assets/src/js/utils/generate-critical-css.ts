@@ -1,19 +1,18 @@
 import { get } from 'svelte/store';
-import setProviderIssue, {
-	criticalCssStatus,
+import {
+	criticalCssState,
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	stopTheShow,
 	storeGenerateError,
 	updateProvider,
-} from '../stores/critical-css-status';
+} from '../stores/critical-css-state';
 import {
-	CriticalCssIssue,
-	CriticalCssStatus,
+	CriticalCssState,
 	Critical_CSS_Error_Type,
 	Provider,
-} from '../stores/critical-css-status-ds';
-import { JSONObject, suggestRegenerateDS } from '../stores/data-sync-client';
+} from '../stores/critical-css-state-ds';
+import { JSONObject } from '../stores/data-sync-client';
 import { modules } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
@@ -44,26 +43,24 @@ export async function maybeGenerateCriticalCss(): Promise< void > {
 		return;
 	}
 
-	return generateCriticalCss( get( criticalCssStatus ) );
+	return generateCriticalCss( get( criticalCssState ) );
 }
 
 /**
  * Generate Critical CSS for this site. Will load the Critical CSS Generator
  * library dynamically as needed.
  *
- * @param {boolean} reset              - If true, reset any stored CSS before beginning.
- * @param {boolean} isShowstopperRetry - Set this flag to indicate this attempt is retrying after a showstopper error.
- * @param           cssStatus
+ * @param {CriticalCssState} cssState
  */
 export default async function generateCriticalCss(
-	cssStatus: CriticalCssStatus
+	cssState: CriticalCssState
 ): Promise< void > {
 	hasGenerateRun = true;
 	const cancelling = false;
 
 	try {
 		// Abort early if css module deactivated or nothing needs doing
-		if ( ! cssStatus || cssStatus.status !== 'pending' ) {
+		if ( ! cssState || cssState.status !== 'pending' ) {
 			return;
 		}
 
@@ -72,23 +69,24 @@ export default async function generateCriticalCss(
 
 		// Prepare GET parameters to include with each request.
 		const requestGetParameters = {
-			'jb-generate-critical-css': cssStatus.generation_nonce,
+			'jb-generate-critical-css': cssState.generation_nonce,
 		};
 
 		logPreCriticalCSSGeneration();
 
 		// @REFACTORING: Add Toast error handling if sources missing
-		if ( cssStatus.providers.length > 0 ) {
+		if ( cssState.providers.length > 0 ) {
 			await generateForKeys(
-				cssStatus.providers,
+				cssState.providers,
 				requestGetParameters,
-				cssStatus.viewports as Viewport[],
-				cssStatus.callback_passthrough as JSONObject,
-				cssStatus.proxy_nonce
+				cssState.viewports as Viewport[],
+				cssState.callback_passthrough as JSONObject,
+				cssState.proxy_nonce
 			);
 		}
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
+		// @REFACTORING - Logging errors for now.
 		console.error( err );
 		if ( ! cancelling ) {
 			// Record thrown errors as Critical CSS status.
