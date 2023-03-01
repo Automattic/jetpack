@@ -5,7 +5,7 @@ import MapkitComponent from './mapkit';
 
 const MapComponent = forwardRef( ( props, ref ) => {
 	const mapProvider = getMapProvider();
-	if ( mapProvider === 'mapkit' ) {
+	if ( mapProvider === 'mapkit' && props.mapStyle !== 'terrain' ) {
 		const mapkitProps = { ...props, ref: null };
 		return <MapkitComponent { ...mapkitProps } ref={ ref } />;
 	}

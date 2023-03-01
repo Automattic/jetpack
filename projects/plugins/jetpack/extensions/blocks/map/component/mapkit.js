@@ -1,4 +1,4 @@
-import { Children, forwardRef, memo, useEffect, useRef } from '@wordpress/element';
+import { Children, forwardRef, memo, useCallback, useRef } from '@wordpress/element';
 import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
@@ -7,9 +7,12 @@ import {
 	useMapkitInit,
 	useMapkitType,
 	useMapkitCenter,
+	useMapkitOnMapLoad,
+	useMapkitOnMapTap,
 	useMapkitZoom,
 	useMapkitPoints,
 } from '../mapkit/hooks';
+import { createCalloutElement } from '../mapkit-utils';
 import InfoWindow from './info-window';
 
 const MapkitComponent = forwardRef( ( props, mapRef ) => {
@@ -61,24 +64,12 @@ const MapkitHelpers = memo(
 		onMarkerClick,
 		onMapLoaded,
 	} ) => {
-		const { map, mapkit, loaded, setActiveMarker, setCalloutReference, currentDoc } = useMapkit();
+		const { map, mapkit, setActiveMarker, setCalloutReference, currentDoc } = useMapkit();
 
 		// Save these in a ref to prevent unwanted rerenders
-		const onMapLoadedRef = useRef( onMapLoaded );
 		const onMarkerClickRef = useRef( onMarkerClick );
 
-		useMapkitCenter( mapCenter, onSetMapCenter );
-		useMapkitType( mapStyle );
-		useMapkitZoom( zoom, onSetZoom );
-		useMapkitPoints(
-			points,
-			markerColor,
-			() => {
-				const element = currentDoc.createElement( 'div' );
-				element.classList.add( 'mapkit-popup-content' );
-				setCalloutReference( element );
-				return element;
-			},
+		const onSelect = useCallback(
 			marker => {
 				setActiveMarker( marker );
 				if ( onMarkerClickRef.current ) {
@@ -87,23 +78,23 @@ const MapkitHelpers = memo(
 				map.setCenterAnimated(
 					new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
 				);
-			}
+			},
+			[ map, mapkit, setActiveMarker, onMarkerClickRef ]
 		);
 
-		useEffect( () => {
-			if ( loaded && map && onMapLoadedRef.current ) {
-				onMapLoadedRef.current( map );
-			}
-		}, [ loaded, map, onMapLoadedRef ] );
-
-		useEffect( () => {
-			if ( loaded ) {
-				map.addEventListener( 'single-tap', () => {
-					setActiveMarker( null );
-				} );
-			}
-		}, [ loaded, map, setActiveMarker ] );
-
+		useMapkitCenter( mapCenter, onSetMapCenter );
+		useMapkitType( mapStyle );
+		useMapkitZoom( zoom, onSetZoom );
+		useMapkitPoints(
+			points,
+			markerColor,
+			createCalloutElement( currentDoc, setCalloutReference ),
+			onSelect
+		);
+		useMapkitOnMapLoad( onMapLoaded );
+		useMapkitOnMapTap( () => {
+			setActiveMarker( null );
+		} );
 		return null;
 	}
 );

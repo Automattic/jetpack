@@ -215,6 +215,30 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 	}, [ points, loaded, map, mapkit, markerColor, callOutElementRef, onSelectRef ] );
 };
 
+const useMapkitOnMapLoad = onMapLoad => {
+	const { map, loaded } = useMapkit();
+	const onMapLoadRef = useRef( onMapLoad );
+
+	useEffect( () => {
+		if ( loaded ) {
+			onMapLoadRef.current( map );
+		}
+	}, [ loaded, map, onMapLoadRef ] );
+};
+
+const useMapkitOnMapTap = onMapTap => {
+	const { map, loaded } = useMapkit();
+	const onMapTapRef = useRef( onMapTap );
+
+	useEffect( () => {
+		if ( loaded ) {
+			map.addEventListener( 'single-tap', () => {
+				onMapTapRef.current( map );
+			} );
+		}
+	}, [ loaded, map, onMapTapRef ] );
+};
+
 export {
 	useMapkit,
 	useMapkitSetup,
@@ -223,4 +247,6 @@ export {
 	useMapkitType,
 	useMapkitCenter,
 	useMapkitPoints,
+	useMapkitOnMapLoad,
+	useMapkitOnMapTap,
 };

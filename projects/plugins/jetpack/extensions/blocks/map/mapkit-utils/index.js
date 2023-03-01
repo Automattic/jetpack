@@ -45,4 +45,18 @@ function pointsToMapRegion( mapkit, points ) {
 	return new mapkit.CoordinateRegion( center, span );
 }
 
-export { convertZoomLevelToCameraDistance, convertCameraDistanceToZoomLevel, pointsToMapRegion };
+function createCalloutElement( currentDoc, callback ) {
+	return () => {
+		const element = currentDoc.createElement( 'div' );
+		element.classList.add( 'mapkit-popup-content' );
+		callback( element );
+		return element;
+	};
+}
+
+export {
+	convertZoomLevelToCameraDistance,
+	convertCameraDistanceToZoomLevel,
+	createCalloutElement,
+	pointsToMapRegion,
+};
