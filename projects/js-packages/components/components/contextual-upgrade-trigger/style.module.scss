@@ -12,7 +12,21 @@
 	position: relative;
 	color: var(--jp-gray-80);
 
-	button,
+	button {
+		all: unset;
+		color: var(--jp-gray-80);
+		cursor: pointer;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+		}
+	}
+
 	a {
 		text-decoration: none;
 		color: var(--jp-gray-80);
