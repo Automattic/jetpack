@@ -48,7 +48,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
 
 /**
- * Add a meta value to posts that answer a blogging prompt, when published.
+ * When a published posts answers a blogging prompt, store the prompt id in the post meta.
  *
  * @param string  $new_status New post status.
  * @param string  $old_status Old post status.
@@ -68,8 +68,9 @@ function jetpack_mark_if_post_answers_blogging_prompt( $new_status, $old_status,
 
 			if ( $prompt_id && $has_prompt_tag && count( $blocks ) > 1 ) {
 				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
-				break;
 			}
+
+			break;
 		}
 	}
 }
