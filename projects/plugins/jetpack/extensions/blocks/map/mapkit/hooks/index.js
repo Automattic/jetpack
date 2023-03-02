@@ -164,8 +164,10 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 				if ( cameraDistance !== map.cameraDistance ) {
 					map.cameraDistance = cameraDistance;
 				}
+				map.isZoomEnabled = true;
 			} else {
 				map.region = pointsToMapRegion( mapkit, points );
+				map.isZoomEnabled = false;
 			}
 		}
 	}, [ mapkit, map, zoom, points ] );
