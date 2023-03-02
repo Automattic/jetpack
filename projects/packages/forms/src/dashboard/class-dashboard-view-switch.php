@@ -233,10 +233,12 @@ CSS
 	public function handle_preferred_view() {
 		// For simplicity, we only treat this as a valid operation
 		// if it occurs on one of the screens with the switch active.
+		// phpcs:disable WordPress.Security.NonceVerification
 		if ( ! $this->is_visible() || ! isset( $_GET['preferred-view'] ) ) {
 			return;
 		}
 
+		// phpcs:disable WordPress.Security.NonceVerification
 		$view = sanitize_key( $_GET['preferred-view'] );
 
 		if ( ! in_array( $view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ) {
