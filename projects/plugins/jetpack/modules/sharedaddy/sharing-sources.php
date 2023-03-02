@@ -182,7 +182,7 @@ abstract class Sharing_Source {
 		 * Allow customizing how the list of tags is displayed.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string $tags     Comma-separated list of tags.
 		 * @param int    $post_id  Post ID.
@@ -3155,7 +3155,7 @@ class Share_Mastodon extends Sharing_Source {
 		 * Allow filtering the default message that gets posted to Mastodon.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string  $share_url The default message that gets posted to Mastodon.
 		 * @param WP_Post $post      The post object.
