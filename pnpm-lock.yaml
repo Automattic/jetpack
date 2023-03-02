@@ -970,9 +970,6 @@ importers:
 
   projects/js-packages/svelte-data-sync-client:
     dependencies:
-      '@automattic/jetpack-svelte-data-sync-client':
-        specifier: workspace:0.1.0-alpha
-        version: 'link:'
       deep-equal:
         specifier: 2.2.0
         version: 2.2.0
