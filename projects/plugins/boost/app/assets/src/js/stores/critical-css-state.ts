@@ -177,8 +177,9 @@ export const regenerateCriticalCss = async () => {
 	if ($isCloudCssEnabled) {
 		startPollingCloudStatus();
 	} else {
-		await generateCriticalCss(get(cssStateStore));
-		replaceCssState({ status: 'generated' });
+		const generatingSucceeded = await generateCriticalCss(get(cssStateStore));
+		const status = generatingSucceeded ? 'generated' : 'error';
+		replaceCssState({ status });
 	}
 
 };
