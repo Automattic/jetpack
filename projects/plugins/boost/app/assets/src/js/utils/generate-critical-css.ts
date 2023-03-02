@@ -77,10 +77,12 @@ export default async function generateCriticalCss(
 
 		logPreCriticalCSSGeneration();
 
+		const pendingProviders = cssState.providers.filter( provider => provider.status === 'pending' );
+
 		// @REFACTORING: Add Toast error handling if sources missing
-		if ( cssState.providers.length > 0 ) {
+		if ( pendingProviders.length > 0 ) {
 			await generateForKeys(
-				cssState.providers,
+				pendingProviders,
 				requestGetParameters,
 				cssState.viewports as Viewport[],
 				cssState.callback_passthrough as JSONObject,
@@ -178,6 +180,9 @@ async function generateForKeys(
 				status,
 				errors: warnings,
 			} );
+
+			// Reset local progress whenever a provider is finished to prevent progress bar jank.
+			localCriticalCSSProgress.set( 0 );
 
 			if ( updateResult === false ) {
 				return;

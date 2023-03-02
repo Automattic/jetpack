@@ -202,25 +202,18 @@ export const criticalCssProgress = derived(
 		const doneCount = $criticalCssState.providers.filter(
 			provider => provider.status !== 'pending'
 		).length;
+		const percentDone = ( doneCount / totalCount ) * 100;
 
-		// `localProgress` provides a percentage 0-100 for each step for the Local critical CSS Generation
-		// Convert that to a percentage of the total progress.
-		let percent = Math.round((doneCount / totalCount) * 100);
-		if (
-			$localProgress !== undefined &&
-			$localProgress > 0 &&
-			$localProgress < 1 &&
-			doneCount < totalCount &&
-			doneCount > 0
-		) {
-			const percentPerStep = 100 / totalCount;
-			percent += $localProgress * percentPerStep;
-		}
+		const percentPerStep = 100 / totalCount;
+		const currentStep = $localProgress || 0;
 
-		return percent;
+		const combinedProgress = percentDone + percentPerStep * currentStep;
+
+		return Math.round( combinedProgress );
 	}
 );
 
 // @REFACTORING Utils: Remove in production
 // window.store = cssStateStore;
 // window.replaceState = replaceCssState;
+// ( window as any ).getState = () => get( cssStateStore );
