@@ -79,7 +79,7 @@ function formatSlackMessage( payload, channel, message ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `Could you take a look at it, triage, ping, and escalate to the right team if you think that's necessary. Once you've done so, please mark this message as :done:. Thank you!`,
+					text: `@kitkat-team please mark this message as :done: once the issue has been triaged. Thank you!`,
 				},
 			},
 			{
@@ -150,7 +150,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:warning: New High priority bug! Please take a moment to triage this bug.`;
+		const message = `:bug_police: New High priority bug! Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
@@ -161,7 +161,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:warning: New Blocker bug!  Please take a moment to triage this bug.`;
+		const message = `:bug_police: New Blocker bug!  Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
