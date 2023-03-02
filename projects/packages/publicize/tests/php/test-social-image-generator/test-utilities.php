@@ -57,7 +57,12 @@ class Utilities_Test extends BaseTestCase {
 	 */
 	public function test_image_url_returns_url_if_token_set() {
 		$token = 'testtoken';
-		$this->update_image_generator_settings( array( 'token' => $token ) );
+		$this->update_image_generator_settings(
+			array(
+				'token'   => $token,
+				'enabled' => true,
+			)
+		);
 		$this->assertEquals( get_image_url( $this->post_id ), 'https://jetpack.com/redirect/?source=sigenerate&site=example.org&query=t%3D' . rawurlencode( $token ) );
 	}
 
@@ -65,6 +70,21 @@ class Utilities_Test extends BaseTestCase {
 	 * Test that image URL defaults to empty string.
 	 */
 	public function test_image_url_returns_empty_string_if_no_token_set() {
+		$this->update_image_generator_settings( array( 'enabled' => true ) );
+		$this->assertEquals( get_image_url( $this->post_id ), '' );
+	}
+
+	/**
+	 * Test that image URL is not returned when SIG is disabled.
+	 */
+	public function test_image_url_returns_empty_string_if_sig_is_disabled() {
+		$token = 'testtoken';
+		$this->update_image_generator_settings(
+			array(
+				'token'   => $token,
+				'enabled' => false,
+			)
+		);
 		$this->assertEquals( get_image_url( $this->post_id ), '' );
 	}
 }

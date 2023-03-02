@@ -19,7 +19,7 @@ function get_image_url( $post_id ) {
 	$post_settings = new Post_Settings( $post_id );
 	$token         = $post_settings->get_token();
 
-	if ( empty( $token ) ) {
+	if ( ! $post_settings->is_enabled() || empty( $token ) ) {
 		return '';
 	}
 
