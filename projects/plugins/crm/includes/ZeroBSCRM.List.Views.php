@@ -60,7 +60,7 @@ function zeroBSCRM_render_customerslist_page(){
                 'statusnotupdated' => __('Could not update statuses!',"zero-bs-crm"),
  
                 // bulk actions - contact deleting
-				'andthese'             => __( 'Shall I also delete the associated Invoices, Quotes, Transactions and, Tasks?', 'zero-bs-crm' ),
+				'andthese'             => __( 'Shall I also delete the associated Invoices, Quotes, Transactions, and Tasks?', 'zero-bs-crm' ),
                 'contactsdeleted' => __('Your contact(s) have been deleted.',"zero-bs-crm"),
                 'notcontactsdeleted' => __('Your contact(s) could not be deleted.',"zero-bs-crm"),
 
