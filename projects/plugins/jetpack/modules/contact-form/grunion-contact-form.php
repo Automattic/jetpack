@@ -5239,9 +5239,9 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		! isset( $extra_values['is_block'] )
 		|| ! $extra_values['is_block']
 	) {
-		$event_props['is_block'] = 0;
+		$event_props['is_block'] = false;
 	} else {
-		$event_props['is_block'] = 1;
+		$event_props['is_block'] = true;
 	}
 
 	$post = get_post( $post_id );
