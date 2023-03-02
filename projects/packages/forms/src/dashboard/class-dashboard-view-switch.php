@@ -48,10 +48,10 @@ class Dashboard_View_Switch {
 		}
 
 		?>
-		<div id="view-link-wrap" class="hide-if-no-js screen-meta-toggle">
-			<button type="button" id="view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-forms' ); ?></button>
+		<div id="jetpack-forms__view-link-wrap" class="hide-if-no-js screen-meta-toggle">
+			<button type="button" id="jetpack-forms__view-link" class="button show-settings" aria-expanded="false"><?php echo esc_html_x( 'View', 'View options to switch between', 'jetpack-forms' ); ?></button>
 		</div>
-		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
+		<div id="jetpack-forms__view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="screen-switcher">
 					<a class="screen-switcher__button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
@@ -87,19 +87,19 @@ class Dashboard_View_Switch {
 		wp_add_inline_style(
 			'jetpack-forms-dashboard-switch',
 			<<<CSS
-			#view-link-wrap {
+			#jetpack-forms__view-link-wrap {
 				float: left;
 				margin: 0 0 0 6px;
 			}
 
-			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #view-link-wrap {
+			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
 				position: fixed;
 				right: 32px;
 				top: var(--wp-admin--admin-bar--height);
 				z-index: 179;
 			}
 
-			.toplevel_page_jetpack-forms #view-link {
+			.toplevel_page_jetpack-forms #jetpack-forms__view-link {
 				background-color: #fff;
 				border: 1px solid #c3c4c7;
 				border-top: none;
@@ -111,7 +111,7 @@ class Dashboard_View_Switch {
 				padding: 3px 6px 3px 16px;
 			}
 
-			.toplevel_page_jetpack-forms #view-link::after {
+			.toplevel_page_jetpack-forms #jetpack-forms__view-link::after {
 				right: 0;
 				content: "\\f140";
 				font: normal 20px/1 dashicons;
@@ -207,10 +207,10 @@ CSS
 		wp_add_inline_script(
 			'common',
 			"(function( $ ) {
-				$( '#view-link-wrap' ).appendTo( '#screen-meta-links' );
+				$( '#jetpack-forms__view-link-wrap' ).appendTo( '#screen-meta-links' );
 
-				var viewLink = $( '#view-link' );
-				var viewWrap = $( '#view-wrap' );
+				var viewLink = $( '#jetpack-forms__view-link' );
+				var viewWrap = $( '#jetpack-forms__view-wrap' );
 
 				viewLink.on( 'click', function() {
 					viewWrap.toggle();
