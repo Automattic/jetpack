@@ -1,12 +1,12 @@
 {
 	"name": "@automattic/jetpack-api",
-	"version": "0.15.0-alpha",
+	"version": "0.15.2-alpha",
 	"description": "Jetpack Api Package",
 	"author": "Automattic",
 	"license": "GPL-2.0-or-later",
 	"dependencies": {
 		"@automattic/jetpack-config": "workspace:*",
-		"@wordpress/url": "3.27.0"
+		"@wordpress/url": "3.29.0"
 	},
 	"devDependencies": {
 		"fetch-mock-jest": "1.5.1",
@@ -19,8 +19,7 @@
 		".": "./index.jsx"
 	},
 	"scripts": {
-		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
-		"test-coverage": "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
 	"engines": {
 		"node": "^18.13.0",

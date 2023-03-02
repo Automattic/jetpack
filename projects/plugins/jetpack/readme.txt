@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.8
+Stable tag: 11.8.4
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
@@ -244,22 +244,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.1 - 2023-02-08
+### 11.9-beta - 2023-02-28
 #### Enhancements
-- Contact form: add a blur effect while the form is loading the styles.
-- Form block: include style variations.
-- Contact form: reorder export columns in 3 groups: response meta, response field values, and response extra.
-- VideoPress: add transform control from video block to videopress/video block.
+- Assistant: add new card to highlight VaultPress Backup.
+- Form block: add form field style synchronization for input fields.
+- Related Posts: add support for font family in Related Posts block.
+- Sharing: add Mastodon sharing button.
 
 #### Improved compatibility
-- Donations block: remove dependencies on lodash and @wordpress/keycodes
-- Podcast player block: remove dependency on wp-components from the frontend code
-- Slideshow block: remove dependency on Lodash
-- Subscriptions: update subscribe block description.
+- Stats: add upgrade notice for Odyssey Stats.
+- VideoPress: add support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode.
 
 #### Bug fixes
-- Subscriptions: fix rendering of subscriber email in .com.
-- Custom CSS: scope Additional CSS submenus to site with a connected owner.
+- Connection: revise Jetpack connection agreement text to comply with our User Agreement.
+- Custom CSS: ensure the link to enable Custom CSS works in all languages.
+- Form block: increase form fields padding based on user-defined border-radius.
+- Form block: remove body font normalization in contact-form module and package.
+- Presentation shortcode: always add presentation container.
+- Recommendations: avoid applying coupon codes from the Assistant on products with trial prices.
+- Sharing buttons: fix display issues when choosing the icon-only option.
 
 --------
 

@@ -275,11 +275,5 @@
 		.preview {
 			gap: 8px;
 		}
-
-		.details {
-			max-width: 300px;
-			min-width: 200px;
-			padding: 15px;
-		}
 	}
 </style>

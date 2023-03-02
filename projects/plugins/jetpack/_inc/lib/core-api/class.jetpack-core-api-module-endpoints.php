@@ -5,14 +5,11 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
-use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Tracking;
-
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
  */
@@ -883,20 +880,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'enable_odyssey_stats':
-					$value         = (bool) $value;
-					$stats_options = array(
-						'enable_odyssey_stats'     => $value,
-						'odyssey_stats_changed_at' => time(),
-					);
-					$updated       = Stats_Options::set_options( $stats_options );
-					// Track the event.
-					$event_name = 'calypso_stats_disabled';
-					if ( $value ) {
-						$event_name = 'calypso_stats_enabled';
-					}
-					$connection_manager = new Manager( 'jetpack' );
-					$tracking           = new Tracking( 'jetpack', $connection_manager );
-					$tracking->record_user_event( $event_name, array_merge( $stats_options, array( 'updated' => $updated ) ) );
+					$updated = Stats_Admin_Main::update_new_stats_status( $value );
+
 					break;
 
 				case 'akismet_show_user_comments_approved':

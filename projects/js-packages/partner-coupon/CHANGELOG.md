@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.41 - 2023-02-28
+### Fixed
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.2.40 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.2.39 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
 ## 0.2.38 - 2023-02-08
 ### Changed
 - Updated package dependencies. [#28682]

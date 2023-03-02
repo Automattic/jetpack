@@ -552,7 +552,7 @@ if (jQuery('#bar-chart').length){
 				<div class='date'><img class='ui avatar img img-rounded' alt='<?php esc_attr_e( 'Contact Image', 'zero-bs-crm' ); ?>' src='<?php echo esc_url( $avatar ); ?>'/></div>
 				<div class='content text'>
 				<span class='header'><?php echo esc_html( $logmetatype ); ?><span class='when'> (<?php echo esc_html( $diff . __( ' ago', 'zero-bs-crm' ) ); ?>)</span><span class='who'><?php echo esc_html( $logauthor ); ?></span></span>
-				<div class='description'><?php echo esc_html( $logmetashot ); ?><br/></div>
+				<div class='description'><?php echo wp_kses( $logmetashot, array( 'i' => array( 'class' => true ) ) ); ?><br/></div>
 				</div>
 			</div>
 						<?php
@@ -620,12 +620,13 @@ if (jQuery('#bar-chart').length){
 				<tbody>
 					<?php
 					foreach ( $latest_cust as $cust ) {
-						// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
-						$avatar = ( isset( $cust ) && isset( $cust['id'] ) ) ? $zbs->DAL->contacts->getContactAvatar( $cust['id'] ) : '';
-						$fname  = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
-						$lname  = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
-						$status = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
-						// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName -- to be refactored.
+						$contactAvatar = $zbs->DAL->contacts->getContactAvatar( $cust['id'] );
+						$avatar        = ( isset( $cust ) && isset( $cust['id'] ) ) ? ( $contactAvatar ? $contactAvatar : zeroBSCRM_getDefaultContactAvatar() ) : '';
+						$fname         = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
+						$lname         = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
+						$status        = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName
 						if ( empty( $status ) ) {
 							$status = __( 'None', 'zero-bs-crm' );
 						}

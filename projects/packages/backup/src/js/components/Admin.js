@@ -13,7 +13,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState, useEffect, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import useAnalytics from '../hooks/useAnalytics';
 import useCapabilities from '../hooks/useCapabilities';
 import useConnection from '../hooks/useConnection';
@@ -355,7 +355,11 @@ const NoBackupCapabilities = () => {
 	);
 	const priceDetails =
 		introOffer?.interval_unit === 'month' && introOffer?.interval_count === 1
-			? __( 'for the first month, billed yearly', 'jetpack-backup-pkg' )
+			? sprintf(
+					// translators: %s is the regular monthly price
+					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-backup-pkg' ),
+					price
+			  )
 			: __(
 					'per month, billed yearly',
 					'jetpack-backup-pkg',

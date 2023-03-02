@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.28.0 - 2023-02-28
+### Added
+- Added arrow-left and arrow-right icons to the Gridicon component [#28826]
+- JS Components: add Mastodon icon [#28987]
+- JS Components: add pricing-utils folder to store pricing-related helper functions. [#29139]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.27.7 - 2023-02-20
+### Fixed
+- Changed wrong version [#28824]
+- Use External Link icons for external links [#28922]
+
+## 0.27.6 - 2023-02-15
+### Changed
+- Editing changelog for Jetpack 11.9-a.3 [#28971]
+
+### Fixed
+- Fixed a circular dependency reference [#28937]
+
+## 0.27.5 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
 ## 0.27.4 - 2023-02-08
 ### Changed
 - Updated package dependencies. [#28682, #28700]

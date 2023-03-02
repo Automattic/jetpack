@@ -73,4 +73,17 @@
 			border-bottom: none;
 		}
 	}
+
+	span {
+		padding: 0 0.1em;
+	}
+}
+
+.jp-footer__link__recommended {
+	@extend .jp-footer__link;
+	color: black;
+}
+
+a.jp-footer__link__recommended{
+	text-decoration: underline;
 }
