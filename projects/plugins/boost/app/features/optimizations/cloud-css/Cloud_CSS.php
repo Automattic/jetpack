@@ -99,7 +99,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 * Initialize the Cloud CSS request. Provide $post parameter to limit generating to provider groups only associated
 	 * with a specific post.
 	 */
-	// @REFACTORING @TODO RIGHT MEOW - Implement the other usage too ($providers)
 	public function generate_cloud_css( $providers = array() ) {
 		// Set a one off cron job one hour from now. This will resend the request in case it failed.
 		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
@@ -200,9 +199,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		$this->regenerate_cloud_css();
 	}
 
-	// @REFACTORING This needs a better design.
-	// The regeneration is still a bit scattered around.
-	// @see the long comment in Cloud_CSS_State
 	public function regenerate_cloud_css() {
 		$result = $this->generate_cloud_css( $this->get_existing_sources() );
 		if ( is_wp_error( $result ) ) {
@@ -211,11 +207,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 		}
 		return $result;
 	}
-
-	// @REFACTORING This is pretty bad
-	// Because Critical_CSS_Start now passes the providers
-	// to Cloud CSS via options instead as a parameter
-	// and that's not going to work well in the long run.
 	public function get_existing_sources() {
 		$state = new Critical_CSS_State();
 		$data  = $state->get();

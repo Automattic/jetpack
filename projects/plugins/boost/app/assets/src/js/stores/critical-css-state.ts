@@ -14,7 +14,6 @@ const cssStateStore = stateClient.store;
 
 export const criticalCssState = {
 	subscribe: cssStateStore.subscribe,
-	// @REFACTORING: Move this functionality to Svelte DataSync Client:
 	refresh: async () => {
 		const status = await stateClient.endpoint.GET();
 		if ( status ) {
@@ -25,7 +24,6 @@ export const criticalCssState = {
 	},
 };
 
-// @REFACTORING: Move this functionality to Svelte DataSync Client:
 export const replaceCssState = ( value: CriticalCssState ) => {
 	cssStateStore.update( oldValue => {
 		return { ...oldValue, ...value };
@@ -72,7 +70,6 @@ export const isGenerating = derived(
 );
 
 type GenerationResponse = {
-	// @REFACTORING: Implement error handling. Or see @REFACTOR below
 	status: 'success';
 	data: CriticalCssState;
 };
@@ -216,8 +213,3 @@ export const criticalCssProgress = derived(
 		return Math.round( combinedProgress );
 	}
 );
-
-// @REFACTORING Utils: Remove in production
-// window.store = cssStateStore;
-// window.replaceState = replaceCssState;
-// ( window as any ).getState = () => get( cssStateStore );

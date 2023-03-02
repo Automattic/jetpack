@@ -17,12 +17,6 @@
 	// Show a Provider Key error if the process succeeded but there were errors.
 	let showingProviderError = false;
 	$: showingProviderError = $primaryErrorSet && $criticalCssState.status === 'generated';
-
-	// @REFACTORING: I need a review here.
-	// It seems we're preventing the user from regenerating CSS if they hit an error twice.
-	// I agree that the show stopper error should display a different message
-	// But I don't think we should prevent the user from regenerating CSS.
-	// For now - intentionally not persisting the show stopper error.
 	onDestroy( () => {
 		firstTime = false;
 	} );

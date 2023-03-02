@@ -16,8 +16,6 @@ class Critical_CSS_State {
 		'success' => 'success',
 		'error'   => 'error',
 	);
-
-	// @REFACTORING: Temporarily open up to public while refactoring.
 	public $state;
 
 	public function __construct() {
@@ -37,7 +35,6 @@ class Critical_CSS_State {
 			return $this;
 		}
 
-		// @REFACTORING TODO: Rename to 'status_message'
 		$this->state['status_error'] = $message;
 		$this->state['status']       = self::GENERATION_STATES['error'];
 

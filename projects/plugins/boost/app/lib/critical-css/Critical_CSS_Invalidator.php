@@ -26,7 +26,6 @@ class Critical_CSS_Invalidator {
 		$storage = new Critical_CSS_Storage();
 		$storage->clear();
 		jetpack_boost_ds_delete( 'critical_css_state' );
-		// @REFACTORING TODO: Implement DataSync clearing
 		Cloud_CSS_Cron::uninstall();
 	}
 

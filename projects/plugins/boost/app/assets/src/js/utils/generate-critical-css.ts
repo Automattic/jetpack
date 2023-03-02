@@ -42,8 +42,6 @@ export default async function generateCriticalCss(
 		logPreCriticalCSSGeneration();
 
 		const pendingProviders = cssState.providers.filter( provider => provider.status === 'pending' );
-
-		// @REFACTORING: Add Toast error handling if sources missing
 		if ( pendingProviders.length > 0 ) {
 			return await generateForKeys(
 				pendingProviders,
@@ -55,7 +53,6 @@ export default async function generateCriticalCss(
 		}
 	} catch ( err ) {
 		// Swallow errors if cancelling the process.
-		// @REFACTORING - Logging errors for now.
 		// eslint-disable-next-line no-console
 		console.error( err );
 		if ( ! cancelling ) {

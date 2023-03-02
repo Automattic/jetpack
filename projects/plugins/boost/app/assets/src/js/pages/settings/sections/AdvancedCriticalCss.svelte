@@ -75,11 +75,6 @@
 		</section>
 	{/key}
 
-	<!-- @REFACTORING: There's no more dismissal error. This should be handled by toasts. -->
-	<!-- {#if $dismissalError}
-		<ErrorNotice title={$dismissalError.title} error={$dismissalError.error} />
-	{/if} -->
-
 	{#each activeIssues as provider (provider.key)}
 		<div class="panel" transition:slide|local>
 			<CloseButton on:click={() => updateProvider( provider.key, { error_status: 'dismissed' } )} />
