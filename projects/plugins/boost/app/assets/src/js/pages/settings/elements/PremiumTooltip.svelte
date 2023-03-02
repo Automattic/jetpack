@@ -8,7 +8,7 @@
 
 	function showBenefits() {
 		const eventProps = {};
-		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', eventProps );
+		recordBoostEvent( 'upsell_cta_from_settings_page_tooltip_in_plugin', eventProps );
 		navigate( '/upgrade' );
 	}
 </script>
