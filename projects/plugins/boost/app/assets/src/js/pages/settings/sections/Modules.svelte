@@ -18,6 +18,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
@@ -63,6 +64,8 @@
 						b: [ 'strong', {}, '' ],
 					}}
 				/>
+
+				<PremiumTooltip />
 			</p>
 		</div>
 
