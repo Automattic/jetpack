@@ -99,7 +99,7 @@ export default function SubscribePanels() {
 						<br />
 					</>
 				) }
-				{ showNotices && (
+				{ ! showMisconfigurationMessage && showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
 							followerCount !== 0
@@ -143,12 +143,6 @@ export default function SubscribePanels() {
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
-				{ isNewsletterFeatureEnabled() && showMisconfigurationMessage && (
-					<>
-						<MisconfigurationWarning accessLevel={ accessLevel } />
-						<br />
-					</>
-				) }
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
