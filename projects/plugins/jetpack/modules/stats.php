@@ -410,7 +410,7 @@ function stats_reports_css() {
 #stats-loading-wrap p {
 	text-align: center;
 	font-size: 2em;
-	margin: 7.5em 15px 0 0;
+	margin-bottom: 3em;
 	height: 64px;
 	line-height: 64px;
 }
