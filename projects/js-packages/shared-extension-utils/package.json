@@ -19,20 +19,12 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
-<<<<<<< HEAD
 		"@wordpress/api-fetch": "6.23.0",
-		"@wordpress/compose": "6.3.0",
-		"@wordpress/element": "5.3.0",
-		"@wordpress/i18n": "4.26.0",
-		"@wordpress/plugins": "5.3.0",
-		"@wordpress/url": "3.27.0",
-=======
 		"@wordpress/compose": "6.5.0",
 		"@wordpress/element": "5.5.0",
 		"@wordpress/i18n": "4.28.0",
 		"@wordpress/plugins": "5.5.0",
 		"@wordpress/url": "3.29.0",
->>>>>>> trunk
 		"lodash": "4.17.21"
 	},
 	"devDependencies": {
