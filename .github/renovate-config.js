@@ -51,6 +51,9 @@ module.exports = {
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
+	postUpdateOptions: {
+		pnpmDedupe: true,
+	},
 
 	// This is the renovate configuration.
 	extends: [ 'config:base' ],
@@ -60,6 +63,7 @@ module.exports = {
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
+	osvVulnerabilityAlerts: true,
 	constraints: {
 		php: `~${ versions.PHP_VERSION }.0`,
 	},
