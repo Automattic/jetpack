@@ -8,7 +8,7 @@ import LoadingPlaceholder from '..';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
-	title: 'Packages/VideoPress/Placeholder',
+	title: 'JS Packages/Components/LoadingPlaceholder',
 	component: LoadingPlaceholder,
 	parameters: {
 		layout: 'centered',
