@@ -138,7 +138,21 @@ if ( isset( $sbupdated ) ) {
 					<div class="ui info icon message">
 						<div class="content">
 							<div class="header"><?php esc_html_e( 'No Tax Rates', 'zero-bs-crm' ); ?></div>
-							<p><?php echo wp_kses( sprintf( __( 'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?', 'zero-bs-crm' ), '#' ), $zbs->acceptable_restricted_html ); ?></p>
+							<p>
+								<?php
+									echo sprintf(
+										wp_kses(
+											/* Translators: placeholder is an anchor, which gets changed via Javascript elsewhere to create new tax rate entry fields. */
+											__(
+												'There are no tax rates defined yet. Do you want to <a href="%s" id="zbs-new-add-tax-rate">create one</a>?',
+												'zero-bs-crm'
+											),
+											$zbs->acceptable_restricted_html
+										),
+										'#'
+									);
+									?>
+							</p>
 						</div>
 					</div>
 				</td>
