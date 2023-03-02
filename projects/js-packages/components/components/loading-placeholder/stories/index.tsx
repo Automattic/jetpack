@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import Placeholder from '..';
+import LoadingPlaceholder from '..';
 /**
  * Types
  */
@@ -9,13 +9,15 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Placeholder',
-	component: Placeholder,
+	component: LoadingPlaceholder,
 	parameters: {
 		layout: 'centered',
 	},
-} as ComponentMeta< typeof Placeholder >;
+} as ComponentMeta< typeof LoadingPlaceholder >;
 
-const Template: ComponentStory< typeof Placeholder > = args => <Placeholder { ...args } />;
+const Template: ComponentStory< typeof LoadingPlaceholder > = args => (
+	<LoadingPlaceholder { ...args } />
+);
 
 export const Fluid = Template.bind( {} );
 Fluid.decorators = [

@@ -40,6 +40,7 @@ export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
 export { default as Text, H2, H3, Title } from './components/text';
 export { default as numberFormat } from './components/number-format';
+export { default as LoadingPlaceholder } from './components/loading-placeholder';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
 export { default as TermsOfService } from './components/terms-of-service';

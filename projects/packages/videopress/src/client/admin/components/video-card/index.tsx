@@ -5,6 +5,7 @@ import {
 	Text,
 	Button,
 	Title,
+	LoadingPlaceholder,
 	numberFormat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
@@ -14,7 +15,6 @@ import classnames from 'classnames';
 import { useState } from 'react';
 import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
-import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
@@ -124,7 +124,7 @@ export const VideoCard = ( {
 					) }
 
 					{ loading ? (
-						<Placeholder width="60%" height={ 30 } />
+						<LoadingPlaceholder width="60%" height={ 30 } />
 					) : (
 						<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
 							{ title }
@@ -132,7 +132,7 @@ export const VideoCard = ( {
 					) }
 
 					{ loading ? (
-						<Placeholder width={ 96 } height={ 24 } />
+						<LoadingPlaceholder width={ 96 } height={ 24 } />
 					) : (
 						<>
 							{ hasPlays && (

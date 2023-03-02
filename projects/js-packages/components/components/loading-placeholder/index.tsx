@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React from 'react';
 import styles from './style.module.scss';
 
-const Placeholder = ( {
+const LoadingPlaceholder = ( {
 	children = null,
 	width = null,
 	height = null,
@@ -14,10 +14,13 @@ const Placeholder = ( {
 	className?: string;
 } ) => {
 	return (
-		<div className={ classNames( styles.placeholder, className ) } style={ { width, height } }>
+		<div
+			className={ classNames( styles.loadingPlaceholder, className ) }
+			style={ { width, height } }
+		>
 			{ children }
 		</div>
 	);
 };
 
-export default Placeholder;
+export default LoadingPlaceholder;
