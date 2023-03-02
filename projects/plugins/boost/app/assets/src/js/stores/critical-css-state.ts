@@ -151,9 +151,6 @@ export const refreshCriticalCssState = async () => {
 };
 
 export const regenerateCriticalCss = async () => {
-	const $modules = get( modules );
-	const $isCloudCssEnabled = $modules[ 'cloud-css' ]?.enabled || false;
-
 	// Clear regeneration suggestions
 	suggestRegenerateDS.store.set( false );
 
@@ -170,14 +167,27 @@ export const regenerateCriticalCss = async () => {
 	// This will update the store without triggering a save back to the server.
 	cssStateStore.override( freshState );
 
+	const $modules = get( modules );
+	const $isCloudCssEnabled = $modules[ 'cloud-css' ]?.enabled || false;
+
 	if ( $isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
-		const generatingSucceeded = await generateCriticalCss( get( cssStateStore ) );
-		const status = generatingSucceeded ? 'generated' : 'error';
-		replaceCssState( { status } );
+		await regenerateLocalCriticalCss( freshState );
 	}
 };
+
+/**
+ * Call generateCriticalCss if it hasn't been called before this app execution
+ * (browser pageload), to verify if Critical CSS needs to be generated.
+ *
+ * @param state
+ */
+export async function regenerateLocalCriticalCss( state: CriticalCssState ) {
+	const generatingSucceeded = await generateCriticalCss( state );
+	const status = generatingSucceeded ? 'generated' : 'error';
+	replaceCssState( { status } );
+}
 
 export const localCriticalCSSProgress = writable< undefined | number >( undefined );
 

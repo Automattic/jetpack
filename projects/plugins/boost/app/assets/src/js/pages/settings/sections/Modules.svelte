@@ -1,15 +1,22 @@
+<script lang="ts" context="module">
+	let alreadyResumed = false;
+</script>
+
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
+	import {
+		criticalCssState,
+		regenerateLocalCriticalCss,
+		regenerateCriticalCss,
+	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { modules } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
-	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
@@ -27,6 +34,18 @@
 
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
 	const suggestRegenerate = suggestRegenerateDS.store;
+
+	async function resume() {
+		if ( alreadyResumed ) {
+			return;
+		}
+		alreadyResumed = true;
+
+		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
+			return regenerateCriticalCss();
+		}
+		await regenerateLocalCriticalCss( $criticalCssState );
+	}
 </script>
 
 <div class="jb-container--narrow">
@@ -36,8 +55,9 @@
 
 	<Module
 		slug={'critical-css'}
-		on:enabled={maybeGenerateCriticalCss}
-		on:mountEnabled={maybeGenerateCriticalCss}
+		on:enabled={resume}
+		on:mountEnabled={resume}
+		on:disabled={() => ( alreadyResumed = false )}
 	>
 		<h3 slot="title">
 			{__( 'Optimize CSS Loading', 'jetpack-boost' )}

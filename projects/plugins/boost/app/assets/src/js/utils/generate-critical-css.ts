@@ -1,12 +1,9 @@
-import { get } from 'svelte/store';
 import {
-	criticalCssState,
 	localCriticalCSSProgress,
 	saveCriticalCssChunk,
 	criticalCssFatalError,
 	storeGenerateError,
 	updateProvider,
-	regenerateCriticalCss,
 } from '../stores/critical-css-state';
 import {
 	CriticalCssState,
@@ -14,7 +11,6 @@ import {
 	Provider,
 } from '../stores/critical-css-state-types';
 import { JSONObject } from '../stores/data-sync-client';
-import { modules } from '../stores/modules';
 import { recordBoostEvent } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
@@ -22,37 +18,6 @@ import { isSameOrigin } from './is-same-origin';
 import { loadCriticalCssLibrary } from './load-critical-css-library';
 import { prepareAdminAjaxRequest } from './make-admin-ajax-request';
 import type { Viewport } from './types';
-
-let hasGenerateRun = false;
-
-/**
- * Reset hasGenerateRun if the module is disabled to ensure generateCriticalCss
- * runs if the module is enabled again.
- */
-modules.subscribe( modulesState => {
-	if ( ! modulesState[ 'critical-css' ] || ! modulesState[ 'critical-css' ].enabled ) {
-		hasGenerateRun = false;
-	}
-} );
-
-/**
- * Call generateCriticalCss if it hasn't been called before this app execution
- * (browser pageload), to verify if Critical CSS needs to be generated.
- */
-export async function maybeGenerateCriticalCss(): Promise< boolean > {
-	if ( hasGenerateRun ) {
-		return;
-	}
-
-	const cssState = get( criticalCssState );
-	if ( ! cssState || cssState.status === 'not_generated' ) {
-		return regenerateCriticalCss();
-	}
-	// Abort early if css module deactivated or nothing needs doing
-	if ( cssState.status === 'pending' ) {
-		return generateCriticalCss( get( criticalCssState ) );
-	}
-}
 
 /**
  * Generate Critical CSS for this site. Will load the Critical CSS Generator
@@ -63,7 +28,6 @@ export async function maybeGenerateCriticalCss(): Promise< boolean > {
 export default async function generateCriticalCss(
 	cssState: CriticalCssState
 ): Promise< boolean > {
-	hasGenerateRun = true;
 	const cancelling = false;
 
 	try {
@@ -81,7 +45,7 @@ export default async function generateCriticalCss(
 
 		// @REFACTORING: Add Toast error handling if sources missing
 		if ( pendingProviders.length > 0 ) {
-			await generateForKeys(
+			return await generateForKeys(
 				pendingProviders,
 				requestGetParameters,
 				cssState.viewports as Viewport[],
@@ -148,7 +112,7 @@ async function generateForKeys(
 	viewports: Viewport[],
 	passthrough: JSONObject,
 	proxyNonce: string
-): Promise< void > {
+): Promise< boolean > {
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return
 	const startTime = Date.now();
 	let totalSize = 0;
@@ -185,7 +149,7 @@ async function generateForKeys(
 			localCriticalCSSProgress.set( 0 );
 
 			if ( updateResult === false ) {
-				return;
+				return false;
 			}
 
 			stepsPassed++;
@@ -249,7 +213,7 @@ async function generateForKeys(
 					error_type: err.type || ( err.constructor && err.constructor.name ) || 'unknown',
 				};
 				recordBoostEvent( 'critical_css_failure', eventProps );
-				return;
+				return false;
 			}
 		}
 	}
@@ -273,6 +237,7 @@ async function generateForKeys(
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}
+	return true;
 }
 
 /**
