@@ -701,7 +701,7 @@ class Jetpack_Gutenberg {
 				 *
 				 * @since $$next_version$$
 				 *
-				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
+				 * @param bool false Enable the Paid Newsletters feature in the block editor context.
 				 */
 				'is_newsletter_feature_enabled' => self::is_newsletter_enabled(),
 				/**
