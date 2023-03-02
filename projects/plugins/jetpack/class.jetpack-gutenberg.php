@@ -441,6 +441,22 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Check if the Newsletter feature should be enabled
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_newsletter_enabled() {
+		return (
+			apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+			&& class_exists( 'Jetpack_Memberships' )
+			&& Jetpack_Memberships::get_connected_account_id()
+			&& Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
+		);
+	}
+
+	/**
 	 * Check whether conditions indicate Gutenberg Extensions (blocks and plugins) should be loaded
 	 *
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
@@ -681,6 +697,14 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				/**
+				 * Enable the Paid Newsletters feature in the block editor context.
+				 *
+				 * @since $$next_version$$
+				 *
+				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
+				 */
+				'is_newsletter_feature_enabled' => self::is_newsletter_enabled(),
+				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
 				 * @module publicize
@@ -691,14 +715,6 @@ class Jetpack_Gutenberg {
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-				/**
-				 * Enable the Paid Newsletters feature in the block editor context.
-				 *
-				 * @since $$next_version$$
-				 *
-				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
-				 */
-				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
 				/**
 				 * Prevent the registration of the blocks from extensions/blocks/contact-form
 				 * if the Forms package is enabled.
