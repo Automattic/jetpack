@@ -170,24 +170,25 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								</FlexBlock>
 							) }
 						</Flex>
-
-						<FlexBlock>
-							<small spanClass={ 'jetpack-subscribe-info' }>
-								{ createInterpolateElement(
-									/* translators: basic information about the newsletter visibility */
-									__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-									{
-										a: (
-											<a
-												href={ getRedirectUrl( 'paid-newsletter-info', {
-													anchor: 'memberships-and-subscriptions',
-												} ) }
-											/>
-										),
-									}
-								) }
-							</small>
-						</FlexBlock>
+						{ withModal && (
+							<FlexBlock>
+								<small spanClass={ 'jetpack-subscribe-info' }>
+									{ createInterpolateElement(
+										/* translators: basic information about the newsletter visibility */
+										__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
+										{
+											a: (
+												<a
+													href={ getRedirectUrl( 'paid-newsletter-info', {
+														anchor: 'memberships-and-subscriptions',
+													} ) }
+												/>
+											),
+										}
+									) }
+								</small>
+							</FlexBlock>
+						) }
 					</Flex>
 				</PanelRow>
 			) }
