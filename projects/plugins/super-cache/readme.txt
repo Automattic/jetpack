@@ -278,6 +278,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 #### Fixed
 - Fixed undefined PHP variable when trying to delete a protected folder.
+- Fixed deprecation warnings on PHP 8.1+.
 
 --------
 
