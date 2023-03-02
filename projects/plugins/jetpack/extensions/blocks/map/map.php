@@ -68,7 +68,6 @@ function wpcom_load_event( $access_token_source ) {
  */
 function load_assets( $attr, $content ) {
 	$access_token = Jetpack_Mapbox_Helper::get_access_token();
-
 	wpcom_load_event( $access_token['source'] );
 
 	if ( Blocks::is_amp_request() ) {
@@ -101,7 +100,13 @@ function load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
+	$source = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'mapkit' : 'mapbox';
+	// phpcs:ignore WordPress.Security.NonceVerification
+	if ( isset( $_GET['mapkit'] ) || $source === 'mapkit' ) {
+		return preg_replace( '/<div /', '<div data-source="mapkit" data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
+	}
+
+	return preg_replace( '/<div /', '<div data-source="mapbox" data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
 }
 
 /**

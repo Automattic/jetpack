@@ -1,10 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import getMapProvider from './get-map-provider';
+import resizeMapContainer from './resize-map-container';
 
-const getMapProvider = () => {
-	if ( isAtomicSite() || isSimpleSite() || window.location.search.includes( 'mapkit' ) ) {
-		return 'mapkit';
-	}
-	return 'mapbox';
-};
-
-export { getMapProvider };
+export { getMapProvider, resizeMapContainer };
