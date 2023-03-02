@@ -268,17 +268,17 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 == Changelog ==
-### 1.9.4-beta - 2023-02-28
+### 1.9.4-beta - 2023-03-02
 #### Added
-- Added new filter which controls cache clearing on post edit.
 - Added a check to ensure preload cronjobs exist when updating preload settings.
+- Added new filter which controls cache clearing on post edit.
 
 #### Changed
 - Updated contributors list.
 
 #### Fixed
-- Fixed undefined PHP variable when trying to delete a protected folder.
 - Fixed deprecation warnings on PHP 8.1+.
+- Fixed undefined PHP variable when trying to delete a protected folder.
 
 --------
 
