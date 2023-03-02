@@ -2280,8 +2280,8 @@ importers:
         specifier: 5.3.0
         version: 5.3.0
       jetpack-boost-critical-css-gen:
-        specifier: github:automattic/jetpack-boost-critical-css-gen#release-0.0.6
-        version: github.com/automattic/jetpack-boost-critical-css-gen/799e6d78bbc14d51288ba929e59de0a624649e8b
+        specifier: github:automattic/jetpack-boost-critical-css-gen#release-0.0.7
+        version: github.com/automattic/jetpack-boost-critical-css-gen/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa
       prettier:
         specifier: 2.6.2
         version: 2.6.2
@@ -23410,8 +23410,8 @@ packages:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
     dev: true
 
-  github.com/automattic/jetpack-boost-critical-css-gen/799e6d78bbc14d51288ba929e59de0a624649e8b:
-    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/799e6d78bbc14d51288ba929e59de0a624649e8b}
+  github.com/automattic/jetpack-boost-critical-css-gen/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa:
+    resolution: {tarball: https://codeload.github.com/automattic/jetpack-boost-critical-css-gen/tar.gz/d46421f455e3f7ff025a4e7f4b9d01443dfdc8aa}
     name: jetpack-boost-critical-css-gen
     version: 0.0.6
     prepare: true
