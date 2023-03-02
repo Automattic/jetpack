@@ -94,6 +94,7 @@ const MapkitHelpers = memo(
 		useMapkitOnMapLoad( onMapLoaded );
 		useMapkitOnMapTap( () => {
 			setActiveMarker( null );
+			// TODO: recenter points
 		} );
 		return null;
 	}

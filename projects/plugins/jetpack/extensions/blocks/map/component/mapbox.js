@@ -9,12 +9,8 @@ import {
 } from '../../../shared/block-editor-asset-loader';
 import editorAssets from '../block-editor-assets.json';
 import { mapboxMapFormatter } from '../mapbox-map-formatter';
-import {
-	fitMapToBounds,
-	getMapBounds,
-	googlePoint2Mapbox,
-	resizeMapContainer,
-} from '../mapbox-utils';
+import { fitMapToBounds, getMapBounds, googlePoint2Mapbox } from '../mapbox-utils';
+import { resizeMapContainer } from '../utils';
 import InfoWindow from './info-window';
 import MapMarker from './map-marker';
 
@@ -216,7 +212,6 @@ export class MapBoxComponent extends Component {
 		const { map } = this.state;
 
 		map.setZoom( zoom );
-		//map.updateZoom( zoom );
 	};
 	setBoundsByMarkers = () => {
 		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
@@ -314,6 +309,7 @@ export class MapBoxComponent extends Component {
 		const { mapboxgl } = this.state;
 		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
+
 		try {
 			map = new mapboxgl.Map( {
 				container: this.mapRef.current,
