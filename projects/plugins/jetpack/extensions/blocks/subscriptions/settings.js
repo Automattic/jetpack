@@ -100,7 +100,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction={ 'column' }>
-						{ canEdit && showVisibilityRestrictedMessage && (
+						{ canEdit && withModal && showVisibilityRestrictedMessage && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
 									{
