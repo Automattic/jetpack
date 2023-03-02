@@ -92,7 +92,7 @@ class Dashboard_View_Switch {
 				margin: 0 0 0 6px;
 			}
 
-			.toplevel_page_jetpack-forms #view-link-wrap {
+			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #view-link-wrap {
 				position: fixed;
 				right: 32px;
 				top: var(--wp-admin--admin-bar--height);
