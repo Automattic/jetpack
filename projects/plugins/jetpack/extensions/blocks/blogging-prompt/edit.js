@@ -8,7 +8,8 @@ import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 
-// Tries to create a term or fetch it if it already exists.
+// Tries to create a tag or fetch it if it already exists.
+// @link https://github.com/WordPress/gutenberg/blob/98b58d9042eda7590659c6cce2cf7916ba99aaa1/packages/editor/src/components/post-taxonomies/flat-term-selector.js#L55
 function findOrCreateTag( tagName ) {
 	const escapedTagName = escapeHTML( tagName );
 
@@ -30,45 +31,11 @@ function findOrCreateTag( tagName ) {
 
 function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
 	const [ isLoading, setLoading ] = useState( true );
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
+	const { gravatars, prompt, promptId, showLabel, showResponses, tagsAdded } = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
 	const { editPost } = useDispatch( 'core/editor' );
 
-	const { terms, termIds, hasResolvedTerms } = useSelect( select => {
-		const { getEditedPostAttribute } = select( 'core/editor' );
-		const { getEntityRecords, hasFinishedResolution } = select( 'core' );
-		const _termIds = getEditedPostAttribute( 'tags' );
-
-		const query = {
-			_fields: 'id,name',
-			context: 'view',
-			include: _termIds.join( ',' ),
-			per_page: -1,
-		};
-
-		return {
-			termIds: _termIds,
-			terms: _termIds.length ? getEntityRecords( 'taxonomy', 'post_tag', query ) : [],
-			hasResolvedTerms: hasFinishedResolution( 'getEntityRecords', [
-				'taxonomy',
-				'post_tag',
-				query,
-			] ),
-		};
-	}, [] );
-
-	useEffect( () => {
-		if ( ! hasResolvedTerms ) {
-			return;
-		}
-
-		if ( null !== terms && ! terms.some( term => term.name && 'dailyprompt' === term.name ) ) {
-			findOrCreateTag( 'dailyprompt' ).then( term => {
-				editPost( { tags: [ ...termIds, term.id ] } );
-			} );
-		}
-	}, [ editPost, hasResolvedTerms, terms, termIds ] );
-
+	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
 		// If not initially rendering the block, don't fetch new data.
 		if ( ! isLoading ) {
@@ -106,6 +73,49 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 				noticeOperations.createErrorNotice( error.message );
 			} );
 	}, [ isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
+
+	// Get the tags for the post.
+	const { tags, tagIds, tagsHaveResolved } = useSelect( select => {
+		const { getEditedPostAttribute } = select( 'core/editor' );
+		const { getEntityRecords, hasFinishedResolution } = select( 'core' );
+		const _termIds = getEditedPostAttribute( 'tags' );
+
+		const query = {
+			_fields: 'id,name',
+			context: 'view',
+			include: _termIds.join( ',' ),
+			per_page: -1,
+		};
+
+		return {
+			tagIds: _termIds,
+			tags: _termIds.length ? getEntityRecords( 'taxonomy', 'post_tag', query ) : [],
+			tagsHaveResolved: hasFinishedResolution( 'getEntityRecords', [
+				'taxonomy',
+				'post_tag',
+				query,
+			] ),
+		};
+	}, [] );
+
+	// Add the related prompt tags, if they haven't been added already.
+	useEffect( () => {
+		if ( tagsAdded || ! tagsHaveResolved || ! promptId || ! Array.isArray( tags ) ) {
+			return;
+		}
+
+		if ( ! tags.some( tag => tag.name && 'dailyprompt' === tag.name ) ) {
+			findOrCreateTag( 'dailyprompt' ).then( tag => {
+				editPost( { tags: [ ...tagIds, tag.id ] } );
+			} );
+		} else if ( ! tags.some( tag => tag.name && `dailyprompt-${ promptId }` === tag.name ) ) {
+			findOrCreateTag( `dailyprompt-${ promptId }` ).then( tag => {
+				editPost( { tags: [ ...tagIds, tag.id ] } );
+			} );
+		} else {
+			setAttributes( { tagsAdded: true } );
+		}
+	}, [ editPost, promptId, setAttributes, tagsAdded, tagsHaveResolved, tags, tagIds ] );
 
 	const onShowLabelChange = newValue => {
 		setAttributes( { showLabel: newValue } );
