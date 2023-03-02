@@ -58,8 +58,7 @@ class Utilities_Test extends BaseTestCase {
 	public function test_image_url_returns_url_if_token_set() {
 		$token = 'testtoken';
 		$this->update_image_generator_settings( array( 'token' => $token ) );
-		// TODO: update URL
-		$this->assertEquals( get_image_url( $this->post_id ), 'https://example.com/' . $token );
+		$this->assertEquals( get_image_url( $this->post_id ), 'https://jetpack.com/redirect/?source=sigenerate&site=example.org&query=t%3D' . rawurlencode( $token ) );
 	}
 
 	/**

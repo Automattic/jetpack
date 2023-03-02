@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Given a post ID, returns the image URL for the generated image.
  *
@@ -21,6 +23,5 @@ function get_image_url( $post_id ) {
 		return '';
 	}
 
-	// TODO: update URL
-	return 'https://example.com/' . $token;
+	return add_query_arg( array( 'query' => rawurlencode( 't=' . $token ) ), Redirect::get_url( 'sigenerate' ) );
 }
