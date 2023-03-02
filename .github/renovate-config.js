@@ -51,9 +51,7 @@ module.exports = {
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
-	postUpdateOptions: {
-		pnpmDedupe: true,
-	},
+	postUpdateOptions: [ 'pnpmDedupe' ],
 
 	// This is the renovate configuration.
 	extends: [ 'config:base', 'group:definitelyTyped' ],
