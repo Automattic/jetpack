@@ -5,6 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"wikimedia/aho-corasick": "^1.0"
 	},
@@ -55,7 +57,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.9.x-dev"
+			"dev-trunk": "0.10.x-dev"
 		}
 	},
 	"config": {

@@ -118,11 +118,17 @@ const ResourcePromptComponent = props => {
 			progressBar={ progressBarComponent }
 			isNew={ isNew }
 			question={ question }
-			description={ createInterpolateElement( description, {
-				br: <br />,
-				strong: <strong />,
-				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
-			} ) }
+			description={
+				description
+					? createInterpolateElement( description, {
+							br: <br />,
+							strong: <strong />,
+							ExternalLink: (
+								<ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />
+							),
+					  } )
+					: null
+			}
 			content={
 				descriptionList || descriptionSecondary ? (
 					<React.Fragment>

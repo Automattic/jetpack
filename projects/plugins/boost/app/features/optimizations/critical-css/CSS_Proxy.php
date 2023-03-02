@@ -22,7 +22,6 @@ class CSS_Proxy {
 	 * AJAX handler to handle proxying of external CSS resources.
 	 */
 	public function handle_css_proxy() {
-		$state = new Critical_CSS_State();
 
 		// Verify valid nonce.
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['nonce'] ), self::NONCE_ACTION ) ) {
@@ -35,7 +34,7 @@ class CSS_Proxy {
 		}
 
 		// Reject any request made when not generating.
-		if ( ! $state->is_pending() ) {
+		if ( ! ( new Critical_CSS_State() )->is_requesting() ) {
 			wp_die( '', 400 );
 		}
 

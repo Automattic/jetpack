@@ -1,4 +1,4 @@
-## Jetpack 11.8
+## Jetpack 11.9
 
 ### Before you start:
 
@@ -7,29 +7,38 @@
 
 ### Form Block
 
-The form block received updates for styling the input fields, to test:
+The Form block received several updates, to test:
 
-- Create a new test post and add a Form block.
-- When presented with the different form variation templates, make sure there aren't any design oddities with the updated icons.
-- Select the 'Contact Form' type for this example.
-- Click on one of the input fields in the inserted Form block, and in the sidebar for the block settings there should be 'Color' and 'Input Field Styles' sections.
-- Try adjusting some of the style settings for the input fields, saving, and make sure the published post looks okay on the frontend.
+- Create a new test post and add a Form block (contact form template will work).
+- Add a 'Multiple Choice (checkbox)' field with a few options to select from.
+- Add a 'Text Input Field' with some dummy 'Placeholder Text' in the sidebar settings. Then change the border-radius for the text field to a large value.
+	- While editing or viewing the form on the frontend, the placeholder text should remain visible even with a large border-radius set.
+- While still having the text input field selected, make sure the 'Sync fields style' is enabled. Then, change the background color or other style settings from the sidebar.
+- Add an additional text input field. This new field should retain the same style settings previously applied from the other text field.
+- On the frontend in a new private/guest browser window, submit a test form submission.
+	- You may notice the form having a brief blur while while it is loading, this is expected.
+- Check the form responses in 'Feedback > Form Responses' for the test submission. Make sure that the output looks ok and that you don't see an 'Array()' wrapped around the multiple choice checkbox field data.
 
-### Subscribe Block
+Related PRs: [28815](https://github.com/Automattic/jetpack/pull/28815), [28988](https://github.com/Automattic/jetpack/pull/28988), [28820](https://github.com/Automattic/jetpack/pull/28820), [28973](https://github.com/Automattic/jetpack/pull/28973)
 
-The Subscriptions module received several changes in this version, to test:
+### Sharing Buttons
 
-- On a Jetpack-connected test site, add a Subscribe block to a new post.
-  - Make sure Subscriptions are enabled first, via Jetpack -> Settings -> Discussion.
-- In the block settings sidebar, under Settings, there should be a toggle to include social followers in the count. Make sure the follower amounts match the subscribers and connected social followers, if there are any.
-- If you have a social network connected via the WordPress.com dashboard at Tools -> Marketing -> Connections, you can also test the social followers are included when publishing if the toggle is enabled.
-- Publish the post with your Subscribe block. Next, visit the published post and subscribe one of your email addresses to receive new post notifications.
-  - For the purposes of this test, make sure the email address is not connected to a WordPress.com account. If you are using Gmail, you can use the '+' symbol to create an alias such as 'example+20230130@gmail.com'
-  - Make sure to confirm the subscription by clicking the link in the confirmation email.
-- Publish another new post with some text content. Make sure the email address you subscribed receives the new post email notification.
+The Sharing buttons also received updates in this version, to test:
+
+- Verify that the sharing buttons are enabled in 'Jetpack > Settings > Sharing'.
+- Click on the 'Configure your sharing buttons' link.
+- Add some different sharing buttons including the new Mastadon button. Save those changes.
+- Have at least one blog post published, then visit a post on the frontend.
+- Make sure the sharing buttons are displayed as expected.
+	- Be sure to test the sharing buttons displayed on the frontend in a variety of different browsers and screen sizes.
+	- If you aren't seeing any sharing buttons at all, try disabling any adblock extensions.
+- Activate the 'Twenty Nineteen' theme on your site and check the sharing buttons on the frontend again, they should look the same.
+- Test additional sharing button settings such as 'official buttons' versus 'icon only' for example.
+
+Related PRs: [28874](https://github.com/Automattic/jetpack/pull/28874), [28694](https://github.com/Automattic/jetpack/pull/28694)
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.8/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.9/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**
