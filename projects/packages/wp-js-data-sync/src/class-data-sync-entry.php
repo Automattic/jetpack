@@ -45,23 +45,18 @@ class Data_Sync_Entry {
 	 * @param $namespace string
 	 * @param $key       string
 	 * @param $entry     Data_Sync_Entry_Handler
+	 * @param $storage   Storage_Driver
 	 */
-	public function __construct( $namespace, $key, $entry ) {
+	public function __construct( $namespace, $key, $entry, $storage ) {
 		$this->key     = $key;
 		$this->entry   = $entry;
-		$this->storage = $this->entry->setup_storage( $namespace );
+		$this->storage = $storage;
 	}
 
 	public function get() {
-		// php 5.6 compatibility
-		// Dealing with unexpected '::' (T_PAAMAYIM_NEKUDOTAYIM)
-		// Older PHP versions don't support late static binding,
-		// For example, $this->entry::get_default_value() will throw an error in PHP 5.6
-		$entry = $this->entry;
-
 		// Run `transform` on the value before returning it.
 		return $this->entry->transform(
-			$this->storage->get( $this->key, $entry::get_default_value() )
+			$this->storage->get( $this->key, $this->entry->get_default_value() )
 		);
 	}
 
