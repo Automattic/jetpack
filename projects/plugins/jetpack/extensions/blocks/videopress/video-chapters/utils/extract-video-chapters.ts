@@ -50,6 +50,10 @@ function extractSingleChapter( line: string ): VideoPressChapter | null {
  * @returns {Array<VideoPressChapter>} - Title and start time of all chapters, sorted by start time
  */
 export default function extractVideoChapters( text: string ): Array< VideoPressChapter > {
+	if ( ! text ) {
+		return [];
+	}
+
 	const lines = text.split( '\n' );
 
 	const chapters = lines
