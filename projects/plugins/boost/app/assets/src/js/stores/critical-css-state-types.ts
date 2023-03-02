@@ -1,4 +1,3 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
 import z from 'zod';
 import { JSONSchema } from './data-sync-client';
 
@@ -64,15 +63,13 @@ export const CriticalCssStateSchema = z
 			.optional(),
 	} )
 	.catch( {
-		callback_passthrough: {},
-		generation_nonce: '',
-		proxy_nonce: '',
-		providers: [],
-		status: 'not_generated',
-		updated: 0,
-		status_error: '',
 		created: 0,
+		updated: 0,
+		callback_passthrough: {},
+		status: 'not_generated',
+		status_error: '',
 		viewports: [],
+		providers: [],
 	} );
 
 /**
