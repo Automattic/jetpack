@@ -6,7 +6,7 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { find, includes, map } from 'lodash';
+import { first, includes, map } from 'lodash';
 import Layout from '../components/layout';
 import { STORE_NAME } from '../state';
 import InboxList from './list';
@@ -87,10 +87,7 @@ const Inbox = () => {
 				</div>
 
 				<div className="jp-forms__inbox-content-column">
-					<InboxResponse
-						isLoading={ loading }
-						response={ find( responses, { id: currentResponseId } ) }
-					/>
+					<InboxResponse isLoading={ loading } response={ first( responses ) } />
 				</div>
 			</div>
 		</Layout>
