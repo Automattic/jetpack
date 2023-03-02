@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.6.1-alpha",
+	"version": "0.7.0-alpha",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -21,6 +21,7 @@
 		"build:contact-form": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.contact-form.js",
 		"build:dashboard": "NODE_PATH=\"$PWD/node_modules\" webpack --config ./tools/webpack.config.dashboard.js",
 		"clean": "rm -rf dist/ .cache/",
+		"test": "jest",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern dist/",
 		"watch": "concurrently 'pnpm:build:blocks --watch' 'pnpm:build:contact-form --watch' 'pnpm:build:dashboard --watch'"
 	},
@@ -65,9 +66,11 @@
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.11.0",
 		"@wordpress/browserslist-config": "5.11.0",
 		"@wordpress/components": "23.5.0",
+		"@wordpress/date": "4.26.0",
 		"autoprefixer": "10.4.12",
 		"concurrently": "6.4.0",
 		"glob": "7.1.6",
+		"jest": "29.4.3",
 		"jquery": "3.6.0",
 		"postcss": "8.4.21",
 		"postcss-loader": "6.2.0",
