@@ -54,7 +54,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	public function get_endpoints() {
 		return array(
 			new Update_Cloud_CSS(),
-			new Critical_CSS_Start()
+			new Critical_CSS_Start(),
 		);
 	}
 
@@ -205,7 +205,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	// @see the long comment in Cloud_CSS_State
 	public function regenerate_cloud_css() {
 		$result = $this->generate_cloud_css( $this->get_existing_sources() );
-		if( is_wp_error($result)) {
+		if ( is_wp_error( $result ) ) {
 			$state = new Critical_CSS_State();
 			$state->set_error( $result->get_error_message() )->save();
 		}
@@ -225,8 +225,8 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 			$source_providers = new Source_Providers();
 			$providers        = $source_providers->get_provider_sources();
 		}
-		return $providers;
 
+		return $providers;
 	}
 
 	/**
@@ -238,6 +238,6 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	 * @return int
 	 */
 	public function update_total_problem_count( $count ) {
-		return ( new Critical_CSS_State() )->has_errors() ? ++ $count : $count;
+		return ( new Critical_CSS_State() )->has_errors() ? ++$count : $count;
 	}
 }

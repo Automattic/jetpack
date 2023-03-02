@@ -17,9 +17,6 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\WP_Option_Storage;
-
 abstract class Data_Sync_Entry_Handler {
 
 	/**

@@ -23,7 +23,7 @@ class Critical_CSS_Start implements Endpoint {
 		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
 	}
 
-	public function response( $request ) {
+	public function response( $_request ) {
 
 		// Get Critical CSS Source URLs
 		$source_providers = new Source_Providers();
@@ -32,8 +32,8 @@ class Critical_CSS_Start implements Endpoint {
 		// Store those URLs in the Critical CSS State
 		$state = new Critical_CSS_State();
 		$state->prepare_request()
-		      ->set_pending_providers( $providers )
-		      ->save();
+			->set_pending_providers( $providers )
+			->save();
 
 		// Get the data
 		$data = $state->get();

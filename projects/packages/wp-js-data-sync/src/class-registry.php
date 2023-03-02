@@ -114,6 +114,7 @@ class Registry {
 
 		/**
 		 * Set up handler that adheres to `Data_Sync_Entry_Handler` contract.
+		 *
 		 * @see Data_Sync_Entry_Handler
 		 */
 		$handler = new $handler_class();
@@ -121,6 +122,7 @@ class Registry {
 		/**
 		 * Set up storage driver that adheres to `Storage_Driver` contract.
 		 * The default driver is WP_Option_Storage that stores values in WordPress options.
+		 *
 		 * @see Storage_Driver
 		 */
 		$storage = new $storage_class( $this->namespace );

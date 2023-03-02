@@ -57,12 +57,12 @@ class Generator {
 	 * such as in response to a request-generate API call or during page initialization.
 	 */
 	public function get_generation_metadata() {
+		$status = array();
 
 		// @REFACTORING:
 		// This method should be moved inside critical_css_state DataSync handling class
 		// to pre-populate the data on request and strip it out when receiving the data
 		// so that it's not persisted in the db.
-
 
 		// Add viewport sizes.
 		$status['viewports'] = array(

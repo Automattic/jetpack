@@ -49,6 +49,7 @@ class Cloud_CSS_State {
 	private function validate_provider_key( $provider_key ) {
 		$provider = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
 		if ( false === $provider ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
 			error_log( 'Cloud CSS: validate_provider_key() called with unknown provider key: "' . $provider_key . '"' );
 			return false;
 		}
@@ -57,6 +58,7 @@ class Cloud_CSS_State {
 
 	public function set_source_error( $provider_key, $message ) {
 		if ( empty( $message ) ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
 			error_log( 'Cloud CSS: set_source_error() called with empty message' );
 			return $this;
 		}
@@ -111,15 +113,14 @@ class Cloud_CSS_State {
 		return false;
 	}
 
-
-
 	private function update_provider( $provider_key, $partial_data ) {
 		if ( ! $this->validate_provider_key( $provider_key ) ) {
 			return $this;
 		}
 
-		$provider_index                                                  = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
-		$current_provider                                                = $this->critical_css_state->state['providers'][ $provider_index ];
+		$provider_index   = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
+		$current_provider = $this->critical_css_state->state['providers'][ $provider_index ];
+
 		$this->critical_css_state->state['providers'][ $provider_index ] = array_merge(
 			$current_provider,
 			$partial_data
@@ -140,6 +141,5 @@ class Cloud_CSS_State {
 		}
 		return $this;
 	}
-
 
 }

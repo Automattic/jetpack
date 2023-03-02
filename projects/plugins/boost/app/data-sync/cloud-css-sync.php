@@ -10,7 +10,7 @@ final class Cloud_CSS_Sync extends Data_Sync_Entry_Handler {
 		return $value;
 	}
 
-	public function validate( $value ) {
+	public function validate( $_value ) {
 		return true;
 	}
 

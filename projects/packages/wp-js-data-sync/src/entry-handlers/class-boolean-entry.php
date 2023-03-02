@@ -16,8 +16,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-final class Booolean_Entry extends Data_Sync_Entry_Handler {
-
+final class Boolean_Entry extends Data_Sync_Entry_Handler {
 
 	/**
 	 * On get,
