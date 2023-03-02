@@ -1,5 +1,5 @@
 === WP Super Cache ===
-Contributors: donncha, automattic, adnan007, ppetrov2c, pyronaur, thingalon
+Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
