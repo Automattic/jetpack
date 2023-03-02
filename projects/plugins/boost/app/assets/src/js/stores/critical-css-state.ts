@@ -169,7 +169,10 @@ export const regenerateCriticalCss = async () => {
 		return false;
 	}
 
-	replaceCssState(freshState);
+	// We received a fresh state from the server,
+	// it's already saved there,
+	// This will update the store without triggering a save back to the server.
+	cssStateStore.override(freshState);
 
 	if ($isCloudCssEnabled) {
 		startPollingCloudStatus();
