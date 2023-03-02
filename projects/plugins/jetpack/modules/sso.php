@@ -94,7 +94,19 @@ class Jetpack_SSO {
 		}
 
 		if ( ! empty( $errors->errors['loggedout'] ) ) {
-			$errors->add( 'jetpack-sso-show-logout', __( 'If you are on a shared computer, remember to also log out of wordpress.com.', 'jetpack' ), 'message' );
+			$logout_message = wp_kses(
+				sprintf(
+					/* translators: %1$s is a link to the WordPress.com account settings page. */
+					__( 'If you are on a shared computer, remember to also <a href="%1$s">log out of WordPress.com</a>.', 'jetpack' ),
+					'https://wordpress.com/me'
+				),
+				array(
+					'a' => array(
+						'href' => array(),
+					),
+				)
+			);
+			$errors->add( 'jetpack-sso-show-logout', $logout_message, 'message' );
 		}
 		return $errors;
 	}
