@@ -29,7 +29,7 @@ export const accessOptions = {
 
 export function MisconfigurationWarning( { accessLevel } ) {
 	return (
-		<InspectorNotice spanClass={ 'jetpack-subscribe-notice-misconfiguration warning' }>
+		<div className="jetpack-subscribe-notice-misconfiguration warning">
 			{ sprintf(
 				/* translators: %1$s: visibility label for the newsletter, %2$s: label for setting "everybody". this is a warning in the newsletter when posts have a private or password-protected visibility */
 				__(
@@ -39,7 +39,7 @@ export function MisconfigurationWarning( { accessLevel } ) {
 				accessOptions[ accessLevel ].label,
 				accessOptions.everybody.label
 			) }
-		</InspectorNotice>
+		</div>
 	);
 }
 
@@ -100,24 +100,6 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction={ 'column' }>
-						<FlexBlock>
-							<InspectorNotice spanClass={ 'jetpack-subscribe-info' }>
-								{ createInterpolateElement(
-									/* translators: basic information about the newsletter visibility */
-									__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-									{
-										a: (
-											<a
-												href={ getRedirectUrl( 'paid-newsletter-info', {
-													anchor: 'memberships-and-subscriptions',
-												} ) }
-											/>
-										),
-									}
-								) }
-							</InspectorNotice>
-						</FlexBlock>
-
 						{ canEdit && showVisibilityRestrictedMessage && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
@@ -188,6 +170,24 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								</FlexBlock>
 							) }
 						</Flex>
+
+						<FlexBlock>
+							<small spanClass={ 'jetpack-subscribe-info' }>
+								{ createInterpolateElement(
+									/* translators: basic information about the newsletter visibility */
+									__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
+									{
+										a: (
+											<a
+												href={ getRedirectUrl( 'paid-newsletter-info', {
+													anchor: 'memberships-and-subscriptions',
+												} ) }
+											/>
+										),
+									}
+								) }
+							</small>
+						</FlexBlock>
 					</Flex>
 				</PanelRow>
 			) }
