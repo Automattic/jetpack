@@ -26,7 +26,6 @@ const MapkitComponent = forwardRef( ( props, mapRef ) => {
 		}
 	} );
 
-	// TODO: make height dynamic
 	return (
 		<MapkitProvider
 			value={ {
