@@ -16,7 +16,7 @@ const InboxResponse = ( { loading, response } ) => {
 	} );
 
 	if ( ! loading && ! response ) {
-		return <div>none selected</div>;
+		return null;
 	}
 
 	return (
