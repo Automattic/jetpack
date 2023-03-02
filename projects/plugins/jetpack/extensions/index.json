@@ -43,7 +43,8 @@
 		"payments-intro",
 		"post-publish-qr-post-panel",
 		"payment-buttons",
-		"site-editor-snackbars"
+		"site-editor-snackbars",
+		"videopress/video-chapters"
 	],
 	"beta": [
 		"amazon",
@@ -55,8 +56,7 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
-		"videopress/video",
-		"videopress/video-chapters"
+		"videopress/video"
 	],
 	"experimental": [
 		"ai-image",
