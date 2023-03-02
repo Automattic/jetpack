@@ -16,12 +16,27 @@ use JETPACK__VERSION;
 class Dashboard_View_Switch {
 
 	/**
+	 * Identifier denoting that the classic WP Admin view should be used.
+	 *
+	 * @var string
+	 */
+	const CLASSIC_VIEW = 'classic';
+
+	/**
+	 * Identifier denoting that the modern view version should be used.
+	 *
+	 * @var string
+	 */
+	const MODERN_VIEW = 'modern';
+
+	/**
 	 * Initialize the switch.
 	 */
 	public function init() {
 		add_action( 'admin_print_styles', array( $this, 'print_styles' ) );
 		add_filter( 'in_admin_header', array( $this, 'render_switch' ) );
 		add_action( 'admin_footer', array( $this, 'add_scripts' ) );
+		add_action( 'current_screen', array( $this, 'handle_preferred_view' ) );
 	}
 
 	/**
@@ -39,14 +54,14 @@ class Dashboard_View_Switch {
 		<div id="view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="screen-switcher">
-					<a class="screen-switcher__button" href="<?php echo esc_url( add_query_arg( 'preferred-view', 'default' ) ); ?>" data-view="default">
-						<strong><?php esc_html_e( 'Default view', 'jetpack-forms' ); ?></strong>
+					<a class="screen-switcher__button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
+						<strong><?php esc_html_e( 'Classic', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-forms' ); ?>
 					</a>
-					<button class="screen-switcher__button"  data-view="jetpack-forms">
-						<strong><?php esc_html_e( 'Forms dashboard', 'jetpack-forms' ); ?></strong>
+					<a class="screen-switcher__button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
+						<strong><?php esc_html_e( 'Modern', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The new and improved Jetpack Forms dashboard.', 'jetpack-forms' ); ?>
-					</button>
+					</a>
 				</div>
 			</div>
 		</div>
@@ -159,7 +174,7 @@ class Dashboard_View_Switch {
 				text-align:left
 			}
 
-			.screen-switcher__button:nth-child(2), a.screen-switcher__button:nth-child(2) {
+			a.screen-switcher__button.is-active {
 				border-color: var(--wp-admin-theme-color);
 				margin-bottom:4px
 			}
@@ -213,15 +228,70 @@ CSS
 	}
 
 	/**
+	 * Updates the prefeerred view setting for the user if a GET param is present.
+	 */
+	public function handle_preferred_view() {
+		// For simplicity, we only treat this as a valid operation
+		// if it occurs on one of the screens with the switch active.
+		if ( ! $this->is_visible() || ! isset( $_GET['preferred-view'] ) ) {
+			return;
+		}
+
+		$view = sanitize_key( $_GET['preferred-view'] );
+
+		if ( ! in_array( $view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ) {
+			return;
+		}
+
+		update_user_option( get_current_user_id(), 'jetpack_forms_admin_preferred_view', $view );
+		wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+		exit;
+	}
+
+	/**
+	 * Returns the preferred feedback view for the current user.
+	 *
+	 * @return string
+	 */
+	public function get_preferred_view() {
+		$preferred_view = get_user_option( 'jetpack_forms_admin_preferred_view' );
+
+		return in_array( $preferred_view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ? $preferred_view : self::MODERN_VIEW;
+	}
+
+	/**
 	 * Returns true if the switch should be visible on the current page.
 	 *
 	 * @return boolean
 	 */
 	public function is_visible() {
-		$current_screen = get_current_screen();
+		return Jetpack_Forms::is_feedback_dashboard_enabled() && (
+			$this->is_classic_view() ||
+			$this->is_modern_view()
+		);
+	}
 
-		return Jetpack_Forms::is_feedback_dashboard_enabled() &&
-			$current_screen &&
-			in_array( $current_screen->id, array( 'edit-feedback', 'toplevel_page_jetpack-forms' ), true );
+	/**
+	 * Returns true if the given screen features the classic view.
+	 *
+	 * @return boolean
+	 */
+	public function is_classic_view() {
+		$screen = get_current_screen();
+
+		return $screen && $screen->id === 'edit-feedback';
+	}
+
+	/**
+	 * Returns true if the given screen features the modern view.
+	 *
+	 * @return boolean
+	 */
+	public function is_modern_view() {
+		$screen = get_current_screen();
+
+		// When classic view is set as preferred, jetpack-forms is registered under an empty parrent so it doesn't appear in the menu.
+		// Because of this, we need to support these two screens.
+		return $screen && in_array( $screen->id, array( 'admin_page_jetpack-forms', 'toplevel_page_jetpack-forms' ), true );
 	}
 }

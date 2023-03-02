@@ -24,11 +24,10 @@ class Jetpack_Forms {
 		Util::init();
 
 		if ( is_admin() && self::is_feedback_dashboard_enabled() ) {
-			$dashboard = new Dashboard();
-			$dashboard->init();
+			$view_switch = new Dashboard_View_Switch();
 
-			$switch = new Dashboard_View_Switch();
-			$switch->init();
+			$dashboard = new Dashboard( $view_switch );
+			$dashboard->init();
 		}
 
 		if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
