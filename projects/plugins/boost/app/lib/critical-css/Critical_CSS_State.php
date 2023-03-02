@@ -31,8 +31,9 @@ class Critical_CSS_State {
 
 	public function set_error( $message ) {
 		if ( empty( $message ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
-			error_log( 'Critical CSS: set_error() called with empty message' );
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
+				'Critical CSS: set_error() called with empty message'
+			);
 			return $this;
 		}
 

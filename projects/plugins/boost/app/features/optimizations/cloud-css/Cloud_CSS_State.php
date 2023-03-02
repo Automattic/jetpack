@@ -49,8 +49,10 @@ class Cloud_CSS_State {
 	private function validate_provider_key( $provider_key ) {
 		$provider = array_search( $provider_key, array_column( $this->critical_css_state->state['providers'], 'key' ), true );
 		if ( false === $provider ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
-			error_log( 'Cloud CSS: validate_provider_key() called with unknown provider key: "' . $provider_key . '"' );
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
+				'Cloud CSS: validate_provider_key() called with unknown provider key: "' . $provider_key . '"'
+			);
+
 			return false;
 		}
 		return true;
@@ -58,8 +60,10 @@ class Cloud_CSS_State {
 
 	public function set_source_error( $provider_key, $message ) {
 		if ( empty( $message ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
-			error_log( 'Cloud CSS: set_source_error() called with empty message' );
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log - error logging a condition that should never occur.
+				'Cloud CSS: set_source_error() called with empty message'
+			);
+
 			return $this;
 		}
 		if ( ! is_string( $message ) ) {
