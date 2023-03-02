@@ -56,7 +56,7 @@ module.exports = {
 	},
 
 	// This is the renovate configuration.
-	extends: [ 'config:base' ],
+	extends: [ 'config:base', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
