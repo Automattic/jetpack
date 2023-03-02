@@ -88,9 +88,12 @@ export default function SubscribePanels() {
 
 	// In the paid-subscriber only, we send to a restricted number of subscribers
 	const realSubscriberCount =
-		accessLevel === accessOptions.paid_subscribers.label ? paidSubscriberCount : subscriberCount;
+		accessOptions[ accessLevel ] === accessOptions.paid_subscribers
+			? paidSubscriberCount
+			: subscriberCount;
 	// We send to the social followers only when it is "everybody"
-	const realFollowerCount = accessLevel === accessOptions.everybody.label ? followerCount : 0;
+	const realFollowerCount =
+		accessOptions[ accessLevel ] === accessOptions.everybody ? followerCount : 0;
 
 	const showNotices = Number.isFinite( realSubscriberCount ) && realSubscriberCount > 0;
 	return (

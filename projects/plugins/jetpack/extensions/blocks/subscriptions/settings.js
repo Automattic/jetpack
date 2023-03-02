@@ -34,15 +34,14 @@ function getReachForAccessLevel( key, subscribersCount, paidSubscribersCount, fo
 		return '';
 	}
 
-	switch ( key ) {
-		case accessOptions.everybody.label:
-			return '(' + subscribersCount + followersCount + '+)';
-		case accessOptions.subscribers.label:
+	switch ( accessOptions[ key ] ) {
+		case accessOptions.everybody:
+			return '(' + ( subscribersCount + followersCount ) + '+)';
+		case accessOptions.subscribers:
 			return '(' + subscribersCount + ')';
-		case accessOptions.paid_subscribers.label:
+		case accessOptions.paid_subscribers:
 			return '(' + paidSubscribersCount + ')';
 		default:
-			return '';
 	}
 }
 
