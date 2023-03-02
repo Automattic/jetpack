@@ -32,9 +32,7 @@ export default function SubscribePanels() {
 	}, [] );
 
 	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => {
-		return select( editorStore ).getEditedPostAttribute( 'visibility' );
-	} );
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 	const showMisconfigurationMessage = postVisibility !== 'public' && accessLevel !== 'everybody';
 
 	// Only show this for posts for now (subscriptions are only available on posts).
