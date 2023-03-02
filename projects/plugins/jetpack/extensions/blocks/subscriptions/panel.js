@@ -17,9 +17,9 @@ import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 
-function renderAccessLevelSelectorPanel( setPostMeta, accessLevel ) {
+function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
 	if ( ! isNewsletterFeatureEnabled() ) {
-		return false;
+		return null;
 	}
 
 	return (
@@ -67,7 +67,7 @@ export default function SubscribePanels() {
 	// We still need to render the access level selector, as historical posts need a way to edit their access level for people visiting them on the web.
 	// TODO: Additionally, pages also can be protected. They will not send an email, but can be a resource that needs the acces selector.
 	if ( postWasEverPublished ) {
-		return renderAccessLevelSelectorPanel( setPostMeta, accessLevel );
+		return <AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />;
 	}
 
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
@@ -81,7 +81,7 @@ export default function SubscribePanels() {
 	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0;
 	return (
 		<>
-			{ renderAccessLevelSelectorPanel( setPostMeta, accessLevel ) }
+			<AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
