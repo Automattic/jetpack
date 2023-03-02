@@ -10,6 +10,10 @@ import {
 } from '../../mapkit-utils';
 import { MapkitContext } from '../context';
 
+const DEFAULT_LATITUDE = 37.7577;
+const DEFAULT_LONGITUDE = -122.4376;
+const DEFAULT_CAMERA_DISTANCE = convertZoomLevelToCameraDistance( 13, DEFAULT_LATITUDE );
+
 const useMapkit = () => {
 	return useContext( MapkitContext );
 };
@@ -109,7 +113,14 @@ const useMapkitCenter = ( center, setCenter ) => {
 		if ( ! mapkit || ! map || ! memoizedCenter.current ) {
 			return;
 		}
-		map.center = new mapkit.Coordinate( memoizedCenter.current.lat, memoizedCenter.current.lng );
+		if (
+			typeof memoizedCenter.current.lat === 'undefined' ||
+			typeof memoizedCenter.current.lng === 'undefined'
+		) {
+			map.center = new mapkit.Coordinate( DEFAULT_LATITUDE, DEFAULT_LONGITUDE );
+		} else {
+			map.center = new mapkit.Coordinate( memoizedCenter.current.lat, memoizedCenter.current.lng );
+		}
 	}, [ mapkit, map, memoizedCenter ] );
 
 	useEffect( () => {
@@ -160,14 +171,20 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 	useEffect( () => {
 		if ( mapkit && map ) {
 			if ( points && points.length <= 1 ) {
-				const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
-				if ( cameraDistance !== map.cameraDistance ) {
-					map.cameraDistance = cameraDistance;
+				if ( zoom ) {
+					const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
+					if ( cameraDistance !== map.cameraDistance ) {
+						map.cameraDistance = cameraDistance;
+					}
+				} else if ( DEFAULT_CAMERA_DISTANCE !== map.cameraDistance ) {
+					map.cameraDistance = DEFAULT_CAMERA_DISTANCE;
 				}
+				// Zooming and scrolling are enabled when there are 0 or 1 points.
 				map.isZoomEnabled = true;
 				map.isScrollEnabled = true;
 			} else {
 				map.region = pointsToMapRegion( mapkit, points );
+				// Zooming and scrolling are disabled when there are multiple points.
 				map.isZoomEnabled = false;
 				map.isScrollEnabled = false;
 			}
