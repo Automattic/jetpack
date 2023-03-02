@@ -63,9 +63,10 @@ function jetpack_mark_if_post_answers_blogging_prompt( $new_status, $old_status,
 	$blocks = parse_blocks( $post->post_content );
 	foreach ( $blocks as $block ) {
 		if ( 'jetpack/blogging-prompt' === $block['blockName'] ) {
-			$prompt_id = isset( $block['attrs']['promptId'] ) ? $block['attrs']['promptId'] : null;
+			$prompt_id      = isset( $block['attrs']['promptId'] ) ? $block['attrs']['promptId'] : null;
+			$has_prompt_tag = has_tag( 'dailyprompt', $post ) || ( $prompt_id && has_tag( "dailyprompt-{$prompt_id}", $post ) );
 
-			if ( $prompt_id && count( $blocks ) > 1 ) {
+			if ( $prompt_id && $has_prompt_tag && count( $blocks ) > 1 ) {
 				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
 				break;
 			}
