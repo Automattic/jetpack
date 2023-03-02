@@ -22,13 +22,16 @@ import {
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { Link } from 'react-router-dom';
+import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
+import IncompleteChaptersNotice from '../../../components/incomplete-chapters-notice';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import useChaptersLiveParsing from '../../../hooks/use-chapters-live-parsing';
 import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
@@ -117,6 +120,8 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 } ) => {
+	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
+
 	return (
 		<>
 			{ loading ? (
@@ -134,16 +139,28 @@ const Infos = ( {
 			{ loading ? (
 				<Placeholder height={ 133 } className={ styles.input } />
 			) : (
-				<Input
-					value={ description }
-					className={ styles.input }
-					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
-					name="description"
-					onChange={ onChangeDescription }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-				/>
+				<>
+					<Input
+						value={ description }
+						className={ styles.input }
+						label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+						name="description"
+						onChange={ onChangeDescription }
+						onEnter={ noop }
+						type="textarea"
+						size="large"
+						rows={ 8 }
+					/>
+					<div className={ styles[ 'chapters-help-container' ] }>
+						{ hasIncompleteChapters ? (
+							<IncompleteChaptersNotice className={ styles[ 'incomplete-chapters-notice' ] } />
+						) : (
+							<div className={ styles[ 'learn-more' ] }>
+								<ChaptersLearnMoreHelper />
+							</div>
+						) }
+					</div>
+				</>
 			) }
 		</>
 	);
