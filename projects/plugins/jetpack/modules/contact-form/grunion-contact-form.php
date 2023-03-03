@@ -2025,7 +2025,7 @@ class Grunion_Contact_Form_Plugin {
 				}
 			}
 
-			$tracking = new Automattic\Jetpack\Tracking();
+			$tracking = new \Automattic\Jetpack\Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}
@@ -5311,7 +5311,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 			}
 		}
 
-		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking = new \Automattic\Jetpack\Tracking();
 		$tracking->record_user_event( $event_name, $event_props, $event_user );
 	}
 }
