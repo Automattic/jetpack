@@ -49,7 +49,7 @@ $autoLoggers = array(
 	),
 	array(
 		'fieldname' => 'autolog_event_new',
-		'title'     => 'Event Creation',
+		'title'     => 'Task Creation',
 	),
 	array(
 		'fieldname' => 'autolog_clientportal_new',

@@ -60,7 +60,7 @@ function zeroBSCRM_render_customerslist_page(){
                 'statusnotupdated' => __('Could not update statuses!',"zero-bs-crm"),
  
                 // bulk actions - contact deleting
-                'andthese' => __('Shall I also delete the associated Invoices, Quotes, Transactions and Events?',"zero-bs-crm"),
+				'andthese'             => __( 'Shall I also delete the associated Invoices, Quotes, Transactions, and Tasks?', 'zero-bs-crm' ),
                 'contactsdeleted' => __('Your contact(s) have been deleted.',"zero-bs-crm"),
                 'notcontactsdeleted' => __('Your contact(s) could not be deleted.',"zero-bs-crm"),
 
@@ -121,7 +121,7 @@ function zeroBSCRM_render_companyslist_page(){
                 'export' => __('Export',"zero-bs-crm"),
 
                 // bulk actions - company deleting
-                'andthese' => __('Shall I also delete the associated Contacts, Invoices, Quotes, Transactions and Events? (This cannot be undone!)',"zero-bs-crm"),                
+				'andthese'           => __( 'Shall I also delete the associated Contacts, Invoices, Quotes, Transactions, and Tasks? (This cannot be undone!)', 'zero-bs-crm' ),
                 'companysdeleted' => __('Your company(s) have been deleted.',"zero-bs-crm"),
                 'notcompanysdeleted' => __('Your company(s) could not be deleted.',"zero-bs-crm"),
 
@@ -167,7 +167,7 @@ function zeroBSCRM_render_quoteslist_page(){
 
 
                 // bulk actions - quote deleting
-                'andthese' => __('Shall I also delete the associated Invoices, Quotes, Transactions and Events?',"zero-bs-crm"),
+				'andthese'                 => __( 'Shall I also delete the associated Invoices, Quotes, Transactions, and Tasks?', 'zero-bs-crm' ),
                 'quotesdeleted' => __('Your quote(s) have been deleted.',"zero-bs-crm"),
                 'notquotesdeleted' => __('Your quote(s) could not be deleted.',"zero-bs-crm"),
 
@@ -583,8 +583,8 @@ function zeroBSCRM_render_eventslist_page(){
     $list = new zeroBSCRM_list(array(
 
             'objType'       => 'event',
-            'singular'      => __('Event',"zero-bs-crm"),
-            'plural'        => __('Events',"zero-bs-crm"),
+		'singular'        => __( 'Task', 'zero-bs-crm' ),
+		'plural'          => __( 'Tasks', 'zero-bs-crm' ),
             'tag'           => '',
             'postType'      => 'zerobs_event',
             'postPage'      => 'manage-events-list',
@@ -600,12 +600,12 @@ function zeroBSCRM_render_eventslist_page(){
                 'markincomplete' => __('Mark Task(s) Incomplete',"zero-bs-crm"),
 
                 // bulk actions - event actions
-                'eventsdeleted' => __( 'Your Event(s) have been deleted.',"zero-bs-crm"),
-                'noteventsdeleted' => __( 'Your Event(s) could not be deleted.',"zero-bs-crm"),            
-                'areyousureeventscompleted' => __( 'Are you sure you want to mark these events as completed?', "zero-bs-crm" ),
-                'areyousureeventsincomplete' => __( 'Are you sure you want to mark these events as incomplete?', "zero-bs-crm" ),
-                'eventsmarked' => __( 'Your Event(s) have been updated.', "zero-bs-crm" ),
-                'noteventsmarked' => __( 'Your Event(s) could not be updated.', "zero-bs-crm" ),
+				'eventsdeleted'              => __( 'Your Task(s) have been deleted.', 'zero-bs-crm' ),
+				'noteventsdeleted'           => __( 'Your Task(s) could not be deleted.', 'zero-bs-crm' ),
+				'areyousureeventscompleted'  => __( 'Are you sure you want to mark these tasks as completed?', 'zero-bs-crm' ),
+				'areyousureeventsincomplete' => __( 'Are you sure you want to mark these tasks as incomplete?', 'zero-bs-crm' ),
+				'eventsmarked'               => __( 'Your Task(s) have been updated.', 'zero-bs-crm' ),
+				'noteventsmarked'            => __( 'Your Task(s) could not be updated.', 'zero-bs-crm' ),
 
             ),
             'bulkActions'   => array('addtag','removetag','delete','markcomplete','markincomplete'), // 'export' - possible but needs tidy /wp-admin/admin.php?page=zbs-export-tools&zbstype=event            

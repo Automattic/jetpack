@@ -1659,7 +1659,7 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
                                 // for events, we just "switch" the meta val :)
                                 zeroBSCRM_changeEventCustomer($event['id'],$dominantID);
-                                $changes[] = __('Assigned event from secondary record onto main record',"zero-bs-crm").' (#'.$event['id'].').';
+											$changes[] = __( 'Assigned task from secondary record onto main record', 'zero-bs-crm' ) . ' (#' . $event['id'] . ').';
                                 
 
    						}
