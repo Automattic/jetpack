@@ -398,24 +398,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private static function enqueue_contact_forms_style_script() {
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
-
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'extensions/blocks/contact-form/util/form-styles.js', JETPACK__PLUGIN_FILE ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-
-		if ( ! is_admin() ) {
-			wp_enqueue_script(
-				'contact-form-styles-frontend',
-				plugins_url( 'js/form-styles.js', __FILE__ ),
-				array( 'contact-form-styles' ),
-				JETPACK__VERSION,
-				true
-			);
-		}
+		Jetpack_Gutenberg::load_assets_as_required( 'contact-form' );
 	}
 
 	/**
@@ -425,7 +408,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $handle - script name.
 	 */
 	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle || 'contact-form-styles-frontend' === $handle ) {
+		if ( 'jetpack-block-contact-form' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -526,7 +509,6 @@ class Grunion_Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
