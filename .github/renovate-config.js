@@ -51,15 +51,17 @@ module.exports = {
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
+	postUpdateOptions: [ 'pnpmDedupe' ],
 
 	// This is the renovate configuration.
-	extends: [ 'config:base' ],
+	extends: [ 'config:base', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
+	osvVulnerabilityAlerts: true,
 	constraints: {
 		php: `~${ versions.PHP_VERSION }.0`,
 	},

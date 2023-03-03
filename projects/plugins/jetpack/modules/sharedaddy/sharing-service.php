@@ -1179,10 +1179,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
 
-					if ( ( $count % 2 ) === 0 ) {
-						$sharing_content .= '<li class="share-end"></li>';
-					}
-
 					++$count;
 				}
 
