@@ -17,6 +17,7 @@
 	display: flex;
 	flex: 3;
 	flex-direction: column;
+	min-width: 0;
 
 	&:last-child {
 		display: none;
@@ -53,11 +54,32 @@
 		border-radius: 0;
 	}
 
+	@media (max-width: 660px) {
+		.jp-forms__table-cell.is-source {
+			display: none;
+		}
+	}
+
+	.jp-forms__table-cell {
+		white-space: nowrap;
+	}
+
 	.jp-forms__table-cell.is-name,
 	.jp-forms__table-cell.is-source {
 		overflow: hidden;
 		text-overflow: ellipsis;
-		white-space: nowrap;
+	}
+
+	.jp-forms__table-cell.is-source {
+		@media (min-width: 1025px) and (max-width: 1440px) {
+			max-width: 130px;
+		}
+
+		max-width: 350px;
+	}
+
+	.jp-forms__table-cell.is-name {
+		max-width: 100px;
 		width: 100%;
 	}
 }
