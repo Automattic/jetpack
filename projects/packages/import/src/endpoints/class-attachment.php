@@ -48,6 +48,27 @@ class Attachment extends \WP_REST_Attachments_Controller {
 
 		register_rest_route(
 			self::$rest_namespace,
+			'/' . $this->rest_base . '/(?P<id>[\d]+)',
+			array(
+				'args'        => array(
+					'id' => array(
+						'description' => __( 'Unique identifier for the attachment.', 'jetpack-import' ),
+						'type'        => 'integer',
+					),
+				),
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_item' ),
+					'permission_callback' => array( $this, 'update_item_permissions_check' ),
+					'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::EDITABLE ),
+				),
+				'allow_batch' => array( 'v1' => true ),
+				'schema'      => array( $this, 'get_public_item_schema' ),
+			)
+		);
+
+		register_rest_route(
+			self::$rest_namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)/post-process',
 			array(
 				'methods'             => \WP_REST_Server::CREATABLE,
@@ -61,6 +82,31 @@ class Attachment extends \WP_REST_Attachments_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Updates a single attachment.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
+	 */
+	public function update_item( $request ) {
+		$response = parent::update_item( $request );
+
+		return $this->add_import_id_metadata( $request, $response );
+	}
+
+	/**
+	 * Adds the schema from additional fields to a schema array.
+	 *
+	 * The type of object is inferred from the passed schema.
+	 *
+	 * @param array $schema Schema array.
+	 * @return array Modified Schema array.
+	 */
+	public function add_additional_fields_schema( $schema ) {
+		// The unique identifier is only required for PUT requests.
+		return $this->add_unique_identifier_to_schema( $schema, isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'PUT' );
 	}
 
 	/**
