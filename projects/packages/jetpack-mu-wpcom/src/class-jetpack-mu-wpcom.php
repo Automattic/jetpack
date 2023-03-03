@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '1.0.1';
+	const PACKAGE_VERSION = '1.1.0-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -32,6 +32,7 @@ class Jetpack_Mu_Wpcom {
 
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -62,6 +63,22 @@ class Jetpack_Mu_Wpcom {
 			apply_filters( 'a8c_enable_public_coming_soon', false )
 		) {
 			require_once __DIR__ . '/features/coming-soon/coming-soon.php';
+		}
+	}
+
+	/**
+	 * Load WP REST API plugins for wpcom
+	 */
+	public static function load_wpcom_rest_api_endpoints() {
+		// We don't use `wpcom_rest_api_v2_load_plugin_files` because it operates inconsisently.
+		$plugins = glob( __DIR__ . '/features/wpcom-endpoints/*.php' );
+
+		if ( ! is_array( $plugins ) ) {
+			return;
+		}
+
+		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
+			require_once $plugin;
 		}
 	}
 }
