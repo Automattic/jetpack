@@ -6,7 +6,8 @@ import {
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { first, includes, map } from 'lodash';
+import classnames from 'classnames';
+import { find } from 'lodash';
 import Layout from '../components/layout';
 import { STORE_NAME } from '../state';
 import InboxList from './list';
@@ -31,16 +32,8 @@ const Inbox = () => {
 	);
 
 	useEffect( () => {
-		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
-			return;
-		}
-
-		setCurrentResponseId( responses[ 0 ].id );
-	}, [ responses, currentResponseId ] );
-
-	const handleLoadMore = useCallback( () => {
-		// this only needs to change the offset for the query
-	}, [] );
+		setCurrentResponseId( responses.length > 0 ? responses[ 0 ].id : -1 );
+	}, [ responses ] );
 
 	const handleSearch = useCallback( event => {
 		event.preventDefault();
@@ -53,6 +46,10 @@ const Inbox = () => {
 		_n( '%s response', '%s responses', total, 'jetpack-forms' ),
 		total
 	);
+
+	const contentClasses = classnames( 'jp-forms__inbox-content', {
+		'show-response': currentResponseId >= 0,
+	} );
 
 	return (
 		<Layout title={ __( 'Responses', 'jetpack-forms' ) } subtitle={ numberOfResponses }>
@@ -74,20 +71,21 @@ const Inbox = () => {
 					</Button>
 				</form>
 			</div>
-			<div className="jp-forms__inbox-content">
+
+			<div className={ contentClasses }>
 				<div className="jp-forms__inbox-content-column">
 					<InboxList
 						currentResponseId={ currentResponseId }
-						hasMore={ responses.length < total }
-						loading={ loading }
-						onLoadMore={ handleLoadMore }
-						onSelectionChange={ setCurrentResponseId }
+						setCurrentResponseId={ setCurrentResponseId }
 						responses={ responses }
 					/>
 				</div>
 
 				<div className="jp-forms__inbox-content-column">
-					<InboxResponse isLoading={ loading } response={ first( responses ) } />
+					<InboxResponse
+						isLoading={ loading }
+						response={ find( responses, { id: currentResponseId } ) }
+					/>
 				</div>
 			</div>
 		</Layout>
