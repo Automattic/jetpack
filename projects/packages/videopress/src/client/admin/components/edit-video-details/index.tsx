@@ -22,13 +22,16 @@ import {
 import classnames from 'classnames';
 import { useEffect } from 'react';
 import { useHistory, Prompt } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 /**
  * Internal dependencies
  */
-import { Link } from 'react-router-dom';
+import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
+import IncompleteChaptersNotice from '../../../components/incomplete-chapters-notice';
 import { VideoPlayer } from '../../../components/video-frame-selector';
+import useChaptersLiveParsing from '../../../hooks/use-chapters-live-parsing';
 import {
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 	VIDEO_PRIVACY_LEVEL_PUBLIC,
@@ -43,6 +46,7 @@ import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
 import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
+import VideoDetailsActions from '../video-details-actions';
 import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
@@ -54,12 +58,16 @@ const noop = () => {
 
 const Header = ( {
 	saveDisabled = true,
-	saveLoading = false,
+	busy = false,
 	onSaveChanges,
+	onDelete,
+	videoId,
 }: {
 	saveDisabled?: boolean;
-	saveLoading?: boolean;
+	busy?: boolean;
 	onSaveChanges: () => void;
+	onDelete: () => void;
+	videoId: string | number;
 } ) => {
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const history = useHistory();
@@ -74,14 +82,11 @@ const Header = ( {
 					{ ! isSm && <Icon icon={ chevronRightSmall } /> }
 					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
-				<div>
-					<Button
-						disabled={ saveDisabled || saveLoading }
-						onClick={ onSaveChanges }
-						isLoading={ saveLoading }
-					>
+				<div className={ styles.buttons }>
+					<Button disabled={ saveDisabled || busy } onClick={ onSaveChanges } isLoading={ busy }>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
+					<VideoDetailsActions videoId={ videoId } disabled={ busy } onDelete={ onDelete } />
 				</div>
 			</div>
 		</div>
@@ -115,6 +120,8 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 } ) => {
+	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
+
 	return (
 		<>
 			{ loading ? (
@@ -132,16 +139,28 @@ const Infos = ( {
 			{ loading ? (
 				<Placeholder height={ 133 } className={ styles.input } />
 			) : (
-				<Input
-					value={ description }
-					className={ styles.input }
-					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
-					name="description"
-					onChange={ onChangeDescription }
-					onEnter={ noop }
-					type="textarea"
-					size="large"
-				/>
+				<>
+					<Input
+						value={ description }
+						className={ styles.input }
+						label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+						name="description"
+						onChange={ onChangeDescription }
+						onEnter={ noop }
+						type="textarea"
+						size="large"
+						rows={ 8 }
+					/>
+					<div className={ styles[ 'chapters-help-container' ] }>
+						{ hasIncompleteChapters ? (
+							<IncompleteChaptersNotice className={ styles[ 'incomplete-chapters-notice' ] } />
+						) : (
+							<div className={ styles[ 'learn-more' ] }>
+								<ChaptersLearnMoreHelper />
+							</div>
+						) }
+					</div>
+				</>
 			) }
 		</>
 	);
@@ -151,6 +170,7 @@ const EditVideoDetails = () => {
 	const {
 		// Video Data
 		guid,
+		id,
 		duration,
 		posterImage,
 		filename,
@@ -170,8 +190,11 @@ const EditVideoDetails = () => {
 		hasChanges,
 		updating,
 		updated,
+		deleted,
 		isFetching,
+		isDeleting,
 		handleSaveChanges,
+		handleDelete,
 		// Metadata
 		setTitle,
 		setDescription,
@@ -201,17 +224,19 @@ const EditVideoDetails = () => {
 	);
 
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated && canPerformAction,
+		shouldPrevent: hasChanges && ! updated && ! deleted && canPerformAction,
 		message: unsavedChangesMessage,
 	} );
 
 	const history = useHistory();
+	const { page } = useVideosQuery();
 
 	useEffect( () => {
-		if ( updated === true ) {
-			history.push( '/' );
+		if ( updated === true || deleted === true ) {
+			const to = page > 1 ? `/?page=${ page }` : '/';
+			history.push( to );
 		}
-	}, [ updated ] );
+	}, [ updated, deleted ] );
 
 	if ( ! canPerformAction ) {
 		history.push( '/' );
@@ -226,6 +251,7 @@ const EditVideoDetails = () => {
 	}
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
+	const isBusy = isFetchingData || isDeleting || updating;
 
 	const shortcode = `[videopress ${ guid }${ width ? ` w=${ width }` : '' }${
 		height ? ` h=${ height }` : ''
@@ -233,7 +259,7 @@ const EditVideoDetails = () => {
 
 	return (
 		<>
-			<Prompt when={ hasChanges && ! updated } message={ unsavedChangesMessage } />
+			<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
 
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
@@ -252,8 +278,10 @@ const EditVideoDetails = () => {
 						<GoBackLink />
 						<Header
 							onSaveChanges={ handleSaveChanges }
+							onDelete={ handleDelete }
 							saveDisabled={ ! hasChanges }
-							saveLoading={ updating }
+							busy={ isBusy }
+							videoId={ id }
 						/>
 					</>
 				}
@@ -266,15 +294,17 @@ const EditVideoDetails = () => {
 								onChangeTitle={ setTitle }
 								description={ description ?? '' }
 								onChangeDescription={ setDescription }
-								loading={ isFetchingData }
+								loading={ isBusy }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isFetchingData ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ isBusy ? <Placeholder height={ 200 } /> : thumbnail }
+								deleting={ isDeleting }
 								duration={ duration }
 								editable
 								processing={ processing }
+								loading={ isFetchingData }
 								onSelectFromVideo={ handleOpenSelectFrame }
 								onUploadImage={ selectPosterImageFromLibrary }
 							/>
@@ -283,7 +313,7 @@ const EditVideoDetails = () => {
 								uploadDate={ uploadDate ?? '' }
 								src={ url ?? '' }
 								shortcode={ shortcode ?? '' }
-								loading={ isFetchingData }
+								loading={ isBusy }
 							/>
 							<div className={ styles[ 'side-fields' ] }>
 								<SelectControl
@@ -291,6 +321,7 @@ const EditVideoDetails = () => {
 									value={ privacySetting }
 									label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 									onChange={ value => setPrivacySetting( value ) }
+									disabled={ isBusy }
 									prefix={
 										// Casting for unknown since allowing only a string is a mistake
 										// at WP Components
@@ -329,6 +360,7 @@ const EditVideoDetails = () => {
 								</Text>
 								<CheckboxControl
 									checked={ displayEmbed }
+									disabled={ isBusy }
 									label={ __(
 										'Display share menu and allow viewers to copy a link or embed this video',
 										'jetpack-videopress-pkg'
@@ -340,23 +372,29 @@ const EditVideoDetails = () => {
 								</Text>
 								<CheckboxControl
 									checked={ allowDownload }
+									disabled={ isBusy }
 									label={ __(
 										'Display download option and allow viewers to download this video',
 										'jetpack-videopress-pkg'
 									) }
 									onChange={ value => setAllowDownload( value ? 1 : 0 ) }
 								/>
-								<RadioControl
-									className={ classnames( styles.field, styles.rating ) }
-									label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
-									selected={ rating }
-									options={ [
-										{ label: __( 'G', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_G },
-										{ label: __( 'PG-13', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_PG_13 },
-										{ label: __( 'R', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_R_17 },
-									] }
-									onChange={ setRating }
-								/>
+								{ isBusy ? (
+									// RadioControl does not support disabled state
+									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+								) : (
+									<RadioControl
+										className={ classnames( styles.field, styles.rating ) }
+										label={ __( 'Rating', 'jetpack-videopress-pkg' ) }
+										selected={ rating }
+										options={ [
+											{ label: __( 'G', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_G },
+											{ label: __( 'PG-13', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_PG_13 },
+											{ label: __( 'R', 'jetpack-videopress-pkg' ), value: VIDEO_RATING_R_17 },
+										] }
+										onChange={ setRating }
+									/>
+								) }
 							</div>
 						</Col>
 					</Container>
