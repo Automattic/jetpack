@@ -1,4 +1,5 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
 function getCookie( name ) {
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ name }=` );
@@ -8,7 +9,6 @@ function getCookie( name ) {
 }
 
 const getMapProvider = () => {
-	// TODO: remove this
 	const mapProviderCookie = getCookie( 'map_provider' );
 	if ( mapProviderCookie ) {
 		return mapProviderCookie;
