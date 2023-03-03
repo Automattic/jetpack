@@ -10,14 +10,14 @@ export default class CompletePage extends WpPage {
 	}
 
 	async viewProducts() {
-		const viewProductsButton = '.view-all-products-link a';
+		const viewProductsButton = 'a.view-all-products-link';
 		await this.click( viewProductsButton );
 	}
 
 	async select( product = 'free' ) {
 		switch ( product ) {
 			case 'free':
-				const freePlanButton = '.jetpack-complete-page__start-free-button a';
+				const freePlanButton = 'a.jetpack-complete-page__start-free-button';
 				await this.click( freePlanButton );
 				break;
 			default:
