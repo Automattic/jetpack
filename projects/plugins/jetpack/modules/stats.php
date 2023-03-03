@@ -519,7 +519,7 @@ function stats_reports_page( $main_chart_only = false ) {
 			$static_url = apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" );
 			?>
 			</h2>
-			<?php stats_print_odyssey_nudge_test( '' ); ?>
+			<?php stats_print_odyssey_nudge( '' ); ?>
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
@@ -752,7 +752,7 @@ function stats_should_show_odyssey_nudge() {
  * @param mixed $html HTML.
  * @return void
  */
-function stats_print_odyssey_nudge_test( $html ) {
+function stats_print_odyssey_nudge( $html ) {
 	// Silence linter.
 	if ( $html && false ) {
 		return;
@@ -882,112 +882,6 @@ function stats_print_odyssey_nudge_test( $html ) {
 		</div>
 		<div class="ace-image-container">
 			<img class="ace-image-container--image" src="/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png">
-		</div>
-		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
-	</div>
-	<?php
-}
-
-/**
- * Legacy Stats: Print the Odyssey upgrade nudge.
- *
- * @access public
- * @param mixed $html HTML.
- * @return void
- */
-function stats_print_odyssey_nudge( $html ) {
-	// Silence linter.
-	if ( ! stats_should_show_odyssey_nudge() && false ) {
-		return;
-	}
-	$pos = strpos( $html, STATS_CONTENT_MARKER );
-	if ( $pos === false ) {
-		return;
-	}
-	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
-	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
-	?>
-	<style>
-		.stats-odyssey-nudge {
-			display: flex;
-			align-items: flex-start;
-			font-size: var( --font-body );
-
-			border: 1px solid var( --jp-gray-5 );
-			border-radius: 4px;
-			border-color: var( --jp-black );
-			border-left-width: 6px;
-			padding: 24px 31px 27px 18px;
-
-			margin-top: 24px;
-		}
-		.stats-odyssey-nudge--content {
-			flex-grow: 1;
-		}
-		.stats-odyssey-nudge--title {
-			font-weight: 600;
-			margin-bottom: 8px;
-		}
-		.stats-odyssey-nudge--close-button {
-			position: absolute;
-			top: 1rem;
-			right: 1rem;
-			background-color: transparent;
-			border: none;
-			cursor: pointer;
-		}
-		.stats-odyssey-nudge--action-bar {
-			display: flex;
-			align-items: center;
-			margin-top: 20px;
-		}
-		.stats-odyssey-nudge--primary-button {
-			margin-right: 18px;
-			padding-left: 20px;
-			padding-right: 20px;
-			font-size: 16px;
-			border-color: black;
-			background-color: black;
-		}
-		.stats-odyssey-nudge--primary-button:hover {
-			border-color: #3c434a;
-			background-color: #3c434a;
-		}
-		.is-primary-link {
-			color: white;
-			text-decoration: none;
-		}
-		.is-primary-link:active {
-			color: white;
-		}
-		.is-primary-link:focus {
-			color: white;
-			box-shadow: none;
-			outline: none;
-		}
-		.is-primary-link:hover {
-			color: white;
-		}
-		.is-secondary-link {
-			color: black;
-		}
-		.is-secondary-link:hover {
-			color: black;
-		}
-		.is-hidden {
-			display: none;
-		}
-	</style>
-	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<div class="stats-odyssey-nudge--content">
-			<div class="stats-odyssey-nudge--title"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></div>
-			<?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?>
-			<div class="stats-odyssey-nudge--action-bar">
-				<button class="dops-button stats-odyssey-nudge--primary-button">
-					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
-				</button>
-				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
-			</div>
 		</div>
 		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
