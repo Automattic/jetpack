@@ -48,6 +48,9 @@
 	"beta": [
 		"amazon",
 		"blogging-prompt",
+		"conversation",
+		"cookie-consent",
+		"dialogue",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",

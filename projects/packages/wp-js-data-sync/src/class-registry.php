@@ -19,6 +19,8 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync;
 // phpcs:disable Squiz.Commenting.FileComment.Missing
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
+use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
+use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\WP_Option_Storage;
 
 class Registry {
 
@@ -99,17 +101,33 @@ class Registry {
 	/**
 	 * Register a new entry and add it to the registry.
 	 *
-	 * @param $entry_name  string - The name of the entry. For example `widget_status`.
-	 * @param $value       Data_Sync_Entry_Handler
+	 * @param $entry_name        string - The name of the entry. For example `widget_status`.
+	 * @param $handler_class     Data_Sync_Entry_Handler
+	 * @param $storage_class     Storage_Driver
 	 *
 	 * @return Data_Sync_Entry
 	 * @throws \Exception If the option name is invalid.
 	 */
-	public function register( $key, $handler ) {
+	public function register( $key, $handler_class, $storage_class = WP_Option_Storage::class ) {
 
 		$key = $this->sanitize_key( $key );
 
-		$entry                 = new Data_Sync_Entry( $this->namespace, $key, $handler );
+		/**
+		 * Set up handler that adheres to `Data_Sync_Entry_Handler` contract.
+		 *
+		 * @see Data_Sync_Entry_Handler
+		 */
+		$handler = new $handler_class();
+
+		/**
+		 * Set up storage driver that adheres to `Storage_Driver` contract.
+		 * The default driver is WP_Option_Storage that stores values in WordPress options.
+		 *
+		 * @see Storage_Driver
+		 */
+		$storage = new $storage_class( $this->namespace );
+
+		$entry                 = new Data_Sync_Entry( $this->namespace, $key, $handler, $storage );
 		$this->entries[ $key ] = $entry;
 
 		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $entry->key() ), $entry );
