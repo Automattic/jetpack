@@ -145,23 +145,39 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 done
 
 proceed_p "" "Proceed releasing above projects?"
+
+
+declare -A PREFIXES
+for SLUG in "${!PROJECTS[@]}"; do
+	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$SLUG"/composer.json)
+	echo "$PREFIX: $SLUG"
+	if [[ -n "$PREFIX" ]] && [[ ! "${PREFIXES[*]}" =~ $PREFIX ]]; then
+		PREFIXES["$PREFIX"]=${PROJECTS[$SLUG]}
+	elif [[ -z "$PREFIX" ]]; then
+		die "No release branch prefix found for $SLUG, aborting."
+	fi
+done
+exit
+# Loop throug hthe prefixes associative array and echo them out in Prefix: Version format.
+for PREFIX in "${!PREFIXES[@]}"; do
+	echo "$PREFIX: ${PREFIXES[$PREFIX]}"
+done
 exit
 
-# Check if a remote branch for the release branch exits and ask to delete it if it does.
-PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$PROJECT"/composer.json)
 RELEASE_BRANCH=
-if [[ -n "$PREFIX" ]]; then
+
+for PREFIX in "${PREFIXES[@]}"; do
 	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
-else
-	die "No release branch prefix found for $PROJECT, aborting."
-fi
+	REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
+	if [[ -n "$REMOTE_BRANCH" ]]; then
+		proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
+		git push origin --delete "$RELEASE_BRANCH"
+	fi
+done
 
-REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
-if [[ -n "$REMOTE_BRANCH" ]]; then
-	proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
-	git push origin --delete "$RELEASE_BRANCH"
-fi
 
+
+exit
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
