@@ -35,7 +35,7 @@ const Inbox = () => {
 				stateSelector.getTotalResponses(),
 			];
 		},
-		[ searchTerm ]
+		[ searchTerm, currentPage ]
 	);
 
 	useEffect( () => {
