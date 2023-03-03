@@ -798,6 +798,11 @@ function stats_print_odyssey_nudge( $html ) {
 			max-height: 200px;
 			object-fit: cover;
 		}
+		@media (max-width: 920px) {
+			.stats-odyssey-notice--image {
+				display: none;
+			}
+		}
 		.stats-odyssey-notice--close-button {
 			position: absolute;
 			top: 1rem;
