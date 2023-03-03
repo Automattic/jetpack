@@ -51,6 +51,10 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 					longitude: value.coordinate.longitude,
 					latitude: value.coordinate.latitude,
 				},
+				// mapkit doesn't give us an id, so we'll make one containing the place name and coordinates
+				id: `${ value.placeName } ${ Number( value.coordinate.latitude ).toFixed( 2 ) } ${ Number(
+					value.coordinate.longitude
+				).toFixed( 2 ) }`,
 			};
 			onAddPoint( point );
 			return value.placeName;
