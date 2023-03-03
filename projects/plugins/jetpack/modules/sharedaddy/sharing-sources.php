@@ -2572,8 +2572,10 @@ class Share_Pinterest extends Sharing_Source {
 						var shares = document.querySelectorAll( 'li.share-pinterest' );
 						for ( var i = 0; i < shares.length; i++ ) {
 							var share = shares[ i ];
-							if ( share.querySelector( 'a span:visible' ) ) {
-								share.style.width = '80px';
+							var countComputedStyle = window.getComputedStyle(share.querySelector( 'a span' ));
+							if ( countComputedStyle.display === 'block' ) {
+								var countWidth = parseInt( countComputedStyle.width, 10 );
+								share.style.marginRight = countWidth + 11 + 'px';
 							}
 						}
 					}
