@@ -1906,7 +1906,7 @@ class Contact_Form_Plugin {
 				}
 			}
 
-			$tracking = new Automattic\Jetpack\Tracking();
+			$tracking = new \Automattic\Jetpack\Tracking();
 			$tracking->record_user_event( $event_name, $event_props, $event_user );
 		}
 	}
