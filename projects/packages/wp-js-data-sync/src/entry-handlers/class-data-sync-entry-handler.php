@@ -17,9 +17,6 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\WP_Option_Storage;
-
 abstract class Data_Sync_Entry_Handler {
 
 	/**
@@ -29,19 +26,6 @@ abstract class Data_Sync_Entry_Handler {
 	 * @var string[]
 	 */
 	private $errors = array();
-
-	/**
-	 * Set up storage driver that adheres to `Storage_Driver` contract.
-	 * The default driver is WP_Option_Storage that stores values in WordPress options.
-	 *
-	 * @param string $storage_namespace For example: "jetpack_boost".
-	 * @see Storage_Driver
-	 *
-	 * @return Storage_Driver
-	 */
-	public function setup_storage( $storage_namespace ) {
-		return new WP_Option_Storage( $storage_namespace );
-	}
 
 	/**
 	 * On get,
@@ -109,7 +93,7 @@ abstract class Data_Sync_Entry_Handler {
 	 *
 	 * @return bool
 	 */
-	public static function get_default_value() {
+	public function get_default_value() {
 		return false;
 	}
 

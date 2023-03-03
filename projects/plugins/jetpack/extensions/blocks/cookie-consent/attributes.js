@@ -6,7 +6,7 @@ export default {
 		source: 'html',
 		selector: 'p',
 		default: __(
-			'Privacy & Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href=https://automattic.com/cookies/>Cookie Policy</a>.',
+			'Privacy &amp; Cookies: This site uses cookies. By continuing to use this website, you agree to their use. To find out more, including how to control cookies, see here: <a href="https://automattic.com/cookies/">Cookie Policy</a>.',
 			'jetpack'
 		),
 	},

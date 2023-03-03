@@ -68,6 +68,7 @@ export async function fetchVideoItem( {
 		return await apiFetch( {
 			url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
 			credentials: 'omit',
+			global: true,
 		} );
 	} catch ( errorData ) {
 		debug( 'updating retry from', retries, 'to', retries + 1 );
