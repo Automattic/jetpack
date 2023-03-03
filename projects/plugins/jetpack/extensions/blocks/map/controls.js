@@ -32,7 +32,7 @@ export default ( {
 		setAttributes( { align: value } );
 
 		// Allow one cycle for alignment change to take effect
-		if ( mapRef.current && mapRef.current.sizeMap ) {
+		if ( mapRef.current?.sizeMap ) {
 			setTimeout( mapRef.current.sizeMap, 0 );
 		}
 	};
