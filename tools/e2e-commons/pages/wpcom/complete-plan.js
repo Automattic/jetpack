@@ -4,7 +4,7 @@ import logger from '../../logger.cjs';
 export default class CompletePage extends WpPage {
 	constructor( page ) {
 		super( page, {
-			expectedSelectors: [ 'div.jetpack-complete-page__main' ],
+			expectedSelectors: [ 'main.jetpack-complete-page__main' ],
 			explicitWaitMS: 40000,
 		} );
 	}
