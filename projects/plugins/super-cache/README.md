@@ -10,6 +10,7 @@ A very fast caching engine for WordPress that produces static html files.
 
 ## Get Help
 Support is handled via the .org support forums.
+
 ## Security
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
