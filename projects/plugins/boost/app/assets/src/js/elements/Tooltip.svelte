@@ -1,23 +1,10 @@
 <script lang="ts">
-	import CloseButton from './CloseButton.svelte';
-
 	export let title = '';
-	let isOpened = false;
-
-	function toggleTooltip() {
-		isOpened = ! isOpened;
-	}
-
-	function closeTooltip() {
-		isOpened = false;
-	}
 </script>
 
-<div class="jb-tooltip{isOpened ? ' show-tooltip' : ''}">
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<span class="jb-tooltip__info-icon" on:click={toggleTooltip}>i</span>
+<div class="jb-tooltip">
+	<span class="jb-tooltip__info-icon">i</span>
 	<div class="jb-tooltip__info-container">
-		<CloseButton on:click={closeTooltip} />
 		{#if title}
 			<div class="jp-tooltip__info-title">
 				{title}
@@ -127,24 +114,9 @@
 			}
 		}
 
-		&.show-tooltip {
+		&:hover {
 			.jb-tooltip__info-container {
 				display: block;
-			}
-		}
-
-		:global( .cross-close ) {
-			top: 26px;
-			right: 26px;
-			width: 24px;
-			height: 24px;
-
-			&:before,
-			&:after {
-				height: 14px;
-				left: 11px;
-				top: 5px;
-				background-color: $primary-black;
 			}
 		}
 	}
