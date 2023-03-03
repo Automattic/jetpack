@@ -197,5 +197,15 @@ describe( 'useMediaRestrictions hook', () => {
 
 			expect( validationErrors.every( error => error === null ) ).toBe( true );
 		} );
+
+		test( 'No error with empty connections', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: [],
+			} );
+
+			expect( () => {
+				expect( result.current ).toBeDefined();
+			} ).not.toThrow( TypeError );
+		} );
 	} );
 } );
