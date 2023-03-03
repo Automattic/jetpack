@@ -449,12 +449,23 @@ class Jetpack_Gutenberg {
 	 */
 	public static function is_newsletter_enabled() {
 		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-		return (
-			apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-			&& class_exists( 'Jetpack_Memberships' )
-			// && Jetpack_Memberships::get_connected_account_id() - Returns False - TODO: Investigate
-			// && Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) -  Returns False - TODO: Investigate
-		);
+
+		// Jetpack has not not yet configured
+		if ( ! class_exists( '\Jetpack_Memberships' ) ) {
+			return false;
+		}
+
+		// Stripe has not yet been connected
+		if ( empty( \Jetpack_Memberships::get_connected_account_id() ) ) {
+			return false;
+		}
+
+		// Newsletter plan has not yet ben configured
+		if ( empty( Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) ) {
+			return false;
+		}
+
+		return apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false );
 	}
 
 	/**
