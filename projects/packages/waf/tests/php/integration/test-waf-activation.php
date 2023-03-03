@@ -50,6 +50,21 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Return a 503 wpcom rules response.
+	 *
+	 * @return array
+	 */
+	public function return_503_response() {
+		return array(
+			'body'     => '',
+			'response' => array(
+				'code'    => 503,
+				'message' => '',
+			),
+		);
+	}
+
+	/**
 	 * Return an invalid filesystem method.
 	 *
 	 * @return string
@@ -90,6 +105,23 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Test WAF deactivation.
+	 */
+	public function testDeactivation() {
+		$deactivated = Waf_Initializer::on_deactivation();
+
+		// Ensure the WAF was deactivated successfully.
+		$this->assertTrue( $deactivated );
+
+		// Ensure the options were deleted.
+		$this->assertSame( get_option( Waf_Runner::SHARE_DATA_OPTION_NAME ), false );
+		$this->assertSame( get_option( Waf_Runner::MODE_OPTION_NAME ), false );
+
+		// Ensure the rules entrypoint file was emptied.
+		$this->assertSame( file_get_contents( Waf_Runner::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ) ), "<?php\n" );
+	}
+
+	/**
 	 * Test WAF activation when the filesystem is unavailable.
 	 */
 	public function testActivationReturnsWpErrorWhenFilesystemUnavailable() {
@@ -127,6 +159,24 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 
 		// Clean up.
 		remove_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
+	}
+
+	/**
+	 * Test WAF activation when the rules API request fails.
+	 */
+	public function testActivationReturnsWpErrorWhenRulesApiRequestFails() {
+		// Mock the WPCOM request for retrieving the automatic rules.
+		add_filter( 'pre_http_request', array( $this, 'return_503_response' ) );
+
+		// Initialize the firewall.
+		$activated = Waf_Initializer::on_activation();
+
+		// Validate the error.
+		$this->assertTrue( is_wp_error( $activated ) );
+		$this->assertSame( 'rules_api_error', $activated->get_error_code() );
+
+		// Clean up.
+		remove_filter( 'pre_http_request', array( $this, 'return_503_response' ) );
 	}
 
 }
