@@ -305,4 +305,55 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		$this->assertFalse( Utils::ip_address_is_in_range( $out_range_ip, $range_low, $range_high ) );
 	}
 
+	/**
+	 * Test `get_ip_addresses_from_string`.
+	 * Covers IPv4 and IPv6 addresses, including ranges, concatenated with various delimiters.
+	 *
+	 * @covers ::get_ip_addresses_from_string
+	 */
+	public function test_get_ip_addresses_from_string() {
+		$ip_string =
+			// IPv4.
+			"1.1.1.1\n2.2.2.2,3.3.3.3;4.4.4.4 5.5.5.5-6.6.6.6\n" .
+			// IPv6.
+			"2001:db8::1\n2001:db8::2,2001:db8::3;2001:db8::4 2001:db8::5-2001:db8::6\n" .
+			// Invalid IP addresses.
+			'hello world - 1.2.3:4,9999:9999:9999.9999:9999:9999:9999';
+
+		$expected = array(
+			'1.1.1.1',
+			'2.2.2.2',
+			'3.3.3.3',
+			'4.4.4.4',
+			'5.5.5.5-6.6.6.6',
+			'2001:db8::1',
+			'2001:db8::2',
+			'2001:db8::3',
+			'2001:db8::4',
+			'2001:db8::5-2001:db8::6',
+		);
+
+		$this->assertEquals( $expected, Utils::get_ip_addresses_from_string( $ip_string ) );
+	}
+
+	/**
+	 * Test `validate_ip_range`.
+	 *
+	 * @covers ::validate_ip_range
+	 */
+	public function test_validate_ip_range() {
+		// Valid range.
+		$this->assertTrue( Utils::validate_ip_range( '1.1.1.1', '2.2.2.2' ) );
+		$this->assertTrue( Utils::validate_ip_range( '2001:db8::1', '2001:db8::2' ) );
+
+		// Invalid ranges.
+		$this->assertFalse( Utils::validate_ip_range( '2.2.2.2', '1.1.1.1' ) );
+		$this->assertFalse( Utils::validate_ip_range( '2001:db8::2', '2001:db8::1' ) );
+		$this->assertFalse( Utils::validate_ip_range( '1.1.1', '2.2.2.2' ) );
+
+		// Ranges with the same low and high address are still considered valid.
+		$this->assertTrue( Utils::validate_ip_range( '1.1.1.1', '1.1.1.1' ) );
+		$this->assertTrue( Utils::validate_ip_range( '2001:db8::1', '2001:db8::1' ) );
+	}
+
 }
