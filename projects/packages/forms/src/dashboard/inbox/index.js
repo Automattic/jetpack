@@ -15,31 +15,31 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 20;
+const RESPONSES_FETCH_LIMIT = 5;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
-	const [ searchText, setSearchText ] = useState( '' );
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-	const [ searchTerm, setSearchTerm ] = useState( searchText );
 	const [ view, setView ] = useState( 'list' );
 
-	const { invalidateResolution } = useDispatch( STORE_NAME );
-	const [ loading, responses, total ] = useSelect(
-		select => {
-			const stateSelector = select( STORE_NAME );
-			return [
-				stateSelector.isFetchingResponses(),
-				stateSelector.getResponses(
-					searchTerm,
-					RESPONSES_FETCH_LIMIT,
-					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
-				),
-				stateSelector.getTotalResponses(),
-			];
-		},
-		[ searchTerm, currentPage ]
-	);
+	const { invalidateResolution, setSearch, setCurrentPage } = useDispatch( STORE_NAME );
+	const [ loading, responses, total, search, currentPage ] = useSelect( select => {
+		const stateSelector = select( STORE_NAME );
+		const searchTerm = stateSelector.getSearch();
+		const page = stateSelector.getCurrentPage();
+		return [
+			stateSelector.isFetchingResponses(),
+			stateSelector.getResponses(
+				searchTerm,
+				RESPONSES_FETCH_LIMIT,
+				( page - 1 ) * RESPONSES_FETCH_LIMIT
+			),
+			stateSelector.getTotalResponses(),
+			searchTerm,
+			page,
+		];
+	} );
+
+	const [ searchText, setSearchText ] = useState( search );
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -51,19 +51,18 @@ const Inbox = () => {
 
 	useEffect( () => {
 		invalidateResolution( 'getResponses', [
-			searchTerm,
+			search,
 			RESPONSES_FETCH_LIMIT,
 			( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
 		] );
-	}, [ searchTerm, currentPage, invalidateResolution ] );
+	}, [ search, currentPage, invalidateResolution ] );
 
 	const handleSearch = useCallback(
 		event => {
 			event.preventDefault();
-			setSearchTerm( searchText );
-			setCurrentPage( 1 );
+			setSearch( searchText );
 		},
-		[ searchText ]
+		[ searchText, setSearch ]
 	);
 
 	const selectResponse = useCallback( id => {
