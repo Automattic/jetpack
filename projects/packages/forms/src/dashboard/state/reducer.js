@@ -5,7 +5,13 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { RESPONSES_FETCH, RESPONSES_FETCH_RECEIVE, RESPONSES_FETCH_FAIL } from './action-types';
+import {
+	INBOX_CURRENT_PAGE,
+	INBOX_SEARCH,
+	RESPONSES_FETCH,
+	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_FETCH_FAIL,
+} from './action-types';
 
 const loading = ( state = false, action ) => {
 	if ( action.type === RESPONSES_FETCH ) {
@@ -43,8 +49,30 @@ const total = ( state = 0, action ) => {
 	return state;
 };
 
+const search = ( state = '', action ) => {
+	if ( action.type === INBOX_SEARCH ) {
+		return action.search;
+	}
+
+	return state;
+};
+
+const currentPage = ( state = 1, action ) => {
+	if ( action.type === INBOX_CURRENT_PAGE ) {
+		return action.currentPage;
+	}
+
+	if ( action.type === INBOX_SEARCH ) {
+		return 1;
+	}
+
+	return state;
+};
+
 export default combineReducers( {
 	loading,
 	responses,
 	total,
+	search,
+	currentPage,
 } );
