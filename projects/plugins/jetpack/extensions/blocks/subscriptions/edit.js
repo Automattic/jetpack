@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
 	BlockControls,
@@ -27,6 +28,7 @@ import {
 } from './constants';
 import SubscriptionControls from './controls';
 import { SubscriptionsPlaceholder } from './subscription-placeholder';
+import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
 import GetAddPaidPlanButton, { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
@@ -231,7 +233,7 @@ export function SubscriptionEdit( props ) {
 	] );
 
 	if ( isLoadingModules ) {
-		return null;
+		return <SubscriptionSkeletonLoader />;
 	}
 
 	if ( ! isModuleActive ) {
@@ -313,6 +315,12 @@ export function SubscriptionEdit( props ) {
 	);
 }
 
+const withThemeProvider = WrappedComponent => props => (
+	<ThemeProvider>
+		<WrappedComponent { ...props } />
+	</ThemeProvider>
+);
+
 export default compose( [
 	withSelect( select => {
 		const newsletterPlans = select( 'jetpack/membership-products' )
@@ -330,4 +338,5 @@ export default compose( [
 	),
 	withFontSizes( 'fontSize' ),
 	applyFallbackStyles,
+	withThemeProvider,
 ] )( SubscriptionEdit );
