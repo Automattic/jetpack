@@ -2572,10 +2572,13 @@ class Share_Pinterest extends Sharing_Source {
 						var shares = document.querySelectorAll( 'li.share-pinterest' );
 						for ( var i = 0; i < shares.length; i++ ) {
 							var share = shares[ i ];
-							var countComputedStyle = window.getComputedStyle(share.querySelector( 'a span' ));
-							if ( countComputedStyle.display === 'block' ) {
-								var countWidth = parseInt( countComputedStyle.width, 10 );
-								share.style.marginRight = countWidth + 11 + 'px';
+							var countElement = share.querySelector( 'a span' );
+							if (countElement) {
+								var countComputedStyle = window.getComputedStyle(countElement);
+								if ( countComputedStyle.display === 'block' ) {
+									var countWidth = parseInt( countComputedStyle.width, 10 );
+									share.style.marginRight = countWidth + 11 + 'px';
+								}
 							}
 						}
 					}
