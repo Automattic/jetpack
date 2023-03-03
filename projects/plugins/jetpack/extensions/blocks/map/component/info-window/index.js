@@ -1,13 +1,13 @@
 import { getMapProvider } from '../../utils';
-import MapboxComponent from './mapbox';
-import MapkitComponent from './mapkit';
+import MapboxInfoWindow from './mapbox';
+import MapkitInfoWindow from './mapkit';
 
-const MapComponent = props => {
+const InfoWindow = props => {
 	const mapProvider = getMapProvider();
 	if ( mapProvider === 'mapkit' ) {
-		return <MapkitComponent { ...props } />;
+		return <MapkitInfoWindow { ...props } />;
 	}
-	return <MapboxComponent { ...props } />;
+	return <MapboxInfoWindow { ...props } />;
 };
 
-export default MapComponent;
+export default InfoWindow;
