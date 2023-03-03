@@ -45,7 +45,7 @@ function pointsToMapRegion( mapkit, points ) {
 	return new mapkit.CoordinateRegion( center, span );
 }
 
-function createCalloutElement( currentDoc, callback ) {
+function createCalloutElementCallback( currentDoc, callback ) {
 	return () => {
 		const element = currentDoc.createElement( 'div' );
 		element.classList.add( 'mapkit-popup-content' );
@@ -57,6 +57,6 @@ function createCalloutElement( currentDoc, callback ) {
 export {
 	convertZoomLevelToCameraDistance,
 	convertCameraDistanceToZoomLevel,
-	createCalloutElement,
+	createCalloutElementCallback,
 	pointsToMapRegion,
 };

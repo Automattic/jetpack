@@ -12,7 +12,7 @@ import {
 	useMapkitZoom,
 	useMapkitPoints,
 } from '../mapkit/hooks';
-import { createCalloutElement } from '../mapkit-utils';
+import { createCalloutElementCallback } from '../mapkit-utils';
 import InfoWindow from './info-window';
 
 const MapkitComponent = forwardRef( ( props, mapRef ) => {
@@ -87,7 +87,7 @@ const MapkitHelpers = memo(
 		useMapkitPoints(
 			points,
 			markerColor,
-			createCalloutElement( currentDoc, setCalloutReference ),
+			createCalloutElementCallback( currentDoc, setCalloutReference ),
 			onSelect
 		);
 		useMapkitOnMapLoad( onMapLoaded );
