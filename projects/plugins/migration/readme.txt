@@ -39,5 +39,6 @@ If you need a little help during or after the migration, you’ll have round-the
 3. Next, click the Activate button. After activating, you can navigate to Move to WordPress.com in your admin area.
 
 == Changelog ==
-
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+### 0.1.0 - 2023-03-01
+#### Added
+- Initial release

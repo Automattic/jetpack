@@ -6,7 +6,6 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useEffect, useCallback } from 'react';
-import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo } from '../illustrations';
 import migrationImage2 from './../../../../images/migration-2.png';
 import './styles.module.scss';
@@ -55,7 +54,9 @@ export function MigrationProgress( props: Props ) {
 				<Button
 					isSecondary={ true }
 					target={ '_blank' }
-					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
+					href={ getRedirectUrl( 'wpcom-migration-handler-route', {
+						query: `from=${ sourceSiteSlug }`,
+					} ) }
 					onClick={ onCheckProgressClick }
 				>
 					{ __( 'Check your migration progress', 'wpcom-migration' ) }
@@ -66,10 +67,7 @@ export function MigrationProgress( props: Props ) {
 					__( 'Do you need help? <Button>Contact us.</Button>', 'wpcom-migration' ),
 					{
 						Button: (
-							<Button
-								href={ getRedirectUrl( 'https://wordpress.com/support/help-support-options/' ) }
-								target={ '_blank' }
-							/>
+							<Button href={ getRedirectUrl( 'wpcom-migration-contact-us' ) } target={ '_blank' } />
 						),
 					}
 				) }
