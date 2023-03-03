@@ -765,27 +765,20 @@ function stats_print_odyssey_nudge( $html ) {
 	<style>
 		.ace-notice {
 			display: flex;
-			/* align-items: flex-start; */
 			font-size: var( --font-body );
 
 			border: 1px solid var( --jp-gray-5 );
 			border-radius: 4px;
 			border-color: var( --jp-black );
 			border-left-width: 6px;
-			/* padding: 24px 31px 27px 18px; */
 
 			margin-top: 24px;
 			background: white;
 			position: relative;
 		}
 		.ace-notice--content {
-			/* flex-grow: 1; */
-			/* height: auto; */
-			/* width: 60%; */
 			padding: 24px 0 27px 18px;
 			font-size: 2em;
-
-			/* background-color: #ddffff; */
 		}
 		.ace-notice--content-header {
 			font-size: 16px;
@@ -799,10 +792,6 @@ function stats_print_odyssey_nudge( $html ) {
 		.ace-image-container {
 			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
 			background-size: cover;
-			/* max-width: 100%; */
-			/* height: auto; */
-
-			/* background-color: red; */
 			padding-right: 28px;
 		}
 		.ace-image-container--image {
@@ -858,17 +847,6 @@ function stats_print_odyssey_nudge( $html ) {
 		}
 		.is-hidden {
 			display: none;
-		}
-		.bg-image {
-			height: 500px;
-			width: 200px;
-			background-position: right;
-			background-repeat: no-repeat;
-			background-size: cover;
-			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png");
-			/* background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png"); */
-			/* background-image: url("/wp-content/plugins/jetpack/images/connect-right-partner-backup.png"); */
-			/* background-image: url("https://start.duckduckgo.com/assets/logo_homepage.alt.v108.svg"); */
 		}
 	</style>
 	<div id="stats-odyssey-nudge-main" class="ace-notice">
