@@ -94,7 +94,7 @@ trait Import {
 		$status = $response->get_status();
 
 		// Skip if the resource has not been added or modified.
-		if ( ! ( $data === 200 || $data === 201 ) ) {
+		if ( ! ( $status === 200 || $status === 201 ) ) {
 			return $response;
 		}
 
