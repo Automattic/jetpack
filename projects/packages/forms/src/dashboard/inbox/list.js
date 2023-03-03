@@ -32,6 +32,10 @@ const InboxList = ( { currentResponseId, responses, setCurrentResponseId } ) => 
 		[ currentResponseId, responses, setCurrentResponseId ]
 	);
 
+	if ( responses.length === 0 ) {
+		return null;
+	}
+
 	return (
 		<>
 			<Table
