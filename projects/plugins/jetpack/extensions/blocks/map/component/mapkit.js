@@ -44,7 +44,7 @@ const MapkitComponent = forwardRef( ( props, mapRef ) => {
 				style={ { height: props.mapHeight ? `${ props.mapHeight }px` : '400px' } }
 				className="wp-block-jetpack-map__gm-container"
 				ref={ mapRef }
-			></div>
+			/>
 			{ addPoint }
 			<InfoWindow />
 		</MapkitProvider>
