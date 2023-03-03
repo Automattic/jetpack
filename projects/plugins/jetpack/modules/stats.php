@@ -763,7 +763,7 @@ function stats_print_odyssey_nudge( $html ) {
 	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
 	?>
 	<style>
-		.ace-notice {
+		.stats-odyssey-notice {
 			display: flex;
 			font-size: var( --font-body );
 
@@ -776,29 +776,29 @@ function stats_print_odyssey_nudge( $html ) {
 			background: white;
 			position: relative;
 		}
-		.ace-notice--content {
+		.stats-odyssey-notice--content {
 			padding: 24px 0 27px 18px;
 			font-size: 2em;
 		}
-		.ace-notice--content-header {
+		.stats-odyssey-notice--content-header {
 			font-size: 16px;
 			margin: 0;
 			margin-bottom: 8px;
 		}
-		.ace-notice--content-text {
+		.stats-odyssey-notice--content-text {
 			font-size: 16px;
 			margin: 0;
 		}
-		.ace-image-container {
+		.stats-odyssey-notice--image-container {
 			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
 			background-size: cover;
 			padding-right: 28px;
 		}
-		.ace-image-container--image {
+		.stats-odyssey-notice--image {
 			max-height: 200px;
 			object-fit: cover;
 		}
-		.stats-odyssey-nudge--close-button {
+		.stats-odyssey-notice--close-button {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
@@ -806,12 +806,12 @@ function stats_print_odyssey_nudge( $html ) {
 			border: none;
 			cursor: pointer;
 		}
-		.stats-odyssey-nudge--action-bar {
+		.stats-odyssey-notice--action-bar {
 			display: flex;
 			align-items: center;
 			margin-top: 24px;
 		}
-		.stats-odyssey-nudge--primary-button {
+		.stats-odyssey-notice--primary-button {
 			margin-right: 18px;
 			padding-left: 20px;
 			padding-right: 20px;
@@ -819,7 +819,7 @@ function stats_print_odyssey_nudge( $html ) {
 			border-color: black;
 			background-color: black;
 		}
-		.stats-odyssey-nudge--primary-button:hover {
+		.stats-odyssey-notice--primary-button:hover {
 			border-color: #3c434a;
 			background-color: #3c434a;
 		}
@@ -849,21 +849,21 @@ function stats_print_odyssey_nudge( $html ) {
 			display: none;
 		}
 	</style>
-	<div id="stats-odyssey-nudge-main" class="ace-notice">
-		<div class="ace-notice--content">
-			<h2 class="ace-notice--content-header">Explore the new Jetpack Stats</h2>
-			<p class="ace-notice--content-text">We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
-			<div class="stats-odyssey-nudge--action-bar">
-				<button class="dops-button stats-odyssey-nudge--primary-button">
+	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
+		<div class="stats-odyssey-notice--content">
+			<h2 class="stats-odyssey-notice--content-header">Explore the new Jetpack Stats</h2>
+			<p class="stats-odyssey-notice--content-text">We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
+			<div class="stats-odyssey-notice--action-bar">
+				<button class="dops-button stats-odyssey-notice--primary-button">
 					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
 				</button>
 				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
 			</div>
 		</div>
-		<div class="ace-image-container">
-			<img class="ace-image-container--image" src="/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png">
+		<div class="stats-odyssey-notice--image-container">
+			<img class="stats-odyssey-notice--image" src="/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png">
 		</div>
-		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
+		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
 }
