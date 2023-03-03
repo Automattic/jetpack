@@ -6,13 +6,15 @@ import { useParentAttributes } from '../util/use-parent-attributes';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
 export const JetpackFieldOptionEdit = props => {
-	const { attributes, clientId, onReplace, setAttributes } = props;
+	const { attributes, clientId, name, onReplace, setAttributes } = props;
 	const { removeBlock } = useDispatch( 'core/block-editor' );
 	const parentAttributes = useParentAttributes( clientId );
 	const { optionStyle } = useJetpackFieldStyles( parentAttributes );
 
+	const type = name.replace( 'jetpack/field-option-', '' );
+
 	const handleSplit = label =>
-		createBlock( 'jetpack/field-option', {
+		createBlock( name, {
 			...attributes,
 			clientId: label && attributes.label.indexOf( label ) === 0 ? attributes.clientId : undefined,
 			label,
@@ -28,9 +30,9 @@ export const JetpackFieldOptionEdit = props => {
 
 	return (
 		<div className="jetpack-field-option">
-			<input type={ attributes.fieldType } className="jetpack-option__type" />
+			<input type={ type } className="jetpack-option__type" />
 			<RichText
-				allowedFormats={ [ 'core/bold', 'core/italic' ] }
+				allowedFormats={ [] }
 				onChange={ value => {
 					setAttributes( { label: value } );
 				} }

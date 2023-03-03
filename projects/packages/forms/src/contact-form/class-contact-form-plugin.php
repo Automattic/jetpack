@@ -368,15 +368,21 @@ class Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
-			'jetpack/field-option',
+			'jetpack/field-option-checkbox',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option_checkbox' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option_radio' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -557,16 +563,28 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Render the multiple/single field option.
+	 * Render the multiple choice field option.
 	 *
 	 * @param array  $atts - the block attributes.
 	 * @param string $content - html content.
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_option( $atts, $content ) {
-		$type = isset( $atts['fieldType'] ) ? $atts['fieldType'] . '-option' : 'checkbox-option';
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, $type );
+	public static function gutenblock_render_field_option_checkbox( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-option' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the single choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option_radio( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio-option' );
 		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 

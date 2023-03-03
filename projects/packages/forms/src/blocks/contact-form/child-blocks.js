@@ -164,18 +164,37 @@ const FieldDefaults = {
 	example: {},
 };
 
-const multiFieldV1 = {
+const OptionFieldDefaults = {
+	category: 'contact-form',
+	edit: JetpackFieldOptionEdit,
+	attributes: {
+		label: {
+			type: 'string',
+		},
+		fieldType: {
+			enum: [ 'checkbox', 'radio' ],
+			default: 'checkbox',
+		},
+	},
+	supports: {
+		reusable: false,
+		html: false,
+	},
+};
+
+const multiFieldV1 = fieldType => ( {
 	attributes: {
 		...FieldDefaults.attributes,
-		// label: {
-		// 	type: 'string',
-		// 	default: 'Choose several options',
-		// }
+		label: {
+			type: 'string',
+			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+		},
 	},
 	migrate: attributes => {
+		const blockName = `jetpack/field-option-${ fieldType }`;
 		const nonEmptyOptions = filter( attributes.options, o => ! isEmpty( trim( o ) ) );
 		const newInnerBlocks = map( nonEmptyOptions, option =>
-			createBlock( 'jetpack/field-option', {
+			createBlock( blockName, {
 				label: option,
 			} )
 		);
@@ -186,7 +205,7 @@ const multiFieldV1 = {
 	},
 	isEligible: attr => attr.options && filter( attr.options, o => ! isEmpty( trim( o ) ) ).length,
 	save: () => null,
-};
+} );
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
@@ -540,33 +559,33 @@ export const childBlocks = [
 		},
 	},
 	{
-		name: 'field-option',
+		name: 'field-option-checkbox',
 		settings: {
-			category: 'contact-form',
+			...OptionFieldDefaults,
 			parent: [ 'jetpack/field-checkbox-multiple' ],
 			title: __( 'Multiple Choice Option', 'jetpack-forms' ),
-			keywords: [ __( 'TBD', 'jetpack-forms' ) ],
-			description: __( 'TDB', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<>
+					<Path
+						d="M5.5 10.5H8.5V13.5H5.5V10.5ZM8.5 9H5.5C4.67157 9 4 9.67157 4 10.5V13.5C4 14.3284 4.67157 15 5.5 15H8.5C9.32843 15 10 14.3284 10 13.5V10.5C10 9.67157 9.32843 9 8.5 9ZM12 12.75H20V11.25H12V12.75Z"
+						fill={ getIconColor() }
+					/>
+				</>
+			),
+		},
+	},
+	{
+		name: 'field-option-radio',
+		settings: {
+			...OptionFieldDefaults,
+			parent: [ 'jetpack/field-radio' ],
+			title: __( 'Single Choice Option', 'jetpack-forms' ),
 			icon: renderMaterialIcon(
 				<Path
-					fill="#FF00FF"
-					d="M7.0812 10.1419L10.6001 5.45005L9.40006 4.55005L6.91891 7.85824L5.53039 6.46972L4.46973 7.53038L7.0812 10.1419ZM12 8.5H20V7H12V8.5ZM12 17H20V15.5H12V17ZM8.5 14.5H5.5V17.5H8.5V14.5ZM5.5 13H8.5C9.32843 13 10 13.6716 10 14.5V17.5C10 18.3284 9.32843 19 8.5 19H5.5C4.67157 19 4 18.3284 4 17.5V14.5C4 13.6716 4.67157 13 5.5 13Z"
+					d="M7.5 13.5C6.67157 13.5 6 12.8284 6 12C6 11.1716 6.67157 10.5 7.5 10.5C8.32843 10.5 9 11.1716 9 12C9 12.8284 8.32843 13.5 7.5 13.5ZM4.5 12C4.5 13.6569 5.84315 15 7.5 15C9.15685 15 10.5 13.6569 10.5 12C10.5 10.3431 9.15685 9 7.5 9C5.84315 9 4.5 10.3431 4.5 12ZM12.5 12.75H20.5V11.25H12.5V12.75Z"
+					fill={ getIconColor() }
 				/>
 			),
-			edit: JetpackFieldOptionEdit,
-			attributes: {
-				label: {
-					type: 'string',
-				},
-				fieldType: {
-					enum: [ 'checkbox', 'radio' ],
-					default: 'checkbox',
-				},
-			},
-			supports: {
-				reusable: false,
-				html: false,
-			},
 		},
 	},
 	{
@@ -594,7 +613,7 @@ export const childBlocks = [
 					default: 'Choose several options',
 				},
 			},
-			deprecated: [ multiFieldV1 ],
+			deprecated: [ multiFieldV1( 'checkbox' ) ],
 		},
 	},
 	{
@@ -628,7 +647,7 @@ export const childBlocks = [
 					default: 'Choose one option',
 				},
 			},
-			deprecated: [ multiFieldV1 ],
+			deprecated: [ multiFieldV1( 'radio' ) ],
 		},
 	},
 	{
