@@ -1,5 +1,6 @@
 import { useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
 
@@ -33,7 +34,12 @@ const InboxList = ( { currentResponseId, responses, setCurrentResponseId } ) => 
 
 	return (
 		<>
-			<Table className="jp-forms__inbox-list" columns={ COLUMNS } items={ tableItems } />
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ COLUMNS }
+				items={ tableItems }
+				onSelectionChange={ noop }
+			/>
 
 			<PageNavigation
 				currentPage={ currentPage }

@@ -2,6 +2,8 @@ import { Fragment, useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
+const stopPropagation = event => event.stopPropagation();
+
 const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
@@ -19,6 +21,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 					<input
 						className="jp-forms__table-checkbox"
 						type="checkbox"
+						onClick={ stopPropagation }
 						onChange={ handleChange }
 						checked={ isSelected }
 					/>
