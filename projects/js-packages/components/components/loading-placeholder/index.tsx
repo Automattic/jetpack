@@ -14,10 +14,7 @@ const LoadingPlaceholder = ( {
 	className?: string;
 } ) => {
 	return (
-		<div
-			className={ classNames( styles.loadingPlaceholder, className ) }
-			style={ { width, height } }
-		>
+		<div className={ classNames( styles.placeholder, className ) } style={ { width, height } }>
 			{ children }
 		</div>
 	);
