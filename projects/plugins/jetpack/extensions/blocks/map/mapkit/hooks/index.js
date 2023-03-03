@@ -108,6 +108,7 @@ const useMapkitInit = ( mapkit, loaded, mapRef ) => {
 const useMapkitCenter = ( center, setCenter ) => {
 	const { mapkit, map } = useMapkit();
 	const memoizedCenter = useRef( center );
+	const memoizedSetCenter = useRef( setCenter );
 
 	useEffect( () => {
 		if ( ! mapkit || ! map || ! memoizedCenter.current ) {
@@ -131,7 +132,7 @@ const useMapkitCenter = ( center, setCenter ) => {
 		const changeRegion = () => {
 			if ( map.center ) {
 				const { latitude, longitude } = map.center;
-				setCenter( { lat: latitude, lng: longitude } );
+				memoizedSetCenter.current( { lat: latitude, lng: longitude } );
 			}
 		};
 
@@ -140,7 +141,7 @@ const useMapkitCenter = ( center, setCenter ) => {
 		return () => {
 			map.removeEventListener( 'region-change-end', changeRegion );
 		};
-	}, [ mapkit, map, setCenter ] );
+	}, [ mapkit, map, memoizedSetCenter ] );
 };
 
 const useMapkitType = mapStyle => {
