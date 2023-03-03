@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Forms Responses endpoint: fix permission check.

@@ -1,5 +1,5 @@
 === WP Super Cache ===
-Contributors: donncha, automattic, adnan007, ppetrov2c, pyronaur, thingalon
+Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
 Requires at least: 5.9
 Requires PHP: 5.6
@@ -278,6 +278,7 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 #### Fixed
 - Fixed undefined PHP variable when trying to delete a protected folder.
+- Fixed deprecation warnings on PHP 8.1+.
 
 --------
 
