@@ -13,7 +13,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 5;
+const RESPONSES_FETCH_LIMIT = 20;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
