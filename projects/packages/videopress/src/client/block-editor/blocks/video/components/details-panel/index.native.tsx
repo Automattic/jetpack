@@ -27,12 +27,14 @@ export default function DetailsPanel( { attributes, setAttributes }: VideoContro
 				initialValue={ title }
 				onChange={ value => setAttributes( { title: value } ) }
 				placeholder={ __( 'Add title', 'jetpack-videopress-pkg' ) }
+				cellPlaceholder={ __( 'None', 'jetpack-videopress-pkg' ) }
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 			/>
 			<BottomSheetTextControl
 				initialValue={ description }
 				onChange={ value => setAttributes( { description: value } ) }
 				placeholder={ __( 'Add description', 'jetpack-videopress-pkg' ) }
+				cellPlaceholder={ __( 'None', 'jetpack-videopress-pkg' ) }
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 			/>
 		</PanelBody>
