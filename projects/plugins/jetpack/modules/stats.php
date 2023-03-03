@@ -519,7 +519,6 @@ function stats_reports_page( $main_chart_only = false ) {
 			$static_url = apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" );
 			?>
 			</h2>
-			<?php stats_print_odyssey_nudge( '' ); ?>
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
@@ -753,8 +752,11 @@ function stats_should_show_odyssey_nudge() {
  * @return void
  */
 function stats_print_odyssey_nudge( $html ) {
-	// Silence linter.
-	if ( $html && false ) {
+	if ( ! stats_should_show_odyssey_nudge() ) {
+		return;
+	}
+	$pos = strpos( $html, STATS_CONTENT_MARKER );
+	if ( $pos === false ) {
 		return;
 	}
 	$learn_url    = Redirect::get_url( 'jetpack-stats-learn-more' );
