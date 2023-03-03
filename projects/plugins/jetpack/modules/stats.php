@@ -795,8 +795,7 @@ function stats_print_odyssey_nudge( $html ) {
 			padding-right: 28px;
 		}
 		.stats-odyssey-notice--image {
-			max-height: 200px;
-			object-fit: cover;
+			max-height: 210px;
 		}
 		@media (max-width: 920px) {
 			.stats-odyssey-notice--image {
