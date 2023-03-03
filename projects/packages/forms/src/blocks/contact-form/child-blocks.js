@@ -1,12 +1,15 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { filter, isEmpty, map, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
 import JetpackDropdown from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import { JetpackFieldOptionEdit } from './components/jetpack-field-option';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
@@ -32,7 +35,7 @@ const FieldDefaults = {
 		},
 		options: {
 			type: 'array',
-			default: [ '' ],
+			default: [],
 		},
 		defaultValue: {
 			type: 'string',
@@ -159,6 +162,30 @@ const FieldDefaults = {
 	},
 	save: () => null,
 	example: {},
+};
+
+const multiFieldV1 = {
+	attributes: {
+		...FieldDefaults.attributes,
+		// label: {
+		// 	type: 'string',
+		// 	default: 'Choose several options',
+		// }
+	},
+	migrate: attributes => {
+		const nonEmptyOptions = filter( attributes.options, o => ! isEmpty( trim( o ) ) );
+		const newInnerBlocks = map( nonEmptyOptions, option =>
+			createBlock( 'jetpack/field-option', {
+				label: option,
+			} )
+		);
+
+		attributes.options = [];
+
+		return [ attributes, newInnerBlocks ];
+	},
+	isEligible: attr => attr.options && filter( attr.options, o => ! isEmpty( trim( o ) ) ).length,
+	save: () => null,
 };
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {
@@ -513,6 +540,36 @@ export const childBlocks = [
 		},
 	},
 	{
+		name: 'field-option',
+		settings: {
+			category: 'contact-form',
+			parent: [ 'jetpack/field-checkbox-multiple' ],
+			title: __( 'Multiple Choice Option', 'jetpack-forms' ),
+			keywords: [ __( 'TBD', 'jetpack-forms' ) ],
+			description: __( 'TDB', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<Path
+					fill="#FF00FF"
+					d="M7.0812 10.1419L10.6001 5.45005L9.40006 4.55005L6.91891 7.85824L5.53039 6.46972L4.46973 7.53038L7.0812 10.1419ZM12 8.5H20V7H12V8.5ZM12 17H20V15.5H12V17ZM8.5 14.5H5.5V17.5H8.5V14.5ZM5.5 13H8.5C9.32843 13 10 13.6716 10 14.5V17.5C10 18.3284 9.32843 19 8.5 19H5.5C4.67157 19 4 18.3284 4 17.5V14.5C4 13.6716 4.67157 13 5.5 13Z"
+				/>
+			),
+			edit: JetpackFieldOptionEdit,
+			attributes: {
+				label: {
+					type: 'string',
+				},
+				fieldType: {
+					enum: [ 'checkbox', 'radio' ],
+					default: 'checkbox',
+				},
+			},
+			supports: {
+				reusable: false,
+				html: false,
+			},
+		},
+	},
+	{
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
@@ -529,6 +586,7 @@ export const childBlocks = [
 				/>
 			),
 			edit: editMultiField( 'checkbox' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -536,6 +594,7 @@ export const childBlocks = [
 					default: 'Choose several options',
 				},
 			},
+			deprecated: [ multiFieldV1 ],
 		},
 	},
 	{
@@ -561,6 +620,7 @@ export const childBlocks = [
 				</Fragment>
 			),
 			edit: editMultiField( 'radio' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -568,6 +628,7 @@ export const childBlocks = [
 					default: 'Choose one option',
 				},
 			},
+			deprecated: [ multiFieldV1 ],
 		},
 	},
 	{

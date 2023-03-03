@@ -589,6 +589,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
+		$field .= $this->content;
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
@@ -670,6 +671,7 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
+		$field .= $this->content;
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
@@ -682,6 +684,27 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			}
 		}
 		$field .= '</div>';
+
+		return $field;
+	}
+
+	/**
+	 * Return the HTML for the field option.
+	 *
+	 * @param int    $id - the ID.
+	 * @param string $label - the label.
+	 * @param string $type - the type of the field.
+	 * @param string $class - the field class.
+	 *
+	 * @return string HTML
+	 */
+	private function render_field_option( $id, $label, $type, $class ) {
+		$field_style = 'style="' . $this->option_styles . '"';
+
+		$field  = "<label {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
+		$field .= "<input type='" . $type . "' name='" . esc_attr( $id ) . "[]' value='" . $label . "' " . $class . ' /> ';
+		$field .= esc_html( $label );
+		$field .= '</label>';
 
 		return $field;
 	}
@@ -968,6 +991,11 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				break;
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
+				break;
+			case 'checkbox-option':
+			case 'radio-option':
+				$field_type = str_replace( '-option', '', $type );
+				$field     .= $this->render_field_option( $id, $label, $field_type, $field_class );
 				break;
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );

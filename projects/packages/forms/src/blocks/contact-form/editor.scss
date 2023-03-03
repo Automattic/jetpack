@@ -351,6 +351,16 @@
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
 	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+
+		> input {
+			margin: 0 5px 0 0;
+		}
+	}
 }
 
 :where(:not(.contact-form)) > .jetpack-field {
