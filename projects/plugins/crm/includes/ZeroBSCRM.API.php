@@ -71,6 +71,16 @@ function jpcrm_api_process_replace_hyphens_in_json_keys() {
 }
 
 /**
+ * If there is a `external_api_name` parameter in
+ * the request, it is returned as a string. Otherwise returns the bool false.
+ *
+ * @return string|bool Parameter `external_api_name` from request. Returns false if it isn't set.
+ */
+function jpcrm_api_process_external_api_name() {
+	return ( isset( $_GET['external_api_name'] ) ? (int) $_GET['external_api_name'] : false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
  * Generate API invalid request error
  */
 function jpcrm_api_invalid_request() {
