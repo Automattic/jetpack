@@ -77,7 +77,7 @@ function jpcrm_api_process_replace_hyphens_in_json_keys() {
  * @return string|bool Parameter `external_api_name` from request. Returns false if it isn't set.
  */
 function jpcrm_api_process_external_api_name() {
-	return ( isset( $_GET['external_api_name'] ) ? (int) $_GET['external_api_name'] : false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	return ( isset( $_GET['external_api_name'] ) ? sanitize_text_field( wp_unslash( $_GET['external_api_name'] ) ) : false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 }
 
 /**
