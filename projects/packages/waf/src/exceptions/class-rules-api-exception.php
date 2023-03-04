@@ -19,6 +19,6 @@ class Rules_API_Exception extends Waf_Exception {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'rules_api_error';
+	const SLUG = 'rules_api_error';
 
 }

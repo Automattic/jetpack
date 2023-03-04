@@ -22,7 +22,7 @@ class Waf_Exception extends Exception {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'waf_error';
+	const SLUG = 'waf_error';
 
 	/**
 	 * Convert the exception into a WP_Error object.
@@ -30,7 +30,7 @@ class Waf_Exception extends Exception {
 	 * @return WP_Error
 	 */
 	public function get_wp_error() {
-		return new WP_Error( $this->slug, $this->getMessage() );
+		return new WP_Error( static::SLUG, $this->getMessage() );
 	}
 
 }

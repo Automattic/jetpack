@@ -19,6 +19,6 @@ class File_System_Exception extends Waf_Exception {
 	 *
 	 * @var string
 	 */
-	protected $slug = 'file_system_error';
+	const SLUG = 'file_system_error';
 
 }
