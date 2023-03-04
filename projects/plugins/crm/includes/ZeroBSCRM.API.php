@@ -61,6 +61,16 @@ function jpcrm_api_process_search() {
 }
 
 /**
+ * If there is a `replace_hyphens_with_underscores_in_json_keys` parameter in
+ * the request, it is returned as an int. Otherwise returns 0.
+ *
+ * @return int Parameter `replace_hyphens_with_underscores_in_json_keys` from request. 0 if it isn't set.
+ */
+function jpcrm_api_process_replace_hyphens_in_json_keys() {
+	return ( isset( $_GET['replace_hyphens_with_underscores_in_json_keys'] ) ? (int) $_GET['replace_hyphens_with_underscores_in_json_keys'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
  * Generate API invalid request error
  */
 function jpcrm_api_invalid_request() {
