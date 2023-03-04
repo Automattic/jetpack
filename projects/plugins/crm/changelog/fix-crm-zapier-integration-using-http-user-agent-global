@@ -1,0 +1,6 @@
+Significance: patch
+Type: changed
+
+Added optional parameter to the API to set the external service name
+Added optional parameter to the API to replace hyphens from the json response to underscores
+
