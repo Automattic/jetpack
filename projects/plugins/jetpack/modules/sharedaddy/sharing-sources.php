@@ -182,7 +182,7 @@ abstract class Sharing_Source {
 		 * Allow customizing how the list of tags is displayed.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string $tags     Comma-separated list of tags.
 		 * @param int    $post_id  Post ID.
@@ -2572,8 +2572,13 @@ class Share_Pinterest extends Sharing_Source {
 						var shares = document.querySelectorAll( 'li.share-pinterest' );
 						for ( var i = 0; i < shares.length; i++ ) {
 							var share = shares[ i ];
-							if ( share.querySelector( 'a span:visible' ) ) {
-								share.style.width = '80px';
+							var countElement = share.querySelector( 'a span' );
+							if (countElement) {
+								var countComputedStyle = window.getComputedStyle(countElement);
+								if ( countComputedStyle.display === 'block' ) {
+									var countWidth = parseInt( countComputedStyle.width, 10 );
+									share.style.marginRight = countWidth + 11 + 'px';
+								}
 							}
 						}
 					}
@@ -3155,7 +3160,7 @@ class Share_Mastodon extends Sharing_Source {
 		 * Allow filtering the default message that gets posted to Mastodon.
 		 *
 		 * @module sharedaddy
-		 * @since $$next-version$$
+		 * @since 11.9
 		 *
 		 * @param string  $share_url The default message that gets posted to Mastodon.
 		 * @param WP_Post $post      The post object.

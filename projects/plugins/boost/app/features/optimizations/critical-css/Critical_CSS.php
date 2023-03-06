@@ -6,18 +6,13 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 
 class Critical_CSS implements Feature, Has_Endpoints {
 
@@ -56,8 +51,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 		Critical_CSS_Invalidator::init();
 		CSS_Proxy::init();
-
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
 
 		// Admin Notices
 		Regenerate_Admin_Notice::init();
@@ -125,35 +118,13 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
-	 *
-	 * @param array $constants Constants to be passed to JavaScript.
-	 *
-	 * @return array
-	 */
-	public function add_critical_css_constants( $constants ) {
-		// Information about the current status of Critical CSS / generation.
-		$generator                = new Generator();
-		$constants['criticalCSS'] = array(
-			'status'            => $generator->get_local_critical_css_generation_info(),
-			'suggestRegenerate' => ! Critical_CSS_State::is_fresh(),
-		);
-
-		return $constants;
-	}
-
-	/**
 	 * @return Endpoint::class[]
 	 *
 	 */
 	public function get_endpoints() {
 		return array(
-			Generator_Status::class,
-			Generator_Request::class,
-			Generator_Success::class,
-			Recommendations_Dismiss::class,
-			Recommendations_Reset::class,
-			Generator_Error::class,
+			Critical_CSS_Insert::class,
+			Critical_CSS_Start::class,
 		);
 	}
 }
