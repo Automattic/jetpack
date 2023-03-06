@@ -114,15 +114,30 @@
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
 			<span class="jb-badge">Upgraded</span>
 		</h3>
-		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( criticalCssLink )}
-			/>
-		</p>
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+			</p>
+		</div>
+
 		<div slot="meta" class="jb-feature-toggle__meta">
 			<CloudCssMeta />
 		</div>
