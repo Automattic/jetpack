@@ -22,7 +22,6 @@ use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Transient;
@@ -196,7 +195,7 @@ class Jetpack_Boost {
 		if ( $is_major_change ) {
 			Regenerate_Admin_Notice::enable();
 		} else {
-			Critical_CSS_State::set_fresh( false );
+			jetpack_boost_ds_set( 'critical_css_suggest_regenerate', true );
 		}
 	}
 

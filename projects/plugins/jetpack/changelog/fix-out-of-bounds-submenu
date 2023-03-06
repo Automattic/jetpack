@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Fix submenus from being out of bounds
