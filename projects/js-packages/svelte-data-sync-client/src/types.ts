@@ -41,3 +41,12 @@ export interface Pending {
 export type SyncedWritable< T > = Writable< T > & {
 	override: ( value: T ) => void;
 };
+
+export type SyncedStoreError< T > = {
+	time: number;
+	status: number | string;
+	message: string;
+	location: string;
+	value: T;
+	previousValue: T;
+};

@@ -1,19 +1,28 @@
 import deepEqual from 'deep-equal';
-import { writable } from 'svelte/store';
+import { Writable, writable } from 'svelte/store';
+import { ApiError } from './ApiError';
+import {
+	Pending,
+	SyncedStoreInterface,
+	SyncedWritable,
+	SyncedStoreCallback,
+	SyncedStoreError,
+} from './types';
 import { sleep } from './utils';
-import type { Pending, SyncedStoreInterface, SyncedWritable, SyncedStoreCallback } from './types';
+
 /*
  * A custom Svelte Store that's used to indicate if a value is being synced.
  */
 export class SyncedStore< T > {
 	private store: SyncedWritable< T >;
+	private errorStore: Writable< SyncedStoreError< T >[] >;
 	private pending: Pending;
-	private failedToSync = Symbol( 'failedToSync' );
 	private updateCallback?: SyncedStoreCallback< T >;
 	private abortController: AbortController;
 
 	constructor( initialValue?: T ) {
 		this.store = this.createStore( initialValue );
+		this.errorStore = writable< SyncedStoreError< T >[] >( [] );
 		this.pending = this.createPendingStore();
 	}
 
@@ -71,18 +80,28 @@ export class SyncedStore< T > {
 		this.updateCallback = callback;
 	}
 
-	private async synchronize( value: T ): Promise< T | typeof this.failedToSync > {
+	private async synchronize( value: T ): Promise< T | ApiError > {
 		if ( ! this.updateCallback ) {
 			return value;
 		}
-		const result = await this.updateCallback( value, this.abortController.signal );
 
-		// Success is only when the updateCallback result matches the value.
-		if ( this.equals( result, value ) ) {
-			return result ? result : value;
+		try {
+			const result = await this.updateCallback( value, this.abortController.signal );
+
+			// Success is only when the updateCallback result matches the value.
+			if ( this.equals( result, value ) ) {
+				return result ? result : value;
+			}
+		} catch ( error ) {
+			if ( error instanceof ApiError || error.name === 'ApiError' ) {
+				return error as ApiError;
+			}
+
+			// Rethrow the error if it's not an ApiError.
+			throw error;
 		}
 
-		return this.failedToSync;
+		return new ApiError( 'SyncedStore::synchronize', 'failed_to_sync', 'Failed to sync' );
 	}
 
 	private async abortableSynchronize( prevValue: T, value: T, retry = 0 ) {
@@ -102,7 +121,7 @@ export class SyncedStore< T > {
 			return;
 		}
 
-		if ( result === this.failedToSync ) {
+		if ( result instanceof ApiError ) {
 			if ( retry < 3 ) {
 				// Wait a second before retrying.
 				await sleep( 1000 );
@@ -112,7 +131,17 @@ export class SyncedStore< T > {
 				this.abortableSynchronize( prevValue, value, retry + 1 );
 				return;
 			}
-
+			this.errorStore.update( errors => {
+				errors.push( {
+					time: Date.now(),
+					previousValue: prevValue,
+					value,
+					location: result.location,
+					status: result.status,
+					message: result.message,
+				} );
+				return errors;
+			} );
 			this.store.override( prevValue );
 		}
 
