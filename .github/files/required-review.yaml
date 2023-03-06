@@ -24,6 +24,8 @@
    - jetpack-reach
    - red
    - yamato-backup-and-security
+   - '@cgastrell'
+   - '@ice9js'
 
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
@@ -35,8 +37,8 @@
    - '!projects/js-packages/svelte-data-sync-client/**'
    - '!projects/packages/wp-js-data-sync/**'
    - '!projects/packages/backup/**'
-   - '!projects/packages/import/**'
    - '!projects/packages/forms/**'
+   - '!projects/packages/import/**'
    - '!projects/packages/search/**'
    - '!projects/packages/stats/**'
    - '!projects/packages/stats-admin/**'
