@@ -223,7 +223,7 @@ class Admin {
 
 		$sheet = Google_Drive::create_sheet( $user_id, $spreadsheet_title, $sheet_data );
 
-		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking = new \Automattic\Jetpack\Tracking();
 		$tracking->record_user_event( 'forms_export_responses', array( 'format' => 'gsheets' ) );
 
 		wp_send_json(
