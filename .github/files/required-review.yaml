@@ -36,6 +36,7 @@
    - '!projects/packages/wp-js-data-sync/**'
    - '!projects/packages/backup/**'
    - '!projects/packages/import/**'
+   - '!projects/packages/forms/**'
    - '!projects/packages/search/**'
    - '!projects/packages/stats/**'
    - '!projects/packages/stats-admin/**'
@@ -162,7 +163,8 @@
     - '!projects/plugins/*/composer.json'
     - '!projects/plugins/*/changelog/*'
   teams:
-    - crowdsignal
+    - '@cgastrell'
+    - '@ice9js'
     - jetpack-approvers
 
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
