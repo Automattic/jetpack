@@ -1,0 +1,36 @@
+import { Meta, Story, Canvas } from '@storybook/addon-docs';
+import TimestampControl from '../index';
+
+<Meta
+  title="Packages/VideoPress/Timestamp Control"
+  component={TimestampControl}
+/>
+
+# Timestamp Control
+
+React component to set a timestamp value.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--default" />
+</Canvas>
+
+## TimestampControl API
+
+### value
+
+- type `number`
+
+The timestamp value in milliseconds
+
+### onChange
+
+- type: `Function`
+
+Use this property to pass a callback function, where the API provides the selected time in milliseconds.
+
+### max
+
+- type: `number`
+
+Maximum time value, in milliseconds, expected by the component.
+Also, if it's bigger than one hour, the hour input will be rendered into the Timestamp Input component.
