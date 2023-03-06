@@ -92,7 +92,7 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 
 			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
 
-			{ showResponses && (
+			{ showResponses && promptId && (
 				<div className="jetpack-blogging-prompts__answers">
 					{ gravatars &&
 						gravatars.slice( 0, 3 ).map( ( { url } ) => {
