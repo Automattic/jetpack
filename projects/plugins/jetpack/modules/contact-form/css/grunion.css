@@ -1,3 +1,12 @@
+:root {
+    --jetpack--contact-form--border: 1px solid #8c8f94;
+    --jetpack--contact-form--border-color: #8c8f94;
+    --jetpack--contact-form--border-size: 1px;
+    --jetpack--contact-form--border-style: solid;
+    --jetpack--contact-form--border-radius: 0px;
+    --jetpack--contact-form--input-padding: 16px;
+}
+
 .contact-form .clear-form {
 	clear: both;
 }
@@ -574,16 +583,4 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
 	margin-left: var(--jetpack--contact-form--border-size);
-}
-
-.wp-block-jetpack-contact-form-container {
-	filter: blur(10px);
-}
-
-.contact-form-styles-loaded .wp-block-jetpack-contact-form-container,
-html[amp] body .wp-block-jetpack-contact-form-container,
-html[amp-version] body .wp-block-jetpack-contact-form-container,
-html[class*='amphtml'] body .wp-block-jetpack-contact-form-container
-{
-	filter: blur(0px);
 }

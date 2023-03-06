@@ -54,6 +54,8 @@ export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
 export const PLAN_JETPACK_SOCIAL_BASIC = 'jetpack_social_basic_yearly';
 export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
+export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
+export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
 
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
@@ -213,6 +215,8 @@ export const JETPACK_VIDEOPRESS_PRODUCTS = [
 export const JETPACK_SOCIAL_PRODUCTS = [
 	PLAN_JETPACK_SOCIAL_BASIC,
 	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
+	PLAN_JETPACK_SOCIAL_ADVANCED,
+	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 ];
 
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
@@ -567,6 +571,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_SOCIAL_BASIC:
 		case PLAN_JETPACK_SOCIAL_BASIC_MONTHLY:
 			return 'is-jetpack-social-basic-plan';
+
+		case PLAN_JETPACK_SOCIAL_ADVANCED:
+		case PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY:
+			return 'is-jetpack-social-advanced-plan';
 
 		case PLAN_JETPACK_BOOST:
 		case PLAN_JETPACK_BOOST_MONTHLY:

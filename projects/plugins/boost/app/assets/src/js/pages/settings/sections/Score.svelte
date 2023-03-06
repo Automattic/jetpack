@@ -9,7 +9,7 @@
 		ScoreChangeMessage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
+	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
 	import { modules } from '../../../stores/modules';
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
@@ -53,15 +53,15 @@
 	 * @type {Readable<string>}
 	 */
 	const scoreConfigString = derived(
-		[ modules, criticalCssStatus ],
-		( [ $modules, $criticalCssStatus ] ) => {
+		[ modules, criticalCssState ],
+		( [ $modules, $criticalCssState ] ) => {
 			const scoreModules = Object.assign( {}, $modules );
 			delete scoreModules[ 'image-guide' ];
 
 			return JSON.stringify( {
 				modules: scoreModules,
 				criticalCss: {
-					created: $criticalCssStatus.created,
+					created: $criticalCssState.created,
 				},
 			} );
 		}
