@@ -225,10 +225,8 @@ yellow "Committing changes."
 if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" =~ '-beta' ]]; then
 	yellow "Releasing a beta for Jetpack, amending the readme.txt"
 	pnpm jetpack changelog squash plugins/jetpack readme
-	#git commit -am "Amend readme.txt"
-fi 
-exit
-# If we're running a beta, amend the changelog
+	git commit -am "Amend readme.txt"
+fi
 
 HEADSHA=$(git rev-parse HEAD)
 yellow "Pushing changes."
@@ -254,8 +252,16 @@ if ! gh run watch "${BUILDID[0]}" --exit-status; then
 	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi
 
-# After this, run tools/create-release-branch.sh to create a release branch.
-yellow "Build is complete. Creating a release branch."
+yellow "Build is complete.
+# After this, run tools/create-release-branch.sh to create a release branch for each project.
+for PLUGIN in "${!PROJECTS[@]}"; do
+	VERSION="${PROJECTS[$PLUGIN]}"
+	PROJECT="$PLUGIN"
+	yellow "Creating release branch for $PROJECT $VERSION"
+	tools/create-release-branch.sh "$PROJECT" "$VERSION"
+done
+
+Creating release branch."
 tools/create-release-branch.sh "$PROJECT" "$VERSION"
 
 yellow "Release branch created!"
