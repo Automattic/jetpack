@@ -163,10 +163,13 @@ export const Waf = class extends Component {
 	};
 
 	render() {
-		const isWafActive = this.props.getOptionValue( 'waf' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' ),
-			baseInputDisabledCase =
-				! isWafActive || unavailableInOfflineMode || this.props.isSavingAnyOption( [ 'waf' ] );
+		const isWafActive = this.props.getOptionValue( 'waf' );
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+		const baseInputDisabledCase =
+			! isWafActive ||
+			unavailableInOfflineMode ||
+			this.props.isFetchingWafSettings ||
+			this.props.isSavingAnyOption( [ 'waf' ] );
 
 		const moduleHeader = (
 			<div className="waf__header">
@@ -435,7 +438,7 @@ export const Waf = class extends Component {
 						</span>
 					</ModuleToggle>
 
-					{ isWafActive && (
+					{ isWafActive && ! this.props.isFetchingWafSettings && (
 						<FormFieldset className="waf__settings">
 							{ automaticRulesSettings }
 							{ ipListSettings }
