@@ -388,5 +388,5 @@ function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GE
 
 	$rest_path = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
 
-	return false !== preg_match( $path_regex, $rest_path );
+	return 1 === preg_match( $path_regex, $rest_path );
 }
