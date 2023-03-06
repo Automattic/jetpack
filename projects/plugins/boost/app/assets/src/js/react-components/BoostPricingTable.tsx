@@ -116,6 +116,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					tooltipInfo={
 						<span dangerouslySetInnerHTML={ { __html: automaticallyUpdatedContext } }></span>
 					}
+					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
@@ -146,6 +147,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					tooltipInfo={
 						<span dangerouslySetInnerHTML={ { __html: manuallyUpdatedContext } }></span>
 					}
+					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
