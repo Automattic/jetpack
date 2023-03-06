@@ -8,6 +8,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { modules } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
