@@ -32,6 +32,22 @@ class WafCompatibilityTest extends PHPUnit\Framework\TestCase {
 			),
 		);
 
+		// Contains duplicate IP addresses from $waf_allow_list.
+		$brute_force_allow_list_with_duplicates = array(
+			(object) array(
+				'ip_address' => '1.1.1.1',
+				'range'      => false,
+			),
+			(object) array(
+				'range'      => true,
+				'range_low'  => '3.3.3.3',
+				'range_high' => '4.4.4.4',
+			),
+			(object) array(
+				'ip_address' => '8.8.8.8',
+			),
+		);
+
 		$waf_empty_allow_list         = '';
 		$brute_force_empty_allow_list = array();
 
@@ -48,6 +64,11 @@ class WafCompatibilityTest extends PHPUnit\Framework\TestCase {
 		// Test empty Brute Force allow list.
 		$expected_result = "1.1.1.1,2.2.2.2\n3.3.3.3-4.4.4.4";
 		$merged_lists    = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_empty_allow_list );
+		$this->assertEquals( $expected_result, $merged_lists );
+
+		// Test duplicate values are not removed.
+		$expected_result = "1.1.1.1,2.2.2.2\n3.3.3.3-4.4.4.4\n1.1.1.1\n3.3.3.3-4.4.4.4\n8.8.8.8";
+		$merged_lists    = Waf_Compatibility::merge_ip_allow_lists( $waf_allow_list, $brute_force_allow_list_with_duplicates );
 		$this->assertEquals( $expected_result, $merged_lists );
 	}
 
