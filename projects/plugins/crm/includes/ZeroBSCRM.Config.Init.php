@@ -189,7 +189,7 @@ $zeroBSCRM_Conf_Def = array(
 	'filtersfromstatus'                  => 1, // show quickfilters for all statuses
 	'filtersfromsegments'                => 1, // show quickfilters for all segments
 	'defaultstatus'                      => 'Lead',
-	'zbsfunnel'                          => 'Lead,Customer',
+	'zbsfunnel'                          => 'Lead,Contact',
 
 	/* === Locale === */
 	'currency'                           => array(
@@ -311,7 +311,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Remember, this'll effect other areas of the CRM
 			'status' => array(
 				1,
-				'Lead,Customer,Refused,Blacklisted,Cancelled by Customer,Cancelled by Us (Pre-Quote),Cancelled by Us (Post-Quote)',
+				'Lead,Contact,Refused,Blacklisted,Cancelled by Contact,Cancelled by Us (Pre-Quote),Cancelled by Us (Post-Quote)',
 			),
 			'prefix' => array(
 				1,
@@ -340,7 +340,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Remember, this'll effect other areas of the CRM
 			'status' => array(
 				1,
-				'Lead,Customer,Refused,Blacklisted',
+				'Lead,Contact,Refused,Blacklisted',
 			),
 		),
 		'quotes'       => array(),
@@ -401,7 +401,7 @@ $zeroBSCRM_Conf_Def = array(
 		'quote'               => array(
 			'id'       => array( 'ID' ),
 			'title'    => array( 'Quote Title' ),
-			'customer' => array( 'Customer' ),
+			'customer' => array( 'Contact' ),
 			'status'   => array( 'Status' ),
 			'value'    => array( __( 'Quote Value', 'zero-bs-crm' ) ),
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -410,7 +410,7 @@ $zeroBSCRM_Conf_Def = array(
 		'invoice'             => array(
 			'id'       => array( 'ID' ),
 			'ref'      => array( 'Reference' ),
-			'customer' => array( 'Customer' ),
+			'customer' => array( 'Contact' ),
 			'status'   => array( 'Status' ),
 			'value'    => array( __( 'Value', 'zero-bs-crm' ) ),
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -439,7 +439,7 @@ $zeroBSCRM_Conf_Def = array(
 
 		'transaction'         => array(
 			'id'       => array( 'ID' ),
-			'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+			'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 			'status'   => array( __( 'Status', 'zero-bs-crm' ) ),
 			'total'    => array( __( 'Value', 'zero-bs-crm' ) ),
 			'item'     => array( __( 'Item', 'zero-bs-crm' ) ),
@@ -456,7 +456,7 @@ $zeroBSCRM_Conf_Def = array(
 
 		'customer_filters'    => array(
 			'lead'           => array( __( 'Lead', 'zero-bs-crm' ) ),
-			'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ),
+			'customer'       => array( __( 'Contact', 'zero-bs-crm' ) ),
 			'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
 		),
 

@@ -74,7 +74,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'input_type'            => 'select',
 					'label'                 => __( 'Status', 'zero-bs-crm' ),
 					'placeholder'           => '',
-					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'options'               => array( 'Lead', 'Contact', 'Refused', 'Blacklisted' ),
 					'essential'             => true,
 					'max_len'               => 100,
 					'do_not_show_on_portal' => true,
@@ -1629,7 +1629,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-                                        $wheres['quickfiltercustomer'] = array('zbsc_status','LIKE','%s','Customer');
+										$wheres['quickfiltercustomer'] = array( 'zbsc_status', 'LIKE', '%s', 'Contact' );
 
                                         break;
 

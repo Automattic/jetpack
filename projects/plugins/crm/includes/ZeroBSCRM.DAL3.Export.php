@@ -52,7 +52,7 @@ function zeroBSCRM_export_fieldReplacements() {
 
 		// trans
 		'origin'         => __( 'Origin', 'zero-bs-crm' ),
-		'customer_ip'    => __( 'Customer IP', 'zero-bs-crm' ),
+		'customer_ip'    => __( 'Contact IP', 'zero-bs-crm' ),
 
 	);
 }

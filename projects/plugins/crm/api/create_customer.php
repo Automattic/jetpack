@@ -49,7 +49,7 @@ $email                = '';
 if ( isset( $new_customer['sticky'] ) && ! empty( $new_customer['sticky'] ) ) {
 	$sticky = false;
 }
-		$stickystat = 'Customer';
+		$stickystat = 'Contact';
 if ( isset( $new_customer['stickystat'] ) ) {
 	$stickystat = sanitize_text_field( $new_customer['stickystat'] );
 }
@@ -123,11 +123,11 @@ if ( is_array( $tags ) && count( $tags ) > 0 ) {
 			// } DEFAULTS
 				// } Existing user updated by API
 				$existingUserAPISourceShort = __( 'Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$existingUserAPISourceLong  = __( 'API Action fired to update customer', 'zero-bs-crm' );
+				$existingUserAPISourceLong  = __( 'API Action fired to update contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// } Here we catch "HTTP_USER_AGENT": "Zapier" ;)
 if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
@@ -135,11 +135,11 @@ if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zap
 	// } Just means this was probs fired by ZAP APP
 	// } So pretty up msgs :)
 	$existingUserAPISourceShort = __( 'Updated by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$existingUserAPISourceLong  = __( 'Zapier fired an API Action to update this customer', 'zero-bs-crm' );
+	$existingUserAPISourceLong  = __( 'Zapier fired an API Action to update this contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// } New User from api
 	$newUserAPISourceShort = __( 'Created by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this customer', 'zero-bs-crm' );
+	$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 
@@ -201,7 +201,7 @@ if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zap
 						if ( $existingStatus == $stickystat ) {
 								$status = $stickystat;   // don't over-ride customer status..
 								// so.... set it to be the stickystat/it's existing
-								$update_args['zbsc_status'] = $stickystat; // 'Customer';
+								$update_args['zbsc_status'] = $stickystat; // 'Contact';
 						} else {
 
 							// existing status (e.g. lead) is not stickystatus (e.g. customer)

@@ -8,7 +8,7 @@ class JPCRM_Contacts_Cest {
 	protected $user_data      = array(
 		'zbsc_fname'       => 'Testing user',
 		'zbsc_lname'       => 'Last name',
-		'zbsc_status'      => 'Customer',
+		'zbsc_status'      => 'Contact',
 		'zbsc_email'       => 'my_email@email.com',
 		'zbsc_addr1'       => 'Address line 1',
 		'zbsc_addr2'       => 'Address line 2',
