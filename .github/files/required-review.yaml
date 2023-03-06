@@ -1,19 +1,12 @@
-# Jetpack Approvers need to review changes to the monorepo itself.
-- name: Monorepo itself
-  paths:
-   - '!projects/**'
-   - '!pnpm-lock.yaml'
-  teams:
-   - jetpack-approvers
-
 # Everyone who can approve anything can merge pnpm.lock and docs.
-- name: pnpm lockfile, composer files
+- name: lockfiles, plugin composer.json, changelogs, docs
   paths:
    - 'docs/**'
    - 'pnpm-lock.yaml'
-   - 'projects/plugins/*/composer.lock'
+   - 'projects/*/*/composer.lock'
    - 'projects/plugins/*/composer.json'
-   - 'projects/plugins/*/changelog/*'
+   - 'projects/*/*/changelog/*'
+  consume: true
   teams:
    # Unfortunately this list need to be maintaned manually...
    # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
@@ -25,38 +18,43 @@
    - red
    - yamato-backup-and-security
 
-# Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
-- name: Jetpack and packages
+# Jetpack Approvers need to review changes to the monorepo itself.
+- name: Monorepo itself
   paths:
-   - 'projects/packages/**'
-   - 'projects/plugins/jetpack/**'
-   # Exclude packages managed by other teams, which are covered by other blocks below.
-   - '!projects/js-packages/image-guide/**'
-   - '!projects/js-packages/svelte-data-sync-client/**'
-   - '!projects/packages/wp-js-data-sync/**'
-   - '!projects/packages/backup/**'
-   - '!projects/packages/import/**'
-   - '!projects/packages/forms/**'
-   - '!projects/packages/search/**'
-   - '!projects/packages/stats/**'
-   - '!projects/packages/stats-admin/**'
-   - '!projects/packages/publicize/**'
-   - '!projects/packages/waf/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
+   - '!projects/**'
   teams:
    - jetpack-approvers
 
+# Jetpack Approvers review the Jetpack plugin.
+- name: Jetpack-the-plugin
+  paths:
+   - 'projects/plugins/jetpack/**'
+  teams:
+   - jetpack-approvers
+
+# Packages owned by Ground Control.
+- name: Ground Control packages
+  paths:
+   - 'projects/js-packages/babel-plugin-replace-textdomain/**'
+   - 'projects/js-packages/eslint-changed/**'
+   - 'projects/js-packages/eslint-config-target-es/**'
+   - 'projects/js-packages/i18n-check-webpack-plugin/**'
+   - 'projects/js-packages/i18n-loader-webpack-plugin/**'
+   - 'projects/js-packages/remove-asset-webpack-plugin/**'
+   - 'projects/js-packages/webpack-config/**'
+   - 'projects/packages/autoloader/**'
+   - 'projects/packages/changelogger/**'
+   - 'projects/packages/codesniffer/**'
+   - 'projects/packages/ignorefile/**'
+   - 'projects/packages/phpcs-filter/**'
+  teams:
+   - jetpack-approvers
 
 # The Avengers team reviews changes to the CRM plugin,
 # and can add dependencies to the monorepo's lock file.
 - name: CRM
   paths:
     - 'projects/plugins/crm/**'
-    - '!projects/plugins/*/composer.lock'
-    - '!projects/plugins/*/composer.json'
-    - '!projects/plugins/*/changelog/*'
   teams:
     - avengers
     - jetpack-approvers
@@ -67,9 +65,6 @@
   paths:
     - 'projects/packages/import/**'
     - 'projects/plugins/migration/**'
-    - '!projects/plugins/*/composer.lock'
-    - '!projects/plugins/*/composer.json'
-    - '!projects/plugins/*/changelog/*'
   teams:
     - caribou
     - jetpack-approvers
@@ -81,9 +76,6 @@
    - 'projects/packages/backup/**'
    - 'projects/plugins/vaultpress/**'
    - 'projects/plugins/backup/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
   teams:
    - yamato-backup
    - jetpack-approvers
@@ -94,9 +86,6 @@
   paths:
     - 'projects/packages/waf/**'
     - 'projects/plugins/protect/**'
-    - '!projects/plugins/*/composer.lock'
-    - '!projects/plugins/*/composer.json'
-    - '!projects/plugins/*/changelog/*'
   teams:
     - yamato-scan
     - jetpack-approvers
@@ -110,9 +99,6 @@
    - 'projects/js-packages/image-guide/**'
    - 'projects/js-packages/svelte-data-sync-client/**'
    - 'projects/packages/wp-js-data-sync/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
   teams:
    - heart-of-gold
    - jetpack-approvers
@@ -123,9 +109,6 @@
   paths:
    - 'projects/plugins/search/**'
    - 'projects/packages/search/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
   teams:
    - red
    - jetpack-approvers
@@ -135,9 +118,6 @@
   paths:
    - 'projects/packages/stats/**'
    - 'projects/packages/stats-admin/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
   teams:
    - red
    - jetpack-approvers
@@ -148,9 +128,6 @@
    - 'projects/plugins/social/**'
    - 'projects/packages/publicize/**'
    - 'projects/js-packages/publicize-components/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
   teams:
    - jetpack-reach
    - jetpack-approvers
@@ -159,9 +136,6 @@
 - name: Forms
   paths:
     - 'projects/packages/forms/**'
-    - '!projects/plugins/*/composer.lock'
-    - '!projects/plugins/*/composer.json'
-    - '!projects/plugins/*/changelog/*'
   teams:
     - '@cgastrell'
     - '@ice9js'
