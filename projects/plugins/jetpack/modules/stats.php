@@ -779,6 +779,7 @@ function stats_print_odyssey_nudge( $html ) {
 		.stats-odyssey-notice--content {
 			padding: 24px 0 27px 18px;
 			font-size: 2em;
+			width: 100%;
 		}
 		.stats-odyssey-notice--content-header {
 			font-size: 16px;
@@ -790,17 +791,10 @@ function stats_print_odyssey_nudge( $html ) {
 			margin: 0;
 		}
 		.stats-odyssey-notice--image-container {
-			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
+			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
 			background-size: cover;
 			padding-right: 28px;
-		}
-		.stats-odyssey-notice--image {
-			max-height: 210px;
-		}
-		@media (max-width: 920px) {
-			.stats-odyssey-notice--image {
-				display: none;
-			}
+			width: 100%;
 		}
 		.stats-odyssey-notice--close-button {
 			position: absolute;
@@ -864,9 +858,7 @@ function stats_print_odyssey_nudge( $html ) {
 				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
 			</div>
 		</div>
-		<div class="stats-odyssey-notice--image-container">
-			<img class="stats-odyssey-notice--image" src="/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png">
-		</div>
+		<div class="stats-odyssey-notice--image-container"></div>
 		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
