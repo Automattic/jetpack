@@ -52,9 +52,37 @@ class Blaze {
 	 */
 	public static function add_post_links_actions() {
 		if ( self::should_initialize() ) {
+			self::maybe_toggle_blaze_post_links_option();
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 		}
+	}
+
+	/**
+	 * Maybe toggle Blaze post links via setting an option. Listens to the `blaze-links` query parameter.
+	 *
+	 * @return void
+	 */
+	public static function maybe_toggle_blaze_post_links_option() {
+		if ( isset( $_GET['blaze-toggle'] ) ) {
+			$blaze_toggled = ! get_option( 'jetpack_blaze_post_link_enabled', true );
+			update_option( 'jetpack_blaze_post_link_enabled', $blaze_toggled );
+			add_action( 'admin_notices', array( __CLASS__, 'blaze_toggle_notice' ) );
+		}
+	}
+
+	/**
+	 * Admin notice to display when Blaze post links are toggled.
+	 *
+	 * @return void
+	 */
+	public static function blaze_toggle_notice() {
+		$blaze_toggled = get_option( 'jetpack_blaze_post_link_enabled' );
+		?>
+		<div class="notice notice-success is-dismissible">
+			<p><?php echo esc_html( $blaze_toggled ? __( 'Blaze links enabled.', 'jetpack-blaze' ) : __( 'Blaze links disabled.', 'jetpack-blaze' ) ); ?></p>
+		</div>
+		<?php
 	}
 
 	/**
@@ -171,6 +199,11 @@ class Blaze {
 	 */
 	public static function jetpack_blaze_row_action( $post_actions, $post ) {
 		$post_id = $post->ID;
+
+		// Bail if there's an option to disable the link.
+		if ( ! get_option( 'jetpack_blaze_post_link_enabled' ) ) {
+			return $post_actions;
+		}
 
 		// Bail if we are not looking at one of the supported post types (post, page, or product).
 		if ( ! in_array( $post->post_type, array( 'post', 'page', 'product' ), true ) ) {
