@@ -738,13 +738,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
 				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
 
-				$options = array();
-				foreach ( $matches[0] as $shortcode ) {
-					$attr      = shortcode_parse_atts( $shortcode );
-					$options[] = $attr['label'];
-				}
+				if ( ! empty( $matches[0] ) ) {
+					$options = array();
+					foreach ( $matches[0] as $shortcode ) {
+						$attr      = shortcode_parse_atts( $shortcode );
+						$options[] = $attr['label'];
+					}
 
-				$attributes['options'] = $options;
+					$attributes['options'] = $options;
+				}
 			}
 
 			if ( ! isset( $attributes['label'] ) ) {
