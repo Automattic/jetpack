@@ -24,7 +24,7 @@
    - jetpack-reach
    - red
    - yamato-backup-and-security
-   - '@cgastrell'
+   - '@CGastrell'
    - '@ice9js'
 
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
@@ -165,7 +165,7 @@
     - '!projects/plugins/*/composer.json'
     - '!projects/plugins/*/changelog/*'
   teams:
-    - '@cgastrell'
+    - '@CGastrell'
     - '@ice9js'
     - jetpack-approvers
 
