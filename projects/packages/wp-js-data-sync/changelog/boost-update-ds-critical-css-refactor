@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+More flexible storage driver, built in boolean data handler

@@ -3,7 +3,7 @@ on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, reopened, synchronize, edited, labeled, closed ]
   issues: # For auto-triage of issues.
-    types: [opened, reopened, edited, closed]
+    types: [opened, reopened, labeled, edited, closed]
   issue_comment: # To gather support references in issue comments.
     types: [created]
   push:
@@ -78,3 +78,4 @@ jobs:
           slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
           slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
           slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
+          slack_kitkat_channel: ${{ secrets.SLACK_KITKAT_CHANNEL }}
