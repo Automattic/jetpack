@@ -7,8 +7,11 @@
 
 body {
 	--wp-admin-theme-color: #{$highlight-color};
+	--wp-admin-theme-color--rgb: #{hex-to-rgb($highlight-color)};
 
 	// Darker shades.
 	--wp-admin-theme-color-darker-10: #{darken($highlight-color, 5%)};
+	--wp-admin-theme-color-darker-10--rgb: #{hex-to-rgb(darken($highlight-color, 5%))};
 	--wp-admin-theme-color-darker-20: #{darken($highlight-color, 10%)};
+	--wp-admin-theme-color-darker-20--rgb: #{hex-to-rgb(darken($highlight-color, 10%))};
 }
