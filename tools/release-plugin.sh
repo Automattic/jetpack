@@ -44,18 +44,8 @@ if ! version_compare "$GH_VER" "2.21.2"; then
 fi
 
 # Get the options passed and parse them.
-ARGS=('-p')
-ALPHABETA=
-while getopts "v:abh" opt; do
+while getopts "h" opt; do
 	case ${opt} in
-		a)
-			ALPHABETA='-a'
-			ARGS+=("$ALPHABETA")
-		;;
-		b)
-			ALPHABETA='-b'
-			ARGS+=("$ALPHABETA")
-		;;
 		h)
 			usage
 		;;
@@ -171,7 +161,7 @@ for PREFIX in "${!PREFIXES[@]}"; do
 	REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
 	if [[ -n "$REMOTE_BRANCH" ]]; then
 		proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
-		git push origin --delete "$RELEASE_BRANCH"
+		#git push origin --delete "$RELEASE_BRANCH"
 	fi
 done
 
@@ -179,38 +169,55 @@ done
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 	proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
-	git checkout trunk && git pull
+	#git checkout trunk && git pull
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
-	die "Working directory not clean, make sure you're working from a clean checkout and try again."
+	echo "Just testing"
+	#die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
 yellow "Checking out prerelease branch."
 # Check out and push pre-release branch
 if git rev-parse --verify prerelease &>/dev/null; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
-	git branch -D prerelease
+	#git branch -D prerelease
 fi
 
-git checkout -b prerelease
-if ! git push -u origin HEAD; then
-	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
-fi
+#git checkout -b prerelease
+#if ! git push -u origin HEAD; then
+#	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+#fi
 
-yellow "Updating the changelogs."
-# Run the changelogger release script
-# Bail if we're passing an alpha or beta flag but not including it in the version number and vice versa.
-VERSION_AB=
-if VERSION_AB="$(grep -o '-a\|-beta' <<< "$VERSION")"; then
-	VERSION_AB="-${VERSION_AB:1:1}"
-fi
-tools/changelogger-release.sh "${ARGS[@]}" "$PROJECT"
+# Loop through the projects and update the changelogs after building the arguments.
+for PLUGIN in "${!PROJECTS[@]}"; do
+	yellow "Updating the changelog files for $PLUGIN."
+	
+	if [[ ${ARGS} ]]; then
+		unset ARGS
+	fi
 
+	# Add the PR numbers to the changelog.
+	ARGS=('-p')
+	
+	# Add alpha and beta flags.
+	VERSION="${PROJECTS[$PLUGIN]}"
+	case $VERSION in
+		*-a* ) ARGS+=('-a');;
+		*-beta* ) ARGS+=('-b');;
+	esac
+
+	# Explicitly pass the version number we want so there are no surprises.
+	ARGS+=( '-r' "${PROJECTS[$PLUGIN]}" )
+	ARGS+=("$PLUGIN");
+	tools/changelogger-release.sh "${ARGS[@]}"
+done
+
+exit
 # When it completes, wait for user to edit anything they want, then push key to continue.
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
-
+exit
 yellow "Committing changes."
 git add --all
 git commit -am "Changelog edits for $PROJECT"
