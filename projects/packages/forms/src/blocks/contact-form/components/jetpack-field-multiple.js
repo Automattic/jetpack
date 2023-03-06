@@ -2,7 +2,6 @@ import { InnerBlocks } from '@wordpress/block-editor';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import classnames from 'classnames';
-import { times } from 'lodash';
 import { useFormStyle } from '../util/form';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
 import JetpackFieldControls from './jetpack-field-controls';
@@ -66,7 +65,7 @@ function JetpackFieldMultiple( props ) {
 				<div className="jetpack-field-multiple__list">
 					<InnerBlocks
 						allowedBlocks={ ALLOWED_BLOCKS }
-						template={ times( 3, () => [ `jetpack/field-option-${ type }`, {} ] ) }
+						template={ [ [ `jetpack/field-option-${ type }`, {} ] ] }
 						templateInsertUpdatesSelection={ false }
 					/>
 				</div>

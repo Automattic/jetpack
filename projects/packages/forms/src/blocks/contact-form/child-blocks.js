@@ -677,6 +677,10 @@ export const childBlocks = [
 					type: 'string',
 					default: null,
 				},
+				options: {
+					type: 'array',
+					default: [ '' ],
+				},
 			},
 		},
 	},

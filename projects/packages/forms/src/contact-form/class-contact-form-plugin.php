@@ -370,7 +370,7 @@ class Contact_Form_Plugin {
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-checkbox',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option_checkbox' ),
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -382,7 +382,7 @@ class Contact_Form_Plugin {
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-radio',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option_radio' ),
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -570,21 +570,8 @@ class Contact_Form_Plugin {
 	 *
 	 * @return string HTML for the contact form field.
 	 */
-	public static function gutenblock_render_field_option_checkbox( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-option' );
-		return Contact_Form::parse_contact_field( $atts, $content );
-	}
-
-	/**
-	 * Render the single choice field option.
-	 *
-	 * @param array  $atts - the block attributes.
-	 * @param string $content - html content.
-	 *
-	 * @return string HTML for the contact form field.
-	 */
-	public static function gutenblock_render_field_option_radio( $atts, $content ) {
-		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'radio-option' );
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -929,7 +916,7 @@ class Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field' ) );
-		add_shortcode( 'contact-field-option', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field_option' ) );
+		add_shortcode( 'contact-field-option', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field' ) );
 	}
 
 	/**

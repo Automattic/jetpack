@@ -1,7 +1,8 @@
 import { RichText } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { first } from 'lodash';
 import { useParentAttributes } from '../util/use-parent-attributes';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
@@ -10,6 +11,15 @@ export const JetpackFieldOptionEdit = props => {
 	const { removeBlock } = useDispatch( 'core/block-editor' );
 	const parentAttributes = useParentAttributes( clientId );
 	const { optionStyle } = useJetpackFieldStyles( parentAttributes );
+
+	const siblingsCount = useSelect(
+		select => {
+			const blockEditor = select( 'core/block-editor' );
+			const parentBlockId = first( blockEditor.getBlockParents( clientId, true ) );
+			return blockEditor.getBlock( parentBlockId ).innerBlocks.length;
+		},
+		[ clientId ]
+	);
 
 	const type = name.replace( 'jetpack/field-option-', '' );
 
@@ -21,16 +31,16 @@ export const JetpackFieldOptionEdit = props => {
 		} );
 
 	const handleDelete = () => {
-		// if ( answersCount <= 2 ) {
-		// 	return;
-		// }
+		if ( siblingsCount <= 1 ) {
+			return;
+		}
 
 		removeBlock( clientId );
 	};
 
 	return (
 		<div className="jetpack-field-option">
-			<input type={ type } className="jetpack-option__type" />
+			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				allowedFormats={ [] }
 				onChange={ value => {
@@ -39,7 +49,7 @@ export const JetpackFieldOptionEdit = props => {
 				onRemove={ handleDelete }
 				onSplit={ handleSplit }
 				onReplace={ onReplace }
-				placeholder={ __( 'Add an option', 'jetpack-forms' ) }
+				placeholder={ __( 'Add option…', 'jetpack-forms' ) }
 				preserveWhiteSpace={ false }
 				withoutInteractiveFormatting
 				value={ attributes.label }

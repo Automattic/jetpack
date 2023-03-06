@@ -589,7 +589,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_radio_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
-		$field .= $this->content;
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
@@ -671,7 +670,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	public function render_checkbox_multiple_field( $id, $label, $value, $class, $required, $required_field_text ) {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
-		$field .= $this->content;
 
 		$field_style = 'style="' . $this->option_styles . '"';
 
@@ -992,11 +990,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'consent':
 				$field .= $this->render_consent_field( $id, $field_class );
 				break;
-			case 'checkbox-option':
-			case 'radio-option':
-				$field_type = str_replace( '-option', '', $type );
-				// For those options, we don't want wrapper elements. Just the HTML the render_field_option returns
-				return $this->render_field_option( $id, $label, $field_type, $field_class );
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
