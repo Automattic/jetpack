@@ -161,7 +161,7 @@ for PREFIX in "${!PREFIXES[@]}"; do
 	REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
 	if [[ -n "$REMOTE_BRANCH" ]]; then
 		proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
-		#git push origin --delete "$RELEASE_BRANCH"
+		git push origin --delete "$RELEASE_BRANCH"
 	fi
 done
 
@@ -169,25 +169,24 @@ done
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
 	proceed_p "Not currently checked out to trunk." "Check out trunk before continuing?"
-	#git checkout trunk && git pull
+	git checkout trunk && git pull
 fi
 
 if [[ -n "$(git status --porcelain)" ]]; then
-	echo "Just testing"
-	#die "Working directory not clean, make sure you're working from a clean checkout and try again."
+	die "Working directory not clean, make sure you're working from a clean checkout and try again."
 fi
 
 yellow "Checking out prerelease branch."
 # Check out and push pre-release branch
 if git rev-parse --verify prerelease &>/dev/null; then
 	proceed_p "Existing prerelease branch found." "Delete it?"
-	#git branch -D prerelease
+	git branch -D prerelease
 fi
 
-#git checkout -b prerelease
-#if ! git push -u origin HEAD; then
-#	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
-#fi
+git checkout -b prerelease
+if ! git push -u origin HEAD; then
+	die "Branch push failed. Check #jetpack-releases and make sure no one is doing a release already, then delete the branch at https://github.com/Automattic/jetpack/branches"
+fi
 
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
@@ -218,8 +217,8 @@ read -r -s -p $'Edit all the changelog entries you want (in a separate terminal 
 echo ""
 
 yellow "Committing changes."
-#git add --all
-#git commit -am "Changelog edits."
+git add --all
+git commit -am "Changelog edits."
 
 # If we're releasing Jetpack and it's a beta, amend the readme.txt
 if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" =~ '-beta' ]]; then
@@ -253,7 +252,7 @@ if ! gh run watch "${BUILDID[0]}" --exit-status; then
 fi
 
 yellow "Build is complete."
-# After this, run tools/create-release-branch.sh to create a release branch for each project.
+# Run tools/create-release-branch.sh to create a release branch for each project.
 for PREFIX in "${!PREFIXES[@]}"; do
 	git checkout prerelease
 	VERSION="${PREFIXES[$PREFIX]}"
