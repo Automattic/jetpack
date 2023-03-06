@@ -95,7 +95,7 @@ export function initializeClient( namespace: string ) {
 		const { nonce, value } = getValidatedValue( namespace, valueName, schema );
 
 		// Setup the Svelte Store and the API Endpoint for this value
-		const store = new SyncedStore< z.infer< T > >( value );
+		const syncedStore = new SyncedStore< z.infer< T > >( value );
 		const endpoint = new API_Endpoint< z.infer< T > >( api, valueName, schema );
 
 		/**
@@ -114,15 +114,16 @@ export function initializeClient( namespace: string ) {
 		 *	} );
 		 */
 		endpoint.nonce = nonce;
-		store.setCallback( endpoint.POST );
 
 		// The client doesn't need the whole store object.
 		// Only expose selected public methods:
-		const storeInterface = store.getPublicInterface();
+		const client = syncedStore.getPublicInterface();
+
+		client.setCallback( endpoint.POST );
 
 		return {
 			endpoint,
-			...storeInterface,
+			...client,
 		};
 	}
 	return {

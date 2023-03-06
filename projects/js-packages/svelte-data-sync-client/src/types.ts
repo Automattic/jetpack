@@ -14,6 +14,7 @@ export type SyncedStoreCallback< T > = ( value: T, abortSignal?: AbortSignal ) =
 export type SyncedStoreInterface< T > = {
 	store: SyncedWritable< T >;
 	pending: Readable< boolean >;
+	errors: Readable< SyncedStoreError< T >[] >;
 	setCallback: ( callback: SyncedStoreCallback< T > ) => void;
 };
 

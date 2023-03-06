@@ -66,20 +66,17 @@ export class SyncedStore< T > {
 		};
 	}
 
-	public getPublicInterface(): SyncedStoreInterface< T > {
-		return {
-			store: this.store,
-			pending: {
-				subscribe: this.pending.subscribe,
-			},
-			setCallback: this.setCallback.bind( this ),
-		};
-	}
-
-	public setCallback( callback: SyncedStoreCallback< T > ) {
+	/**
+	 * A callback that will synchronize the store in some way.
+	 * By default, this is set to endpoint.POST in the client initializer
+	 */
+	private setCallback( callback: SyncedStoreCallback< T > ) {
 		this.updateCallback = callback;
 	}
 
+	/**
+	 * Attempt to synchronize the store with the API.
+	 */
 	private async synchronize( value: T ): Promise< T | ApiError > {
 		if ( ! this.updateCallback ) {
 			return value;
@@ -104,6 +101,11 @@ export class SyncedStore< T > {
 		return new ApiError( 'SyncedStore::synchronize', 'failed_to_sync', 'Failed to sync' );
 	}
 
+	/**
+	 * A debounced version of synchronize.
+	 * This is used to prevent the API from being spammed with requests.
+	 * It also prevents the store from updating when the API returns an error.
+	 */
 	private async abortableSynchronize( prevValue: T, value: T, retry = 0 ) {
 		if ( this.abortController ) {
 			this.abortController.abort();
@@ -163,5 +165,23 @@ export class SyncedStore< T > {
 		}
 
 		return a === b;
+	}
+
+	/**
+	 * All of the class methods in this class are private.
+	 * Use this method to get the public interface of this class,
+	 * exposing as little as possible.
+	 */
+	public getPublicInterface(): SyncedStoreInterface< T > {
+		return {
+			store: this.store,
+			pending: {
+				subscribe: this.pending.subscribe,
+			},
+			errors: {
+				subscribe: this.errorStore.subscribe,
+			},
+			setCallback: this.setCallback.bind( this ),
+		};
 	}
 }
