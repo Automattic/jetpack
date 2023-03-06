@@ -21,7 +21,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || \Jetpack::is_connection_ready() ) {
 		Blocks::jetpack_register_block(
 			BLOCK_NAME,
 			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
