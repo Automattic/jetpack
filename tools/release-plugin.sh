@@ -17,11 +17,10 @@ function usage {
 	cat <<-EOH
 		usage: $0 [options] <plugin> <version>
 
-		Conduct a full release of a specified plugin through release branch creation. The <plugin> must be the slug of the plugin, such as plugins/jetpack
+		Conduct a full release of a specified plugin through release branch creation. Just the plugin name is fine, such as 'jetpack' or 'backup.' The version is optional, and if not specified, will be set to the next stable version.
 
 		Options:
-			-a Release an alpha version
-			-b Release a beta version
+			-h Show this help message.
 	EOH
 	exit 1
 }
