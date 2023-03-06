@@ -3,7 +3,6 @@
  */
 
 import type { ConnectionStatus } from './stores/connection';
-import type { CriticalCssStatus } from './stores/critical-css-status';
 import type { Optimizations } from './stores/modules';
 import type { BrowserInterfaceIframe, generateCriticalCSS } from 'jetpack-boost-critical-css-gen';
 
@@ -29,13 +28,8 @@ declare global {
 		};
 		connectionIframeOriginUrl: string;
 		connection: ConnectionStatus;
-		criticalCSS?: {
-			status: CriticalCssStatus;
-			suggestRegenerate: boolean;
-		};
 		showRatingPromptNonce?: string;
 		showScorePromptNonce?: string;
-		criticalCssDismissedRecommendations: string[];
 		dismissedScorePrompts: string[];
 		superCache: {
 			pluginActive: boolean;
@@ -70,8 +64,6 @@ declare global {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
-
-	type TracksEventProperties = { [ key: string ]: string | number };
 
 	const jpTracksAJAX: {
 		record_ajax_event(

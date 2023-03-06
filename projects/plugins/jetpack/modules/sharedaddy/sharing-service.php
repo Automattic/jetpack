@@ -107,6 +107,7 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+			'mastodon'         => 'Share_Mastodon',
 		);
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
@@ -1164,7 +1165,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<ul>';
 				}
 
-				$count = 1;
 				foreach ( $enabled['hidden'] as $service ) {
 					// Individual HTML for sharing service.
 					$klasses = array( 'share-' . $service->get_class() );
@@ -1177,12 +1177,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
-
-					if ( ( $count % 2 ) === 0 ) {
-						$sharing_content .= '<li class="share-end"></li>';
-					}
-
-					++$count;
 				}
 
 				// End of wrapper.

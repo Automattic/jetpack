@@ -33,6 +33,27 @@ use Automattic\Jetpack\Waf\Waf_Stats;
  */
 class Jetpack_Protect {
 
+	/**
+	 * Licenses product ID.
+	 *
+	 * @var string
+	 */
+	const JETPACK_SCAN_PRODUCT_IDS          = array(
+		2010, // JETPACK_SECURITY_DAILY.
+		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
+		2012, // JETPACK_SECURITY_REALTIME.
+		2013, // JETPACK_SECURITY_REALTIME_MONTHLY.
+		2014, // JETPACK_COMPLETE.
+		2015, // JETPACK_COMPLETE_MONTHLY.
+		2016, // JETPACK_SECURITY_TIER_1_YEARLY.
+		2017, // JETPACK_SECURITY_TIER_1_MONTHLY.
+		2019, // JETPACK_SECURITY_TIER_2_YEARLY.
+		2020, // JETPACK_SECURITY_TIER_2_MONTHLY.
+		2106, // JETPACK_SCAN.
+		2107, // JETPACK_SCAN_MONTHLY.
+		2108, // JETPACK_SCAN_REALTIME.
+		2109, // JETPACK_SCAN_REALTIME_MONTHLY.
+	);
 	const JETPACK_WAF_MODULE_SLUG           = 'waf';
 	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
 
@@ -91,6 +112,8 @@ class Jetpack_Protect {
 			},
 			1
 		);
+
+		add_filter( 'jetpack_connection_user_has_license', array( $this, 'jetpack_check_user_licenses' ), 10, 3 );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'protect_filter_available_modules' ), 10, 1 );
 	}
@@ -303,6 +326,32 @@ class Jetpack_Protect {
 	 */
 	public function protect_filter_available_modules( $modules ) {
 		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
+	}
+
+	/**
+	 * Check for user licenses.
+	 *
+	 * @param  boolean $has_license Check if user has a license.
+	 * @param  object  $licenses List of licenses.
+	 * @param string  $plugin_slug The plugin that initiated the flow.
+	 *
+	 * @return boolean
+	 */
+	public static function jetpack_check_user_licenses( $has_license, $licenses, $plugin_slug ) {
+		if ( $plugin_slug !== JETPACK_PROTECT_SLUG || $has_license ) {
+			return $has_license;
+		}
+
+		$license_found = false;
+
+		foreach ( $licenses as $license ) {
+			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
+				$license_found = true;
+				break;
+			}
+		}
+
+		return $license_found;
 	}
 
 	/**

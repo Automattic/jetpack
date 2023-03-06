@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectScreenLayout, useConnection } from '@automattic/jetpack-connection';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Button, Notice } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
-import { MIGRATION_HANDLER_ROUTE } from '../constants';
 import { WordPressLogo, ExternalLink } from '../illustrations';
 import migrationImage1 from './../../../../images/migration-1.png';
 import type React from 'react';
@@ -69,57 +69,60 @@ export function Migration( props: Props ) {
 
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
 	const isFullyConnected = isRegistered && isUserConnected;
+	const { tracks } = useAnalytics();
 
 	const onGetStartedClick = useCallback(
 		( e: Event ) => {
+			tracks.recordEvent( `jetpack_migration_get_started_click`, {
+				source_site_slug: sourceSiteSlug,
+			} );
 			// If it's fully connected, href attribute is the final destination
 			if ( ! isFullyConnected ) {
 				handleRegisterSite( e );
 			}
 		},
-		[ isFullyConnected, handleRegisterSite ]
+		[ isFullyConnected, handleRegisterSite, tracks, sourceSiteSlug ]
 	);
 
 	return (
 		<ConnectScreenLayout
 			className={ 'wordpress-branding' }
 			logo={ <WordPressLogo /> }
-			title={ __( 'Move to WordPress.com', 'wpcom-migration' ) }
+			title={ __( "Let's start moving your site over", 'wpcom-migration' ) }
 			images={ [ migrationImage1 ] }
 		>
 			<p>
 				{ __(
-					'Whether the result of poor performance, lack of support or limited bandwidth, ' +
-						"migrating your site to WordPress.com shouldn't be hard. That's our job! " +
-						'Migrate your site now and get managed by experienced, dedicated and specailists on ' +
-						'WordPress professionals.',
+					"You're a few steps away from upgrading your site to the speed and power of WordPress.com. " +
+						"Here's how it works: ",
 					'wpcom-migration'
 				) }
 			</p>
-			<ul>
-				<li className={ 'bullet-1' }>
+			<ol className={ 'migration-listing' }>
+				<li>{ __( 'Click Get started.', 'wpcom-migration' ) }</li>
+				<li>
 					{ __(
-						'No need to worry about budget - this is a free migration service offically provided by WordPress.com.',
+						"Choose what you'd like to move over from your old site - whether that's just the basics, or all of your content, plugins, and settings.",
 						'wpcom-migration'
 					) }
 				</li>
-				<li className={ 'bullet-2' }>
+				<li>
 					{ __(
-						'This is seamless and automated process. It takes one click to back-up and migrate your entire site to WordPress.com',
+						"Sit back, and let the plugin do the work. We'll email you when your migration's ready.",
 						'wpcom-migration'
 					) }
 				</li>
-				<li className={ 'bullet-3' }>
-					{ __( 'Move to WordPress.com provides low to zero downtime.', 'wpcom-migration' ) }
-				</li>
-			</ul>
+				<li>{ __( 'Welcome to WordPress.com!', 'wpcom-migration' ) }</li>
+			</ol>
 			<div className={ 'action-buttons' }>
 				<div className={ 'tos' }>{ ToS }</div>
 				<Button
 					isPrimary={ true }
 					isBusy={ buttonIsLoading }
 					disabled={ buttonIsLoading }
-					href={ `${ MIGRATION_HANDLER_ROUTE }?from=${ sourceSiteSlug }` }
+					href={ getRedirectUrl( 'wpcom-migration-handler-route', {
+						query: `from=${ sourceSiteSlug }`,
+					} ) }
 					onClick={ onGetStartedClick }
 				>
 					{ __( 'Get started', 'wpcom-migration' ) }
@@ -127,9 +130,7 @@ export function Migration( props: Props ) {
 				<Button
 					isSecondary={ true }
 					target={ '_blank' }
-					href={ getRedirectUrl(
-						'https://wordpress.com/support/import/import-an-entire-wordpress-site/'
-					) }
+					href={ getRedirectUrl( 'wpcom-migration-doc-link' ) }
 				>
 					{ createInterpolateElement( __( 'Learn more <ExternalLink />', 'wpcom-migration' ), {
 						ExternalLink: <ExternalLink size={ 20 } />,
@@ -146,10 +147,7 @@ export function Migration( props: Props ) {
 					__( 'Do you need help? <Button>Contact us.</Button>', 'wpcom-migration' ),
 					{
 						Button: (
-							<Button
-								href={ getRedirectUrl( 'https://wordpress.com/support/help-support-options/' ) }
-								target={ '_blank' }
-							/>
+							<Button href={ getRedirectUrl( 'wpcom-migration-contact-us' ) } target={ '_blank' } />
 						),
 					}
 				) }

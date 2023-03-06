@@ -40,7 +40,8 @@ export class API {
 		partialPathname: string,
 		method: RequestMethods = 'GET',
 		endpointNonce: string,
-		params?: RequestParams
+		params?: RequestParams,
+		abortSignal?: AbortSignal
 	) {
 		if ( ! this.isInitialized() ) {
 			console.error( 'API is not initialized', {
@@ -54,6 +55,7 @@ export class API {
 
 		const args: RequestInit = {
 			method,
+			signal: abortSignal,
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.restNonce,
@@ -63,7 +65,7 @@ export class API {
 			body: null,
 		};
 
-		if ( method === 'POST' && params ) {
+		if ( method === 'POST' ) {
 			args.body = JSON.stringify( { JSON: params } );
 		}
 

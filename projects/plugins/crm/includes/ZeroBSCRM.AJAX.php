@@ -3976,8 +3976,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					// } If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
-
-					$res['objectcount'] = $zbs->DAL->segments->getSegmentsCountIncParams( $ownerID, $per_page, $page_number, false, $possibleSearchTerm, $inArray, $sortField, $sortOrder );
+					// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$res['objectcount'] = (int) $zbs->DAL->segments->getSegmentsCountIncParams( $ownerID, $per_page, $page_number, false, $possibleSearchTerm, $inArray, $sortField, $sortOrder );
 
 				}
 

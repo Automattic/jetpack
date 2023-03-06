@@ -2,6 +2,15 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.25.2 - 2023-02-28
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.25.1 - 2023-02-20
+### Fixed
+- Add External link icon to links at the bottom of the disconnect modal. [#28922]
+
 ## 0.25.0 - 2023-02-15
 ### Added
 - Export ConnectScreenLayout component [#28770]

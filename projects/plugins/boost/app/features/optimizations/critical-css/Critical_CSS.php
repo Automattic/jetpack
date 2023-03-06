@@ -6,20 +6,13 @@ use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Recommendations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Error;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Request;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Generator_Success;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Dismiss;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Recommendations_Reset;
-use Automattic\Jetpack_Boost\REST_API\REST_API;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 
 class Critical_CSS implements Feature, Has_Endpoints {
 
@@ -49,13 +42,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	 * This is only run if Critical CSS module has been activated.
 	 */
 	public function setup() {
-		// Touch to setup the post type. This is a temporary hack.
-		// This should instantiate a new Post_Type_Storage class,
-		// so that Critical_CSS class is responsible
-		// for setting up the storage.
-		$recommendations = new Recommendations();
-		$recommendations->attach_hooks();
-
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 
 		if ( Generator::is_generating_critical_css() ) {
@@ -65,10 +51,6 @@ class Critical_CSS implements Feature, Has_Endpoints {
 
 		Critical_CSS_Invalidator::init();
 		CSS_Proxy::init();
-
-		add_filter( 'jetpack_boost_js_constants', array( $this, 'add_critical_css_constants' ) );
-
-		REST_API::register( $this->get_endpoints() );
 
 		// Admin Notices
 		Regenerate_Admin_Notice::init();
@@ -136,42 +118,13 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	}
 
 	/**
-	 * Add Critical CSS related constants to be passed to JavaScript only if the module is enabled.
-	 *
-	 * @param array $constants Constants to be passed to JavaScript.
-	 *
-	 * @return array
-	 */
-	public function add_critical_css_constants( $constants ) {
-		// Information about the current status of Critical CSS / generation.
-		$generator                = new Generator();
-		$constants['criticalCSS'] = array(
-			'status'            => $generator->get_local_critical_css_generation_info(),
-			'suggestRegenerate' => ! Critical_CSS_State::is_fresh(),
-		);
-
-		return $constants;
-	}
-
-	/**
 	 * @return Endpoint::class[]
 	 *
 	 */
 	public function get_endpoints() {
 		return array(
-			Generator_Status::class,
-			Generator_Request::class,
-			Generator_Success::class,
-			Recommendations_Dismiss::class,
-			Recommendations_Reset::class,
-			Generator_Error::class,
+			Critical_CSS_Insert::class,
+			Critical_CSS_Start::class,
 		);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function setup_trigger() {
-		return 'init';
 	}
 }

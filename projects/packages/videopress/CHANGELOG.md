@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2023-02-28
+### Added
+- Added support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode. [#28865]
+- VideoPress: add a note about __experimentalGroup InspectorControls property [#29152]
+- VideoPress: add player-bridge. Update player loading state [#29057]
+- VideoPress: add Poster panel to video block sidebar [#29150]
+- VideoPress: move the Playback Bar color panel into the colors panel group [#29054]
+- VideoPress: set poster height in block sidebar based on video ratio [#29173]
+
+### Changed
+- Updated package dependencies. [#29117]
+- VideoPress: tweak Remove poster button [#29157]
+
+### Removed
+- VideoPress: removed deprecated wp-block-bridge lib [#29107]
+- VideoPress: remove uploading image for video poster when uploading video [#29183]
+
+## [0.10.12] - 2023-02-20
+### Added
+- VideoPress: flush token when the requester retries [#28930]
+- VideoPress: improve requesting data for private videos [#28797]
+- VideoPress: propagate custom CSS from VideoPress video block to core/embed when transforming block [#29035]
+
+### Changed
+- Auto-formatting of some files. [#28516]
+- VideoPress: enqueue video block assets by using the Assets class [#28965]
+- VideoPress: fix detecting auto-generated issue [#28945]
+- VideoPress: tweak poster control styles [#29033]
+
+### Fixed
+- VideoPress: Fix dashboard fatal mistake when reading malformed local video [#29011]
+
 ## [0.10.11] - 2023-02-15
 ### Fixed
 - VideoPress: Disable local library upload button when video is already uploaded (mobile) [#28958]
@@ -712,6 +744,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.11.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.12...v0.11.0
+[0.10.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.11...v0.10.12
 [0.10.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.10...v0.10.11
 [0.10.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.9...v0.10.10
 [0.10.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.8...v0.10.9

@@ -398,14 +398,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private static function enqueue_contact_forms_style_script() {
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
-
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+		Jetpack_Gutenberg::load_assets_as_required( 'contact-form' );
 	}
 
 	/**
@@ -415,7 +408,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $handle - script name.
 	 */
 	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+		if ( 'jetpack-block-contact-form' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -516,7 +509,6 @@ class Grunion_Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
@@ -4184,6 +4176,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	public $field_styles = '';
 
 	/**
+	 * Styles to be applied to the field option
+	 *
+	 * @var string
+	 */
+	public $option_styles = '';
+
+	/**
 	 * Styles to be applied to the field
 	 *
 	 * @var string
@@ -4413,24 +4412,27 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$this->field_styles .= 'border-width: ' . (int) $this->get_attribute( 'borderwidth' ) . 'px;';
 		}
 		if ( is_numeric( $this->get_attribute( 'lineheight' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
-			$this->field_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--line-height: ' . esc_attr( $this->get_attribute( 'lineheight' ) ) . ';';
+			$this->field_styles  .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
+			$this->option_styles .= 'line-height: ' . (int) $this->get_attribute( 'lineheight' ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'bordercolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 			$this->field_styles .= 'border-color: ' . esc_attr( $this->get_attribute( 'bordercolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
-			$this->field_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
-			$this->block_styles .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
-			$this->field_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->field_styles  .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
+			$this->option_styles .= 'font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';
 		}
 
 		if ( ! empty( $this->get_attribute( 'labelcolor' ) ) ) {
@@ -4705,7 +4707,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-radio-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -4757,7 +4759,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$consent_type    = 'explicit' === $this->get_attribute( 'consenttype' ) ? 'explicit' : 'implicit';
 		$consent_message = 'explicit' === $consent_type ? $this->get_attribute( 'explicitconsentmessage' ) : $this->get_attribute( 'implicitconsentmessage' );
 
-		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "'>";
+		$field = "<label class='grunion-field-label consent consent-" . $consent_type . "' style='" . $this->label_styles . "'>";
 
 		if ( 'implicit' === $consent_type ) {
 			$field .= "\t\t<input aria-hidden='true' type='checkbox' checked name='" . esc_attr( $id ) . "' value='" . esc_attr__( 'Yes', 'jetpack' ) . "' style='display:none;' /> \n";
@@ -4786,7 +4788,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field  = $this->render_label( '', $id, $label, $required, $required_field_text );
 		$field .= '<div class="grunion-checkbox-multiple-options">';
 
-		$field_style = 'style="' . $this->field_styles . '"';
+		$field_style = 'style="' . $this->option_styles . '"';
 
 		foreach ( (array) $this->get_attribute( 'options' ) as $option_index => $option ) {
 			$option = Grunion_Contact_Form_Plugin::strip_tags( $option );
@@ -5044,11 +5046,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		 */
 		$required_field_text = esc_html( apply_filters( 'jetpack_required_field_text', $required_field_text ) );
 
-		$block_style = 'style="';
-		if ( $type === 'select' || in_array( $form_style, array( 'outlined', 'animated' ), true ) ) {
-			$block_style .= $this->block_styles;
-		}
-		$block_style .= '"';
+		$block_style = 'style="' . $this->block_styles . '"';
 
 		$field = "\n<div {$block_style} {$shell_field_class} >\n"; // new in Jetpack 6.8.0
 
@@ -5218,14 +5216,6 @@ function grunion_delete_old_spam() {
  * @return null|void
  */
 function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	// Do not do anything if the submission is not from a block.
-	if (
-		! isset( $extra_values['is_block'] )
-		|| ! $extra_values['is_block']
-	) {
-		return;
-	}
-
 	/*
 	 * Event details.
 	 */
@@ -5235,6 +5225,24 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
 		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
 	);
+
+	// old deprecated attribute that should been removed in May 2020.
+	if (
+		! isset( $extra_values['is_block'] )
+		|| ! $extra_values['is_block']
+	) {
+		$event_props['is_block'] = false;
+	} else {
+		$event_props['is_block'] = true;
+	}
+
+	$post = get_post( $post_id );
+	if ( $post ) {
+		$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
+		$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+	} else {
+		$event_props['no_post'] = 1;
+	}
 
 	/*
 	 * Record event.

@@ -1,8 +1,8 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
 import { castToNumber } from './cast-to-number';
-import type { ErrorSet } from '../stores/critical-css-recommendations';
-import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
+import type { ErrorSet } from '../stores/critical-css-state-errors';
 import type { SvelteComponent } from 'svelte';
 
 type Suggestion = {

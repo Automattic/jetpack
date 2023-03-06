@@ -22,13 +22,12 @@
 	},
 	"devDependencies": {
 		"@vercel/ncc": "0.36.0",
-		"jest": "29.3.1",
+		"jest": "29.4.3",
 		"nock": "13.2.9"
 	},
 	"scripts": {
 		"build": "ncc build src/index.js -o dist --source-map --license licenses.txt",
-		"test": "jest --config=tests/jest.config.js --verbose --runInBand",
-		"test-coverage": "jest --config=tests/jest.config.js --coverage --coverageDirectory=\"$COVERAGE_DIR\" --coverageReporters=clover"
+		"test": "jest --config=tests/jest.config.js --verbose --runInBand"
 	},
 	"engines": {
 		"node": "^18.13.0",

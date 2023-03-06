@@ -406,6 +406,17 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return the list of extensions that are available.
+	 *
+	 * @since 11.9
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_extensions() {
+		return self::$extensions;
+	}
+
+	/**
 	 * Check if an extension/block is already registered
 	 *
 	 * @since 7.2
@@ -705,9 +716,10 @@ class Jetpack_Gutenberg {
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
 			$initial_state['social'] = array(
-				'sharesData'                  => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                 => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'sharesData'                    => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                   => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( $blog_id ),
 			);
 		}
 

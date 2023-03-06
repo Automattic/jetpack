@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack_Options;
 use WP_Error;
 
@@ -260,28 +261,6 @@ class Waf_Rules_Manager {
 	}
 
 	/**
-	 * We allow for both, one IP per line or comma-; semicolon; or whitespace-separated lists. This also validates the IP addresses
-	 * and only returns the ones that look valid.
-	 *
-	 * @param string $ips List of ips - example: "8.8.8.8\n4.4.4.4,2.2.2.2;1.1.1.1 9.9.9.9,5555.5555.5555.5555".
-	 * @return array List of valid IP addresses. - example based on input example: array('8.8.8.8', '4.4.4.4', '2.2.2.2', '1.1.1.1', '9.9.9.9')
-	 */
-	public static function ip_option_to_array( $ips ) {
-		$ips = (string) $ips;
-		$ips = preg_split( '/[\s,;]/', $ips );
-
-		$result = array();
-
-		foreach ( $ips as $ip ) {
-			if ( filter_var( $ip, FILTER_VALIDATE_IP ) !== false ) {
-				$result[] = $ip;
-			}
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Generates the rules.php script
 	 *
 	 * @throws \Exception If filesystem is not available.
@@ -309,8 +288,8 @@ class Waf_Rules_Manager {
 			$wp_filesystem->mkdir( dirname( $block_ip_file_path ) );
 		}
 
-		$allow_list = self::ip_option_to_array( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
-		$block_list = self::ip_option_to_array( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
+		$allow_list = IP_Utils::get_ip_addresses_from_string( get_option( self::IP_ALLOW_LIST_OPTION_NAME ) );
+		$block_list = IP_Utils::get_ip_addresses_from_string( get_option( self::IP_BLOCK_LIST_OPTION_NAME ) );
 
 		$allow_rules_content = '';
 		// phpcs:disable WordPress.PHP.DevelopmentFunctions

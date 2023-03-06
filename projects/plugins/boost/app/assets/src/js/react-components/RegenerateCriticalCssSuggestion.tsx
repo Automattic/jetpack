@@ -1,6 +1,6 @@
 import { Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { hideRegenerateCriticalCssSuggestion } from '../stores/config';
+import { suggestRegenerateDS } from '../stores/data-sync-client';
 
 export const RegenerateCriticalCssSuggestion = ( { show } ) => {
 	if ( ! show ) {
@@ -12,7 +12,7 @@ export const RegenerateCriticalCssSuggestion = ( { show } ) => {
 			level="info"
 			title={ __( 'Regenerate Critical CSS', 'jetpack-boost' ) }
 			onClose={ () => {
-				hideRegenerateCriticalCssSuggestion();
+				suggestRegenerateDS.store.set( false );
 			} }
 			hideCloseButton={ true }
 		>

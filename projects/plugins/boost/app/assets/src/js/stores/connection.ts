@@ -41,13 +41,17 @@ async function initialize(): Promise< void > {
 		// refresh the modules state to fetch the latest.
 		// Ideally, we should replace this with a more general server-state update thing.
 		// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
-		if ( connection.connected ) {
+		// @REFACTORING: To get past compile errors.
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		if ( ( connection as { connected: boolean } ).connected ) {
 			await reloadModulesState();
 		}
 		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
 		await onConnectionComplete();
-		partialUpdate( connection );
+		// @REFACTORING: To get past compile errors.
+		// eslint-disable-next-line @typescript-eslint/ban-types
+		partialUpdate( connection as { connected: boolean } );
 	} catch ( e ) {
 		partialUpdate( {
 			isConnecting: false,

@@ -1,4 +1,4 @@
-Significance: minor
-Type: added
+Significance: patch
+Type: fixed
 
-Adds a "show post date" selector to Search customberg, allows non-multisite sites to show the post date in the "expanded" search result format.
+Fixes bad check against isMultiSite resulting in extended search format not showing expected additional post details.

@@ -1,3 +1,11 @@
+export type TracksEventProperties = { [ key: string ]: string | number };
+
+/**
+ * Send an event to Tracks.
+ *
+ * @param {string}                eventName Event name, minus the jetpack_boost_ prefix.
+ * @param {TracksEventProperties} eventProp Object containing the event properties. Please note that keys must be in snake_case.
+ */
 export async function recordBoostEvent(
 	eventName: string,
 	eventProp: TracksEventProperties
