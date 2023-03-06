@@ -1,3 +1,4 @@
+import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { API } from './API';
 import { API_Endpoint } from './Endpoint';
@@ -89,6 +90,7 @@ function setupRestApi( namespace: string ) {
  */
 export function initializeClient( namespace: string ) {
 	const api = setupRestApi( namespace );
+	const errorStores = [];
 
 	function createAsyncStore< T extends z.ZodSchema >( valueName: string, schema: T ) {
 		// Get the value from window and validate it with the schema.
@@ -117,17 +119,41 @@ export function initializeClient( namespace: string ) {
 
 		// The client doesn't need the whole store object.
 		// Only expose selected public methods:
-		const client = syncedStore.getPublicInterface();
+		const store = syncedStore.getPublicInterface();
 
-		client.setCallback( endpoint.POST );
+		store.setCallback( endpoint.POST );
 
-		return {
+		const client = {
 			endpoint,
-			...client,
+			...store,
 		};
+
+		// Keep track of all the error stores
+		errorStores.push( client.errors );
+
+		return client;
 	}
+
 	return {
+		/**
+		 * Create a new Synced Store.
+		 * @see createAsyncStore
+		 */
 		createAsyncStore,
+
+		/**
+		 * The API Object to interact with the REST API directly.
+		 * @see API
+		 *
+		 * Note that each client has `endpoint` property available.
+		 * @see API_Endpoint
+		 */
 		api,
+		/**
+		 * Each client has its own error store.
+		 * This takes all error stores and joins them into one.
+		 * Make sure that you run `globalErrorStore.subscribe()` after all the stores are created.
+		 */
+		globalErrorStore: () => derived( errorStores, $errorStores => $errorStores.flat() ),
 	};
 }
