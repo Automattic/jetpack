@@ -1,5 +1,9 @@
 import { debounce } from '../../../shared/debounce';
-import { convertZoomLevelToCameraDistance } from '../mapkit-utils';
+import {
+	convertZoomLevelToCameraDistance,
+	loadMapkitLibrary,
+	fetchMapkitKey,
+} from '../mapkit-utils';
 import resizeMapContainer from '../utils/resize-map-container';
 
 class MapkitBlock {
@@ -44,40 +48,15 @@ class MapkitBlock {
 
 	loadLibrary() {
 		return new Promise( resolve => {
-			const element = document.createElement( 'script' );
-			element.addEventListener(
-				'load',
-				() => {
-					this.mapkit = window.mapkit;
-					resolve();
-				},
-				{ once: true }
-			);
-			element.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
-			//element['data-libraries'] = 'services,full-map,geojson';
-			element.crossOrigin = 'anonymous';
-			document.head.appendChild( element );
+			loadMapkitLibrary( document, window ).then( mapkit => {
+				this.mapkit = mapkit;
+				resolve();
+			} );
 		} );
 	}
 
 	fetchKey() {
-		return new Promise( resolve => {
-			this.mapkit.init( {
-				authorizationCallback: done => {
-					fetch( `https://public-api.wordpress.com/wpcom/v2/sites/${ this.blog_id }/mapkit` )
-						.then( response => {
-							if ( response.status === 200 ) {
-								return response.json();
-							}
-							throw new Error( 'Mapkit API error' );
-						} )
-						.then( data => {
-							done( data.wpcom_mapkit_access_token );
-							resolve();
-						} );
-				},
-			} );
-		} );
+		return fetchMapkitKey( this.mapkit, this.blog_id, window );
 	}
 
 	initMap() {
