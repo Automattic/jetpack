@@ -133,6 +133,31 @@ And use the stores in Svelte.
 </div>
 ```
 
+### Error Handling
+
+Values are synced with the REST API asynchronously and Synced Store is going to attempt to automatically retry 3 times before giving up and reverting the UI value to the last known value.
+
+After 3 attempts have failed, Synced Store will [add the error to the error store](https://github.com/Automattic/jetpack/blob/981d325c76ceaa4e46ee00751307850d8b0bb947/projects/js-packages/svelte-data-sync-client/src/SyncedStore.ts#L136-L146).
+
+The error store can be used to display an error message to the user.
+
+You can view the available properties of the error object in the [SyncedStoreError](./src/types.ts#L46) type.
+
+```svelte
+<script>
+	const posts = client.createAsyncStore('posts', z.array(favorite_post_schema));
+	const errors = posts.errors;
+</script>
+
+{#if $errors.length > 0}
+	{@const error = $errors[0]}
+	<div class="error">
+		<h1>Error</h1>
+		<p>{error.message}</p>
+	</div>
+{/if}
+```
+
 
 ## Security
 
