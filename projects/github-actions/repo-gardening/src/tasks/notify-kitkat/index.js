@@ -119,7 +119,7 @@ function formatSlackMessage( payload, channel, message ) {
  */
 async function notifyKitKat( payload, octokit ) {
 	const {
-		issue: { number },
+		issue: { number, state },
 		repository,
 	} = payload;
 	const { owner, name: repo } = repository;
@@ -134,6 +134,12 @@ async function notifyKitKat( payload, octokit ) {
 	const channel = getInput( 'slack_kitkat_channel' );
 	if ( ! channel ) {
 		setFailed( 'notify-kitkat: Input slack_kitkat_channel is required but missing. Aborting.' );
+		return;
+	}
+
+	// Only proceed if the issue is stil open.
+	if ( 'open' !== state ) {
+		debug( `notify-kitkat: Issue #${ number } is already closed. Aborting.` );
 		return;
 	}
 
