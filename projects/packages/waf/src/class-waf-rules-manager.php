@@ -189,7 +189,6 @@ class Waf_Rules_Manager {
 	 *
 	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
 	 *
-	 * @throws Waf_Exception         If filesystem is unavailable.
 	 * @throws File_System_Exception If file writing fails initializing rule files.
 	 * @throws File_System_Exception If file writing fails writing to the rules entrypoint file.
 	 *
@@ -197,12 +196,7 @@ class Waf_Rules_Manager {
 	 */
 	public static function generate_rules() {
 		global $wp_filesystem;
-
-		try {
-			Waf_Runner::initialize_filesystem();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		Waf_Runner::initialize_filesystem();
 
 		$rules                = "<?php\n";
 		$entrypoint_file_path = Waf_Runner::get_waf_file_path( self::RULES_ENTRYPOINT_FILE );
@@ -245,7 +239,6 @@ class Waf_Rules_Manager {
 	 *
 	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
 	 *
-	 * @throws Waf_Exception         If filesystem is unavailable.
 	 * @throws Waf_Exception         If rules cannot be fetched from the API.
 	 * @throws File_System_Exception If file writing fails.
 	 *
@@ -253,12 +246,7 @@ class Waf_Rules_Manager {
 	 */
 	public static function generate_automatic_rules() {
 		global $wp_filesystem;
-
-		try {
-			Waf_Runner::initialize_filesystem();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		Waf_Runner::initialize_filesystem();
 
 		$automatic_rules_file_path = Waf_Runner::get_waf_file_path( self::AUTOMATIC_RULES_FILE );
 
@@ -293,7 +281,6 @@ class Waf_Rules_Manager {
 	 *
 	 * @global \WP_Filesystem_Base $wp_filesystem WordPress filesystem abstraction.
 	 *
-	 * @throws Waf_Exception         If filesystem is not available.
 	 * @throws File_System_Exception If writing to IP allow list file fails.
 	 * @throws File_System_Exception If writing to IP block list file fails.
 	 *
@@ -301,12 +288,7 @@ class Waf_Rules_Manager {
 	 */
 	public static function generate_ip_rules() {
 		global $wp_filesystem;
-
-		try {
-			Waf_Runner::initialize_filesystem();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		Waf_Runner::initialize_filesystem();
 
 		$allow_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_ALLOW_RULES_FILE );
 		$block_ip_file_path = Waf_Runner::get_waf_file_path( self::IP_BLOCK_RULES_FILE );

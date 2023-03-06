@@ -259,7 +259,6 @@ class Waf_Runner {
 	 * Initializes the WP filesystem and WAF directory structure.
 	 *
 	 * @throws File_System_Exception If filesystem is unavailable.
-	 * @throws Waf_Exception         If the WAF directory cannot be created.
 	 *
 	 * @return void
 	 */
@@ -272,11 +271,7 @@ class Waf_Runner {
 			throw new File_System_Exception( 'No filesystem available.' );
 		}
 
-		try {
-			self::initialize_waf_directory();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		self::initialize_waf_directory();
 	}
 
 	/**
@@ -362,7 +357,6 @@ class Waf_Runner {
 	/**
 	 * Deactivates the WAF by deleting the relevant options and emptying rules file.
 	 *
-	 * @throws Waf_Exception         If the filesystem is unavailable.
 	 * @throws File_System_Exception If file writing fails.
 	 *
 	 * @return void
@@ -372,12 +366,7 @@ class Waf_Runner {
 		delete_option( Waf_Rules_Manager::VERSION_OPTION_NAME );
 
 		global $wp_filesystem;
-
-		try {
-			self::initialize_filesystem();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		self::initialize_filesystem();
 
 		// If the rules file doesn't exist, there's nothing else to do.
 		if ( ! $wp_filesystem->exists( self::get_waf_file_path( Waf_Rules_Manager::RULES_ENTRYPOINT_FILE ) ) ) {

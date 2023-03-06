@@ -123,8 +123,7 @@ class Waf_Standalone_Bootstrap {
 	/**
 	 * Generates the bootstrap file.
 	 *
-	 * @throws File_System_Exception If the file system is not initialized.
-	 * @throws Waf_Exception         If the autoloader can not be found.
+	 * @throws File_System_Exception If the filesystem is not available.
 	 * @throws File_System_Exception If the WAF directory can not be created.
 	 * @throws File_System_Exception If the bootstrap file can not be created.
 	 *
@@ -139,11 +138,7 @@ class Waf_Standalone_Bootstrap {
 			throw new File_System_Exception( 'Can not work without the file system being initialized.' );
 		}
 
-		try {
-			$autoloader_file = $this->locate_autoloader_file();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		$autoloader_file = $this->locate_autoloader_file();
 
 		$bootstrap_file    = $this->get_bootstrap_file_path();
 		$mode_option       = get_option( Waf_Runner::MODE_OPTION_NAME, false );
