@@ -1,19 +1,22 @@
+<script lang="ts" context="module">
+	let alreadyResumed = false;
+</script>
+
 <script lang="ts">
 	import { getRedirectUrl } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import config from '../../../stores/config';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
-	import { modules } from '../../../stores/modules';
 	import {
-		requestCloudCss,
-		pollCloudCssStatus,
-		stopPollingCloudCssStatus,
-	} from '../../../utils/cloud-css';
+		criticalCssState,
+		regenerateLocalCriticalCss,
+		regenerateCriticalCss,
+	} from '../../../stores/critical-css-state';
+	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { modules } from '../../../stores/modules';
+	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
-	import { maybeGenerateCriticalCss } from '../../../utils/generate-critical-css';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
@@ -31,13 +34,27 @@
 	export let location, navigate;
 
 	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
+	const suggestRegenerate = suggestRegenerateDS.store;
+
+	async function resume() {
+		if ( alreadyResumed ) {
+			return;
+		}
+		alreadyResumed = true;
+
+		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
+			return regenerateCriticalCss();
+		}
+		await regenerateLocalCriticalCss( $criticalCssState );
+	}
 </script>
 
 <div class="jb-container--narrow">
 	<Module
 		slug={'critical-css'}
-		on:enabled={maybeGenerateCriticalCss}
-		on:mountEnabled={maybeGenerateCriticalCss}
+		on:enabled={resume}
+		on:mountEnabled={resume}
+		on:disabled={() => ( alreadyResumed = false )}
 	>
 		<h3 slot="title">
 			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
@@ -76,7 +93,7 @@
 		<div slot="notice">
 			<ReactComponent
 				this={RegenerateCriticalCssSuggestion}
-				show={$config.criticalCSS?.suggestRegenerate && $criticalCssStatus.status !== 'requesting'}
+				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
 			/>
 		</div>
 
@@ -89,9 +106,9 @@
 
 	<Module
 		slug={'cloud-css'}
-		on:enabled={requestCloudCss}
+		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
-		on:mountEnabled={pollCloudCssStatus}
+		on:mountEnabled={startPollingCloudStatus}
 	>
 		<h3 slot="title">
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}

@@ -9,11 +9,12 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
+import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { caption as captionIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import debugFactory from 'debug';
 /**
@@ -141,6 +142,8 @@ export default function VideoPressEdit( {
 
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
+
+	const [ showCaption, setShowCaption ] = useState( !! caption );
 
 	const {
 		videoData,
@@ -438,6 +441,9 @@ export default function VideoPressEdit( {
 		);
 	}
 
+	const removeCaptionLabel = __( 'Remove caption', 'jetpack-videopress-pkg' );
+	const addCaptionLabel = __( 'Add caption', 'jetpack-videopress-pkg' );
+
 	// Show VideoPress player.
 	return (
 		<div
@@ -448,6 +454,18 @@ export default function VideoPressEdit( {
 			} ) }
 		>
 			<BlockControls group="block">
+				<ToolbarButton
+					onClick={ () => {
+						setShowCaption( ! showCaption );
+						if ( showCaption && caption ) {
+							setAttributes( { caption: undefined } );
+						}
+					} }
+					icon={ captionIcon }
+					isPressed={ showCaption }
+					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
+				/>
+
 				<PosterImageBlockControl
 					attributes={ attributes }
 					setAttributes={ setAttributes }
@@ -555,6 +573,7 @@ export default function VideoPressEdit( {
 			/>
 
 			<Player
+				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				scripts={ scripts }

@@ -5,6 +5,7 @@ import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import save from './save';
 
 /**
  * Style dependencies
@@ -35,6 +36,12 @@ export const settings = {
 		align: false,
 		alignWide: false,
 		anchor: false,
+		color: {
+			background: true,
+			gradients: true,
+			link: true,
+			text: true,
+		},
 		customClassName: true,
 		className: true,
 		html: false,
@@ -43,8 +50,7 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {
