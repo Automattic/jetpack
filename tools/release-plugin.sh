@@ -147,27 +147,27 @@ done
 proceed_p "" "Proceed releasing above projects?"
 
 
+# Get the release branches for the projects.
 declare -A PREFIXES
+
+# If we're releasing Jetpack, we need to set that prefix first.
+if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
+	PREFIXES["$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/plugins/jetpack/composer.json)"]=$(jq -r '.version' "$BASE"/projects/plugins/jetpack/composer.json)
+fi
+
 for SLUG in "${!PROJECTS[@]}"; do
 	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$SLUG"/composer.json)
-	echo "$PREFIX: $SLUG"
 	if [[ -n "$PREFIX" ]] && [[ ! "${PREFIXES[*]}" =~ $PREFIX ]]; then
 		PREFIXES["$PREFIX"]=${PROJECTS[$SLUG]}
 	elif [[ -z "$PREFIX" ]]; then
 		die "No release branch prefix found for $SLUG, aborting."
 	fi
 done
-exit
-# Loop throug hthe prefixes associative array and echo them out in Prefix: Version format.
-for PREFIX in "${!PREFIXES[@]}"; do
-	echo "$PREFIX: ${PREFIXES[$PREFIX]}"
-done
-exit
 
+# Check if release branches already exist.
 RELEASE_BRANCH=
-
-for PREFIX in "${PREFIXES[@]}"; do
-	RELEASE_BRANCH="$PREFIX/branch-${VERSION%%-*}"
+for PREFIX in "${!PREFIXES[@]}"; do
+	RELEASE_BRANCH="$PREFIX/branch-${PREFIXES[$PREFIX]%%-*}"
 	REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
 	if [[ -n "$REMOTE_BRANCH" ]]; then
 		proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
@@ -175,9 +175,6 @@ for PREFIX in "${PREFIXES[@]}"; do
 	fi
 done
 
-
-
-exit
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
 if [[ "$CURRENT_BRANCH" != "trunk" ]]; then
