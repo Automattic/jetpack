@@ -768,21 +768,22 @@ function stats_print_odyssey_nudge( $html ) {
 			font-size: var( --font-body );
 
 			border: 1px solid var( --jp-gray-5 );
-			border-radius: 4px;
-			border-color: var( --jp-black );
+			border-left-color: var( --jp-black );
 			border-left-width: 6px;
+			border-radius: 4px;
 
 			margin-top: 24px;
 			background: white;
 			position: relative;
 		}
 		.stats-odyssey-notice--content {
-			padding: 24px 0 27px 18px;
+			padding: 24px 0 24px 30px;
 			font-size: 2em;
 			width: 100%;
 		}
 		.stats-odyssey-notice--content-header {
-			font-size: 16px;
+			font-size: 24px;
+			line-height: 32px;
 			margin: 0;
 			margin-bottom: 8px;
 		}
