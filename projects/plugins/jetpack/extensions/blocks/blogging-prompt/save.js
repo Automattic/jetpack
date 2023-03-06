@@ -2,27 +2,27 @@ import { useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import icon from './icon';
 
-function BloggingPromptsSave( { attributes } ) {
+function BloggingPromptSave( { attributes } ) {
 	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
-	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompts' } );
+	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompt' } );
 
 	return (
 		<div { ...blockProps }>
 			{ showLabel && (
-				<div className="jetpack-blogging-prompts__label">
+				<div className="jetpack-blogging-prompt__label">
 					{ icon }
 					{ __( 'Daily writing prompt', 'jetpack' ) }
 				</div>
 			) }
-			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
+			<div className="jetpack-blogging-prompt__prompt">{ prompt }</div>
 			{ showResponses && promptId && (
-				<div className="jetpack-blogging-prompts__answers">
+				<div className="jetpack-blogging-prompt__answers">
 					{ gravatars.map( ( { url } ) => {
 						return (
 							url && (
 								// eslint-disable-next-line jsx-a11y/alt-text
 								<img
-									className="jetpack-blogging-prompts__answers-gravatar"
+									className="jetpack-blogging-prompt__answers-gravatar"
 									// Gravatar are decorative, here.
 									aria-hidden="true"
 									src={ url }
@@ -32,7 +32,7 @@ function BloggingPromptsSave( { attributes } ) {
 						);
 					} ) }
 					<a
-						className="jetpack-blogging-prompts__answers-link"
+						className="jetpack-blogging-prompt__answers-link"
 						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
 						target="_blank"
 						rel="external noreferrer noopener"
@@ -45,4 +45,4 @@ function BloggingPromptsSave( { attributes } ) {
 	);
 }
 
-export default BloggingPromptsSave;
+export default BloggingPromptSave;
