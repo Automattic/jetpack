@@ -849,8 +849,8 @@ function stats_print_odyssey_nudge( $html ) {
 	</style>
 	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
 		<div class="stats-odyssey-notice--content">
-			<h2 class="stats-odyssey-notice--content-header">Explore the new Jetpack Stats</h2>
-			<p class="stats-odyssey-notice--content-text">We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.</p>
+			<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></h2>
+			<p class="stats-odyssey-notice--content-text"><?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?></p>
 			<div class="stats-odyssey-notice--action-bar">
 				<button class="dops-button stats-odyssey-notice--primary-button">
 					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
