@@ -75,9 +75,14 @@ class Attachment extends \WP_REST_Attachments_Controller {
 				'callback'            => array( $this, 'post_process_item' ),
 				'permission_callback' => array( $this, 'import_permissions_callback' ),
 				'args'                => array(
-					'id' => array(
+					'id'     => array(
 						'description' => __( 'Unique identifier for the attachment.', 'jetpack-import' ),
 						'type'        => 'integer',
+					),
+					'action' => array(
+						'type'     => 'string',
+						'enum'     => array( 'create-image-subsizes' ),
+						'required' => true,
 					),
 				),
 			)
