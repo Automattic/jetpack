@@ -244,20 +244,25 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.5 - 2023-02-20
+### 11.9-beta - 2023-02-28
 #### Enhancements
-- Import: add new `automattic/jetpack-import` package.
-- Jetpack: improve design of MediaButton component.
-- Sharing: update look and feel of sharing buttons when in "official" mode.
+- Assistant: add new card to highlight VaultPress Backup.
+- Form block: add form field style synchronization for input fields.
+- Related Posts: add support for font family in Related Posts block.
+- Sharing: add Mastodon sharing button.
 
 #### Improved compatibility
-- Stats: adjust margin for WordPress.com stats link in Jetpack dashboard.
-- VideoPress: extend media button for VideoPress video block.
-- VideoPress: restore v5/v6 transform for all platforms.
+- Stats: add upgrade notice for Odyssey Stats.
+- VideoPress: add support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode.
 
 #### Bug fixes
-- Form block: update form-styles script to prevent blurred forms on slow loading pages.
-- Story block: remove dependency on wp-components from the frontend code.
+- Connection: revise Jetpack connection agreement text to comply with our User Agreement.
+- Custom CSS: ensure the link to enable Custom CSS works in all languages.
+- Form block: increase form fields padding based on user-defined border-radius.
+- Form block: remove body font normalization in contact-form module and package.
+- Presentation shortcode: always add presentation container.
+- Recommendations: avoid applying coupon codes from the Assistant on products with trial prices.
+- Sharing buttons: fix display issues when choosing the icon-only option.
 
 --------
 
