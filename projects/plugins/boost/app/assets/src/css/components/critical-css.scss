@@ -90,13 +90,9 @@
 	}
 
 	.summary {
-		margin-right: 120px;
+		margin-right: 5px;
 		flex-grow: 1;
 		position: relative;
-
-		@media (max-width: 1080px) {
-			margin-right: 5px;
-		}
 
 		.successes, .generating {
 			color: $gray_40;
