@@ -139,7 +139,7 @@ async function notifyKitKat( payload, octokit ) {
 
 	// Only proceed if the issue is stil open.
 	if ( 'open' !== state ) {
-		debug( `notify-kitkat: Issue #${ number } is already closed. Aborting.` );
+		debug( `notify-kitkat: Issue #${ number } is state '${ state }'. Aborting.` );
 		return;
 	}
 
