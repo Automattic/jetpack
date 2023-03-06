@@ -150,7 +150,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug_police: New High priority bug! Please take a moment to triage this bug.`;
+		const message = `:bug-police: New High priority bug! Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
@@ -161,7 +161,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug_police: New Blocker bug!  Please take a moment to triage this bug.`;
+		const message = `:bug-police: New Blocker bug!  Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
