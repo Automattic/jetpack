@@ -252,7 +252,7 @@ if ! gh run watch "${BUILDID[0]}" --exit-status; then
 	echo "Build failed! Check for build errors on GitHub for more information." && die
 fi
 
-yellow "Build is complete.
+yellow "Build is complete."
 # After this, run tools/create-release-branch.sh to create a release branch for each project.
 for PLUGIN in "${!PROJECTS[@]}"; do
 	VERSION="${PROJECTS[$PLUGIN]}"
@@ -260,8 +260,5 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	yellow "Creating release branch for $PROJECT $VERSION"
 	tools/create-release-branch.sh "$PROJECT" "$VERSION"
 done
-
-Creating release branch."
-tools/create-release-branch.sh "$PROJECT" "$VERSION"
 
 yellow "Release branch created!"
