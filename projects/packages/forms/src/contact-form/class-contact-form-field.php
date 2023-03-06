@@ -995,8 +995,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			case 'checkbox-option':
 			case 'radio-option':
 				$field_type = str_replace( '-option', '', $type );
-				$field     .= $this->render_field_option( $id, $label, $field_type, $field_class );
-				break;
+				// For those options, we don't want wrapper elements. Just the HTML the render_field_option returns
+				return $this->render_field_option( $id, $label, $field_type, $field_class );
 			default: // text field
 				$field .= $this->render_default_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder, $type );
 				break;
