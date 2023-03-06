@@ -186,15 +186,15 @@ export const Waf = class extends Component {
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
 					checked={
-						this.props.hasScan || this.props.settings.automaticRulesAvailable
+						this.props.hasScan || this.props.settings?.automaticRulesAvailable
 							? this.state.automaticRulesEnabled
 							: false
 					}
 					disabled={
 						baseInputDisabledCase ||
-						( ! this.props.hasScan && ! this.props.settings.automaticRulesAvailable ) ||
+						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable ) ||
 						( this.props.isUpdatingWafSettings &&
-							this.state.automaticRulesEnabled !== this.props.settings.automaticRulesEnabled )
+							this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled )
 					}
 					onChange={ this.toggleAutomaticRules }
 				>
@@ -215,7 +215,7 @@ export const Waf = class extends Component {
 					disabled={
 						baseInputDisabledCase ||
 						( this.props.isUpdatingWafSettings &&
-							this.state.manualRulesEnabled !== this.props.settings.manualRulesEnabled )
+							this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled )
 					}
 					onChange={ this.toggleManualRules }
 				>
@@ -232,7 +232,7 @@ export const Waf = class extends Component {
 								disabled={
 									baseInputDisabledCase ||
 									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings.ipBlockList )
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
 								}
 								name="ipBlockList"
 								placeholder={ sprintf(
@@ -250,9 +250,9 @@ export const Waf = class extends Component {
 								className="waf__settings__ips__save-button"
 								disabled={
 									baseInputDisabledCase ||
-									this.state.ipBlockList === this.props.settings.ipBlockList ||
+									this.state.ipBlockList === this.props.settings?.ipBlockList ||
 									( this.props.isUpdatingWafSettings &&
-										this.state.ipBlockList !== this.props.settings.ipBlockList )
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
 								}
 								onClick={ this.onSubmit }
 							>
@@ -265,7 +265,7 @@ export const Waf = class extends Component {
 								disabled={
 									baseInputDisabledCase ||
 									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings.ipAllowList )
+										this.state.ipAllowList !== this.props.settings?.ipAllowList )
 								}
 								name="ipAllowList"
 								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
@@ -279,9 +279,9 @@ export const Waf = class extends Component {
 								className="waf__settings__ips__save-button"
 								disabled={
 									baseInputDisabledCase ||
-									this.state.ipAllowList === this.props.settings.ipAllowList ||
+									this.state.ipAllowList === this.props.settings?.ipAllowList ||
 									( this.props.isUpdatingWafSettings &&
-										this.state.ipAllowList !== this.props.settings.ipAllowList )
+										this.state.ipAllowList !== this.props.settings?.ipAllowList )
 								}
 								onClick={ this.onSubmit }
 							>
@@ -300,7 +300,7 @@ export const Waf = class extends Component {
 					disabled={
 						baseInputDisabledCase ||
 						( this.props.isUpdatingWafSettings &&
-							this.state.shareData !== this.props.settings.shareData )
+							this.state.shareData !== this.props.settings?.shareData )
 					}
 					onChange={ this.toggleShareData }
 				>
@@ -351,7 +351,7 @@ export const Waf = class extends Component {
 										'To ensure the firewall can best protect your site, please update: <code>auto_prepend_file</code> PHP directive to point to <code>%s</code> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
 										'jetpack'
 									),
-									this.props.settings.bootstrapPath
+									this.props.settings?.bootstrapPath
 								),
 								{
 									code: <code />,
@@ -374,7 +374,7 @@ export const Waf = class extends Component {
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={
 					<>
-						{ ! this.props.settings.automaticRulesAvailable
+						{ ! this.props.settings?.automaticRulesAvailable
 							? __( 'Upgrade to enable automatic rules', 'jetpack' )
 							: __(
 									'Upgrade to keep your site secure with up-to-date firewall rules',
@@ -386,7 +386,7 @@ export const Waf = class extends Component {
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
 							className="waf__settings__upgrade-popover"
 						>
-							{ ! this.props.settings.automaticRulesAvailable
+							{ ! this.props.settings?.automaticRulesAvailable
 								? __(
 										'The free version of the firewall only allows for use of manual rules.',
 										'jetpack'
