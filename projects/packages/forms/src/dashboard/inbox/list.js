@@ -1,4 +1,4 @@
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
@@ -19,9 +19,14 @@ const COLUMNS = [
 	},
 ];
 
-const InboxList = ( { currentResponseId, responses, setCurrentResponseId } ) => {
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-
+const InboxList = ( {
+	currentPage,
+	currentResponseId,
+	pages,
+	responses,
+	setCurrentPage,
+	setCurrentResponseId,
+} ) => {
 	const tableItems = useMemo(
 		() =>
 			responses.map( response => ( {
@@ -47,7 +52,7 @@ const InboxList = ( { currentResponseId, responses, setCurrentResponseId } ) => 
 
 			<PageNavigation
 				currentPage={ currentPage }
-				pages={ 10 }
+				pages={ pages }
 				onSelectPage={ setCurrentPage }
 				expandedRange={ 2 }
 			/>
