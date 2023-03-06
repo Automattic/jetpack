@@ -154,6 +154,17 @@
    - jetpack-reach
    - jetpack-approvers
 
+# The Crowdsignal team reviews changes to the Forms package.
+- name: Forms
+  paths:
+    - 'projects/packages/forms/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - crowdsignal
+    - jetpack-approvers
+
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
 - name: Default to Jetpack Approvers
