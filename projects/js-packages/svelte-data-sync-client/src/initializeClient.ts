@@ -92,7 +92,16 @@ export function initializeClient( namespace: string ) {
 	const api = setupRestApi( namespace );
 	const errorStores = [];
 
-	function createAsyncStore< T extends z.ZodSchema >( valueName: string, schema: T ) {
+	type AsyncStoreOptions = {
+		// If this is set to true, the store won't be added to the global error store.
+		hideFromGlobalErrors?: boolean;
+	};
+
+	function createAsyncStore< T extends z.ZodSchema >(
+		valueName: string,
+		schema: T,
+		opts: AsyncStoreOptions = {}
+	) {
 		// Get the value from window and validate it with the schema.
 		const { nonce, value } = getValidatedValue( namespace, valueName, schema );
 
@@ -128,8 +137,10 @@ export function initializeClient( namespace: string ) {
 			...store,
 		};
 
-		// Keep track of all the error stores
-		errorStores.push( client.errors );
+		if ( opts.hideFromGlobalErrors !== true ) {
+			// Keep track of all the error stores that don't opt out.
+			errorStores.push( client.errors );
+		}
 
 		return client;
 	}
