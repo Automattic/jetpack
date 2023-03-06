@@ -119,7 +119,7 @@ function formatSlackMessage( payload, channel, message ) {
  */
 async function notifyKitKat( payload, octokit ) {
 	const {
-		issue: { number },
+		issue: { number, state },
 		repository,
 	} = payload;
 	const { owner, name: repo } = repository;
@@ -137,6 +137,12 @@ async function notifyKitKat( payload, octokit ) {
 		return;
 	}
 
+	// Only proceed if the issue is stil open.
+	if ( 'open' !== state ) {
+		debug( `notify-kitkat: Issue #${ number } is state '${ state }'. Aborting.` );
+		return;
+	}
+
 	// Check if Kitkat input was already requested for that issue.
 	const hasBeenRequested = await hasKitkatSignalLabel( octokit, ownerLogin, repo, number );
 	if ( hasBeenRequested ) {
@@ -150,7 +156,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug_police: New High priority bug! Please take a moment to triage this bug.`;
+		const message = `:bug-police: New High priority bug! Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
@@ -161,7 +167,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug_police: New Blocker bug!  Please take a moment to triage this bug.`;
+		const message = `:bug-police: New Blocker bug!  Please take a moment to triage this bug.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
