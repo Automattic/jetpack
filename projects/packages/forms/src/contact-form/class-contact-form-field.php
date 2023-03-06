@@ -687,27 +687,6 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 	}
 
 	/**
-	 * Return the HTML for the field option.
-	 *
-	 * @param int    $id - the ID.
-	 * @param string $label - the label.
-	 * @param string $type - the type of the field.
-	 * @param string $class - the field class.
-	 *
-	 * @return string HTML
-	 */
-	private function render_field_option( $id, $label, $type, $class ) {
-		$field_style = 'style="' . $this->option_styles . '"';
-
-		$field  = "<label {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
-		$field .= "<input type='" . $type . "' name='" . esc_attr( $id ) . "[]' value='" . $label . "' " . $class . ' /> ';
-		$field .= esc_html( $label );
-		$field .= '</label>';
-
-		return $field;
-	}
-
-	/**
 	 * Return the HTML for the select field.
 	 *
 	 * @param int    $id - the ID.

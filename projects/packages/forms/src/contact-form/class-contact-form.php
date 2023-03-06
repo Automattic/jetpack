@@ -778,7 +778,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
 
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
-				// FIXME
 				$html .= ']' . esc_html( $content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
 				$html .= '/]';
