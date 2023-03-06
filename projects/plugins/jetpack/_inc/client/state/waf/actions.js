@@ -3,6 +3,7 @@ import {
 	WAF_SETTINGS_FETCH,
 	WAF_SETTINGS_FETCH_RECEIVE,
 	WAF_SETTINGS_FETCH_FAIL,
+	WAF_IP_ALLOW_LIST_UPDATED,
 } from 'state/action-types';
 
 export const fetchWafSettings = () => {
@@ -25,5 +26,14 @@ export const fetchWafSettings = () => {
 					error: error,
 				} );
 			} );
+	};
+};
+
+export const updateWafIpAllowList = allowList => {
+	return dispatch => {
+		dispatch( {
+			type: WAF_IP_ALLOW_LIST_UPDATED,
+			allowList,
+		} );
 	};
 };
