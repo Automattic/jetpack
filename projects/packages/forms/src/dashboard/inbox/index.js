@@ -6,7 +6,8 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { first, includes, map } from 'lodash';
+import classnames from 'classnames';
+import { find, includes, map } from 'lodash';
 import Layout from '../components/layout';
 import { STORE_NAME } from '../state';
 import InboxList from './list';
@@ -69,6 +70,10 @@ const Inbox = () => {
 		total
 	);
 
+	const contentClasses = classnames( 'jp-forms__inbox-content', {
+		'show-response': currentResponseId >= 0,
+	} );
+
 	return (
 		<Layout title={ __( 'Responses', 'jetpack-forms' ) } subtitle={ numberOfResponses }>
 			<div className="jp-forms__actions">
@@ -89,23 +94,25 @@ const Inbox = () => {
 					</Button>
 				</form>
 			</div>
-			<div className="jp-forms__inbox-content">
+
+			<div className={ contentClasses }>
 				<div className="jp-forms__inbox-content-column">
 					<InboxList
 						currentResponseId={ currentResponseId }
-						hasMore={ responses.length < total }
+						setCurrentResponseId={ setCurrentResponseId }
 						loading={ loading }
-						onSelectionChange={ setCurrentResponseId }
 						responses={ responses }
 						currentPage={ currentPage }
 						setCurrentPage={ setCurrentPage }
-						total={ total }
 						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 					/>
 				</div>
 
 				<div className="jp-forms__inbox-content-column">
-					<InboxResponse isLoading={ loading } response={ first( responses ) } />
+					<InboxResponse
+						isLoading={ loading }
+						response={ find( responses, { id: currentResponseId } ) }
+					/>
 				</div>
 			</div>
 		</Layout>

@@ -1,4 +1,6 @@
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
 
@@ -17,14 +19,35 @@ const COLUMNS = [
 	},
 ];
 
-const InboxList = ( { responses, onSelectionChange, currentPage, setCurrentPage, pages } ) => {
+const InboxList = ( {
+	currentPage,
+	currentResponseId,
+	pages,
+	responses,
+	setCurrentPage,
+	setCurrentResponseId,
+} ) => {
+	const tableItems = useMemo(
+		() =>
+			responses.map( response => ( {
+				...response,
+				onClick: () => setCurrentResponseId( response.id ),
+				isActive: response.id === currentResponseId,
+			} ) ),
+		[ currentResponseId, responses, setCurrentResponseId ]
+	);
+
+	if ( responses.length === 0 ) {
+		return null;
+	}
+
 	return (
 		<>
 			<Table
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
-				items={ responses }
-				onSelectionChange={ onSelectionChange }
+				items={ tableItems }
+				onSelectionChange={ noop }
 			/>
 
 			<PageNavigation
