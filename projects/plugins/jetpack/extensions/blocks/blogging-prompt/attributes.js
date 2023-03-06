@@ -27,4 +27,8 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	tagsAdded: {
+		type: 'boolean',
+		default: false,
+	},
 };

@@ -36,6 +36,7 @@
    - '!projects/packages/wp-js-data-sync/**'
    - '!projects/packages/backup/**'
    - '!projects/packages/import/**'
+   - '!projects/packages/forms/**'
    - '!projects/packages/search/**'
    - '!projects/packages/stats/**'
    - '!projects/packages/stats-admin/**'
@@ -153,6 +154,18 @@
   teams:
    - jetpack-reach
    - jetpack-approvers
+
+# The Crowdsignal team reviews changes to the Forms package.
+- name: Forms
+  paths:
+    - 'projects/packages/forms/**'
+    - '!projects/plugins/*/composer.lock'
+    - '!projects/plugins/*/composer.json'
+    - '!projects/plugins/*/changelog/*'
+  teams:
+    - '@cgastrell'
+    - '@ice9js'
+    - jetpack-approvers
 
 # Jetpack Approvers review everything that hasn't been specifically assigned above.
 # This needs to be last.
