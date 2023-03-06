@@ -254,11 +254,12 @@ fi
 
 yellow "Build is complete."
 # After this, run tools/create-release-branch.sh to create a release branch for each project.
-for PLUGIN in "${!PROJECTS[@]}"; do
-	VERSION="${PROJECTS[$PLUGIN]}"
-	PROJECT="$PLUGIN"
+for PREFIX in "${!PREFIXES[@]}"; do
+	git checkout prerelease
+	VERSION="${PREFIXES[$PREFIX]}"
+	PROJECT="$PREFIX"
 	yellow "Creating release branch for $PROJECT $VERSION"
 	tools/create-release-branch.sh "$PROJECT" "$VERSION"
 done
 
-yellow "Release branch created!"
+yellow "Release branches created!"
