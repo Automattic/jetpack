@@ -4,9 +4,9 @@
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 /*
- * Internal dependencies
+ * Types
  */
-import { VideoPreview } from '../blocks/video/types';
+import type { VideoPreview } from '../blocks/video/types';
 
 export type UsePreviewResult = {
 	preview: VideoPreview;
