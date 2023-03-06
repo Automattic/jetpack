@@ -164,7 +164,9 @@ export const Waf = class extends Component {
 
 	render() {
 		const isWafActive = this.props.getOptionValue( 'waf' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' ),
+			baseInputDisabledCase =
+				! isWafActive || unavailableInOfflineMode || this.props.isSavingAnyOption( [ 'waf' ] );
 
 		const moduleHeader = (
 			<div className="waf__header">
@@ -189,10 +191,8 @@ export const Waf = class extends Component {
 							: false
 					}
 					disabled={
-						! isWafActive ||
+						baseInputDisabledCase ||
 						( ! this.props.hasScan && ! this.props.settings.automaticRulesAvailable ) ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf' ] ) ||
 						( this.props.isUpdatingWafSettings &&
 							this.state.automaticRulesEnabled !== this.props.settings.automaticRulesEnabled )
 					}
@@ -213,9 +213,7 @@ export const Waf = class extends Component {
 				<CompactFormToggle
 					checked={ this.state.manualRulesEnabled }
 					disabled={
-						! isWafActive ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf' ] ) ||
+						baseInputDisabledCase ||
 						( this.props.isUpdatingWafSettings &&
 							this.state.manualRulesEnabled !== this.props.settings.manualRulesEnabled )
 					}
@@ -232,9 +230,7 @@ export const Waf = class extends Component {
 							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'waf' ] ) ||
+									baseInputDisabledCase ||
 									( this.props.isUpdatingWafSettings &&
 										this.state.ipBlockList !== this.props.settings.ipBlockList )
 								}
@@ -253,10 +249,8 @@ export const Waf = class extends Component {
 								type="button"
 								className="waf__settings__ips__save-button"
 								disabled={
+									baseInputDisabledCase ||
 									this.state.ipBlockList === this.props.settings.ipBlockList ||
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'waf' ] ) ||
 									( this.props.isUpdatingWafSettings &&
 										this.state.ipBlockList !== this.props.settings.ipBlockList )
 								}
@@ -269,9 +263,7 @@ export const Waf = class extends Component {
 							<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'waf' ] ) ||
+									baseInputDisabledCase ||
 									( this.props.isUpdatingWafSettings &&
 										this.state.ipAllowList !== this.props.settings.ipAllowList )
 								}
@@ -286,10 +278,8 @@ export const Waf = class extends Component {
 								type="button"
 								className="waf__settings__ips__save-button"
 								disabled={
+									baseInputDisabledCase ||
 									this.state.ipAllowList === this.props.settings.ipAllowList ||
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'waf' ] ) ||
 									( this.props.isUpdatingWafSettings &&
 										this.state.ipAllowList !== this.props.settings.ipAllowList )
 								}
@@ -308,9 +298,7 @@ export const Waf = class extends Component {
 				<CompactFormToggle
 					checked={ this.state.shareData }
 					disabled={
-						! isWafActive ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf' ] ) ||
+						baseInputDisabledCase ||
 						( this.props.isUpdatingWafSettings &&
 							this.state.shareData !== this.props.settings.shareData )
 					}
