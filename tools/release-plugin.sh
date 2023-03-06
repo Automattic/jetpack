@@ -204,7 +204,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	VERSION="${PROJECTS[$PLUGIN]}"
 	case $VERSION in
 		*-a* ) ARGS+=('-a');;
-		*-beta* ) ARGS+=('-b');;
+		*-beta ) ARGS+=('-b');;
 	esac
 
 	# Explicitly pass the version number we want so there are no surprises.
@@ -213,21 +213,22 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	tools/changelogger-release.sh "${ARGS[@]}"
 done
 
-exit
 # When it completes, wait for user to edit anything they want, then push key to continue.
 read -r -s -p $'Edit all the changelog entries you want (in a separate terminal or your text editor of choice (make sure to save)), then press enter when finished to continue the release process.'
 echo ""
-exit
-yellow "Committing changes."
-git add --all
-git commit -am "Changelog edits for $PROJECT"
 
-# If we're running a beta, amend the changelog
-if [[ "$PROJECT" == "projects/jetpack" && "$ALPHABETA" == "-b" ]]; then
-	yellow "Releasing a beta, amending the readme.txt"
+yellow "Committing changes."
+#git add --all
+#git commit -am "Changelog edits."
+
+# If we're releasing Jetpack and it's a beta, amend the readme.txt
+if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" =~ '-beta' ]]; then
+	yellow "Releasing a beta for Jetpack, amending the readme.txt"
 	pnpm jetpack changelog squash plugins/jetpack readme
-	git commit -am "Amend readme.txt"
-fi
+	#git commit -am "Amend readme.txt"
+fi 
+exit
+# If we're running a beta, amend the changelog
 
 HEADSHA=$(git rev-parse HEAD)
 yellow "Pushing changes."
