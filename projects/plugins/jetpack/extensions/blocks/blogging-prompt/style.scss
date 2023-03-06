@@ -1,15 +1,17 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
 .jetpack-blogging-prompts {
-	border: 1px solid #dcdcde;
+	border: 1px solid $gray-300;
 	border-radius: 2px;
 	padding: 24px;
 
 	&__label {
 		font-size: 14px;
-		margin-bottom: 16px;
+		margin-bottom: $grid-unit-20;
 
 		svg {
-			height: 24px;
-			width: 24px;
+			height: $icon-size;
+			width: $icon-size;
 			margin-right: 6px;
 			vertical-align: bottom;
 		}
@@ -27,11 +29,11 @@
 
 	&__answers {
 		font-size: 16px;
-		margin-top: 16px;
+		margin-top: $grid-unit-20;
 	}
 
 	&__answers-gravatar {
-		border: 2px solid white;
+		border: 2px solid $white;
 		border-radius: 50%;
 		height: 24px;
 		vertical-align: middle;

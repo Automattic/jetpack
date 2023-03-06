@@ -34,6 +34,8 @@ function BloggingPromptsSave( { attributes } ) {
 					<a
 						className="jetpack-blogging-prompts__answers-link"
 						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
+						target="_blank"
+						rel="external noreferrer noopener"
 					>
 						{ __( 'View all responses', 'jetpack' ) }
 					</a>

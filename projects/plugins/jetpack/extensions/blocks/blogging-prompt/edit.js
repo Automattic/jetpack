@@ -113,7 +113,7 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 						className="jetpack-blogging-prompts__answers-link"
 						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
 						target="_blank"
-						rel="noreferrer"
+						rel="external noreferrer noopener"
 					>
 						{ __( 'View all responses', 'jetpack' ) }
 					</a>
