@@ -61,9 +61,15 @@ const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level 
 /**
  * React component that renders a block conversion control
  *
+ * @param {object} props            - Component props
+ * @param {string} props.clientId   - Block client ID
+ * @param {object} props.attributes - Block attributes
  * @returns {ReactElement} Transform panel component.
  */
-export default function TransformControl() {
+export default function TransformControl( {
+	clientId: currentBlockClientId,
+	attributes: currentBlockAttributes,
+} ) {
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId() );
 
 	const { getBlocks } = useSelect( blockEditorStore );
@@ -74,6 +80,15 @@ export default function TransformControl() {
 		const allV5Instances = getAllCoreVideoVideoPressVideoBlocks( getBlocks(), true );
 		if ( ! allV5Instances?.length ) {
 			return;
+		}
+
+		// Ensure the current block is included in the list.
+		if ( ! allV5Instances.find( block => block.clientId === currentBlockClientId ) ) {
+			allV5Instances.push( {
+				clientId: currentBlockClientId,
+				name: 'core/video',
+				currentBlockAttributes,
+			} );
 		}
 
 		allV5Instances.forEach( block => {
