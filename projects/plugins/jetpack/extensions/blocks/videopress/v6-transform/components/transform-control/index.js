@@ -18,10 +18,48 @@ import { ReactElement } from 'react';
 import { isVideoPressBlockBasedOnAttributes } from '../../../utils';
 import styles from './styles.module.scss';
 
+const videoPressVideoBlocks = { instances: [] };
+
+// eslint-disable-next-line jsdoc/require-returns-check
+/**
+ * Recursively get all VideoPress blocks
+ *
+ * @param {Array} blocks - Array of blocks
+ * @param {boolean} root - Whether it is the root block
+ * @param {number} level - Nesting level in the block tree
+ * @returns {Array} - Array of VideoPress blocks
+ */
+const getAllVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
+	if ( root ) {
+		// Clear the instances when it's called from the root block
+		videoPressVideoBlocks.instances = [];
+	}
+
+	blocks.forEach( block => {
+		if ( block.innerBlocks.length ) {
+			getAllVideoPressVideoBlocks( block.innerBlocks, false, level + 1 );
+			return;
+		}
+
+		const { clientId, name, attributes } = block;
+		if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
+			videoPressVideoBlocks.instances.push( { clientId, name, attributes } );
+		}
+	} );
+
+	/*
+	 * Level zero is the forst call,
+	 * but is the last of the recursive calls.
+	 */
+	if ( level === 0 ) {
+		return videoPressVideoBlocks.instances;
+	}
+};
+
 /**
  * React component that renders a block conversion control
  *
- * @returns {ReactElement}          - Transform panel component.
+ * @returns {ReactElement} Transform panel component.
  */
 export default function TransformControl() {
 	const postId = useSelect( select => select( editorStore ).getCurrentPostId() );
@@ -31,9 +69,12 @@ export default function TransformControl() {
 	const { tracks } = useAnalytics();
 
 	const handleTransformAll = () => {
-		const blocks = getBlocks();
+		const allV6Instances = getAllVideoPressVideoBlocks( getBlocks(), true );
+		if ( ! allV6Instances?.length ) {
+			return;
+		}
 
-		blocks.forEach( block => {
+		allV6Instances.forEach( block => {
 			const { clientId, name, attributes } = block;
 			if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
 				replaceBlock( clientId, createBlock( 'videopress/video', attributes ) );
