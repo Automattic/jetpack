@@ -91,13 +91,19 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.7.0 - 2023-02-07
+### 1.8.0 - 2023-03-07
 #### Added
-- Added Advanced Social plan to pricing table
+- Add Social Image Generator editor panel to post sidebar
+- Add Social Image Generator feature flag to Jetpack Social
 
 #### Changed
-- Moved resharing to be available in the free plan
+- Changed remaining shares phrasing
+- Remove `ci.targets` from package.json. Better scoping of e2e tests.
+- Update billing language
 - Updated package dependencies.
-- Update playwright dependency
-- Use `flex-end` instead of `end` for better browser compatibility.
+- Update to React 18.
+
+#### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement
+- Use External Link icons for external links
 
