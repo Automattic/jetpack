@@ -137,7 +137,7 @@ export default ( {
 						)
 					}
 					disabled={ attributes.points.length > 1 }
-					value={ attributes.zoom }
+					value={ Math.round( attributes.zoom ) }
 					onChange={ value => {
 						setAttributes( { zoom: value } );
 						if ( mapRef.current && mapRef.current.updateZoom ) {
