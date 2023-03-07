@@ -27,6 +27,7 @@ export default ( {
 	removeAPIKey,
 	updateAPIKey,
 	setPointVisibility,
+	mapProvider,
 } ) => {
 	const updateAlignment = value => {
 		setAttributes( { align: value } );
@@ -165,40 +166,42 @@ export default ( {
 					/>
 				</PanelBody>
 			) : null }
-			<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-				<TextControl
-					help={
-						'wpcom' === state.apiKeySource && (
-							<>
-								{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
-								<ExternalLink href="https://account.mapbox.com/access-tokens/">
-									{ __( 'Find it on Mapbox', 'jetpack' ) }
-								</ExternalLink>
-							</>
-						)
-					}
-					label={ __( 'Mapbox Access Token', 'jetpack' ) }
-					value={ state.apiKeyControl }
-					onChange={ value => setState( { apiKeyControl: value } ) }
-				/>
-				<ButtonGroup>
-					<Button
-						type="button"
-						onClick={ updateAPIKey }
-						disabled={ ! state.apiKeyControl || state.apiKeyControl === state.apiKey }
-					>
-						{ __( 'Update Token', 'jetpack' ) }
-					</Button>
-					<Button
-						type="button"
-						onClick={ removeAPIKey }
-						disabled={ 'wpcom' === state.apiKeySource }
-						variant="secondary"
-					>
-						{ __( 'Remove Token', 'jetpack' ) }
-					</Button>
-				</ButtonGroup>
-			</PanelBody>
+			{ mapProvider === 'mapbox' ? (
+				<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
+					<TextControl
+						help={
+							'wpcom' === state.apiKeySource && (
+								<>
+									{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
+									<ExternalLink href="https://account.mapbox.com/access-tokens/">
+										{ __( 'Find it on Mapbox', 'jetpack' ) }
+									</ExternalLink>
+								</>
+							)
+						}
+						label={ __( 'Mapbox Access Token', 'jetpack' ) }
+						value={ state.apiKeyControl }
+						onChange={ value => setState( { apiKeyControl: value } ) }
+					/>
+					<ButtonGroup>
+						<Button
+							type="button"
+							onClick={ updateAPIKey }
+							disabled={ ! state.apiKeyControl || state.apiKeyControl === state.apiKey }
+						>
+							{ __( 'Update Token', 'jetpack' ) }
+						</Button>
+						<Button
+							type="button"
+							onClick={ removeAPIKey }
+							disabled={ 'wpcom' === state.apiKeySource }
+							variant="secondary"
+						>
+							{ __( 'Remove Token', 'jetpack' ) }
+						</Button>
+					</ButtonGroup>
+				</PanelBody>
+			) : null }
 		</>
 	);
 };
