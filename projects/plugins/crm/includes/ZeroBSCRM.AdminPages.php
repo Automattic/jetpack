@@ -175,7 +175,7 @@ function zeroBSCRM_update_edit_form() {
 
 /*
 ======================================================
-	/ Edit Post Messages (i.e. "Post Updated => Event Updated")
+	/ Edit Post Messages (i.e. "Post Updated => Task Updated")
 	/ See: http://ryanwelcher.com/2014/10/change-wordpress-post-updated-messages/
 	====================================================== */
 
@@ -193,7 +193,7 @@ function zeroBSCRM_post_updated_messages( $messages ) {
 		3  => __( 'Custom field deleted.', 'zero-bs-crm' ),
 		4  => __( 'Task updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Event restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false,
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Task restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		6  => __( 'Task saved.', 'zero-bs-crm' ),
 		7  => __( 'Task saved.', 'zero-bs-crm' ),
 		8  => __( 'Task submitted.', 'zero-bs-crm' ),
@@ -2546,7 +2546,7 @@ function zeroBSCRM_html_deletion() {
 
 		// } Fill out
 		$delType = __( 'Task', 'zero-bs-crm' );
-		$delStr  = 'Event ID: ' . $delID;
+		$delStr  = 'Task ID: ' . $delID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 

@@ -2667,7 +2667,7 @@ final class ZeroBSCRM {
 							break;
 
 						case 'event':
-							$objType = __( 'Event', 'zero-bs-crm' );
+							$objType = __( 'Task', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							break;
 
 						case 'form':
