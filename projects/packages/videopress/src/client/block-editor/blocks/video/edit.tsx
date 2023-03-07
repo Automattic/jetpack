@@ -12,6 +12,7 @@ import { createBlock } from '@wordpress/blocks';
 import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
+import { store as coreEditorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
@@ -173,6 +174,27 @@ export default function VideoPressEdit( {
 		},
 		[ videoPressUrl ]
 	);
+
+	const {
+		lockPostSaving,
+		unlockPostSaving,
+		lockPostAutosaving,
+		unlockPostAutosaving,
+	} = useDispatch( coreEditorStore );
+
+	// Locks the post saving while the video preview is being loaded
+	useEffect( () => {
+		const postSavingLockName = `videopress-loading-preview-${ guid }`;
+		if ( isRequestingEmbedPreview ) {
+			debug( 'Locking the post save action: ' + postSavingLockName );
+			lockPostSaving( postSavingLockName );
+			lockPostAutosaving( postSavingLockName );
+		} else {
+			debug( 'Unlocking the post save action: ' + postSavingLockName );
+			unlockPostSaving( postSavingLockName );
+			unlockPostAutosaving( postSavingLockName );
+		}
+	}, [ isRequestingEmbedPreview ] );
 
 	// Pick video properties from preview.
 	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
