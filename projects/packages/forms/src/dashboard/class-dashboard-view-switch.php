@@ -53,12 +53,12 @@ class Dashboard_View_Switch {
 		</div>
 		<div id="jetpack-forms__view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
-				<div class="screen-switcher">
-					<a class="screen-switcher__button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
+				<div class="jp-forms__view-switcher">
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
 						<strong><?php esc_html_e( 'Classic', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-forms' ); ?>
 					</a>
-					<a class="screen-switcher__button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
 						<strong><?php esc_html_e( 'Modern', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The new and improved Jetpack Forms dashboard.', 'jetpack-forms' ); ?>
 					</a>
@@ -156,11 +156,11 @@ class Dashboard_View_Switch {
 				}
 			}
 
-			.screen-switcher:not(:hover) .screen-switcher__button:nth-child(2) > strong {
+			.jp-forms__view-switcher:not(:hover) .jp-forms__view-switcher-button:nth-child(2) > strong {
 				color:var(--wp-admin-theme-color)
 			}
 
-			.screen-switcher__button, a.screen-switcher__button {
+			.jp-forms__view-switcher-button, a.jp-forms__view-switcher-button {
 				background: transparent;
 				border: 1px solid #0000;
 				border-radius: 4px;
@@ -174,22 +174,22 @@ class Dashboard_View_Switch {
 				text-align:left
 			}
 
-			a.screen-switcher__button.is-active {
+			a.jp-forms__view-switcher-button.is-active {
 				border-color: var(--wp-admin-theme-color);
 				margin-bottom:4px
 			}
 
-			.screen-switcher__button:last-child, a.screen-switcher__button:last-child {
+			.jp-forms__view-switcher-button:last-child, a.jp-forms__view-switcher-button:last-child {
 				margin-bottom:0
 			}
 
-			.screen-switcher__button strong, a.screen-switcher__button strong {
+			.jp-forms__view-switcher-button strong, a.jp-forms__view-switcher-button strong {
 				display: block;
 				font-size: 13px;
 				margin-bottom:4px
 			}
 
-			.screen-switcher__button:focus > strong, .screen-switcher__button:hover > strong, a.screen-switcher__button:focus > strong, a.screen-switcher__button:hover > strong {
+			.jp-forms__view-switcher-button:focus > strong, .jp-forms__view-switcher-button:hover > strong, a.jp-forms__view-switcher-button:focus > strong, a.jp-forms__view-switcher-button:hover > strong {
 				color:var(--wp-admin-theme-color)
 			}
 CSS
