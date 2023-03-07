@@ -4,10 +4,10 @@
 import {
 	ASYNC_ROUTINE_DISPATCH,
 	FINISH_RESOLUTION,
-	INBOX_SEARCH,
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_FAIL,
 	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_QUERY_SEARCH_UPDATE,
 } from './action-types';
 
 /**
@@ -59,9 +59,9 @@ export const failResponsesFetch = error => {
 	};
 };
 
-export const setSearch = search => {
+export const setSearchQuery = searchQuery => {
 	return {
-		type: INBOX_SEARCH,
-		search,
+		type: RESPONSES_QUERY_SEARCH_UPDATE,
+		searchQuery,
 	};
 };

@@ -6,10 +6,10 @@ import { combineReducers } from '@wordpress/data';
  * Internal dependencies
  */
 import {
-	INBOX_SEARCH,
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_RECEIVE,
 	RESPONSES_FETCH_FAIL,
+	RESPONSES_QUERY_SEARCH_UPDATE,
 } from './action-types';
 
 const loading = ( state = false, action ) => {
@@ -48,9 +48,9 @@ const total = ( state = 0, action ) => {
 	return state;
 };
 
-const search = ( state = '', action ) => {
-	if ( action.type === INBOX_SEARCH ) {
-		return action.search;
+const searchQuery = ( state = '', action ) => {
+	if ( action.type === RESPONSES_QUERY_SEARCH_UPDATE ) {
+		return action.searchQuery;
 	}
 
 	return state;
@@ -60,5 +60,5 @@ export default combineReducers( {
 	loading,
 	responses,
 	total,
-	search,
+	searchQuery,
 } );
