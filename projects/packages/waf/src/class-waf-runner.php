@@ -382,20 +382,14 @@ class Waf_Runner {
 	/**
 	 * Handle updates to the WAF
 	 *
-	 * @throws Waf_Exception If updating the WAF fails.
-	 *
 	 * @return void
 	 */
 	public static function update_waf() {
-		try {
-			Waf_Rules_Manager::update_rules_if_changed();
+		Waf_Rules_Manager::update_rules_if_changed();
 
-			// Re-generate the standalone bootstrap file on every update
-			// TODO: We may consider only doing this when the WAF version changes
-			( new Waf_Standalone_Bootstrap() )->generate();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		// Re-generate the standalone bootstrap file on every update
+		// TODO: We may consider only doing this when the WAF version changes
+		( new Waf_Standalone_Bootstrap() )->generate();
 	}
 
 	/**
