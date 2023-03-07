@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.9 - 2023-03-07
+## [11.9] - 2023-03-07
 ### Enhancements
 - Assistant: add new card to highlight VaultPress Backup. [#28741]
 - Form block: add form field style synchronization for input fields. [#28988]
@@ -7814,9 +7814,10 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
-[11.6]: https://wp.me/p1moTy-PLI
+[11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
+[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i
