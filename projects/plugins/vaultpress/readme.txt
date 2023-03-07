@@ -2,7 +2,7 @@
 Contributors: automattic, annezazu, apokalyptik, bjorsch, briancolinger, dsmart, georgestephanis, initsogar, jeherve, josephscott, miguelxavierpenha, rachelsquirrel, rdcoll, sdixon194, shaunandrews, thingalon, viper007bond, williamvianas, xknown
 Tags: security, malware, virus, archive, back up, back ups, backup, backups, scanning, restore, wordpress backup, site backup, website backup
 Requires at least: 5.2
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 2.2.0
 Requires PHP: 5.6
 License: GPLv2
@@ -11,8 +11,8 @@ License: GPLv2
 
 == Description ==
 
-**Please note:** This plugin is no longer actively supported for new customers. 
-	
+**Please note:** This plugin is no longer actively supported for new customers.
+
 For the next generation of VaultPress technology, **we recommend** [Jetpack Security](https://jetpack.com/features/security/). It includes real-time backups, malware scanning, anti-spam comment protection, and a new Web Application Firewall (WAF) for ultimate WordPress site security.
 
 == Installation ==
@@ -29,7 +29,7 @@ View our full list of FAQs at [http://help.vaultpress.com/faq/](http://help.vaul
 
 = How many sites can I protect with VaultPress? =
 
-A Jetpack VaultPress subscription is for a single WordPress site. 
+A Jetpack VaultPress subscription is for a single WordPress site.
 
 == Changelog ==
 ### 2.2.2 - 2022-07-06
