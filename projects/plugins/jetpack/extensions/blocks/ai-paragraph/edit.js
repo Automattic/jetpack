@@ -3,11 +3,11 @@ import './editor.scss';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
+import { pasteHandler } from '@wordpress/blocks';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import { pasteHandler } from '@wordpress/blocks';
 import classNames from 'classnames';
 import { name as aiParagraphBlockName } from './index';
 
@@ -270,7 +270,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// At this point this is an established pattern.
 	useEffect( () => {
 		// If the content is not loaded, we do nothing.
-		if ( ! content ) {
+		if ( ! content || ! triggered ) {
 			return;
 		}
 
@@ -286,10 +286,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setTimeout( () => {
 			updateInnerBlocks( content );
 		}, 50 * tokens.length );
-	}, [ triggered ] ); // eslint-disable-line react-hooks/exhaustive-deps
-
-	// Fix the inner blocks (they can only be of this type).
-	const TEMPLATE = [ [ 'jetpack/markdown', {} ] ];
+	}, [ triggered, content ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Used for styling the block in the editor.
 	const classes = classNames( {
@@ -301,7 +298,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...blockProps }>
-			<InnerBlocks templateLock="all" />
+			<InnerBlocks />
 
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
