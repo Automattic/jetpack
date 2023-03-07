@@ -336,7 +336,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
-		$post_id = $this->setup_jetpack_paid_newsletters();
+		$this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
 		// When no post id is set, the comments should default to whatever is passed as default
