@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { derived, get, writable } from 'svelte/store';
+	import { derived, writable } from 'svelte/store';
 	import { ApiError } from '../../api/api-error';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
@@ -36,7 +36,11 @@
 	);
 
 	const ensureConnection = async () => {
-		const connectionStore = get( connection );
+		let connectionStore;
+		connection.subscribe( value => {
+			connectionStore = value;
+		} );
+
 		if ( connectionStore.connected ) {
 			return;
 		}
