@@ -5,12 +5,17 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
+import { usePromptTags } from './use-prompt-tags';
 
-function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
+function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
 	const [ isLoading, setLoading ] = useState( true );
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
-	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
+	const { gravatars, prompt, promptId, showLabel, showResponses, tagsAdded } = attributes;
+	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
+	// Add the prompt tags to the post, if they haven't already been added.
+	usePromptTags( promptId, tagsAdded, setAttributes );
+
+	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
 		// If not initially rendering the block, don't fetch new data.
 		if ( ! isLoading ) {
@@ -79,23 +84,23 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 	const renderPrompt = () => (
 		<>
 			{ showLabel && (
-				<div className="jetpack-blogging-prompts__label">
+				<div className="jetpack-blogging-prompt__label">
 					{ icon }
 					{ __( 'Daily writing prompt', 'jetpack' ) }
 				</div>
 			) }
 
-			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
+			<div className="jetpack-blogging-prompt__prompt">{ prompt }</div>
 
-			{ showResponses && (
-				<div className="jetpack-blogging-prompts__answers">
+			{ showResponses && promptId && (
+				<div className="jetpack-blogging-prompt__answers">
 					{ gravatars &&
 						gravatars.slice( 0, 3 ).map( ( { url } ) => {
 							return (
 								url && (
 									// eslint-disable-next-line jsx-a11y/alt-text
 									<img
-										className="jetpack-blogging-prompts__answers-gravatar"
+										className="jetpack-blogging-prompt__answers-gravatar"
 										// Gravatar are decorative, here.
 										src={ url }
 										key={ url }
@@ -105,10 +110,10 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 						} ) }
 
 					<a
-						className="jetpack-blogging-prompts__answers-link"
+						className="jetpack-blogging-prompt__answers-link"
 						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
 						target="_blank"
-						rel="noreferrer"
+						rel="external noreferrer noopener"
 					>
 						{ __( 'View all responses', 'jetpack' ) }
 					</a>
@@ -123,7 +128,7 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 			{ renderControls() }
 
 			{ isLoading ? (
-				<div className="jetpack-blogging-prompts__spinner">
+				<div className="jetpack-blogging-prompt__spinner">
 					<Spinner />
 				</div>
 			) : (
@@ -133,4 +138,4 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 	);
 }
 
-export default withNotices( BloggingPromptsBetaEdit );
+export default withNotices( BloggingPromptEdit );

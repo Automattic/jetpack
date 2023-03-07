@@ -68,7 +68,7 @@
 		"@wordpress/components": "23.5.0",
 		"@wordpress/date": "4.26.0",
 		"autoprefixer": "10.4.12",
-		"concurrently": "6.4.0",
+		"concurrently": "7.6.0",
 		"glob": "7.1.6",
 		"jest": "29.4.3",
 		"jquery": "3.6.0",
