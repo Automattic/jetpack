@@ -121,13 +121,9 @@ class Waf_Rules_Manager {
 		}
 		$version = get_option( self::VERSION_OPTION_NAME );
 		if ( self::RULES_VERSION !== $version ) {
-			try {
-				self::generate_automatic_rules();
-				self::generate_ip_rules();
-				self::generate_rules();
-			} catch ( Waf_Exception $e ) {
-				throw $e;
-			}
+			self::generate_automatic_rules();
+			self::generate_ip_rules();
+			self::generate_rules();
 
 			update_option( self::VERSION_OPTION_NAME, self::RULES_VERSION );
 		}
