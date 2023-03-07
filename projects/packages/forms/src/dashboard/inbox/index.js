@@ -21,25 +21,28 @@ const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
 
-	const { invalidateResolution, setSearch, setCurrentPage } = useDispatch( STORE_NAME );
-	const [ loading, responses, total, search, currentPage ] = useSelect( select => {
-		const stateSelector = select( STORE_NAME );
-		const searchTerm = stateSelector.getSearch();
-		const page = stateSelector.getCurrentPage();
-		return [
-			stateSelector.isFetchingResponses(),
-			stateSelector.getResponses(
-				searchTerm,
-				RESPONSES_FETCH_LIMIT,
-				( page - 1 ) * RESPONSES_FETCH_LIMIT
-			),
-			stateSelector.getTotalResponses(),
-			searchTerm,
-			page,
-		];
-	} );
+	const { invalidateResolution, setSearch } = useDispatch( STORE_NAME );
+
+	const search = useSelect( select => select( STORE_NAME ).getSearch() );
 
 	const [ searchText, setSearchText ] = useState( search );
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+
+	const [ loading, responses, total ] = useSelect(
+		select => {
+			const stateSelector = select( STORE_NAME );
+			return [
+				stateSelector.isFetchingResponses(),
+				stateSelector.getResponses(
+					search,
+					RESPONSES_FETCH_LIMIT,
+					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				),
+				stateSelector.getTotalResponses(),
+			];
+		},
+		[ search, currentPage ]
+	);
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -49,20 +52,26 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	useEffect( () => {
-		invalidateResolution( 'getResponses', [
-			search,
-			RESPONSES_FETCH_LIMIT,
-			( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
-		] );
-	}, [ search, currentPage, invalidateResolution ] );
-
 	const handleSearch = useCallback(
 		event => {
 			event.preventDefault();
+			invalidateResolution( 'getResponses', [ searchText, RESPONSES_FETCH_LIMIT, 0 ] );
+			setCurrentPage( 1 );
 			setSearch( searchText );
 		},
-		[ searchText, setSearch ]
+		[ searchText, setSearch, setCurrentPage, invalidateResolution ]
+	);
+
+	const handlePageChange = useCallback(
+		page => {
+			invalidateResolution( 'getResponses', [
+				search,
+				RESPONSES_FETCH_LIMIT,
+				( page - 1 ) * RESPONSES_FETCH_LIMIT,
+			] );
+			setCurrentPage( page );
+		},
+		[ search, setCurrentPage, invalidateResolution ]
 	);
 
 	const selectResponse = useCallback( id => {
@@ -119,7 +128,7 @@ const Inbox = () => {
 						setCurrentResponseId={ selectResponse }
 						responses={ responses }
 						currentPage={ currentPage }
-						setCurrentPage={ setCurrentPage }
+						setCurrentPage={ handlePageChange }
 						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 					/>
 				</div>

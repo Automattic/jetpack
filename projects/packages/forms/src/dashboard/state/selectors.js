@@ -18,6 +18,4 @@ export const getResponses = state =>
 
 export const getTotalResponses = state => state.total;
 
-export const getCurrentPage = state => state.currentPage;
-
 export const getSearch = state => state.search;

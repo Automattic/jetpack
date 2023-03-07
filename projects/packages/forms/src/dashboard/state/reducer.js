@@ -6,7 +6,6 @@ import { combineReducers } from '@wordpress/data';
  * Internal dependencies
  */
 import {
-	INBOX_CURRENT_PAGE,
 	INBOX_SEARCH,
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_RECEIVE,
@@ -57,22 +56,9 @@ const search = ( state = '', action ) => {
 	return state;
 };
 
-const currentPage = ( state = 1, action ) => {
-	if ( action.type === INBOX_CURRENT_PAGE ) {
-		return action.currentPage;
-	}
-
-	if ( action.type === INBOX_SEARCH ) {
-		return 1;
-	}
-
-	return state;
-};
-
 export default combineReducers( {
 	loading,
 	responses,
 	total,
 	search,
-	currentPage,
 } );

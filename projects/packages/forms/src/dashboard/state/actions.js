@@ -4,7 +4,6 @@
 import {
 	ASYNC_ROUTINE_DISPATCH,
 	FINISH_RESOLUTION,
-	INBOX_CURRENT_PAGE,
 	INBOX_SEARCH,
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_FAIL,
@@ -64,12 +63,5 @@ export const setSearch = search => {
 	return {
 		type: INBOX_SEARCH,
 		search,
-	};
-};
-
-export const setCurrentPage = currentPage => {
-	return {
-		type: INBOX_CURRENT_PAGE,
-		currentPage,
 	};
 };
