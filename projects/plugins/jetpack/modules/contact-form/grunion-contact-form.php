@@ -5219,7 +5219,6 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 	/*
 	 * Event details.
 	 */
-	$event_user  = wp_get_current_user();
 	$event_name  = 'contact_form_block_message_sent';
 	$event_props = array(
 		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
@@ -5244,32 +5243,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		$event_props['no_post'] = 1;
 	}
 
-	/*
-	 * Record event.
-	 * We use different libs on wpcom and Jetpack.
-	 */
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$event_name             = 'wpcom_' . $event_name;
-		$event_props['blog_id'] = get_current_blog_id();
-		// If the form was sent by a logged out visitor, record event with blog owner.
-		if ( empty( $event_user->ID ) ) {
-			$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
-			$event_user    = get_userdata( $event_user_id );
-		}
-
-		require_lib( 'tracks/client' );
-		tracks_record_event( $event_user, $event_name, $event_props );
-	} else {
-		// If the form was sent by a logged out visitor, record event with Jetpack master user.
-		if ( empty( $event_user->ID ) ) {
-			$master_user_id = Jetpack_Options::get_option( 'master_user' );
-			if ( ! empty( $master_user_id ) ) {
-				$event_user = get_userdata( $master_user_id );
-			}
-		}
-
-		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->record_user_event( $event_name, $event_props, $event_user );
-	}
+	$grunion = \Automattic\Jetpack\Forms\ContactForm\Grunion_Contact_Form_Plugin::init();
+	$grunion->record_tracks_event( $event_name, $event_props );
 }
 add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
