@@ -14,6 +14,15 @@
 	}
 }
 
+.jp-forms__table-item.is-clickable {
+	cursor: pointer;
+}
+
+.jp-forms__table-item.is-active {
+	background-color: #000;
+	color: #fff;
+}
+
 .jp-forms__table-cell {
 	box-sizing: border-box;
 	display: table-cell;
