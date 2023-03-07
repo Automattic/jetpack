@@ -48,6 +48,35 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
 
 /**
+ * When a published posts answers a blogging prompt, store the prompt id in the post meta.
+ *
+ * @param string  $new_status New post status.
+ * @param string  $old_status Old post status.
+ * @param WP_Post $post       Post object.
+ */
+function jetpack_mark_if_post_answers_blogging_prompt( $new_status, $old_status, $post ) {
+	// Make sure we are publishing a post, and it's not already published.
+	if ( 'post' !== $post->post_type || 'publish' !== $new_status || 'publish' === $old_status ) {
+		return;
+	}
+
+	$blocks = parse_blocks( $post->post_content );
+	foreach ( $blocks as $block ) {
+		if ( 'jetpack/blogging-prompt' === $block['blockName'] ) {
+			$prompt_id      = isset( $block['attrs']['promptId'] ) ? absint( $block['attrs']['promptId'] ) : null;
+			$has_prompt_tag = has_tag( 'dailyprompt', $post ) || ( $prompt_id && has_tag( "dailyprompt-{$prompt_id}", $post ) );
+
+			if ( $prompt_id && $has_prompt_tag && count( $blocks ) > 1 ) {
+				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
+			}
+
+			break;
+		}
+	}
+}
+add_action( 'transition_post_status', 'jetpack_mark_if_post_answers_blogging_prompt', 10, 3 );
+
+/**
  * Utility functions.
  */
 

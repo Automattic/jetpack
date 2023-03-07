@@ -1,0 +1,50 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-blogging-prompt {
+	border: 1px solid $gray-300;
+	border-radius: 2px;
+	padding: 24px;
+
+	&__label {
+		font-size: 14px;
+		margin-bottom: $grid-unit-20;
+
+		svg {
+			height: $icon-size;
+			width: $icon-size;
+			margin-right: 6px;
+			vertical-align: bottom;
+		}
+	}
+
+	&__prompt {
+		font-size: 24px;
+	}
+
+	&__answers-link {
+		display: inline-block;
+		margin-left: 10px;
+		text-decoration: underline;
+	}
+
+	&__answers {
+		font-size: 16px;
+		margin-top: $grid-unit-20;
+	}
+
+	&__answers-gravatar {
+		border: 2px solid $white;
+		border-radius: 50%;
+		height: 24px;
+		vertical-align: middle;
+		width: 24px;
+
+		&:not(:first-child) {
+			margin-left: -15px;
+		}
+	}
+
+	&__spinner {
+		text-align: center;
+	}
+}

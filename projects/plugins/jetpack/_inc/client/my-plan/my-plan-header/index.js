@@ -364,6 +364,19 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-jetpack-social-advanced-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites and get access to advanced posting options.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Advanced', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
 			case 'is-jetpack-boost-plan':
 				return {
 					...productProps,

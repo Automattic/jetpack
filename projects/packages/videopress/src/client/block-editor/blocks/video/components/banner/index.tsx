@@ -10,7 +10,7 @@ import type React from 'react';
 
 import './style.scss';
 
-type BlockBannerProps = {
+export type BlockBannerProps = {
 	icon?: React.ReactNode;
 	action?: React.ReactNode;
 	children: React.ReactNode;
