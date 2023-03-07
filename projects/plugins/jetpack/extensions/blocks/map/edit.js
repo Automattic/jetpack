@@ -19,6 +19,7 @@ import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
 import previewPlaceholder from './map-preview.jpg';
 import { settings } from './settings.js';
+import getMapProvider from './utils/get-map-provider';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -48,7 +49,6 @@ class MapEdit extends Component {
 		};
 		this.mapRef = createRef();
 	}
-
 	geoCodeAddress = ( address, apiKey ) => {
 		if ( ! apiKey ) {
 			return;
@@ -123,7 +123,6 @@ class MapEdit extends Component {
 	removeAPIKey = () => {
 		this.apiCall( null, 'DELETE' );
 	};
-
 	apiCall( serviceApiKey = null, method = 'GET' ) {
 		return new Promise( ( resolve, reject ) => {
 			const { noticeOperations } = this.props;
@@ -160,7 +159,6 @@ class MapEdit extends Component {
 			} );
 		} );
 	}
-
 	componentDidMount() {
 		this.apiCall().then( () => {
 			if ( this.props.attributes?.address ) {
@@ -168,7 +166,6 @@ class MapEdit extends Component {
 			}
 		} );
 	}
-
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
 		noticeOperations.removeAllNotices();
@@ -233,6 +230,8 @@ class MapEdit extends Component {
 			apiRequestOutstanding,
 		} = this.state;
 
+		const mapProvider = getMapProvider();
+
 		const inspectorControls = (
 			<>
 				<BlockControls>
@@ -243,6 +242,7 @@ class MapEdit extends Component {
 						setPointVisibility={ this.setPointVisibility }
 						context="toolbar"
 						mapRef={ this.mapRef }
+						mapProvider={ mapProvider }
 					/>
 				</BlockControls>
 				<InspectorControls>
@@ -256,6 +256,7 @@ class MapEdit extends Component {
 						minHeight={ MIN_HEIGHT }
 						removeAPIKey={ this.removeAPIKey }
 						updateAPIKey={ this.updateAPIKey }
+						mapProvider={ mapProvider }
 					/>
 				</InspectorControls>
 			</>
