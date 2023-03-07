@@ -295,15 +295,13 @@ class Waf_Runner {
 
 		add_option( self::SHARE_DATA_OPTION_NAME, true );
 
-		try {
-			self::initialize_filesystem();
-			Waf_Rules_Manager::generate_automatic_rules();
-			Waf_Rules_Manager::generate_ip_rules();
-			self::create_blocklog_table();
-			Waf_Rules_Manager::generate_rules();
-		} catch ( Waf_Exception $e ) {
-			throw $e;
-		}
+		self::initialize_filesystem();
+
+		Waf_Rules_Manager::generate_automatic_rules();
+		Waf_Rules_Manager::generate_ip_rules();
+		Waf_Rules_Manager::generate_rules();
+
+		self::create_blocklog_table();
 	}
 
 	/**
