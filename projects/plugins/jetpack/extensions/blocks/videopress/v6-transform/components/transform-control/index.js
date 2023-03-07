@@ -22,14 +22,14 @@ const videoPressVideoBlocks = { instances: [] };
 
 // eslint-disable-next-line jsdoc/require-returns-check
 /**
- * Recursively get all VideoPress blocks
+ * Recursively get all core/video VideoPress (aka v5) block instances
  *
  * @param {Array} blocks - Array of blocks
  * @param {boolean} root - Whether it is the root block
  * @param {number} level - Nesting level in the block tree
- * @returns {Array} - Array of VideoPress blocks
+ * @returns {Array}        Array of VideoPress blocks
  */
-const getAllVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
+const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
 	if ( root ) {
 		// Clear the instances when it's called from the root block
 		videoPressVideoBlocks.instances = [];
@@ -37,7 +37,7 @@ const getAllVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => 
 
 	blocks.forEach( block => {
 		if ( block.innerBlocks.length ) {
-			getAllVideoPressVideoBlocks( block.innerBlocks, false, level + 1 );
+			getAllCoreVideoVideoPressVideoBlocks( block.innerBlocks, false, level + 1 );
 			return;
 		}
 
@@ -69,12 +69,12 @@ export default function TransformControl() {
 	const { tracks } = useAnalytics();
 
 	const handleTransformAll = () => {
-		const allV6Instances = getAllVideoPressVideoBlocks( getBlocks(), true );
-		if ( ! allV6Instances?.length ) {
+		const allV5Instances = getAllCoreVideoVideoPressVideoBlocks( getBlocks(), true );
+		if ( ! allV5Instances?.length ) {
 			return;
 		}
 
-		allV6Instances.forEach( block => {
+		allV5Instances.forEach( block => {
 			const { clientId, name, attributes } = block;
 			if ( name === 'core/video' && isVideoPressBlockBasedOnAttributes( attributes ) ) {
 				replaceBlock( clientId, createBlock( 'videopress/video', attributes ) );
