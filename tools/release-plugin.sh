@@ -9,7 +9,6 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
-. "$BASE/tools/includes/alpha-tag.sh"
 
 
 # Instructions
