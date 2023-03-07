@@ -44,6 +44,7 @@ const defaultProps = {
 		apiRequestOutstanding: false,
 	},
 	setState: jest.fn(),
+	mapProvider: 'mapbox',
 };
 
 describe( 'Inspector controls', () => {
@@ -92,10 +93,15 @@ describe( 'Inspector controls', () => {
 	} );
 
 	describe( 'Mapbox access token panel', () => {
-		test( 'mapbox access token input shows correctly', () => {
+		test( 'mapbox access token input shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
-
 			expect( screen.getByText( 'Mapbox Access Token' ) ).toBeInTheDocument();
+		} );
+
+		test( "mapbox access token input doesn't show when mapProvider is mapkit", () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+			render( <MapControls { ...props } /> );
+			expect( screen.queryByText( 'Mapbox Access Token' ) ).not.toBeInTheDocument();
 		} );
 	} );
 } );

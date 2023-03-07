@@ -5,12 +5,17 @@ import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
+import { usePromptTags } from './use-prompt-tags';
 
 function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
 	const [ isLoading, setLoading ] = useState( true );
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
+	const { gravatars, prompt, promptId, showLabel, showResponses, tagsAdded } = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
 
+	// Add the prompt tags to the post, if they haven't already been added.
+	usePromptTags( promptId, tagsAdded, setAttributes );
+
+	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
 		// If not initially rendering the block, don't fetch new data.
 		if ( ! isLoading ) {
@@ -87,7 +92,7 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 
 			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
 
-			{ showResponses && (
+			{ showResponses && promptId && (
 				<div className="jetpack-blogging-prompts__answers">
 					{ gravatars &&
 						gravatars.slice( 0, 3 ).map( ( { url } ) => {
