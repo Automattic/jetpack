@@ -8,12 +8,7 @@ import JetpackFieldControls from './jetpack-field-controls';
 import JetpackFieldLabel from './jetpack-field-label';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
 
-const ALLOWED_BLOCKS = [
-	'jetpack/field-option',
-	'core/paragraph',
-	'core/separator',
-	'core/spacer',
-];
+const ALLOWED_BLOCKS = [ 'jetpack/field-option' ];
 
 function JetpackFieldMultiple( props ) {
 	const {
