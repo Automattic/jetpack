@@ -138,23 +138,29 @@ export default ( {
 					min={ 0 }
 					max={ 22 }
 				/>
-				<ToggleControl
-					label={ __( 'Show street names', 'jetpack' ) }
-					checked={ attributes.mapDetails }
-					onChange={ value => setAttributes( { mapDetails: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Scroll to zoom', 'jetpack' ) }
-					help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
-					checked={ attributes.scrollToZoom }
-					onChange={ value => setAttributes( { scrollToZoom: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Show Fullscreen Button', 'jetpack' ) }
-					help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
-					checked={ attributes.showFullscreenButton }
-					onChange={ value => setAttributes( { showFullscreenButton: value } ) }
-				/>
+				{ mapProvider === 'mapbox' ? (
+					<ToggleControl
+						label={ __( 'Show street names', 'jetpack' ) }
+						checked={ attributes.mapDetails }
+						onChange={ value => setAttributes( { mapDetails: value } ) }
+					/>
+				) : null }
+				{ mapProvider === 'mapbox' ? (
+					<ToggleControl
+						label={ __( 'Scroll to zoom', 'jetpack' ) }
+						help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
+						checked={ attributes.scrollToZoom }
+						onChange={ value => setAttributes( { scrollToZoom: value } ) }
+					/>
+				) : null }
+				{ mapProvider === 'mapbox' ? (
+					<ToggleControl
+						label={ __( 'Show Fullscreen Button', 'jetpack' ) }
+						help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
+						checked={ attributes.showFullscreenButton }
+						onChange={ value => setAttributes( { showFullscreenButton: value } ) }
+					/>
+				) : null }
 			</PanelBody>
 			{ attributes.points.length ? (
 				<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
