@@ -249,16 +249,16 @@ const useMapkitOnMapLoad = onMapLoad => {
 };
 
 const useMapkitOnMapTap = onMapTap => {
-	const { map, loaded } = useMapkit();
+	const { map, previousCenter, loaded } = useMapkit();
 	const onMapTapRef = useRef( onMapTap );
 
 	useEffect( () => {
 		if ( loaded ) {
 			map.addEventListener( 'single-tap', () => {
-				onMapTapRef.current( map );
+				onMapTapRef.current( previousCenter );
 			} );
 		}
-	}, [ loaded, map, onMapTapRef ] );
+	}, [ loaded, map, previousCenter, onMapTapRef ] );
 };
 
 export {
