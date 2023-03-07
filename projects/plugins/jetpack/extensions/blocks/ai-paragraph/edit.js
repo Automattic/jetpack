@@ -39,11 +39,11 @@ export const createPrompt = (
 	if ( postTitle ) {
 		prompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-			__( "This is a post titled '%1$s' ", 'jetpack' ),
+			__( "Give me content for a blog post titled '%1$s' ", 'jetpack' ),
 			postTitle
 		);
 	} else {
-		prompt = __( 'This is a post', 'jetpack' );
+		prompt = __( 'Give me content for a blog post', 'jetpack' );
 	}
 
 	if ( categoriesNames ) {
@@ -60,6 +60,8 @@ export const createPrompt = (
 		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 		prompt += sprintf( __( ':\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
+
+	prompt += '. Do not not include any smalltalk, just the content of a post.';
 
 	return prompt.trim();
 };
@@ -207,7 +209,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				const result = res.replaceAll( '\n', '<br/>' );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
