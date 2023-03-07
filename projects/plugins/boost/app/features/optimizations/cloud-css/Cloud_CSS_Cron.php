@@ -26,12 +26,11 @@ class Cloud_CSS_Cron {
 	 * Run the cron job.
 	 */
 	public static function run() {
-		$state = new Critical_CSS_State( 'cloud' );
+		$state = new Critical_CSS_State();
 
-		if ( $state->is_fatal_error() ) {
-			$client    = new Cloud_CSS_Request();
-			$providers = $state->get_provider_urls();
-			$client->request_generate( $providers );
+		if ( $state->has_errors() ) {
+			$client = new Cloud_CSS_Request();
+			$client->request_generate();
 		}
 	}
 
@@ -39,6 +38,7 @@ class Cloud_CSS_Cron {
 	 * Add a cron-job to maintain cloud CSS
 	 *
 	 * @param int $when Timestamp of when to schedule the event.
+	 *
 	 * @return void
 	 */
 	public static function install( $when ) {

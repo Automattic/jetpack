@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix lazy-load images in Safari

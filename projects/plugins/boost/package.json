@@ -7,12 +7,14 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-base-styles": "workspace:*",
-		"@wordpress/components": "23.3.0",
-		"@wordpress/element": "5.3.0",
+		"@automattic/jetpack-svelte-data-sync-client": "workspace:*",
+		"@wordpress/components": "23.5.0",
+		"@wordpress/element": "5.5.0",
 		"history": "5.3.0",
-		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.6",
+		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.7",
 		"prettier": "2.6.2",
-		"svelte-navigator": "3.1.5"
+		"svelte-navigator": "3.1.5",
+		"zod": "3.20.2"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
@@ -27,8 +29,8 @@
 		"@rollup/plugin-replace": "4.0.0",
 		"@rollup/plugin-typescript": "8.3.3",
 		"@types/jquery": "3.5.14",
-		"@wordpress/i18n": "4.26.0",
-		"concurrently": "6.0.2",
+		"@wordpress/i18n": "4.28.0",
+		"concurrently": "7.6.0",
 		"postcss": "8.4.21",
 		"prettier-plugin-svelte": "2.8.1",
 		"react": "18.2.0",

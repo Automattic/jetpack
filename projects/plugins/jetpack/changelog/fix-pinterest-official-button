@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix JS Error and adjust marginRight of Pinterest official button instead of width
