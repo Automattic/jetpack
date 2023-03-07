@@ -118,7 +118,7 @@
 			<p>
 				<TemplatedString
 					template={__(
-						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
 						'jetpack-boost'
 					)}
 					vars={externalLinkTemplateVar( criticalCssLink )}
