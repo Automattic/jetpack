@@ -6,19 +6,17 @@ import { JetpackBoostPage } from '../lib/pages/index.js';
 let jetpackBoostPage;
 
 test.describe( 'Getting started page', () => {
-	test.beforeAll( async ( { browser } ) => {
+	test.beforeEach( async ( { browser } ) => {
 		const page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( false ).build();
+
+		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	test.afterAll( async ( { browser } ) => {
 		const page = await browser.newPage();
 		await boostPrerequisitesBuilder( page ).withCleanEnv().withConnection( true ).build();
 		await page.close();
-	} );
-
-	test.beforeEach( async function ( { page } ) {
-		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
 	test( 'User should see the getting started pricing table', async () => {
