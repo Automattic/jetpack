@@ -2,33 +2,41 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 11.9-beta - 2023-02-28
+## 11.9 - 2023-03-07
 ### Enhancements
 - Assistant: add new card to highlight VaultPress Backup. [#28741]
 - Form block: add form field style synchronization for input fields. [#28988]
 - Related Posts: add support for font family in Related Posts block. [#29097]
 - Sharing: add Mastodon sharing button. [#28694]
+- Stats: show new Jetpack Stats dashboard design by default.
 
 ### Improved compatibility
-- Stats: add upgrade notice for Odyssey Stats. [#28828]
+- Sharing: add spacebar as an option to open the "More" button overlay. [#29232]
 - VideoPress: add support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode. [#28865]
 
 ### Bug fixes
 - Connection: revise Jetpack connection agreement text to comply with our User Agreement. [#28403]
 - Custom CSS: ensure the link to enable Custom CSS works in all languages. [#29202]
+- Sharing: fix broken Tumblr button inside "More" button overlay. [#29231]
+- Sharing: fix a JS error and adjust margin on Pinterest official button. [#29279]
 - Form block: increase form fields padding based on user-defined border-radius. [#28820]
+- Form block: improve multiple choice field styles for the Twenty Twenty theme. [#29325]
+- Form block: move field width settings, and remove placeholder field from multiple and single choice fields. [#29292]
 - Form block: remove body font normalization in contact-form module and package. [#29166]
+- Form block: set defaults for Jetpack Forms CSS variables. [#29236]
+- Form block: update form-styles script to run in the context of the Form block. [#29178]
 - Presentation shortcode: always add presentation container. [#29073]
 - Recommendations: avoid applying coupon codes from the Assistant on products with trial prices. [#29139]
 - Sharing buttons: fix display issues when choosing the icon-only option. [#29090]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- API: add wpcom/v2/form-responses endpoint, mapped from .com [#29043]
-- API: fix a bug in list user endpoint when include_viewers is true. [#29068]
 - Admin Page: update link in Jetpack App card to include external link icon. [#29048]
 - Admin Page: use external icons for external links in support card. [#29050]
+- API: add wpcom/v2/form-responses endpoint, mapped from .com [#29043]
+- API: fix a bug in list user endpoint when include_viewers is true. [#29068]
 - Blocks: update scaffolding. [#29201]
 - Social: add groundwork for Social Image Generator. [#28737]
+- Social: show Jetpack Social Advanced products under My Plan. [#29276]
 - Stats: moved new stats toggle logic to stats-admin. [#29064]
 - Tests: adapted the Sync test to WordPress Core changes in post deletion mechanics. [#29154]
 - Updated package dependencies. [#29117]
@@ -36,6 +44,7 @@
 - VideoPress: tidy registering VideoPress video block. [#29084]
 - Widget Visibility: switch to shared Analytics implementation. [#29181]
 - WPcom: add `is_wpcom_staging_site`, `wpcom_production_blog_id`, and `wpcom_staging_blog_ids` attributes to the site object. [#29192]
+- WPcom: add wpcom/v3/blogging-prompts endpoint to support the upcoming writing prompts block. [#29182]
 - WPcom: consolidate selector logic in the launchpad save modal. [#29134]
 - WPcom: make sure the email field in the subscribe block is required. [#28995]
 - WPcom: prevent launchpad modal from rendering on top of the first post published modal. [#28989]
