@@ -363,7 +363,7 @@
 		}
 
 		> .rich-text {
-			line-height: 1;
+			line-height: 2;
 		}
 	}
 }
@@ -403,12 +403,6 @@
 		border: 1px solid rgba( 0, 0, 0, 0.4 );
 		border-radius: 4px;
 		padding: 4px;
-	}
-
-	.block-editor-block-list__layout {
-		display: flex;
-		flex-direction: column;
-		gap: 12px;
 	}
 }
 
@@ -752,6 +746,10 @@
 						border-right: none;
 					}
 				}
+			}
+
+			&.jetpack-field-checkbox {
+				margin-top: 0;
 			}
 
 			.jetpack-field-dropdown {
