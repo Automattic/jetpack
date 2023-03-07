@@ -15,17 +15,17 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 5;
+const RESPONSES_FETCH_LIMIT = 20;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
 
-	const { invalidateResolution, setSearch } = useDispatch( STORE_NAME );
+	const { invalidateResolution, setSearchQuery } = useDispatch( STORE_NAME );
 
-	const search = useSelect( select => select( STORE_NAME ).getSearch() );
+	const searchQuery = useSelect( select => select( STORE_NAME ).getSearchQuery() );
 
-	const [ searchText, setSearchText ] = useState( search );
+	const [ searchText, setSearchText ] = useState( searchQuery );
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 
 	const [ loading, responses, total ] = useSelect(
@@ -34,14 +34,14 @@ const Inbox = () => {
 			return [
 				stateSelector.isFetchingResponses(),
 				stateSelector.getResponses(
-					search,
+					searchQuery,
 					RESPONSES_FETCH_LIMIT,
 					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
 				),
 				stateSelector.getTotalResponses(),
 			];
 		},
-		[ search, currentPage ]
+		[ searchQuery, currentPage ]
 	);
 
 	useEffect( () => {
