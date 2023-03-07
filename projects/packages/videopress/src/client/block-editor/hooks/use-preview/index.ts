@@ -6,7 +6,7 @@ import { useSelect } from '@wordpress/data';
 /*
  * Types
  */
-import type { VideoPreview } from '../../../blocks/video/types';
+import type { VideoPreview } from '../../../block-editor/blocks/video/types';
 
 export type UsePreviewResult = {
 	preview: VideoPreview;
