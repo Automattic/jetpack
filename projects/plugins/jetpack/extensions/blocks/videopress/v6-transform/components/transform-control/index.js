@@ -31,12 +31,13 @@ const videoPressVideoBlocks = { instances: [] };
  */
 const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level = 0 ) => {
 	if ( root ) {
-		// Clear the instances when it's called from the root block
+		// Clear the instances when it's called from the root block.
 		videoPressVideoBlocks.instances = [];
 	}
 
 	blocks.forEach( block => {
 		if ( block.innerBlocks.length ) {
+			// Recursively call increasing the nesting level.
 			getAllCoreVideoVideoPressVideoBlocks( block.innerBlocks, false, level + 1 );
 			return;
 		}
@@ -48,8 +49,9 @@ const getAllCoreVideoVideoPressVideoBlocks = ( blocks = [], root = false, level 
 	} );
 
 	/*
-	 * Level zero is the forst call,
-	 * but is the last of the recursive calls.
+	 * Level zero is the first call,
+	 * but also is the last of the recursive calls.
+	 * Return the collected block instances when it's the last one.
 	 */
 	if ( level === 0 ) {
 		return videoPressVideoBlocks.instances;
