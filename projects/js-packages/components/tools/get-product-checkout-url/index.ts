@@ -13,8 +13,10 @@ export default function getProductCheckoutUrl(
 	redirectUrl: string,
 	isUserConnected: boolean
 ) {
-	const checkoutUrl = new URL( 'https://wordpress.com/checkout/' );
-	const checkoutProductUrl = new URL( `${ checkoutUrl }${ siteSuffix }/${ productSlug }` );
+	const checkoutUrl = new URL( 'https://wordpress.com/checkout/jetpack/' );
+	const checkoutProductUrl = isUserConnected
+		? new URL( `${ checkoutUrl }${ siteSuffix }/${ productSlug }` )
+		: new URL( `${ checkoutUrl }${ productSlug }` );
 
 	// Add redirect_to parameter
 	checkoutProductUrl.searchParams.set( 'redirect_to', redirectUrl );
