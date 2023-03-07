@@ -1,5 +1,5 @@
 import { Component, createPortal } from '@wordpress/element';
-import { createInfoWindowPopup } from '../mapbox-utils';
+import { createInfoWindowPopup } from '../../mapbox-utils';
 
 export class InfoWindow extends Component {
 	componentDidMount() {

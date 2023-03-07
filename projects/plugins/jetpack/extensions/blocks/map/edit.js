@@ -14,7 +14,7 @@ import { Component, createRef, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getActiveStyleName } from '../../shared/block-styles';
 import AddPoint from './add-point';
-import Map from './component.js';
+import Map from './component';
 import Controls from './controls';
 import { getCoordinates } from './get-coordinates.js';
 import previewPlaceholder from './map-preview.jpg';
@@ -39,6 +39,7 @@ const RESIZABLE_BOX_ENABLE_OPTION = {
 	bottomLeft: false,
 	topLeft: false,
 };
+
 class MapEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -185,13 +186,19 @@ class MapEdit extends Component {
 
 		onResizeStop();
 
-		const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+		const ref = this.mapRef?.current?.mapRef ?? this.mapRef;
 
-		setAttributes( {
-			mapHeight: height,
-		} );
+		if ( ref ) {
+			const height = parseInt( ref.current.offsetHeight + delta.height, 10 );
 
-		setTimeout( this.mapRef.current.sizeMap, 0 );
+			setAttributes( {
+				mapHeight: height,
+			} );
+
+			if ( ref.current.sizeMap ) {
+				setTimeout( ref.current.sizeMap, 0 );
+			}
+		}
 	};
 
 	render() {
