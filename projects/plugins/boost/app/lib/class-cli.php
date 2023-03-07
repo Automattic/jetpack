@@ -151,7 +151,7 @@ class CLI {
 				if ( true === $result ) {
 					\WP_CLI::success( __( 'Boost is connected to WP.com', 'jetpack-boost' ) );
 				} else {
-					\WP_CLI::error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) . print_r( $result, 1 ) );
+					\WP_CLI::error( __( 'Boost could not be connected to WP.com', 'jetpack-boost' ) );
 				}
 				break;
 			case 'deactivate':
