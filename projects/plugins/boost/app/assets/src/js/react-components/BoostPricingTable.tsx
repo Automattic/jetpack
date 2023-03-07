@@ -50,8 +50,18 @@ const automaticallyUpdatedContext = sprintf(
 	)
 );
 
+// Linter doesn't understand multiline strings.
+// eslint-disable-next-line @wordpress/valid-sprintf
 const manuallyUpdatedContext = sprintf(
-	'%1$s<br><br><ul><li>%2$s</li><li>%3$s</li><li>%4$s</li><li>%5$s</li><li>%6$s</li><li>%7$s</li></ul>',
+	`%1$s<br><br>
+	<ul>
+		<li>%2$s</li>
+		<li>%3$s</li>
+		<li>%4$s</li>
+		<li>%5$s</li>
+		<li>%6$s</li>
+		<li>%7$s</li>
+	</ul>`,
 	__(
 		'To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:',
 		'jetpack-boost'
