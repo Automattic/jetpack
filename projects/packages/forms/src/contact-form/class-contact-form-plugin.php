@@ -1898,6 +1898,10 @@ class Contact_Form_Plugin {
 			require_lib( 'tracks/client' );
 			tracks_record_event( $event_user, $event_name, $event_props );
 		} else {
+			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+			if ( ! $user_connected ) {
+				return;
+			}
 			// logged out visitor, record event with Jetpack master user.
 			if ( empty( $event_user->ID ) ) {
 				$master_user_id = Jetpack_Options::get_option( 'master_user' );
