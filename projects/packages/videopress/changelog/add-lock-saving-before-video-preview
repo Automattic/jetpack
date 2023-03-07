@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: prevent post saving while video previews on VideoPress block are being loaded.
