@@ -208,10 +208,25 @@ class Jetpack_Keyring_Service_Helper {
 	 * Build contents handling Keyring connection management into Sharing settings screen.
 	 */
 	public static function admin_page_load() {
-		$service_name = null;
 		if ( isset( $_GET['action'] ) ) {
 			if ( isset( $_GET['service'] ) ) {
 				$service_name = sanitize_text_field( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
+			} else {
+				$url = Jetpack::admin_url( 'jetpack#/settings' );
+				wp_die(
+					sprintf(
+						wp_kses(
+						/* Translators: placeholder is a URL to a Settings page. */
+							__( "The service was not set. Please try again by visiting <a href='%s'>Settings</a>.", 'jetpack' ),
+							array(
+								'a' => array(
+									'href' => array(),
+								),
+							)
+						),
+						esc_url( $url )
+					)
+				);
 			}
 
 			switch ( $_GET['action'] ) {

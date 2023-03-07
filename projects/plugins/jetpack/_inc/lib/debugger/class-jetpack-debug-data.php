@@ -133,8 +133,6 @@ class Jetpack_Debug_Data {
 	 * }
 	 */
 	public static function debug_data() {
-		$blog_key   = null;
-		$user_key   = null;
 		$debug_info = array();
 
 		/* Add various important Jetpack options */

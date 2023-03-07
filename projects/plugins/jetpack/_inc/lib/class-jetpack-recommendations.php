@@ -348,6 +348,10 @@ class Jetpack_Recommendations {
 			return false;
 		}
 
+		if ( null === $site_products ) {
+			return false;
+		}
+
 		// Does this site already have a VideoPress product?
 		$has_videopress_product = array_intersect( array( 'jetpack_videopress', 'jetpack_videopress_monthly' ), $site_products ) !== array();
 		if ( $has_videopress_product ) {

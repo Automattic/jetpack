@@ -117,15 +117,15 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			foreach ( $mapping as $field => $test_result_field ) {
 				$item[ $field ] = $test_result[ $test_result_field ];
 			}
-		}
 
-		if ( 'linkedin' === $item['id'] && 'must_reauth' === $test_result['connectionTestPassed'] ) {
-			$item['test_success'] = 'must_reauth';
+			if ( 'linkedin' === $item['id'] && 'must_reauth' === $test_result['connectionTestPassed'] ) {
+				$item['test_success'] = 'must_reauth';
+			}
 		}
 
 		$response = rest_ensure_response( $items );
 
-		$response->header( 'X-WP-Total', is_countable( $items ) ? count( $items ) : 0 );
+		$response->header( 'X-WP-Total', count( $items ) );
 		$response->header( 'X-WP-TotalPages', 1 );
 
 		return $response;
