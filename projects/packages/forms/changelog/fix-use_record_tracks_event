@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Forms: Use Grunion record_tracks_event() to record these "sent emails" events too
