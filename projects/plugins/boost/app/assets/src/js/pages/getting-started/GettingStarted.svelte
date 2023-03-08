@@ -16,8 +16,8 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let navigate, location;
 
-	const initiatingFreePlan = writable( false );
-	const initiatingPaidPlan = writable( false );
+	let initiatingFreePlan = false;
+	let initiatingPaidPlan = false;
 	const dismissedSnackbar = writable( false );
 
 	const snackbarMessage = derived(
@@ -53,7 +53,7 @@
 	};
 
 	const chooseFreePlan = async () => {
-		initiatingFreePlan.set( true );
+		initiatingFreePlan = true;
 
 		await Promise.all( [
 			recordBoostEvent( 'free_cta_from_getting_started_page_in_plugin', {} ),
@@ -70,14 +70,14 @@
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
-					initiatingFreePlan.set( false );
+					initiatingFreePlan = false;
 				}
 			} )(),
 		] );
 	};
 
 	const choosePaidPlan = async () => {
-		initiatingPaidPlan.set( true );
+		initiatingPaidPlan = true;
 
 		await Promise.all( [
 			await recordBoostEvent( 'premium_cta_from_getting_started_page_in_plugin', {} ),
@@ -89,7 +89,7 @@
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
-					initiatingPaidPlan.set( false );
+					initiatingPaidPlan = false;
 				}
 			} )(),
 		] );
@@ -119,8 +119,8 @@
 					{pricing}
 					onPremiumCTA={choosePaidPlan}
 					onFreeCTA={chooseFreePlan}
-					chosenFreePlan={$initiatingFreePlan}
-					chosenPaidPlan={$initiatingPaidPlan}
+					chosenFreePlan={initiatingFreePlan}
+					chosenPaidPlan={initiatingPaidPlan}
 					snackbarMessage={$snackbarMessage}
 					onSnackbarDismiss={() => dismissedSnackbar.set( true )}
 				/>
