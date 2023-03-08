@@ -65,7 +65,6 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
-
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
@@ -104,7 +103,10 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
 												onClose={ onClose }
 											/>
-											<NewsletterAccessChoices onChange={ setPostMeta } />
+											<NewsletterAccessChoices
+												accessLevel={ accessLevel }
+												onChange={ setPostMeta }
+											/>
 										</div>
 									) }
 								/>
