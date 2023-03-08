@@ -209,7 +209,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.replaceAll( '\n', '<br/>' );
+				const result = res.trim().replaceAll( '\n', '<br/>' );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
