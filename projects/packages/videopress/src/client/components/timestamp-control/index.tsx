@@ -3,6 +3,7 @@
  */
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
 import { useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 /**
@@ -161,10 +162,23 @@ export const TimestampControl = ( {
 	max,
 	value,
 	onChange,
+	onDebounceChange,
+	wait = 1000,
 }: TimestampControlProps ): React.ReactElement => {
+	const debouncedOnChangeHandler = onDebounceChange ? useDebounce( onDebounceChange, wait ) : null;
+
+	const onChangeHandler = useCallback(
+		( newValue: number ) => {
+			debouncedOnChangeHandler && debouncedOnChangeHandler( newValue );
+			onChange( newValue );
+		},
+		[ onChange, debouncedOnChangeHandler ]
+	);
+
 	return (
 		<div className={ styles[ 'timestamp-control' ] }>
-			<TimestampInput max={ max } value={ value } onChange={ onChange } />
+			<TimestampInput max={ max } value={ value } onChange={ onChangeHandler } />
+
 			<RangeControl
 				className={ styles[ 'timestamp-control-range' ] }
 				min={ 0 }
@@ -174,7 +188,7 @@ export const TimestampControl = ( {
 				max={ max }
 				showTooltip={ false }
 				withInputField={ false }
-				onChange={ onChange }
+				onChange={ onChangeHandler }
 			/>
 		</div>
 	);
