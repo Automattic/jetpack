@@ -115,7 +115,7 @@ class Waf_Compatibility {
 		// Convert the IP objects to strings.
 		$brute_force_allow_list = array_map(
 			function ( $ip_object ) {
-				if ( isset( $ip_object->range ) && $ip_object->range ) {
+				if ( ! empty( $ip_object->range ) ) {
 					return $ip_object->range_low . '-' . $ip_object->range_high;
 				}
 

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.12] - 2023-02-28
+### Changed
+- Update billing language [#29126]
+
 ## [2.7.11] - 2023-02-20
 ### Fixed
 - My Jetpack: Fix button to add bundle in product interstitial component [#28984]
@@ -754,6 +758,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.7.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.11...2.7.12
 [2.7.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.10...2.7.11
 [2.7.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.9...2.7.10
 [2.7.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.8...2.7.9

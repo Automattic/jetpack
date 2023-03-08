@@ -33,16 +33,6 @@ import styles from './styles.module.scss';
 const ADMIN_URL = window?.jetpackProtectInitialState?.adminUrl;
 const SUCCESS_NOTICE_DURATION = 5000;
 
-const errorMessage = createInterpolateElement(
-	__(
-		'An error ocurred. Please try again or <supportLink>contact support</supportLink>.',
-		'jetpack-protect'
-	),
-	{
-		supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
-	}
-);
-
 const FirewallPage = () => {
 	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
 	const notice = useSelect( select => select( STORE_ID ).getNotice() );
@@ -114,6 +104,52 @@ const FirewallPage = () => {
 	const [ showManualRules, setShowManualRules ] = useState( false );
 
 	/**
+	 * Get a custom error message based on the error code.
+	 *
+	 * @param {object} error - Error object.
+	 * @returns string|bool Custom error message or false if no custom message exists.
+	 */
+	const getCustomErrorMessage = useCallback( error => {
+		switch ( error.code ) {
+			case 'file_system_error':
+				return __( 'A filesystem error occurred.', 'jetpack-protect' );
+			case 'rules_api_error':
+				return __(
+					'An error occurred retrieving the latest firewall rules from Jetpack.',
+					'jetpack-protect'
+				);
+			default:
+				return false;
+		}
+	}, [] );
+
+	/**
+	 * Handle errors returned by the API.
+	 */
+	const handleApiError = useCallback(
+		error => {
+			const errorMessage =
+				getCustomErrorMessage( error ) || __( 'An error occurred.', 'jetpack-protect' );
+			const supportMessage = createInterpolateElement(
+				__( 'Please try again or <supportLink>contact support</supportLink>.', 'jetpack-protect' ),
+				{
+					supportLink: <ExternalLink href={ PLUGIN_SUPPORT_URL } />,
+				}
+			);
+
+			setNotice( {
+				type: 'error',
+				message: (
+					<>
+						{ errorMessage } { supportMessage }
+					</>
+				),
+			} );
+		},
+		[ getCustomErrorMessage, setNotice ]
+	);
+
+	/**
 	 * Get Scan
 	 *
 	 * Records an event and then starts the checkout flow for Jetpack Scan
@@ -140,14 +176,9 @@ const FirewallPage = () => {
 					message: __( 'Changes saved.', 'jetpack-protect' ),
 				} )
 			)
-			.catch( () => {
-				setNotice( {
-					type: 'error',
-					message: errorMessage,
-				} );
-			} )
+			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, updateConfig, setNotice ] );
+	}, [ updateConfig, formState, handleApiError, setNotice ] );
 
 	/**
 	 * Handle Change
@@ -231,15 +262,19 @@ const FirewallPage = () => {
 					API.wafUpgradeSeen();
 				}
 			} )
-			.catch( () => {
+			.catch( error => {
 				setAutomaticRulesInstallationError( true );
-				setNotice( {
-					type: 'error',
-					message: errorMessage,
-				} );
+				handleApiError( error );
 			} )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleAutomaticRules, setNotice, upgradeIsSeen, setWafUpgradeIsSeen ] );
+	}, [
+		formState,
+		toggleAutomaticRules,
+		setNotice,
+		upgradeIsSeen,
+		setWafUpgradeIsSeen,
+		handleApiError,
+	] );
 
 	/**
 	 * Handle Manual Rules Change
@@ -266,14 +301,9 @@ const FirewallPage = () => {
 						  ),
 				} )
 			)
-			.catch( () => {
-				setNotice( {
-					type: 'error',
-					message: errorMessage,
-				} );
-			} )
+			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleManualRules, setNotice ] );
+	}, [ formState, toggleManualRules, handleApiError, setNotice ] );
 
 	/**
 	 * Handle Show Manual Rules Click
@@ -468,7 +498,8 @@ const FirewallPage = () => {
 									variant={ 'body-small' }
 									mt={ 2 }
 								>
-									{ __( 'Failed to install automatic rules.', 'jetpack-protect' ) }
+									{ __( 'Failed to update automatic rules.', 'jetpack-protect' ) }{ ' ' }
+									{ getCustomErrorMessage( automaticRulesInstallationError ) }
 								</Text>
 								<Button variant={ 'link' } href={ PLUGIN_SUPPORT_URL }>
 									<Text variant={ 'body-small' }>

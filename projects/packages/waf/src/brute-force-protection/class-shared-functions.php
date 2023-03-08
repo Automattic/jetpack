@@ -115,7 +115,7 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		$new_item        = new \stdClass();
 		$new_item->range = $range;
-		if ( ! empty( $range ) ) {
+		if ( $range ) {
 			$new_item->range_low  = trim( $ip_address[0] );
 			$new_item->range_high = trim( $ip_address[1] );
 		} else {
