@@ -15,7 +15,7 @@ function BloggingPromptsSave( { attributes } ) {
 				</div>
 			) }
 			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
-			{ showResponses && (
+			{ showResponses && promptId && (
 				<div className="jetpack-blogging-prompts__answers">
 					{ gravatars.map( ( { url } ) => {
 						return (

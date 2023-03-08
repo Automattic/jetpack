@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Remove the Mapbox API key box, when the mapping provider isn't Mapbox

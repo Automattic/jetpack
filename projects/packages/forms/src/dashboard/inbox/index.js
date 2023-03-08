@@ -3,31 +3,40 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 	SelectControl,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { first, includes, map } from 'lodash';
+import classnames from 'classnames';
+import { find, includes, map } from 'lodash';
 import Layout from '../components/layout';
 import { STORE_NAME } from '../state';
 import InboxList from './list';
 import InboxResponse from './response';
-
 import './style.scss';
+
+const RESPONSES_FETCH_LIMIT = 20;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ searchText, setSearchText ] = useState( '' );
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+	const [ searchTerm, setSearchTerm ] = useState( searchText );
 
+	const { invalidateResolution } = useDispatch( STORE_NAME );
 	const [ loading, responses, total ] = useSelect(
 		select => {
 			const stateSelector = select( STORE_NAME );
 			return [
 				stateSelector.isFetchingResponses(),
-				stateSelector.getResponses( searchText ),
+				stateSelector.getResponses(
+					searchTerm,
+					RESPONSES_FETCH_LIMIT,
+					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				),
 				stateSelector.getTotalResponses(),
 			];
 		},
-		[ searchText ]
+		[ searchTerm, currentPage ]
 	);
 
 	useEffect( () => {
@@ -38,21 +47,32 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	const handleLoadMore = useCallback( () => {
-		// this only needs to change the offset for the query
-	}, [] );
+	useEffect( () => {
+		invalidateResolution( 'getResponses', [
+			searchTerm,
+			RESPONSES_FETCH_LIMIT,
+			( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+		] );
+	}, [ searchTerm, currentPage, invalidateResolution ] );
 
-	const handleSearch = useCallback( event => {
-		event.preventDefault();
-		// this only needs to actually set a searchText (called differently) so we put as dependency on the useSelect
-		// currently the search is being triggered every time searchText changes
-	}, [] );
+	const handleSearch = useCallback(
+		event => {
+			event.preventDefault();
+			setSearchTerm( searchText );
+			setCurrentPage( 1 );
+		},
+		[ searchText ]
+	);
 
 	const numberOfResponses = sprintf(
 		/* translators: %s: Number of responses. */
 		_n( '%s response', '%s responses', total, 'jetpack-forms' ),
 		total
 	);
+
+	const contentClasses = classnames( 'jp-forms__inbox-content', {
+		'show-response': currentResponseId >= 0,
+	} );
 
 	return (
 		<Layout title={ __( 'Responses', 'jetpack-forms' ) } subtitle={ numberOfResponses }>
@@ -74,20 +94,25 @@ const Inbox = () => {
 					</Button>
 				</form>
 			</div>
-			<div className="jp-forms__inbox-content">
+
+			<div className={ contentClasses }>
 				<div className="jp-forms__inbox-content-column">
 					<InboxList
 						currentResponseId={ currentResponseId }
-						hasMore={ responses.length < total }
+						setCurrentResponseId={ setCurrentResponseId }
 						loading={ loading }
-						onLoadMore={ handleLoadMore }
-						onSelectionChange={ setCurrentResponseId }
 						responses={ responses }
+						currentPage={ currentPage }
+						setCurrentPage={ setCurrentPage }
+						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 					/>
 				</div>
 
 				<div className="jp-forms__inbox-content-column">
-					<InboxResponse isLoading={ loading } response={ first( responses ) } />
+					<InboxResponse
+						isLoading={ loading }
+						response={ find( responses, { id: currentResponseId } ) }
+					/>
 				</div>
 			</div>
 		</Layout>
