@@ -1529,7 +1529,7 @@ class Woo_Sync_Background_Sync_Job {
 
 			// Build fields for company
 			$data['company'] = array(
-				'status'          => __( 'Contact', 'zero-bs-crm' ),
+				'status'          => __( 'Customer', 'zero-bs-crm' ),
 				'name'            => $order_data['billing']['company'],
 				'created'         => $contact_creation_date_uts,
 				'externalSources' => array(
