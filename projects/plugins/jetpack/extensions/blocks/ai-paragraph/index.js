@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { useBlockProps, InnerBlocks } from '@wordpress/block-editor';
+import { useBlockProps, useInnerBlocksProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
@@ -73,11 +73,11 @@ export const settings = {
 	edit,
 	save: () => {
 		const blockProps = useBlockProps.save();
-		return (
-			<div { ...blockProps }>
-				<InnerBlocks.Content />
-			</div>
-		);
+		const innerBlockProps = useInnerBlocksProps.save( {
+			...blockProps,
+			className: 'wp-block-group__inner-container',
+		} );
+		return <div { ...innerBlockProps } />;
 	},
 	attributes,
 	transforms: {
