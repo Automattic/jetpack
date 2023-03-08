@@ -14,7 +14,6 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
-use Jetpack;
 use WP_Error;
 
 /**
@@ -694,7 +693,7 @@ class Brute_Force_Protection {
 
 		// Server is misconfigured and we can't get an IP.
 		if ( ! $ip ) {
-			Jetpack::deactivate_module( 'protect' );
+			self::disable();
 			ob_start();
 			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
 			ob_end_clean();
