@@ -89,6 +89,11 @@ $jetpack_dev_debug_modules = array(
 		'name'        => 'Jetpack Scan Helper',
 		'description' => '',
 	),
+	'waf-helper'         => array(
+		'file'        => 'class-waf-helper.php',
+		'name'        => 'Jetpack Firewall Helper',
+		'description' => '',
+	),
 	'cookie-state'       => array(
 		'file'        => 'class-cookie-state.php',
 		'name'        => 'Cookie State Faker',
