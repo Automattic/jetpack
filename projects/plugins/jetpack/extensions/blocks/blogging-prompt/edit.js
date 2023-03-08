@@ -1,13 +1,14 @@
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import { Button, PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 import { usePromptTags } from './use-prompt-tags';
 
 function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
+	const fetchedPromptRef = useRef( false );
 	const [ isLoading, setLoading ] = useState( true );
 	const { gravatars, prompt, promptId, showLabel, showResponses, tagsAdded } = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
@@ -19,8 +20,14 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
+		// Only fetch the prompt once.
+		if ( fetchedPromptRef.current ) {
+			return;
+		}
+
 		const retryPrompt = () => {
 			setLoading( true );
+			fetchedPromptRef.current = false;
 			noticeOperations.removeAllNotices();
 		};
 
@@ -55,11 +62,6 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			</>
 		);
 
-		// If not initially rendering the block, don't fetch new data.
-		if ( ! isLoading ) {
-			return;
-		}
-
 		let path = '/wpcom/v3/blogging-prompts';
 
 		if ( promptId ) {
@@ -74,6 +76,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			path += `?after=--${ month }-${ day }&order=desc`;
 		}
 
+		fetchedPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
@@ -94,7 +97,7 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 				noticeOperations.removeAllNotices();
 				noticeOperations.createErrorNotice( message );
 			} );
-	}, [ isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
+	}, [ fetchedPromptRef, isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
 
 	const onShowLabelChange = newValue => {
 		setAttributes( { showLabel: newValue } );
