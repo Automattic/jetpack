@@ -109,7 +109,11 @@ export default () => {
 		Number( videoId )
 	);
 
+	const filename = video?.url?.split( '/' ).slice( -1 )[ 0 ];
+
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
+
+	const videoPressURL = `https://videopress.com/v/${ video?.guid }`;
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
@@ -293,6 +297,8 @@ export default () => {
 		isFetchingPlaybackToken,
 		...video,
 		...formData, // formData is the local representation of the video
+		filename,
+		videoPressURL,
 		hasChanges,
 		posterImageSource,
 		libraryAttachment,

@@ -4,7 +4,7 @@ Tags: search, filter, woocommerce search, ajax search, product search, free clou
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.1
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,13 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.4.0 - 2022-12-12
-#### Added
-- Search: port Search plugin 1.3.1 changelog and plugin description
-
+### 1.4.1 - 2023-03-08
 #### Changed
-- My Jetpack: Requires connection only if needed
-- My Jetpack: Show My Jetpack even if site is disconnected
+- Remove `ci.targets` from package.json. Better scoping of e2e tests.
+- Update playwright dependency.
 - Updated package dependencies.
 
 == Testimonials ==

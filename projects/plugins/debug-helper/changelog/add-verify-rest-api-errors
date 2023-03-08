@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Replace "XML-RPC errors" with "connection errors", add error type ("xml-rpc" or "rest") to generated errors.
