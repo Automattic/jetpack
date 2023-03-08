@@ -1,3 +1,4 @@
+import { Gridicon } from '@automattic/jetpack-components';
 import {
 	Button,
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
@@ -5,7 +6,7 @@ import {
 } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
 import Layout from '../components/layout';
@@ -21,6 +22,7 @@ const Inbox = () => {
 	const [ searchText, setSearchText ] = useState( '' );
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 	const [ searchTerm, setSearchTerm ] = useState( searchText );
+	const [ view, setView ] = useState( 'list' );
 
 	const { invalidateResolution } = useDispatch( STORE_NAME );
 	const [ loading, responses, total ] = useSelect(
@@ -64,18 +66,33 @@ const Inbox = () => {
 		[ searchText ]
 	);
 
-	const numberOfResponses = sprintf(
-		/* translators: %s: Number of responses. */
-		_n( '%s response', '%s responses', total, 'jetpack-forms' ),
-		total
-	);
+	const selectResponse = useCallback( id => {
+		setCurrentResponseId( id );
+		setView( 'response' );
+	}, [] );
 
-	const contentClasses = classnames( 'jp-forms__inbox-content', {
-		'show-response': currentResponseId >= 0,
+	const handleGoBack = useCallback( event => {
+		event.preventDefault();
+		setView( 'list' );
+	}, [] );
+
+	const classes = classnames( 'jp-forms__inbox', {
+		'is-response-view': view === 'response',
 	} );
 
+	const title = (
+		<>
+			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+			<a className="back-button" onClick={ handleGoBack }>
+				<Gridicon icon="arrow-left" />
+				{ __( 'View all responses', 'jetpack-forms' ) }
+			</a>
+		</>
+	);
+
 	return (
-		<Layout title={ __( 'Responses', 'jetpack-forms' ) } subtitle={ numberOfResponses }>
+		<Layout title={ title } className={ classes }>
 			<div className="jp-forms__actions">
 				<form className="jp-forms__actions-form">
 					<SelectControl
@@ -95,12 +112,12 @@ const Inbox = () => {
 				</form>
 			</div>
 
-			<div className={ contentClasses }>
+			<div className="jp-forms__inbox-content">
 				<div className="jp-forms__inbox-content-column">
 					<InboxList
 						currentResponseId={ currentResponseId }
-						setCurrentResponseId={ setCurrentResponseId }
 						loading={ loading }
+						setCurrentResponseId={ selectResponse }
 						responses={ responses }
 						currentPage={ currentPage }
 						setCurrentPage={ setCurrentPage }

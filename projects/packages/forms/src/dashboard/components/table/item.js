@@ -30,7 +30,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 
 			{ map( columns, ( { additionalClassNames, component, getProps, key } ) => {
 				let Wrapper = Fragment;
-				let props = [];
+				let props = {};
 
 				if ( component ) {
 					Wrapper = component;
