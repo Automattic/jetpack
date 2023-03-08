@@ -176,6 +176,7 @@ const EditVideoDetails = () => {
 		filename,
 		uploadDate,
 		url,
+		videoPressURL,
 		width,
 		height,
 		title,
@@ -311,7 +312,7 @@ const EditVideoDetails = () => {
 							<VideoDetails
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
-								src={ url ?? '' }
+								src={ videoPressURL ?? '' }
 								shortcode={ shortcode ?? '' }
 								loading={ isBusy }
 							/>
