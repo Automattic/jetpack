@@ -2,7 +2,7 @@
  * External dependencies
  */
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components';
+import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 /**
@@ -165,6 +165,17 @@ export const TimestampControl = ( {
 	return (
 		<div className={ styles[ 'timestamp-control' ] }>
 			<TimestampInput max={ max } value={ value } onChange={ onChange } />
+			<RangeControl
+				className={ styles[ 'timestamp-control-range' ] }
+				min={ 0 }
+				step={ 0.1 }
+				initialPosition={ value }
+				value={ value }
+				max={ max }
+				showTooltip={ false }
+				withInputField={ false }
+				onChange={ onChange }
+			/>
 		</div>
 	);
 };

@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { useState } from 'react';
+/**
  * Internal dependencies
  */
 import TimestampControl from '..';
@@ -19,7 +23,17 @@ export default {
 } as ComponentMeta< typeof TimestampControl >;
 
 const Template: ComponentStory< typeof TimestampControl > = args => {
-	return <TimestampControl { ...args } />;
+	const [ time, setTime ] = useState( args.value );
+	return (
+		<TimestampControl
+			{ ...args }
+			value={ time }
+			onChange={ newTime => {
+				setTime( newTime );
+				args?.onChange( newTime );
+			} }
+		/>
+	);
 };
 
 export const _default = Template.bind( {} );
