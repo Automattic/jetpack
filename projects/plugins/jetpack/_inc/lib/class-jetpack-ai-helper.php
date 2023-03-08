@@ -21,7 +21,7 @@ class Jetpack_AI_Helper {
 	 *
 	 * @var int
 	 */
-	public static $text_completion_cooldown_seconds = 60;
+	public static $text_completion_cooldown_seconds = 15;
 
 	/**
 	 * Cache images for a prompt for a month.

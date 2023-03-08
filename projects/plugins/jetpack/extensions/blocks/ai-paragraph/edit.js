@@ -10,7 +10,7 @@ import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
-export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
+export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
