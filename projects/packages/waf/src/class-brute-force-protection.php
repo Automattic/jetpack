@@ -475,7 +475,7 @@ class Brute_Force_Protection {
 	 * Set up the Brute Force Protection configuration page
 	 */
 	public function modules_loaded() {
-		Jetpack::enable_module_configurable( __FILE__ );
+		add_filter( 'jetpack_module_configurable_protect', '__return_true' );
 	}
 
 	/**
