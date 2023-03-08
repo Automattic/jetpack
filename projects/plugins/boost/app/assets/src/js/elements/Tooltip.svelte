@@ -25,9 +25,13 @@
 		color: $primary-black;
 		font-size: 16px;
 		line-height: 24px;
+
+		&:hover .jb-tooltip__info-container {
+			display: block;
+		}
 	}
 
-	.jb-tooltip .jb-tooltip__info-icon {
+	.jb-tooltip__info-icon {
 		display: block;
 		width: 18px;
 		height: 18px;
@@ -43,11 +47,7 @@
 		margin: 0 8px;
 	}
 
-	.jb-tooltip:hover .jb-tooltip__info-container {
-		display: block;
-	}
-
-	.jb-tooltip .jb-tooltip__info-container {
+	.jb-tooltip__info-container {
 		display: none;
 		min-width: 480px;
 		top: 30px;
@@ -74,30 +74,40 @@
 		@include breakpoint( md ) {
 			left: 100px;
 		}
+	}
 
-		i {
-			position: absolute;
-			bottom: 100%;
-			left: 144px;
-			width: 24px;
-			height: 12px;
-			overflow: hidden;
-			text-align: center;
+	.jp-tooltip__info-title {
+		font-weight: 600;
+		font-size: 20px;
+		line-height: 1.3;
+	}
 
-			@include breakpoint( xs ) {
-				left: 305px;
-			}
+	.jp-tooltip__info-title:not( :last-child ) {
+		margin-bottom: 20px;
+	}
 
-			@include breakpoint( sm ) {
-				left: 245px;
-			}
+	i {
+		position: absolute;
+		bottom: 100%;
+		left: 144px;
+		width: 24px;
+		height: 12px;
+		overflow: hidden;
+		text-align: center;
 
-			@include breakpoint( md ) {
-				left: 145px;
-			}
+		@include breakpoint( xs ) {
+			left: 305px;
 		}
 
-		i::after {
+		@include breakpoint( sm ) {
+			left: 245px;
+		}
+
+		@include breakpoint( md ) {
+			left: 145px;
+		}
+
+		&::after {
 			content: '';
 			position: absolute;
 			width: 12px;
@@ -106,16 +116,6 @@
 			background-color: $primary-white;
 
 			@include box-shadow();
-		}
-
-		.jp-tooltip__info-title {
-			font-weight: 600;
-			font-size: 20px;
-			line-height: 1.3;
-		}
-
-		.jp-tooltip__info-title:not( :last-child ) {
-			margin-bottom: 20px;
 		}
 	}
 </style>
