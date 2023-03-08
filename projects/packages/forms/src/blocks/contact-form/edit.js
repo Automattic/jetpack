@@ -31,6 +31,7 @@ import NewsletterIntegrationSettings from './components/jetpack-newsletter-integ
 import SalesforceLeadFormSettings, {
 	salesforceLeadFormVariation,
 } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
@@ -69,6 +70,7 @@ export function JetpackContactFormEdit( {
 	variations,
 	defaultVariation,
 	canUserInstallPlugins,
+	style,
 } ) {
 	const {
 		to,
@@ -289,7 +291,7 @@ export function JetpackContactFormEdit( {
 				) }
 			</InspectorControls>
 
-			<div className={ formClassnames }>
+			<div className={ formClassnames } style={ style }>
 				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
 			</div>
 		</>
@@ -332,5 +334,6 @@ export default compose( [
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
 		return { replaceInnerBlocks, selectBlock };
 	} ),
+	withStyleVariables,
 	withInstanceId,
 ] )( JetpackContactFormEdit );
