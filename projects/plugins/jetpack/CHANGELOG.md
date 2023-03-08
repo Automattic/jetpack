@@ -5,7 +5,7 @@
 ## 12.0-a.1 - 2023-03-08
 ### Enhancements
 - Admin: fix submenu positioning in admin menu. [#28355]
-- Blocks: add a new Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors. [#29197]
+- Blocks (beta): add a new beta Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors. [#29197]
 - SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer. [#29235]
 - Stats: updates the layout of the loading and some sections on the Stats page. [#29221]
 
