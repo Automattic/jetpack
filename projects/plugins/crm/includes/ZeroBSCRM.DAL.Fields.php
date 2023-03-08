@@ -139,7 +139,7 @@ $zbsFieldSorts = array();
 				'',
 				array(
 					'Lead',
-					'Contact',
+					'Customer',
 					'Refused',
 					'Blacklisted',
 				),
