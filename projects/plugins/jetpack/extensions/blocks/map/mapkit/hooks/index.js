@@ -39,6 +39,11 @@ const useMapkitSetup = mapRef => {
 			setCurrentWindow( currentWindow );
 			setCurrentDoc( currentDoc );
 
+			const fetchMapkitKeyErrorMessage = __(
+				'Failed to retrieve a Mapkit API token. Please try refreshing.',
+				'jetpack'
+			);
+
 			// If mapkit is already loaded, reuse it.
 			if ( currentWindow.mapkit ) {
 				setMapkit( currentWindow.mapkit );
@@ -49,7 +54,7 @@ const useMapkitSetup = mapRef => {
 						setLoaded( true );
 					},
 					() => {
-						setError( __( 'Mapkit API error', 'jetpack' ) );
+						setError( fetchMapkitKeyErrorMessage );
 					}
 				);
 			} else {
@@ -61,7 +66,7 @@ const useMapkitSetup = mapRef => {
 							setLoaded( true );
 						},
 						() => {
-							setError( __( 'Mapkit API error', 'jetpack' ) );
+							setError( fetchMapkitKeyErrorMessage );
 						}
 					);
 				} );
