@@ -6,6 +6,7 @@ import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
+import v1 from './deprecated/v1';
 import edit from './edit';
 
 /**
@@ -99,4 +100,5 @@ export const settings = {
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
+	deprecated: [ v1 ],
 };
