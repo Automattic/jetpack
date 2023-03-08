@@ -1310,7 +1310,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-										$wheres['quickfiltercustomer'] = array( 'zbsco_status', 'LIKE', '%s', 'Contact' );
+										$wheres['quickfiltercustomer'] = array( 'zbsco_status', 'LIKE', '%s', 'Customer' );
 
                                         break;
 
