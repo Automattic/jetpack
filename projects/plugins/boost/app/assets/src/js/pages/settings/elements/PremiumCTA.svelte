@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getCurrencyObject } from '@automattic/format-currency';
 	import { onMount } from 'svelte';
-	import { derived } from 'svelte/store';
 	import { __, sprintf } from '@wordpress/i18n';
 	import config from '../../../stores/config';
 	import RightArrow from '../../../svg/right-arrow.svg';
@@ -9,7 +8,6 @@
 	import routerHistory from '../../../utils/router-history';
 
 	const { navigate } = routerHistory;
-	const pricing = derived( config, $config => $config.pricing );
 
 	onMount( () => {
 		// Throw away promise, as we don't need to wait for it.
@@ -22,9 +20,9 @@
 		navigate( '/upgrade' );
 	}
 
-	const currencyObjectAfter = getCurrencyObject(
-		$pricing.yearly.priceAfter,
-		$pricing.yearly.currencyCode
+	$: currencyObjectAfter = getCurrencyObject(
+		$config.pricing.yearly.priceAfter,
+		$config.pricing.yearly.currencyCode
 	);
 </script>
 
