@@ -62,15 +62,16 @@ trait Import {
 	 * Adds the unique identifier to the schema array.
 	 *
 	 * @param array $schema Schema array.
+	 * @param bool  $required Whether the field is required.
 	 * @return array Modified Schema array.
 	 */
-	protected function add_unique_identifier_to_schema( $schema ) {
+	protected function add_unique_identifier_to_schema( $schema, $required = true ) {
 		// Add the import unique ID to the schema.
 		$schema['properties'][ $this->import_id_field_name ] = array(
 			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
 			'type'        => 'integer',
 			'context'     => array( 'view', 'embed', 'edit' ),
-			'required'    => true,
+			'required'    => $required,
 		);
 
 		return $schema;
@@ -89,10 +90,11 @@ trait Import {
 			return $response;
 		}
 
-		$data = $response->get_data();
+		$data   = $response->get_data();
+		$status = $response->get_status();
 
-		// Skip if the resource has not been added.
-		if ( $response->get_status() !== 201 ) {
+		// Skip if the resource has not been added or modified.
+		if ( ! ( $status === 200 || $status === 201 ) ) {
 			return $response;
 		}
 
@@ -158,7 +160,7 @@ trait Import {
 				'permission_callback' => array( $this, 'import_permissions_callback' ),
 				'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
 			),
-			'allow_batch' => array( 'v1' => true ),
+			'allow_batch' => $this->allow_batch,
 			'schema'      => array( $this, 'get_public_item_schema' ),
 		);
 	}

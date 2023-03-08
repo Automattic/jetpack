@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Move search into state, fix double fetch on search and paging
