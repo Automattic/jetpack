@@ -212,7 +212,7 @@ class JPCRM_Settings_Cest {
 		$I->click( 'Save Settings' );
 
 		$I->seeOptionIsSelected( 'jpcrm_setting_coororg', 'Domain' );
-		$I->seeInField( 'jpcrm-status-companies', 'Lead,Contact,Refused,Blacklisted,Priority' );
+		$I->seeInField( 'jpcrm-status-companies', 'Lead,Customer,Refused,Blacklisted,Priority' );
 	}
 
 	public function see_quotes_settings( AcceptanceTester $I ) {
