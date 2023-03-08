@@ -471,7 +471,7 @@
       $zeroBSCRM_filterbuttons_company['default'] = array(
 
                                   'lead' => array(__('Lead',"zero-bs-crm")),
-									'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+									'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),  // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
                             );
       $zeroBSCRM_filterbuttons_company['all'] = array(
 
