@@ -460,7 +460,7 @@ if ( isset( $sbupdated ) ) {
 
 								if ( empty( $zbsFunnelStr ) ) {
 									// } Defaults:
-									$zbsFunnelStr = 'Lead,Contacted,Contact,Upsell'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									$zbsFunnelStr = 'Lead,Contacted,Customer,Upsell'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								}
 
 								?>
