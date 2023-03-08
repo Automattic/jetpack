@@ -189,7 +189,7 @@ $zeroBSCRM_Conf_Def = array(
 	'filtersfromstatus'                  => 1, // show quickfilters for all statuses
 	'filtersfromsegments'                => 1, // show quickfilters for all segments
 	'defaultstatus'                      => 'Lead',
-	'zbsfunnel'                          => 'Lead,Contact',
+	'zbsfunnel'                          => 'Lead,Customer',
 
 	/* === Locale === */
 	'currency'                           => array(
