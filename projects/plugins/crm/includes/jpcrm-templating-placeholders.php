@@ -1537,6 +1537,7 @@ class jpcrm_templating_placeholders {
 				'template'          => 'pdf',
 			)
 		);
+		$social_links   = show_social_links();
 		
 		// return
 		return array(
@@ -1565,6 +1566,8 @@ class jpcrm_templating_placeholders {
 			'email-from-name'	=> zeroBSCRM_mailDelivery_defaultFromname(),
 			'password'			=> '<a href="' . wp_lostpassword_url() . '" title="' . __( 'Lost Password', 'zero-bs-crm' ) . '">'. __('Set Your Password', 'zero-bs-crm').'</a>',
 
+			// social
+			'social-links'    => $social_links,
 		);
 
 	}
