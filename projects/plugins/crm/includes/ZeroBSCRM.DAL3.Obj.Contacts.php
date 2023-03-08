@@ -74,7 +74,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 					'input_type'            => 'select',
 					'label'                 => __( 'Status', 'zero-bs-crm' ),
 					'placeholder'           => '',
-					'options'               => array( 'Lead', 'Contact', 'Refused', 'Blacklisted' ),
+					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
 					'essential'             => true,
 					'max_len'               => 100,
 					'do_not_show_on_portal' => true,
