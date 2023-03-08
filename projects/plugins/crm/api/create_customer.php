@@ -49,7 +49,7 @@ $email                = '';
 if ( isset( $new_customer['sticky'] ) && ! empty( $new_customer['sticky'] ) ) {
 	$sticky = false;
 }
-		$stickystat = 'Contact';
+		$stickystat = 'Customer';
 if ( isset( $new_customer['stickystat'] ) ) {
 	$stickystat = sanitize_text_field( $new_customer['stickystat'] );
 }
