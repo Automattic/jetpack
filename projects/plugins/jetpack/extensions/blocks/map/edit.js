@@ -50,7 +50,7 @@ class MapEdit extends Component {
 		this.mapRef = createRef();
 	}
 	geoCodeAddress = ( address, apiKey ) => {
-		if ( ! apiKey ) {
+		if ( ! apiKey || this.getMapProvider() === 'mapkit' ) {
 			return;
 		}
 		getCoordinates( address, apiKey )
@@ -159,12 +159,23 @@ class MapEdit extends Component {
 			} );
 		} );
 	}
+	getMapProvider = () => {
+		const mapStyle = getActiveStyleName( settings.styles, this.props?.attributes?.className );
+		return getMapProvider( { mapStyle } );
+	};
+
 	componentDidMount() {
-		this.apiCall().then( () => {
-			if ( this.props.attributes?.address ) {
-				this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-			}
-		} );
+		if ( this.getMapProvider() === 'mapbox' ) {
+			this.apiCall().then( () => {
+				if ( this.props.attributes?.address ) {
+					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+				}
+			} );
+		} else {
+			this.setState( {
+				apiState: API_STATE_SUCCESS,
+			} );
+		}
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
@@ -230,7 +241,7 @@ class MapEdit extends Component {
 			apiRequestOutstanding,
 		} = this.state;
 
-		const mapProvider = getMapProvider();
+		const mapProvider = this.getMapProvider();
 
 		const inspectorControls = (
 			<>
@@ -350,6 +361,7 @@ class MapEdit extends Component {
 								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
 								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 								onError={ this.onError }
+								mapProvider={ mapProvider }
 							>
 								{ isSelected && addPointVisibility && (
 									<AddPoint
@@ -358,6 +370,7 @@ class MapEdit extends Component {
 										apiKey={ apiKey }
 										onError={ this.onError }
 										tagName="AddPoint"
+										mapProvider={ mapProvider }
 									/>
 								) }
 							</Map>

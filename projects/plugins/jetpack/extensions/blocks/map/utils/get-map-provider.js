@@ -8,13 +8,18 @@ function getCookie( name ) {
 	}
 }
 
-const getMapProvider = () => {
+const getMapProvider = props => {
+	const mapboxStyles = [ 'black_and_white', 'terrain' ];
+	if ( props?.mapStyle && mapboxStyles.includes( props.mapStyle ) ) {
+		return 'mapbox';
+	}
+
 	const mapProviderCookie = getCookie( 'map_provider' );
 	if ( mapProviderCookie ) {
 		return mapProviderCookie;
 	}
 
-	if ( isAtomicSite() || isSimpleSite() || window.location.search.includes( 'mapkit' ) ) {
+	if ( isAtomicSite() || isSimpleSite() ) {
 		return 'mapkit';
 	}
 	return 'mapbox';
