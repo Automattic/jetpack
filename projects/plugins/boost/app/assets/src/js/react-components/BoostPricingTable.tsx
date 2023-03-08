@@ -8,7 +8,7 @@ import {
 	ProductPrice,
 } from '@automattic/jetpack-components';
 import { createInterpolateElement, useState } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 const cssOptimizationContext = __(
 	'Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as Critical CSS.',
@@ -38,49 +38,53 @@ const supportContext = __(
 	'jetpack-boost'
 );
 
-const automaticallyUpdatedContext = sprintf(
-	'%1$s<br><br>%2$s',
-	__(
-		'It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.',
-		'jetpack-boost'
-	),
-	__(
-		'Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.',
-		'jetpack-boost'
-	)
+const automaticallyUpdatedContext = (
+	<span>
+		{ __(
+			'It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.',
+			'jetpack-boost'
+		) }
+		<br />
+		<br />
+		{ __(
+			'Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.',
+			'jetpack-boost'
+		) }
+	</span>
 );
 
-// Linter doesn't understand multiline strings.
-// eslint-disable-next-line @wordpress/valid-sprintf
-const manuallyUpdatedContext = sprintf(
-	`%1$s<br><br>
-	<ul>
-		<li>%2$s</li>
-		<li>%3$s</li>
-		<li>%4$s</li>
-		<li>%5$s</li>
-		<li>%6$s</li>
-		<li>%7$s</li>
-	</ul>`,
-	__(
-		'To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:',
-		'jetpack-boost'
-	),
-	__( 'Make theme changes.', 'jetpack-boost' ),
-	__( 'Write a new post/page.', 'jetpack-boost' ),
-	__( 'Edit a post/page.', 'jetpack-boost' ),
-	__(
-		'Activate, deactivate, or update plugins that impact your site layout or HTML structure.',
-		'jetpack-boost'
-	),
-	__(
-		'Change settings of plugins that impact your site layout or HTML structure.',
-		'jetpack-boost'
-	),
-	__(
-		'Upgrade your WordPress version if the new release includes core CSS changes.',
-		'jetpack-boost'
-	)
+const manuallyUpdatedContext = (
+	<span>
+		{ __(
+			'To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:',
+			'jetpack-boost'
+		) }
+		<br />
+		<br />
+		<ul>
+			<li>{ __( 'Make theme changes.', 'jetpack-boost' ) }</li>
+			<li>{ __( 'Write a new post/page.', 'jetpack-boost' ) }</li>
+			<li>{ __( 'Edit a post/page.', 'jetpack-boost' ) }</li>
+			<li>
+				{ __(
+					'Activate, deactivate, or update plugins that impact your site layout or HTML structure.',
+					'jetpack-boost'
+				) }
+			</li>
+			<li>
+				{ __(
+					'Change settings of plugins that impact your site layout or HTML structure.',
+					'jetpack-boost'
+				) }
+			</li>
+			<li>
+				{ __(
+					'Upgrade your WordPress version if the new release includes core CSS changes.',
+					'jetpack-boost'
+				) }
+			</li>
+		</ul>
+	</span>
 );
 
 export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
@@ -148,9 +152,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					isIncluded={ true }
 					label={ <strong>{ __( 'Automatically updated', 'jetpack-boost' ) }</strong> }
 					tooltipTitle={ __( 'Automatic Critical CSS regeneration', 'jetpack-boost' ) }
-					tooltipInfo={
-						<span dangerouslySetInnerHTML={ { __html: automaticallyUpdatedContext } }></span>
-					}
+					tooltipInfo={ automaticallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
@@ -179,9 +181,7 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 					isIncluded={ true }
 					label={ __( 'Must be done manually', 'jetpack-boost' ) }
 					tooltipTitle={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
-					tooltipInfo={
-						<span dangerouslySetInnerHTML={ { __html: manuallyUpdatedContext } }></span>
-					}
+					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
 				<PricingTableItem isIncluded={ true } />
