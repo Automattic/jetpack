@@ -240,11 +240,11 @@ const EditVideoDetails = () => {
 	const { page } = useVideosQuery();
 
 	useEffect( () => {
-		if ( updated === true || deleted === true ) {
+		if ( deleted === true ) {
 			const to = page > 1 ? `/?page=${ page }` : '/';
 			history.push( to );
 		}
-	}, [ updated, deleted ] );
+	}, [ deleted ] );
 
 	if ( ! canPerformAction ) {
 		history.push( '/' );
