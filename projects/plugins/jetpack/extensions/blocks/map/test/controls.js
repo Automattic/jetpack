@@ -73,22 +73,46 @@ describe( 'Inspector controls', () => {
 			expect( screen.getByText( 'Zoom level' ) ).toBeInTheDocument();
 		} );
 
-		test( 'street names toggle shows correctly', () => {
+		test( 'street names toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Show street names' ) ).toBeInTheDocument();
 		} );
 
-		test( 'scroll to zoom toggle shows correctly', () => {
+		test( "street names toggle shows doesn't show when mapProvider is mapkit", () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.queryByText( 'Show street names' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'scroll to zoom toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Scroll to zoom' ) ).toBeInTheDocument();
 		} );
 
-		test( 'show fullscreen button toggle shows correctly', () => {
+		test( "scroll to zoom toggle doesn't show when mapProvider is mapkit", () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.queryByText( 'Scroll to zoom' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'show fullscreen button toggle shows correctly when mapProvider is mapbox', () => {
 			render( <MapControls { ...defaultProps } /> );
 
 			expect( screen.getByText( 'Show Fullscreen Button' ) ).toBeInTheDocument();
+		} );
+
+		test( 'show fullscreen button toggle shows correctly', () => {
+			const props = { ...defaultProps, mapProvider: 'mapkit' };
+
+			render( <MapControls { ...props } /> );
+
+			expect( screen.queryByText( 'Show Fullscreen Button' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
