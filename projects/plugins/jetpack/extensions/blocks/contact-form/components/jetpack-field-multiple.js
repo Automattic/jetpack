@@ -73,6 +73,7 @@ function JetpackFieldMultiple( props ) {
 				setAttributes={ setAttributes }
 				type={ type }
 				width={ width }
+				hidePlaceholder
 			/>
 		</>
 	);

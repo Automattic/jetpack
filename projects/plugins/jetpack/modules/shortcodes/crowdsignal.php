@@ -57,7 +57,6 @@ if (
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 
 			add_filter( 'pre_kses', array( $this, 'crowdsignal_embed_to_shortcode' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 			add_action( 'infinite_scroll_render', array( $this, 'crowdsignal_shortcode_infinite' ), 11 );
 		}
 
@@ -68,7 +67,7 @@ if (
 			wp_register_script(
 				'crowdsignal-shortcode',
 				Assets::get_file_url_for_environment( '_inc/build/crowdsignal-shortcode.min.js', '_inc/crowdsignal-shortcode.js' ),
-				array( 'jquery' ),
+				array(),
 				JETPACK__VERSION,
 				true
 			);
@@ -685,19 +684,6 @@ if (
 				}
 			}
 			self::$scripts = false;
-		}
-
-		/**
-		 * If the theme uses infinite scroll, include jquery at the start
-		 */
-		public function check_infinite() {
-			if (
-				current_theme_supports( 'infinite-scroll' )
-				&& class_exists( 'The_Neverending_Home_Page' )
-				&& The_Neverending_Home_Page::archive_supports_infinity()
-			) {
-				wp_enqueue_script( 'jquery' );
-			}
 		}
 
 		/**

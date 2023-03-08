@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Providers\Provider;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
 use Automattic\Jetpack_Boost\Lib\Nonce;
 
@@ -12,135 +10,10 @@ class Generator {
 	const GENERATE_QUERY_ACTION = 'jb-generate-critical-css';
 	const CSS_CALLBACK_ACTION   = 'jb-critical-css-callback';
 
-	/**
-	 * Provider keys which are present in "core" WordPress. If any of these fail to generate,
-	 * the whole process should be considered broken.
-	 */
-	const CORE_PROVIDER_KEYS = array(
-		'core_front_page',
-		'core_posts_page',
-		'singular_page',
-		'singular_post',
-		'singular_product',
-	);
+	private $paths;
 
-	public $state;
-
-	public function __construct( $state = 'local' ) {
-		$this->state = new Critical_CSS_State( $state );
+	public function __construct() {
 		$this->paths = new Source_Providers();
-		if ( $this->state->is_empty() && ! wp_doing_ajax() && ! wp_doing_cron() ) {
-			$this->state->create_request( $this->paths->get_providers() );
-		}
-	}
-
-	/**
-	 * Get Critical CSS status.
-	 */
-	public function get_critical_css_status() {
-		if ( $this->state->is_empty() ) {
-			return array( 'status' => Critical_CSS_State::NOT_GENERATED );
-		}
-
-		if ( $this->state->is_fatal_error() ) {
-			return array(
-				'status'       => Critical_CSS_State::FAIL,
-				'status_error' => $this->state->get_state_error(),
-			);
-		}
-
-		if ( $this->state->is_pending() ) {
-			return array(
-				'status'                 => Critical_CSS_State::REQUESTING,
-				'progress'               => $this->state->get_percent_complete(),
-				'success_count'          => $this->state->get_providers_success_count(),
-				'pending_provider_keys'  => $this->state->get_provider_urls(),
-				'provider_success_ratio' => $this->state->get_provider_success_ratios(),
-				'created'                => $this->state->get_created_time(),
-				'updated'                => $this->state->get_updated_time(),
-			);
-		}
-
-		return array(
-			'status'                => Critical_CSS_State::SUCCESS,
-			'progress'              => $this->state->get_percent_complete(),
-			'success_count'         => $this->state->get_providers_success_count(),
-			'core_providers'        => self::CORE_PROVIDER_KEYS,
-			'core_providers_status' => $this->state->get_core_providers_status( self::CORE_PROVIDER_KEYS ),
-			'issues'                => $this->get_issues(),
-			'created'               => $this->state->get_created_time(),
-			'updated'               => $this->state->get_updated_time(),
-		);
-	}
-
-	/**
-	 * Given a provider key, find the provider which owns the key. Returns false
-	 * if no Provider is found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return Provider|false|string
-	 */
-	public function find_provider_for( $provider_key ) {
-		foreach ( $this->paths->get_providers() as $provider ) {
-			if ( $provider::owns_key( $provider_key ) ) {
-				return $provider;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get providers errors.
-	 *
-	 * @return array
-	 */
-	public function get_issues() {
-
-		$providers_errors = $this->state->get_providers_errors();
-		$issue_status     = $this->state->get_provider_issue_status();
-		$issues           = array();
-		foreach ( $providers_errors as $provider => $url_errors ) {
-			$errors = array();
-			foreach ( $url_errors as $url => $error ) {
-				$error['url'] = $url;
-				$errors[]     = $error;
-			}
-			$label = $this->describe_provider_key( $provider );
-
-			$status   = ! empty( $issue_status[ $provider ] ) ? $issue_status[ $provider ] : 'active';
-			$issues[] = array(
-				'provider_name' => $label,
-				'key'           => $provider,
-				'status'        => $status,
-				'errors'        => $errors,
-			);
-		}
-
-		return $issues;
-	}
-
-	/**
-	 * Returns a descriptive label for a provider key, or the raw provider key
-	 * if none found.
-	 *
-	 * @param string $provider_key Provider key.
-	 *
-	 * @return mixed
-	 */
-	public function describe_provider_key( $provider_key ) {
-		$provider = $this->find_provider_for( $provider_key );
-		if ( ! $provider ) {
-			return $provider_key;
-		}
-
-		/**
-		 * Provider key.
-		 *
-		 * @param string $provider_key
-		 */
-		return $provider::describe_key( $provider_key );
 	}
 
 	/**
@@ -178,19 +51,13 @@ class Generator {
 		return $is_generating;
 	}
 
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-	public function make_generation_request() {
-		$this->state->create_request( $this->paths->get_providers() );
-	}
-
 	/**
 	 * Get a Critical CSS status block, adding in local generation nonces (if applicable).
 	 * i.e.: Call this method to supply enough Critical CSS status to kick off local generation,
 	 * such as in response to a request-generate API call or during page initialization.
 	 */
-	public function get_local_critical_css_generation_info() {
-		$status = $this->get_critical_css_status();
+	public function get_generation_metadata() {
+		$status = array();
 
 		// Add viewport sizes.
 		$status['viewports'] = array(

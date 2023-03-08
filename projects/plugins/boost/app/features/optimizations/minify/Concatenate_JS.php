@@ -4,13 +4,16 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
 use WP_Scripts;
 
+// Disable complaints about enqueuing scripts, as this class alters the way enqueuing them works.
+// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+
 class Concatenate_JS extends WP_Scripts {
 	private $dependency_path_mapping;
 	private $old_scripts;
 
 	public $allow_gzip_compression;
 
-	function __construct( $scripts ) {
+	public function __construct( $scripts ) {
 		if ( empty( $scripts ) || ! ( $scripts instanceof WP_Scripts ) ) {
 			$this->old_scripts = new WP_Scripts();
 		} else {
@@ -52,7 +55,9 @@ class Concatenate_JS extends WP_Scripts {
 		return false;
 	}
 
-	function do_items( $handles = false, $group = false ) {
+	public function do_items( $handles = false, $group = false ) {
+		global $wp_filesystem;
+
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$javascripts = array();
 		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
@@ -62,7 +67,7 @@ class Concatenate_JS extends WP_Scripts {
 		$using_strict = false;
 		foreach ( $this->to_do as $key => $handle ) {
 			$script_is_strict = false;
-			if ( in_array( $handle, $this->done ) || ! isset( $this->registered[ $handle ] ) ) {
+			if ( in_array( $handle, $this->done, true ) || ! isset( $this->registered[ $handle ] ) ) {
 				continue;
 			}
 
@@ -85,7 +90,7 @@ class Concatenate_JS extends WP_Scripts {
 
 			$obj           = $this->registered[ $handle ];
 			$js_url        = $obj->src;
-			$js_url_parsed = parse_url( $js_url );
+			$js_url_parsed = wp_parse_url( $js_url );
 
 			// Don't concat by default
 			$do_concat = false;
@@ -131,7 +136,7 @@ class Concatenate_JS extends WP_Scripts {
 				}
 				$do_concat        = false;
 				$script_is_strict = true;
-			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', file_get_contents( $js_realpath ), $matches ) ) {
+			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', $wp_filesystem->get_contents( $js_realpath ), $matches ) ) {
 				// Skip third-party scripts that use Strict Mode
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Has Strict Mode (Third-Party) -->\n", esc_html( $handle ) );
@@ -196,11 +201,11 @@ class Concatenate_JS extends WP_Scripts {
 		}
 
 		foreach ( $javascripts as $js_array ) {
-			if ( 'do_item' == $js_array['type'] ) {
+			if ( 'do_item' === $js_array['type'] ) {
 				if ( $this->do_item( $js_array['handle'], $group ) ) {
 					$this->done[] = $js_array['handle'];
 				}
-			} elseif ( 'concat' == $js_array['type'] ) {
+			} elseif ( 'concat' === $js_array['type'] ) {
 				array_map( array( $this, 'print_extra_script' ), $js_array['handles'] );
 
 				if ( isset( $js_array['paths'] ) && count( $js_array['paths'] ) > 1 ) {
@@ -218,6 +223,7 @@ class Concatenate_JS extends WP_Scripts {
 					$path_str = "$path_str?m=$mtime";
 
 					if ( $this->allow_gzip_compression ) {
+						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 						$path_64 = base64_encode( gzcompress( $path_str ) );
 						if ( strlen( $path_str ) > ( strlen( $path_64 ) + 1 ) ) {
 							$path_str = '-' . $path_64;
@@ -234,6 +240,7 @@ class Concatenate_JS extends WP_Scripts {
 				// Print before/after scripts from wp_inline_scripts() and concatenated script tag
 				if ( isset( $js_array['extras']['before'] ) ) {
 					foreach ( $js_array['extras']['before'] as $inline_before ) {
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo $inline_before;
 					}
 				}
@@ -257,11 +264,13 @@ class Concatenate_JS extends WP_Scripts {
 						$tag = apply_filters( 'script_loader_tag', $tag, $js_array['handles'][0], $href );
 					}
 
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					echo $tag;
 				}
 
 				if ( isset( $js_array['extras']['after'] ) ) {
 					foreach ( $js_array['extras']['after'] as $inline_after ) {
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						echo $inline_after;
 					}
 				}
@@ -273,19 +282,19 @@ class Concatenate_JS extends WP_Scripts {
 		return $this->done;
 	}
 
-	function __isset( $key ) {
+	public function __isset( $key ) {
 		return isset( $this->old_scripts->$key );
 	}
 
-	function __unset( $key ) {
+	public function __unset( $key ) {
 		unset( $this->old_scripts->$key );
 	}
 
-	function &__get( $key ) {
+	public function &__get( $key ) {
 		return $this->old_scripts->$key;
 	}
 
-	function __set( $key, $value ) {
+	public function __set( $key, $value ) {
 		$this->old_scripts->$key = $value;
 	}
 }
