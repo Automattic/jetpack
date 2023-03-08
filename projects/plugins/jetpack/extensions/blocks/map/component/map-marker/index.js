@@ -1,6 +1,6 @@
 import { Component } from '@wordpress/element';
-import { getLoadContext } from '../../../shared/block-editor-asset-loader';
-import { setMarkerHTML } from '../mapbox-utils';
+import { getLoadContext } from '../../../../shared/block-editor-asset-loader';
+import { setMarkerHTML } from '../../mapbox-utils';
 
 import './style.scss';
 
