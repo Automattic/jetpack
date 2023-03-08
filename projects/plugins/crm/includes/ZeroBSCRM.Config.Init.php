@@ -340,7 +340,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Remember, this'll effect other areas of the CRM
 			'status' => array(
 				1,
-				'Lead,Contact,Refused,Blacklisted',
+				'Lead,Customer,Refused,Blacklisted',
 			),
 		),
 		'quotes'       => array(),
