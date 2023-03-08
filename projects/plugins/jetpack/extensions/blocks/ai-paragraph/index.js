@@ -85,11 +85,9 @@ export const settings = {
 		to: [
 			{
 				type: 'block',
-				blocks: [ 'core/paragraph' ],
-				transform: ( { content } ) => {
-					return createBlock( 'core/paragraph', {
-						content,
-					} );
+				blocks: [ 'core/group' ],
+				transform: ( _attributes, innerBlocks ) => {
+					return createBlock( 'core/group', {}, innerBlocks );
 				},
 			},
 		],
