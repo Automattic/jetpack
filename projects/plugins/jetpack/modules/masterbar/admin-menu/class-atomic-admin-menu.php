@@ -70,7 +70,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 
-		if ( ! get_option( 'is_staging_site' ) ) {
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_inbox_menu();
 		}
 
@@ -314,7 +314,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 */
 	public function add_upgrades_menu( $plan = null ) {
 
-		if ( get_option( 'is_staging_site' ) ) {
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
 			return;
 		}
 		$products = Jetpack_Plan::get();
