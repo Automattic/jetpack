@@ -12,8 +12,10 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 	const { gravatars, prompt, promptId, showLabel, showResponses, tagsAdded } = attributes;
 	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
+	const setTagsAdded = state => setAttributes( { tagsAdded: state } );
+
 	// Add the prompt tags to the post, if they haven't already been added.
-	usePromptTags( promptId, tagsAdded, setAttributes );
+	usePromptTags( promptId, tagsAdded, setTagsAdded );
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
