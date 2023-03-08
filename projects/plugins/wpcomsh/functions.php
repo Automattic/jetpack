@@ -367,18 +367,20 @@ function wpcomsh_is_xmlrpc_request_matching( $path_regex ) {
 
 /**
  * Check if we are handling a WordPress core REST v2 API request where the API path matches
- * the regular expression in $path_regex and the method in $request_method.
+ * the regular expression in $path_regex and the HTTP method(s) in $request_method.
  *
- * @param string $path_regex      A regular expression for the requested path, which should include the REST prefix available from {@see rest_get_url_prefix()}.
- * @param string $request_method  The expected HTTP method of the request, e.g. GET|POST|PUT|DELETE.
- * @return bool                   Whether the incoming request matches the supplied path and method.
+ * @param string          $path_regex      A regular expression for the requested path, which should include the REST prefix available from {@see rest_get_url_prefix()}.
+ * @param string|string[] $request_method  The expected HTTP method(s) of the request, e.g. GET|POST|PUT|DELETE or array( 'PUT', 'POST' ).
+ * @return bool                            Whether the incoming request matches the supplied path and method(s).
  */
 function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GET' ) {
 	if ( ! defined( 'REST_REQUEST' ) || ! REST_REQUEST ) {
 		return false;
 	}
 
-	if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || $_SERVER['REQUEST_METHOD'] !== $request_method ) {
+	$request_methods = is_array( $request_method ) ? $request_method : array( $request_method );
+
+	if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || ! in_array( $_SERVER['REQUEST_METHOD'], $request_methods, true ) ) {
 		return false;
 	}
 

@@ -67,7 +67,13 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 			/*
 			 * Specifically allow install permissions for WooCommerce payment gateways.
 			 */
-			if ( wpcomsh_is_woocommerce_payment_gateway_request() && wpcom_site_has_feature( WPCOM_Features::INSTALL_WOO_PAYMENT_GATEWAYS ) ) {
+			if (
+				wpcom_site_has_feature( WPCOM_Features::INSTALL_WOO_PAYMENT_GATEWAYS )
+				&& (
+					wpcomsh_is_woocommerce_payment_gateway_request()
+					|| wpcomsh_is_woocommerce_connect_request()
+				)
+			) {
 				break;
 			}
 
@@ -125,25 +131,82 @@ function wpcomsh_is_woocommerce_payment_gateway_request() {
 		return true;
 	}
 
-	// Check if we're trying to perform a payment gateway install from WooCommerce admin pages that offer gateway suggestions.
+	$editable_methods = wpcomsh_get_rest_methods_as_array( \WP_REST_Server::EDITABLE );
+
+	if ( ! wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/plugins/install@', $editable_methods ) && ! wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/plugins/activate@', $editable_methods ) ) {
+		return false;
+	}
+
 	$wp_referer = wp_get_referer();
-	if (
-		wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . '/wc-admin/plugins/install@', 'POST' )
-		&& ! empty( $wp_referer )
-		&& (
-			// User is trying to install from the WooCommerce Payments task page
-			$wp_referer === admin_url( 'admin.php?page=wc-admin&task=woocommerce-payments' )
-			// User is trying to install from the general payments task page
-			|| $wp_referer === admin_url( 'admin.php?page=wc-admin&task=payments' )
-			// User is retrying install from the payment gateway install/setup page
-			|| str_starts_with( $wp_referer, admin_url( 'admin.php?page=wc-admin&task=payments&id=' ) )
-			// User is trying to install from suggestions in Settings -> Payments tab
-			|| $wp_referer === admin_url( 'admin.php?page=wc-settings&tab=checkout' )
-		) ) {
+
+	if ( empty( $wp_referer ) ) {
+		return false;
+	}
+
+	// Check if we're requesting a payment gateway install or activation from WooCommerce admin pages that offer gateway suggestions.
+
+	// User is retrying install from the payment gateway install/setup page.
+	if ( str_starts_with( $wp_referer, admin_url( 'admin.php?page=wc-admin&task=payments&id=' ) ) ) {
 		return true;
 	}
 
+	$permitted_admin_paths = array(
+		// Payments onboarding task
+		'admin.php?page=wc-admin&task=payments',
+		// WooCommerce Payments onboarding task
+		'admin.php?page=wc-admin&task=woocommerce-payments',
+		// Tax onboarding task
+		'admin.php?page=wc-admin&task=tax',
+		// WooCommerce Settings -> Payments tab
+		'admin.php?page=wc-settings&tab=checkout',
+	);
+
+	foreach ( $permitted_admin_paths as $permitted_admin_path ) {
+		if ( $wp_referer === admin_url( $permitted_admin_path ) ) {
+			return true;
+		}
+	}
+
 	return false;
+}
+
+/**
+ * Whether the current request is a REST API request to perform a
+ * WooCommerce connection activity.
+ *
+ * @return bool
+ */
+function wpcomsh_is_woocommerce_connect_request() {
+	$wp_json_prefix = preg_quote( rest_get_url_prefix(), '@' );
+
+	$editable_methods = wpcomsh_get_rest_methods_as_array( \WP_REST_Server::EDITABLE );
+
+	$permitted_connect_api_paths = array(
+		'/wc-admin/plugins/connect-jetpack' => \WP_REST_Server::READABLE,
+		'/wc-admin/plugins/connect-square'  => $editable_methods,
+		'/wc-admin/plugins/connect-wcpay'   => $editable_methods,
+	);
+
+	foreach ( $permitted_connect_api_paths as $permitted_connect_api_path => $supported_methods ) {
+		if ( wpcomsh_is_wp_rest_request_matching( '@^/' . $wp_json_prefix . $permitted_connect_api_path . '@', $supported_methods ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Helper method to split an HTTP method string from one of the REST constants in {@see \WP_REST_Server}
+ *
+ * @param string $method The HTTP method(s), generally drawn from constants in \WP_REST_Server.
+ * @return string[]
+ */
+function wpcomsh_get_rest_methods_as_array( $method ) {
+	return array_map(
+		'trim',
+		explode( ',', $method )
+	);
 }
 
 /**
