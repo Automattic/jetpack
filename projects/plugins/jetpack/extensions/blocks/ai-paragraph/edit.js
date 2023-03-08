@@ -9,10 +9,14 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classNames from 'classnames';
+import { STATE as AI_BLOCK_STATE } from './attributes';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
+
+const is_untriggered = state => state === AI_BLOCK_STATE.DEFAULT;
+const is_triggered = state => state !== AI_BLOCK_STATE.DEFAULT;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
@@ -76,7 +80,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
-	const { triggered } = attributes;
+	const { state } = attributes;
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -149,13 +153,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const blockName = 'jetpack/' + aiParagraphBlockName;
 		return (
 			contentBefore.filter(
-				block => block.name && block.name === blockName && ! block.attributes.triggered
+				block => block.name && block.name === blockName && is_untriggered( block.attributes.state )
 			).length > 0
 		);
 	};
 
 	const getSuggestionFromOpenAI = () => {
-		if ( !! content || isLoadingCompletion || triggered ) {
+		if ( !! content || isLoadingCompletion || is_triggered( state ) ) {
 			return;
 		}
 
@@ -172,6 +176,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			post_id: postId,
 		} );
 
+		setAttributes( { state: AI_BLOCK_STATE.PROCESSING } );
+
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
@@ -180,7 +186,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			.then( res => {
 				const result = res.prompts[ 0 ].text.trim();
 				setContent( result );
-				setAttributes( { triggered: true } );
+				setAttributes( { state: AI_BLOCK_STATE.RENDERING } );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -202,7 +208,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
-	const contentIsLoaded = triggered || !! content;
+	const contentIsLoaded = is_triggered( state ) || !! content;
 
 	// We do nothing if we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
@@ -270,7 +276,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// At this point this is an established pattern.
 	useEffect( () => {
 		// If the content is not loaded, we do nothing.
-		if ( ! content || ! triggered ) {
+		if ( ! content || state !== AI_BLOCK_STATE.RENDERING ) {
 			return;
 		}
 
@@ -285,13 +291,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		// Finally set the inner block to the full content.
 		setTimeout( () => {
 			updateInnerBlocks( content );
+			setAttributes( { state: AI_BLOCK_STATE.DONE } );
 		}, 50 * tokens.length );
-	}, [ triggered, content ] ); // eslint-disable-line react-hooks/exhaustive-deps
+	}, [ state, content ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	// Used for styling the block in the editor.
-	const classes = classNames( {
-		triggered,
-	} );
+	const classes = classNames( `state-${ state }` );
 	const blockProps = useBlockProps( {
 		className: classes,
 	} );
