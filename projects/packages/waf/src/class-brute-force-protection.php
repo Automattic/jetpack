@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack;
 use Jetpack_IXR_Client;
@@ -648,10 +649,10 @@ class Brute_Force_Protection {
 		$ip = IP_Utils::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
-		if ( ! $ip && class_exists( 'Jetpack' ) ) {
+		if ( ! $ip ) {
 			Jetpack::deactivate_module( 'protect' );
 			ob_start();
-			Jetpack::state( 'message', 'protect_misconfigured_ip' );
+			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
 			ob_end_clean();
 			return true;
 		}
