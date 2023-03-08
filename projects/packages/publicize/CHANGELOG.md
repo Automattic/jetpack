@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
 ## [0.20.0] - 2023-02-28
 ### Added
 - Add options panel for Social Image Generator to Jetpack Social sidebar. [#28737]
@@ -235,6 +239,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.20.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.5...v0.20.0
 [0.19.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.4...v0.19.5
 [0.19.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.19.3...v0.19.4
