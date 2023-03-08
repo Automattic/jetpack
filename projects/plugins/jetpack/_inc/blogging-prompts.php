@@ -61,16 +61,18 @@ function jetpack_mark_if_post_answers_blogging_prompt( $post_id, $post, $update,
 		return;
 	}
 
+	$post_type    = isset( $post->post_type ) ? $post->post_type : null;
+	$post_content = isset( $post->post_content ) ? $post->post_content : null;
+
+	if ( 'post' !== $post_type || ! $post_content ) {
+		return;
+	}
+
 	$new_status = isset( $post->post_status ) ? $post->post_status : null;
 	$old_status = $post_before && isset( $post_before->post_status ) ? $post_before->post_status : null;
 
 	// Make sure we are publishing a post, and it's not already published.
-	if (
-		( isset( $post->post_type ) && 'post' !== $post->post_type )
-		|| 'publish' !== $new_status
-		|| 'publish' === $old_status
-		|| ! isset( $post->post_content )
-	) {
+	if ( 'publish' !== $new_status || 'publish' === $old_status ) {
 		return;
 	}
 
