@@ -7,6 +7,7 @@ import {
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_FAIL,
 	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_QUERY_SEARCH_UPDATE,
 } from './action-types';
 
 /**
@@ -55,5 +56,12 @@ export const failResponsesFetch = error => {
 	return {
 		type: RESPONSES_FETCH_FAIL,
 		error,
+	};
+};
+
+export const setSearchQuery = searchQuery => {
+	return {
+		type: RESPONSES_QUERY_SEARCH_UPDATE,
+		searchQuery,
 	};
 };

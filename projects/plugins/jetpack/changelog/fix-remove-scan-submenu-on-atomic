@@ -1,3 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Remove Scan submenu from Jetpack menu in WP-Admin on Atomic sites when SSO is off
