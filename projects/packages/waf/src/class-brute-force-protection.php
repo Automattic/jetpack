@@ -7,12 +7,14 @@
 
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
-use Jetpack;
+use Automattic\Jetpack\Modules;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
+use Jetpack;
 use WP_Error;
 
 /**
@@ -119,8 +121,6 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
-		add_action( 'jetpack_deactivate_module_protect', array( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
@@ -145,9 +145,26 @@ class Brute_Force_Protection {
 	}
 
 	/**
+	 * Run brute force protection.
+	 *
+	 * @return void
+	 */
+	public static function initialize() {
+		$brute_force_protection_is_enabled = self::is_enabled();
+		if ( $brute_force_protection_is_enabled && ( new Connection_Manager() )->is_connected() ) {
+			global $pagenow;
+			$brute_force_protection = self::instance();
+
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$brute_force_protection->check_login_ability();
+			}
+		}
+	}
+
+	/**
 	 * On module activation, try to get an api key
 	 */
-	public function on_activation() {
+	public static function on_activation() {
 		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
@@ -161,10 +178,37 @@ class Brute_Force_Protection {
 	/**
 	 * On module deactivation, unset protect_active
 	 */
-	public function on_deactivation() {
+	public static function on_deactivation() {
 		if ( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 0 );
 		}
+	}
+
+	/**
+	 * Determines if the brute force protection module is enabled on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return ( new Modules() )->is_active( 'protect' );
+	}
+
+	/**
+	 * Enables the brute force protection module.
+	 *
+	 * @return bool
+	 */
+	public static function enable() {
+		return ( new Modules() )->activate( 'protect', false, false );
+	}
+
+	/**
+	 * Disables the brute force protection module.
+	 *
+	 * @return bool
+	 */
+	public static function disable() {
+		return ( new Modules() )->deactivate( 'protect' );
 	}
 
 	/**
