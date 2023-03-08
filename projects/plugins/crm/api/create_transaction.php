@@ -93,7 +93,7 @@ if ( empty( $customer ) ) {
 					array(
 
 						'zbsc_email'  => $email,
-						'zbsc_status' => 'Contact',
+						'zbsc_status' => 'Customer',
 						'zbsc_fname'  => $fname,
 
 					),
