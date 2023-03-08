@@ -33,9 +33,7 @@ export default ( {
 		setAttributes( { align: value } );
 
 		// Allow one cycle for alignment change to take effect
-		if ( mapRef.current?.sizeMap ) {
-			setTimeout( mapRef.current.sizeMap, 0 );
-		}
+		setTimeout( mapRef.current.sizeMap, 0 );
 	};
 
 	/**
@@ -54,8 +52,7 @@ export default ( {
 			height = null;
 		} else if ( null == mapHeight ) {
 			// There was previously no height defined, so set the default.
-			const ref = mapRef?.current?.mapRef ?? mapRef;
-			height = ref?.current.offsetHeight;
+			height = mapRef.current.mapRef.current.offsetHeight;
 		} else if ( height < minHeight ) {
 			// Set map height to minimum size
 			height = minHeight;
@@ -65,9 +62,7 @@ export default ( {
 			mapHeight: height,
 		} );
 
-		if ( mapRef.current.sizeMap ) {
-			setTimeout( mapRef.current.sizeMap, 0 );
-		}
+		setTimeout( mapRef.current.sizeMap, 0 );
 	};
 
 	if ( context === 'toolbar' ) {
@@ -116,9 +111,7 @@ export default ( {
 							// If this input isn't focussed, the onBlur handler won't be triggered
 							// to commit the map size, so we need to check for that.
 							if ( event.target !== document.activeElement ) {
-								if ( mapRef.current ) {
-									setTimeout( mapRef.current.sizeMap, 0 );
-								}
+								setTimeout( mapRef.current.sizeMap, 0 );
 							}
 						} }
 						onBlur={ onHeightChange }
@@ -140,9 +133,7 @@ export default ( {
 					value={ attributes.zoom }
 					onChange={ value => {
 						setAttributes( { zoom: value } );
-						if ( mapRef.current && mapRef.current.updateZoom ) {
-							setTimeout( mapRef.current.updateZoom, 0 );
-						}
+						setTimeout( mapRef.current.updateZoom, 0 );
 					} }
 					min={ 0 }
 					max={ 22 }

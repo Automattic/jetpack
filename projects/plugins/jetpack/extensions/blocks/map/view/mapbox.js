@@ -16,7 +16,7 @@ import {
 import resizeMapContainer from '../utils/resize-map-container';
 
 import '../style.scss';
-import '../component/map-marker/style.scss';
+import '../map-marker/style.scss';
 
 class MapBoxBlock {
 	constructor( root, onError = () => {} ) {

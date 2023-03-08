@@ -6,15 +6,15 @@ import {
 	getLoadContext,
 	loadBlockEditorAssets,
 	waitForObject,
-} from '../../../shared/block-editor-asset-loader';
-import editorAssets from '../block-editor-assets.json';
-import { mapboxMapFormatter } from '../mapbox-map-formatter';
-import { fitMapToBounds, getMapBounds, googlePoint2Mapbox } from '../mapbox-utils';
-import { resizeMapContainer } from '../utils';
-import InfoWindow from './info-window';
-import MapMarker from './map-marker';
+} from '../../shared/block-editor-asset-loader';
+import editorAssets from './block-editor-assets.json';
+import InfoWindow from './info-window/';
+import MapMarker from './map-marker/';
+import { mapboxMapFormatter } from './mapbox-map-formatter/';
+import { fitMapToBounds, getMapBounds, googlePoint2Mapbox } from './mapbox-utils';
+import { resizeMapContainer } from './utils';
 
-export class MapBoxComponent extends Component {
+export class Map extends Component {
 	// Lifecycle
 	constructor() {
 		super( ...arguments );
@@ -212,6 +212,7 @@ export class MapBoxComponent extends Component {
 		const { map } = this.state;
 
 		map.setZoom( zoom );
+		map.updateZoom( zoom );
 	};
 	setBoundsByMarkers = () => {
 		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
@@ -370,7 +371,7 @@ export class MapBoxComponent extends Component {
 	}
 }
 
-MapBoxComponent.defaultProps = {
+Map.defaultProps = {
 	points: [],
 	mapStyle: 'default',
 	zoom: 13,
@@ -384,4 +385,4 @@ MapBoxComponent.defaultProps = {
 	mapCenter: {},
 };
 
-export default MapBoxComponent;
+export default Map;
