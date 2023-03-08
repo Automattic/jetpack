@@ -450,7 +450,7 @@
   $zeroBSCRM_filterbuttons_customer['all'] = array(
 
         'lead' => array( __( 'Lead', 'zero-bs-crm' ) ),
-		'customer'       => array( __( 'Contact', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
+		'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ), // phpcs:ignore WordPress.Arrays.ArrayIndentation.ItemNotAligned -- impossible to fix without fixing everything else.
         'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
         'not_assigned' => array( __( 'Not assigned', 'zero-bs-crm' ) ),
 
