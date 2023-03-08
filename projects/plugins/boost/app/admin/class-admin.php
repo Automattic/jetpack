@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
@@ -78,6 +79,31 @@ class Admin {
 			array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+		add_action( 'load-' . $page_suffix, array( $this, 'continue_upgrade_flow' ) );
+	}
+
+	public function continue_upgrade_flow() {
+		// If the user is upgrading, redirect to the upgrade page.
+		if ( isset( $_GET['upgrade'] ) && '1' === $_GET['upgrade'] ) {
+			$site_suffix = ( new Status() )->get_site_suffix();
+			$upgrade_url = "https://wordpress.com/checkout/$site_suffix/jetpack_boost_yearly";
+			$boost_url   = admin_url( 'admin.php?page=jetpack-boost' );
+
+			if ( Premium_Features::has_any() ) {
+				wp_redirect( $boost_url );
+			} else {
+				wp_redirect(
+					add_query_arg(
+						array(
+							'site'        => $site_suffix,
+							'redirect_to' => $boost_url,
+						),
+						$upgrade_url
+					)
+				);
+			}
+			exit;
+		}
 	}
 
 	/**

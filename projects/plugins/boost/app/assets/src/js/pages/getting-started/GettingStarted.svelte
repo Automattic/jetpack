@@ -85,7 +85,16 @@
 				try {
 					await ensureConnection();
 
-					window.location.href = getUpgradeURL();
+					let connectionStore;
+					connection.subscribe( value => {
+						connectionStore = value;
+					} );
+
+					if ( connectionStore.userConnected ) {
+						window.location.href = getUpgradeURL();
+					} else {
+						window.location.href = connectionStore.authorizationUrl;
+					}
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {

@@ -223,11 +223,18 @@ class Connection {
 	public function get_connection_api_response() {
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
-		return array(
-			'connected'     => $force_connected || $this->is_connected(),
-			'wpcomBlogId'   => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
-			'userConnected' => $this->manager->is_user_connected(),
+		$response = array(
+			'connected'        => $force_connected || $this->is_connected(),
+			'wpcomBlogId'      => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+			'userConnected'    => $this->manager->is_user_connected(),
+			'authorizationUrl' => null,
 		);
+
+		if ( ! $this->manager->is_user_connected() ) {
+			$response['authorizationUrl'] = $this->manager->get_authorization_url( null, admin_url( 'admin.php?page=jetpack-boost&upgrade=1' ) );
+		}
+
+		return $response;
 	}
 
 	/**
