@@ -300,7 +300,7 @@ There are absolutely no limits in Jetpack CRM, apart from the usual ones applied
 
 = Is Jetpack CRM really free? = 
 
-Totally. The core is a solid, useful, Contact Relationship Manager right out of the box. You don't need anything else to get started managing your leads, and contacts. We do build extensions, (because we need them), but they're not at all essential. Further, they're cheap in comparison to the pay-per-month CRM options.
+Totally. The core is a solid, useful, Customer Relationship Manager right out of the box. You don't need anything else to get started managing your leads, and customers. We do build extensions, (because we need them), but they're not at all essential. Further, they're cheap in comparison to the pay-per-month CRM options.
 
 = Can I develop on top of Jetpack CRM? =
 
