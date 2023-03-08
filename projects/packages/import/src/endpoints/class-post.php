@@ -22,6 +22,13 @@ class Post extends \WP_REST_Posts_Controller {
 	use Import;
 
 	/**
+	 * Whether the controller supports batching.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $post_type Post type.
