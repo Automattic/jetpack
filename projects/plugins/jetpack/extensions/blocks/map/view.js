@@ -1,6 +1,6 @@
 import domReady from '@wordpress/dom-ready';
 import './style.scss';
-import './component/map-marker/style.scss';
+import './map-marker/style.scss';
 import { MapBoxBlock, MapkitBlock } from './view/';
 
 domReady( function () {
