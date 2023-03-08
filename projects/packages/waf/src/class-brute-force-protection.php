@@ -10,7 +10,6 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack;
-use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 use WP_Error;
@@ -302,6 +301,55 @@ class Brute_Force_Protection {
 	}
 
 	/**
+	 * Gets all plugins currently active in values, regardless of whether they're
+	 * traditionally activated or network activated.
+	 *
+	 * Forked from Jetpack::get_active_plugins from the Jetpack plugin.
+	 *
+	 * @return string[]
+	 */
+	public static function get_active_plugins() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+
+		return array_unique( $active_plugins );
+	}
+
+	/**
+	 * Deactivate a plugin.
+	 *
+	 * @param string $probable_file  Expected plugin file.
+	 * @param string $probable_title Expected plugin title.
+	 *
+	 * @return void
+	 */
+	public static function deactivate_plugin( $probable_file, $probable_title ) {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		if ( is_plugin_active( $probable_file ) ) {
+			deactivate_plugins( $probable_file );
+		} else {
+			// If the plugin is not in the usual place, try looking through all active plugins.
+			$active_plugins = get_option( 'active_plugins' );
+			foreach ( $active_plugins as $plugin ) {
+				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+				if ( $data['Name'] === $probable_title ) {
+					deactivate_plugins( $plugin );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Request an api key from wordpress.com
 	 *
 	 * @return bool | string
@@ -364,11 +412,11 @@ class Brute_Force_Protection {
 		}
 
 		// Key generation successful!
-		$active_plugins = Jetpack::get_active_plugins();
+		$active_plugins = self::get_active_plugins();
 
 		// We only want to deactivate BruteProtect if we successfully get a key.
 		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins, true ) ) {
-			Jetpack_Client_Server::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
+			self::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
 		}
 
 		$key = $response['data'];
