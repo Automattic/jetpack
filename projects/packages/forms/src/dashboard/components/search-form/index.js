@@ -2,6 +2,7 @@ import {
 	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
+import './style.scss';
 
 const SearchInput = ( { onSearch, initialValue } ) => {
 	const [ searchText, setSearchText ] = useState( initialValue );
@@ -13,7 +14,7 @@ const SearchInput = ( { onSearch, initialValue } ) => {
 		[ searchText, onSearch ]
 	);
 	return (
-		<form className="jp-forms__actions-form" onSubmit={ handleSearch }>
+		<form className="jp-forms__actions-form jp-forms__search-form" onSubmit={ handleSearch }>
 			<InputControl
 				onChange={ setSearchText }
 				value={ searchText }
