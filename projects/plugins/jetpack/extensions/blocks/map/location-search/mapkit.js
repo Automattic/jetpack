@@ -2,14 +2,14 @@ import { BaseControl, TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
-import { useMapKitSetup } from '../mapkit/hooks';
+import { useMapkitSetup } from '../mapkit/hooks';
 
 const placeholderText = __( 'Add a marker…', 'jetpack' );
 
 const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 	const containerRef = useRef();
 	const textRef = useRef();
-	const { mapkit } = useMapKitSetup( containerRef );
+	const { mapkit } = useMapkitSetup( containerRef );
 
 	const autocompleter = {
 		name: 'placeSearch',
@@ -51,6 +51,10 @@ const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 					longitude: value.coordinate.longitude,
 					latitude: value.coordinate.latitude,
 				},
+				// mapkit doesn't give us an id, so we'll make one containing the place name and coordinates
+				id: `${ value.placeName } ${ Number( value.coordinate.latitude ).toFixed( 2 ) } ${ Number(
+					value.coordinate.longitude
+				).toFixed( 2 ) }`,
 			};
 			onAddPoint( point );
 			return value.placeName;
