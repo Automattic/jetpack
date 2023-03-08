@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { ApiError } from './ApiError';
 import { JSONSchema } from './utils';
 export type RequestParams = string | JSONSchema;
 export type RequestMethods = 'GET' | 'POST' | 'DELETE';
@@ -71,8 +72,7 @@ export class API {
 
 		const result = await fetch( url, args );
 		if ( ! result.ok ) {
-			console.error( 'Failed to fetch', url, result );
-			throw new Error( `Failed to "${ method }" to ${ url }. Received ${ result.status }` );
+			throw new ApiError( url, result.status, result.statusText );
 		}
 
 		let data;
@@ -81,6 +81,7 @@ export class API {
 			data = JSON.parse( text );
 		} catch ( e ) {
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
+			throw new ApiError( url, 'json_parse_error', 'Failed to parse the response' );
 		}
 
 		/**
@@ -91,8 +92,8 @@ export class API {
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
 		if ( ! data || data.JSON === undefined ) {
-			console.error( 'Failed to parse the response\n', { url, text, result } );
-			throw new Error( `Failed to "${ method }" to ${ url }. Received ${ result.status }` );
+			console.error( 'JSON response is empty.\n', { url, text, result } );
+			throw new ApiError( url, 'json_empty', 'JSON response is empty' );
 		}
 
 		return data.JSON;
