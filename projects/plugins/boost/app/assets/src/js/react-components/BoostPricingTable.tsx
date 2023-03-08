@@ -57,86 +57,88 @@ export const BoostPricingTable = ( {
 
 	return (
 		<>
+			<div className="jb-pricing-table">
+				<PricingTable
+					title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
+					items={ [
+						{
+							name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
+							tooltipInfo: cssOptimizationContext,
+						},
+						{
+							name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
+							tooltipInfo: deferJSContext,
+						},
+						{
+							name: __( 'Lazy image loading', 'jetpack-boost' ),
+							tooltipInfo: lazyLoadingContext,
+						},
+						{
+							name: __( 'Dedicated support', 'jetpack-boost' ),
+							tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+						},
+					] }
+				>
+					<PricingTableColumn primary>
+						<PricingTableHeader>
+							<ProductPrice
+								price={ pricing.yearly.priceBefore / 12 }
+								offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
+								currency={ pricing.yearly.currencyCode }
+								hideDiscountLabel={ false }
+								promoLabel={ promoLabel }
+							/>
+							<Button
+								onClick={ onPremiumCTA }
+								isLoading={ chosenPaidPlan }
+								disabled={ chosenFreePlan || chosenPaidPlan }
+								fullWidth
+							>
+								{ __( 'Get Boost', 'jetpack-boost' ) }
+							</Button>
+						</PricingTableHeader>
+						<PricingTableItem
+							isIncluded={ true }
+							label={ __( 'Automatic Critical CSS Generation', 'jetpack-boost' ) }
+						/>
+						<PricingTableItem isIncluded={ true } />
+						<PricingTableItem isIncluded={ true } />
+						<PricingTableItem isIncluded={ true } />
+					</PricingTableColumn>
+					<PricingTableColumn>
+						<PricingTableHeader>
+							<ProductPrice
+								price={ 0 }
+								legend=""
+								currency={ pricing.yearly.currencyCode }
+								hidePriceFraction
+							/>
+							<Button
+								onClick={ onFreeCTA }
+								isLoading={ chosenFreePlan }
+								disabled={ chosenFreePlan || chosenPaidPlan }
+								fullWidth
+								variant="secondary"
+							>
+								{ __( 'Start for free', 'jetpack-boost' ) }
+							</Button>
+						</PricingTableHeader>
+						<PricingTableItem
+							isIncluded={ false }
+							label={ __( 'Manual Critical CSS Generation', 'jetpack-boost' ) }
+						/>
+						<PricingTableItem isIncluded={ true } />
+						<PricingTableItem isIncluded={ true } />
+						<PricingTableItem
+							isIncluded={ false }
+							label={ __( 'No dedicated support', 'jetpack-boost' ) }
+						/>
+					</PricingTableColumn>
+				</PricingTable>
+			</div>
 			{ snackbarMessage && (
 				<Snackbar onDismiss={ () => onSnackbarDismiss() }>{ snackbarMessage }</Snackbar>
 			) }
-			<PricingTable
-				title={ __( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ) }
-				items={ [
-					{
-						name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
-						tooltipInfo: cssOptimizationContext,
-					},
-					{
-						name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
-						tooltipInfo: deferJSContext,
-					},
-					{
-						name: __( 'Lazy image loading', 'jetpack-boost' ),
-						tooltipInfo: lazyLoadingContext,
-					},
-					{
-						name: __( 'Dedicated support', 'jetpack-boost' ),
-						tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
-					},
-				] }
-			>
-				<PricingTableColumn primary>
-					<PricingTableHeader>
-						<ProductPrice
-							price={ pricing.yearly.priceBefore / 12 }
-							offPrice={ isDiscounted ? pricing.yearly.priceAfter / 12 : null }
-							currency={ pricing.yearly.currencyCode }
-							hideDiscountLabel={ false }
-							promoLabel={ promoLabel }
-						/>
-						<Button
-							onClick={ onPremiumCTA }
-							isLoading={ chosenPaidPlan }
-							disabled={ chosenFreePlan || chosenPaidPlan }
-							fullWidth
-						>
-							{ __( 'Get Boost', 'jetpack-boost' ) }
-						</Button>
-					</PricingTableHeader>
-					<PricingTableItem
-						isIncluded={ true }
-						label={ __( 'Automatic Critical CSS Generation', 'jetpack-boost' ) }
-					/>
-					<PricingTableItem isIncluded={ true } />
-					<PricingTableItem isIncluded={ true } />
-					<PricingTableItem isIncluded={ true } />
-				</PricingTableColumn>
-				<PricingTableColumn>
-					<PricingTableHeader>
-						<ProductPrice
-							price={ 0 }
-							legend=""
-							currency={ pricing.yearly.currencyCode }
-							hidePriceFraction
-						/>
-						<Button
-							onClick={ onFreeCTA }
-							isLoading={ chosenFreePlan }
-							disabled={ chosenFreePlan || chosenPaidPlan }
-							fullWidth
-							variant="secondary"
-						>
-							{ __( 'Start for free', 'jetpack-boost' ) }
-						</Button>
-					</PricingTableHeader>
-					<PricingTableItem
-						isIncluded={ false }
-						label={ __( 'Manual Critical CSS Generation', 'jetpack-boost' ) }
-					/>
-					<PricingTableItem isIncluded={ true } />
-					<PricingTableItem isIncluded={ true } />
-					<PricingTableItem
-						isIncluded={ false }
-						label={ __( 'No dedicated support', 'jetpack-boost' ) }
-					/>
-				</PricingTableColumn>
-			</PricingTable>
 		</>
 	);
 };
