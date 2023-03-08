@@ -456,7 +456,7 @@ $zeroBSCRM_Conf_Def = array(
 
 		'customer_filters'    => array(
 			'lead'           => array( __( 'Lead', 'zero-bs-crm' ) ),
-			'customer'       => array( __( 'Contact', 'zero-bs-crm' ) ),
+			'customer'       => array( __( 'Customer', 'zero-bs-crm' ) ),
 			'assigned_to_me' => array( __( 'Assigned to me', 'zero-bs-crm' ) ),
 		),
 
