@@ -163,7 +163,7 @@ class Brute_Force_Protection {
 	/**
 	 * On module activation, try to get an api key
 	 */
-	public static function on_activation() {
+	public function on_activation() {
 		if ( is_multisite() && is_main_site() && get_site_option( 'jetpack_protect_active', 0 ) == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 			update_site_option( 'jetpack_protect_active', 1 );
 		}
@@ -171,13 +171,13 @@ class Brute_Force_Protection {
 		update_site_option( 'jetpack_protect_activating', 'activating' );
 
 		// Get BruteProtect's counter number.
-		self::protect_call( 'check_key' );
+		$this->protect_call( 'check_key' );
 	}
 
 	/**
 	 * On module deactivation, unset protect_active
 	 */
-	public static function on_deactivation() {
+	public function on_deactivation() {
 		if ( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 0 );
 		}
