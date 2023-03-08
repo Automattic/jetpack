@@ -2,10 +2,12 @@ import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { select } from '@wordpress/data';
 import { useContext, useEffect, useRef, useState } from '@wordpress/element';
 import { debounce } from 'lodash';
-import { getLoadContext, waitForObject } from '../../../../shared/block-editor-asset-loader';
+import { getLoadContext } from '../../../../shared/block-editor-asset-loader';
 import {
 	convertZoomLevelToCameraDistance,
 	convertCameraDistanceToZoomLevel,
+	fetchMapkitKey,
+	loadMapkitLibrary,
 	pointsToMapRegion,
 } from '../../mapkit-utils';
 import { MapkitContext } from '../context';
@@ -30,63 +32,35 @@ const useMapkitSetup = mapRef => {
 
 	useEffect( () => {
 		const blog_id = select( CONNECTION_STORE_ID ).getBlogId();
-
-		const loadLibrary = () => {
-			return new Promise( resolve => {
-				const { currentDoc } = getLoadContext( mapRef.current );
-				const element = currentDoc.createElement( 'script' );
-				element.addEventListener(
-					'load',
-					async () => {
-						const { currentWindow } = getLoadContext( mapRef.current );
-
-						const mapkitObj = await waitForObject( currentWindow, 'mapkit' );
-
-						resolve( mapkitObj );
-					},
-					{ once: true }
-				);
-				element.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
-				element.crossOrigin = 'anonymous';
-				currentDoc.head.appendChild( element );
-			} );
-		};
-
-		const fetchKey = mapkitObj => {
-			return new Promise( resolve => {
-				mapkitObj.init( {
-					authorizationCallback: async done => {
-						const response = await fetch(
-							`https://public-api.wordpress.com/wpcom/v2/sites/${ blog_id }/mapkit`
-						);
-						if ( response.status === 200 ) {
-							const data = await response.json();
-							done( data.wpcom_mapkit_access_token );
-						} else {
-							setError( 'Mapkit API error' );
-						}
-						resolve();
-					},
-				} );
-			} );
-		};
+		const { currentDoc, currentWindow } = getLoadContext( mapRef.current );
 
 		if ( mapRef.current ) {
-			const { currentWindow, currentDoc } = getLoadContext( mapRef.current );
 			setCurrentWindow( currentWindow );
 			setCurrentDoc( currentDoc );
 
-			// if mapkit is already loaded, reuse it.
+			// If mapkit is already loaded, reuse it.
 			if ( currentWindow.mapkit ) {
 				setMapkit( currentWindow.mapkit );
-				setLoaded( true );
+				// Fetch API key in the off chance that mapkit is available but not initialized for some reason
+				// It will just resolve in case it is already initialized.
+				fetchMapkitKey( currentWindow.mapkit, blog_id, currentWindow )
+					.then( () => {
+						setLoaded( true );
+					} )
+					.catch( e => {
+						setError( e );
+					} );
 			} else {
-				loadLibrary().then( mapkitObj => {
+				loadMapkitLibrary( currentDoc, currentWindow ).then( mapkitObj => {
 					setMapkit( mapkitObj );
 
-					fetchKey( mapkitObj ).then( () => {
-						setLoaded( true );
-					} );
+					fetchMapkitKey( mapkitObj, blog_id, currentWindow )
+						.then( () => {
+							setLoaded( true );
+						} )
+						.catch( e => {
+							setError( e );
+						} );
 				} );
 			}
 		}
