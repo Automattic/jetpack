@@ -2,8 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
-
 /**
  * This is a class to map script and style URLs to local filesystem paths.
  * This is necessary when we are deciding what we can concatenate and when
@@ -21,7 +19,7 @@ class Dependency_Path_Mapping {
 	public $plugin_uri_path  = null;
 	public $plugin_dir       = null;
 
-	function __construct(
+	public function __construct(
 		// Expose URLs and DIRs for unit test
 		$site_url = null, // default site URL is determined dynamically
 		$site_dir = null,
@@ -39,18 +37,18 @@ class Dependency_Path_Mapping {
 		}
 		$site_url            = trailingslashit( $site_url );
 		$this->site_url      = $site_url;
-		$this->site_uri_path = parse_url( $site_url, PHP_URL_PATH );
+		$this->site_uri_path = wp_parse_url( $site_url, PHP_URL_PATH );
 		$this->site_dir      = trailingslashit( $site_dir );
 
 		// Only resolve content URLs if they are under the site URL
 		if ( $this->is_internal_uri( $content_url ) ) {
-			$this->content_uri_path = parse_url( trailingslashit( $content_url ), PHP_URL_PATH );
+			$this->content_uri_path = wp_parse_url( trailingslashit( $content_url ), PHP_URL_PATH );
 			$this->content_dir      = trailingslashit( $content_dir );
 		}
 
 		// Only resolve plugin URLs if they are under the site URL
 		if ( $this->is_internal_uri( $plugin_url ) ) {
-			$this->plugin_uri_path = parse_url( trailingslashit( $plugin_url ), PHP_URL_PATH );
+			$this->plugin_uri_path = wp_parse_url( trailingslashit( $plugin_url ), PHP_URL_PATH );
 			$this->plugin_dir      = trailingslashit( $plugin_dir );
 		}
 	}
@@ -58,14 +56,14 @@ class Dependency_Path_Mapping {
 	/**
 	 * Given the full URL of a script/style dependency, return its local filesystem path.
 	 */
-	function dependency_src_to_fs_path( $src ) {
+	public function dependency_src_to_fs_path( $src ) {
 		if ( ! $this->is_internal_uri( $src ) ) {
 			// If a URI is not internal, we can have no confidence
 			// we are resolving to the correct file.
 			return false;
 		}
 
-		$src_parts = parse_url( $src );
+		$src_parts = wp_parse_url( $src );
 		if ( false === $src_parts ) {
 			return false;
 		}
@@ -89,7 +87,7 @@ class Dependency_Path_Mapping {
 	/**
 	 * Given a URI path of a script/style resource, return its local filesystem path.
 	 */
-	function uri_path_to_fs_path( $uri_path ) {
+	public function uri_path_to_fs_path( $uri_path ) {
 		if ( 1 === preg_match( '#(?:^|/)\.\.?(?:/|$)#', $uri_path ) ) {
 			// Reject relative paths
 			return false;
@@ -118,7 +116,7 @@ class Dependency_Path_Mapping {
 	 *
 	 * This method helps ensure we only resolve to local FS paths.
 	 */
-	function is_internal_uri( $uri ) {
+	public function is_internal_uri( $uri ) {
 		if ( jetpack_boost_page_optimize_starts_with( '/', $uri ) && ! jetpack_boost_page_optimize_starts_with( '//', $uri ) ) {
 			// Absolute paths are internal because they are based on the site dir (typically ABSPATH),
 			// and this looks like an absolute path.
@@ -135,7 +133,7 @@ class Dependency_Path_Mapping {
 	 *
 	 * Does not handle relative paths.
 	 */
-	static function is_descendant_uri( $dir_path, $candidate ) {
+	public static function is_descendant_uri( $dir_path, $candidate ) {
 		// Ensure a trailing slash to avoid false matches like
 		// "/wp-content/resource" being judged a descendant of "/wp".
 		$dir_path = trailingslashit( $dir_path );
