@@ -57,9 +57,11 @@ function createCalloutElementCallback( currentDoc, callback ) {
 }
 
 function waitUntilMapkitIsInitialized( currentWindow ) {
-	return new Promise( resolve => {
+	return new Promise( ( resolve, reject ) => {
 		const check = () => {
-			if ( currentWindow.mapkitIsInitializing === false ) {
+			if ( typeof currentWindow.mapkitIsInitializing === 'undefined' ) {
+				reject();
+			} else if ( currentWindow.mapkitIsInitializing === false ) {
 				resolve();
 			} else {
 				currentWindow.requestAnimationFrame( check );
@@ -134,5 +136,4 @@ export {
 	fetchMapkitKey,
 	loadMapkitLibrary,
 	pointsToMapRegion,
-	waitUntilMapkitIsInitialized,
 };
