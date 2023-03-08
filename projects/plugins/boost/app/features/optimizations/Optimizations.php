@@ -4,6 +4,7 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
+use Automattic\Jetpack_Boost\Features\Image_Size_Report\Image_Size_Report;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
@@ -43,6 +44,10 @@ class Optimizations implements Has_Setup {
 
 		if ( defined( 'JETPACK_BOOST_MINIFY' ) && JETPACK_BOOST_MINIFY ) {
 			$features[] = new Minify();
+		}
+
+		if( defined('JETPACK_BOOST_IMAGE_SIZE_REPORT') && JETPACK_BOOST_IMAGE_SIZE_REPORT ) {
+			$features[] = new Image_Size_Report();
 		}
 
 		foreach ( $features as $feature ) {
