@@ -37,8 +37,9 @@ describe( 'AIParagraphEdit', () => {
 
 		// Test MAX content length
 		expect( createPrompt( 'title', [ fakeBlockWithVeryLongContent ] ) ).toBe(
-			"Give me content for a blog post titled 'title' :\n\n … . Do not not include any smalltalk, just the content of a post." +
-				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT )
+			"Give me content for a blog post titled 'title' :\n\n … " +
+				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT ) +
+				'. Do not not include any smalltalk, just the content of a post.'
 		);
 
 		// Test only cats
