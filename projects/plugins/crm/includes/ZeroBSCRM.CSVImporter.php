@@ -367,7 +367,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 	$default_status    = $zbs->settings->get( 'defaultstatus' );
 	$settings          = array(
 		'savecopy'              => false,
-		'defaultcustomerstatus' => $default_status ? $default_status : __( 'Contact', 'zero-bs-crm' ),
+		'defaultcustomerstatus' => $default_status ? $default_status : __( 'Customer', 'zero-bs-crm' ),
 	);
 	$saveCopyOfCSVFile = false; // Not in LITE : ) if (isset($settings['savecopy'])) $saveCopyOfCSVFile = $settings['savecopy'];
 
