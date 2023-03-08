@@ -201,7 +201,7 @@ if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zap
 						if ( $existingStatus == $stickystat ) {
 								$status = $stickystat;   // don't over-ride customer status..
 								// so.... set it to be the stickystat/it's existing
-								$update_args['zbsc_status'] = $stickystat; // 'Contact';
+								$update_args['zbsc_status'] = $stickystat; // 'Customer';
 						} else {
 
 							// existing status (e.g. lead) is not stickystatus (e.g. customer)
