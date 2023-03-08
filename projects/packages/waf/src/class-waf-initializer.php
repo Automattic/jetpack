@@ -40,8 +40,8 @@ class Waf_Initializer {
 		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
 		// WAF activation/deactivation hooks
-		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
-		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
+		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
+		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_dectivation' );
 
 		// Brute force protection activation/deactivation hooks
 		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
@@ -71,7 +71,7 @@ class Waf_Initializer {
 	 *
 	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
-	public static function on_waf_activation() {
+	public static function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 
