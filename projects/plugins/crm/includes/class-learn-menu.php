@@ -699,7 +699,7 @@ class Learn_Menu {
 				'url'             => 'https://jetpackcrm.com/feature/dashboard/',
 				'img'             => 'learn-dashboard.png',
 				'video'           => false,
-				'content'         => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to contacts.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
+				'content'         => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to customers.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
 				'output_function' => 'jpcrm_dashboard_learn_menu',
 			),
 			'managecontacts' => array(
