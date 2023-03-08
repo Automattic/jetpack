@@ -187,7 +187,11 @@ export default function SubscribePanels() {
 						>
 							{ isChangingStatus
 								? __( 'Activating Subscriptions', 'jetpack' )
-								: __( 'Activate Subscriptions', 'jetpack' ) }
+								: __(
+										'Activate Subscriptions',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
 						</Button>
 					</SubscriptionsPanelPlaceholder>
 				) }
