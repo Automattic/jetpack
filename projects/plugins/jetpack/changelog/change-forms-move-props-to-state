@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Move search into state, fix double fetch on search and paging
