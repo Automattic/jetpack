@@ -20,6 +20,19 @@ class Page extends Post {
 	}
 
 	/**
+	 * Adds the schema from additional fields to a schema array.
+	 *
+	 * The type of object is inferred from the passed schema.
+	 *
+	 * @param array $schema Schema array.
+	 * @return array Modified Schema array.
+	 */
+	public function add_additional_fields_schema( $schema ) {
+		// Add the import unique ID to the schema.
+		return $this->add_unique_identifier_to_schema( $schema );
+	}
+
+	/**
 	 * Creates a single page.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
