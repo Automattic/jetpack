@@ -102,7 +102,9 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( attributes.needsMoreCharacters );
+	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState(
+		attributes.needsMoreCharacters
+	);
 	const [ showRetry, setShowRetry ] = useState( attributes.showRetry );
 	const [ errorMessage, setErrorMessage ] = useState( attributes.errorMessage );
 	const { tracks } = useAnalytics();
@@ -111,15 +113,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
-
-	// We update the attributes as side effect from the state change.
-	useEffect( ()=>{
-		setAttributes( {
-			errorMessage: errorMessage ,
-			needsMoreCharacters: needsMoreCharacters,
-			showRetry: showRetry
-		} );
-	}, [ errorMessage, needsMoreCharacters, showRetry ] );
 
 	let loading = false;
 	const categories =
@@ -217,7 +210,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} )
 			.then( res => {
 				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
-				setAttributes( { content: result } );
+				setAttributes( { content: result, wasNotCompletedWhenSaved: false } );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -231,6 +224,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						)
 					);
 				}
+				// We reset the content because it is dirty after saving
+				setAttributes( { content: '' } );
 				setShowRetry( true );
 				setIsLoadingCompletion( false );
 			} );
@@ -239,6 +234,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
+	// That can be wrong after saving
 	const contentIsLoaded = !! attributes.content;
 
 	// We do nothing is we are waiting for stuff OR if the content is already loaded.
@@ -285,6 +281,22 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...useBlockProps() }>
+			{ ! isLoadingCompletion &&
+				! isLoadingCategories &&
+				attributes.wasNotCompletedWhenSaved &&
+				! errorMessage && (
+					<Placeholder
+						label={ __( 'AI Paragraph', 'jetpack' ) }
+						instructions={ __( 'The block was not completed when saved', 'jetpack' ) }
+					>
+						{ showRetry && (
+							<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
+								{ __( 'Retry', 'jetpack' ) }
+							</Button>
+						) }
+					</Placeholder>
+				) }
+
 			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (

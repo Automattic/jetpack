@@ -92,9 +92,7 @@ export const settings = {
 	example: {
 		attributes: {
 			animationDone: false,
-			needsMoreCharacters: false,
-			showRetry: false,
-			errorMessage: false,
+			wasNotCompletedWhenSaved: false,
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
