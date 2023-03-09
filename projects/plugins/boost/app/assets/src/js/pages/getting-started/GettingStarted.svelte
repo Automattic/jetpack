@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { derived, get, writable } from 'svelte/store';
-	import { ApiError } from '../../api/api-error';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -23,11 +22,7 @@
 	const snackbarMessage = derived(
 		[ connection, dismissedSnackbar ],
 		( [ $connection, $dismissedSnackbar ] ) => {
-			if ( ! ( $dismissedSnackbar || $connection.connected ) && $connection.error?.message ) {
-				if ( $connection.error instanceof ApiError ) {
-					return $connection.error.getDisplayBody();
-				}
-
+			if ( ! $dismissedSnackbar && ! $connection.connected && $connection.error?.message ) {
 				return $connection.error.message;
 			}
 
