@@ -26,6 +26,7 @@ const InboxList = ( {
 	responses,
 	setCurrentPage,
 	setCurrentResponseId,
+	loading,
 } ) => {
 	const tableItems = useMemo(
 		() =>
@@ -37,8 +38,23 @@ const InboxList = ( {
 		[ currentResponseId, responses, setCurrentResponseId ]
 	);
 
+	if ( loading ) {
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: 'Loading...' } ] }
+				items={ [] }
+			/>
+		);
+	}
 	if ( responses.length === 0 ) {
-		return null;
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: 'No results found' } ] }
+				items={ [] }
+			/>
+		);
 	}
 
 	return (
