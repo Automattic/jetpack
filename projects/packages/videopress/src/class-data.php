@@ -343,6 +343,7 @@ class Data {
 				$file_url_base = $videopress_media_details['file_url_base'];
 				$finished      = $videopress_media_details['finished'];
 				$files         = $videopress_media_details['files'];
+				$filename      = basename( $original );
 
 				if ( isset( $files['dvd']['original_img'] ) && $privacy_setting !== 1 ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
@@ -373,6 +374,7 @@ class Data {
 					),
 					'thumbnail'          => $thumbnail,
 					'finished'           => $finished,
+					'filename'           => $filename,
 				);
 			},
 			$videopress_data['videos']
