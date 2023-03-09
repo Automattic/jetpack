@@ -62,6 +62,10 @@ class Render_Blocking_JS implements Feature {
 		add_action( 'template_redirect', array( $this, 'start_output_filtering' ), -999999 );
 	}
 
+	public static function is_available() {
+		return true;
+	}
+
 	/**
 	 * Set up an output filtering callback.
 	 *

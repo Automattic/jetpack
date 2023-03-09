@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
-class Optimization_Status implements Endpoint {
+class Feature_Status implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;

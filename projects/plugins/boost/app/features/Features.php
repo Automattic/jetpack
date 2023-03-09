@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Features\Optimizations;
 
+use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Image_Size_Report\Image_Size_Report;
@@ -10,7 +11,6 @@ use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
-use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
@@ -23,6 +23,19 @@ class Features implements Has_Setup {
 	protected $features = array();
 
 	/**
+	 * @var Feature[] - Classes that handle all Jetpack Boost featues.
+	 */
+	const FEATURES = array(
+		Critical_CSS::class,
+		Cloud_CSS::class,
+		Image_Size_Report::class,
+		Lazy_Images::class,
+		Minify::class,
+		Render_Blocking_JS::class,
+		Image_Guide::class,
+	);
+
+	/**
 	 * Initialize modules.
 	 *
 	 * Note: this method ignores the nonce verification linter rule, as jb-disable-modules is intended to work
@@ -30,29 +43,11 @@ class Features implements Has_Setup {
 	 */
 	public function __construct() {
 
-		$critical_css_class = Critical_CSS::class;
-		if ( Premium_Features::has_feature( Premium_Features::CLOUD_CSS ) ) {
-			$critical_css_class = Cloud_CSS::class;
-		}
-
-		$features = array(
-			new $critical_css_class(),
-			new Lazy_Images(),
-			new Render_Blocking_JS(),
-			new Image_Guide(),
-		);
-
-		if ( defined( 'JETPACK_BOOST_MINIFY' ) && JETPACK_BOOST_MINIFY ) {
-			$features[] = new Minify();
-		}
-
-		if( defined('JETPACK_BOOST_IMAGE_SIZE_REPORT') && JETPACK_BOOST_IMAGE_SIZE_REPORT ) {
-			$features[] = new Image_Size_Report();
-		}
-
-		foreach ( $features as $feature ) {
-			$slug                    = $feature->get_slug();
-			$this->features[ $slug ] = new Feature_Module( $feature );
+		foreach ( self::FEATURES as $feature ) {
+			if( $feature::is_available() ) {
+				$slug = $feature::get_slug();
+				$this->features[ $slug ] = new Feature_Module( new $feature() );
+			}
 		}
 	}
 

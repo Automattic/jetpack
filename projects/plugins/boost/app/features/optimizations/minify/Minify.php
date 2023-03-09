@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 
 // Allow overriding WordPress globals, as that is necessary to taking over script output.
 // phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
@@ -38,6 +39,10 @@ class Minify implements Feature {
 
 	public static function get_slug() {
 		return 'minify';
+	}
+
+	public static function is_available() {
+		return defined( 'JETPACK_BOOST_MINIFY' ) && true === JETPACK_BOOST_MINIFY;
 	}
 
 	public function setup_trigger() {

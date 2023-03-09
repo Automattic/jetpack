@@ -74,4 +74,8 @@ class Image_Guide implements Feature {
 			)
 		);
 	}
+
+	public static function is_available() {
+		return true;
+	}
 }

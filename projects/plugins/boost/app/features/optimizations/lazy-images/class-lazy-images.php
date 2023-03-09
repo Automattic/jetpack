@@ -14,4 +14,8 @@ class Lazy_Images implements Feature {
 	public static function get_slug() {
 		return 'lazy-images';
 	}
+
+	public static function is_available() {
+		return true;
+	}
 }

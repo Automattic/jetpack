@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
@@ -36,6 +37,10 @@ class Critical_CSS implements Feature, Has_Endpoints {
 	public function __construct() {
 		$this->storage = new Critical_CSS_Storage();
 		$this->paths   = new Source_Providers();
+	}
+
+	public static function is_available() {
+		return true !== Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}
 
 	/**

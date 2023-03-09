@@ -12,6 +12,10 @@ class Image_Size_Report implements Feature {
 		// Hello World, I shall setup myself some day.
 	}
 
+	public static function is_available() {
+		return defined( 'JETPACK_BOOST_IMAGE_SIZE_REPORT' ) && true === JETPACK_BOOST_IMAGE_SIZE_REPORT;
+	}
+
 
 	public static function get_slug() {
 		return 'image-size-report';
