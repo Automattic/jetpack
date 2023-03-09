@@ -11,7 +11,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		id,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
-		slug: filename,
 	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
@@ -49,6 +48,8 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
 	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
+
+	const filename = url?.split( '/' ).slice( -1 )[ 0 ];
 
 	return {
 		id,
