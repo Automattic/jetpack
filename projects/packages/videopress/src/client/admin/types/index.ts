@@ -156,7 +156,7 @@ export type VideoPressVideo = {
 		src: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'poster' ];
 	};
 	finished?: OriginalVideoPressVideo[ 'media_details' ][ 'videopress' ][ 'finished' ];
-	filename?: OriginalVideoPressVideo[ 'slug' ];
+	filename?: string;
 	thumbnail?: string;
 	uploading?: boolean;
 	plays?: number; // Not provided yet
