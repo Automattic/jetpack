@@ -12,45 +12,58 @@ function jetpack_boost_page_optimize_types() {
 }
 
 function jetpack_boost_page_optimize_service_request() {
+	global $wp_filesystem;
+
+	jetpack_boost_init_filesystem();
+
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
-	if ( $use_cache && ! is_dir( $cache_dir ) && ! mkdir( $cache_dir, 0775, true ) ) {
+	if ( $use_cache && ! is_dir( $cache_dir ) && ! $wp_filesystem->mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
-		error_log(
-			sprintf(
-			/* translators: a filesystem path to a directory */
-				__( "Disabling page-optimize cache. Unable to create cache directory '%s'.", jetpack_boost_page_optimize_get_text_domain() ),
-				$cache_dir
-			)
-		);
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+				/* translators: a filesystem path to a directory */
+					__( "Disabling page-optimize cache. Unable to create cache directory '%s'.", 'jetpack-boost' ),
+					$cache_dir
+				)
+			);
+		}
 	}
 
-	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
+	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $wp_filesystem->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
-		error_log(
-			sprintf(
-			/* translators: a filesystem path to a directory */
-				__( "Disabling page-optimize cache. Unable to write to cache directory '%s'.", jetpack_boost_page_optimize_get_text_domain() ),
-				$cache_dir
-			)
-		);
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				sprintf(
+				/* translators: a filesystem path to a directory */
+					__( "Disabling page-optimize cache. Unable to write to cache directory '%s'.", 'jetpack-boost' ),
+					$cache_dir
+				)
+			);
+		}
 	}
 
 	if ( $use_cache ) {
-		$request_uri_hash = md5( $_SERVER['REQUEST_URI'] );
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		$request_uri_hash = md5( $request_uri );
 		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
 		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
 
 		if ( file_exists( $cache_file ) ) {
 			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-				if ( strtotime( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) < filemtime( $cache_file ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				if ( strtotime( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
 					header( 'HTTP/1.1 304 Not Modified' );
 					exit;
 				}
 			}
 
 			if ( file_exists( $cache_file_meta ) ) {
-				$meta = json_decode( file_get_contents( $cache_file_meta ) );
+				$meta = json_decode( $wp_filesystem->get_contents( $cache_file_meta ) );
 				if ( null !== $meta && isset( $meta->headers ) ) {
 					foreach ( $meta->headers as $header ) {
 						header( $header );
@@ -58,13 +71,13 @@ function jetpack_boost_page_optimize_service_request() {
 				}
 			}
 
-			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
+			$etag = '"' . md5( $wp_filesystem->get_contents( $cache_file ) ) . '"';
 
 			header( 'X-Page-Optimize: cached' );
 			header( 'Cache-Control: max-age=' . 31536000 );
 			header( 'ETag: ' . $etag );
 
-			echo file_get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+			echo $wp_filesystem->get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 			die();
 		}
 	}
@@ -83,29 +96,35 @@ function jetpack_boost_page_optimize_service_request() {
 	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 
 	if ( $use_cache ) {
-		file_put_contents( $cache_file, $content );
-		file_put_contents( $cache_file_meta, json_encode( array( 'headers' => $headers ) ) );
+		$wp_filesystem->put_contents( $cache_file, $content );
+		$wp_filesystem->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
 	}
 
 	die();
 }
 
 function jetpack_boost_page_optimize_build_output() {
+	global $wp_filesystem;
+
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
-	/* Config */
+	// Config
 	$concat_max_files = 150;
 	$concat_unique    = true;
 
-	/* Main() */
-	if ( ! in_array( $_SERVER['REQUEST_METHOD'], array( 'GET', 'HEAD' ) ) ) {
+	// Main
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
+	if ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
 	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// or
 	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-	$args = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY );
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+	$args        = wp_parse_url( $request_uri, PHP_URL_QUERY );
 	if ( ! $args || false === strpos( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
@@ -115,7 +134,8 @@ function jetpack_boost_page_optimize_build_output() {
 	// /foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// or
 	// -eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-	if ( '-' == $args[0] ) {
+	if ( '-' === $args[0] ) {
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
 
 		// Invalid data, abort!
@@ -136,15 +156,15 @@ function jetpack_boost_page_optimize_build_output() {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
-	// array( '/foo/bar.css', '/foo1/bar/baz.css' )
-	if ( 0 == count( $args ) || count( $args ) > $concat_max_files ) {
+	// args contain something like array( '/foo/bar.css', '/foo1/bar/baz.css' )
+	if ( 0 === count( $args ) || count( $args ) > $concat_max_files ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
-	$request_path       = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+	$request_path       = wp_parse_url( $request_uri, PHP_URL_PATH );
 	$_static_index      = strpos( $request_path, '/_static/' );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
@@ -169,7 +189,7 @@ function jetpack_boost_page_optimize_build_output() {
 		}
 
 		$mime_type = jetpack_boost_page_optimize_get_mime_type( $fullpath );
-		if ( ! in_array( $mime_type, $jetpack_boost_page_optimize_types ) ) {
+		if ( ! in_array( $mime_type, $jetpack_boost_page_optimize_types, true ) ) {
 			jetpack_boost_page_optimize_status_exit( 400 );
 		}
 
@@ -178,7 +198,7 @@ function jetpack_boost_page_optimize_build_output() {
 				$last_mime_type = $mime_type;
 			}
 
-			if ( $last_mime_type != $mime_type ) {
+			if ( $last_mime_type !== $mime_type ) {
 				jetpack_boost_page_optimize_status_exit( 400 );
 			}
 		}
@@ -192,21 +212,22 @@ function jetpack_boost_page_optimize_build_output() {
 			$last_modified = $stat['mtime'];
 		}
 
-		$buf = file_get_contents( $fullpath );
+		$buf = $wp_filesystem->get_contents( $fullpath );
 		if ( false === $buf ) {
 			jetpack_boost_page_optimize_status_exit( 500 );
 		}
 
-		if ( 'text/css' == $mime_type ) {
+		if ( 'text/css' === $mime_type ) {
 			$dirpath = '/' . ltrim( $subdir_path_prefix . dirname( $uri ), '/' );
 
 			// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 			$buf = jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath );
 
-			// AlphaImageLoader(...src='relative/path/to/file'...) -> AlphaImageLoader(...src='/absolute/path/to/file'...)
+			// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+			// This regex changes things like AlphaImageLoader(...src='relative/path/to/file'...) to AlphaImageLoader(...src='/absolute/path/to/file'...)
 			$buf = preg_replace(
 				'/(Microsoft.AlphaImageLoader\s*\([^\)]*src=(?:\'|")?)([^\/\'"\s\)](?:(?<!http:|https:).)*)\)/isU',
-				'$1' . ( $dirpath == '/' ? '/' : $dirpath . '/' ) . '$2)',
+				'$1' . ( $dirpath === '/' ? '/' : $dirpath . '/' ) . '$2)',
 				$buf
 			);
 
@@ -237,8 +258,8 @@ function jetpack_boost_page_optimize_build_output() {
 					function ( $match ) use ( $dirpath ) {
 						global $pre_output;
 
-						if ( 0 !== strpos( $match['path'], 'http' ) && '/' != $match['path'][0] ) {
-							$pre_output .= $match['pre_path'] . ( $dirpath == '/' ? '/' : $dirpath . '/' ) .
+						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
+							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";
 						} else {
 							$pre_output .= $match[0] . "\n";
@@ -296,7 +317,7 @@ function jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath ) {
 	// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 	$buf = preg_replace(
 		'/(:?\s*url\s*\()\s*(?:\'|")?\s*([^\/\'"\s\)](?:(?<!data:|http:|https:|[\(\'"]#|%23).)*)[\'"\s]*\)/isU',
-		'$1' . ( $dirpath == '/' ? '/' : $dirpath . '/' ) . '$2)',
+		'$1' . ( $dirpath === '/' ? '/' : $dirpath . '/' ) . '$2)',
 		$buf
 	);
 
