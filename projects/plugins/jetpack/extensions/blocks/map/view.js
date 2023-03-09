@@ -6,7 +6,7 @@ import { MapBoxBlock, MapkitBlock } from './view/';
 domReady( function () {
 	Array.from( document.querySelectorAll( '.wp-block-jetpack-map' ) ).forEach( async blockRoot => {
 		try {
-			if ( blockRoot.getAttribute( 'data-source' ) === 'mapkit' ) {
+			if ( blockRoot.getAttribute( 'data-map-provider' ) === 'mapkit' ) {
 				const block = new MapkitBlock( blockRoot );
 				block.init();
 			} else {

@@ -50,7 +50,7 @@ class MapEdit extends Component {
 		this.mapRef = createRef();
 	}
 	geoCodeAddress = ( address, apiKey ) => {
-		if ( ! apiKey ) {
+		if ( ! apiKey || this.getMapProvider() === 'mapkit' ) {
 			return;
 		}
 		getCoordinates( address, apiKey )
@@ -85,8 +85,16 @@ class MapEdit extends Component {
 	componentDidUpdate = previousProps => {
 		const address = this.props.attributes?.address;
 		const previousAddress = previousProps.attributes?.address;
+		const className = this.props.attributes?.className;
+		const previousClassName = previousProps.attributes?.className;
+
 		if ( address && previousAddress !== address ) {
 			this.geoCodeAddress( address, this.state.apiKey );
+		}
+		// fetch API key when switching from mapkit to mapbox
+		if ( className && previousClassName !== className && ! this.state.apiKey ) {
+			this.setState( { apiState: API_STATE_LOADING } );
+			this.apiCall();
 		}
 	};
 	addPoint = point => {
@@ -159,12 +167,23 @@ class MapEdit extends Component {
 			} );
 		} );
 	}
+	getMapProvider = () => {
+		const mapStyle = getActiveStyleName( settings.styles, this.props?.attributes?.className );
+		return getMapProvider( { mapStyle } );
+	};
+
 	componentDidMount() {
-		this.apiCall().then( () => {
-			if ( this.props.attributes?.address ) {
-				this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
-			}
-		} );
+		if ( this.getMapProvider() === 'mapbox' ) {
+			this.apiCall().then( () => {
+				if ( this.props.attributes?.address ) {
+					this.geoCodeAddress( this.props.attributes?.address, this.state.apiKey );
+				}
+			} );
+		} else {
+			this.setState( {
+				apiState: API_STATE_SUCCESS,
+			} );
+		}
 	}
 	onError = ( code, message ) => {
 		const { noticeOperations } = this.props;
@@ -213,6 +232,7 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
+			address,
 			mapDetails,
 			points,
 			zoom,
@@ -230,7 +250,7 @@ class MapEdit extends Component {
 			apiRequestOutstanding,
 		} = this.state;
 
-		const mapProvider = getMapProvider();
+		const mapProvider = this.getMapProvider();
 
 		const inspectorControls = (
 			<>
@@ -331,6 +351,7 @@ class MapEdit extends Component {
 						<div className="wp-block-jetpack-map__map_wrapper">
 							<Map
 								ref={ this.mapRef }
+								address={ address }
 								scrollToZoom={ allowScrollToZoom }
 								showFullscreenButton={ showFullscreenButton }
 								mapStyle={ mapStyle || 'default' }
@@ -350,6 +371,7 @@ class MapEdit extends Component {
 								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
 								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 								onError={ this.onError }
+								mapProvider={ mapProvider }
 							>
 								{ isSelected && addPointVisibility && (
 									<AddPoint
@@ -358,6 +380,7 @@ class MapEdit extends Component {
 										apiKey={ apiKey }
 										onError={ this.onError }
 										tagName="AddPoint"
+										mapProvider={ mapProvider }
 									/>
 								) }
 							</Map>

@@ -11,6 +11,7 @@ import {
 	useMapkitOnMapTap,
 	useMapkitZoom,
 	useMapkitPoints,
+	useMapkitAddressLookup,
 } from '../mapkit/hooks';
 import { createCalloutElementCallback } from '../mapkit-utils';
 import InfoWindow from './info-window';
@@ -52,18 +53,20 @@ const MapkitComponent = forwardRef( ( props, mapRef ) => {
 				ref={ mapRef }
 			/>
 			{ addPoint }
-			<InfoWindow />
+			<InfoWindow mapProvider="mapkit" />
 		</MapkitProvider>
 	);
 } );
 
 const MapkitHelpers = memo(
 	( {
+		address,
 		mapCenter,
 		mapStyle,
 		zoom,
 		onSetMapCenter,
 		onSetZoom,
+		onSetPoints,
 		points,
 		markerColor,
 		onMarkerClick,
@@ -79,6 +82,7 @@ const MapkitHelpers = memo(
 		} = useMapkit();
 		// Save these in a ref to prevent unwanted rerenders
 		const onMarkerClickRef = useRef( onMarkerClick );
+		const onSetPointsRef = useRef( onSetPoints );
 
 		const onSelect = useCallback(
 			marker => {
@@ -111,6 +115,7 @@ const MapkitHelpers = memo(
 			}
 		} );
 
+		useMapkitAddressLookup( address, onSetPointsRef );
 		return null;
 	}
 );
@@ -126,6 +131,7 @@ MapkitComponent.defaultProps = {
 	onError: () => {},
 	markerColor: 'red',
 	mapCenter: {},
+	address: null,
 };
 
 export default MapkitComponent;
