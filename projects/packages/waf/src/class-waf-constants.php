@@ -97,7 +97,7 @@ class Waf_Constants {
 	 * @return void
 	 */
 	public static function define_brute_force_api_host() {
-		if ( ! defined( 'JETPACK_WAF_BF_API_HOST' ) ) {
+		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) ) {
 			define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 		}
 	}
