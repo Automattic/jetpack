@@ -65,12 +65,12 @@ function wpcomsh_map_feature_cap( $caps, $cap ) {
 			}
 
 			/*
-			 * Specifically allow install permissions for WooCommerce payment gateways.
+			 * Specifically allow install and activate permissions for WooCommerce onboarding plugins.
 			 */
 			if (
-				wpcom_site_has_feature( WPCOM_Features::INSTALL_WOO_PAYMENT_GATEWAYS )
+				wpcom_site_has_feature( WPCOM_Features::INSTALL_WOO_ONBOARDING_PLUGINS )
 				&& (
-					wpcomsh_is_woocommerce_payment_gateway_request()
+					wpcomsh_is_woocommerce_onboarding_plugin_request()
 					|| wpcomsh_is_woocommerce_connect_request()
 				)
 			) {
@@ -118,12 +118,12 @@ function wpcomsh_is_theme_install_request() {
 }
 
 /**
- * Whether the current request is a REST API request from the WooCommerce payment setup task
- * trying to fetch or install a recommended payment gateway.
+ * Whether the current request is a REST API request from the WooCommerce onboarding tasks
+ * trying to fetch a recommended payment gateway, or perform installation/activation of a plugin.
  *
  * @return bool
  */
-function wpcomsh_is_woocommerce_payment_gateway_request() {
+function wpcomsh_is_woocommerce_onboarding_plugin_request() {
 	$wp_json_prefix = preg_quote( rest_get_url_prefix(), '@' );
 
 	// Check if we're looking up payment gateway suggestions.
@@ -143,7 +143,7 @@ function wpcomsh_is_woocommerce_payment_gateway_request() {
 		return false;
 	}
 
-	// Check if we're requesting a payment gateway install or activation from WooCommerce admin pages that offer gateway suggestions.
+	// Check if we're requesting a plugin installation or activation from WooCommerce onboarding tasks.
 
 	// User is retrying install from the payment gateway install/setup page.
 	if ( str_starts_with( $wp_referer, admin_url( 'admin.php?page=wc-admin&task=payments&id=' ) ) ) {
