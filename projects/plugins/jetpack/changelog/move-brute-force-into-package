@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Moved the code related to brute force protection into the WAF package, no user-facing changes.
+
+
