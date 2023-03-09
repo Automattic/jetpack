@@ -232,6 +232,7 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
+			address,
 			mapDetails,
 			points,
 			zoom,
@@ -350,6 +351,7 @@ class MapEdit extends Component {
 						<div className="wp-block-jetpack-map__map_wrapper">
 							<Map
 								ref={ this.mapRef }
+								address={ address }
 								scrollToZoom={ allowScrollToZoom }
 								showFullscreenButton={ showFullscreenButton }
 								mapStyle={ mapStyle || 'default' }
