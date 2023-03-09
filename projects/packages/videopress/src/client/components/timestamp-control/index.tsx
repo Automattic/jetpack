@@ -177,7 +177,7 @@ export const TimestampControl = ( {
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
 			debouncedOnChangeHandler && debouncedOnChangeHandler( newValue );
-			onChange( newValue );
+			onChange?.( newValue );
 		},
 		[ onChange, debouncedOnChangeHandler ]
 	);
@@ -187,7 +187,7 @@ export const TimestampControl = ( {
 			<TimestampInput max={ max } value={ value } onChange={ onChangeHandler } />
 
 			<RangeControl
-				className={ styles[ 'timestamp-control-range' ] }
+				className={ styles[ 'timestamp-range-control' ] }
 				min={ 0 }
 				step={ 0.1 }
 				initialPosition={ value }
