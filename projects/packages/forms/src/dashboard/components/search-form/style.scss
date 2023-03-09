@@ -4,10 +4,10 @@
 
 	.input-wrapper {
 		min-height: var( --jp-forms-input-wrapper-height );
-		padding: var( --spacing-base );
+		padding: var( --jp-forms-spacing-base );
 		border: 1px solid var( --jp-forms-border-color );
 		border-radius: var( --jp-forms-border-radius );
-		background-color: var( --jp-white );
+		background-color: var( --jp-forms-white );
 		display: flex;
 		align-items: center;
 		font-size: var( --font-body-small );
@@ -32,6 +32,7 @@
 			outline: none;
 			background-color: transparent;
 			box-shadow: none;
+			padding: 0;
 
 			&:focus {
 				box-shadow: none;
@@ -39,7 +40,7 @@
 			}
 
 			&.with-icon {
-				margin-left: var( --spacing-base );
+				margin-left: var( --jp-forms-spacing-base );
 			}
 		}
 
@@ -50,6 +51,10 @@
 			height: 24px;
 			width: 24px;
 			flex-shrink: 0;
+
+			&.hidden {
+				visibility: hidden;
+			}
 		}
 
 		.clear-icon {
