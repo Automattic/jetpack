@@ -382,6 +382,7 @@ MapBoxComponent.defaultProps = {
 	markerColor: 'red',
 	apiKey: null,
 	mapCenter: {},
+	address: null,
 };
 
 export default MapBoxComponent;

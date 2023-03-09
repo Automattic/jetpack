@@ -235,6 +235,37 @@ const useMapkitOnMapTap = onMapTap => {
 	}, [ loaded, map, previousCenter, onMapTapRef ] );
 };
 
+const useMapkitAddressLookup = ( address, onSetPointsRef ) => {
+	const { mapkit, map } = useMapkit();
+
+	useEffect( () => {
+		if ( mapkit && map && address?.length ) {
+			const geocoder = new mapkit.Geocoder();
+			geocoder.lookup( address, ( error, data ) => {
+				if ( data?.results?.length ) {
+					const place = data.results[ 0 ];
+					const title = place.formattedAddress;
+					const point = {
+						placeTitle: title,
+						title: title,
+						caption: title,
+						coordinates: {
+							longitude: place.coordinate.longitude,
+							latitude: place.coordinate.latitude,
+						},
+						// mapkit doesn't give us an id, so we'll make one containing the place name and coordinates
+						id: `${ title } ${ Number( place.coordinate.latitude ).toFixed( 2 ) } ${ Number(
+							place.coordinate.longitude
+						).toFixed( 2 ) }`,
+					};
+
+					onSetPointsRef.current( [ point ] );
+				}
+			} );
+		}
+	}, [ mapkit, map, address, onSetPointsRef ] );
+};
+
 export {
 	useMapkit,
 	useMapkitSetup,
@@ -245,4 +276,5 @@ export {
 	useMapkitPoints,
 	useMapkitOnMapLoad,
 	useMapkitOnMapTap,
+	useMapkitAddressLookup,
 };
