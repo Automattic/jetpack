@@ -109,6 +109,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ errorMessage, setErrorMessage ] = useState( attributes.errorMessage );
 	const { tracks } = useAnalytics();
 
+	const wasNotCompletedWhenSaved = attributes.wasNotCompletedWhenSaved;
+
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
@@ -186,7 +188,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	};
 
 	const getSuggestionFromOpenAI = () => {
-		if ( !! attributes.content || isLoadingCompletion ) {
+		if ( ! wasNotCompletedWhenSaved && ( !! attributes.content || isLoadingCompletion ) ) {
 			return;
 		}
 
@@ -194,6 +196,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setErrorMessage( false );
 		setNeedsMoreCharacters( false );
 		setIsLoadingCompletion( true );
+
+		// We reset the content because it is dirty after saving
+		// "wasNotCompletedWhenSaved" will be properly evaluated on save
+		setAttributes( { content: '', wasNotCompletedWhenSaved: false } );
 
 		const data = {
 			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
@@ -210,7 +216,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} )
 			.then( res => {
 				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
-				setAttributes( { content: result, wasNotCompletedWhenSaved: false } );
+				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -224,8 +230,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						)
 					);
 				}
-				// We reset the content because it is dirty after saving
-				setAttributes( { content: '' } );
 				setShowRetry( true );
 				setIsLoadingCompletion( false );
 			} );
@@ -281,14 +285,25 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ ! isLoadingCompletion &&
+			{ wasNotCompletedWhenSaved &&
+				! isLoadingCompletion &&
 				! isLoadingCategories &&
-				attributes.wasNotCompletedWhenSaved &&
 				! errorMessage && (
 					<Placeholder
 						label={ __( 'AI Paragraph', 'jetpack' ) }
 						instructions={ __( 'The block was not completed when saved', 'jetpack' ) }
 					>
+						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
+							{ __( 'Retry', 'jetpack' ) }
+						</Button>
+					</Placeholder>
+				) }
+
+			{ ! wasNotCompletedWhenSaved &&
+				! isLoadingCompletion &&
+				! isLoadingCategories &&
+				errorMessage && (
+					<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 						{ showRetry && (
 							<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 								{ __( 'Retry', 'jetpack' ) }
@@ -297,17 +312,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					</Placeholder>
 				) }
 
-			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
-				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
-					{ showRetry && (
-						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
-							{ __( 'Retry', 'jetpack' ) }
-						</Button>
-					) }
-				</Placeholder>
-			) }
-
-			{ contentIsLoaded && (
+			{ ! wasNotCompletedWhenSaved && contentIsLoaded && (
 				<ShowLittleByLittle
 					showAnimation={ ! attributes.animationDone }
 					onAnimationDone={ () => {
@@ -317,7 +322,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				/>
 			) }
 
-			{ ! attributes.content && isWaitingState && (
+			{ ! contentIsLoaded && isWaitingState && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {

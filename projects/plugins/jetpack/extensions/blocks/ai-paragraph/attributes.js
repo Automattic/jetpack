@@ -9,6 +9,6 @@ export default {
 	},
 	wasNotCompletedWhenSaved: {
 		type: 'boolean',
-		default: true,
+		default: false,
 	},
 };
