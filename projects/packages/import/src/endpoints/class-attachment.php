@@ -124,10 +124,11 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		// The unique identifier is only required for PUT requests.
 
 		$schema['properties']['upload_date'] = array(
-			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
-			'type'        => array( 'string', 'null' ),
-			'format'      => 'date-time',
-			'context'     => array( 'view', 'edit', 'embed' ),
+			'description'       => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
+			'type'              => array( 'string', 'null' ),
+			'format'            => 'string',
+			'context'           => array( 'view', 'edit', 'embed' ),
+			'validate_callback' => array( $this, 'validate_upload_date' ),
 		);
 
 		return $this->add_unique_identifier_to_schema( $schema, isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'PUT' );
@@ -165,14 +166,26 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		add_filter(
 			'upload_dir',
 			static function ( $data ) use ( $request ) {
-				$date              = new \DateTime( $request->get_param( 'upload_date' ) );
+				$date              = $request->get_param( 'upload_date' );
 				$fields_to_rewrite = array( 'path', 'url', 'subdir' );
 				foreach ( $fields_to_rewrite as $field ) {
-					$data[ $field ] = preg_replace( '/\d{4}\/\d{2}$/', $date->format( 'Y/m' ), $data[ $field ] );
+					$data[ $field ] = preg_replace( '/\d{4}\/\d{2}$/', $date, $data[ $field ] );
 				}
 
 				return $data;
 			}
 		);
+	}
+
+	/**
+	 * Validate that the given upload date is in the format YYYY/MM.
+	 *
+	 * @param string $param The parameter value.
+	 *
+	 * @return false|int
+	 */
+	protected function validate_upload_date( $param ) {
+		die( 'here' );
+		return preg_match( '/^\d{4}\/\d{2}$/', $param );
 	}
 }
