@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Move BulkActionsMenu component inside Inbox, too tailored to be reused
