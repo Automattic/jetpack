@@ -113,8 +113,6 @@ export default () => {
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
-	const videoPressURL = `https://videopress.com/v/${ video?.guid }`;
-
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
 		'default' | 'video' | 'upload' | null
@@ -298,7 +296,6 @@ export default () => {
 		...video,
 		...formData, // formData is the local representation of the video
 		filename,
-		videoPressURL,
 		hasChanges,
 		posterImageSource,
 		libraryAttachment,
