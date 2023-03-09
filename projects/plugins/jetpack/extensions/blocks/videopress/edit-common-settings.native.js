@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { ToggleControl, SelectControl } from '@wordpress/components';
-import { useMemo, useCallback, Platform } from '@wordpress/element';
+import { useMemo, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 
 const options = [
@@ -13,14 +13,6 @@ const options = [
 
 const VideoSettings = ( { setAttributes, attributes } ) => {
 	const { autoplay, controls, loop, muted, playsInline, preload } = attributes;
-
-	const autoPlayHelpText = __( 'Autoplay may cause usability issues for some users.', 'jetpack' );
-	const getAutoplayHelp = Platform.select( {
-		web: useCallback( checked => {
-			return checked ? autoPlayHelpText : null;
-		}, [] ),
-		native: autoPlayHelpText,
-	} );
 
 	const toggleFactory = useMemo( () => {
 		const toggleAttribute = attribute => {
@@ -36,11 +28,14 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 			controls: toggleAttribute( 'controls' ),
 			playsInline: toggleAttribute( 'playsInline' ),
 		};
-	}, [] );
+	}, [ setAttributes ] );
 
-	const onChangePreload = useCallback( value => {
-		setAttributes( { preload: value } );
-	}, [] );
+	const onChangePreload = useCallback(
+		value => {
+			setAttributes( { preload: value } );
+		},
+		[ setAttributes ]
+	);
 
 	return (
 		<>
@@ -49,7 +44,7 @@ const VideoSettings = ( { setAttributes, attributes } ) => {
 				label={ __( 'Autoplay', 'jetpack' ) }
 				onChange={ toggleFactory.autoplay }
 				checked={ !! autoplay }
-				help={ getAutoplayHelp }
+				help={ __( 'Autoplay may cause usability issues for some users.', 'jetpack' ) }
 			/>
 			<ToggleControl
 				__nextHasNoMarginBottom
