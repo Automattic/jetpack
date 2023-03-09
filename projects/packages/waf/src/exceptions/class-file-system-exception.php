@@ -2,7 +2,7 @@
 /**
  * File system exception.
  *
- * @since $$next-version$$
+ * @since 0.10.1
  *
  * @package automattic/jetpack-waf
  */
