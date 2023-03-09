@@ -450,7 +450,7 @@ class Jetpack_Gutenberg {
 	public static function is_newsletter_enabled() {
 		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
-		// Jetpack has not not yet configured
+		// Jetpack has not yet been configured
 		if ( ! class_exists( '\Jetpack_Memberships' ) ) {
 			return false;
 		}
