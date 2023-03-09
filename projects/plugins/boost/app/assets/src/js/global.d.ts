@@ -21,6 +21,7 @@ declare global {
 			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
+		isPremium: boolean;
 		version: string;
 		api: {
 			namespace: string;

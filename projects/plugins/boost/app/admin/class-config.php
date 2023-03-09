@@ -49,6 +49,7 @@ class Config {
 				'getStarted' => self::is_getting_started(),
 				'isAtomic'   => ( new Host() )->is_woa_site(),
 			),
+			'isPremium'             => Premium_Features::has_any(),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),

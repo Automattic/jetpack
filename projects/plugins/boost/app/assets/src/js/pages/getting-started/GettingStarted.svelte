@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { derived, writable } from 'svelte/store';
+	import { derived, get, writable } from 'svelte/store';
 	import { ApiError } from '../../api/api-error';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
@@ -85,16 +85,16 @@
 				try {
 					await ensureConnection();
 
-					let connectionStore;
-					connection.subscribe( value => {
-						connectionStore = value;
-					} );
+					// Check if the site is already on a premium plan and go directly to settings if so.
+					if ( get( config ).isPremium ) {
+						// Allow opening the boost settings page.
+						markGetStartedComplete();
 
-					if ( connectionStore.userConnected ) {
-						window.location.href = getUpgradeURL();
-					} else {
-						window.location.href = connectionStore.authorizationUrl;
+						navigate( '/', { replace: true } );
+						return;
 					}
+
+					window.location.href = getUpgradeURL();
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {

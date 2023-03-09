@@ -197,6 +197,9 @@ class Connection {
 
 		$response = $this->register();
 
+		// Clear premium features cache to force a refresh.
+		Premium_Features::clear_cache();
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
