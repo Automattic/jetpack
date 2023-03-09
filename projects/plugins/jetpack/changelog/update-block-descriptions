@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: allow passing a custom description when registering a block, to display a custom description below the default one.

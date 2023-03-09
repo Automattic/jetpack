@@ -3,7 +3,10 @@ import {
 	withHasWarningIsInteractiveClassNames,
 	requiresPaidPlan,
 } from '@automattic/jetpack-shared-extension-utils';
+import { InspectorControls } from '@wordpress/block-editor';
 import { registerBlockType } from '@wordpress/blocks';
+import { PanelBody } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { addFilter } from '@wordpress/hooks';
 
 /**
@@ -13,9 +16,16 @@ import { addFilter } from '@wordpress/hooks';
  * @param {object} settings - The block's settings.
  * @param {object} childBlocks - The block's child blocks.
  * @param {boolean} prefix - Should this block be prefixed with `jetpack/`?
+ * @param {string} customDescription - Custom description for the block.
  * @returns {object|boolean} Either false if the block is not available, or the results of `registerBlockType`
  */
-export default function registerJetpackBlock( name, settings, childBlocks = [], prefix = true ) {
+export default function registerJetpackBlock(
+	name,
+	settings,
+	childBlocks = [],
+	prefix = true,
+	customDescription = null
+) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
 	const requiredPlan = requiresPaidPlan( unavailableReason, details );
@@ -46,6 +56,24 @@ export default function registerJetpackBlock( name, settings, childBlocks = [], 
 	childBlocks.forEach( childBlock =>
 		registerBlockType( jpPrefix + childBlock.name, childBlock.settings )
 	);
+
+	// If a custom description was passed, create a new element that we'll display below the block panel.
+	if ( customDescription ) {
+		const withCustomDescription = createHigherOrderComponent( BlockEdit => {
+			return props => {
+				return (
+					<>
+						<BlockEdit { ...props } />
+						<InspectorControls>
+							<PanelBody>{ customDescription }</PanelBody>
+						</InspectorControls>
+					</>
+				);
+			};
+		}, 'withCustomDescription' );
+
+		addFilter( 'editor.BlockEdit', `${ jpPrefix }${ name }-description`, withCustomDescription );
+	}
 
 	return result;
 }
