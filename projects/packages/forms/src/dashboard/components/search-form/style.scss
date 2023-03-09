@@ -13,6 +13,7 @@
 		font-size: var( --font-body-small );
 		box-sizing: border-box;
 		height: var( --jp-forms-input-wrapper-height );
+		width: 350px;
 
 		&:focus-within {
 			box-shadow: 0 0 0 1px var( --jp-black ) inset;
