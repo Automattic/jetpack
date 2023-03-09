@@ -3,16 +3,19 @@
 namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
-use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Config;
+
+// Allow overriding WordPress globals, as that is necessary to taking over script output.
+// phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 
 class Minify implements Feature {
 	// @todo - handle PHP constants.
 
 	public function setup() {
-		require 'functions-helpers.php';
+		require __DIR__ . '/functions-helpers.php';
 
 		// TODO: Make concat URL dir configurable
-		if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( $_SERVER['REQUEST_URI'], 0, 9 ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
 			require_once __DIR__ . '/service.php';
 			exit;
 		}
@@ -45,6 +48,8 @@ class Minify implements Feature {
 		if ( is_admin() ) {
 			return;
 		}
+
+		jetpack_boost_init_filesystem();
 
 		if ( jetpack_boost_page_optimize_should_concat_js() || jetpack_boost_page_optimize_load_mode_js() ) {
 			global $wp_scripts;

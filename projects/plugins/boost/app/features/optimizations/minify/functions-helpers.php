@@ -32,7 +32,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 		}
 
 		if ( ( time() - $file_age ) > filemtime( $cache_file ) ) {
-			unlink( $cache_file );
+			wp_delete_file( $cache_file );
 		}
 	}
 }
@@ -43,7 +43,7 @@ function jetpack_boost_page_optimize_deactivate() {
 
 	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
 
-	wp_clear_scheduled_hook( Config::get_cron_cache_cleanup_hook(), [ $cache_folder ] );
+	wp_clear_scheduled_hook( Config::get_cron_cache_cleanup_hook(), array( $cache_folder ) );
 }
 
 function jetpack_boost_page_optimize_uninstall() {
@@ -57,17 +57,25 @@ function jetpack_boost_page_optimize_uninstall() {
 	// CSS
 	delete_option( 'page_optimize-css' );
 	delete_option( 'page_optimize-css-exclude' );
-
 }
 
-function jetpack_boost_page_optimize_get_text_domain() {
-	return 'page-optimize';
+/**
+ * Ensure that WP_Filesystem is ready to use.
+ */
+function jetpack_boost_init_filesystem() {
+	global $wp_filesystem;
+
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		\WP_Filesystem();
+	}
 }
 
 function jetpack_boost_page_optimize_should_concat_js() {
 	// Support query param for easy testing
-	if ( isset( $_GET['concat-js'] ) ) {
-		return $_GET['concat-js'] !== '0';
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['concat-js'] ) && $_GET['concat-js'] !== '0' ) {
+		return true;
 	}
 
 	return (bool) get_option( 'page_optimize-js', jetpack_boost_page_optimize_js_default() );
@@ -75,20 +83,25 @@ function jetpack_boost_page_optimize_should_concat_js() {
 
 // TODO: Support JS load mode regardless of whether concat is enabled
 function jetpack_boost_page_optimize_load_mode_js() {
-	// Support query param for easy testing
-	if ( ! empty( $_GET['load-mode-js'] ) ) {
-		$load_mode = jetpack_boost_page_optimize_sanitize_js_load_mode( $_GET['load-mode-js'] );
-	} else {
-		$load_mode = jetpack_boost_page_optimize_sanitize_js_load_mode( get_option( 'page_optimize-load-mode', jetpack_boost_page_optimize_js_load_mode_default() ) );
+	$load_mode_arg = jetpack_boost_page_optimize_sanitize_js_load_mode(
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		empty( $_GET['load-mode-js'] ) ? '' : filter_var( wp_unslash( $_GET['load-mode-js'] ) )
+	);
+
+	if ( ! empty( $load_mode_arg ) ) {
+		return $load_mode_arg;
 	}
 
-	return $load_mode;
+	return jetpack_boost_page_optimize_sanitize_js_load_mode(
+		get_option( 'page_optimize-load-mode', jetpack_boost_page_optimize_js_load_mode_default() )
+	);
 }
 
 function jetpack_boost_page_optimize_should_concat_css() {
 	// Support query param for easy testing
-	if ( isset( $_GET['concat-css'] ) ) {
-		return $_GET['concat-css'] !== '0';
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( isset( $_GET['concat-css'] ) && $_GET['concat-css'] !== '0' ) {
+		return true;
 	}
 
 	return (bool) get_option( 'page_optimize-css', jetpack_boost_page_optimize_css_default() );
@@ -225,7 +238,7 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$cache_folder = Config::get_cache_dir_path();
-	$args = array( $cache_folder );
+	$args         = array( $cache_folder );
 
 	$cache_cleanup_hook = Config::get_cron_cache_cleanup_hook();
 
@@ -244,11 +257,13 @@ function jetpack_boost_page_optimize_bail() {
 	}
 
 	// Bail if Divi theme is active, and we're in the Divi Front End Builder
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! empty( $_GET['et_fb'] ) && 'Divi' === wp_get_theme()->get_template() ) {
 		return true;
 	}
 
 	// Bail if we're editing pages in Brizy Editor
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( class_exists( 'Brizy_Editor' ) && method_exists( 'Brizy_Editor', 'prefix' ) && ( isset( $_GET[ Brizy_Editor::prefix( '-edit-iframe' ) ] ) || isset( $_GET[ Brizy_Editor::prefix( '-edit' ) ] ) ) ) {
 		return true;
 	}
@@ -266,7 +281,7 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 		return $url;
 	}
 
-	$parts = parse_url( $url );
+	$parts = wp_parse_url( $url );
 	if ( ! isset( $parts['path'] ) || empty( $parts['path'] ) ) {
 		return $url;
 	}
