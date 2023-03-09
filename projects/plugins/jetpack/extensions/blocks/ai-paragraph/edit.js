@@ -102,15 +102,24 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
-	const [ showRetry, setShowRetry ] = useState( false );
-	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( attributes.needsMoreCharacters );
+	const [ showRetry, setShowRetry ] = useState( attributes.showRetry );
+	const [ errorMessage, setErrorMessage ] = useState( attributes.errorMessage );
 	const { tracks } = useAnalytics();
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
+
+	// We update the attributes as side effect from the state change.
+	useEffect( ()=>{
+		setAttributes( {
+			errorMessage: errorMessage ,
+			needsMoreCharacters: needsMoreCharacters,
+			showRetry: showRetry
+		} );
+	}, [ errorMessage, needsMoreCharacters, showRetry ] );
 
 	let loading = false;
 	const categories =
