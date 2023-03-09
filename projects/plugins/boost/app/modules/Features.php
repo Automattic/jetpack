@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
-use Automattic\Jetpack_Boost\Features\Image_Size_Report\Image_Size_Report;
+use Automattic\Jetpack_Boost\Features\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
@@ -28,7 +28,7 @@ class Features implements Has_Setup {
 	const FEATURES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
-		Image_Size_Report::class,
+		Image_Size_Analysis::class,
 		Lazy_Images::class,
 		Minify::class,
 		Render_Blocking_JS::class,

@@ -54,7 +54,7 @@
 	{/if}
 
 	<Module
-		slug={'critical-css'}
+		slug="critical-css"
 		on:enabled={resume}
 		on:mountEnabled={resume}
 		on:disabled={() => ( alreadyResumed = false )}
@@ -85,7 +85,7 @@
 	</Module>
 
 	<Module
-		slug={'cloud-css'}
+		slug="cloud-css"
 		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
@@ -108,7 +108,7 @@
 		</div>
 	</Module>
 
-	<Module slug={'render-blocking-js'}>
+	<Module slug="render-blocking-js">
 		<h3 slot="title">
 			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
 		</h3>
@@ -123,7 +123,7 @@
 		</p>
 	</Module>
 
-	<Module slug={'lazy-images'}>
+	<Module slug="lazy-images">
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString
@@ -137,7 +137,7 @@
 	</Module>
 
 	<div class="settings">
-		<Module slug={'image-guide'}>
+		<Module slug="image-guide">
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 			<p slot="description">
 				{__(
@@ -152,7 +152,7 @@
 		</Module>
 	</div>
 
-	<Module slug={'minify'}>
+	<Module slug="minify">
 		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
 			<TemplatedString
@@ -162,6 +162,18 @@
 				)}
 				vars={externalLinkTemplateVar( minifyCssLink )}
 			/>
+		</p>
+	</Module>
+
+	<Module slug="image-size-analysis">
+		<h3 slot="title">
+			{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
+		</h3>
+		<p slot="description">
+			{__(
+				`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+				'jetpack-boost'
+			)}
 		</p>
 	</Module>
 
