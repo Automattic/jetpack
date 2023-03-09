@@ -4,6 +4,7 @@
 import { Text } from '@automattic/jetpack-components';
 import { gmdateI18n } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
+import { getVideoUrlBasedOnPrivacy } from '../../../lib/url';
 /**
  * Internal dependencies
  */
@@ -12,14 +13,27 @@ import Placeholder from '../placeholder';
 import styles from './style.module.scss';
 import { VideoDetailsProps } from './types';
 
-const VideoDetails = ( { filename, src, uploadDate, loading, shortcode }: VideoDetailsProps ) => {
+const VideoDetails = ( {
+	filename,
+	uploadDate,
+	shortcode,
+	loading = false,
+	guid,
+	isPrivate,
+}: VideoDetailsProps ) => {
 	const formattedDate = uploadDate?.length ? gmdateI18n( 'F j, Y', uploadDate ) : false;
+
+	const videoLinkUrl = getVideoUrlBasedOnPrivacy( guid, isPrivate );
 
 	return (
 		<div className={ styles.details }>
 			<div>
 				<Text variant="body-small">{ __( 'Link to video', 'jetpack-videopress-pkg' ) }</Text>
-				{ loading ? <Placeholder height={ 36 } /> : <ClipboardButtonInput value={ src } /> }
+				{ loading ? (
+					<Placeholder height={ 36 } />
+				) : (
+					<ClipboardButtonInput value={ videoLinkUrl } />
+				) }
 			</div>
 
 			<div>
