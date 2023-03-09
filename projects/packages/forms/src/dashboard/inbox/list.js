@@ -1,4 +1,4 @@
-import { useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
@@ -19,54 +19,40 @@ const COLUMNS = [
 	},
 ];
 
-const DATA = [
-	{
-		id: 1,
-		name: 'Jasmine Rice',
-		date: '2 hours ago',
-		source: '/rsvp',
-	},
-	{
-		id: 2,
-		name: 'Jasmine Rice',
-		date: '4 hours ago',
-		source: '/rsvp',
-	},
-	{
-		id: 3,
-		name: 'Jasmine Rice',
-		date: 'Jan 12, 2023',
-		source: '/rsvp',
-	},
-	{
-		id: 4,
-		name: 'Jasmine Rice',
-		date: 'Jan 12, 2023',
-		source: '/rsvp',
-	},
-	{
-		id: 5,
-		name: 'Jasmine Rice',
-		date: 'Jan 12, 2023',
-		source: '/rsvp',
-	},
-];
+const InboxList = ( {
+	currentPage,
+	currentResponseId,
+	pages,
+	responses,
+	setCurrentPage,
+	setCurrentResponseId,
+} ) => {
+	const tableItems = useMemo(
+		() =>
+			responses.map( response => ( {
+				...response,
+				onClick: () => setCurrentResponseId( response.id ),
+				isActive: response.id === currentResponseId,
+			} ) ),
+		[ currentResponseId, responses, setCurrentResponseId ]
+	);
 
-const InboxList = () => {
-	const [ currentPage, setCurrentPage ] = useState( 1 );
+	if ( responses.length === 0 ) {
+		return null;
+	}
 
 	return (
 		<>
 			<Table
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
-				items={ DATA }
+				items={ tableItems }
 				onSelectionChange={ noop }
 			/>
 
 			<PageNavigation
 				currentPage={ currentPage }
-				pages={ 10 }
+				pages={ pages }
 				onSelectPage={ setCurrentPage }
 				expandedRange={ 2 }
 			/>
