@@ -1,7 +1,6 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-<<<<<<< add/zendesk-chat-module
 	"version": "2.7.13",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
