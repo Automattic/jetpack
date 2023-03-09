@@ -23,6 +23,7 @@ const DefaultTemplate = args => {
 	const [ attributes, setAttributes ] = React.useState( {
 		poster: args.poster,
 		videoRatio: args.videoRatio,
+		guid: args.guid,
 	} );
 
 	const setAttributesHandler = newAttributes => {
@@ -36,4 +37,5 @@ export const _default = DefaultTemplate.bind( {} );
 _default.args = {
 	poster: 'https://jetpackme.files.wordpress.com/2018/04/cropped-jetpack-favicon-2018.png',
 	videoRatio: 60,
+	guid: 'ezoR6kzb',
 };

@@ -49,3 +49,16 @@ body.modal-open .poster-panel__dropdown {
 	padding-left: $grid-unit-20;
 	padding-right: $grid-unit-20;
 }
+
+.poster-panel__frame-wrapper,
+.poster-panel__image-wrapper {
+	display: none;
+
+	&.is-active {
+		display: block;
+	}
+}
+
+.poster-panel__frame-picker__snadbox {
+	margin-bottom: 8px;
+}

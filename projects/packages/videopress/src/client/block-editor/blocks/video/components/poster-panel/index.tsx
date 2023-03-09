@@ -2,15 +2,27 @@
  *External dependencies
  */
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
-import { MenuItem, PanelBody, NavigableMenu, Dropdown, Button } from '@wordpress/components';
+import {
+	MenuItem,
+	PanelBody,
+	NavigableMenu,
+	Dropdown,
+	Button,
+	ToggleControl,
+	SandBox,
+} from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
+import classnames from 'classnames';
 /**
  * Internal dependencies
  */
+import TimestampControl from '../../../../../components/timestamp-control';
+import { getVideoPressUrl } from '../../../../../lib/url';
+import { usePreview } from '../../../../hooks/use-preview';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { VideoControlProps } from '../../types';
+import { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import { VideoPosterCard } from '../poster-image-block-control';
 import './style.scss';
 /**
@@ -119,6 +131,67 @@ export function PosterDropdown( {
 	);
 }
 
+type PosterFramePickerProps = {
+	guid: VideoGUID;
+};
+
+// Global scripts array to be run in the Sandbox context.
+const globalScripts = [];
+
+// Populate scripts array with videopresAjaxURLBlob blobal var.
+if ( window.videopressAjax ) {
+	const videopresAjaxURLBlob = new Blob(
+		[
+			`var videopressAjax = ${ JSON.stringify( {
+				...window.videopressAjax,
+				context: 'sandbox',
+			} ) };`,
+		],
+		{
+			type: 'text/javascript',
+		}
+	);
+
+	globalScripts.push(
+		URL.createObjectURL( videopresAjaxURLBlob ),
+		window.videopressAjax.bridgeUrl
+	);
+}
+
+if ( window?.videoPressEditorState?.playerBridgeUrl ) {
+	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+}
+
+/**
+ * React component to pick a frame from the VideoPress video
+ *
+ * @param {PosterFramePickerProps} props - Component properties
+ * @returns { React.ReactElement}          React component
+ */
+function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElement {
+	const [ timestamp, setTimestamp ] = useState( 0 );
+
+	const url = getVideoPressUrl( guid, {
+		autoplay: false,
+		controls: false,
+		loop: false,
+		muted: true,
+	} );
+
+	const { preview = { html: null } } = usePreview( url );
+	const { html } = preview;
+
+	return (
+		<div className="poster-panel__frame-picker">
+			<div className="poster-panel__frame-picker__snadbox">
+				<SandBox html={ html } scripts={ globalScripts } />
+			</div>
+
+			<TimestampControl max={ 1000 * 60 * 60 } value={ timestamp } onChange={ setTimestamp } />
+		</div>
+	);
+}
+
 /**
  * Sidebar Control component.
  *
@@ -128,23 +201,39 @@ export function PosterDropdown( {
 export default function PosterPanel( {
 	attributes,
 	setAttributes,
-}: VideoControlProps ): React.ReactElement {
+}: PosterPanelProps ): React.ReactElement {
 	const { poster } = attributes;
-
+	const [ pickFromFrame, setPickFromFrame ] = useState( false );
 	const onRemovePoster = () => {
 		setAttributes( { poster: '' } );
 	};
 
 	return (
 		<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
-			<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
-			<VideoPosterCard poster={ poster } className="poster-panel-card" />
+			<ToggleControl
+				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
+				checked={ pickFromFrame }
+				onChange={ setPickFromFrame }
+			/>
 
-			{ poster && (
-				<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
-					{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
-				</MenuItem>
-			) }
+			<div
+				className={ classnames( 'poster-panel__frame-wrapper', { 'is-active': pickFromFrame } ) }
+			>
+				<VideoFramePicker guid={ attributes?.guid } />
+			</div>
+
+			<div
+				className={ classnames( 'poster-panel__image-wrapper', { 'is-active': ! pickFromFrame } ) }
+			>
+				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
+				<VideoPosterCard poster={ poster } className="poster-panel-card" />
+
+				{ poster && (
+					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+				) }
+			</div>
 		</PanelBody>
 	);
 }
