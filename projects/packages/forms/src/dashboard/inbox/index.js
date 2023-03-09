@@ -97,7 +97,7 @@ const Inbox = () => {
 	return (
 		<Layout title={ title } className={ classes }>
 			<div className="jp-forms__actions">
-				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } />
+				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } loading={ loading } />
 				<BulkActionsMenu />
 			</div>
 
