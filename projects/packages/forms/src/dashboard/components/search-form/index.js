@@ -1,29 +1,19 @@
-import {
-	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-} from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
+import { SearchInput } from './search-input';
 import './style.scss';
 
-const SearchInput = ( { onSearch, initialValue } ) => {
+const SearchForm = ( { onSearch, initialValue, loading } ) => {
 	const [ searchText, setSearchText ] = useState( initialValue );
-	const handleSearch = useCallback(
-		event => {
-			event.preventDefault();
-			onSearch( searchText );
-		},
-		[ searchText, onSearch ]
-	);
 	return (
-		<form className="jp-forms__actions-form jp-forms__search-form" onSubmit={ handleSearch }>
-			<InputControl
+		<div className="jp-forms__actions-search">
+			<SearchInput
 				onChange={ setSearchText }
+				onSearch={ onSearch }
 				value={ searchText }
-				placeholder="Search responses"
-				label="Search"
-				hideLabelFromVision={ true }
+				loading={ loading }
 			/>
-		</form>
+		</div>
 	);
 };
 
-export default SearchInput;
+export default SearchForm;
