@@ -17,7 +17,7 @@ use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Features\Optimizations\Features;
+use Automattic\Jetpack_Boost\Modules\Features;
 use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;

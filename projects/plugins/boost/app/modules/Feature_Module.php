@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations;
+namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Status;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 

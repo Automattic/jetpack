@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Contracts\Feature;

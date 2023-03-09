@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack_Boost\Features\Optimizations\Features;
+use Automattic\Jetpack_Boost\Modules\Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 

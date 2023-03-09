@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 /**
  * This is a class to map script and style URLs to local filesystem paths.

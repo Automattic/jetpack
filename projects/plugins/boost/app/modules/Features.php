@@ -1,16 +1,16 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations;
+namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Image_Size_Report\Image_Size_Report;
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Lazy_Images\Lazy_Images;
-use Automattic\Jetpack_Boost\Features\Optimizations\Minify\Minify;
-use Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;

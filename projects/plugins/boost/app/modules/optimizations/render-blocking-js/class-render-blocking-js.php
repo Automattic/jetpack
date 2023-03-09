@@ -7,7 +7,7 @@
  * @package    automattic/jetpack-boost
  */
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Render_Blocking_JS;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS;
 
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;

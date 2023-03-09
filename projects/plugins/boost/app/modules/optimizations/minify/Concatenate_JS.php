@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use WP_Scripts;
 
