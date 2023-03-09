@@ -79,7 +79,7 @@ class Features implements Has_Setup {
 
 	public function have_enabled_modules() {
 		foreach ( $this->features as $feature_module ) {
-			if ( $feature_module->status->is_enabled() ) {
+			if ( $feature_module->is_enabled() ) {
 				return true;
 			}
 		}
@@ -88,8 +88,8 @@ class Features implements Has_Setup {
 
 	public function get_status() {
 		$status = array();
-		foreach ( $this->features as $slug => $optimization ) {
-			$status[ $slug ] = $optimization->status->is_enabled();
+		foreach ( $this->features as $slug => $feature_module ) {
+			$status[ $slug ] = $feature_module->is_enabled();
 		}
 		return $status;
 	}
@@ -108,15 +108,15 @@ class Features implements Has_Setup {
 
 	public function init_features() {
 
-		foreach ( $this->available_modules() as $slug => $optimization ) {
+		foreach ( $this->available_modules() as $slug => $feature_module ) {
 
-			if ( ! $optimization->status->is_enabled() ) {
+			if ( ! $feature_module->is_enabled() ) {
 				continue;
 			}
 
-			Setup::add( $optimization->feature );
+			Setup::add( $feature_module->feature );
 
-			$this->register_endpoints( $optimization->feature );
+			$this->register_endpoints( $feature_module->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
 

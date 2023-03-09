@@ -9,7 +9,7 @@ class Feature_Module {
 	/**
 	 * @var Status
 	 */
-	public $status;
+	private $status;
 
 	/**
 	 * @var Feature
@@ -19,5 +19,9 @@ class Feature_Module {
 	public function __construct( Feature $feature ) {
 		$this->feature = $feature;
 		$this->status  = new Status( $feature->get_slug() );
+	}
+
+	public function is_enabled() {
+		return $this->status->is_enabled();
 	}
 }
