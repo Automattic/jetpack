@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import {
 	BlockCaption,
 	MediaPlaceholder,
@@ -14,7 +15,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { Icon, ToolbarButton, ToolbarGroup, PanelBody } from '@wordpress/components';
-import { withPreferredColorScheme, compose } from '@wordpress/compose';
+import { withPreferredColorScheme, compose, createHigherOrderComponent } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { doAction, hasAction } from '@wordpress/hooks';
@@ -26,7 +27,7 @@ import {
 	requestImageFailedRetryDialog,
 	requestImageUploadCancelDialog,
 } from '@wordpress/react-native-bridge';
-import { isURL, getProtocol } from '@wordpress/url';
+import { isURL, getProtocol, addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
@@ -34,10 +35,10 @@ import { View, TouchableWithoutFeedback, Text } from 'react-native';
 /**
  * Internal dependencies
  */
-import { createUpgradedEmbedBlock } from '../embed/util';
 import VideoCommonSettings from './edit-common-settings';
 import SvgIconRetry from './icon-retry';
 import style from './style.scss';
+import { pickGUIDFromUrl } from './utils';
 
 const ICON_TYPE = {
 	PLACEHOLDER: 'placeholder',
@@ -45,13 +46,17 @@ const ICON_TYPE = {
 	UPLOAD: 'upload',
 };
 
-class VideoEdit extends Component {
+class VideoPressEdit extends Component {
 	constructor( props ) {
 		super( props );
 
 		this.state = {
 			isCaptionSelected: false,
 			videoContainerHeight: 0,
+			isUploadInProgress: false,
+			isUploadFailed: false,
+			isLoadingMetadata: false,
+			metadata: {},
 		};
 
 		this.mediaUploadStateReset = this.mediaUploadStateReset.bind( this );
@@ -65,10 +70,19 @@ class VideoEdit extends Component {
 		this.onFocusCaption = this.onFocusCaption.bind( this );
 	}
 
-	componentDidMount() {
+	async componentDidMount() {
 		const { attributes } = this.props;
+		const { guid } = attributes;
 		if ( attributes.id && getProtocol( attributes.src ) === 'file:' ) {
 			mediaUploadSync();
+		}
+
+		// Try to infer the VideoPress ID from the source upon component mount.
+		// If the ID already exists, fetch the metadata to get the video URL.
+		if ( ! guid ) {
+			await this.setGuid();
+		} else {
+			await this.fetchMetadata( guid );
 		}
 	}
 
@@ -80,11 +94,37 @@ class VideoEdit extends Component {
 	}
 
 	static getDerivedStateFromProps( props, state ) {
-		// Avoid a UI flicker in the toolbar by insuring that isCaptionSelected
-		// is updated immediately any time the isSelected prop becomes false.
 		return {
+			// Avoid a UI flicker in the toolbar by insuring that isCaptionSelected
+			// is updated immediately any time the isSelected prop becomes false.
 			isCaptionSelected: props.isSelected && state.isCaptionSelected,
+			// Reset metadata when "guid" attribute is not defined.
+			metadata: props.attributes?.guid ? state.metadata : {},
 		};
+	}
+
+	async setGuid( value ) {
+		const { setAttributes, attributes } = this.props;
+		const { src } = attributes;
+		// If no value is passed, we try to extract the VideoPress ID from the source.
+		const guid = value ?? pickGUIDFromUrl( src ) ?? undefined;
+		setAttributes( { guid } );
+		if ( guid ) {
+			await this.fetchMetadata( guid );
+		}
+	}
+
+	async fetchMetadata( guid ) {
+		this.setState( { isLoadingMetadata: true } );
+		await apiFetch( { path: `/wp/v2/media/videos/${ guid }` } )
+			.then( metadata => {
+				this.setState( { metadata, isLoadingMetadata: false } );
+			} )
+			.catch( () => {
+				// eslint-disable-next-line no-console
+				console.error( `Couldn't fetch metadata of VideoPress video with ID = ${ guid }` );
+				this.setState( { isLoadingMetadata: false } );
+			} );
 	}
 
 	onVideoPressed() {
@@ -119,8 +159,11 @@ class VideoEdit extends Component {
 
 	finishMediaUploadWithSuccess( payload ) {
 		const { setAttributes } = this.props;
-		setAttributes( { src: payload.mediaUrl, id: payload.mediaServerId } );
+		const { mediaUrl, mediaServerId, metadata = {} } = payload;
+		const { videopressGUID } = metadata;
+		setAttributes( { src: mediaUrl, id: mediaServerId } );
 		this.setState( { isUploadInProgress: false } );
+		this.setGuid( videopressGUID );
 	}
 
 	finishMediaUploadWithFailure( payload ) {
@@ -131,28 +174,22 @@ class VideoEdit extends Component {
 
 	mediaUploadStateReset() {
 		const { setAttributes } = this.props;
-		setAttributes( { id: null, src: null } );
+		setAttributes( { id: null, src: null, guid: null } );
 		this.setState( { isUploadInProgress: false } );
 	}
 
-	onSelectMediaUploadOption( { id, url } ) {
+	onSelectMediaUploadOption( payload ) {
 		const { setAttributes } = this.props;
+		const { id, url, metadata = {} } = payload;
+		const { videopressGUID } = metadata;
 		setAttributes( { id, src: url } );
+		this.setGuid( videopressGUID );
 	}
 
 	onSelectURL( url ) {
-		const { createErrorNotice, onReplace, setAttributes } = this.props;
+		const { createErrorNotice, setAttributes } = this.props;
 
 		if ( isURL( url ) ) {
-			// Check if there's an embed block that handles this URL.
-			const embedBlock = createUpgradedEmbedBlock( {
-				attributes: { url },
-			} );
-			if ( undefined !== embedBlock ) {
-				onReplace( embedBlock );
-				return;
-			}
-
 			setAttributes( { id: url, src: url } );
 		} else {
 			createErrorNotice( __( 'Invalid URL.', 'jetpack' ) );
@@ -186,10 +223,26 @@ class VideoEdit extends Component {
 		return <Icon icon={ SvgIcon } { ...iconStyle } />;
 	}
 
+	getVideoURL() {
+		const { attributes } = this.props;
+		const { src } = attributes;
+		const { metadata = {} } = this.state;
+		const { originalURL, token } = metadata;
+		if ( originalURL ) {
+			return token ? addQueryArgs( originalURL, { metadata_token: token } ) : originalURL;
+		}
+		return src;
+	}
+
 	render() {
 		const { setAttributes, attributes, isSelected, wasBlockJustInserted } = this.props;
-		const { id, src } = attributes;
-		const { videoContainerHeight } = this.state;
+		const { id } = attributes;
+		const {
+			isLoadingMetadata,
+			isUploadInProgress,
+			isUploadFailed,
+			videoContainerHeight,
+		} = this.state;
 
 		const toolbarEditButton = (
 			<MediaUpload
@@ -248,8 +301,13 @@ class VideoEdit extends Component {
 						onFinishMediaUploadWithFailure={ this.finishMediaUploadWithFailure }
 						onUpdateMediaProgress={ this.updateMediaProgress }
 						onMediaUploadStateReset={ this.mediaUploadStateReset }
-						renderContent={ ( { isUploadInProgress, isUploadFailed, retryMessage } ) => {
-							const showVideo = isURL( src ) && ! isUploadInProgress && ! isUploadFailed;
+						renderContent={ ( { retryMessage } ) => {
+							const videoURL = this.getVideoURL();
+							const showVideo =
+								isURL( videoURL ) &&
+								! isUploadInProgress &&
+								! isUploadFailed &&
+								! isLoadingMetadata;
 							const icon = this.getIcon( isUploadFailed ? ICON_TYPE.RETRY : ICON_TYPE.UPLOAD );
 							const styleIconContainer = isUploadFailed ? style.modalIconRetry : style.modalIcon;
 
@@ -270,7 +328,7 @@ class VideoEdit extends Component {
 											<VideoPlayer
 												isSelected={ isSelected && ! this.state.isCaptionSelected }
 												style={ videoStyle }
-												source={ { uri: src } }
+												source={ { uri: videoURL } }
 												paused={ true }
 											/>
 										</View>
@@ -299,9 +357,8 @@ class VideoEdit extends Component {
 					<BlockCaption
 						accessible={ true }
 						accessibilityLabelCreator={ caption =>
-							! caption
-								? /* translators: accessibility text. Empty video caption. */
-								  __( 'Video caption. Empty', 'jetpack' )
+							! caption /* translators: accessibility text. Empty video caption. */
+								? __( 'Video caption. Empty', 'jetpack' )
 								: sprintf(
 										/* translators: accessibility text. %s: video caption. */
 										__( 'Video caption. %s', 'jetpack' ),
@@ -320,17 +377,21 @@ class VideoEdit extends Component {
 	}
 }
 
-export default compose( [
-	withSelect( ( select, { clientId } ) => ( {
-		wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted(
-			clientId,
-			'inserter_menu'
-		),
-	} ) ),
-	withDispatch( dispatch => {
-		const { createErrorNotice } = dispatch( noticesStore );
+export default CoreVideoEdit =>
+	compose( [
+		withSelect( ( select, { clientId } ) => ( {
+			wasBlockJustInserted: select( blockEditorStore ).wasBlockJustInserted(
+				clientId,
+				'inserter_menu'
+			),
+		} ) ),
+		withDispatch( dispatch => {
+			const { createErrorNotice } = dispatch( noticesStore );
 
-		return { createErrorNotice };
-	} ),
-	withPreferredColorScheme,
-] )( VideoEdit );
+			return { createErrorNotice };
+		} ),
+		withPreferredColorScheme,
+		createHigherOrderComponent( WrappedComponent => props => {
+			return <WrappedComponent originalEdit={ CoreVideoEdit } { ...props } />;
+		} ),
+	] )( VideoPressEdit );
