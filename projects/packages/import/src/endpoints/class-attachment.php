@@ -121,15 +121,16 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return array Modified Schema array.
 	 */
 	public function add_additional_fields_schema( $schema ) {
+
+		// Validate the upload_date, used for placing the uploaded file in the correct upload directory.
+		$schema['properties']['upload_date'] = array(
+			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
+			'type'        => array( 'string', 'null' ),
+			'pattern'     => '^\d{4}\/\d{2}$',
+			'required'    => false,
+		);
+
 		// The unique identifier is only required for PUT requests.
-
-		// $schema['properties']['upload_date'] = array(
-		// 'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
-		// 'type'        => array( 'string', 'null' ),
-		// 'pattern'     => '^\d{4}\/\d{2}$',
-		// 'required'    => false,
-		// );
-
 		return $this->add_unique_identifier_to_schema( $schema, isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'PUT' );
 	}
 
