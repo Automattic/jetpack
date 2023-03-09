@@ -46,7 +46,7 @@ const MapkitComponent = forwardRef( ( props, mapRef ) => {
 				ref={ mapRef }
 			/>
 			{ addPoint }
-			<InfoWindow />
+			<InfoWindow mapProvider="mapkit" />
 		</MapkitProvider>
 	);
 } );
