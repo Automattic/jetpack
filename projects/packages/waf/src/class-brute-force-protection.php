@@ -42,27 +42,27 @@ class Brute_Force_Protection {
 	public $api_key_error;
 
 	/**
-	 * Whitelisted ips
+	 * IP allow list.
 	 *
 	 * @var array
 	 */
-	public $whitelist;
+	public $allow_list;
 
 	/**
-	 * Whitelist error.
+	 * IP allow list error.
 	 *
 	 * @var string
 	 */
-	public $whitelist_error;
+	public $allow_list_error;
 
 	/**
-	 * Whitelist saved
+	 * IP allow list saved
 	 *
 	 * @todo find out if this is even used.
 	 *
 	 * @var array
 	 */
-	public $whitelist_saved;
+	public $allow_list_saved;
 
 	/**
 	 * The URI.
@@ -433,7 +433,7 @@ class Brute_Force_Protection {
 	/**
 	 * Logs a successful login back to our servers, this allows us to make sure we're not blocking
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
-	 * to the ip address whitelist
+	 * to the ip address allow list
 	 *
 	 * @param string $user_login - the user loggign in.
 	 * @param string $user - the user.
@@ -510,26 +510,26 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Checks if the IP address has been whitelisted
+	 * Checks if the IP address is in the allow list.
 	 *
 	 * @param string $ip - the IP address.
 	 *
 	 * @return bool
 	 */
-	public function ip_is_whitelisted( $ip ) {
+	public function ip_is_allowed( $ip ) {
 		// If we found an exact match in wp-config.
 		if ( defined( 'JETPACK_IP_ADDRESS_OK' ) && JETPACK_IP_ADDRESS_OK === $ip ) {
 			return true;
 		}
 
-		$whitelist = Brute_Force_Protection_Shared_Functions::get_local_whitelist();
+		$allow_list = Brute_Force_Protection_Shared_Functions::get_local_allow_list();
 
 		if ( is_multisite() ) {
-			$whitelist = array_merge( $whitelist, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
+			$allow_list = array_merge( $allow_list, get_site_option( 'jetpack_protect_global_whitelist', array() ) );
 		}
 
-		if ( ! empty( $whitelist ) ) :
-			foreach ( $whitelist as $item ) :
+		if ( ! empty( $allow_list ) ) :
+			foreach ( $allow_list as $item ) :
 				// If the IPs are an exact match.
 				if ( ! $item->range && isset( $item->ip_address ) && $item->ip_address === $ip ) {
 					return true;
@@ -562,7 +562,7 @@ class Brute_Force_Protection {
 			$this->kill_login();
 		}
 
-		if ( $this->is_current_ip_whitelisted() ) {
+		if ( $this->is_current_ip_allowed() ) {
 			return true;
 		}
 
@@ -594,9 +594,9 @@ class Brute_Force_Protection {
 	}
 
 	/**
-	 * Check if IP is whitelisted.
+	 * Check if the user's IP is in the allow list.
 	 */
-	public function is_current_ip_whitelisted() {
+	public function is_current_ip_allowed() {
 		$ip = IP_Utils::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
@@ -629,7 +629,7 @@ class Brute_Force_Protection {
 			return true;
 		}
 
-		if ( $this->ip_is_whitelisted( $ip ) ) {
+		if ( $this->ip_is_allowed( $ip ) ) {
 			return true;
 		}
 	}
@@ -638,7 +638,7 @@ class Brute_Force_Protection {
 	 * Check if someone is able to login based on IP.
 	 */
 	public function has_login_ability() {
-		if ( $this->is_current_ip_whitelisted() ) {
+		if ( $this->is_current_ip_allowed() ) {
 			return true;
 		}
 		$status = $this->get_cached_status();

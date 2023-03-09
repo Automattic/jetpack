@@ -34,7 +34,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 			</tr>
 
 			<tr valign="top">
-				<th scope="row"><label for="sub-site-override"><?php esc_html_e( 'Protect whitelist', 'jetpack' ); ?></label></th>
+				<th scope="row"><label for="sub-site-override"><?php esc_html_e( 'Protect IP allow list', 'jetpack' ); ?></label></th>
 				<td>
 					<p><strong>
 					<?php
