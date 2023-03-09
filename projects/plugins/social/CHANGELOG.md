@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.8.0 - 2023-03-07
+### Added
+- Add Social Image Generator editor panel to post sidebar [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+
+### Changed
+- Changed remaining shares phrasing [#28688]
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Update billing language [#29126]
+- Updated package dependencies.
+- Update to React 18. [#28710]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Use External Link icons for external links [#28922]
+
 ## 1.7.0 - 2023-02-07
 ### Added
 - Added Advanced Social plan to pricing table [#28258]

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "faefaedb6a3045f6d773302b27fc511a",
+    "content-hash": "52723a4da57d238ae83d20657ef5a5e9",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -711,7 +711,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "5c154d90af8faaf107ce35a8aedbe1025e2313d4"
+                "reference": "d8bfc30fbd87ba4b6ba30c604bc551ea88f9234f"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -738,7 +738,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.7.x-dev"
+                    "dev-trunk": "2.8.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1216,7 +1216,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "f3ec72fb62e89cdd01e2ae70099f4a6066fae32f"
+                "reference": "94b32518050a387b8c926214809c806fd64d7dbb"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1238,7 +1238,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

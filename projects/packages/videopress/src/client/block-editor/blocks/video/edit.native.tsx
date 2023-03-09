@@ -1,12 +1,13 @@
 /**
  * WordPress dependencies
  */
-import { MediaPlaceholder } from '@wordpress/block-editor';
+import { MediaPlaceholder, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody } from '@wordpress/components';
 /**
  * External dependencies
  */
 import React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -20,9 +21,14 @@ import style from './style.scss';
  * @param {object} props                 - Component props.
  * @param {object} props.attributes      - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
+ * @param {boolean} props.isSelected	 - Whether block is selected.
  * @returns {React.ReactNode}            - React component.
  */
-export default function VideoPressEdit( { attributes, setAttributes } ): React.ReactNode {
+export default function VideoPressEdit( {
+	attributes,
+	setAttributes,
+	isSelected,
+} ): React.ReactNode {
 	/**
 	 * TODO: The current components are intended to act as placeholders while block is in development.
 	 * They should eventually be edited or replaced to support VideoPress.
@@ -53,6 +59,13 @@ export default function VideoPressEdit( { attributes, setAttributes } ): React.R
 
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
+			{ isSelected && (
+				<InspectorControls>
+					<PanelBody title={ 'Hello world!' }>
+						<Text>{ 'Hello world!' }</Text>
+					</PanelBody>
+				</InspectorControls>
+			) }
 			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
 		</View>
 	);
