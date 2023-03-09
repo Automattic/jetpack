@@ -17,3 +17,5 @@ export const getResponses = state =>
 	} );
 
 export const getTotalResponses = state => state.total;
+
+export const getSearchQuery = state => state.searchQuery;

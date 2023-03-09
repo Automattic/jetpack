@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Avoid Fatal errors by calling method from the right class in the paackage.
