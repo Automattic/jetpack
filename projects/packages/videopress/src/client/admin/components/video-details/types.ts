@@ -22,5 +22,5 @@ export type VideoDetailsProps = {
 	/**
 	 * Loading mode
 	 */
-	loading: boolean;
+	loading?: boolean;
 };
