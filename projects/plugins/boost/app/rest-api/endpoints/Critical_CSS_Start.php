@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
 use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
+use Automattic\Jetpack_Boost\Features\Optimizations\Features;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
@@ -19,7 +19,7 @@ class Critical_CSS_Start implements Endpoint {
 	}
 
 	public function is_cloud_css() {
-		$optimizations = ( new Optimizations() )->get_status();
+		$optimizations = ( new Features() )->get_status();
 		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
 	}
 

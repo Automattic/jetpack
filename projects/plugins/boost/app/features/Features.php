@@ -15,10 +15,10 @@ use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
-class Optimizations implements Has_Setup {
+class Features implements Has_Setup {
 
 	/**
-	 * @var Optimization[] - Optimization modules
+	 * @var Feature_Module[] - Optimization modules
 	 */
 	protected $features = array();
 
@@ -52,7 +52,7 @@ class Optimizations implements Has_Setup {
 
 		foreach ( $features as $feature ) {
 			$slug                    = $feature->get_slug();
-			$this->features[ $slug ] = new Optimization( $feature );
+			$this->features[ $slug ] = new Feature_Module( $feature );
 		}
 	}
 
@@ -78,8 +78,8 @@ class Optimizations implements Has_Setup {
 	}
 
 	public function have_enabled_modules() {
-		foreach ( $this->features as $optimization ) {
-			if ( $optimization->status->is_enabled() ) {
+		foreach ( $this->features as $feature_module ) {
+			if ( $feature_module->status->is_enabled() ) {
 				return true;
 			}
 		}

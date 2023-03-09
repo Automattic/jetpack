@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Lib\Status;
 
-class Optimization {
+class Feature_Module {
 	/**
 	 * @var Status
 	 */
