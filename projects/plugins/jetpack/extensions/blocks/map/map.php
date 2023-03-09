@@ -69,7 +69,7 @@ function get_map_provider( $html ) {
 	$mapbox_styles = array( 'is-style-terrain', 'is-style-black_and_white' );
 	// return mapbox if html contains one of the mapbox styles
 	foreach ( $mapbox_styles as $style ) {
-		if ( str_contains( $html, $style ) ) {
+		if ( strpos( $html, $style ) !== false ) {
 			return 'mapbox';
 		}
 	}
