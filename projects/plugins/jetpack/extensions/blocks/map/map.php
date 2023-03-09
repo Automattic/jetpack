@@ -101,6 +101,11 @@ function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	$source = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'mapkit' : 'mapbox';
+	// override with cookie
+	if ( isset( $_COOKIE['map_provider'] ) ) {
+		$source = sanitize_text_field( wp_unslash( $_COOKIE['map_provider'] ) );
+	}
+
 	// phpcs:ignore WordPress.Security.NonceVerification
 	if ( isset( $_GET['mapkit'] ) || $source === 'mapkit' ) {
 		return preg_replace( '/<div /', '<div data-source="mapkit" data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
