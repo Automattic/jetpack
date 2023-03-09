@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Check for existence of wpcom_rest_api_v2_load_plugin function before loading wpcom endpoints.
