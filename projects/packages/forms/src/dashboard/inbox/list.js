@@ -42,7 +42,7 @@ const InboxList = ( {
 		return (
 			<Table
 				className="jp-forms__inbox-list"
-				columns={ [ { key: 'empty', label: 'Loading...' } ] }
+				columns={ [ { key: 'empty', label: __( 'Loading…', 'jetpack-forms' ) } ] }
 				items={ [] }
 			/>
 		);
@@ -51,7 +51,7 @@ const InboxList = ( {
 		return (
 			<Table
 				className="jp-forms__inbox-list"
-				columns={ [ { key: 'empty', label: 'No results found' } ] }
+				columns={ [ { key: 'empty', label: __( 'No results found', 'jetpack-forms' ) } ] }
 				items={ [] }
 			/>
 		);
