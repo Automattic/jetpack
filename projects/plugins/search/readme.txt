@@ -3,7 +3,7 @@ Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibr
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
 Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

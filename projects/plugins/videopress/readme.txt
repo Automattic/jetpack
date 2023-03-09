@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
 Requires at least: 6.0
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 1.4.0
 Requires PHP: 5.6
 License: GPLv2 or later
@@ -27,7 +27,7 @@ Tired of video companies sending your customers to their app to view videos? Or 
 
 High-quality, lightning-fast video hosting
 
-Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution. 
+Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution.
 
 
 == Installation ==
