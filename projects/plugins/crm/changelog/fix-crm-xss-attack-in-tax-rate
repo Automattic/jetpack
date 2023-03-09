@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed potential XSS in the Tax Settings page

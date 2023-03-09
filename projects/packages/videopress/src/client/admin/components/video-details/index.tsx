@@ -12,7 +12,13 @@ import Placeholder from '../placeholder';
 import styles from './style.module.scss';
 import { VideoDetailsProps } from './types';
 
-const VideoDetails = ( { filename, src, uploadDate, loading, shortcode }: VideoDetailsProps ) => {
+const VideoDetails = ( {
+	filename,
+	src,
+	uploadDate,
+	shortcode,
+	loading = false,
+}: VideoDetailsProps ) => {
 	const formattedDate = uploadDate?.length ? gmdateI18n( 'F j, Y', uploadDate ) : false;
 
 	return (

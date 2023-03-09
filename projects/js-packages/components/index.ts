@@ -20,6 +20,7 @@ export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vau
 export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
+export { isFirstMonthTrial } from './tools/pricing-utils';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
@@ -41,6 +42,8 @@ export { default as Text, H2, H3, Title } from './components/text';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export { default as LoadingPlaceholder } from './components/loading-placeholder';
+export { default as TermsOfService } from './components/terms-of-service';
 export {
 	default as PricingTable,
 	PricingTableColumn,
