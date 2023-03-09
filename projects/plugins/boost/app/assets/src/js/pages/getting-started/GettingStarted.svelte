@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { derived, get, writable } from 'svelte/store';
+	import { Snackbar } from '@wordpress/components';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -118,16 +119,23 @@
 	{#if pricing.yearly}
 		<div class="jb-section jb-section--alt">
 			<div class="jb-container">
-				<ReactComponent
-					this={BoostPricingTable}
-					{pricing}
-					onPremiumCTA={choosePaidPlan}
-					onFreeCTA={chooseFreePlan}
-					chosenFreePlan={initiatingFreePlan}
-					chosenPaidPlan={initiatingPaidPlan}
-					snackbarMessage={$snackbarMessage}
-					onSnackbarDismiss={() => dismissedSnackbar.set( true )}
-				/>
+				<div class="jb-pricing-table">
+					<ReactComponent
+						this={BoostPricingTable}
+						{pricing}
+						onPremiumCTA={choosePaidPlan}
+						onFreeCTA={chooseFreePlan}
+						chosenFreePlan={initiatingFreePlan}
+						chosenPaidPlan={initiatingPaidPlan}
+					/>
+					{#if $snackbarMessage}
+						<ReactComponent
+							this={Snackbar}
+							children={$snackbarMessage}
+							onDismiss={() => dismissedSnackbar.set( true )}
+						/>
+					{/if}
+				</div>
 			</div>
 		</div>
 	{/if}
