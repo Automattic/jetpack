@@ -398,14 +398,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private static function enqueue_contact_forms_style_script() {
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
-
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+		Jetpack_Gutenberg::load_assets_as_required( 'contact-form' );
 	}
 
 	/**
@@ -415,7 +408,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $handle - script name.
 	 */
 	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+		if ( 'jetpack-block-contact-form' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -516,7 +509,6 @@ class Grunion_Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
@@ -5273,14 +5265,6 @@ function grunion_delete_old_spam() {
  * @return null|void
  */
 function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	// Do not do anything if the submission is not from a block.
-	if (
-		! isset( $extra_values['is_block'] )
-		|| ! $extra_values['is_block']
-	) {
-		return;
-	}
-
 	/*
 	 * Event details.
 	 */
@@ -5290,6 +5274,24 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, 
 		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
 		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
 	);
+
+	// old deprecated attribute that should been removed in May 2020.
+	if (
+		! isset( $extra_values['is_block'] )
+		|| ! $extra_values['is_block']
+	) {
+		$event_props['is_block'] = false;
+	} else {
+		$event_props['is_block'] = true;
+	}
+
+	$post = get_post( $post_id );
+	if ( $post ) {
+		$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
+		$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+	} else {
+		$event_props['no_post'] = 1;
+	}
 
 	/*
 	 * Record event.

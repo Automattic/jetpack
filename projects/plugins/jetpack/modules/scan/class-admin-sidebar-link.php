@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Scan;
 
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Core_Json_Api_Endpoints;
 
 /**
@@ -135,12 +136,12 @@ class Admin_Sidebar_Link {
 	/**
 	 * Check if we should display the Scan menu item.
 	 *
-	 * It will only be displayed if site has Scan enabled and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
+	 * It will only be displayed if site has Scan enabled, is not an Atomic site, and the stand-alone Protect plugin is not active, because it will have a menu item of its own.
 	 *
 	 * @return boolean
 	 */
 	private function should_show_scan() {
-		return $this->has_scan() && ! $this->has_protect_plugin();
+		return $this->has_scan() && ! $this->has_protect_plugin() && ! ( new Host() )->is_woa_site();
 	}
 
 	/**
