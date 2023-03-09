@@ -69,14 +69,21 @@ const MapkitHelpers = memo(
 		onMarkerClick,
 		onMapLoaded,
 	} ) => {
-		const { map, mapkit, setActiveMarker, setCalloutReference, currentDoc } = useMapkit();
-
+		const {
+			map,
+			mapkit,
+			setActiveMarker,
+			setPreviousCenter,
+			setCalloutReference,
+			currentDoc,
+		} = useMapkit();
 		// Save these in a ref to prevent unwanted rerenders
 		const onMarkerClickRef = useRef( onMarkerClick );
 
 		const onSelect = useCallback(
 			marker => {
 				setActiveMarker( marker );
+				setPreviousCenter( map.center );
 				if ( onMarkerClickRef.current ) {
 					onMarkerClickRef.current( marker );
 				}
@@ -84,7 +91,7 @@ const MapkitHelpers = memo(
 					new mapkit.Coordinate( marker.coordinates.latitude, marker.coordinates.longitude )
 				);
 			},
-			[ map, mapkit, setActiveMarker, onMarkerClickRef ]
+			[ map, mapkit, setActiveMarker, setPreviousCenter, onMarkerClickRef ]
 		);
 
 		useMapkitCenter( mapCenter, onSetMapCenter );
@@ -97,9 +104,11 @@ const MapkitHelpers = memo(
 			onSelect
 		);
 		useMapkitOnMapLoad( onMapLoaded );
-		useMapkitOnMapTap( () => {
+		useMapkitOnMapTap( previousCenter => {
 			setActiveMarker( null );
-			// TODO: recenter points
+			if ( previousCenter ) {
+				map.setCenterAnimated( previousCenter );
+			}
 		} );
 
 		return null;

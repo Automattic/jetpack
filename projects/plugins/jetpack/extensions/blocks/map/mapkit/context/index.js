@@ -11,14 +11,24 @@ const MapkitContext = createContext( {
 	admin: false,
 	setPoints: () => {},
 	points: [],
+	previousCenter: null,
 } );
 
 const MapkitProvider = ( { value, children } ) => {
 	const [ activeMarker, setActiveMarker ] = useState( null );
 	const [ calloutReference, setCalloutReference ] = useState( null );
+	const [ previousCenter, setPreviousCenter ] = useState( null );
 	return (
 		<MapkitContext.Provider
-			value={ { ...value, activeMarker, setActiveMarker, calloutReference, setCalloutReference } }
+			value={ {
+				...value,
+				activeMarker,
+				setActiveMarker,
+				calloutReference,
+				setCalloutReference,
+				previousCenter,
+				setPreviousCenter,
+			} }
 		>
 			{ children }
 		</MapkitContext.Provider>
