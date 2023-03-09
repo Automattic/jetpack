@@ -222,11 +222,11 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 			$caption     = $info->caption;
 		}
 
-		$video_privacy_setting          = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
-		$all_videos_are_private_on_site = Data::get_videopress_videos_private_for_site();
+		$video_privacy_setting    = ! isset( $info->privacy_setting ) ? \VIDEOPRESS_PRIVACY::SITE_DEFAULT : intval( $info->privacy_setting );
+		$private_enabled_for_site = Data::get_videopress_videos_private_for_site();
 
 		// decide if the video needs a playback token based on the site privacy setting as well as the video privacy setting
-		$video_needs_playback_token = $all_videos_are_private_on_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
+		$video_needs_playback_token = $private_enabled_for_site ? true : ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PRIVATE );
 
 		return array(
 			'title'                    => $title,
@@ -240,8 +240,8 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 				isset( $info->display_embed ) && $info->display_embed ? 1 : 0,
 			'privacy_setting'          => $video_privacy_setting,
 			'needs_playback_token'     => $video_needs_playback_token,
-			'is_private'               => $this->is_video_private( $video_privacy_setting, Data::get_videopress_videos_private_for_site() ),
-			'private_enabled_for_site' => Data::get_videopress_videos_private_for_site(),
+			'is_private'               => $this->is_video_private( $video_privacy_setting, $private_enabled_for_site ),
+			'private_enabled_for_site' => $private_enabled_for_site,
 		);
 	}
 
