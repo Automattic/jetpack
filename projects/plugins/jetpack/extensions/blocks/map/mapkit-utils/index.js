@@ -111,18 +111,22 @@ function fetchMapkitKey( mapkitObj, blogId, currentWindow ) {
 			currentWindow.mapkitIsInitialized = false;
 			mapkitObj.init( {
 				authorizationCallback: async done => {
-					const response = await fetch(
-						`https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/mapkit`
-					);
-					if ( response.status === 200 ) {
-						const data = await response.json();
-						done( data.wpcom_mapkit_access_token );
-					} else {
-						reject( 'Mapkit API error' );
+					try {
+						const response = await fetch(
+							`https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/mapkit`
+						);
+						if ( response.status === 200 ) {
+							const data = await response.json();
+							done( data.wpcom_mapkit_access_token );
+						} else {
+							reject();
+						}
+						currentWindow.mapkitIsInitializing = false;
+						currentWindow.mapkitIsInitialized = true;
+						resolve();
+					} catch ( error ) {
+						reject();
 					}
-					currentWindow.mapkitIsInitializing = false;
-					currentWindow.mapkitIsInitialized = true;
-					resolve();
 				},
 			} );
 		}

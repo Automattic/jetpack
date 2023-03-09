@@ -1,4 +1,4 @@
-import { Children, forwardRef, memo, useCallback, useRef } from '@wordpress/element';
+import { Children, forwardRef, memo, useCallback, useEffect, useRef } from '@wordpress/element';
 import { get } from 'lodash';
 import { MapkitProvider } from '../mapkit/context';
 import {
@@ -17,8 +17,8 @@ import { createCalloutElementCallback } from '../mapkit-utils';
 import InfoWindow from './info-window';
 
 const MapkitComponent = forwardRef( ( props, mapRef ) => {
-	const { admin, points, onSetPoints } = props;
-	const { loaded, mapkit, currentDoc, currentWindow } = useMapkitSetup( mapRef );
+	const { admin, points, onError, onSetPoints } = props;
+	const { loaded, error, mapkit, currentDoc, currentWindow } = useMapkitSetup( mapRef );
 	const { map } = useMapkitInit( mapkit, loaded, mapRef );
 	const addPoint = Children.map( props.children, child => {
 		const tagName = get( child, 'props.tagName' );
@@ -26,6 +26,12 @@ const MapkitComponent = forwardRef( ( props, mapRef ) => {
 			return child;
 		}
 	} );
+
+	useEffect( () => {
+		if ( error ) {
+			onError( 'mapkit_error', error );
+		}
+	}, [ error, onError ] );
 
 	return (
 		<MapkitProvider

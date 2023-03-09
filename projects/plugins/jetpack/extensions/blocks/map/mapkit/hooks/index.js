@@ -1,6 +1,7 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { select } from '@wordpress/data';
 import { useContext, useEffect, useRef, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import { debounce } from 'lodash';
 import { getLoadContext } from '../../../../shared/block-editor-asset-loader';
 import {
@@ -38,29 +39,36 @@ const useMapkitSetup = mapRef => {
 			setCurrentWindow( currentWindow );
 			setCurrentDoc( currentDoc );
 
+			const fetchMapkitKeyErrorMessage = __(
+				'Failed to retrieve a Mapkit API token. Please try refreshing.',
+				'jetpack'
+			);
+
 			// If mapkit is already loaded, reuse it.
 			if ( currentWindow.mapkit ) {
 				setMapkit( currentWindow.mapkit );
 				// Fetch API key in the off chance that mapkit is available but not initialized for some reason
 				// It will just resolve in case it is already initialized.
-				fetchMapkitKey( currentWindow.mapkit, blog_id, currentWindow )
-					.then( () => {
+				fetchMapkitKey( currentWindow.mapkit, blog_id, currentWindow ).then(
+					() => {
 						setLoaded( true );
-					} )
-					.catch( e => {
-						setError( e );
-					} );
+					},
+					() => {
+						setError( fetchMapkitKeyErrorMessage );
+					}
+				);
 			} else {
 				loadMapkitLibrary( currentDoc, currentWindow ).then( mapkitObj => {
 					setMapkit( mapkitObj );
 
-					fetchMapkitKey( mapkitObj, blog_id, currentWindow )
-						.then( () => {
+					fetchMapkitKey( mapkitObj, blog_id, currentWindow ).then(
+						() => {
 							setLoaded( true );
-						} )
-						.catch( e => {
-							setError( e );
-						} );
+						},
+						() => {
+							setError( fetchMapkitKeyErrorMessage );
+						}
+					);
 				} );
 			}
 		}
