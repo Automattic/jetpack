@@ -1,3 +1,5 @@
+import { waitForObject } from '../../../shared/block-editor-asset-loader';
+
 const earthRadius = 6.371e6;
 
 function getMetersPerPixel( latitude ) {
@@ -54,9 +56,84 @@ function createCalloutElementCallback( currentDoc, callback ) {
 	};
 }
 
+function waitUntilMapkitIsInitialized( currentWindow ) {
+	return new Promise( ( resolve, reject ) => {
+		const check = () => {
+			if ( typeof currentWindow.mapkitIsInitializing === 'undefined' ) {
+				reject();
+			} else if ( currentWindow.mapkitIsInitializing === false ) {
+				resolve();
+			} else {
+				currentWindow.requestAnimationFrame( check );
+			}
+		};
+		check();
+	} );
+}
+
+function loadMapkitLibrary( currentDoc, currentWindow ) {
+	return new Promise( resolve => {
+		if ( currentWindow.mapkitScriptIsLoading ) {
+			waitForObject( currentWindow, 'mapkit' ).then( mapkitObj => {
+				resolve( mapkitObj );
+			} );
+		} else {
+			currentWindow.mapkitScriptIsLoading = true;
+
+			const element = currentDoc.createElement( 'script' );
+			element.addEventListener(
+				'load',
+				async () => {
+					const mapkitObj = await waitForObject( currentWindow, 'mapkit' );
+					currentWindow.mapkitScriptIsLoading = false;
+
+					resolve( mapkitObj );
+				},
+				{ once: true }
+			);
+			element.src = 'https://cdn.apple-mapkit.com/mk/5.x.x/mapkit.js';
+			element.crossOrigin = 'anonymous';
+			currentDoc.head.appendChild( element );
+		}
+	} );
+}
+
+function fetchMapkitKey( mapkitObj, blogId, currentWindow ) {
+	return new Promise( ( resolve, reject ) => {
+		if ( currentWindow.mapkitIsInitialized ) {
+			resolve();
+		} else if ( currentWindow.mapkitIsInitializing ) {
+			waitUntilMapkitIsInitialized( currentWindow ).then( () => {
+				resolve();
+			} );
+		} else {
+			currentWindow.mapkitIsInitializing = true;
+			currentWindow.mapkitIsInitialized = false;
+			mapkitObj.init( {
+				authorizationCallback: async done => {
+					const response = await fetch(
+						`https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/mapkit`
+					);
+					if ( response.status === 200 ) {
+						const data = await response.json();
+						done( data.wpcom_mapkit_access_token );
+					} else {
+						reject( 'Mapkit API error' );
+					}
+					currentWindow.mapkitIsInitializing = false;
+					currentWindow.mapkitIsInitialized = true;
+					resolve();
+				},
+			} );
+		}
+	} );
+}
+
 export {
 	convertZoomLevelToCameraDistance,
 	convertCameraDistanceToZoomLevel,
 	createCalloutElementCallback,
+	fetchMapkitKey,
+	loadMapkitLibrary,
 	pointsToMapRegion,
 };

@@ -2,14 +2,14 @@ import { BaseControl, TextControl } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
-import { useMapkitSetup } from '../mapkit/hooks';
+import { useMapkit } from '../mapkit/hooks';
 
 const placeholderText = __( 'Add a marker…', 'jetpack' );
 
 const MapkitLocationSearch = ( { label, onAddPoint } ) => {
 	const containerRef = useRef();
 	const textRef = useRef();
-	const { mapkit } = useMapkitSetup( containerRef );
+	const { mapkit } = useMapkit();
 
 	const autocompleter = {
 		name: 'placeSearch',
