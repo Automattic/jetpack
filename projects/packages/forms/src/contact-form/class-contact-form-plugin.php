@@ -770,7 +770,7 @@ class Contact_Form_Plugin {
 			// end of copy-pasta from wp-includes/template-loader.php.
 
 			// Ensure 'block_template' attribute is added to any shortcodes in the template.
-			$template = grunion_contact_form_set_block_template_attribute( $template );
+			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
 
 			// Process the block template to populate Grunion_Contact_Form::$last
 			get_the_block_template_html();
