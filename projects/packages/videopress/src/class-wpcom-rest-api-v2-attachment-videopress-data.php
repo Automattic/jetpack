@@ -240,7 +240,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 				isset( $info->display_embed ) && $info->display_embed ? 1 : 0,
 			'privacy_setting'          => $video_privacy_setting,
 			'needs_playback_token'     => $video_needs_playback_token,
-			'is_private'               => $this->is_video_private( $video_privacy_setting, $private_enabled_for_site ),
+			'is_private'               => $this->video_is_private( $video_privacy_setting, $private_enabled_for_site ),
 			'private_enabled_for_site' => $private_enabled_for_site,
 		);
 	}
@@ -282,7 +282,7 @@ class WPCOM_REST_API_V2_Attachment_VideoPress_Data {
 	 *
 	 * @return bool
 	 */
-	private function is_video_private( $video_privacy_setting, $private_enabled_for_site ) {
+	private function video_is_private( $video_privacy_setting, $private_enabled_for_site ) {
 		if ( $video_privacy_setting === \VIDEOPRESS_PRIVACY::IS_PUBLIC ) {
 			return false;
 		}
