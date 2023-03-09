@@ -109,7 +109,10 @@ export default () => {
 		Number( videoId )
 	);
 
-	const filename = video?.url?.split( '/' ).slice( -1 )[ 0 ];
+	const filename = video?.url
+		?.split( '/' )
+		.slice( -1 )[ 0 ] // Get filename
+		.split( '?' )[ 0 ]; // Remove token
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
