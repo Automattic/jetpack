@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Better handling for loading state and empty results

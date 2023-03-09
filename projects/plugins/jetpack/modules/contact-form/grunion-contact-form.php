@@ -481,9 +481,21 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
+			'jetpack/field-option-checkbox',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+			)
+		);
+		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -659,6 +671,19 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -1003,6 +1028,10 @@ class Grunion_Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+
+		// We need 'contact-field-option' to be registered, so it's included to the get_shortcode_regex() method
+		// But we don't need a callback because we're handling contact-field-option manually
+		add_shortcode( 'contact-field-option', '__return_null' );
 	}
 
 	/**
@@ -3249,11 +3278,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
-			$att_strs = array();
+			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+
+			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
+				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
+
+				if ( ! empty( $matches[0] ) ) {
+					$options = array();
+					foreach ( $matches[0] as $shortcode ) {
+						$attr      = shortcode_parse_atts( $shortcode );
+						$options[] = $attr['label'];
+					}
+
+					$attributes['options'] = $options;
+				}
+			}
+
 			if ( ! isset( $attributes['label'] ) ) {
-				$type                = isset( $attributes['type'] ) ? $attributes['type'] : null;
 				$attributes['label'] = self::get_default_label_from_type( $type );
 			}
+
+			$att_strs = array();
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = self::esc_shortcode_val( $val );
@@ -3272,7 +3317,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				}
 			}
 
-			$html = '[contact-field ' . implode( ' ', $att_strs );
+			$shortcode_type = 'contact-field';
+			if ( $type === 'field-option' ) {
+				$shortcode_type = 'contact-field-option';
+			}
+
+			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
 
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
 				$html .= ']' . esc_html( $content ) . '[/contact-field]';
