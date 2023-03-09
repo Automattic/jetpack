@@ -39,11 +39,11 @@ export const createPrompt = (
 	if ( postTitle ) {
 		prompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-			__( "Please help me write a piece of a blog post titled '%1$s'", 'jetpack' ),
+			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
 			postTitle
 		);
 	} else {
-		prompt = __( 'Please help me write a piece of a blog post', 'jetpack' );
+		prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
 	}
 
 	if ( categoriesNames ) {
