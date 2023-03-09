@@ -4,6 +4,7 @@
 import { VideoBlockAttributes } from '../../types';
 
 export type PlayerProps = {
+	showCaption: boolean;
 	html: string;
 	isSelected: boolean;
 	attributes: VideoBlockAttributes;

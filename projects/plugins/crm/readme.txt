@@ -1,7 +1,7 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 5.5.3
 Requires at least: 5.0
 Requires PHP: 7.2
@@ -63,7 +63,7 @@ From reading this to understanding Jetpack CRM will probably take you 10 minutes
 The Jetpack CRM plugin installs in seconds, (with a super-quick welcome wizard to get you started). Adding a contact is straightforward. Creating a quote, or invoice, even simpler. Give it a go, you'll see!
 
 <blockquote>
-= ⭐ Mastering Jetpack CRM = 
+= ⭐ Mastering Jetpack CRM =
 1. Install this WordPress CRM plugin
 2. Step through the guided Welcome Wizard
 3. Add your first contact (lead or customer)
@@ -82,7 +82,7 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 <p>Our billing system will allow you to track transactions and payments that your clients make for your products and services, (simple, effective accounting).</p>
 
 
- 
+
 <blockquote>
 = Free, but supported =
 <p>Did we already tell you Jetpack CRM is free? Well it is.</p>
@@ -130,7 +130,7 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 <li><a href="https://jetpackcrm.com/product/twilio/">Twilio (for SMS Sending)</a></li>
 <li><a href="https://jetpackcrm.com/extensions/">Plus many more...</a></li>
 </ul>
-</blockquote> 
+</blockquote>
 
 
 ## 🥼 Try Jetpack CRM Today!
@@ -172,7 +172,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
 
 * 🚀 **Modern. Lean. Accessible**
     * [Mobile Ready](https://jetpackcrm.com/feature/mobile-ready/)
-    * [International - Languages & Currencies](https://jetpackcrm.com/feature/multi-language-your-currency/): Translation ready    
+    * [International - Languages & Currencies](https://jetpackcrm.com/feature/multi-language-your-currency/): Translation ready
     * [DIY CRM](https://jetpackcrm.com/feature/diy-crm/)
     * 🇪🇺 Make sure you are GDPR compliant by knowing where your data is stored!
 
@@ -201,7 +201,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
 * 🛡️ **Backed by Automattic**
     * Jetpack CRM is part of the Automattic family
     * Superb as a WooCommerce CRM
-    * Consistent development and improvements 
+    * Consistent development and improvements
 
 * 🏷️ **[White-Label CRM](https://jetpackcrm.com/reseller/)**
     * [Rebranding Engine](https://jetpackcrm.com/feature/rebrandr/): Brand your CRM with your company name or a customers (and logo!)
@@ -216,7 +216,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * See all customer activity at-a-glance from the customer record, (useful for accounting)
     * **NEW:** [Automations](https://jetpackcrm.com/product/automations/) extension provides automatic actions on events!
 
-* ➕ **Too much more to mention here...** 
+* ➕ **Too much more to mention here...**
     * [PDF Invoicing](https://jetpackcrm.com/feature/invoices/), billing statements and more client tools
     * Invoice builder with line items, hourly or item rates, email invoices and get paid via customer portal!
     * Tax Table management - assign multiple local/national taxes to Invoices or Transactions
@@ -229,7 +229,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * [See all features](https://jetpackcrm.com/features/#features)
 
 ## 👔 SME, Small Business, & WordPress Entrepreneurs
-Built for business managers and bootstrapped entrepreneurs, Jetpack CRM is the perfect start-up tool to manage your business essentials. We've added just enough billing and accounting for freelancers and small teams, without getting lost in the potential feature bloat of full accounting and erp software. We didn't add HR tools, but we do have user management. Customer Relationship Management is meant to make lead management easy. Start with a contact form builder and lead generation, track contacts through funnel analytics then use newsletters and email marketing to grow your profits by selling to contacts at companies. 
+Built for business managers and bootstrapped entrepreneurs, Jetpack CRM is the perfect start-up tool to manage your business essentials. We've added just enough billing and accounting for freelancers and small teams, without getting lost in the potential feature bloat of full accounting and erp software. We didn't add HR tools, but we do have user management. Customer Relationship Management is meant to make lead management easy. Start with a contact form builder and lead generation, track contacts through funnel analytics then use newsletters and email marketing to grow your profits by selling to contacts at companies.
 
 Jetpack CRM is the perfect first step to improving your small business. [Try it for free](https://jetpackcrm.com/download/)!
 
@@ -298,7 +298,7 @@ For more documentation, please see the CRM knowledge base: [https://kb.jetpackcr
 
 There are absolutely no limits in Jetpack CRM, apart from the usual ones applied by your host (database size etc.), you can create as many clients or invoices as you'd like!
 
-= Is Jetpack CRM really free? = 
+= Is Jetpack CRM really free? =
 
 Totally. The core is a solid, useful, Customer Relationship Manager right out of the box. You don't need anything else to get started managing your leads, and customers. We do build extensions, (because we need them), but they're not at all essential. Further, they're cheap in comparison to the pay-per-month CRM options.
 
@@ -306,11 +306,11 @@ Totally. The core is a solid, useful, Customer Relationship Manager right out of
 
 Of course. Please reach out to us via the in-plugin feedback page if you want to, we'll help you get started, or check out our [Developer resources](https://jetpackcrm.com/feature/developer-ready/).
 
-= What is next on the CRM roadmap? = 
+= What is next on the CRM roadmap? =
 
 We haven't published our roadmap since v3, but we may do in the future. You can vote on future extensions on our [Coming Soon](https://jetpackcrm.com/coming-soon/) page.
 
-= Where can I see the CRM extensions? = 
+= Where can I see the CRM extensions? =
 
 You can see all of the CRM power-ups here: https://jetpackcrm.com/extensions/
 
@@ -322,7 +322,7 @@ Yes, Jetpack CRM comes with a search feature that allows you to run a customer s
 
 Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your customer data is kept)!
 
-= How do I get my existing customers into Jetpack CRM? = 
+= How do I get my existing customers into Jetpack CRM? =
 
 The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your customer data (including transactions) and then keep it up to date for you!
 
@@ -330,11 +330,11 @@ The free core is fully integrated with WooCommerce using the built-in WooSync mo
 
 Most CRM providers allow you to export customer data in CSV format, which can then be used to upload into Jetpack CRM. The CSV Importer Pro extension can then be used to import contacts and customer data. CRM is a very broad landscape, so each CRM may have different ways of storing data. See our [CRM Knowledgebase](https://kb.jetpackcrm.com) for more information, or ask in the forums!
 
-= Do you have a B2B mode? = 
+= Do you have a B2B mode? =
 
 Yes, Jetpack CRM has a [Business to Business mode](https://jetpackcrm.com/feature/b2b-mode/). Enabling the B2B CRM Extension adds a "Companies" layer, which lets you have contacts under a company.
 
-= How does B2B mode (Companies) work in Jetpack CRM? = 
+= How does B2B mode (Companies) work in Jetpack CRM? =
 
 <p>Jetpack CRM allows you to manage contacts at companies from within the CRM. This adds a hierarchy to your CRM, letting you add a contact to a company using our contact manager. Currently you can bill (invoice) companies or contacts respectively, but in the future we want to make this much more integrated.</p>
 <p>For now, this works as follows:</p>
@@ -350,7 +350,7 @@ Yes, Jetpack CRM has a [Business to Business mode](https://jetpackcrm.com/featur
 
 Jetpack CRM allows you to create and manage <a href="https://jetpackcrm.com/feature/quotes">quotes</a>, <a href="https://jetpackcrm.com/feature/invoices/">invoices</a>, and <a href="https://jetpackcrm.com/feature/transactions">transactions</a> against contacts. While this setup may be used in some senses like an ecommerce platform, really the aim with Jetpack CRM is to effectively manage a contact list, including manually billing them (e.g. getting invoices paid online). This works well, via our <a href="https://jetpackcrm.com/feature/client-portal-2/">client portal</a>, but if you want a fuller ecommerce setup, we recommend using <a href="https://woocommerce.com" target="_blank">WooCommerce</a>, which we integrate with, (it's really great).
 
-= Can I use this as a WooCommerce CRM? = 
+= Can I use this as a WooCommerce CRM? =
 
 Yes, Jetpack CRM is actually ideal for using with WooCommerce. You can read more about [Jetpack as a WooCommerce CRM here](https://jetpackcrm.com/woocommerce/).
 
@@ -363,11 +363,11 @@ Yes, Jetpack CRM is actually ideal for using with WooCommerce. You can read more
 
 Yes, Jetpack CRM allows you to easily capture leads using our [lead capture forms](https://jetpackcrm.com/feature/forms/). These could be added into posts, pages or widgets - when leads fill them out their information goes straight into the CRM.
 
-= What are my options for lead generation forms? = 
+= What are my options for lead generation forms? =
 
 Jetpack CRM ships with its own form builder, which lets you insert forms into your posts and pages via shortcode forms or iframe forms. For users that need more advanced form features, we offer support for Jetpack Forms out of the box, and have integrations with Contact Form 7 and Gravity Forms via paid CRM extensions.
 
-= Can Jetpack CRM help me pay sales commissions? = 
+= Can Jetpack CRM help me pay sales commissions? =
 
 <p>We occasionally get asked if Jetpack CRM can help calculate and pay sales commissions. We do have some users who are using the CRM for this, but there are no direct features out of the box which will provide this functionality, these users are simply totting up the transactions assigned to contacts based on their 'owners' in Jetpack CRM, then paying these commissions manually. We may in future expand our reporting to offer something along the lines of a sales summary per agent.</p>
 
@@ -379,21 +379,21 @@ To send out email broadcasts such as newsletters or other email marketing you wi
 
 Jetpack CRM has it's own [Automations extension](https://jetpackcrm.com/product/automations/) which uses Triggers, Conditions, and Actions to automate workflows based on CRM events. This can be used in lead generation, email marketing, or internal business admin. If you have an idea for a workflow or automation you'd like to see, please do [submit it as a feature request](https://kb.jetpackcrm.com/submit-a-ticket/).
 
-= What add-ons are available? = 
+= What add-ons are available? =
 
 <p>We have over 30 premium extensions available in our <a href="https://jetpackcrm.com/extensions/">CRM extension store</a>. These are totally optional, but supercharge some aspects of the CRM, (e.g. StripeSync automatically pulls in your customer and transaction data from Stripe).</p><p>Most users tend to purchase bundles of extensions, which allows them to 'make their perfect CRM':<br /><br /><a href="https://jetpackcrm.com/extension-bundles/">View CRM Bundles</a></p>
 
-= When do I need a license key? = 
+= When do I need a license key? =
 
 <p>You can now add your license key into your Jetpack CRM settings page (under 'CRM License'). This is only required if you wish to use paid extensions. To get started with premium CRM extensions, please visit our <a href="https://jetpackcrm.com/extensions/">extension store</a>.</p><p>After you've purchased you'll be guided to your new license key and extension plugin download.</p>
 
-= How do I purchase more than one license? = 
+= How do I purchase more than one license? =
 
-We have many agencies using Jetpack CRM, so this is a common question. 
+We have many agencies using Jetpack CRM, so this is a common question.
 
 To get stared please see our <a href="https://jetpackcrm.com/extension-bundles/">bundles page</a> - if you're likely to need 10~ licenses, the best bet is to get started with the Reseller package. If you want to build up more slowly, please purchase the Entrepreneur bundle and let us know via a support ticket if you would like to add additional licenses to your account.
 
-= What is the refund policy? = 
+= What is the refund policy? =
 
 We offer a full, no-hassle refund within 14 days. You can read more about that, and how to request a refund, <a href="https://jetpackcrm.com/refund-policy/" target="_blank">on this page</a>.
 

@@ -14,6 +14,15 @@
 	}
 }
 
+.jp-forms__table-item.is-clickable {
+	cursor: pointer;
+}
+
+.jp-forms__table-item.is-active {
+	background-color: #000;
+	color: #fff;
+}
+
 .jp-forms__table-cell {
 	box-sizing: border-box;
 	display: table-cell;
@@ -25,7 +34,6 @@
 	text-align: left;
 	transition: background-color .1s ease-out, opacity .1s ease-out;
 	vertical-align: middle;
-	white-space: nowrap;
 
 	// Max-width is required on all columns for text-overflow: ellipsis; to work on any.
 	// Hence setting this here to a conservatively high number.
