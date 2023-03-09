@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Waf\Waf_Constants;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
 use WP_Error;
@@ -917,16 +918,21 @@ class Brute_Force_Protection {
 
 		$api_key = $this->maybe_get_protect_key();
 
-		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
+		$user_agent = "WordPress/{$wp_version}";
 
 		$request['action']            = $action;
 		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
-		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
+		$request['jetpack_version']   = null;
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
 		$request['multisite']         = '0';
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$request['jetpack_version'] = constant( 'JETPACK__VERSION' );
+			$user_agent                .= ' | Jetpack/' . constant( 'JETPACK__VERSION' );
+		}
 
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
@@ -949,6 +955,8 @@ class Brute_Force_Protection {
 			'httpversion' => '1.0',
 			'timeout'     => absint( $timeout ),
 		);
+
+		Waf_Constants::define_brute_force_api_host();
 
 		$response_json           = wp_remote_post( JETPACK_PROTECT__API_HOST, $args );
 		$this->last_response_raw = $response_json;
