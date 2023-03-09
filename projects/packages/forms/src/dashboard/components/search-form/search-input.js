@@ -118,17 +118,13 @@ export const SearchInput = ( {
 			onEnter={ onEnterHandler }
 			onChange={ onChangeHandler }
 			endAdornment={
-				<>
-					{ Boolean( componentProps.value ) && (
-						<div className={ classnames( 'icon-wrapper' ) }>
-							<Icon
-								icon={ closeSmall }
-								onClick={ clearInput }
-								className={ classnames( 'clear-icon' ) }
-							/>
-						</div>
-					) }
-				</>
+				<div className={ classnames( 'icon-wrapper', { hidden: ! componentProps.value } ) }>
+					<Icon
+						icon={ closeSmall }
+						onClick={ clearInput }
+						className={ classnames( 'clear-icon' ) }
+					/>
+				</div>
 			}
 		/>
 	);
