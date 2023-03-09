@@ -85,8 +85,16 @@ class MapEdit extends Component {
 	componentDidUpdate = previousProps => {
 		const address = this.props.attributes?.address;
 		const previousAddress = previousProps.attributes?.address;
+		const className = this.props.attributes?.className;
+		const previousClassName = previousProps.attributes?.className;
+
 		if ( address && previousAddress !== address ) {
 			this.geoCodeAddress( address, this.state.apiKey );
+		}
+		// fetch API key when switching from mapkit to mapbox
+		if ( className && previousClassName !== className && ! this.state.apiKey ) {
+			this.setState( { apiState: API_STATE_LOADING } );
+			this.apiCall();
 		}
 	};
 	addPoint = point => {
