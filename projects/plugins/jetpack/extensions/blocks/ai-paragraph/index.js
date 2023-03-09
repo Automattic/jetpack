@@ -72,10 +72,11 @@ export const settings = {
 	},
 	edit,
 	save: attrs => {
-		attrs.attributes.wasNotCompletedWhenSaved = attrs.attributes.content === '';
+		const content = attrs.attributes.content;
+		attrs.attributes.wasNotCompletedWhenSaved = !! content;
 
 		const blockProps = useBlockProps.save();
-		return <RawHTML { ...blockProps }>{ attrs.attributes.content }</RawHTML>;
+		return <RawHTML { ...blockProps }>{ content }</RawHTML>;
 	},
 	attributes,
 	transforms: {
