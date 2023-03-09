@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Shortcodes: removed jQuery dependency from Crowdsignal shortcodes

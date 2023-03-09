@@ -1,13 +1,13 @@
 <?php
 /**
- * Blogging Prompts Block.
+ * Blogging Prompt Block.
  *
  * @since 11.x
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Blogging_Prompts;
+namespace Automattic\Jetpack\Extensions\Blogging_Prompt;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
@@ -31,10 +31,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Blogging Prompts block registration/dependency declaration.
+ * Blogging Prompt block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Blogging Prompts block attributes.
- * @param string $content String containing the Blogging Prompts block content.
+ * @param array  $attr    Array containing the Blogging Prompt block attributes.
+ * @param string $content String containing the Blogging Prompt block content.
  *
  * @return string
  */
