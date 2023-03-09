@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
+	import ProgressActivityLabel from '../../../elements/ProgressActivityLabel.svelte';
 	import ProgressBar from '../../../elements/ProgressBar.svelte';
 	import {
 		criticalCssProgress,
@@ -12,12 +13,13 @@
 
 {#if $criticalCssState.status === 'pending'}
 	<div class="jb-critical-css-progress">
-		<ProgressBar progress={$criticalCssProgress}>
+		<ProgressActivityLabel>
 			{__(
 				'Generating Critical CSS. Please don’t leave this page until completed.',
 				'jetpack-boost'
 			)}
-		</ProgressBar>
+		</ProgressActivityLabel>
+		<ProgressBar progress={$criticalCssProgress} />
 	</div>
 {:else if $isFatalError}
 	<CriticalCssShowStopperError />

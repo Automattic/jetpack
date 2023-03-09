@@ -7,9 +7,6 @@
 	export let progress: number;
 </script>
 
-<div class="jb-label">
-	<slot />
-</div>
 <div
 	role="progressbar"
 	aria-valuemax={100}
@@ -21,14 +18,6 @@
 </div>
 
 <style lang="scss">
-	.jb-label {
-		color: var( --jetpack-green-50 );
-		margin-bottom: 1em;
-		display: block;
-		font-size: 14px;
-		line-height: 20px;
-	}
-
 	// Basic Progress Bar styling.
 	.jb-progress-bar {
 		height: 20px;
