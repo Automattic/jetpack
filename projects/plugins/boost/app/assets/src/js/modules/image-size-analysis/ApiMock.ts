@@ -7,7 +7,7 @@ type CategoryState = {
 	done: boolean;
 };
 
-export const categories = writable( [
+export const categories = writable< CategoryState[] >( [
 	{
 		name: 'Homepage',
 		progress: 100,
