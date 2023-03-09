@@ -252,8 +252,8 @@ class Contact_Form_Plugin {
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
 		add_action( 'enqueue_block_editor_assets', array( $this, 'load_editor_scripts' ) );
+		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
-		self::load_view_scripts();
 		self::register_contact_form_blocks();
 	}
 
@@ -281,8 +281,6 @@ class Contact_Form_Plugin {
 			// A block's view assets will not be required in wp-admin.
 			return;
 		}
-
-		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
 		Assets::register_script(
 			'jp-forms-view',
@@ -414,6 +412,8 @@ class Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack-forms' )
 			);
 		}
+
+		self::load_view_scripts();
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
