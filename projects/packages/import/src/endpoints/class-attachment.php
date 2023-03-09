@@ -124,11 +124,10 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		// The unique identifier is only required for PUT requests.
 
 		$schema['properties']['upload_date'] = array(
-			'description'       => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
-			'type'              => array( 'string', 'null' ),
-			'format'            => 'string',
-			'context'           => array( 'view', 'edit', 'embed' ),
-			'validate_callback' => array( $this, 'validate_upload_date' ),
+			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
+			'type'        => array( 'string', 'null' ),
+			'pattern'     => '^\d{4}\/\d{2}$',
+			'required'    => false,
 		);
 
 		return $this->add_unique_identifier_to_schema( $schema, isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'PUT' );
@@ -175,17 +174,5 @@ class Attachment extends \WP_REST_Attachments_Controller {
 				return $data;
 			}
 		);
-	}
-
-	/**
-	 * Validate that the given upload date is in the format YYYY/MM.
-	 *
-	 * @param string $param The parameter value.
-	 *
-	 * @return false|int
-	 */
-	protected function validate_upload_date( $param ) {
-		die( 'here' );
-		return preg_match( '/^\d{4}\/\d{2}$/', $param );
 	}
 }
