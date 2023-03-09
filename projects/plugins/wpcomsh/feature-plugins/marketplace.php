@@ -16,6 +16,10 @@ function maybe_limit_to_marketplace_plugins( $plugins ) {
 	if ( ! wpcomsh_is_plugin_list_request() || wpcom_site_has_feature( WPCOM_Features::INSTALL_PLUGINS ) ) {
 		return $plugins;
 	}
+	// Also check for sites that can list plugins, but can't purchase plugins.
+	if ( wpcom_site_has_feature( WPCOM_Features::LIST_INSTALLED_PLUGINS ) && ! wpcom_site_has_feature( WPCOM_Features::INSTALL_PURCHASED_PLUGINS ) ) {
+		return $plugins;
+	}
 
 	return array_filter(
 		$plugins,
