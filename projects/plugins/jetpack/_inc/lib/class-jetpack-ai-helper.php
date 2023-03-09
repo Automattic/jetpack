@@ -162,10 +162,7 @@ class Jetpack_AI_Helper {
 				),
 			);
 
-			$result         = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_chat_completion(
-				$data,
-				$max_tokens = 140
-			);
+			$result = ( new OpenAI( 'openai', array( 'post_id' => $post_id ) ) )->request_chat_completion( $data );
 
 			if ( is_wp_error( $result ) ) {
 				return $result;

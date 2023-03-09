@@ -39,11 +39,11 @@ export const createPrompt = (
 	if ( postTitle ) {
 		prompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-			__( "Give me content for a blog post titled '%1$s' ", 'jetpack' ),
+			__( "Please help me write a piece of a blog post titled '%1$s'", 'jetpack' ),
 			postTitle
 		);
 	} else {
-		prompt = __( 'Give me content for a blog post', 'jetpack' );
+		prompt = __( 'Please help me write a piece of a blog post', 'jetpack' );
 	}
 
 	if ( categoriesNames ) {
@@ -56,12 +56,12 @@ export const createPrompt = (
 		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
 	}
 
+	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
+
 	if ( shorter_content ) {
 		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-		prompt += sprintf( __( ':\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+		prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
-
-	prompt += '. Do not not include any smalltalk, just the content of a post.';
 
 	return prompt.trim();
 };
