@@ -1,8 +1,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
+import { Button, PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 import { usePromptTags } from './use-prompt-tags';
@@ -17,6 +17,42 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 
 	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
+		const retryPrompt = () => {
+			setLoading( true );
+			noticeOperations.removeAllNotices();
+		};
+
+		const resetPrompt = () => {
+			setAttributes( { promptId: null } );
+			retryPrompt();
+		};
+
+		const errorMessage = message => (
+			<>
+				{ sprintf(
+					/* translators: %s is the error message. */
+					__( 'Error while fetching prompt: %s', 'jetpack' ),
+					message
+				) }{ ' ' }
+				<Button variant="link" onClick={ retryPrompt }>
+					{ __( 'Retry', 'jetpack' ) }
+				</Button>
+			</>
+		);
+
+		const notFoundMessage = pId => (
+			<>
+				{ sprintf(
+					/* translators: %d is the prompt id. */
+					__( 'Prompt with id %d not found.', 'jetpack' ),
+					pId
+				) }{ ' ' }
+				<Button variant="link" onClick={ resetPrompt }>
+					{ __( 'Reset prompt', 'jetpack' ) }
+				</Button>
+			</>
+		);
+
 		// If not initially rendering the block, don't fetch new data.
 		if ( ! isLoading ) {
 			return;
@@ -49,8 +85,12 @@ function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttrib
 			} )
 			.catch( error => {
 				setLoading( false );
+				const message =
+					error.code === 'rest_post_invalid_id' && promptId
+						? notFoundMessage( promptId )
+						: errorMessage( error.message );
 				noticeOperations.removeAllNotices();
-				noticeOperations.createErrorNotice( error.message );
+				noticeOperations.createErrorNotice( message );
 			} );
 	}, [ isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
 

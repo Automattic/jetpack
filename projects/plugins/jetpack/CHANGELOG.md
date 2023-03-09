@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.1 - 2023-03-08
+### Enhancements
+- Admin: fix submenu positioning in admin menu. [#28355]
+- Blocks (beta): add a new beta Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors. [#29197]
+- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer. [#29235]
+- Stats: updates the layout of the loading and some sections on the Stats page. [#29221]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Allow getting posts by ids in GET /posts response using include array [#29149]
+- Blocks: register VideoPress video block based on the filtered extensions [#29207]
+- Forms: move search into state, fix double fetch on search and paging [#29336]
+- Forms: add form responses app and state into package [#29007]
+- Pre-escape the ampersand in the default content of the cookie consent block [#29251]
+- Adds basic ui to beta blogging-prompt block [#29189]
+- Jetpack Forms: Added week/monthly props to sent message tracking [#28999]
+- media summary: write to memo when no images found [#29326]
+- Paid newsletters access panel would disappear on posts that have been previously published. This fixes the issue. [#29247]
+- Removes unused conversation and dialogue blocks that never left beta [#29210]
+- Sharing: remove unused variable [#29275]
+- Shortcodes: removed jQuery dependency from Crowdsignal shortcodes [#29307]
+- Temp disable Gutenberg subscribe block test until #29113 is fixed [#29280]
+- Updated package dependencies. [#29216]
+- VideoPress: pick and convert core/video VideoPress instances also from inner blocks [#29339]
+- Writing prompts: marks prompt as answered when using a writing prompt block [#29214]
+
 ## [11.9] - 2023-03-07
 ### Enhancements
 - Assistant: add new card to highlight VaultPress Backup. [#28741]
@@ -7814,10 +7839,10 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[11.6]: https://wp.me/p1moTy-PLI
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
-[11.6]: https://wp.me/p1moTy-PLI
 [11.5]: https://wp.me/p1moTy-Ppq
 [11.4]: https://wp.me/p1moTy-O5I
 [11.3]: https://wp.me/p1moTy-M5i

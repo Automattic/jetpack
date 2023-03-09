@@ -109,6 +109,8 @@ export default () => {
 		Number( videoId )
 	);
 
+	const filename = video?.url?.split( '/' ).slice( -1 )[ 0 ];
+
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
@@ -293,6 +295,7 @@ export default () => {
 		isFetchingPlaybackToken,
 		...video,
 		...formData, // formData is the local representation of the video
+		filename,
 		hasChanges,
 		posterImageSource,
 		libraryAttachment,
