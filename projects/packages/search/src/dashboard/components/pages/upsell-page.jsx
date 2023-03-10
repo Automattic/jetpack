@@ -57,7 +57,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search',
 		adminUrl,
-		redirectUri: `admin.php?page=jetpack-search&just_upgraded=1`,
+		redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
@@ -70,7 +70,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	} = useProductCheckoutWorkflow( {
 		productSlug: 'jetpack_search_free',
 		adminUrl,
-		redirectUri: `admin.php?page=jetpack-search`,
+		redirectUri: 'admin.php?page=jetpack-search',
 		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
 		from: 'jetpack-search',
 		siteSuffix: domain,
