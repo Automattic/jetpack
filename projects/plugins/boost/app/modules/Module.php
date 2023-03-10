@@ -2,21 +2,21 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
 
-class Feature_Module {
+class Module {
 	/**
 	 * @var Status
 	 */
 	private $status;
 
 	/**
-	 * @var Feature
+	 * @var Pluggable
 	 */
 	public $feature;
 
-	public function __construct( Feature $feature ) {
+	public function __construct( Pluggable $feature ) {
 		$this->feature = $feature;
 		$this->status  = new Status( $feature::get_slug() );
 	}
