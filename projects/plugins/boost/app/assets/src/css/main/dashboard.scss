@@ -9,6 +9,11 @@
 	display: flex;
 	flex-direction: column;
   	position: relative;
+
+	h1 {
+		font-size: 36px;
+		font-weight: 700;
+	}
 }
 
 .jb-feature-toggle__content h3:focus-visible, .jb-connection__title:focus-visible {
