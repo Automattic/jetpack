@@ -7,27 +7,8 @@
   teams:
    - jetpack-approvers
 
-# Everyone who can approve anything can merge pnpm.lock and docs.
-- name: pnpm lockfile, composer files
-  paths:
-   - 'pnpm-lock.yaml'
-   - 'projects/plugins/*/composer.lock'
-   - 'projects/plugins/*/composer.json'
-   - 'projects/plugins/*/changelog/*'
-  teams:
-   # Unfortunately this list need to be maintaned manually...
-   # yamato-backup-and-security is the group that consists of both yamato-scan and yamato-backup teams.
-   - avengers
-   - caribou
-   - heart-of-gold
-   - jetpack-approvers
-   - jetpack-reach
-   - red
-   - yamato-backup-and-security
-   - '@CGastrell'
-   - '@ice9js'
-
-# Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
+# Jetpack Approvers review the Sync and Connection packages.
+# These are reserved due to the critical nature to the entire ecosystem and that small bugs can have big consequences.
 - name: Jetpack and packages
   paths:
    - 'projects/packages/sync/**'
