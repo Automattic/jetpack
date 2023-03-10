@@ -500,6 +500,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Indicate whether this site was ever an eCommerce trial.
+	 *
+	 * @return bool
+	 */
+	public function was_ecommerce_trial() {
+		return false;
+	}
+
+	/**
 	 * Detect whether a site has the WooCommerce plugin active.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
