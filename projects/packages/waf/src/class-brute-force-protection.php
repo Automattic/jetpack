@@ -512,6 +512,18 @@ class Brute_Force_Protection {
 	/**
 	 * Checks if the IP address is in the allow list.
 	 *
+	 * @deprecated $$next-version$$ Use ip_is_allowed()
+	 *
+	 * @param string $ip - the IP address.
+	 */
+	public static function ip_is_whitelisted( $ip ) {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::ip_is_allowed' );
+		return self::ip_is_allowed( $ip );
+	}
+
+	/**
+	 * Checks if the IP address is in the allow list.
+	 *
 	 * @param string $ip - the IP address.
 	 *
 	 * @return bool
@@ -591,6 +603,16 @@ class Brute_Force_Protection {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Check if the user's IP is in the allow list.
+	 *
+	 * @deprecated $$next-version$$ Use is_current_ip_allowed()
+	 */
+	public static function is_current_ip_whitelisted() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::is_current_ip_allowed' );
+		return self::is_current_ip_allowed();
 	}
 
 	/**

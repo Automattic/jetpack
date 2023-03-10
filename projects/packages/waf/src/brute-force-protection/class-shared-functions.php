@@ -17,6 +17,16 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
 	 *
+	 * @deprecated $$next-version$$ Use format_allow_list()
+	 */
+	public static function format_whitelist() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::format_allow_list' );
+		return self::format_allow_list();
+	}
+
+	/**
+	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
+	 *
 	 * The array is segmented into a local allow list which applies only to the current site
 	 * and a global allow list which, for multisite installs, applies to the entire networko
 	 *
@@ -55,6 +65,16 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Gets the local Brute force protection allow list.
 	 *
+	 * @deprecated $$next-version$$ Use get_local_allow_list()
+	 */
+	public static function get_local_whitelist() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_local_allow_list' );
+		return self::get_local_allow_list();
+	}
+
+	/**
+	 * Gets the local Brute force protection allow list.
+	 *
 	 * The 'local' part of the allow list only really applies to multisite installs,
 	 * which can have a network wide allow list, as well as a local list that applies
 	 * only to the current site. On single site installs, there will only be a local
@@ -83,6 +103,16 @@ class Brute_Force_Protection_Shared_Functions {
 			);
 		}
 		return $allow_list;
+	}
+
+	/**
+	 * Get the global, network-wide allow list.
+	 *
+	 * @deprecated $$next-version$$ Use get_global_allow_list()
+	 */
+	public static function get_global_whitelist() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_global_allow_list' );
+		return self::get_global_allow_list();
 	}
 
 	/**
@@ -122,6 +152,19 @@ class Brute_Force_Protection_Shared_Functions {
 			$new_item->ip_address = $ip_address;
 		}
 		return $new_item;
+	}
+
+	/**
+	 * Save IP allow list.
+	 *
+	 * @deprecated $$next-version$$ Use save_allow_list()
+	 *
+	 * @param mixed $allow_list IP allow list.
+	 * @param bool  $global (default: false) Global.
+	 */
+	public static function save_whitelist( $allow_list, $global = false ) {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::save_allow_list' );
+		return self::save_allow_list( $allow_list, $global );
 	}
 
 	/**
