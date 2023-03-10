@@ -26,7 +26,7 @@ class Dashboard {
 	/**
 	 * We bump the asset version when the Jetpack back end is not compatible anymore.
 	 */
-	const ODYSSEY_STATS_VERSION                = 'v1.0.1';
+	const ODYSSEY_STATS_VERSION                = 'v1';
 	const ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY = 'odyssey_stats_admin_asset_cache_buster';
 
 	/**
