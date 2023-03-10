@@ -49,7 +49,7 @@ class Cloud_CSS implements Feature, Has_Endpoints {
 	}
 
 	public static function is_available() {
-	    return true === Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
+		return true === Premium_Features::has_feature( Premium_Features::CLOUD_CSS );
 	}
 
 	public static function get_slug() {

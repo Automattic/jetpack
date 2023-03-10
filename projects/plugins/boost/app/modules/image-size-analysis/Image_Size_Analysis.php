@@ -14,7 +14,6 @@ class Image_Size_Analysis implements Feature {
 		return defined( 'JETPACK_BOOST_IMAGE_SIZE_ANALYSIS' ) && true === JETPACK_BOOST_IMAGE_SIZE_ANALYSIS;
 	}
 
-
 	public static function get_slug() {
 		return 'image-size-analysis';
 	}

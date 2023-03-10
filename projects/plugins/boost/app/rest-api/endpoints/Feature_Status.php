@@ -22,7 +22,7 @@ class Feature_Status implements Endpoint {
 			);
 		}
 		$module_slug = $request['slug'];
-		$status       = new Status( $module_slug );
+		$status      = new Status( $module_slug );
 
 		// @TODO: Validate that the module exists?
 

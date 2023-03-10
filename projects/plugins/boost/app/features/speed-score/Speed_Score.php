@@ -9,8 +9,8 @@
 
 namespace Automattic\Jetpack_Boost\Features\Speed_Score;
 
-use Automattic\Jetpack_Boost\Modules\Features;
 use Automattic\Jetpack_Boost\Lib\Utils;
+use Automattic\Jetpack_Boost\Modules\Features;
 
 /**
  * Class Speed_Score

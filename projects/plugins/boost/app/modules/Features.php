@@ -6,12 +6,12 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Image_Size_Analysis\Image_Size_Analysis;
+use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
-use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
@@ -44,8 +44,8 @@ class Features implements Has_Setup {
 	public function __construct() {
 
 		foreach ( self::FEATURES as $feature ) {
-			if( $feature::is_available() ) {
-				$slug = $feature::get_slug();
+			if ( $feature::is_available() ) {
+				$slug                    = $feature::get_slug();
 				$this->features[ $slug ] = new Feature_Module( new $feature() );
 			}
 		}
