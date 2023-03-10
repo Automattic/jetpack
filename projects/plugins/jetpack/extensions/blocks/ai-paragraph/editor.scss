@@ -2,18 +2,9 @@
  * Editor styles for Jetpack AI Paragraph
  */
 
-.wp-block-ai-generate-suggestion {
-	padding: 0;
+ /* Hide the inner blocks until the AI paragraph is triggered */
+.wp-block-jetpack-ai-paragraph.state- .block-editor-inner-blocks,
+.wp-block-jetpack-ai-paragraph.state-processing .block-editor-inner-blocks
+{
+	display: none;
 }
-
-.wp-block-ai-generate-suggestion .content {}
-
-.wp-block-ai-generate-suggestion .components-text-control__input {
-	margin: 10px;
-	width:80%;
-}
-
-.wp-block-ai-generate-suggestion .components-button.is-primary {
-	margin: 10px;
-}
-
