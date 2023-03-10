@@ -4,10 +4,10 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
-import ActionsMenu from '../components/actions-menu';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
+import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -98,7 +98,7 @@ const Inbox = () => {
 		<Layout title={ title } className={ classes }>
 			<div className="jp-forms__actions">
 				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } />
-				<ActionsMenu />
+				<BulkActionsMenu />
 			</div>
 
 			<div className="jp-forms__inbox-content">
