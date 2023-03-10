@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: pick and convert core/video VideoPress instances also from inner blocks

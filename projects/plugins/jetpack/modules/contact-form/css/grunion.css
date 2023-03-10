@@ -44,7 +44,7 @@
 	height: 200px;
 }
 
-.contact-form .grunion-field {
+.contact-form :where(.grunion-field[type="text"], .grunion-field.textarea) {
 	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
 }
@@ -59,11 +59,14 @@
 	min-width: 150px;
 }
 
-.contact-form input[type='radio'],
-.contact-form input[type='checkbox'] {
+.contact-form :where(input[type='radio'], input[type='checkbox']) {
 	width: 1rem;
 	height: 1rem;
 	float: none;
+}
+
+.contact-form input[type='radio'],
+.contact-form input[type='checkbox'] {
 	margin: 0 0.75rem 0 0;
 }
 
@@ -340,6 +343,12 @@
 	padding: 0;
 	line-height: normal;
 	box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
+	list-style: none;
+	margin: 0;
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu-item {
+	margin: 0;
 }
 
 .contact-form .contact-form-dropdown__menu .ui-menu {
@@ -377,7 +386,7 @@
 .contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 	flex-grow: 1;
 }
 
