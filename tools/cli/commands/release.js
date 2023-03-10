@@ -152,7 +152,6 @@ export async function scriptRouter( argv ) {
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
-			// @todo Stop assuming `composer install` has been done so vendor/bin/changelogger already exists.
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );

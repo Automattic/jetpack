@@ -6,7 +6,6 @@ cd $(dirname "${BASH_SOURCE[0]}")/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
-. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
@@ -90,6 +89,15 @@ else
 	fi
 fi
 
+debug "Making sure changelogger is runnable"
+CL="$BASE/projects/packages/changelogger/bin/changelogger"
+if ! "$CL" &>/dev/null; then
+	(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
+	if ! "$CL" &>/dev/null; then
+		die "Changelogger is not runnable via $CL"
+	fi
+fi
+
 declare -A SKIPSLUGS
 if $HARDWAY; then
 	debug "Checking for release branch for -H"
@@ -127,7 +135,7 @@ function get_packages {
 		PACKAGES="$(<"$PACKAGE_VERSIONS_CACHE")"
 	else
 		for PKG in "${PKGS[@]}"; do
-			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && changelogger version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
+			PACKAGES=$(jq -c --argjson packages "$PACKAGES"  --arg ver "$(cd "${PKG%/composer.json}" && "$CL" version current --default-first-version)" '.name as $k | $packages | .[$k] |= { rel: $ver, dep: ( "^" + $ver ) }' "$PKG")
 		done
 		if [[ -n "$PACKAGE_VERSIONS_CACHE" ]]; then
 			echo "$PACKAGES" > "$PACKAGE_VERSIONS_CACHE"
@@ -153,7 +161,7 @@ else
 fi
 
 if $UPDATE; then
-	function do_changelogger {
+	function changelogger {
 		local SLUG="$1"
 
 		local OLDDIR=$PWD
@@ -177,12 +185,12 @@ if $UPDATE; then
 
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			changelogger "${ARGS[@]}"
+			"$CL" "${ARGS[@]}"
 		else
-			changelogger "${ARGS[@]}"
+			"$CL" "${ARGS[@]}"
 			info "Updating version for $SLUG"
-			local PRERELEASE=$(alpha_tag composer.json 0)
-			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
+			local PRERELEASE=$(alpha_tag "$CL" composer.json 0)
+			local VER=$("$CL" version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
 			"$BASE/tools/project-version.sh" -v -u "$VER" "$SLUG"
 			get_packages "$SLUG"
 		fi
@@ -238,7 +246,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					do_changelogger "$SLUG" 'Updated package dependencies.'
+					changelogger "$SLUG" 'Updated package dependencies.'
 					DOCL=false
 				fi
 			fi
@@ -252,7 +260,7 @@ for SLUG in "${SLUGS[@]}"; do
 
 				if $DOCL; then
 					info "Creating changelog entry for $SLUG"
-					do_changelogger "$SLUG" 'Updated package dependencies.'
+					changelogger "$SLUG" 'Updated package dependencies.'
 					DOCL=false
 				fi
 			fi
@@ -266,7 +274,7 @@ for SLUG in "${SLUGS[@]}"; do
 			"$BASE/tools/composer-update-monorepo.sh" --quiet --no-audit "$PROJECTFOLDER"
 			if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 				info "Creating changelog entry for $SLUG composer.lock update"
-				do_changelogger "$SLUG" '' 'Updated composer.lock.'
+				changelogger "$SLUG" '' 'Updated composer.lock.'
 				DOCL=false
 			fi
 			cd "$BASE"

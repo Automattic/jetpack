@@ -12,8 +12,6 @@ import promptForProject from '../helpers/promptForProject.js';
 import { runCommand } from '../helpers/runCommand.js';
 import { chalkJetpackGreen } from '../helpers/styling.js';
 
-let changeloggerPath = null;
-
 /**
  * Comand definition for changelog subcommand.
  *
@@ -505,29 +503,7 @@ async function removeArgs( argv, removeArg ) {
  * @param {object} argv - arguments passed as cli.
  */
 export async function changeloggerCli( argv ) {
-	if ( ! changeloggerPath ) {
-		changeloggerPath = path.resolve( 'projects/packages/changelogger/bin/changelogger' );
-		let data = child_process.spawnSync( changeloggerPath, [], {
-			stdio: 'ignore',
-		} );
-		if ( data.status !== 0 ) {
-			console.debug( 'Preparing changelogger...' );
-			child_process.spawnSync( 'composer', [ 'update' ], {
-				cwd: path.resolve( 'projects/packages/changelogger' ),
-				stdio: 'ignore',
-			} );
-			data = child_process.spawnSync( changeloggerPath, [], {
-				stdio: 'ignore',
-			} );
-			if ( data.status !== 0 ) {
-				throw new Error(
-					"Failed to prepare changelogger. Try running 'jetpack install -v packages/changelogger'."
-				);
-			}
-		}
-	}
-
-	const data = child_process.spawnSync( changeloggerPath, argv.args, {
+	const data = child_process.spawnSync( `${ argv.cmdPath }`, argv.args, {
 		cwd: argv.cwd,
 		stdio: 'inherit',
 	} );
@@ -656,7 +632,7 @@ export async function validateProject( argv ) {
 }
 
 /**
- * Validate that the project exists
+ * Validate that the vendor/bin/changelogger file exists
  *
  * @param {object} argv - arguments passed to the wizard.
  * @param {string} dir - path to file we're adding changlog too.
@@ -665,6 +641,15 @@ function validatePath( argv, dir ) {
 	if ( ! fs.existsSync( dir ) ) {
 		throw new Error( chalk.red( `Project doesn't exist! Typo?` ) );
 	}
+	if ( fs.existsSync( dir + `/vendor/bin/changelogger` ) ) {
+		argv.cmdPath = 'vendor/bin/changelogger';
+		return;
+	}
+	throw new Error(
+		chalk.red(
+			`Path to changelogger script doesn't exist. Try running 'jetpack install ${ argv.project }' first!`
+		)
+	);
 }
 
 /**
