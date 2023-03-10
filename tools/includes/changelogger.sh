@@ -28,3 +28,28 @@ function changelogger {
 	init_changelogger > /dev/null
 	"$CLBASE/projects/packages/changelogger/bin/changelogger" "$@"
 }
+
+# Fetch the default changelogger type.
+#
+# Executes `changelogger add --no-interaction --significance=patch --type=... --entry="$1" --comment="$2"`.
+#
+# - $1: Changelog entry text.
+# - $2: Changelog comment text.
+# - $@: Any additional changelogger arguments to pass.
+function changelogger_add {
+	init_changelogger
+
+	local ARGS=( add --no-interaction --significance=patch --filename-auto-suffix --entry="$1" --comment="$2" )
+	shift 2
+
+	local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
+	if [[ -n "$CLTYPE" ]]; then
+		ARGS+=( "--type=$CLTYPE" )
+	fi
+
+	if [[ $# -gt 0 ]]; then
+		ARGS+=( "$@" )
+	fi
+
+	changelogger "${ARGS[@]}"
+}

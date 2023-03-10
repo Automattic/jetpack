@@ -7,6 +7,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 . "$BASE/tools/includes/changelogger.sh"
+. "$BASE/tools/includes/proceed_p.sh"
 
 # Print help and exit.
 function usage {
@@ -122,11 +123,12 @@ function releaseProject {
 	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		if [[ -z "$FROM" ]]; then
-			info "Project $SLUG has no changes, skipping."
+			proceed_p "Project $SLUG has no changes." 'Do a release anyway?' || return
+			changelogger_add 'Internal updates.' '' --filename=force-a-release
 		else
 			debug "${I}Project $SLUG has no changes, skipping."
+			return
 		fi
-		return
 	fi
 
 	info "${I}Processing $SLUG..."
