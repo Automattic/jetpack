@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Changed the features directory to include the module directory as well.
