@@ -12,6 +12,7 @@ import { share as icon } from '@wordpress/icons';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 
 /**
  * Style dependencies
@@ -58,7 +59,7 @@ export const settings = {
 	},
 	edit,
 	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	attributes,
 	example: {
 		attributes: {

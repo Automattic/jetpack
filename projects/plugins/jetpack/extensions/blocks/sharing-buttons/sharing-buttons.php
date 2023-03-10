@@ -46,6 +46,8 @@ function load_assets( $attr, $content ) {
 
 	$sharing_element = sharing_display( 'SHARE', false );
 
+	return $content;
+
 	return sprintf(
 		'<div class="%1$s">%2$s <div class="cool_sharing_elements">%3$s</div></div>',
 		esc_attr( Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr ) ),
