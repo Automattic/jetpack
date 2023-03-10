@@ -505,6 +505,9 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function was_ecommerce_trial() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'had-ecommerce-trial' );
+		}
 		return false;
 	}
 
