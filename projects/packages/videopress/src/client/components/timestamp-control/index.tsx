@@ -3,8 +3,7 @@
  */
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useRef } from '@wordpress/element';
 import classnames from 'classnames';
 /**
  * Internal dependencies
@@ -172,14 +171,16 @@ export const TimestampControl = ( {
 	onDebounceChange,
 	wait = 1000,
 }: TimestampControlProps ): React.ReactElement => {
-	const debouncedOnChangeHandler = onDebounceChange ? useDebounce( onDebounceChange, wait ) : null;
+	const debounceTimer = useRef< NodeJS.Timeout >();
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
-			debouncedOnChangeHandler && debouncedOnChangeHandler( newValue );
+			clearTimeout( debounceTimer?.current );
+
 			onChange?.( newValue );
+			debounceTimer.current = setTimeout( onDebounceChange.bind( null, newValue ), wait );
 		},
-		[ onChange, debouncedOnChangeHandler ]
+		[ onChange ]
 	);
 
 	return (
