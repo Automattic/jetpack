@@ -30,6 +30,7 @@ const JetpackFieldControls = ( {
 	hidePlaceholder,
 	required,
 	setAttributes,
+	type,
 	width,
 } ) => {
 	const setNumberAttribute = ( key, parse = parseInt ) => value => {
@@ -40,6 +41,13 @@ const JetpackFieldControls = ( {
 		} );
 	};
 
+	const inputColorLabel = [ 'radio', 'checkbox' ].includes( type )
+		? __( 'Option Text', 'jetpack' )
+		: __( 'Field Text', 'jetpack' );
+	const backgroundColorLabel = [ 'radio', 'checkbox' ].includes( type )
+		? __( 'Background', 'jetpack' )
+		: __( 'Field Background', 'jetpack' );
+
 	const colorSettings = [
 		{
 			value: attributes.labelColor,
@@ -49,12 +57,12 @@ const JetpackFieldControls = ( {
 		{
 			value: attributes.inputColor,
 			onChange: value => setAttributes( { inputColor: value } ),
-			label: __( 'Field Text', 'jetpack' ),
+			label: inputColorLabel,
 		},
 		{
 			value: attributes.fieldBackgroundColor,
 			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-			label: __( 'Field Background', 'jetpack' ),
+			label: backgroundColorLabel,
 		},
 		{
 			value: attributes.borderColor,
