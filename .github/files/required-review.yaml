@@ -1,5 +1,5 @@
 # Jetpack Approvers need to review changes to the monorepo itself.
-- name: Monorepo itself
+# These areas are reserved to ensure we're all on the same page and not putting in one-off solutions without conversation.
   paths:
    - '!projects/**'
    - '!pnpm-lock.yaml'
@@ -30,23 +30,8 @@
 # Jetpack Approvers review the Jetpack plugin and all packages, except for those with specific team ownership.
 - name: Jetpack and packages
   paths:
-   - 'projects/packages/**'
-   - 'projects/plugins/jetpack/**'
-   # Exclude packages managed by other teams, which are covered by other blocks below.
-   - '!projects/js-packages/image-guide/**'
-   - '!projects/js-packages/svelte-data-sync-client/**'
-   - '!projects/packages/wp-js-data-sync/**'
-   - '!projects/packages/backup/**'
-   - '!projects/packages/forms/**'
-   - '!projects/packages/import/**'
-   - '!projects/packages/search/**'
-   - '!projects/packages/stats/**'
-   - '!projects/packages/stats-admin/**'
-   - '!projects/packages/publicize/**'
-   - '!projects/packages/waf/**'
-   - '!projects/plugins/*/composer.lock'
-   - '!projects/plugins/*/composer.json'
-   - '!projects/plugins/*/changelog/*'
+   - 'projects/packages/sync/**'
+   - 'projects/packages/connection/**'
   teams:
    - jetpack-approvers
 
