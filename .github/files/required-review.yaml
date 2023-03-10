@@ -1,5 +1,6 @@
 # Jetpack Approvers need to review changes to the monorepo itself.
 # These areas are reserved to ensure we're all on the same page and not putting in one-off solutions without conversation.
+- name: Monorepo itself
   paths:
    - '!projects/**'
    - '!pnpm-lock.yaml'
