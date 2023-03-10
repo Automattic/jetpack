@@ -72,7 +72,7 @@ export const createPrompt = (
 	return prompt.trim();
 };
 
-export default function Edit( { attributes, setAttributes, clientId } ) {
+export default function Edit( { attributes: { state }, setAttributes, clientId } ) {
 	const [ content, setContent ] = useState( '' );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
@@ -80,7 +80,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
-	const { state } = attributes;
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -149,16 +148,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
 
-	const containsAiUntriggeredParagraph = () => {
+	const containsAiUntriggeredParagraph = useCallback( () => {
 		const blockName = 'jetpack/' + aiParagraphBlockName;
 		return (
 			contentBefore.filter(
 				block => block.name && block.name === blockName && is_untriggered( block.attributes.state )
 			).length > 0
 		);
-	};
+	}, [ contentBefore ] );
 
-	const getSuggestionFromOpenAI = () => {
+	const getSuggestionFromOpenAI = useCallback( () => {
 		if ( !! content || isLoadingCompletion || is_triggered( state ) ) {
 			return;
 		}
@@ -203,17 +202,29 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setShowRetry( true );
 				setIsLoadingCompletion( false );
 			} );
-	};
+	}, [
+		content,
+		isLoadingCompletion,
+		state,
+		currentPostTitle,
+		contentBefore,
+		categoryNames,
+		tagNames,
+		tracks,
+		postId,
+		setAttributes,
+	] );
 
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
+
 	// Content is loaded
 	const contentIsLoaded = is_triggered( state ) || !! content;
 
 	// We do nothing if we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
-	useSelect( () => {
+	useEffect( () => {
 		if ( ! noLogicNeeded ) {
 			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
@@ -250,27 +261,21 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		noLogicNeeded,
 		needsMoreCharacters,
 		showRetry,
+		containsAiUntriggeredParagraph,
+		getSuggestionFromOpenAI,
 	] );
-
-	const innerBlocks = useSelect( select => {
-		const aiParagraphBlock = select( 'core/block-editor' ).getBlocksByClientId( clientId );
-		return aiParagraphBlock[ 0 ].innerBlocks;
-	} );
 
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
 
-	const updateInnerBlocks = useCallback(
-		source => {
-			// Get a list of inner blocks
-			const newInnerBlocks = pasteHandler( {
-				HTML: '',
-				mode: 'BLOCKS',
-				plainText: source,
-			} );
-			replaceInnerBlocks( clientId, newInnerBlocks );
-		},
-		[ innerBlocks ] // eslint-disable-line react-hooks/exhaustive-deps
-	);
+	const updateInnerBlocks = source => {
+		// Get a list of inner blocks
+		const newInnerBlocks = pasteHandler( {
+			HTML: '',
+			mode: 'BLOCKS',
+			plainText: source,
+		} );
+		replaceInnerBlocks( clientId, newInnerBlocks );
+	};
 
 	// This is to animate text input. This will give an idea of a "better" AI.
 	// At this point this is an established pattern.
