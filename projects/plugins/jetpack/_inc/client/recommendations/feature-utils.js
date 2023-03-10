@@ -165,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Custom Site Search', 'jetpack' ),
 				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 			};
 	}
 };
