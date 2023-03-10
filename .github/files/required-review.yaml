@@ -10,7 +10,7 @@
 
 # Jetpack Approvers review the Sync and Connection packages.
 # These are reserved due to the critical nature to the entire ecosystem and that small bugs can have big consequences.
-- name: Jetpack and packages
+- name: Sync and Connection packages
   paths:
    - 'projects/packages/sync/**'
    - 'projects/packages/connection/**'
