@@ -5221,6 +5221,7 @@ function jetpack_tracks_record_grunion_pre_message_sent( $post_id ) {
 		$extra = 'no-post';
 	}
 
+	/** This action is documented in modules/widgets/social-media-icons.php */
 	do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
 }
 add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12 );

@@ -274,6 +274,7 @@ class Util {
 			$extra = 'no-post';
 		}
 
+		/** This action is documented in jetpack/modules/widgets/social-media-icons.php */
 		do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
 	}
 
