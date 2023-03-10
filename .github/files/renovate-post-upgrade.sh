@@ -6,6 +6,7 @@ BASE="$PWD"
 BRANCH="$1"
 CHANGEFILE="$(sed 's/[<>:"/\\|?*]/-/g' <<<"$BRANCH")"
 
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
 
 function die {
@@ -36,7 +37,6 @@ pnpm --quiet install
 cd projects/packages/changelogger
 composer --quiet update
 cd "$BASE"
-CL="$BASE/projects/packages/changelogger/bin/changelogger"
 
 # Add change files for anything that changed. But ignore .npmrc, renovate mangles those.
 echo "Changed files:"
@@ -60,12 +60,12 @@ for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)
 
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		"$CL" "${ARGS[@]}"
+		changelogger "${ARGS[@]}"
 	else
-		"$CL" "${ARGS[@]}"
+		changelogger "${ARGS[@]}"
 		echo "Updating version for $SLUG"
-		PRERELEASE=$(alpha_tag "$CL" composer.json 0)
-		VER=$("$CL" version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
+		PRERELEASE=$(alpha_tag composer.json 0)
+		VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
 		"$BASE/tools/project-version.sh" -u "$VER" "$SLUG"
 	fi
 	cd "$BASE"

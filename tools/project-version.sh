@@ -5,6 +5,7 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 
 # Print help and exit.
@@ -246,15 +247,6 @@ done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " 
 # Add change entry, if applicable
 
 if $DO_CHANGELOG; then
-	debug "Making sure changelogger is runnable"
-	CL="$BASE/projects/packages/changelogger/bin/changelogger"
-	if ! "$CL" &>/dev/null; then
-		(cd "$BASE/projects/packages/changelogger" && composer update --quiet)
-		if ! "$CL" &>/dev/null; then
-			die "Changelogger is not runnable via $CL"
-		fi
-	fi
-
 	cd "$BASE/projects/$SLUG"
 
 	ARGS=()
@@ -264,7 +256,7 @@ if $DO_CHANGELOG; then
 		ARGS+=( "--type=$CLTYPE" )
 	fi
 	ARGS+=( --entry="" --comment="Init $VERSION" )
-	"$CL" "${ARGS[@]}"
+	changelogger "${ARGS[@]}"
 
 	cd "$BASE"
 fi
