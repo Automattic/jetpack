@@ -4,7 +4,7 @@ Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 11.9
 Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -197,7 +197,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
 * Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
 * Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.﻿
+* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
 * Star Rating Block - The Ratings block allows any site author to add reviews to the site.
 * Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.

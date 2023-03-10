@@ -27,3 +27,17 @@
 		}
 	}
 }
+
+.timestamp-control {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.timestamp-control-range {
+		flex-grow: 2;
+
+		:global .components-base-control__field {
+			margin-bottom: 0;
+		}
+	} 
+}

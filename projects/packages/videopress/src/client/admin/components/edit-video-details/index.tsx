@@ -184,7 +184,6 @@ const EditVideoDetails = () => {
 		filename,
 		uploadDate,
 		url,
-		videoPressURL,
 		width,
 		height,
 		title,
@@ -193,6 +192,7 @@ const EditVideoDetails = () => {
 		privacySetting,
 		allowDownload,
 		displayEmbed,
+		isPrivate,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -322,9 +322,10 @@ const EditVideoDetails = () => {
 							<VideoDetails
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
-								src={ videoPressURL ?? '' }
 								shortcode={ shortcode ?? '' }
 								loading={ isFetchingData }
+								guid={ guid }
+								isPrivate={ isPrivate }
 							/>
 							<div className={ styles[ 'side-fields' ] }>
 								{ isFetchingData ? (

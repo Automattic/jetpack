@@ -2,7 +2,8 @@
  * External dependencies
  */
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalNumberControl as NumberControl } from '@wordpress/components';
+import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
 import { useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 /**
@@ -41,51 +42,58 @@ const buildPadInputStateReducer = ( pad: number ) => {
 	};
 };
 
+/**
+ * Return the time data based on the given value.
+ *
+ * @param {number} value - The value to be converted.
+ * @returns {object}       The time data.
+ */
+function getTimeDataByValue( value ) {
+	const valueIsNaN = isNaN( value );
+
+	return {
+		hh: valueIsNaN ? 0 : Math.floor( ( value / ( 1000 * 60 * 60 ) ) % 24 ),
+		mm: valueIsNaN ? 0 : Math.floor( ( value / ( 1000 * 60 ) ) % 60 ),
+		ss: valueIsNaN ? 0 : Math.floor( ( value / 1000 ) % 60 ),
+	};
+}
+
 export const TimestampInput = ( {
 	value,
 	max,
 	onChange,
 }: TimestampInputProps ): React.ReactElement => {
-	const valueIsNaN = isNaN( value );
-
 	const time = {
-		value: {
-			hh: valueIsNaN ? 0 : Math.floor( ( value / ( 1000 * 60 * 60 ) ) % 24 ),
-			mm: valueIsNaN ? 0 : Math.floor( ( value / ( 1000 * 60 ) ) % 60 ),
-			ss: valueIsNaN ? 0 : Math.floor( ( value / 1000 ) % 60 ),
-		},
+		value: getTimeDataByValue( value ),
 	};
 
 	// Check whether it should add hours input.
 	const hasHours = Math.floor( ( max / ( 1000 * 60 * 60 ) ) % 24 );
 
-	const computeTimeValue = useCallback(
-		( unit: string ) => ( newValue: number ) => {
-			if ( typeof newValue === 'string' && ! isNaN( parseInt( newValue, 10 ) ) ) {
-				newValue = parseInt( newValue, 10 );
-			}
+	const computeTimeValue = ( unit: string ) => ( newValue: number ) => {
+		if ( typeof newValue === 'string' && ! isNaN( parseInt( newValue, 10 ) ) ) {
+			newValue = parseInt( newValue, 10 );
+		}
 
-			// Check if the newValue is valid
-			if (
-				( unit === 'hh' && newValue > 99 ) ||
-				( ( unit === 'mm' || unit === 'ss' ) && newValue > 59 )
-			) {
-				return;
-			}
+		// Check if the newValue is valid
+		if (
+			( unit === 'hh' && newValue > 99 ) ||
+			( ( unit === 'mm' || unit === 'ss' ) && newValue > 59 )
+		) {
+			return;
+		}
 
-			// Last check. If the newValue is not a number, bail out.
-			if ( typeof newValue === 'string' ) {
-				return;
-			}
+		// Last check. If the newValue is not a number, bail out.
+		if ( typeof newValue === 'string' ) {
+			return;
+		}
 
-			// Update time object data.
-			time.value = { ...time.value, [ unit ]: newValue };
+		// Update time object data.
+		time.value = { ...getTimeDataByValue( value ), [ unit ]: newValue };
 
-			// Call onChange callback.
-			onChange?.( ( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 );
-		},
-		[]
-	);
+		// Call onChange callback.
+		onChange?.( ( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 );
+	};
 
 	return (
 		<div
@@ -161,10 +169,34 @@ export const TimestampControl = ( {
 	max,
 	value,
 	onChange,
+	onDebounceChange,
+	wait = 1000,
 }: TimestampControlProps ): React.ReactElement => {
+	const debouncedOnChangeHandler = onDebounceChange ? useDebounce( onDebounceChange, wait ) : null;
+
+	const onChangeHandler = useCallback(
+		( newValue: number ) => {
+			debouncedOnChangeHandler && debouncedOnChangeHandler( newValue );
+			onChange( newValue );
+		},
+		[ onChange, debouncedOnChangeHandler ]
+	);
+
 	return (
 		<div className={ styles[ 'timestamp-control' ] }>
-			<TimestampInput max={ max } value={ value } onChange={ onChange } />
+			<TimestampInput max={ max } value={ value } onChange={ onChangeHandler } />
+
+			<RangeControl
+				className={ styles[ 'timestamp-control-range' ] }
+				min={ 0 }
+				step={ 0.1 }
+				initialPosition={ value }
+				value={ value }
+				max={ max }
+				showTooltip={ false }
+				withInputField={ false }
+				onChange={ onChangeHandler }
+			/>
 		</div>
 	);
 };
