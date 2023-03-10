@@ -1,3 +1,5 @@
+import SocialButton from './components/SocialButton';
+
 function SaveSharingButtons({ attributes }) {
 	return (
 		<div className="wp-block-jetpack-sharing-buttons">
@@ -7,18 +9,11 @@ function SaveSharingButtons({ attributes }) {
 						<h3 className="sd-title">Share this:</h3>
 						<div className="sd-content">
 							<ul sharingEventsAdded="true">
-								<li className="share-twitter">
-									<a
-										rel="nofollow noopener noreferrer"
-										shared="sharing-twitter-1"
-										className="share-twitter sd-button share-icon"
-										href={`${attributes.link}/?share=twitter&amp;nb=1"`}
-										target="_blank"
-										title="Click to share on Twitter"
-									>
-										<span>Twitter</span>
-									</a>
-								</li>
+								{attributes.services.map(service => (
+									<li className={`share-${service}`}>
+										<SocialButton service={service} link={attributes.link} />
+									</li>
+								))}
 								<li className="share-facebook">
 									<a
 										rel="nofollow noopener noreferrer"

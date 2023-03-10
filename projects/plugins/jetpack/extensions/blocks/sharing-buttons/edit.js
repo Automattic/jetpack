@@ -11,18 +11,17 @@ import { share as icon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import SocialButton from './components/SocialButton';
+import ServicesSelector from './components/ServicesSelector';
 import SharingButtonsContext from './context';
 import './editor.scss';
+import availableServices from './available-services';
 
+/**
+ * Write the block editor UI.
+ *
+ * @returns {object} The UI displayed when user edits this block.
+ */
 function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI, setAttributes }) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	const [notice, setNotice] = useState();
-
 	const { post } = useSelect(
 		select => {
 			const { getCurrentPost } = select('core/editor');
@@ -34,8 +33,20 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 	);
 
 	useEffect(() => {
-		setAttributes({ link: post.link });
+		setAttributes({ ...attributes, link: post.link });
 	}, [post, setAttributes]);
+
+	const handleServiceSelect = service => {
+		const { services } = attributes;
+		// Remove service from services if present and return
+		if (Array.isArray(services) && services.includes(service)) {
+			setAttributes({ ...attributes, services: services.filter(item => item !== service) });
+			return;
+		}
+
+		const newServices = Array.isArray(services) ? services.concat(service) : [service];
+		setAttributes({ ...attributes, services: newServices });
+	};
 
 	return (
 		<div className={className}>
@@ -44,26 +55,11 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 					post,
 				}}
 			>
-				<div className="wp-block-jetpack-sharing-buttons">
-					<div className="cool_sharing_elements">
-						<div className="sharedaddy sd-sharing-enabled">
-							<div className="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing">
-								<h3 className="sd-title">Share this:</h3>
-
-								<div className="sd-content">
-									<ul>
-										<li>
-											<SocialButton service="facebook" />
-										</li>
-										<li>
-											<SocialButton service="twitter" />
-										</li>
-									</ul>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+				<ServicesSelector
+					selectedServices={attributes.services}
+					onServiceSelected={handleServiceSelect}
+					services={availableServices}
+				/>
 			</SharingButtonsContext.Provider>
 			<Instructions />
 		</div>

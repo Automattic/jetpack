@@ -1,22 +1,17 @@
 import { __ } from '@wordpress/i18n';
-import SharingButtonContext from '../context';
+import availableServices from '../available-services';
 
-const services = {
-	twitter: __('Twitter', 'jetpack'),
-	facebook: __('Facebook', 'jetpack'),
-};
-
-const SocialButton = ({ service }) => {
+const SocialButton = ({ service, link }) => {
 	return (
 		<a
 			rel="nofollow noopener noreferrer"
 			shared={`sharing-${service}-1`}
-			href={`https://www.${service}.com`}
+			href={`${link}?share=${service}&nb=1`}
 			className={`share-${service} sd-button share-icon`}
 			target="_blank"
-			title={`Click to share on ${services[service]}`}
+			title={`Click to share on ${availableServices[service]}`}
 		>
-			<span>{services[service]}</span>
+			<span>{availableServices[service]}</span>
 		</a>
 	);
 };

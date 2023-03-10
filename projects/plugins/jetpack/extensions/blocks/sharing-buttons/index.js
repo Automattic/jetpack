@@ -5,7 +5,6 @@ import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share as icon } from '@wordpress/icons';
-
 /**
  * Internal dependencies
  */
@@ -20,13 +19,13 @@ import save from './save';
 import './editor.scss';
 
 export const name = 'sharing-buttons';
-export const title = __( 'Sharing Buttons', 'jetpack' );
+export const title = __('Sharing Buttons', 'jetpack');
 export const settings = {
 	title,
 	description: (
 		<Fragment>
-			<p>{ __( 'Sharing Buttons', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Sharing Buttons', 'jetpack' ) }</ExternalLink>
+			<p>{__('Sharing Buttons', 'jetpack')}</p>
+			<ExternalLink href="#">{__('Learn more about Sharing Buttons', 'jetpack')}</ExternalLink>
 		</Fragment>
 	),
 	icon: {
@@ -58,7 +57,6 @@ export const settings = {
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
 	save,
 	attributes,
 	example: {
