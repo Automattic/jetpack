@@ -6,3 +6,8 @@
 	gap: calc( var( --spacing-base ) * 2 );
 	background-color: var(--jp-gray-0);
 }
+
+.filename {
+	word-break: normal;
+	overflow-wrap: anywhere;
+}

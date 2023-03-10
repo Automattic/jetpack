@@ -2,7 +2,7 @@ export default {
 	gravatars: {
 		type: 'array',
 		source: 'query',
-		selector: '.jetpack-blogging-prompts__answers-gravatar',
+		selector: '.jetpack-blogging-prompt__answers-gravatar',
 		query: {
 			url: {
 				type: 'string',
@@ -14,7 +14,7 @@ export default {
 	prompt: {
 		type: 'text',
 		source: 'html',
-		selector: '.jetpack-blogging-prompts__prompt',
+		selector: '.jetpack-blogging-prompt__prompt',
 	},
 	promptId: {
 		type: 'number',

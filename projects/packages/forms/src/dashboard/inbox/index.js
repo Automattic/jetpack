@@ -1,15 +1,13 @@
-import {
-	Button,
-	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	SelectControl,
-} from '@wordpress/components';
+import { Gridicon } from '@automattic/jetpack-components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
 import Layout from '../components/layout';
+import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
+import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -18,25 +16,28 @@ const RESPONSES_FETCH_LIMIT = 20;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
-	const [ searchText, setSearchText ] = useState( '' );
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-	const [ searchTerm, setSearchTerm ] = useState( searchText );
+	const [ view, setView ] = useState( 'list' );
 
-	const { invalidateResolution } = useDispatch( STORE_NAME );
+	const { invalidateResolution, setSearchQuery } = useDispatch( STORE_NAME );
+
+	const searchQuery = useSelect( select => select( STORE_NAME ).getSearchQuery() );
+
+	const [ currentPage, setCurrentPage ] = useState( 1 );
+
 	const [ loading, responses, total ] = useSelect(
 		select => {
 			const stateSelector = select( STORE_NAME );
 			return [
 				stateSelector.isFetchingResponses(),
 				stateSelector.getResponses(
-					searchTerm,
+					searchQuery,
 					RESPONSES_FETCH_LIMIT,
 					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
 				),
 				stateSelector.getTotalResponses(),
 			];
 		},
-		[ searchTerm, currentPage ]
+		[ searchQuery, currentPage ]
 	);
 
 	useEffect( () => {
@@ -47,63 +48,68 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	useEffect( () => {
-		invalidateResolution( 'getResponses', [
-			searchTerm,
-			RESPONSES_FETCH_LIMIT,
-			( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
-		] );
-	}, [ searchTerm, currentPage, invalidateResolution ] );
-
 	const handleSearch = useCallback(
-		event => {
-			event.preventDefault();
-			setSearchTerm( searchText );
+		searchTerm => {
+			invalidateResolution( 'getResponses', [ searchTerm, RESPONSES_FETCH_LIMIT, 0 ] );
 			setCurrentPage( 1 );
+			setSearchQuery( searchTerm );
 		},
-		[ searchText ]
+		[ setSearchQuery, setCurrentPage, invalidateResolution ]
 	);
 
-	const numberOfResponses = sprintf(
-		/* translators: %s: Number of responses. */
-		_n( '%s response', '%s responses', total, 'jetpack-forms' ),
-		total
+	const handlePageChange = useCallback(
+		page => {
+			invalidateResolution( 'getResponses', [
+				searchQuery,
+				RESPONSES_FETCH_LIMIT,
+				( page - 1 ) * RESPONSES_FETCH_LIMIT,
+			] );
+			setCurrentPage( page );
+		},
+		[ searchQuery, setCurrentPage, invalidateResolution ]
 	);
 
-	const contentClasses = classnames( 'jp-forms__inbox-content', {
-		'show-response': currentResponseId >= 0,
+	const selectResponse = useCallback( id => {
+		setCurrentResponseId( id );
+		setView( 'response' );
+	}, [] );
+
+	const handleGoBack = useCallback( event => {
+		event.preventDefault();
+		setView( 'list' );
+	}, [] );
+
+	const classes = classnames( 'jp-forms__inbox', {
+		'is-response-view': view === 'response',
 	} );
 
+	const title = (
+		<>
+			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
+			<a className="back-button" onClick={ handleGoBack }>
+				<Gridicon icon="arrow-left" />
+				{ __( 'View all responses', 'jetpack-forms' ) }
+			</a>
+		</>
+	);
+
 	return (
-		<Layout title={ __( 'Responses', 'jetpack-forms' ) } subtitle={ numberOfResponses }>
+		<Layout title={ title } className={ classes }>
 			<div className="jp-forms__actions">
-				<form className="jp-forms__actions-form">
-					<SelectControl
-						options={ [
-							{ label: __( 'Bulk actions', 'jetpack-forms' ), value: '' },
-							{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
-							{ label: __( 'Move to spam', 'jetpack-forms' ), value: 'spam' },
-						] }
-					/>
-					<Button variant="secondary">{ __( 'Apply', 'jetpack-forms' ) }</Button>
-				</form>
-				<form className="jp-forms__actions-form" onSubmit={ handleSearch }>
-					<InputControl onChange={ setSearchText } value={ searchText } />
-					<Button type="submit" variant="secondary">
-						{ __( 'Search', 'jetpack-forms' ) }
-					</Button>
-				</form>
+				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } />
+				<BulkActionsMenu />
 			</div>
 
-			<div className={ contentClasses }>
+			<div className="jp-forms__inbox-content">
 				<div className="jp-forms__inbox-content-column">
 					<InboxList
 						currentResponseId={ currentResponseId }
-						setCurrentResponseId={ setCurrentResponseId }
 						loading={ loading }
+						setCurrentResponseId={ selectResponse }
 						responses={ responses }
 						currentPage={ currentPage }
-						setCurrentPage={ setCurrentPage }
+						setCurrentPage={ handlePageChange }
 						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 					/>
 				</div>
