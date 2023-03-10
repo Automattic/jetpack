@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Assets\Logo;
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
@@ -73,7 +75,7 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
-		$icon                   = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMCcgaGVpZ2h0PScyMCcgdmlld0JveD0nMCAwIDQwIDQwJyA+PHBhdGggZmlsbD0nI2EwYTVhYScgZD0nTTIwIDBjMTEuMDQ2IDAgMjAgOC45NTQgMjAgMjBzLTguOTU0IDIwLTIwIDIwUzAgMzEuMDQ2IDAgMjAgOC45NTQgMCAyMCAwem0xMSAxN0gyMXYxOWwxMC0xOXpNMTkgNEw5IDIzaDEwVjR6Jy8+PC9zdmc+';
+		$icon                   = ( new Logo() )->get_base64_logo();
 
 		if ( ! $jetpack_plugin_present ) {
 			add_menu_page(
