@@ -326,6 +326,34 @@
 	}
 
 	&.jetpack-field-multiple {
+		&.is-style-button {
+			.block-editor-block-list__layout {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 12px;
+			}
+
+			.jetpack-field-option {
+				color: var(--jetpack--contact-form--button-text-color);
+				border: var(--jetpack--contact-form--button-border);
+				border-color: currentColor;
+				border-radius: var(--jetpack--contact-form--button-border-radius);
+				padding: var(--jetpack--contact-form--button-padding);
+				line-height: var(--jetpack--contact-form--button-line-height);
+
+				&.field-option-radio {
+					position: relative;
+					flex-direction: row-reverse;
+					gap: 16px;
+
+					.jetpack-option__type {
+						display: none;
+					}
+				}
+			}
+		}
+
 		.jetpack-field-multiple__add-option {
 			margin: 0;
 			padding: 0;

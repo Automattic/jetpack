@@ -109,6 +109,7 @@
 .contact-form .grunion-radio-options {
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 	gap: 12px;
 }
 
@@ -592,4 +593,52 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
 	margin-left: var(--jetpack--contact-form--border-size);
+}
+
+.grunion-field-checkbox-multiple-wrap.is-style-button-wrap .grunion-checkbox-multiple-label,
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-radio-label {
+	color: var(--jetpack--contact-form--button-text-color);
+	border: var(--jetpack--contact-form--button-border);
+	border-color: currentColor;
+	border-radius: var(--jetpack--contact-form--button-border-radius);
+	padding: var(--jetpack--contact-form--button-padding);
+	line-height: var(--jetpack--contact-form--button-line-height);
+	cursor: pointer;
+}
+
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-radio-label {
+	position: relative;
+	flex-direction: row-reverse;
+	gap: 16px;
+}
+
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-field.radio {
+	position: absolute;
+	width: auto;
+	visibility: hidden;
+	display: flex;
+	align-items: center;
+	margin: 0;
+	color: inherit;
+}
+
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-field.radio:checked {
+	position: relative;
+}
+
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-field.radio::after {
+	width: 10px;
+	height: 16px;
+	content: ' ';
+	display: block;
+	border: var(--jetpack--contact-form--button-border);
+	border-color: currentColor;
+	border-top: none;
+	border-left: none;
+	transform: rotate(45deg) skew(5deg, 5deg);
+	margin-top: -10px;
+}
+
+.grunion-field-radio-wrap.is-style-button-wrap .grunion-field.radio:checked::after {
+	visibility: visible;
 }

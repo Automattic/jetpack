@@ -18,9 +18,12 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
 	const HTML = `
-			<div class="contact-form" style="">
+			<div class="contact-form">
+				<div class="wp-block-button">
+					<div class="wp-block-button__link btn-primary">Test</div>
+				</div>
 				<div class="wp-block-button is-style-outline">
-					<div class="wp-block-button__link">Test</div>
+					<div class="wp-block-button__link btn-outline">Test</div>
 				</div>
 				<div class="jetpack-field">
 					<input class="jetpack-field__input" type="text">
@@ -43,12 +46,21 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 	const container = _document.querySelector( selector );
 	container.appendChild( styleProbe );
 
-	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
+	const buttonPrimaryNode = styleProbe.querySelector( '.btn-primary' );
+	const buttonOutlineNode = styleProbe.querySelector( '.btn-outline' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
 	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
 	const inputBackground = window.jetpackForms.getBackgroundColor( inputNode );
-	const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
+	const primaryColor = window.getComputedStyle( buttonPrimaryNode ).backgroundColor;
+
+	const {
+		border: buttonBorder,
+		borderRadius: buttonBorderRadius,
+		color: buttonTextColor,
+		padding: buttonPadding,
+		lineHeight: buttonLineHeight,
+	} = window.getComputedStyle( buttonOutlineNode );
 
 	const {
 		color: textColor,
@@ -83,5 +95,10 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 		'--jetpack--contact-form--font-size': fontSize,
 		'--jetpack--contact-form--font-family': fontFamily,
 		'--jetpack--contact-form--line-height': lineHeight,
+		'--jetpack--contact-form--button-padding': buttonPadding,
+		'--jetpack--contact-form--button-border': buttonBorder,
+		'--jetpack--contact-form--button-border-radius': buttonBorderRadius,
+		'--jetpack--contact-form--button-text-color': buttonTextColor,
+		'--jetpack--contact-form--button-line-height': buttonLineHeight,
 	};
 };

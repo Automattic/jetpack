@@ -237,6 +237,7 @@ const editMultiField = type => props => {
 
 	return (
 		<JetpackFieldMultiple
+			className={ props.className }
 			clientId={ props.clientId }
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
@@ -609,6 +610,10 @@ export const childBlocks = [
 					default: 'Choose several options',
 				},
 			},
+			styles: [
+				{ name: 'list', label: 'List', isDefault: true },
+				{ name: 'button', label: 'Button' },
+			],
 			deprecated: [ multiFieldV1( 'checkbox' ) ],
 		},
 	},
@@ -639,6 +644,10 @@ export const childBlocks = [
 					default: 'Choose one option',
 				},
 			},
+			styles: [
+				{ name: 'list', label: 'List', isDefault: true },
+				{ name: 'button', label: 'Button' },
+			],
 			deprecated: [ multiFieldV1( 'radio' ) ],
 		},
 	},
