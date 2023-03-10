@@ -6,7 +6,6 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/alpha-tag.sh"
-. "$BASE/tools/includes/changelogger.sh"
 
 # Print help and exit.
 function usage {
@@ -91,7 +90,7 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-init_changelogger
+pnpm jetpack install --all
 
 DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED
@@ -132,6 +131,15 @@ function releaseProject {
 	info "${I}Processing $SLUG..."
 	RELEASED[$SLUG]=1
 
+	# Find changelogger.
+	local CL
+	if [[ -x vendor/bin/changelogger ]]; then
+		CL=vendor/bin/changelogger
+	else
+		yellow "${I}No changelogger! Skipping."
+		return
+	fi
+
 	# Changelogger write.
 	local ARGS=( write )
 	if [[ -n "$VERBOSE" ]]; then
@@ -142,7 +150,7 @@ function releaseProject {
 	fi
 	ARGS+=( "--default-first-version" )
 	if [[ "$ALPHABETA" == "alpha" ]]; then
-		local P=$(alpha_tag composer.json 1)
+		local P=$(alpha_tag "$CL" composer.json 1)
 		[[ "$P" == "alpha" ]] && die "Cannot use -a with $SLUG"
 		ARGS+=( "--prerelease=$P" )
 	elif [[ "$ALPHABETA" == "beta" ]]; then
@@ -150,12 +158,12 @@ function releaseProject {
 	elif [[ -n "$ALPHABETA" ]]; then
 		ARGS+=( "--use-version=$ALPHABETA" )
 	fi
-	debug "${I}  changelogger ${ARGS[*]}"
-	changelogger "${ARGS[@]}"
+	debug "${I}  $CL ${ARGS[*]}"
+	$CL "${ARGS[@]}"
 
 	# Fetch version from changelogger.
-	debug "${I}  changelogger version current"
-	local VER=$(changelogger version current)
+	debug "${I}  $CL version current"
+	local VER=$($CL version current)
 
 	# Replace $$next-version$$
 	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "$(sed -E -e 's/-(beta|a\.[0-9]+)$//' <<<"$VER")"
@@ -217,7 +225,10 @@ EOM
 
 if [[ "$SLUG" == plugins/* ]]; then
 	cd "$BASE"
-	VER=$(cd "projects/$SLUG" && changelogger version current)
+	VER=
+	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
+		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
+	fi
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM
 			When ready, you can create the release branch with
