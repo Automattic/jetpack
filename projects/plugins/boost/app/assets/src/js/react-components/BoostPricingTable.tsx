@@ -7,7 +7,7 @@ import {
 	PricingTableItem,
 	ProductPrice,
 } from '@automattic/jetpack-components';
-import { createInterpolateElement, useState } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const cssOptimizationContext = __(
@@ -87,20 +87,13 @@ const manuallyUpdatedContext = (
 	</span>
 );
 
-export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
-	const [ choosePremiumPlan, setChoosePremiumPlan ] = useState( false );
-	const [ chooseFreePlan, setChooseFreePlan ] = useState( false );
-
-	const handlePremiumCTA = () => {
-		setChoosePremiumPlan( true );
-		onPremiumCTA();
-	};
-
-	const handleFreeCTA = () => {
-		setChooseFreePlan( true );
-		onFreeCTA();
-	};
-
+export const BoostPricingTable = ( {
+	pricing,
+	onPremiumCTA,
+	onFreeCTA,
+	chosenFreePlan,
+	chosenPaidPlan,
+} ) => {
 	// If the first year discount ends, we want to remove the label without updating the plugin.
 	const promoLabel = pricing.yearly.isIntroductoryOffer
 		? __( 'First Year Discount', 'jetpack-boost' )
@@ -140,9 +133,9 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 						promoLabel={ promoLabel }
 					/>
 					<Button
-						onClick={ handlePremiumCTA }
-						isLoading={ choosePremiumPlan }
-						disabled={ chooseFreePlan || choosePremiumPlan }
+						onClick={ onPremiumCTA }
+						isLoading={ chosenPaidPlan }
+						disabled={ chosenFreePlan || chosenPaidPlan }
 						fullWidth
 					>
 						{ __( 'Get Boost', 'jetpack-boost' ) }
@@ -168,9 +161,9 @@ export const BoostPricingTable = ( { pricing, onPremiumCTA, onFreeCTA } ) => {
 						hidePriceFraction
 					/>
 					<Button
-						onClick={ handleFreeCTA }
-						isLoading={ chooseFreePlan }
-						disabled={ chooseFreePlan || choosePremiumPlan }
+						onClick={ onFreeCTA }
+						isLoading={ chosenFreePlan }
+						disabled={ chosenFreePlan || chosenPaidPlan }
 						fullWidth
 						variant="secondary"
 					>
