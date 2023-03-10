@@ -5,7 +5,7 @@ namespace Automattic\Jetpack_Boost\Modules;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Status;
 
-class Feature_Module {
+class Module {
 	/**
 	 * @var Status
 	 */
