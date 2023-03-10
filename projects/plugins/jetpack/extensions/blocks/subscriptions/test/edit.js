@@ -73,6 +73,7 @@ beforeEach( () => {
 		changeStatus: jest.fn(),
 	} );
 } );
+jest.mock( '@wordpress/notices', () => {}, { virtual: true } );
 
 describe( 'SubscriptionEdit', () => {
 	test( 'adds correct classes to container', async () => {

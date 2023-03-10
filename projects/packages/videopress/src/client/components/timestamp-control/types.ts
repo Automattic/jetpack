@@ -4,4 +4,7 @@ export type TimestampInputProps = {
 	onChange: ( ms: number ) => void;
 };
 
-export type TimestampControlProps = TimestampInputProps;
+export type TimestampControlProps = TimestampInputProps & {
+	wait: number;
+	onDebounceChange: ( ms: number ) => void;
+};

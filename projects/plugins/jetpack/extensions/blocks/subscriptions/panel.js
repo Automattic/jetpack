@@ -20,7 +20,7 @@ import InspectorNotice from '../../shared/components/inspector-notice';
 import { getSubscriberCounts } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
-import { NewsletterAccess, accessOptions } from './settings';
+import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
@@ -78,6 +78,11 @@ export default function SubscribePanels() {
 		} );
 	}, [ isModuleActive ] );
 
+	// Can be “private”, “password”, or “public”.
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const showMisconfigurationMessage = postVisibility !== 'public' && accessLevel !== 'everybody';
+
+	// Only show this for posts for now (subscriptions are only available on posts).
 	const postWasEverPublished = useSelect(
 		select =>
 			select( editorStore ).getEditedPostAttribute( 'meta' )?.jetpack_post_was_ever_published,
@@ -135,7 +140,13 @@ export default function SubscribePanels() {
 				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
-				{ showNotices && (
+				{ isNewsletterFeatureEnabled() && showMisconfigurationMessage && (
+					<>
+						<MisconfigurationWarning accessLevel={ accessLevel } />
+						<br />
+					</>
+				) }
+				{ ! showMisconfigurationMessage && showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
 							followerCount !== 0
