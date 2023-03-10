@@ -17,6 +17,7 @@ export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 const is_untriggered = state => state === AI_BLOCK_STATE.DEFAULT;
 const is_triggered = state => state !== AI_BLOCK_STATE.DEFAULT;
+const is_loading = state => state === AI_BLOCK_STATE.PROCESSING;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
@@ -72,10 +73,32 @@ export const createPrompt = (
 	return prompt.trim();
 };
 
+function useTaxonomy( postAttribute, taxonomy ) {
+	let loaded = false;
+	const taxonomies =
+		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( postAttribute ) ) || [];
+	const taxonomyObjects = useSelect(
+		select => {
+			return taxonomies
+				.map( taxonomyId => {
+					const _taxonomy = select( 'core' ).getEntityRecord( 'taxonomy', taxonomy, taxonomyId );
+
+					if ( ! _taxonomy ) {
+						loaded = true;
+						return;
+					}
+
+					return _taxonomy;
+				} )
+				.filter( Boolean ); // Remove undefined values
+		},
+		[ taxonomies ]
+	);
+	return [ taxonomyObjects, loaded ];
+}
+
 export default function Edit( { attributes: { state }, setAttributes, clientId } ) {
 	const [ content, setContent ] = useState( '' );
-	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
-	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
@@ -86,61 +109,18 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
 
-	let loading = false;
-	const categories =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ) ) || [];
-
-	const categoryObjects = useSelect(
-		select => {
-			return categories
-				.map( categoryId => {
-					const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
-
-					if ( ! category ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return category;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ categories ]
-	);
-
-	const tags =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] ) || [];
-
-	const tagObjects = useSelect(
-		select => {
-			return tags
-				.map( tagId => {
-					const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
-
-					if ( ! tag ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return tag;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ tags ]
-	);
-
-	useEffect( () => {
-		setIsLoadingCategories( loading );
-	}, [ loading ] );
-
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+
+	const [ categoryObjects, categoriesLoaded ] = useTaxonomy( 'categories', 'category' );
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
 		.map( ( { name } ) => name )
 		.join( ', ' );
+
+	const [ tagObjects, tagsLoaded ] = useTaxonomy( 'tags', 'post_tag' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
+
+	const isTaxonomyLoaded = categoriesLoaded && tagsLoaded;
 
 	const contentBefore = useSelect( select => {
 		const editor = select( 'core/block-editor' );
@@ -158,14 +138,14 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 	}, [ contentBefore ] );
 
 	const getSuggestionFromOpenAI = useCallback( () => {
-		if ( !! content || isLoadingCompletion || is_triggered( state ) ) {
+		if ( !! content || is_triggered( state ) ) {
 			return;
 		}
 
 		setShowRetry( false );
 		setErrorMessage( false );
 		setNeedsMoreCharacters( false );
-		setIsLoadingCompletion( true );
+		setAttributes( { state: AI_BLOCK_STATE.PROCESSING } );
 
 		const data = {
 			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
@@ -174,8 +154,6 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
-
-		setAttributes( { state: AI_BLOCK_STATE.PROCESSING } );
 
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
@@ -186,7 +164,6 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				const result = res.prompts[ 0 ].text.trim();
 				setContent( result );
 				setAttributes( { state: AI_BLOCK_STATE.RENDERING } );
-				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
 				if ( e.message ) {
@@ -200,11 +177,10 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 					);
 				}
 				setShowRetry( true );
-				setIsLoadingCompletion( false );
+				setAttributes( { state: AI_BLOCK_STATE.DEFAULT } );
 			} );
 	}, [
 		content,
-		isLoadingCompletion,
 		state,
 		currentPostTitle,
 		contentBefore,
@@ -215,17 +191,8 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		setAttributes,
 	] );
 
-	// Waiting state means there is nothing to be done until it resolves
-	const isWaitingState = isLoadingCompletion || isLoadingCategories;
-
-	// Content is loaded
-	const contentIsLoaded = is_triggered( state ) || !! content;
-
-	// We do nothing if we are waiting for stuff OR if the content is already loaded.
-	const noLogicNeeded = contentIsLoaded || isWaitingState;
-
 	useEffect( () => {
-		if ( ! noLogicNeeded ) {
+		if ( isTaxonomyLoaded && is_untriggered( state ) && ! errorMessage ) {
 			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
 			if ( containsAiUntriggeredParagraph() ) {
@@ -249,20 +216,22 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				);
 				setShowRetry( true );
 				setNeedsMoreCharacters( false );
-			} else if ( ! needsMoreCharacters && ! showRetry ) {
+			} else if ( ! showRetry ) {
 				getSuggestionFromOpenAI();
 			}
 		}
 	}, [
-		currentPostTitle,
-		contentBefore,
 		categoryNames,
-		tagNames,
-		noLogicNeeded,
+		containsAiUntriggeredParagraph,
+		contentBefore,
+		currentPostTitle,
+		errorMessage,
+		getSuggestionFromOpenAI,
+		isTaxonomyLoaded,
 		needsMoreCharacters,
 		showRetry,
-		containsAiUntriggeredParagraph,
-		getSuggestionFromOpenAI,
+		state,
+		tagNames,
 	] );
 
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
@@ -310,7 +279,7 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		<div { ...blockProps }>
 			<InnerBlocks />
 
-			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
+			{ errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
@@ -320,7 +289,7 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				</Placeholder>
 			) }
 
-			{ ! content && isWaitingState && (
+			{ is_loading( state ) && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {
