@@ -26,8 +26,8 @@ use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Transient;
 use Automattic\Jetpack_Boost\Modules\Features;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Feature_Status;
+use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimizations_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
