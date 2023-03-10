@@ -1,4 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
+import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
@@ -54,6 +55,8 @@ export default function SubscriptionControls( {
 	buttonWidth,
 	successMessage,
 } ) {
+	const { isPublicizeEnabled } = usePublicizeConfig();
+
 	return (
 		<>
 			{ isNewsletterFeatureEnabled() && <PaidPlanPanel /> }
@@ -240,14 +243,17 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
-				<ToggleControl
-					disabled={ ! showSubscribersTotal }
-					label={ __( 'Include social followers in count', 'jetpack' ) }
-					checked={ includeSocialFollowers }
-					onChange={ () => {
-						setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
-					} }
-				/>
+				{ showSubscribersTotal && isPublicizeEnabled ? (
+					<ToggleControl
+						disabled={ ! showSubscribersTotal }
+						label={ __( 'Include social followers in count', 'jetpack' ) }
+						checked={ includeSocialFollowers }
+						onChange={ () => {
+							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+						} }
+					/>
+				) : null }
+
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }

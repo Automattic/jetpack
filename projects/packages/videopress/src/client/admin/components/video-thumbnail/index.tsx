@@ -166,6 +166,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			uploading = false,
 			processing = false,
 			deleting = false,
+			updating = false,
 			onUseDefaultThumbnail,
 			onSelectFromVideo,
 			onUploadImage,
@@ -175,11 +176,11 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		ref
 	) => {
 		const [ isSmall ] = useBreakpointMatch( 'sm' );
-		const busy = loading || uploading || deleting;
+		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)
 		let thumbnail = defaultThumbnail;
-		thumbnail = loading || deleting ? <Placeholder /> : thumbnail;
+		thumbnail = loading ? <Placeholder /> : thumbnail;
 		thumbnail = uploading ? (
 			<UploadingThumbnail isRow={ isRow } uploadProgress={ uploadProgress } />
 		) : (
