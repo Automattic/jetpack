@@ -8,9 +8,10 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
+import apiFetch from '@wordpress/api-fetch';
+import { PanelRow, Disabled, ExternalLink, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { Fragment, createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
@@ -20,6 +21,48 @@ import MessageBoxControl from '../message-box-control';
 import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
+
+/**
+ * Use Jetpack AI to generate a tweet for Jetpack Social
+ *
+ * @param {Function} getEditedPostAttribute - Gutenberg function returning current edited post attribute.
+ * @param {Function} getEditedPostContent - Gutenberg function returning current edited post content.
+ * @param {Function} updateMessage - Hook to update the message with generated tweet.
+ * @param {Function} setJetpackAILoading - Hook to update the loading state.
+ */
+function generateSocialMediaMessageWithJetpackAI(
+	getEditedPostAttribute,
+	getEditedPostContent,
+	updateMessage,
+	setJetpackAILoading
+) {
+	const content = getEditedPostContent();
+	const title = getEditedPostAttribute( 'title' );
+	const prompt = `Please create a very short tweet no longer than 260 characters summarizing a post titled '${ title }' with the following content: ${ content }`;
+
+	const data = {
+		content: prompt,
+	};
+
+	setJetpackAILoading( true );
+
+	// tracks.recordEvent( 'jetpack_ai_publicize_gpt3', {
+	// 	post_id: postId, // TODO as we don't have post id yet.
+	// } );
+
+	apiFetch( {
+		path: '/wpcom/v2/jetpack-ai/completions',
+		method: 'POST',
+		data: data,
+	} )
+		.then( res => {
+			updateMessage( res );
+			setJetpackAILoading( false );
+		} )
+		.catch( () => {
+			setJetpackAILoading( false );
+		} );
+}
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
@@ -48,6 +91,7 @@ export default function PublicizeForm( {
 		enabledConnections,
 	} = useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const [ jetpackAILoading, setJetpackAILoading ] = useState( false );
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -56,8 +100,23 @@ export default function PublicizeForm( {
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
 
-	const { isEditedPostDirty } = useSelect( 'core/editor' );
+	const { isEditedPostDirty, getEditedPostAttribute, getEditedPostContent } = useSelect(
+		'core/editor'
+	);
+
+	const generateTweet = useCallback(
+		() =>
+			generateSocialMediaMessageWithJetpackAI(
+				getEditedPostAttribute,
+				getEditedPostContent,
+				updateMessage,
+				setJetpackAILoading
+			),
+		[ getEditedPostAttribute, getEditedPostContent, updateMessage, setJetpackAILoading ]
+	);
+
 	const { autosave } = useDispatch( 'core/editor' );
+
 	const autosaveAndRedirect = useCallback(
 		async ev => {
 			const target = ev.target.getAttribute( 'target' );
@@ -191,6 +250,15 @@ export default function PublicizeForm( {
 								onChange={ updateMessage }
 								message={ message }
 							/>
+							<Button // TODO: Make this appear only when Jetpack AI is working
+								isSmall
+								isPrimary
+								isPressed={ jetpackAILoading }
+								isBusy={ jetpackAILoading }
+								onClick={ generateTweet }
+							>
+								{ 'Ask JetpackAI' }
+							</Button>
 						</>
 					) }
 				</Fragment>
