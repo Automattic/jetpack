@@ -24,6 +24,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		display_embed: displayEmbed,
 		privacy_setting: privacySetting,
 		needs_playback_token: needsPlaybackToken,
+		is_private: isPrivate,
 	} = jetpackVideoPress;
 
 	const {
@@ -31,7 +32,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		poster,
 		upload_date: uploadDate,
 		duration,
-		is_private: isPrivate,
 		file_url_base: fileURLBase,
 		finished,
 		files = {
