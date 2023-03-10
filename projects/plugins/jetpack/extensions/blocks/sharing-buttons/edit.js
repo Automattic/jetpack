@@ -3,7 +3,8 @@
  */
 import { BlockIcon } from '@wordpress/block-editor';
 import { Placeholder, withNotices } from '@wordpress/components';
-import { createInterpolateElement, useState, useContext } from '@wordpress/element';
+import { useSelect } from '@wordpress/data';
+import { createInterpolateElement, useState, useContext, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { share as icon } from '@wordpress/icons';
 
@@ -14,51 +15,64 @@ import SocialButton from './components/SocialButton';
 import SharingButtonsContext from './context';
 import './editor.scss';
 
-function SharingButtonsEdit( {
-	attributes,
-	className,
-	noticeOperations,
-	noticeUI,
-	setAttributes,
-} ) {
+function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI, setAttributes }) {
 	/**
 	 * Write the block editor UI.
 	 *
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
-	const [ notice, setNotice ] = useState();
+	const [notice, setNotice] = useState();
 
-	/* Call this function when you want to show an error in the placeholder. */
-	const setErrorNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
-	};
+	const { post } = useSelect(
+		select => {
+			const { getCurrentPost } = select('core/editor');
+			return {
+				post: getCurrentPost(),
+			};
+		},
+		[attributes]
+	);
+
+	useEffect(() => {
+		setAttributes({ link: post.link });
+	}, [post, setAttributes]);
 
 	return (
-		<div className={ className }>
-			<SharingButtonsContext.Provider>
-				<ul>
-					<li>
-						<SocialButton service="facebook" />
-					</li>
-					<li>
-						<SocialButton service="twitter" />
-					</li>
-				</ul>
+		<div className={className}>
+			<SharingButtonsContext.Provider
+				value={{
+					post,
+				}}
+			>
+				<div className="wp-block-jetpack-sharing-buttons">
+					<div className="cool_sharing_elements">
+						<div className="sharedaddy sd-sharing-enabled">
+							<div className="robots-nocontent sd-block sd-social sd-social-icon-text sd-sharing">
+								<h3 className="sd-title">Share this:</h3>
+
+								<div className="sd-content">
+									<ul>
+										<li>
+											<SocialButton service="facebook" />
+										</li>
+										<li>
+											<SocialButton service="twitter" />
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 			</SharingButtonsContext.Provider>
-			<Placeholder
-				label={ __( 'Sharing Buttons', 'jetpack' ) }
-				instructions={ <Instructions /> }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			></Placeholder>
+			<Instructions />
 		</div>
 	);
 }
 
 function Instructions() {
 	return createInterpolateElement(
-		__( 'Customize your sharing settings via <a>Jetpack Sharing Settings</a>', 'jetpack' ),
+		__('Customize your sharing settings via <a>Jetpack Sharing Settings</a>', 'jetpack'),
 		{
 			a: <a href="/wp-admin/admin.php?page=jetpack#/sharing" target="_blank" />,
 		}

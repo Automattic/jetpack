@@ -1,5 +1,4 @@
-const SaveSharingButtons = () => {
-	const pageUrl = 'blogUrl'; // This needs to come from block data, since is server side rendered
+function SaveSharingButtons({ attributes }) {
 	return (
 		<div className="wp-block-jetpack-sharing-buttons">
 			<div className="cool_sharing_elements">
@@ -13,7 +12,7 @@ const SaveSharingButtons = () => {
 										rel="nofollow noopener noreferrer"
 										shared="sharing-twitter-1"
 										className="share-twitter sd-button share-icon"
-										href={ `${ pageUrl }/?share=twitter&amp;nb=1"` }
+										href={`${attributes.link}/?share=twitter&amp;nb=1"`}
 										target="_blank"
 										title="Click to share on Twitter"
 									>
@@ -25,7 +24,7 @@ const SaveSharingButtons = () => {
 										rel="nofollow noopener noreferrer"
 										shared="sharing-facebook-1"
 										className="share-facebook sd-button share-icon"
-										href={ `${ pageUrl }/?share=facebook&amp;nb=1"` }
+										href={`${attributes.link}/?share=facebook&amp;nb=1"`}
 										target="_blank"
 										title="Click to share on Facebook"
 									>
@@ -40,6 +39,6 @@ const SaveSharingButtons = () => {
 			</div>
 		</div>
 	);
-};
+}
 
 export default SaveSharingButtons;
