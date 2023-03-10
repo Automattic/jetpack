@@ -66,7 +66,7 @@ while [[ $# -gt 0 ]]; do
 	if [[ "$1" =~ ^[a-zA-Z\-]+$ ]]; then
 		PLUGIN=$1
 	else
-		die "Script must be passed in [project] <version> format. Got $1"
+		die "Script must be passed in <project> [version] format. Got $1"
 	fi
 	
 	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
