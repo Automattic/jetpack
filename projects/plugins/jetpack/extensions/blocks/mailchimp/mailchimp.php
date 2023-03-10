@@ -31,6 +31,16 @@ function register_block() {
 			BLOCK_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\load_assets',
+				'supports'        => array(
+					'align'   => array( 'wide', 'full' ),
+					'color'   => array(
+						'gradients' => true,
+					),
+					'spacing' => array(
+						'padding' => true,
+						'margin'  => true,
+					),
+				),
 			)
 		);
 	}
@@ -56,14 +66,15 @@ function load_assets( $attr, $content ) {
 		? get_current_blog_id()
 		: Jetpack_Options::get_option( 'id' );
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	$classes         = Blocks::classes( FEATURE_NAME, $attr );
-	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
-	$is_amp_request  = Blocks::is_amp_request();
+	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+	$classes            = ! empty( $wrapper_attributes['class'] ) ? $wrapper_attributes['class'] : '';
+	$amp_form_action    = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
+	$is_amp_request     = Blocks::is_amp_request();
 
 	ob_start();
 	?>
 
-	<div class="<?php echo esc_attr( $classes ); ?>" data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
+	<div class="<?php echo esc_attr( $classes ); ?>"<?php echo ! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''; ?> data-blog-id="<?php echo esc_attr( $blog_id ); ?>">
 		<form
 			aria-describedby="wp-block-jetpack-mailchimp_consent-text"
 			<?php if ( $is_amp_request ) : ?>

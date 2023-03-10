@@ -1,11 +1,9 @@
-import { expect } from 'chai';
-
 import { isModuleFound } from '../index';
 
 describe( 'Module found selector', () => {
 	let state = {};
 
-	before( () => {
+	beforeAll( () => {
 		state = {
 			jetpack: {
 				modules: {
@@ -19,29 +17,29 @@ describe( 'Module found selector', () => {
 							search_terms: 'Search Terms',
 							additional_search_queries: 'Additional Queries',
 							short_description: 'So short you will be surprised by how it fits into one line',
-							feature: 'Some modules do not have it, can you believe it?'
-						}
-					}
+							feature: 'Some modules do not have it, can you believe it?',
+						},
+					},
 				},
 				search: {
-					searchTerm: ''
-				}
-			}
-		}
+					searchTerm: '',
+				},
+			},
+		};
 	} );
 
 	describe( 'when there is no search term', () => {
-		it( 'returns true for every module', () => {
-			expect( isModuleFound( state, 'photon' ) ).to.be.true;
+		test( 'returns true for every module', () => {
+			expect( isModuleFound( state, 'photon' ) ).toBe( true );
 		} );
-		it( 'returns false for modules that do not exist', () => {
-			expect( isModuleFound( state, 'make-everything-fast' ) ).to.be.false;
-			expect( isModuleFound( state, 'take-over-the-world' ) ).to.be.false;
+		test( 'returns false for modules that do not exist', () => {
+			expect( isModuleFound( state, 'make-everything-fast' ) ).toBe( false );
+			expect( isModuleFound( state, 'take-over-the-world' ) ).toBe( false );
 		} );
 	} );
 
 	describe( 'for an existing module', () => {
-		[
+		describe.each( [
 			'photon',
 			'Description',
 			'Learn',
@@ -50,30 +48,24 @@ describe( 'Module found selector', () => {
 			'TeRMs', // case sensitivity test
 			'quer',
 			'surprise',
-			'believe'
-		].map( function( term ) {
-			describe( 'for the term ' + term, () => {
-				it( 'should match', () => {
-					state.jetpack.search.searchTerm = term;
+			'believe',
+		] )( 'for the term %s', term => {
+			test( 'should match', () => {
+				state.jetpack.search.searchTerm = term;
 
-					expect( isModuleFound( state, 'photon' ) ).to.be.true;
-				} );
+				expect( isModuleFound( state, 'photon' ) ).toBe( true );
 			} );
 		} );
 
-		[
-			'nonexistent-slug',
-			'Decscripton',
-			'Hocus Pocus',
-			'something else'
-		].map( function( term ) {
-			describe( 'for the term ' + term, () => {
-				it( 'should not match', () => {
+		describe.each( [ 'nonexistent-slug', 'Decscripton', 'Hocus Pocus', 'something else' ] )(
+			'for the term %s',
+			term => {
+				test( 'should not match', () => {
 					state.jetpack.search.searchTerm = term;
 
-					expect( isModuleFound( state, 'photon' ) ).to.be.false;
+					expect( isModuleFound( state, 'photon' ) ).toBe( false );
 				} );
-			} );
-		} );
+			}
+		);
 	} );
 } );

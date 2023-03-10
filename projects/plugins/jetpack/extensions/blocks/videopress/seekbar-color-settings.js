@@ -1,19 +1,8 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { Component } from '@wordpress/element';
-
-/**
- * WordPress dependencies
- */
-import { Button } from '@wordpress/components';
 import { PanelColorSettings } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
+import { Button, PanelBody, ToggleControl } from '@wordpress/components';
+import { Component } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
 class SeekbarColorSettings extends Component {
 	constructor() {
@@ -43,33 +32,50 @@ class SeekbarColorSettings extends Component {
 
 	render() {
 		const { seekbarColor, seekbarPlayedColor, seekbarLoadingColor } = this.state;
+		const { toggleAttribute, useAverageColor } = this.props;
+		const showTitle = true;
 
 		return (
-			<PanelColorSettings
-				title={ __( 'Progress Colors', 'jetpack' ) }
+			<PanelBody
+				className="seekbar-color-settings__panel"
+				title={ __( 'Progress Bar Colors', 'jetpack' ) }
 				initialOpen={ false }
-				colorSettings={ [
-					{
-						value: seekbarColor,
-						onChange: this.handleChangeSeekbarColor,
-						label: __( 'Main', 'jetpack' ),
-					},
-					{
-						value: seekbarLoadingColor,
-						onChange: this.handleChangeSeekbarLoadingColor,
-						label: __( 'Loaded', 'jetpack' ),
-					},
-					{
-						value: seekbarPlayedColor,
-						onChange: this.handleChangeSeekbarPlayedColor,
-						label: __( 'Progress', 'jetpack' ),
-					},
-				] }
 			>
-				<Button isDefault onClick={ this.saveColors }>
-					{ __( 'Save colors', 'jetpack' ) }
-				</Button>
-			</PanelColorSettings>
+				<ToggleControl
+					label={ __( 'Match video', 'jetpack' ) }
+					help={ __( 'Colors adapt to the video as it plays', 'jetpack' ) }
+					onChange={ toggleAttribute( 'useAverageColor' ) }
+					checked={ useAverageColor }
+				/>
+				<PanelColorSettings
+					opened={ ! useAverageColor }
+					showTitle={ false }
+					colorSettings={ [
+						{
+							value: seekbarColor,
+							onChange: this.handleChangeSeekbarColor,
+							label: __( 'Main', 'jetpack' ),
+							showTitle,
+						},
+						{
+							value: seekbarLoadingColor,
+							onChange: this.handleChangeSeekbarLoadingColor,
+							label: __( 'Loaded', 'jetpack' ),
+							showTitle,
+						},
+						{
+							value: seekbarPlayedColor,
+							onChange: this.handleChangeSeekbarPlayedColor,
+							label: __( 'Progress', 'jetpack' ),
+							showTitle,
+						},
+					] }
+				>
+					<Button variant="secondary" onClick={ this.saveColors }>
+						{ __( 'Save colors', 'jetpack' ) }
+					</Button>
+				</PanelColorSettings>
+			</PanelBody>
 		);
 	}
 }

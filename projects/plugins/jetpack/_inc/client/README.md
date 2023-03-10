@@ -11,7 +11,7 @@ It is preferred to implement all new components as [function components](https:/
 
 ### Data approach on the Admin Page
 
-The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to ressemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---present).
+The **Admin Page** uses **redux**, [redux-thunk](https://github.com/gaearon/redux-thunk), and [react-redux](https://github.com/reactjs/react-redux)  for state handling trying to resemble [Calypso's data approach, third Era](https://github.com/Automattic/wp-calypso/blob/trunk/docs/our-approach-to-data.md#third-era-redux-global-state-tree-december-2015---february-2020).
 
 #### State related code
 
@@ -43,13 +43,13 @@ window.Initial_State.WP_API_root;
 
 ##### Query Components
 
-We rely extensively in [query components](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#query-components) to declare the data needs from inside state-aware React components.
+We rely extensively in [query components](https://github.com/Automattic/wp-calypso/blob/trunk/docs/our-approach-to-data.md#query-components) to declare the data needs from inside state-aware React components.
 
 These components dispatch the API-fetching actions creators that eventually feed the redux state reducers with data.
 
 #### State selectors
 
-We kept [state selectors](https://github.com/Automattic/wp-calypso/blob/master/docs/our-approach-to-data.md#selectors) definition inside the same file that defines the reducers for each leaf of the state tree.
+We kept [state selectors](https://github.com/Automattic/wp-calypso/blob/trunk/docs/our-approach-to-data.md#selectors) definition inside the same file that defines the reducers for each leaf of the state tree.
 
 This was done this way to keep functions that are aware of the tree shape on the same file while we were building the **Admin Page** and learning this pattern altogether.
 

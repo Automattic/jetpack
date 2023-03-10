@@ -1,4 +1,4 @@
-<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true">
+<phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true"  convertDeprecationsToExceptions="true">
 	<php>
 		<const name="PHPUNIT_JETPACK_TESTSUITE" value="true"/>
 	</php>
@@ -77,6 +77,7 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
+			<directory prefix="class-test-" suffix=".php">tests/php/sync</directory>
 			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
 		<testsuite name="legacy-full-sync">
@@ -104,9 +105,6 @@
 		<testsuite name="carousel">
 			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
 		</testsuite>
-		<testsuite name="search">
-			<directory prefix="test" suffix=".php">tests/php/modules/search</directory>
-		</testsuite>
 		<testsuite name="geo-location">
 			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
 		</testsuite>
@@ -128,6 +126,9 @@
 		<testsuite name="csstidy">
 			<directory prefix="test" suffix=".php">tests/php/modules/csstidy</directory>
 		</testsuite>
+		<testsuite name="compatfunctions">
+			<file>tests/php/test_functions.compat.php</file>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
@@ -138,13 +139,14 @@
 	</groups>
 	<filter>
 		<whitelist>
-			<directory suffix=".php">.</directory>
-			<exclude>
-				<directory suffix=".php">tests</directory>
-				<directory suffix=".php">views</directory>
-				<directory suffix=".php">tools</directory>
-				<directory suffix=".php">node_modules</directory>
-			</exclude>
+			<file>./*.php</file>
+			<directory suffix=".php">3rd-party</directory>
+			<directory suffix=".php">extensions</directory>
+			<directory suffix=".php">_inc</directory>
+			<directory suffix=".php">json-endpoints</directory>
+			<directory suffix=".php">modules</directory>
+			<directory suffix=".php">sal</directory>
+			<directory suffix=".php">src</directory>
 		</whitelist>
 	</filter>
 	<listeners>

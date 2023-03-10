@@ -78,10 +78,10 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Remove Instagram widget from Legacy Widget block.
+	 * Remove the "Instagram" widget from the Legacy Widget block
 	 *
-	 * @param array $widget_types Widget type data.
-	 * This only applies to new blocks being added.
+	 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+	 * @return array $widget_types New list of widgets that will be removed.
 	 */
 	public function hide_widget_in_block_editor( $widget_types ) {
 		$widget_types[] = self::ID_BASE;
@@ -284,7 +284,7 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 
 		if ( ! empty( $instance['title'] ) ) {
 			echo $args['before_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo esc_html( $instance['title'] );
+			echo $instance['title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $args['after_title']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
@@ -316,29 +316,26 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				),
 				esc_url( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
 			) . '</em></p>';
+		} elseif ( ! is_array( $images ) ) {
+			echo '<p>' . esc_html__( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
+		} elseif ( ! $images ) {
+			echo '<p>' . esc_html__( 'No Instagram images were found.', 'jetpack' ) . '</p>';
 		} else {
-			if ( ! is_array( $images ) ) {
-				echo '<p>' . esc_html__( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
-			} elseif ( ! $images ) {
-				echo '<p>' . esc_html__( 'No Instagram images were found.', 'jetpack' ) . '</p>';
-			} else {
-
-				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
-				foreach ( $images as $image ) {
-					/**
-					 * Filter how Instagram image links open in the Instagram widget.
-					 *
-					 * @module widgets
-					 *
-					 * @since 8.8.0
-					 *
-					 * @param string $target Target attribute.
-					 */
-					$image_target = apply_filters( 'wpcom_instagram_widget_target', '_self' );
-					echo '<a href="' . esc_url( $image['link'] ) . '" target="' . esc_attr( $image_target ) . '"><div class="sq-bg-image" style="background-image: url(' . esc_url( set_url_scheme( $image['url'] ) ) . ')"><span class="screen-reader-text">' . esc_attr( $image['title'] ) . '</span></div></a>' . "\n";
-				}
-				echo "</div>\n";
+			echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
+			foreach ( $images as $image ) {
+				/**
+				 * Filter how Instagram image links open in the Instagram widget.
+				 *
+				 * @module widgets
+				 *
+				 * @since 8.8.0
+				 *
+				 * @param string $target Target attribute.
+				 */
+				$image_target = apply_filters( 'wpcom_instagram_widget_target', '_self' );
+				echo '<a href="' . esc_url( $image['link'] ) . '" target="' . esc_attr( $image_target ) . '"><div class="sq-bg-image" style="background-image: url(' . esc_url( set_url_scheme( $image['url'] ) ) . ')"><span class="screen-reader-text">' . esc_attr( $image['title'] ) . '</span></div></a>' . "\n";
 			}
+			echo "</div>\n";
 		}
 
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -400,8 +397,8 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 			echo '<p>';
 			printf(
 				// translators: %1$1 and %2$s are the opening and closing a tags creating a link to the Jetpack dashboard.
-				esc_html__( 'In order to use this widget you need %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
-				'<a href="' . esc_url( Jetpack::admin_url() ) . '">',
+				esc_html__( 'In order to use this widget you need to %1$scomplete your Jetpack connection%2$s by authorizing your user.', 'jetpack' ),
+				'<a href="' . esc_url( Jetpack::admin_url( array( 'page' => 'jetpack#/connect-user' ) ) ) . '">',
 				'</a>'
 			);
 			echo '</p>';

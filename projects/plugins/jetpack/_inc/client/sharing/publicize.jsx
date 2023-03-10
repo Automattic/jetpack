@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
+import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
-import ConnectUserBar from 'components/connect-user-bar';
+import analytics from 'lib/analytics';
+import React, { Component } from 'react';
 
 export const Publicize = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -61,7 +54,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ _x( 'Publicize connections', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Jetpack Social connections', 'Settings header', 'jetpack' ) }
 					module="publicize"
 					hideButton
 				>
@@ -99,7 +92,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 					{ ! isLinked && ! isOfflineMode && (
 						<ConnectUserBar
 							feature="publicize"
-							featureLabel={ __( 'Publicize', 'jetpack' ) }
+							featureLabel={ __( 'Jetpack Social', 'jetpack' ) }
 							text={ __( 'Connect to add your social media accounts.', 'jetpack' ) }
 						/>
 					) }

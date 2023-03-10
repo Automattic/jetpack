@@ -1,47 +1,57 @@
-=== Jetpack Boost ===
-Contributors: automattic, xwp, thingalon, pyronaur, davidlonjon, danwalmsley, luchad0res, ebinnion, jpolakovic, rheinardkorf, scruffian, exelero
+=== Jetpack Boost - Website Speed, Performance and Critical CSS  ===
+Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebinnion, exelero, jeherve, jpolakovic, karthikbhatb, kraftbj, luchad0res, ppetrov2c, pyronaur, rheinardkorf, scruffian, thingalon
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 5.8
+Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.2.0
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Speed up your website by optimizing page performance with Jetpack Boost!
+Speed up your WordPress site by optimizing page performance with Jetpack Boost. Easily activate one-click optimizations to boost your Core Web Vitals.
 
 == Description ==
 
-Jetpack Boost provides one-click optimizations that supercharge your WordPress site’s performance and improve web vitals scores for better SEO.
+Speed up your WordPress site by optimizing page performance with Jetpack Boost. Easily activate one-click optimizations to boost your Core Web Vitals.
+
+Did you know that a faster website:-
+
+- Ranks higher on Google.
+- Improves bounce rate (people stay on your site for longer).
+- Increases your conversion rate.
+
+Increase your website performance and speed up your website with one-click optimizations that supercharge your WordPress site’s performance and improve core web vitals scores for better search engine listings.
+
+Improving Core Web Vitals helps you rank higher on Google. A faster website also improves your SEO, helps you reduce your bounce rate and increase your ecommerce conversion rate.
+
+- Largest Contentful Paint (LCP): Measures loading performance. Improve your LCP and improve your website loading speed.
+- First Input Delay (FID): Measures interactivity. To improve user experience pages should have a low FID.
+- Cumulative Layout Shift (CLS): Measures visual stability. Lowering your CLS helps improve your user experience.
 
 ### Performance Modules
 
-Optimize your site with the same techniques used on the world's most successful websites. Each technique is packaged up as a module that you can activate and try out.
+Optimize your website with the same techniques used on the world's most successful websites.
 
-Currently the plugin has 3 performance modules available:
+Each technique that is used to increase website performance is packaged up as a module that you can activate and try out.
+
+Currently, the plugin has 3 performance modules available:
 
 1. *Optimize CSS Loading* generates Critical CSS for your homepage, posts and pages. This can allow your content to show up on the screen much faster, particularly for viewers using mobile devices.
 
-   Read more about critical CSS generation at [web.dev](https://web.dev/extract-critical-css/)
+   Read more about critical CSS generation at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-critical-css)
 
-1. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner.
+2. *Defer Non-Essential Javascript* moves some tasks to after the page loads, so that important visual information can be seen sooner and your website loads quicker.
 
-   Read more about deferring javascript at [web.dev](https://web.dev/efficiently-load-third-party-javascript/)
+   Read more about deferring javascript at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-defer-js)
 
-1. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes sites faster and saves bandwidth for your host and your customers.
+3. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes websites faster and saves bandwidth for your host and your customers.
 
-   Read more about lazy image loading at [web.dev](https://web.dev/lazy-loading-images/)
+   Read more about lazy image loading at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-lazy-load)
 
-### Easy Setup
+ Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
 
-There's nothing to configure - the setup process is as easy as:
-
- 1. Install the plugin
- 2. Activate Jetpack Connection
- 3. Turn on performance modules one by one and observe how the performance score changes
-
- Google PageSpeed API is used to measure the performance score of a site. It's important to look at the PageSpeed score because Core Web Vitals are going to be used as a ranking factor in search engines.
+Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 
 ### With 💚 by Jetpack
 
@@ -53,7 +63,7 @@ We'd also like to give a special THANK YOU to the XWP team who provided help wit
 
 == Frequently Asked Questions ==
 
-= What does the Jetpack Boost plugin do to help speed up my site? =
+= What does Jetpack Boost do to help speed up my WordPress site? =
 
 Jetpack Boost makes small changes to the way that data is sent from your WordPress site to your users’ browser, to enable the browser to display your site faster.
 
@@ -83,7 +93,7 @@ The “Optimize CSS Loading” feature identifies the most important CSS rules y
 
 Web Vitals are the measurements that Google uses to better understand the user experience on a website. By improving Web Vitals scores you're also improving the user experience on your site.
 
-You can read more about Web Vitals on [web.dev](https://web.dev/vitals/)
+You can read more about Web Vitals on [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-vitals)
 
 = How does Jetpack Boost plugin improve Core Web Vitals? =
 
@@ -97,7 +107,7 @@ For example, our “Optimize CSS Loading” feature ensures the most important C
 
 Jetpack Boost is a part of the Jetpack brand, but it doesn’t require Jetpack plugin to run. This is a separate plugin from Jetpack and it will always remain that way.
 
-= Will this plugin be able to improve performance on any website? = 
+= Will this plugin be able to improve performance on any website? =
 
 This plugin includes a range of performance improvements, which can help almost any WordPress site perform better.
 
@@ -109,14 +119,14 @@ Jetpack Boost includes a tool for measuring your site’s Speed Score - we encou
 
 Every site is different and so performance benefits for each module may vary from site to site. That's why we recommend that you measure the performance improvements on your site by enabling the performance modules one by one. There are many tools out there that you can use for free to measure performance improvements:
 
-* [WebPageTest.org](https://www.webpagetest.org/easy)
-* [web.dev/measure](https://web.dev/measure/)
-* [PageSpeed Insights](https://developers.google.com/speed/pagespeed/insights/)
-* [GTMetrix](https://gtmetrix.com/)
+* [WebPageTest.org](https://jetpack.com/redirect/?source=jetpack-boost-webpagetest)
+* [web.dev/measure](https://jetpack.com/redirect/?source=jetpack-boost-measure)
+* [PageSpeed Insights](https://jetpack.com/redirect/?source=jetpack-boost-pagespeed)
+* [GTMetrix](https://jetpack.com/redirect/?source=jetpack-boost-gtmetrix)
 
 Google PageSpeed measurements are built-in the Jetpack Boost dashboard.
 
-= Is Speed Optimization with Jetpack Boost safe? = 
+= Is Speed Optimization with Jetpack Boost safe? =
 
 Yes, it’s safe to try Jetpack Boost on any WordPress site.
 
@@ -140,11 +150,11 @@ Jetpack Boost does not include any optimizations that target large databases at 
 
 = Does Jetpack Boost help with image optimization? =
 
-Jetpack Boost can help sites with large images perform better through lazy-loading, preventing images from loading until they are scrolled into view. 
+Jetpack Boost can help sites with large images perform better through lazy-loading, preventing images from loading until they are scrolled into view.
 
 However, it currently does not have any Image Format Optimization features. We are always looking for ways to improve the plugin, so watch this space for more features in the near future.
 
-= Is Jetpack Boost compatible with other caching and speed optimization plugins? = 
+= Is Jetpack Boost compatible with other caching and speed optimization plugins? =
 
 With few exceptions, Jetpack Boost has no problems running alongside most caching and speed optimization plugins. As a guideline, we don’t recommend enabling the same feature in multiple optimization plugins.
 
@@ -157,26 +167,29 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 == Installation ==
 
 1. Install Jetpack Boost via the plugin directory, and activate it.
-2. Visit the "Jetpack Boost" section of your site's WP Admin.
-3. Turn on the performance features you would like to try out on your site.
+2. Activate Jetpack Connection
+3. Turn on performance modules one by one and observe how the performance score changes
 
 == Screenshots ==
 
-1. Manage your Jetpack Boost settings
+1. Jetpack Boost Critical CSS Generation
+2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.2.0 - 2021-08-12
+### 1.7.0 - 2023-01-17
 #### Added
-- Critical CSS: Added a new Advanced Critical CSS recommendations page.
-
-#### Changed
-- Critical CSS: Updated error reporting for Critical CSS to offer more users more guidance.
-- Tooling: Moved all development to the Jetpack monorepo.
-- Boost is now compatible with WordPress 5.8.
+- New Feature: Jetpack Boost Image Guide.
+- General: Add a notification bubble next to Boost in the WP-admin sidebar.
+- General: Added new tracks events.
+- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
 
 #### Fixed
-- Tooling: Fix PHP unit testing dependency on later versions of PHP.
-- Critical CSS: Ensure generator library uses cache-busting to load the latest version after updates.
+- Admin notices: only display regeneration notice to admins.
+- Compatibility: Improve critical CSS compatibility with older Safari browsers.
+- General: Don't let analytics failures prevent features from functioning.
+- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
+- General: Fix woocommerce deprecation warning.
+
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/boost/CHANGELOG.md#changelog) 
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/boost/CHANGELOG.md#changelog)

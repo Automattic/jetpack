@@ -44,7 +44,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_schema_request() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::OPTIONS, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -63,10 +63,29 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	public function test_get_item_permissions_check() {
 		wp_set_current_user( 0 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
+	}
+
+	/**
+	 * Basically just a data provider to other tests that rely on a successful response.
+	 *
+	 * Since the API endpoint relies on file inclusion to create its response,
+	 * it can't be run multiple times within the same "request". This test
+	 * makes that request once and then passes it on so other tests can depend
+	 * on it.
+	 *
+	 * @return WP_REST_Response
+	 */
+	public function test_successful_request() {
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/admin-menu' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+
+		return $response;
 	}
 
 	/**
@@ -75,23 +94,28 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @covers ::get_item_permissions_check
 	 * @covers ::get_item
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_get_item() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
-		$this->assertTrue( rest_validate_value_from_schema( $response->get_data(), ( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema() ) );
+	public function test_get_item( WP_REST_Response $response ) {
+		$this->assertTrue(
+			rest_validate_value_from_schema(
+				$response->get_data(),
+				( new WPCOM_REST_API_V2_Endpoint_Admin_Menu() )->get_public_item_schema()
+			)
+		);
 	}
 
 	/**
 	 * Tests that submenu items get promoted when the user doesn't have the caps for the top-level menu item.
 	 *
 	 * @covers ::prepare_menu_for_response
+	 * @depends test_successful_request
+	 *
+	 * @param WP_REST_Response $response Admin Menu API response.
 	 */
-	public function test_parent_menu_item_always_exists() {
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/admin-menu' );
-		$response = $this->server->dispatch( $request );
-
+	public function test_parent_menu_item_always_exists( WP_REST_Response $response ) {
 		$menu      = wp_list_filter( $response->get_data(), array( 'title' => 'Settings' ) );
 		$menu_item = array_pop( $menu );
 
@@ -210,6 +234,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][][]
 	 */
 	public function submenu_item_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// User doesn't have necessary permissions.
 			array(
@@ -227,7 +253,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 					'slug'   => 'upload-php',
 					'title'  => 'Library\'s',
 					'type'   => 'submenu-item',
-					'url'    => 'http://example.org/wp-admin/upload.php',
+					'url'    => admin_url( 'upload.php' ),
 				),
 			),
 			// Submenu item with update count.
@@ -248,6 +274,30 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				array( 'Hidden', 'read', 'hidden', 'Hidden', 'hide-if-js' ),
 				array( 'My Plugin', 'read', 'my-plugin', 'My Plugin', '', '', '' ),
 				array(),
+			),
+			array(
+				array(
+					0 => 'MYML',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'MYML',
+					4 => 'menu-top toplevel_page_my-multilingual-cms/menu/languages',
+					5 => 'toplevel_page_my-multilingual-cms/menu/languages',
+					6 => 'https://example.org/wp-content/plugins/my-multilingual-cms/icon16.png',
+				),
+				array(
+					0 => 'Troubleshooting',
+					1 => 'read',
+					2 => $plugin_slug,
+					3 => 'Troubleshooting',
+				),
+				array(
+					'parent' => sanitize_title_with_dashes( $plugin_slug ),
+					'slug'   => sanitize_title_with_dashes( $plugin_slug ),
+					'title'  => 'MYML',
+					'type'   => 'submenu-item',
+					'url'    => admin_url( 'admin.php?page=' . $plugin_slug ),
+				),
 			),
 		);
 	}
@@ -281,7 +331,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			'slug'  => 'foo',
 			'title' => 'Foo',
 			'type'  => 'menu-item',
-			'url'   => 'http://example.org/wp-admin/admin.php?page=sharing',
+			'url'   => admin_url( 'admin.php?page=sharing' ),
 		);
 
 		$this->assertSame(
@@ -299,6 +349,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @throws \ReflectionException Noop.
 	 * @dataProvider menu_item_icon_data
 	 * @covers ::prepare_menu_item_icon
+	 * @covers ::prepare_dashicon
 	 */
 	public function test_prepare_menu_item_icon( $icon, $expected ) {
 		$class = new ReflectionClass( 'WPCOM_REST_API_V2_Endpoint_Admin_Menu' );
@@ -343,6 +394,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 			array(
 				'dashicons-admin-media',
 				'dashicons-admin-media',
+			),
+			'When the dashicon does not exist in the core dashicon list, we expect the default dashicon.' => array(
+				'dashicons-admin-nope',
+				'dashicons-admin-generic',
 			),
 			// SVG.
 			array(
@@ -394,6 +449,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 	 * @return \string[][]
 	 */
 	public function menu_item_url_data() {
+		$plugin_slug = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'akismet/akismet.png' : 'jetpack/jetpack.php';
+
 		return array(
 			// Calypso URL.
 			array(
@@ -456,6 +513,14 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'__return_true',
 				admin_url( 'admin.php?page=wc-admin&path=customers' ),
 			),
+			// Treat URLs pointing back to the site as internal URLs.
+			array(
+				get_site_url() . '/wp-admin/admin.php?page=elementor-app&ver=3.10.0#site-editor/promotion',
+				'',
+				null,
+				get_site_url() . '/wp-admin/admin.php?page=elementor-app&ver=3.10.0#site-editor/promotion',
+
+			),
 			// Disallowed URLs.
 			array(
 				'javascript:alert("Hello")',
@@ -474,6 +539,12 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_Test_Jetpack_REST
 				'',
 				null,
 				'',
+			),
+			array(
+				$plugin_slug,
+				'',
+				null,
+				admin_url( 'admin.php?page=' . $plugin_slug ),
 			),
 		);
 	}

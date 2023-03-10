@@ -1,3 +1,5 @@
+import '../css/jetpack-admin-jitm.scss';
+
 jQuery( document ).ready( function ( $ ) {
 	var templates = {
 		default: function ( envelope ) {
@@ -71,7 +73,9 @@ jQuery( document ).ready( function ( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					envelope.url +
+					( envelope.CTA.hasOwnProperty( 'link' ) && envelope.CTA.link.length
+						? envelope.CTA.link
+						: envelope.url ) +
 					'" target="' +
 					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
@@ -137,7 +141,7 @@ jQuery( document ).ready( function ( $ ) {
 		response.url = response.url + '&redirect=' + redirect;
 
 		var $template = templates[ template ]( response );
-		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+		$template.find( '.jitm-banner__dismiss' ).on( 'click', render( $template ) );
 
 		if ( $( '#jp-admin-notices' ).length > 0 ) {
 			// Add to Jetpack notices within the Jetpack settings app.
@@ -156,7 +160,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 
 		// Handle Module activation button if it exists.
-		$template.find( '#jitm-banner__activate a' ).click( function () {
+		$template.find( '#jitm-banner__activate a' ).on( 'click', function () {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
@@ -191,7 +195,7 @@ jQuery( document ).ready( function ( $ ) {
 		} );
 
 		// Handle CTA ajax actions.
-		$template.find( '.jitm-button[data-ajax-action]' ).click( function ( e ) {
+		$template.find( '.jitm-button[data-ajax-action]' ).on( 'click', function ( e ) {
 			e.preventDefault();
 			var button = $( this );
 			button.attr( 'disabled', true );
@@ -219,7 +223,14 @@ jQuery( document ).ready( function ( $ ) {
 			var hash = location.hash;
 
 			hash = hash.replace( /#\//, '_' );
-			if ( '_dashboard' !== hash ) {
+
+			// We always include the hash if this is My Jetpack page
+			if ( message_path.includes( 'jetpack_page_my-jetpack' )) {
+				message_path = message_path.replace(
+					'jetpack_page_my-jetpack',
+					'jetpack_page_my-jetpack' + hash
+				);
+			} else if ( '_dashboard' !== hash ) {
 				message_path = message_path.replace(
 					'toplevel_page_jetpack',
 					'toplevel_page_jetpack' + hash
@@ -251,10 +262,11 @@ jQuery( document ).ready( function ( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function ( e ) {
-		var newURL = e.originalEvent.newURL;
+	$( window ).on( 'hashchange', function ( e ) {
+		const newURL = e.originalEvent.newURL;
+		const isJetpackPage = newURL.indexOf( 'jetpack#/' ) >= 0 || newURL.indexOf( 'my-jetpack' ) >= 0;
 
-		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {
+		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );
 			if ( jitm_card ) {
 				jitm_card.remove();

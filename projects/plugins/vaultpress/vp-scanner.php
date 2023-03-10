@@ -35,7 +35,7 @@ class VP_FileScan {
 				if ( '.' == $entry || '..' == $entry )
 					continue;
 
-				$_offset++;
+				++$_offset;
 				$full_entry = $path . DIRECTORY_SEPARATOR . $entry;
 				$next_item = ltrim( str_replace( $path, '', $last_dir ), DIRECTORY_SEPARATOR );
 				$next = preg_split( '#(?<!\\\\)' . preg_quote( DIRECTORY_SEPARATOR, '#' ) . '#', $next_item, 2 );
@@ -215,7 +215,7 @@ function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) 
 		}
 
 		// the caller will also update their line number based on the number of \n characters in the text
-		$line_number++;
+		++$line_number;
 	}
 }
 /**

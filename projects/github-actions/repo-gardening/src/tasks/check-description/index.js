@@ -1,20 +1,14 @@
-/**
- * External dependencies
- */
 const fs = require( 'fs' );
-const moment = require( 'moment' );
 const path = require( 'path' );
-
-/**
- * Internal dependencies
- */
-const debug = require( '../../debug' );
-const getAffectedChangeloggerProjects = require( '../../get-affected-changelogger-projects' );
-const getFiles = require( '../../get-files' );
-const getLabels = require( '../../get-labels' );
-const getNextValidMilestone = require( '../../get-next-valid-milestone' );
-const getPluginNames = require( '../../get-plugin-names' );
-const getPrWorkspace = require( '../../get-pr-workspace' );
+const moment = require( 'moment' );
+const debug = require( '../../utils/debug' );
+const getAffectedChangeloggerProjects = require( '../../utils/get-affected-changelogger-projects' );
+const getComments = require( '../../utils/get-comments' );
+const getFiles = require( '../../utils/get-files' );
+const getLabels = require( '../../utils/get-labels' );
+const getNextValidMilestone = require( '../../utils/get-next-valid-milestone' );
+const getPluginNames = require( '../../utils/get-plugin-names' );
+const getPrWorkspace = require( '../../utils/get-pr-workspace' );
 
 /* global GitHub, WebhookPayloadPullRequest */
 
@@ -180,20 +174,15 @@ async function getCheckComment( octokit, owner, repo, number ) {
 
 	debug( `check-description: Looking for a previous comment from this task in our PR.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listComments, {
-		owner,
-		repo,
-		issue_number: +number,
-	} ) ) {
-		response.data.map( comment => {
-			if (
-				comment.user.login === 'github-actions[bot]' &&
-				comment.body.includes( '**Thank you for your PR!**' )
-			) {
-				commentID = comment.id;
-			}
-		} );
-	}
+	const comments = await getComments( octokit, owner, repo, number );
+	comments.map( comment => {
+		if (
+			comment.user.login === 'github-actions[bot]' &&
+			comment.body.includes( '**Thank you for your PR!**' )
+		) {
+			commentID = comment.id;
+		}
+	} );
 
 	return commentID;
 }
@@ -360,13 +349,13 @@ function renderRecommendations( statusChecks ) {
 			'Please edit your PR description and explain what functional changes your PR includes, and why those changes are needed.',
 		hasPrivacy: `We would recommend that you add a section to the PR description to specify whether this PR includes any changes to data or privacy, like so:
 ~~~
-#### Does this pull request change what data or activity we track or use?
+## Does this pull request change what data or activity we track or use?
 
 My PR adds *x* and *y*.
 ~~~`,
 		hasTesting: `Please include detailed testing steps, explaining how to test your change, like so:
 ~~~
-#### Testing instructions:
+## Testing instructions:
 
 * Go to '..'
 *
@@ -375,8 +364,8 @@ My PR adds *x* and *y*.
 			'`, `'
 		) }\`
 
-Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/master/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
-Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/master/docs/writing-a-good-changelog-entry.md)
+Use [the Jetpack CLI tool](https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#first-time) to generate changelog entries by running the following command: \`jetpack changelog add\`.
+Guidelines: [/docs/writing-a-good-changelog-entry.md](https://github.com/Automattic/jetpack/blob/trunk/docs/writing-a-good-changelog-entry.md)
 `,
 	};
 
@@ -477,6 +466,7 @@ async function checkDescription( payload, octokit ) {
 	const {
 		number,
 		user: { login: author },
+		head: { ref: ref },
 	} = payload.pull_request;
 	const { name: repo, owner } = payload.repository;
 	const ownerLogin = owner.login;
@@ -484,8 +474,8 @@ async function checkDescription( payload, octokit ) {
 
 	debug( `check-description: Status checks: ${ JSON.stringify( statusChecks ) }` );
 
-	if ( author === 'renovate[bot]' ) {
-		debug( `check-description: PR was created by ${ author }, skipping` );
+	if ( ref.startsWith( 'renovate/' ) && ( author === 'renovate[bot]' || author === 'matticbot' ) ) {
+		debug( `check-description: Renovate PR, skipping` );
 		return;
 	}
 
@@ -494,7 +484,7 @@ async function checkDescription( payload, octokit ) {
 	// We'll add any remarks we may have about the PR to that comment body.
 	let comment = `**Thank you for your PR!**
 
-When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/master/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
+When contributing to Jetpack, we have [a few suggestions](https://github.com/Automattic/jetpack/blob/trunk/.github/PULL_REQUEST_TEMPLATE.md) that can help us test and review your patch:<br>`;
 
 	comment += renderStatusChecks( statusChecks );
 	comment += `

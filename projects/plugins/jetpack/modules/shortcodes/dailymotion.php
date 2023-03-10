@@ -36,12 +36,12 @@ function dailymotion_embed_to_shortcode( $content ) {
 		}
 
 		foreach ( $matches as $match ) {
-			$src    = html_entity_decode( $match[3] );
+			$src    = html_entity_decode( $match[3], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 			$params = $match[2] . $match[4];
 
 			if ( 'regexp_ent' === $reg ) {
-				$src    = html_entity_decode( $src );
-				$params = html_entity_decode( $params );
+				$src    = html_entity_decode( $src, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+				$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );

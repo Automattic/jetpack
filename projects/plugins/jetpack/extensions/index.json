@@ -4,6 +4,7 @@
 		"button",
 		"calendly",
 		"contact-form",
+		"contact-form/salesforce-lead-form",
 		"contact-info",
 		"donations",
 		"eventbrite",
@@ -17,6 +18,7 @@
 		"map",
 		"markdown",
 		"opentable",
+		"payments",
 		"pinterest",
 		"podcast-player",
 		"publicize",
@@ -37,16 +39,31 @@
 		"subscriptions",
 		"tiled-gallery",
 		"videopress",
-		"wordads"
+		"wordads",
+		"payments-intro",
+		"post-publish-qr-post-panel",
+		"payment-buttons",
+		"site-editor-snackbars"
 	],
 	"beta": [
-		"amazon"
+		"amazon",
+		"blogging-prompt",
+		"conversation",
+		"cookie-consent",
+		"dialogue",
+		"google-docs-embed",
+		"launchpad-save-modal",
+		"post-publish-promote-post-panel",
+		"recipe",
+		"videopress/video",
+		"videopress/video-chapters"
 	],
 	"experimental": [
+		"ai-image",
+		"ai-paragraph",
 		"anchor-fm",
-		"premium-content",
-		"conversation",
-		"dialogue"
+		"blogging-prompts",
+		"premium-content"
 	],
 	"no-post-editor": [
 		"business-hours",
@@ -65,13 +82,11 @@
 		"opentable",
 		"pinterest",
 		"rating-star",
-		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
 		"revue",
 		"simple-payments",
 		"slideshow",
-		"subscriptions",
 		"tiled-gallery",
 		"videopress",
 		"wordads"

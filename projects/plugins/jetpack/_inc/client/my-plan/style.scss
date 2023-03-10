@@ -16,6 +16,64 @@
 	color: $gray-darken-20;
 }
 
+.jp-landing__licensing-actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	span {
+		@include breakpoint( "<660px" ) {
+			display: none;
+		}
+	}
+
+	@include breakpoint( ">480px" ) {
+		justify-content: space-between;
+	}
+
+	.jp-landing__licensing-actions-item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+
+
+		text-align: center;
+
+		@include breakpoint( ">480px" ) {
+			flex-direction: row;
+		}
+
+		@include breakpoint( "<660px" ) {
+			justify-content: space-between;
+			flex: 1;
+		}
+
+		.dops-button {
+			margin-right: 0;
+		}
+	}
+
+	.jp-landing__licensing-actions-item.no-licenses {
+		justify-content: space-between;
+		flex: 1;
+	}
+
+	.jp-landing__licensing-actions-item.no-licenses {
+		justify-content: flex-end;
+	}
+}
+
+.all-purchases__link {
+	display: inline-block;
+	box-sizing: border-box;
+	padding: 7px 20px 9px 0;
+
+	@include breakpoint( "<480px" ) {
+		padding: 0px;
+		margin-bottom: 15px;
+	}
+}
+
 .jp-landing__plan-features-header-recommendations-cta-container {
 	order: 30;
 	align-self: center;

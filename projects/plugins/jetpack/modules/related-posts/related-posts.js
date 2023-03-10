@@ -40,6 +40,10 @@
 			var args = 'relatedposts=1';
 			var relatedPosts = document.querySelector( '#jp-relatedposts' );
 
+			if ( ! relatedPosts ) {
+				return false;
+			}
+
 			if ( relatedPosts.hasAttribute( 'data-exclude' ) ) {
 				args += '&relatedposts_exclude=' + relatedPosts.getAttribute( 'data-exclude' );
 			}
@@ -291,6 +295,10 @@
 
 		var endpointURL = jprp.getEndpointURL();
 		var relatedPosts = document.querySelector( '#jp-relatedposts' );
+
+		if ( ! endpointURL ) {
+			return;
+		}
 
 		if ( document.querySelectorAll( '#jp-relatedposts .jp-relatedposts-post' ).length ) {
 			afterPostsHaveLoaded();

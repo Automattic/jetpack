@@ -57,7 +57,7 @@ function render_amp( $attr ) {
 	}
 
 	static $wp_block_jetpack_slideshow_id = 0;
-	$wp_block_jetpack_slideshow_id++;
+	++$wp_block_jetpack_slideshow_id;
 
 	$ids      = $attr['ids'];
 	$autoplay = empty( $attr['autoplay'] ) ? false : true;
@@ -74,7 +74,7 @@ function render_amp( $attr ) {
 		absint( $wp_block_jetpack_slideshow_id ),
 		amp_carousel( $attr, $wp_block_jetpack_slideshow_id ),
 		$autoplay ? autoplay_ui( $wp_block_jetpack_slideshow_id ) : '',
-		bullets( $ids, $wp_block_jetpack_slideshow_id )
+		render_paginator( $ids, $wp_block_jetpack_slideshow_id )
 	);
 }
 
@@ -142,6 +142,28 @@ function slides( $ids = array(), $width = 400, $height = 300 ) {
 }
 
 /**
+ * Render blocks paginator section
+ *
+ * @param array $ids Array of image ids.
+ * @param int   $block_ordinal The ordinal number of the block, used in unique ID.
+ *
+ * @return array Array of bullets markup.
+ */
+function render_paginator( $ids = array(), $block_ordinal = 0 ) {
+	$total = count( $ids );
+
+	if ( $total < 6 ) {
+		return bullets( $ids, $block_ordinal );
+	}
+
+	return sprintf(
+		'<div class="swiper-pagination-simple">%s / %s</div>',
+		absint( $block_ordinal ),
+		absint( $total )
+	);
+}
+
+/**
  * Generate array of bullets markup
  *
  * @param array $ids Array of image ids.
@@ -168,7 +190,7 @@ function bullets( $ids = array(), $block_ordinal = 0 ) {
 	);
 
 	return sprintf(
-		'<amp-selector id="wp-block-jetpack-slideshow__amp-pagination__%1$d" class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-bullets amp-pagination" on="select:wp-block-jetpack-slideshow__amp-carousel__%1$d.goToSlide(index=event.targetOption)" layout="container">%2$s</amp-selector>',
+		'<amp-selector id="wp-block-jetpack-slideshow__amp-pagination__%1$d" class="wp-block-jetpack-slideshow_pagination swiper-pagination swiper-pagination-custom amp-pagination" on="select:wp-block-jetpack-slideshow__amp-carousel__%1$d.goToSlide(index=event.targetOption)" layout="container">%2$s</amp-selector>',
 		absint( $block_ordinal ),
 		implode( '', $buttons )
 	);

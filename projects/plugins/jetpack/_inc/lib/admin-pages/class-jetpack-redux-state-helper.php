@@ -7,18 +7,36 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Responsible for populating the initial Redux state.
  */
 class Jetpack_Redux_State_Helper {
+	/**
+	 * Generate minimal state for React to fetch its own data asynchronously after load
+	 * This can improve user experience, reducing time spent on server requests before serving the page
+	 * e.g. used by React Disconnect Dialog on plugins page where the full initial state is not needed
+	 */
+	public static function get_minimal_state() {
+		return array(
+			'WP_API_root'  => esc_url_raw( rest_url() ),
+			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+		);
+	}
+
 	/**
 	 * Generate the initial state array to be used by the Redux store.
 	 */
@@ -28,21 +46,27 @@ class Jetpack_Redux_State_Helper {
 		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page.
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+
 		$module_list_endpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules              = $module_list_endpoint->get_modules();
 
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
 		foreach ( $modules as $slug => $data ) {
-			$modules[ $slug ]['name']              = html_entity_decode( $data['name'] );
-			$modules[ $slug ]['description']       = html_entity_decode( $data['description'] );
-			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
-			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
+			$modules[ $slug ]['name']              = html_entity_decode( $data['name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['description']       = html_entity_decode( $data['description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
+
+		// "mock" a block module in order to get it searchable in the settings.
+		$modules['blocks']['module']                    = 'blocks';
+		$modules['blocks']['additional_search_queries'] = esc_html_x( 'blocks, block, gutenberg', 'Search terms', 'jetpack' );
 
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
-		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
+		$enabled_roles = Stats_Options::get_option( 'roles' );
 
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -93,14 +117,18 @@ class Jetpack_Redux_State_Helper {
 
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
+		$host = new Host();
+
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'           => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'purchaseToken'               => self::get_purchase_token(),
+			'partnerCoupon'               => Jetpack_Partner_Coupon::get_coupon(),
 			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			'connectionStatus'            => $connection_status,
-			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			'connectedPlugins'            => Connection_Plugin_Storage::get_all(),
+			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				? Jetpack::init()->build_connect_url( true, false, false )
 				: '',
 			'dismissedNotices'            => self::get_dismissed_jetpack_notices(),
@@ -128,10 +156,11 @@ class Jetpack_Redux_State_Helper {
 				'currentUser' => $current_user_data,
 			),
 			'siteData'                    => array(
+				'blog_id'                    => Jetpack_Options::get_option( 'id', 0 ),
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
-				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 				/**
 				 * Whether promotions are visible or not.
 				 *
@@ -140,10 +169,14 @@ class Jetpack_Redux_State_Helper {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions'             => apply_filters( 'jetpack_show_promotions', true ),
-				'isAtomicSite'               => jetpack_is_atomic_site(),
+				'isAtomicSite'               => $host->is_woa_site(),
+				'isWoASite'                  => $host->is_woa_site(),
+				'isAtomicPlatform'           => $host->is_atomic_platform(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
+				/** This filter is documented in my-jetpack/src/class-initializer.php */
+				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
@@ -152,6 +185,11 @@ class Jetpack_Redux_State_Helper {
 				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
 				'support'   => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
+					'widgets'         => current_theme_supports( 'widgets' ),
+					'webfonts'        => (
+						// @todo Remove conditional once we drop support for WordPress 6.1
+						function_exists( 'wp_theme_has_theme_json' ) ? wp_theme_has_theme_json() : WP_Theme_JSON_Resolver::theme_has_support()
+					) && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -170,9 +208,17 @@ class Jetpack_Redux_State_Helper {
 			'isSafari'                    => $is_safari || User_Agent_Info::is_opera_desktop(), // @todo Rename isSafari everywhere.
 			'doNotUseConnectionIframe'    => Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ),
 			'licensing'                   => array(
-				'error'           => Licensing::instance()->last_error(),
-				'showLicensingUi' => Licensing::instance()->is_licensing_input_enabled(),
+				'error'                   => Licensing::instance()->last_error(),
+				'showLicensingUi'         => Licensing::instance()->is_licensing_input_enabled(),
+				'userCounts'              => Licensing_Endpoints::get_user_license_counts(),
+				'activationNoticeDismiss' => Licensing::instance()->get_license_activation_notice_dismiss(),
 			),
+			'hasSeenWCConnectionModal'    => Jetpack_Options::get_option( 'has_seen_wc_connection_modal', false ),
+			'newRecommendations'          => Jetpack_Recommendations::get_new_conditional_recommendations(),
+			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
+			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
+			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
+			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
 		);
 	}
 
@@ -230,7 +276,7 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			jetpack_require_lib( 'class.jetpack-photon-image' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
 			$photon_image = new Jetpack_Photon_Image(
 				array(
 					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
@@ -318,9 +364,9 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
-		foreach ( Jetpack_Keyring_Service_Helper::$SERVICES as $service_name => $service_info ) {
+		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
 			$connect_urls[ $service_name ] = Jetpack_Keyring_Service_Helper::connect_url( $service_name, $service_info['for'] );
 		}
@@ -360,6 +406,8 @@ class Jetpack_Redux_State_Helper {
 	}
 }
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 /**
  * Gather data about the current user.
  *
@@ -376,6 +424,11 @@ function jetpack_current_user_data() {
 	$dotcom_data       = $jetpack_connection->get_connected_user_data();
 
 	// Add connected user gravatar to the returned dotcom_data.
+	// Probably we shouldn't do this when $dotcom_data is false, but we have been since 2016 so
+	// clients probably expect that by now.
+	if ( false === $dotcom_data ) {
+		$dotcom_data = array();
+	}
 	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
 		get_avatar_url(
 			$dotcom_data['email'],

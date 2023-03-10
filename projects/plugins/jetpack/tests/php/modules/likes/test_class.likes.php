@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/likes.php';
+require __DIR__ . '/../../../../modules/likes.php';
 
 class WP_Test_Likes extends WP_UnitTestCase {
 
@@ -22,7 +22,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 	 * @since 8.4.0
 	 */
 	public function test_action_init_likes_visible() {
-		$this->go_to( get_permalink( $this->factory()->post->create() ) );
+		$this->go_to( get_permalink( self::factory()->post->create() ) );
 		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
 		add_filter( 'wpl_is_single_post_disabled', '__return_true' );
 		$instance = new Jetpack_Likes();
@@ -48,7 +48,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$this->assertEquals( 'Some content.', Jetpack_Likes::init()->post_likes( $content ) );
 
 		// Create and set a global post
-		$post_id = $this->factory->post->create( array() );
+		$post_id = self::factory()->post->create( array() );
 		global $post;
 		$post = get_post( $post_id );
 
@@ -78,7 +78,7 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		add_filter( 'wpl_is_single_post_disabled', '__return_false' );
 
 		// Likes should not be visible where they're not supported
-		$this->assertEquals( false, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertFalse( Jetpack_Likes::init()->settings->is_likes_visible() );
 
 		// Reenable support
 		remove_filter( 'wpl_is_single_post_disabled', '__return_false' );
@@ -86,12 +86,12 @@ class WP_Test_Likes extends WP_UnitTestCase {
 		$GLOBALS['post']->post_status = 'draft';
 
 		// Likes should not be visible in draft posts
-		$this->assertEquals( false, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertFalse( Jetpack_Likes::init()->settings->is_likes_visible() );
 
 		$GLOBALS['post']->post_status = 'publish';
 
 		// Likes should be visible
-		$this->assertEquals( true, Jetpack_Likes::init()->settings->is_likes_visible() );
+		$this->assertTrue( Jetpack_Likes::init()->settings->is_likes_visible() );
 	}
 
 	/**

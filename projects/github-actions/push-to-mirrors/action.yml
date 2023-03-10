@@ -1,5 +1,8 @@
 name: Push to mirrors
 description: Push built versions of projects from a monorepo to mirror repos.
+branding:
+  icon: 'package'
+  color: 'green'
 inputs:
   commit-message:
     description: >

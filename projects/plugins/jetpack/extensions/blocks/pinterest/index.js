@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import save from './save';
+import { G, Path, Rect, SVG } from '@wordpress/components';
+import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import deprecatedV1 from './deprecated/v1';
+import edit from './edit';
+import save from './save';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 

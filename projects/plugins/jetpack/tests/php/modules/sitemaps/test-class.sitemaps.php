@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'modules/sitemaps/sitemaps.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemaps.php';
 
 class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 
@@ -12,7 +12,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_manager_constructor() {
-		$manager = new Jetpack_Sitemap_Manager();
+		$manager = new Jetpack_Sitemap_Manager(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->assertTrue( true );
 	}
 
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 		// Check default value.
 		$manager->callback_action_filter_sitemap_location();
 		$location = get_option( 'jetpack_sitemap_location' );
-		$this->assertEquals( $location, '' );
+		$this->assertSame( '', $location );
 
 		// Clean up.
 		delete_option( 'jetpack_sitemap_location' );
@@ -52,7 +52,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 		delete_option( 'jetpack_sitemap_location' );
 
 		// Set the location.
-		function add_location( $string ) {
+		function add_location( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
 			$string .= '/blah';
 			return $string;
 		}
@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Sitemap_Manager extends WP_UnitTestCase {
 
 		$manager->callback_action_filter_sitemap_location();
 		$location = get_option( 'jetpack_sitemap_location' );
-		$this->assertEquals( $location, '/blah' );
+		$this->assertEquals( '/blah', $location );
 
 		// Clean up.
 		delete_option( 'jetpack_sitemap_location' );

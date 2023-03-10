@@ -1,6 +1,3 @@
-/**
- * External Dependencies
- */
 import { isBlobURL } from '@wordpress/blob';
 
 export default function GalleryImageSave( props ) {

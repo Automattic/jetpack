@@ -1,42 +1,44 @@
-<script>
-	import ComputerIcon from '../../../svg/computer.svg';
-	import MobileIcon from '../../../svg/mobile.svg';
-	import RefreshIcon from '../../../svg/refresh.svg';
-	import ScoreBar from '../elements/ScoreBar.svelte';
-	import ScoreContext from '../elements/ScoreContext.svelte';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+<script lang="ts">
+	import { derived, writable } from 'svelte/store';
+	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
 		requestSpeedScores,
-		didScoresImprove,
-		getScoreImprovementPercentage,
+		didScoresChange,
+		scoreChangeModal,
+		ScoreChangeMessage,
 	} from '../../../api/speed-scores';
-	import debounce from '../../../utils/debounce';
-	import { __ } from '@wordpress/i18n';
-	import { criticalCssStatus } from '../../../stores/critical-css-status';
+	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
 	import { modules } from '../../../stores/modules';
-	import { derived } from 'svelte/store';
-	import RatingCard from '../elements/RatingCard.svelte';
+	import ComputerIcon from '../../../svg/computer.svg';
+	import MobileIcon from '../../../svg/mobile.svg';
+	import RefreshIcon from '../../../svg/refresh.svg';
+	import { recordBoostEvent } from '../../../utils/analytics';
+	import { castToString } from '../../../utils/cast-to-string';
+	import debounce from '../../../utils/debounce';
+	import PopOut from '../elements/PopOut.svelte';
+	import ScoreBar from '../elements/ScoreBar.svelte';
+	import ScoreContext from '../elements/ScoreContext.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
-	let isLoading = siteIsOnline;
 	let showPrevScores;
 	let scoreLetter = '';
-	let scores = {
+
+	const isLoading = writable( siteIsOnline );
+
+	const scores = writable( {
 		current: {
 			mobile: 0,
 			desktop: 0,
 		},
-		previous: null,
-	};
-	let showRatingCard = false;
-	let improvementPercentage = 0;
+		noBoost: null,
+		isStale: false,
+	} );
 
-	if ( siteIsOnline ) {
-		refreshScore( false );
-	}
+	refreshScore( false );
 
 	/**
 	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
@@ -51,14 +53,18 @@
 	 * @type {Readable<string>}
 	 */
 	const scoreConfigString = derived(
-		[ modules, criticalCssStatus ],
-		( [ $modules, $criticalCssStatus ] ) =>
-			JSON.stringify( {
-				modules: $modules,
+		[ modules, criticalCssState ],
+		( [ $modules, $criticalCssState ] ) => {
+			const scoreModules = Object.assign( {}, $modules );
+			delete scoreModules[ 'image-guide' ];
+
+			return JSON.stringify( {
+				modules: scoreModules,
 				criticalCss: {
-					created: $criticalCssStatus.created,
+					created: $criticalCssState.created,
 				},
-			} )
+			} );
+		}
 	);
 
 	/**
@@ -69,61 +75,71 @@
 	let currentScoreConfigString = $scoreConfigString;
 
 	async function refreshScore( force = false ) {
-		isLoading = true;
+		if ( ! siteIsOnline ) {
+			return;
+		}
+
+		isLoading.set( true );
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( force );
-			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-			showPrevScores = didScoresImprove( scores );
+			scores.set( await requestSpeedScores( force ) );
+			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
+			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
+			recordBoostEvent( 'speed_score_request_error', {
+				error_message: castToString( err.message ),
+			} );
+			// eslint-disable-next-line no-console
 			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading = false;
+			isLoading.set( false );
 		}
 	}
 
+	// noinspection JSUnusedLocalSymbols
 	/**
-	 * A store that checks the speed score needs a refresh.
+	 * A store that checks if the speed score needs a refresh.
 	 */
-	const needRefresh = derived(
-		[ criticalCssStatus, modulesInSync, scoreConfigString ],
-		( [ $criticalCssStatus, $modulesInSync, $scoreConfigString ] ) => {
+	const needsRefresh = derived(
+		[ isGenerating, modulesInSync, scoreConfigString, scores ],
+		// eslint-disable-next-line no-shadow
+		( [ $isGenerating, $modulesInSync, $scoreConfigString, $scores ] ) => {
 			return (
-				! $criticalCssStatus.generating &&
+				! $isGenerating &&
 				$modulesInSync &&
-				$scoreConfigString !== currentScoreConfigString
+				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
 		}
 	);
 
 	const debouncedRefreshScore = debounce( force => {
-		if ( $needRefresh ) {
+		if ( $needsRefresh ) {
 			refreshScore( force );
 		}
 	}, 2000 );
 
-	$: if ( $needRefresh ) {
+	let modalData: ScoreChangeMessage | null = null;
+	$: modalData = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
+
+	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
-	$: {
-		if ( didScoresImprove( scores ) && Jetpack_Boost.preferences.showRatingPrompt ) {
-			showRatingCard = true;
-			Jetpack_Boost.preferences.showRatingPrompt = false;
-			improvementPercentage = getScoreImprovementPercentage( scores );
-		}
+	function dismissModal() {
+		modalData = null;
 	}
 </script>
 
 <div class="jb-container">
-	<div class="jb-site-score" class:loading={isLoading}>
+	<div id="jp-admin-notices" class="jetpack-boost-jitm-card" />
+	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
 				<h2>
-					{#if isLoading}
+					{#if $isLoading}
 						{__( 'Loading…', 'jetpack-boost' )}
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
@@ -131,13 +147,13 @@
 						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
-				{#if ! isLoading && ! loadError}
+				{#if ! $isLoading && ! loadError}
 					<ScoreContext />
 				{/if}
 				<button
 					type="button"
 					class="components-button is-link"
-					disabled={isLoading}
+					disabled={$isLoading}
 					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
@@ -173,12 +189,12 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.previous?.mobile}
-				score={scores.current.mobile}
+				prevScore={$scores.noBoost?.mobile}
+				score={$scores.current.mobile}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
-				previousScoreTooltip={__( 'Your previous mobile score', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 
@@ -188,16 +204,24 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={scores.previous?.desktop}
-				score={scores.current.desktop}
+				prevScore={$scores.noBoost?.desktop}
+				score={$scores.current.desktop}
 				active={siteIsOnline}
-				{isLoading}
+				isLoading={$isLoading}
 				{showPrevScores}
-				previousScoreTooltip={__( 'Your previous desktop score', 'jetpack-boost' )}
+				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
 		</div>
 	</div>
 </div>
-{#if showRatingCard}
-	<RatingCard on:dismiss={() => ( showRatingCard = false )} improvement={improvementPercentage} />
+
+{#if modalData}
+	<PopOut
+		id={modalData.id}
+		title={modalData.title}
+		on:dismiss={() => dismissModal()}
+		message={modalData.message}
+		ctaLink={modalData.ctaLink}
+		cta={modalData.cta}
+	/>
 {/if}

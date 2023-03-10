@@ -1,26 +1,31 @@
-/**
- * External dependencies
- */
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { execaCommand, execaCommandSync } from 'execa';
 import Listr from 'listr';
-import VerboseRenderer from 'listr-verbose-renderer';
 import UpdateRenderer from 'listr-update-renderer';
-import execa from 'execa';
+import VerboseRenderer from 'listr-verbose-renderer';
 import PATH from 'path-name';
-
-/**
- * Internal dependencies
- */
-import { chalkJetpackGreen } from '../helpers/styling';
+import { chalkJetpackGreen } from '../helpers/styling.js';
 
 /**
  * Show us the status of the cli, such as the currenet linked directory.
  */
 function cliStatus() {
-	console.log(
-		chalkJetpackGreen( 'Jetpack CLI is currently linked to ' + path.join( __dirname, `../../../` ) )
-	);
-	console.log( 'To change the linked directory of the CLI, run `pnpm cli-setup` ' );
+	if ( process.env.JETPACK_CLI_DID_REEXEC ) {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is apparently linked to ' + process.env.JETPACK_CLI_DID_REEXEC
+			)
+		);
+	} else {
+		console.log(
+			chalkJetpackGreen(
+				'Jetpack CLI is currently linked to ' +
+					fileURLToPath( new URL( `../../../`, import.meta.url ) )
+			)
+		);
+	}
+	console.log( 'To change the linked directory of the CLI, run `pnpm jetpack cli link` ' );
 }
 /**
  * CLI link.
@@ -164,6 +169,6 @@ function command( cmd, verbose, cwd ) {
 	}
 
 	return verbose
-		? execa.commandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
-		: execa.command( `${ cmd }`, { cwd: cwd, env: env } );
+		? execaCommandSync( `${ cmd }`, { cwd: cwd, env: env, stdio: 'inherit' } )
+		: execaCommand( `${ cmd }`, { cwd: cwd, env: env } );
 }

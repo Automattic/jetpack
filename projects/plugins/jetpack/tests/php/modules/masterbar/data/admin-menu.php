@@ -463,10 +463,3 @@ function get_submenu_fixture() {
 		),
 	);
 }
-
-/**
- * Mock for testing
- */
-function gutenberg_is_fse_theme() {
-	return true;
-}

@@ -214,7 +214,10 @@ class Comments extends Module {
 			$comment = get_comment( $args[0] );
 		}
 
-		if ( false !== $comment && ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if (
+			isset( $comment->comment_type )
+			&& ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true )
+		) {
 			return false;
 		}
 

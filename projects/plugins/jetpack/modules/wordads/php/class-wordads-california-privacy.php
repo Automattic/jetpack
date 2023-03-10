@@ -12,7 +12,7 @@ use Automattic\Jetpack\Assets;
  *
  * Implementation of [California Consumer Privacy Act] (https://leginfo.legislature.ca.gov/faces/codes_displayText.xhtml?lawCode=CIV&division=3.&title=1.81.5.&part=4.&chapter=&article=) as applicable to WordAds.
  * Includes:
- * - Do Not Sell My Personal Information shortcode and widget.
+ * - Do Not Sell or Share My Personal Information shortcode and widget.
  * - Modal notice to toggle opt-in/opt-out.
  * - Cookie handling. Implements IAB usprivacy cookie specifications.
  * - Client side geo-detection of California visitors by IP address. Avoids issues with page caching.
@@ -25,6 +25,7 @@ class WordAds_California_Privacy {
 	public static function init() {
 		// Initialize shortcode.
 		add_shortcode( 'ccpa-do-not-sell-link', array( __CLASS__, 'do_not_sell_link_shortcode' ) );
+		add_shortcode( 'privacy-do-not-sell-link', array( __CLASS__, 'do_not_sell_link_shortcode' ) );
 	}
 
 	/**
@@ -46,12 +47,13 @@ class WordAds_California_Privacy {
 			'wordads_ccpa',
 			'ccpaSettings',
 			array(
-				'defaultOptinCookieString' => esc_html( self::get_optin_cookie_string() ),
-				'ccpaCssUrl'               => esc_url( Assets::get_file_url_for_environment( '/css/wordads-ccpa.min.css', '/css/wordads-ccpa.css' ) . '?ver=' . JETPACK__VERSION ),
-				'ajaxUrl'                  => esc_url( admin_url( 'admin-ajax.php' ) ),
-				'ajaxNonce'                => wp_create_nonce( 'ccpa_optout' ),
-				'forceApplies'             => wp_json_encode( is_user_logged_in() && current_user_can( 'manage_options' ) ),
-				'strings'                  => array(
+				'defaultOptInCookieString'  => esc_html( self::get_optin_cookie_string() ),
+				'defaultOptOutCookieString' => esc_html( self::get_optout_cookie_string() ),
+				'ccpaCssUrl'                => esc_url( Assets::get_file_url_for_environment( '/css/wordads-ccpa.min.css', '/css/wordads-ccpa.css' ) . '?ver=' . JETPACK__VERSION ),
+				'ajaxUrl'                   => esc_url( admin_url( 'admin-ajax.php' ) ),
+				'ajaxNonce'                 => wp_create_nonce( 'ccpa_optout' ),
+				'forceApplies'              => wp_json_encode( is_user_logged_in() && current_user_can( 'manage_options' ) ),
+				'strings'                   => array(
 					'pleaseWait' => esc_html__( 'Please Wait', 'jetpack' ),
 				),
 			)
@@ -70,7 +72,7 @@ class WordAds_California_Privacy {
 	}
 
 	/**
-	 * Outputs [ccpa-do-not-sell-link] shortcode markup.
+	 * Outputs [privacy-do-not-sell-link] shortcode markup.
 	 *
 	 * @return string The generated shortcode markup.
 	 */
@@ -88,12 +90,12 @@ class WordAds_California_Privacy {
 	}
 
 	/**
-	 * Gets the text used to link to the opt-out page. By law must read 'Do Not Sell My Personal Information'.
+	 * Gets the text used to link to the opt-out page. By law must read 'Do Not Sell or Share My Personal Information'.
 	 *
 	 * @return mixed|string|void The text of the opt-out link.
 	 */
 	private static function get_optout_link_text() {
-		return __( 'Do Not Sell My Personal Information', 'jetpack' );
+		return __( 'Do Not Sell or Share My Personal Information', 'jetpack' );
 	}
 
 	/**
@@ -135,7 +137,7 @@ class WordAds_California_Privacy {
 		$host = 'localhost';
 
 		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
-			$host = $_SERVER['HTTP_HOST'];
+			$host = filter_var( wp_unslash( $_SERVER['HTTP_HOST'] ) );
 		}
 
 		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
@@ -165,7 +167,7 @@ class WordAds_California_Privacy {
 	 * @return bool True if the cookie could be set.
 	 */
 	private static function set_optout_cookie() {
-		return setcookie( self::get_cookie_name(), self::get_optout_cookie_string(), time() + ( 5 * YEAR_IN_SECONDS ), '/', self::get_cookie_domain() );
+		return setcookie( self::get_cookie_name(), self::get_optout_cookie_string(), time() + ( 5 * YEAR_IN_SECONDS ), '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 	}
 
 	/**
@@ -174,7 +176,7 @@ class WordAds_California_Privacy {
 	 * @return bool True if the cookie could be set.
 	 */
 	private static function set_optin_cookie() {
-		return setcookie( self::get_cookie_name(), self::get_optin_cookie_string(), time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain() );
+		return setcookie( self::get_cookie_name(), self::get_optin_cookie_string(), time() + YEAR_IN_SECONDS, '/', self::get_cookie_domain(), is_ssl(), false ); // phpcs:ignore Jetpack.Functions.SetCookie -- Want this accessible.
 	}
 
 	/**
@@ -183,7 +185,7 @@ class WordAds_California_Privacy {
 	public static function handle_optout_request() {
 		check_ajax_referer( 'ccpa_optout', 'security' );
 
-		$optout = 'true' === $_POST['optout'];
+		$optout = isset( $_POST['optout'] ) && 'true' === $_POST['optout'];
 		$optout ? self::set_optout_cookie() : self::set_optin_cookie();
 
 		wp_send_json_success( $optout );
@@ -205,10 +207,10 @@ class WordAds_California_Privacy {
 			<p>%s</p>
 			<p>%s</p>
 			<p>%s</p>',
-			esc_html__( 'If you are a California resident, you have the right to opt out of the "sale" of your "personal information" under the California Consumer Privacy Act ("CCPA")', 'jetpack' ),
-			esc_html__( 'This site operates an ads program in partnership with third-party vendors who help place ads. Advertising cookies enable these ads partners to serve ads, to personalize those ads based on information like visits to this site and other sites on the internet, and to understand how users engage with those ads. Cookies collect certain information as part of the ads program, and we provide the following categories of information to third-party advertising partners: online identifiers and internet or other network or device activity (such as unique identifiers, cookie information, and IP address), and geolocation data (approximate location information from your IP address). This type of sharing with ads partners may be considered a "sale" of personal information under the CCPA.', 'jetpack' ),
+			esc_html__( 'If you are a resident of certain US states, you have the right to opt out of the "sale" of your "personal information" under your state\'s privacy laws.', 'jetpack' ),
+			esc_html__( 'This site operates an ads program in partnership with third-party vendors who help place ads. Advertising cookies enable these ads partners to serve ads, to personalize those ads based on information like visits to this site and other sites on the internet, and to understand how users engage with those ads. Cookies collect certain information as part of the ads program, and we provide the following categories of information to third-party advertising partners: online identifiers and internet or other network or device activity (such as unique identifiers, cookie information, and IP address), and geolocation data (approximate location information from your IP address). This type of sharing with ads partners may be considered a "sale" of personal information under your state\'s privacy laws.', 'jetpack' ),
 			esc_html__( 'We never share information that identifies you personally, like your name or email address, as part of the advertising program.', 'jetpack' ),
-			esc_html__( 'If you\'d prefer not to see ads that are personalized based on information from your visits to this site, you can opt-out by toggling the "Do Not Sell My Personal Information" switch below to the On position.', 'jetpack' ),
+			esc_html__( 'If you\'d prefer not to see ads that are personalized based on information from your visits to this site, you can opt-out by toggling the "Do Not Sell or Share My Personal Information" switch below to the On position.', 'jetpack' ),
 			esc_html__( 'This opt-out is managed through cookies, so if you delete cookies, your browser is set to delete cookies automatically after a certain length of time, or if you visit this site with a different browser, you\'ll need to make this selection again.', 'jetpack' ),
 			esc_html__( 'After you opt-out you may still see ads, including personalized ones, on this site and other sites - they just won\'t be personalized based on information from your visits to this site.', 'jetpack' )
 		);
@@ -233,7 +235,7 @@ class WordAds_California_Privacy {
 						<div class="components-modal__content ccpa-settings">
 							<div class="components-modal__header">
 								<div class="components-modal__header-heading-container">
-									<h1 id="dialog_label" class="components-modal__header-heading"><?php esc_html_e( 'Do Not Sell My Personal Information', 'jetpack' ); ?></h1>
+									<h1 id="dialog_label" class="components-modal__header-heading"><?php esc_html_e( 'Do Not Sell or Share My Personal Information', 'jetpack' ); ?></h1>
 								</div>
 								<button type="button" aria-label="<?php esc_html_e( 'Close dialog', 'jetpack' ); ?>" class="components-button components-icon-button">
 									<svg aria-hidden="true" role="img" focusable="false" class="dashicon dashicons-no-alt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
@@ -245,7 +247,7 @@ class WordAds_California_Privacy {
 							<div class="components-modal__footer">
 								<div role="form" class="ccpa-setting">
 									<label>
-										<span class="ccpa-setting__header"><?php esc_html_e( 'Do Not Sell My Personal Information', 'jetpack' ); ?></span>
+										<span class="ccpa-setting__header"><?php esc_html_e( 'Do Not Sell or Share My Personal Information', 'jetpack' ); ?></span>
 										<span class="ccpa-setting__toggle components-form-toggle">
 											<input id="ccpa-opt-out" class="components-form-toggle__input opt-out" type="checkbox" value="false" autofocus />
 											<span class="components-form-toggle__track"></span>

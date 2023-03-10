@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Widgets: Fix a conflict between various Jetpack blocks and some WordPress core legacy widgets.

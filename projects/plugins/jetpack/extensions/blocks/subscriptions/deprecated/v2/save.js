@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { RawHTML } from '@wordpress/element';
 
 export default function Save( { attributes } ) {

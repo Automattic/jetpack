@@ -1,7 +1,4 @@
-/**
- * Internal dependencies
- */
+import { registerJetpackPlugin } from '@automattic/jetpack-shared-extension-utils';
 import { name, settings } from '.';
-import registerJetpackPlugin from '../../shared/register-jetpack-plugin';
 
 registerJetpackPlugin( name, settings );

@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { uniqueId } from 'lodash';
-
-/**
- * Internal dependencies
- */
 import { NEW_NOTICE, REMOVE_NOTICE } from '../action-types';
 
 export function removeNotice( noticeId ) {

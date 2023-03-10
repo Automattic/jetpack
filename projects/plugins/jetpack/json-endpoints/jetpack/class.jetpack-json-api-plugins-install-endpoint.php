@@ -1,7 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-include_once ABSPATH . 'wp-admin/includes/file.php';
+use Automattic\Jetpack\Plugins_Installer;
+
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 // POST /sites/%s/plugins/%s/install
 new Jetpack_JSON_API_Plugins_Install_Endpoint(
 	array(
@@ -50,17 +52,36 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint(
 	)
 );
 
+/**
+ * Plugins install enedpoint class.
+ *
+ * POST /sites/%s/plugins/%s/install
+ */
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST /sites/%s/plugins/%s/install
+	/**
+	 * Needed capabilities.
+	 *
+	 * @var string
+	 */
 	protected $needed_capabilities = 'install_plugins';
+
+	/**
+	 * The action.
+	 *
+	 * @var string
+	 */
 	protected $action = 'install';
 
+	/**
+	 * Installation.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function install() {
-		jetpack_require_lib( 'plugins' );
 		$result = '';
 		foreach ( $this->plugins as $index => $slug ) {
-			$result = Jetpack_Plugins::install_plugin( $slug );
+			$result = Plugins_Installer::install_plugin( $slug );
 			if ( is_wp_error( $result ) ) {
 				$this->log[ $slug ][] = $result->get_error_message();
 				if ( ! $this->bulk ) {
@@ -74,23 +95,26 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		}
 
 		// No errors, install worked. Now replace the slug with the actual plugin id
-		$this->plugins[$index] = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
+		$this->plugins[ $index ] = Plugins_Installer::get_plugin_id_by_slug( $slug );
 
 		return true;
 	}
 
+	/**
+	 * Validate the plugins.
+	 *
+	 * @return bool|WP_Error
+	 */
 	protected function validate_plugins() {
 		if ( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
 
-		jetpack_require_lib( 'plugins' );
-		foreach ( $this->plugins as $index => $slug ) {
+		foreach ( $this->plugins as $slug ) {
 			// make sure it is not already installed
-			if ( Jetpack_Plugins::get_plugin_id_by_slug( $slug ) ) {
+			if ( Plugins_Installer::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
-
 		}
 
 		return true;

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Improved security by sanitizing return value of get_current_screen function

@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import ConnectUserBar from 'components/connect-user-bar';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ConnectUserBar from 'components/connect-user-bar';
+import React, { Component } from 'react';
 
 export const SSO = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -24,10 +17,15 @@ export const SSO = withModuleSettingsFormHelpers(
 		 * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
 		 */
 		state = {
-			jetpack_sso_match_by_email: this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso' ),
+			jetpack_sso_match_by_email: this.props.getOptionValue(
+				'jetpack_sso_match_by_email',
+				'sso',
+				false
+			),
 			jetpack_sso_require_two_step: this.props.getOptionValue(
 				'jetpack_sso_require_two_step',
-				'sso'
+				'sso',
+				false
 			),
 		};
 
@@ -95,7 +93,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 						<FormFieldset>
 							<CompactFormToggle
-								checked={ this.state.jetpack_sso_match_by_email }
+								checked={ isSSOActive && this.state.jetpack_sso_match_by_email }
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||
@@ -108,7 +106,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
-								checked={ this.state.jetpack_sso_require_two_step }
+								checked={ isSSOActive && this.state.jetpack_sso_require_two_step }
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||

@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-BREAKING: Added method `parseVersion` to `VersioningPlugin` interface. Any versioning plugins must implement this method.

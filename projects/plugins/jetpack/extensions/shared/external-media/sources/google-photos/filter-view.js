@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Fragment, useState } from '@wordpress/element';
 import { SelectControl, Button } from '@wordpress/components';
+import { Fragment, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const FILTERS = [
 	{ label: __( 'Category', 'jetpack' ), value: 'category' },
@@ -66,7 +63,7 @@ function GoogleFilterView( props ) {
 				onChange={ setCurrentFilter }
 			/>
 
-			<Button disabled={ isLoading || isCopying } isSecondary isSmall onClick={ setFilter }>
+			<Button disabled={ isLoading || isCopying } variant="secondary" isSmall onClick={ setFilter }>
 				{ __( 'Add Filter', 'jetpack' ) }
 			</Button>
 		</Fragment>

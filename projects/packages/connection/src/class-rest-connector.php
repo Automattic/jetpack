@@ -55,7 +55,7 @@ class REST_Connector {
 		self::$user_permissions_error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
 			Please contact your site admin if you think this is a mistake.',
-			'jetpack'
+			'jetpack-connection'
 		);
 
 		$jp_version = Constants::get_constant( 'JETPACK__VERSION' );
@@ -105,12 +105,12 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::disconnect_site_permission_check',
 				'args'                => array(
 					'isActive' => array(
-						'description'       => __( 'Set to false will trigger the site to disconnect.', 'jetpack' ),
+						'description'       => __( 'Set to false will trigger the site to disconnect.', 'jetpack-connection' ),
 						'validate_callback' => function ( $value ) {
 							if ( false !== $value ) {
 								return new WP_Error(
 									'rest_invalid_param',
-									__( 'The isActive argument should be set to false.', 'jetpack' ),
+									__( 'The isActive argument should be set to false.', 'jetpack-connection' ),
 									array( 'status' => 400 )
 								);
 							}
@@ -145,7 +145,7 @@ class REST_Connector {
 			'/connection/plugins',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_connection_plugins' ),
+				'callback'            => array( __CLASS__, 'get_connection_plugins' ),
 				'permission_callback' => __CLASS__ . '::connection_plugins_permission_check',
 			)
 		);
@@ -171,20 +171,20 @@ class REST_Connector {
 				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
 				'args'                => array(
 					'from'               => array(
-						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack' ),
+						'description' => __( 'Indicates where the registration action was triggered for tracking/segmentation purposes', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 					'registration_nonce' => array(
-						'description' => __( 'The registration nonce', 'jetpack' ),
+						'description' => __( 'The registration nonce', 'jetpack-connection' ),
 						'type'        => 'string',
 						'required'    => true,
 					),
-					'no_iframe'          => array(
-						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
-						'type'        => 'boolean',
-					),
 					'redirect_uri'       => array(
-						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
+						'type'        => 'string',
+					),
+					'plugin_slug'        => array(
+						'description' => __( 'Indicates from what plugin the request is coming from', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 				),
@@ -198,14 +198,10 @@ class REST_Connector {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connection_authorize_url' ),
-				'permission_callback' => __CLASS__ . '::jetpack_register_permission_check',
+				'permission_callback' => __CLASS__ . '::user_connection_data_permission_check',
 				'args'                => array(
-					'no_iframe'    => array(
-						'description' => __( 'Disable In-Place connection flow and go straight to Calypso', 'jetpack' ),
-						'type'        => 'boolean',
-					),
 					'redirect_uri' => array(
-						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack' ),
+						'description' => __( 'URI of the admin page where the user should be redirected after connection flow', 'jetpack-connection' ),
 						'type'        => 'string',
 					),
 				),
@@ -222,12 +218,12 @@ class REST_Connector {
 					'permission_callback' => array( static::class, 'update_user_token_permission_check' ),
 					'args'                => array(
 						'user_token'          => array(
-							'description' => __( 'New user token', 'jetpack' ),
+							'description' => __( 'New user token', 'jetpack-connection' ),
 							'type'        => 'string',
 							'required'    => true,
 						),
 						'is_connection_owner' => array(
-							'description' => __( 'Is connection owner', 'jetpack' ),
+							'description' => __( 'Is connection owner', 'jetpack-connection' ),
 							'type'        => 'boolean',
 						),
 					),
@@ -245,7 +241,7 @@ class REST_Connector {
 				'permission_callback' => array( static::class, 'set_connection_owner_permission_check' ),
 				'args'                => array(
 					'owner' => array(
-						'description' => __( 'New owner', 'jetpack' ),
+						'description' => __( 'New owner', 'jetpack-connection' ),
 						'type'        => 'integer',
 						'required'    => true,
 					),
@@ -306,7 +302,7 @@ class REST_Connector {
 		$connection = new Manager();
 
 		$connection_status = array(
-			'isActive'          => $connection->is_active(), // TODO deprecate this.
+			'isActive'          => $connection->has_connected_owner(), // TODO deprecate this.
 			'isStaging'         => $status->is_staging_site(),
 			'isRegistered'      => $connection->is_connected(),
 			'isUserConnected'   => $connection->is_user_connected(),
@@ -319,7 +315,7 @@ class REST_Connector {
 				'filter'          => ( apply_filters( 'jetpack_development_mode', false ) || apply_filters( 'jetpack_offline_mode', false ) ), // jetpack_development_mode is deprecated.
 				'wpLocalConstant' => defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV,
 			),
-			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			'isPublic'          => '1' == get_option( 'blog_public' ), // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		);
 
 		/**
@@ -343,12 +339,15 @@ class REST_Connector {
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
 	 * @since 1.13.1
+	 * @since 1.38.0 Added $rest_response param.
 	 *
 	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
-	public function get_connection_plugins() {
-		$plugins = $this->connection->get_connected_plugins();
+	public static function get_connection_plugins( $rest_response = true ) {
+		$plugins = ( new Manager() )->get_connected_plugins();
 
 		if ( is_wp_error( $plugins ) ) {
 			return $plugins;
@@ -361,7 +360,11 @@ class REST_Connector {
 			}
 		);
 
-		return rest_ensure_response( array_values( $plugins ) );
+		if ( $rest_response ) {
+			return rest_ensure_response( array_values( $plugins ) );
+		}
+
+		return array_values( $plugins );
 	}
 
 	/**
@@ -394,7 +397,6 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_activate_plugins', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
-
 	}
 
 	/**
@@ -421,11 +423,15 @@ class REST_Connector {
 	 * Information about the master/primary user.
 	 * Information about the current user.
 	 *
+	 * @param bool $rest_response Should we return a rest response or a simple array. Default to rest response.
+	 *
 	 * @since 1.30.1
 	 *
-	 * @return \WP_REST_Response
+	 * @return \WP_REST_Response|array
 	 */
-	public static function get_user_connection_data() {
+	public static function get_user_connection_data( $rest_response = true ) {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
 		$connection = new Manager();
 
 		$current_user     = wp_get_current_user();
@@ -438,6 +444,11 @@ class REST_Connector {
 		$wpcom_user_data   = $connection->get_connected_user_data();
 
 		// Add connected user gravatar to the returned wpcom_user_data.
+		// Probably we shouldn't do this when $wpcom_user_data is false, but we have been since 2016 so
+		// clients probably expect that by now.
+		if ( false === $wpcom_user_data ) {
+			$wpcom_user_data = array();
+		}
 		$wpcom_user_data['avatar'] = ( ! empty( $wpcom_user_data['email'] ) ?
 		get_avatar_url(
 			$wpcom_user_data['email'],
@@ -453,6 +464,7 @@ class REST_Connector {
 			'isMaster'    => $is_master_user,
 			'username'    => $current_user->user_login,
 			'id'          => $current_user->ID,
+			'blogId'      => $blog_id,
 			'wpcomUser'   => $wpcom_user_data,
 			'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 			'permissions' => array(
@@ -475,7 +487,12 @@ class REST_Connector {
 			'currentUser'     => $current_user_connection_data,
 			'connectionOwner' => $owner_display_name,
 		);
-		return rest_ensure_response( $response );
+
+		if ( $rest_response ) {
+			return rest_ensure_response( $response );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -493,7 +510,6 @@ class REST_Connector {
 			self::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);
-
 	}
 
 	/**
@@ -514,13 +530,13 @@ class REST_Connector {
 			return false;
 		}
 
-		$signature = base64_decode( $_GET['signature'] ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+		$signature = base64_decode( filter_var( wp_unslash( $_GET['signature'] ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 
 		$signature_data = wp_json_encode(
 			array(
-				'rest_route' => $_GET['rest_route'],
+				'rest_route' => filter_var( wp_unslash( $_GET['rest_route'] ) ),
 				'timestamp'  => (int) $_GET['timestamp'],
-				'url'        => wp_unslash( $_GET['url'] ),
+				'url'        => filter_var( wp_unslash( $_GET['url'] ) ),
 			)
 		);
 
@@ -635,12 +651,21 @@ class REST_Connector {
 	 */
 	public function connection_register( $request ) {
 		if ( ! wp_verify_nonce( $request->get_param( 'registration_nonce' ), 'jetpack-registration-nonce' ) ) {
-			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack' ), array( 'status' => 403 ) );
+			return new WP_Error( 'invalid_nonce', __( 'Unable to verify your request.', 'jetpack-connection' ), array( 'status' => 403 ) );
 		}
 
 		if ( isset( $request['from'] ) ) {
 			$this->connection->add_register_request_param( 'from', (string) $request['from'] );
 		}
+
+		if ( ! empty( $request['plugin_slug'] ) ) {
+			// If `plugin_slug` matches a plugin using the connection, let's inform the plugin that is establishing the connection.
+			$connected_plugin = Plugin_Storage::get_one( (string) $request['plugin_slug'] );
+			if ( ! is_wp_error( $connected_plugin ) && ! empty( $connected_plugin ) ) {
+				$this->connection->set_plugin_instance( new Plugin( (string) $request['plugin_slug'] ) );
+			}
+		}
+
 		$result = $this->connection->try_registration();
 
 		if ( is_wp_error( $result ) ) {
@@ -650,17 +675,9 @@ class REST_Connector {
 		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 
 		if ( class_exists( 'Jetpack' ) ) {
-			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri, ! $request->get_param( 'no_iframe' ) );
+			$authorize_url = \Jetpack::build_authorize_url( $redirect_uri );
 		} else {
-			if ( ! $request->get_param( 'no_iframe' ) ) {
-				add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-			}
-
 			$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
-
-			if ( ! $request->get_param( 'no_iframe' ) ) {
-				remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-			}
 		}
 
 		/**
@@ -693,17 +710,8 @@ class REST_Connector {
 	 * @return \WP_REST_Response|WP_Error
 	 */
 	public function connection_authorize_url( $request ) {
-		$redirect_uri = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
-
-		if ( ! $request->get_param( 'no_iframe' ) ) {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
-
+		$redirect_uri  = $request->get_param( 'redirect_uri' ) ? admin_url( $request->get_param( 'redirect_uri' ) ) : null;
 		$authorize_url = $this->connection->get_authorization_url( null, $redirect_uri );
-
-		if ( ! $request->get_param( 'no_iframe' ) ) {
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
-		}
 
 		return rest_ensure_response(
 			array(
@@ -725,19 +733,19 @@ class REST_Connector {
 		$token_parts = explode( '.', $request['user_token'] );
 
 		if ( count( $token_parts ) !== 3 || ! (int) $token_parts[2] || ! ctype_digit( $token_parts[2] ) ) {
-			return new WP_Error( 'invalid_argument_user_token', esc_html__( 'Invalid user token is provided', 'jetpack' ) );
+			return new WP_Error( 'invalid_argument_user_token', esc_html__( 'Invalid user token is provided', 'jetpack-connection' ) );
 		}
 
 		$user_id = (int) $token_parts[2];
 
 		if ( false === get_userdata( $user_id ) ) {
-			return new WP_Error( 'invalid_argument_user_id', esc_html__( 'Invalid user id is provided', 'jetpack' ) );
+			return new WP_Error( 'invalid_argument_user_id', esc_html__( 'Invalid user id is provided', 'jetpack-connection' ) );
 		}
 
 		$connection = new Manager();
 
 		if ( ! $connection->is_connected() ) {
-			return new WP_Error( 'site_not_connected', esc_html__( 'Site is not connected', 'jetpack' ) );
+			return new WP_Error( 'site_not_connected', esc_html__( 'Site is not connected', 'jetpack-connection' ) );
 		}
 
 		$is_connection_owner = isset( $request['is_connection_owner'] )
@@ -780,7 +788,7 @@ class REST_Connector {
 
 		return new WP_Error(
 			'disconnect_failed',
-			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack' ),
+			esc_html__( 'Failed to disconnect the site as it appears already disconnected.', 'jetpack-connection' ),
 			array( 'status' => 400 )
 		);
 	}

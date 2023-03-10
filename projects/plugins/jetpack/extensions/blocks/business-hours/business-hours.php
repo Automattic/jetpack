@@ -23,7 +23,23 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\render',
+			'supports'        => array(
+				'color'      => array(
+					'gradients' => true,
+				),
+				'spacing'    => array(
+					'margin'  => true,
+					'padding' => true,
+				),
+				'typography' => array(
+					'fontSize'   => true,
+					'lineHeight' => true,
+				),
+				'align'      => array( 'wide', 'full' ),
+			),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -105,11 +121,15 @@ function render( $attributes ) {
 		$attributes['days'] = get_default_days();
 	}
 
+	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+
 	$start_of_week = (int) get_option( 'start_of_week', 0 );
 	$time_format   = get_option( 'time_format' );
 	$content       = sprintf(
-		'<dl class="jetpack-business-hours %s">',
-		! empty( $attributes['className'] ) ? esc_attr( $attributes['className'] ) : ''
+		'<dl class="jetpack-business-hours%s%s"%s>',
+		! empty( $attributes['className'] ) ? ' ' . esc_attr( $attributes['className'] ) : '',
+		! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
+		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : ''
 	);
 
 	$days = array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' );

@@ -22,8 +22,7 @@ class Jetpack_CRM_Data {
 	 * @return array An array containing the Jetpack CRM plugin data.
 	 */
 	public function get_crm_data() {
-		jetpack_require_lib( 'plugins' );
-		$plugins = \Jetpack_Plugins::get_plugins();
+		$plugins = Plugins_Installer::get_plugins();
 
 		// Set default values.
 		$response = array(
@@ -55,6 +54,7 @@ class Jetpack_CRM_Data {
 		$response['can_activate_crm'] = $response['crm_active'] ? false : current_user_can( 'activate_plugins' );
 
 		if ( $response['crm_active'] && function_exists( 'zeroBSCRM_extension_install_jetpackforms' ) ) {
+			// phpcs:ignore WordPress.WP.Capabilities.Unknown
 			$response['can_activate_extension'] = current_user_can( 'admin_zerobs_manage_options' );
 		}
 

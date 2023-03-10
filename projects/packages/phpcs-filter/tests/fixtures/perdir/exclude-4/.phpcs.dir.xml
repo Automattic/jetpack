@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<ruleset>
+    <rule ref="Generic.Arrays.DisallowLongArraySyntax"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions">
+        <properties>
+            <property name="forbiddenFunctions" type="array">
+                <element key="echo" value="print"/>
+            </property>
+        </properties>
+    </rule>
+
+    <rule ref="Generic.ControlStructures.DisallowYodaConditions">
+        <exclude name="Generic.ControlStructures.DisallowYodaConditions.Found"/>
+    </rule>
+</ruleset>

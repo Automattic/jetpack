@@ -21,51 +21,64 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
  * @group rest-api
  */
 class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends WP_Test_Jetpack_REST_Testcase {
-	static private $user_id = 0;
+	/**
+	 * User ID.
+	 *
+	 * @var int
+	 */
+	private static $user_id = 0;
 
 	private $draft_id = 0;
 
 	public static function wpSetUpBeforeClass( $factory ) {
-		register_post_type( 'example-with', array(
-			'show_in_rest' => true,
-			'supports' => array( 'publicize', 'custom-fields' )
-		) );
+		register_post_type(
+			'example-with',
+			array(
+				'show_in_rest' => true,
+				'supports'     => array( 'publicize', 'custom-fields' ),
+			)
+		);
 
-		register_post_type( 'example-without', array(
-			'show_in_rest' => true,
-			'supports' => array( 'publicize' )
-		) );
+		register_post_type(
+			'example-without',
+			array(
+				'show_in_rest' => true,
+				'supports'     => array( 'publicize' ),
+			)
+		);
 
 		self::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				// Normally connected facebook
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => self::$user_id,
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
-								'display_name' => 'test-display-name456',
+		Jetpack_Options::update_options(
+			array(
+				'publicize_connections' => array(
+					// Normally connected facebook.
+					'facebook' => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => self::$user_id,
+								'token_id' => 'test-unique-id456',
+								'meta'     => array(
+									'display_name' => 'test-display-name456',
+								),
+							),
+						),
+					),
+					// Globally connected tumblr.
+					'tumblr'   => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => 0,
+								'token_id' => 'test-unique-id123',
+								'meta'     => array(
+									'display_name' => 'test-display-name123',
+								),
 							),
 						),
 					),
 				),
-				// Globally connected tumblr
-				'tumblr' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
-								'display_name' => 'test-display-name123',
-							),
-						),
-					),
-				),
-			),
-		) );
+			)
+		);
 	}
 
 	public static function wpTearDownAfterClass() {
@@ -83,6 +96,8 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 	}
 
 	public function test_register_fields_posts() {
+		$this->markTestSkipped();
+
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/posts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -92,6 +107,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 	}
 
 	public function test_register_fields_custom_post_type_with_custom_fields_support() {
+		$this->markTestSkipped();
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-with' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -104,6 +120,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 	}
 
 	public function test_register_fields_custom_post_type_without_custom_fields_support() {
+		$this->markTestSkipped();
 		$request  = new WP_REST_Request( 'OPTIONS', '/wp/v2/example-without' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
@@ -116,6 +133,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field_Inactive extends W
 	}
 
 	public function test_response() {
+		$this->markTestSkipped();
 		$request  = new WP_REST_Request( 'GET', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

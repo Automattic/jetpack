@@ -7,7 +7,7 @@
 
 namespace Automattic\JetpackBeta;
 
-use Jetpack;
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 
 /**
  * Handles the Jetpack Beta plugin Admin functions.
@@ -36,24 +36,13 @@ class Admin {
 	 * Action for `admin_menu` and `network_admin_menu`.
 	 */
 	public static function add_actions() {
-		if ( class_exists( Jetpack::class ) ) {
-			self::$hookname = add_submenu_page(
-				'jetpack',
-				'Jetpack Beta',
-				'Jetpack Beta',
-				'update_plugins',
-				'jetpack-beta',
-				array( self::class, 'render' )
-			);
-		} else {
-			self::$hookname = add_menu_page(
-				'Jetpack Beta',
-				'Jetpack Beta',
-				'update_plugins',
-				'jetpack-beta',
-				array( self::class, 'render' )
-			);
-		}
+		self::$hookname = Admin_Menu::add_menu(
+			'Jetpack Beta',
+			'Jetpack Beta',
+			'update_plugins',
+			'jetpack-beta',
+			array( self::class, 'render' )
+		);
 
 		if ( false !== self::$hookname ) {
 			add_action( 'load-' . self::$hookname, array( self::class, 'admin_page_load' ) );
@@ -94,7 +83,7 @@ class Admin {
 		ob_start();
 		try {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$plugin_name = isset( $_GET['plugin'] ) ? $_GET['plugin'] : null;
+			$plugin_name = isset( $_GET['plugin'] ) ? filter_var( wp_unslash( $_GET['plugin'] ) ) : null;
 
 			if ( null === $plugin_name ) {
 				require_once __DIR__ . '/admin/plugin-select.template.php';
@@ -125,7 +114,7 @@ class Admin {
 	 */
 	public static function admin_page_load() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$plugin_name = isset( $_GET['plugin'] ) ? $_GET['plugin'] : null;
+		$plugin_name = isset( $_GET['plugin'] ) ? filter_var( wp_unslash( $_GET['plugin'] ) ) : null;
 		$plugin      = null;
 
 		// If a plugin is specified, check that it's valid.
@@ -149,8 +138,11 @@ class Admin {
 		}
 
 		// Install and activate Jetpack Version.
-		if ( wp_verify_nonce( $_GET['_wpnonce'], 'activate_branch' ) && isset( $_GET['activate-branch'] ) && $plugin ) {
-			list( $source, $id ) = explode( ':', $_GET['activate-branch'], 2 );
+		if (
+			wp_verify_nonce( $_GET['_wpnonce'], 'activate_branch' ) && // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
+			isset( $_GET['activate-branch'] ) && $plugin
+		) {
+			list( $source, $id ) = explode( ':', filter_var( wp_unslash( $_GET['activate-branch'] ) ), 2 );
 			$res                 = $plugin->install_and_activate( $source, $id );
 			if ( is_wp_error( $res ) ) {
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -186,7 +178,7 @@ class Admin {
 	private static function is_toggle_action( $option ) {
 		return (
 			isset( $_GET['_wpnonce'] ) &&
-			wp_verify_nonce( $_GET['_wpnonce'], "enable_$option" ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], "enable_$option" ) && // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP core doesn't pre-sanitize nonces either.
 			isset( $_GET['_action'] ) &&
 			"toggle_enable_$option" === $_GET['_action']
 		);
@@ -335,7 +327,7 @@ class Admin {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['plugin'] ) ) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$query['plugin'] = $_GET['plugin'];
+			$query['plugin'] = filter_var( wp_unslash( $_GET['plugin'] ) );
 		}
 
 		?>

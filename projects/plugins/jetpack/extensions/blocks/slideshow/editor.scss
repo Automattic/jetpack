@@ -1,4 +1,23 @@
-@import '../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+// When slideshow block appears inside a layout grid block,
+// make it behave like a grid block to prevent grid blowout.
+// https://github.com/Automattic/wp-calypso/issues/39956
+.wp-block-jetpack-layout-grid-column
+	> .block-editor-inner-blocks
+	> .block-editor-block-list__layout
+	> .block-editor-block-list__block {
+	// WPCOM
+	> .wp-block > .wp-block-jetpack-slideshow, 
+	// Self-Hosted
+	> .wp-block-jetpack-slideshow {
+		display: grid;
+
+		> .swiper-container {
+			width: 100%;
+		}
+	}
+}
 
 .wp-block-jetpack-slideshow__add-item {
 	margin-top: 4px;
@@ -27,6 +46,13 @@
 			border: 1px solid $gray-600;
 		}
 	}
+}
+
+.wp-block[data-align="wide"] .wp-block-jetpack-slideshow_image,
+.wp-block[data-align="full"] .wp-block-jetpack-slideshow_image {
+	width: 100vw;
+	max-width: unset;
+	object-fit: cover;
 }
 
 .wp-block-jetpack-slideshow_slide {

@@ -34,9 +34,6 @@ class Main {
 		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
 		add_action( 'jetpack_site_registered', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 
-		// Initialize Identity Crisis.
-		add_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Identity_Crisis', 'init' ) );
-
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
 	}
@@ -46,6 +43,16 @@ class Main {
 	 */
 	public static function on_jetpack_idc_disconnect() {
 		Sender::get_instance()->uninstall();
+	}
+
+	/**
+	 * Sets the Sync data settings.
+	 *
+	 * @param array $data_settings An array containing the Sync data options. An empty array indicates that the default
+	 *                             values will be used for all Sync data.
+	 */
+	public static function set_sync_data_options( $data_settings = array() ) {
+		( new Data_Settings() )->add_settings_list( $data_settings );
 	}
 
 	/**
@@ -61,6 +68,7 @@ class Main {
 		 * For now additional modules are enabled based on whether the third party plugin
 		 * class exists or not.
 		 */
+		Sync_Actions::initialize_search();
 		Sync_Actions::initialize_woocommerce();
 		Sync_Actions::initialize_wp_super_cache();
 

@@ -1,13 +1,11 @@
-/**
- * External dependencies
- */
-import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
-import config from './config';
+import { get, writable, derived } from 'svelte/store';
+import api from '../api/api';
 import { setModuleState } from '../api/modules';
+import config from './config';
+
+export type Optimizations = {
+	[ slug: string ]: boolean;
+};
 
 export type ModulesState = {
 	[ slug: string ]: {
@@ -16,19 +14,47 @@ export type ModulesState = {
 	};
 };
 
-const initialState = config.config;
-const { subscribe, update } = writable< ModulesState >( initialState );
+const { subscribe, update, set } = writable< ModulesState >(
+	buildModuleState( get( config ).optimizations )
+);
 
 // Keep a subscribed copy for quick reading.
 let currentState: ModulesState;
 subscribe( value => ( currentState = value ) );
 
-export function isEnabled( slug: string ): boolean {
-	return currentState[ slug ] && currentState[ slug ].enabled;
+/**
+ * Given a set of optimizations and their on/off booleans, convert them to a ModulesState object,
+ * ready for use in the modules datastore.
+ *
+ * @param {Optimizations} optmizations - Set of optimizations and their on/off booleans.
+ * @return {ModulesState} - Object ready for use in the modules store.
+ */
+function buildModuleState( optmizations: Optimizations ): ModulesState {
+	const state = {};
+
+	for ( const [ name, value ] of Object.entries( optmizations ) ) {
+		state[ name ] = {
+			enabled: value,
+		};
+	}
+
+	return state;
+}
+
+/**
+ * Fetch the current state of the modules from the server.
+ */
+export async function reloadModulesState() {
+	set( buildModuleState( await api.get( '/optimizations/status' ) ) );
 }
 
 export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	const originalState = isEnabled( slug );
+	// Do not enable a module that isn't available.
+	if ( typeof currentState[ slug ] === 'undefined' ) {
+		return false;
+	}
+
+	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
 	let finalState = state;
 
 	// Tentatively set requested state, undo if the API fails or denies it.
@@ -62,3 +88,8 @@ export const modules = {
 	subscribe,
 	updateModuleState,
 };
+
+export const isModuleEnabledStore = ( slug: string ) =>
+	derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
+export const isModuleAvailableStore = ( slug: string ) =>
+	derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );

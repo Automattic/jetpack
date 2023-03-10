@@ -1,0 +1,28 @@
+.block-editor-panel-color-gradient-settings {
+	&.videopress-color-panel {
+		padding: 0;
+		border-top: 0;
+	}
+}
+
+.videopress-dynamic-color-example {
+	--spacing-base: 8px;
+	margin-top: var( --spacing-base );
+}
+
+.color-block-support-panel__inner-wrapper .videopress-playback-bar-colors-panel-item {
+	margin-top: 0; // clean up the margin-top from the color picker
+
+	.videopress-color-panel__title {
+		margin-bottom: 8px;
+	}
+}
+
+.videopress-color-panel__title {
+	min-height: 24px;
+	height: 24px;
+	font-size: 11px;
+	font-weight: 500;
+	line-height: 1.4;
+	text-transform: uppercase;
+}

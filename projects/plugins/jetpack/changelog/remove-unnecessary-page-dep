@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Replace `page` library with equivalent plain JavaScript.

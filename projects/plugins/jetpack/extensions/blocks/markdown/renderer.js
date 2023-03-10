@@ -1,9 +1,7 @@
-/**
- * External dependencies
- */
+import { __experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
+import { RawHTML } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
-import { RawHTML } from '@wordpress/element';
 
 /**
  * Module variables
@@ -21,8 +19,13 @@ const handleLinkClick = event => {
 	}
 };
 
-export default ( { className, source = '' } ) => (
-	<RawHTML className={ className } onClick={ handleLinkClick }>
+const getStyles = ( attributes = {} ) => {
+	const spacingProps = getSpacingClassesAndStyles?.( attributes );
+	return spacingProps?.style ? spacingProps.style : {};
+};
+
+export default ( { className, source = '', attributes } ) => (
+	<RawHTML className={ className } onClick={ handleLinkClick } style={ getStyles( attributes ) }>
 		{ source.length ? markdownConverter.render( source ) : '' }
 	</RawHTML>
 );

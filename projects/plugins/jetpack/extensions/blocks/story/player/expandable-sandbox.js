@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { useLayoutEffect, useRef, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import ShadowRoot from './lib/shadow-root';
+import classNames from 'classnames';
 import * as fullscreenAPI from './lib/fullscreen-api';
+import ShadowRoot from './lib/shadow-root';
 import Modal from './modal';
 
 const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(

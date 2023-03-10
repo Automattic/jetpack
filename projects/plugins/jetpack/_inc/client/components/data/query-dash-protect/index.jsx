@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { isFetchingProtectData, fetchProtectCount } from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
-import { noop, size } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import Button from 'components/button';
+import Card from 'components/card';
+import Gridicon from 'components/gridicon';
+import PlanIcon from 'components/plans/plan-icon';
 import analytics from 'lib/analytics';
 import {
 	getPlanClass,
@@ -17,37 +10,41 @@ import {
 	isJetpackBundle,
 	isJetpackLegacyPlan,
 } from 'lib/plans/constants';
-import Button from 'components/button';
-import Card from 'components/card';
-import Gridicon from 'components/gridicon';
-import PlanIcon from 'components/plans/plan-icon';
-import { getCurrentVersion } from 'state/initial-state';
+import { noop, size } from 'lodash';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
+import { getCurrentVersion } from 'state/initial-state';
 
 import './style.scss';
 
-class Banner extends Component {
+export class Banner extends Component {
 	static propTypes = {
 		callToAction: PropTypes.string,
 		className: PropTypes.string,
 		currentVersion: PropTypes.string.isRequired,
 		description: PropTypes.node,
 		eventFeature: PropTypes.string,
+		eventProps: PropTypes.object,
 		feature: PropTypes.string, // PropTypes.oneOf( getValidFeatureKeys() ),
 		href: PropTypes.string,
 		icon: PropTypes.string,
+		iconAlt: PropTypes.string,
+		iconSrc: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		path: PropTypes.string,
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
-		title: PropTypes.string.isRequired,
-		isCurrentUserLinked: PropTypes.string,
+		title: PropTypes.node.isRequired,
+		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
+		eventProps: {},
 	};
 
 	getHref() {
@@ -65,12 +62,12 @@ class Banner extends Component {
 	handleClick = () => {
 		this.props.onClick();
 
-		const { eventFeature, path, currentVersion } = this.props;
+		const { eventFeature, path, currentVersion, eventProps } = this.props;
 		if ( eventFeature || path ) {
 			const eventFeatureProp = eventFeature ? { feature: eventFeature } : {};
 			const pathProp = path ? { path } : {};
 
-			const eventProps = {
+			const clickEventProps = {
 				target: 'banner',
 				type: 'upgrade',
 				current_version: currentVersion,
@@ -78,16 +75,17 @@ class Banner extends Component {
 				is_connection_owner: this.props.isConnectionOwner ? 'yes' : 'no',
 				...eventFeatureProp,
 				...pathProp,
+				...eventProps,
 			};
 
-			analytics.tracks.recordJetpackClick( eventProps );
+			analytics.tracks.recordJetpackClick( clickEventProps );
 		}
 	};
 
 	getIcon() {
-		const { icon, plan } = this.props;
+		const { icon, iconAlt, iconSrc, plan } = this.props;
 
-		if ( plan && ! icon ) {
+		if ( plan && ( ! icon || ! iconSrc ) ) {
 			return (
 				<div className="dops-banner__icon-plan">
 					<PlanIcon plan={ plan } />
@@ -98,10 +96,16 @@ class Banner extends Component {
 		return (
 			<div className="dops-banner__icons">
 				<div className="dops-banner__icon">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
+					{ icon && <Gridicon icon={ icon || 'info-outline' } size={ 18 } /> }
+					{ iconSrc && (
+						<img className="dops-banner__icon-circle-svg" src={ iconSrc } alt={ iconAlt } />
+					) }
 				</div>
 				<div className="dops-banner__icon-circle">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
+					{ icon && <Gridicon icon={ icon || 'info-outline' } size={ 18 } /> }
+					{ iconSrc && (
+						<img className="dops-banner__icon-circle-svg" src={ iconSrc } alt={ iconAlt } />
+					) }
 				</div>
 			</div>
 		);
@@ -170,8 +174,18 @@ class Banner extends Component {
 	}
 }
 
-export default connect( state => ( {
-	currentVersion: getCurrentVersion( state ),
-	isCurrentUserLinked: isCurrentUserLinked( state ),
-	isConnectionOwner: isConnectionOwner( state ),
-} ) )( Banner );
+/**
+ * Redux-connect a Banner or subclass.
+ *
+ * @param {Banner} BannerComponent - Component to connect.
+ * @returns {Component} Wrapped component.
+ */
+export function connect( BannerComponent ) {
+	return reduxConnect( state => ( {
+		currentVersion: getCurrentVersion( state ),
+		isCurrentUserLinked: isCurrentUserLinked( state ),
+		isConnectionOwner: isConnectionOwner( state ),
+	} ) )( BannerComponent );
+}
+
+export default connect( Banner );

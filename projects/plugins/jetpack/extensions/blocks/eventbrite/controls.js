@@ -1,12 +1,5 @@
-/**
- * WordPress dependencies
- */
 import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 
 export const ToolbarControls = ( { setEditingUrl } ) => (
 	<ToolbarGroup>

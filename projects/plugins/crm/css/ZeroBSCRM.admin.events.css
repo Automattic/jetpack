@@ -1,0 +1,406 @@
+/*!
+ * Jetpack CRM
+ * https://jetpackcrm.com
+ *
+ * Copyright 2018, ZeroBSCRM.com
+ *
+ * Date: 24/08/18
+ */
+.zbs-tasks-field, .zbs-task-desc textarea, .no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task, #zbs-task-title {
+  line-height: 1em;
+  border: 1px solid #ccc;
+  border-radius: 0.2em;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.07);
+}
+
+.zbs-event-editor-wrap {
+  margin-top: -1em;
+}
+
+.zbs-task-clear {
+  margin-bottom: 1em;
+}
+
+#calendar {
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+#zerobscrm-owner {
+  position: absolute;
+  right: 50px;
+  width: 211px;
+  display: inline-block;
+}
+
+.post-type-zerobs_event #zerobscrm-owner,
+#zerobs-event-edit #zerobscrm-owner {
+  margin-top: 4px;
+  z-index: 4;
+  position: absolute;
+  right: 30px;
+  width: 85%;
+  top: 4px;
+  display: inline-block;
+  color: #000;
+  border: 0px;
+  box-shadow: none;
+}
+
+.fc-header-toolbar h2 {
+  font-size: 19px;
+  margin-top: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+  font-family: sans-serif;
+}
+
+.zerobs_event_page_manage-events {
+  background: white;
+}
+
+.fc-day-grid-event .fc-content {
+  height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  background: white;
+  color: rgba(0, 0, 0, 0.95);
+  padding: 2px;
+}
+
+.fc-title {
+  line-height: 24px;
+}
+
+.fc-today {
+  background: #edf8ff !important;
+}
+
+.fc-event {
+  border: 0px;
+  background: white;
+  border: 1px solid #ddd;
+}
+
+.fc-content {
+  color: black;
+}
+
+.fc-button {
+  background: white;
+}
+
+.zbs-avatar {
+  float: left;
+  margin-right: 3px;
+}
+
+.zbs-avatar img {
+  border-radius: 50%;
+}
+
+.fc-toolbar button:focus {
+  outline: none;
+}
+
+.fc-unthemed .fc-divider, .fc-unthemed .fc-list-heading td, .fc-unthemed .fc-popover .fc-header {
+  background: white;
+}
+
+.fc-toolbar .fc-state-active, .fc-toolbar .ui-state-active {
+  z-index: 0px !important;
+}
+
+#zbs-add-task-ui {
+  width: 39%;
+  float: right;
+  margin-right: 1%;
+  display: none;
+}
+
+.zbs-adding-task {
+  width: 60%;
+  float: left;
+}
+
+.close-add-task {
+  color: #767676;
+  float: right;
+  cursor: pointer;
+}
+
+.clear {
+  clear: both;
+}
+
+#zbs-task-title {
+  width: 80%;
+  float: left;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  min-height: 0;
+  padding: 0.2em 0.5em;
+}
+
+.fc-event {
+  border: 0px solid;
+  background: transparent;
+}
+
+.zbs-show {
+  border: 1px solid #ddd;
+  background: white;
+}
+
+.no-owner, .no-task-date, .task-reminders, .no-contact, .show-on-calendar, .remind_task {
+  width: 100%;
+  font-size: 20px;
+  color: #cccccc;
+  border: 1px solid #ccc;
+  margin: 0;
+  padding: 9px;
+}
+
+.show-on-calendar, .remind_task {
+  color: black;
+}
+.show-on-calendar div input, .remind_task div input {
+  margin: 0.2em 0.5em !important;
+}
+.show-on-calendar label, .remind_task label {
+  font-weight: 400 !important;
+}
+
+.remind_task {
+  padding: 10px;
+  position: relative;
+}
+
+.remind_task a {
+  font-size: 15px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+.no-owner, .no-task-date {
+  width: 48%;
+}
+
+#zbs_event_notes,
+#zbse_desc {
+  font-size: 18px;
+  padding: 5px;
+  padding: 0.5em;
+}
+
+.show-on-calendar input[type=checkbox], .remind_task input[type=checkbox] {
+  margin: -2px 0 0;
+  line-height: normal;
+}
+
+.show-on-calendar span, .remind_task span {
+  margin-left: 5px;
+}
+
+.no-owner {
+  float: left;
+}
+
+.no-task-date {
+  float: right;
+}
+
+.zbs-task-desc textarea {
+  width: 100%;
+  height: 200px;
+}
+
+::-moz-placeholder {
+  color: #ccc;
+}
+
+::placeholder {
+  color: #ccc;
+}
+
+#titlewrap, #post-body-content {
+  display: none;
+}
+
+.post-type-zerobs_event .zbs-save-event {
+  display: none;
+}
+
+.ui.segment {
+  margin-top: 0px;
+}
+
+.no-owner .dn {
+  color: black;
+  line-height: 30px;
+  vertical-align: middle;
+  width: 80%;
+  float: left;
+}
+
+.no-owner .avatar {
+  border-radius: 50%;
+  margin-right: 10px;
+  float: left;
+}
+
+.no-task-date #daterange {
+  border: 0px;
+  box-shadow: none;
+}
+
+.zbs-unassigned {
+  font-size: 25px !important;
+  margin-top: 9px !important;
+}
+
+.post-type-zerobs_event .select2-container,
+#zerobs-event-edit .select2-container {
+  width: 211px;
+  position: absolute !important;
+  top: 11px;
+  left: 44px;
+  border: 0px;
+}
+
+.select2-container--default .select2-selection--single {
+  border: 0px solid !important;
+  font-size: 20px;
+}
+
+.no-owner {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 0.2em;
+  z-index: 0;
+}
+
+.task-comp {
+  width: 19%;
+  float: right;
+}
+
+.task-comp button {
+  width: 100%;
+}
+
+#task-mark-complete {
+  margin-top: 0;
+}
+
+#task-mark-complete ui .button:focus {
+  border-color: none !important;
+  box-shadow: none !important;
+}
+
+.zbs-cal-complete {
+  font-size: 6px !important;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  z-index: 2;
+  font-weight: 900;
+  line-height: 11px !important;
+  margin-right: 0px !important;
+  padding: 3px !important;
+}
+
+.zbs-cal-complete-list {
+  width: 13px;
+  height: 13px;
+  margin-left: 0px;
+  margin-top: 0px;
+  min-width: 13px !important;
+  min-height: 13px !important;
+}
+
+.zbs-cal-complete .icon {
+  margin: 0px !important;
+}
+
+.zbs-comp-1 {
+  display: none !important;
+}
+
+.fc-list-item, .fc-list-item-title {
+  position: relative;
+}
+
+.fc-event-dot {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: none;
+}
+
+.zbs-task-for-help {
+  line-height: 31px;
+  float: left;
+  margin-right: 5px;
+  width: 18%;
+  min-width: 134px;
+  color: black;
+  padding-left: 0.3em;
+}
+
+.zbs-task-for,
+.zbs-task-for-company {
+  width: 80%;
+  float: left;
+  padding: 0px;
+  margin-top: -11px;
+  position: relative;
+}
+.zbs-task-for .zbs-view-contact,
+.zbs-task-for-company .zbs-view-contact {
+  position: absolute !important;
+  right: 2px !important;
+  top: 14px !important;
+}
+.zbs-task-for .zbs-view-company,
+.zbs-task-for-company .zbs-view-company {
+  position: absolute !important;
+  right: 2px !important;
+  top: 14px !important;
+}
+
+.zbstypeaheadwrap {
+  position: relative;
+  clear: both;
+  padding-top: 10px;
+  padding-bottom: 0px;
+}
+
+.zbs-task-for-who {
+  color: black;
+}
+
+.fc-day-grid-event .fc-time {
+  float: left;
+  width: 19px;
+  line-height: 23px;
+  display: none;
+}
+
+.fc-day-grid-event .fc-title {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  float: left;
+  overflow: hidden;
+  width: 66%;
+}
+
+.outlook-event {
+  border: 1px solid #ccc;
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+}

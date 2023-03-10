@@ -7,36 +7,27 @@ DO NOT EDIT THAT FILE! EDIT index-header.jsx and index-footer.jsx instead
 OR if you're looking to change now SVGs get output, you'll need to edit strings in the Gruntfile :)
 !!! */
 
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-
-import React from 'react';
-import PureRenderMixin from 'react-pure-render/mixin';
 import classNames from 'classnames';
-import createReactClass from 'create-react-class';
+import PropTypes from 'prop-types';
+import React from 'react';
 import './style.scss';
 
-const Gridicon = createReactClass( {
-	displayName: 'Gridicon',
-	mixins: [ PureRenderMixin ],
+class Gridicon extends React.PureComponent {
+	static displayName = 'Gridicon';
 
-	getDefaultProps: function () {
-		return {
-			className: '',
-			size: 24,
-		};
-	},
+	static defaultProps = {
+		className: '',
+		size: 24,
+	};
 
-	propTypes: {
+	static propTypes = {
 		icon: PropTypes.string.isRequired,
 		size: PropTypes.number,
 		onClick: PropTypes.func,
 		className: PropTypes.string,
-	},
+	};
 
-	needsOffset: function ( icon, size ) {
+	needsOffset( icon, size ) {
 		const iconNeedsOffset = [
 			'gridicons-add-outline',
 			'gridicons-add',
@@ -95,9 +86,9 @@ const Gridicon = createReactClass( {
 			return size % 18 === 0;
 		}
 		return false;
-	},
+	}
 
-	needsOffsetX: function ( icon, size ) {
+	needsOffsetX( icon, size ) {
 		const iconNeedsOffsetX = [
 			'gridicons-arrow-down',
 			'gridicons-arrow-up',
@@ -113,9 +104,9 @@ const Gridicon = createReactClass( {
 			return size % 18 === 0;
 		}
 		return false;
-	},
+	}
 
-	needsOffsetY: function ( icon, size ) {
+	needsOffsetY( icon, size ) {
 		const iconNeedsOffsetY = [
 			'gridicons-align-center',
 			'gridicons-align-justify',
@@ -139,9 +130,9 @@ const Gridicon = createReactClass( {
 			return size % 18 === 0;
 		}
 		return false;
-	},
+	}
 
-	render: function () {
+	render() {
 		const icon = 'gridicons-' + this.props.icon,
 			needsOffset = this.needsOffset( icon, this.props.size ),
 			needsOffsetX = this.needsOffsetX( icon, this.props.size ),
@@ -2547,7 +2538,7 @@ const Gridicon = createReactClass( {
 		}
 
 		return svg;
-	},
-} );
+	}
+}
 
 export default Gridicon;

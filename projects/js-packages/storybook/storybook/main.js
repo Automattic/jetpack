@@ -2,18 +2,16 @@
  * This file is inspired by https://github.com/WordPress/gutenberg/blob/trunk/storybook/main.js
  */
 
-/**
- * External dependencies
- */
 const path = require( 'path' );
+const projects = require( './projects' );
 
 const modulesDir = path.join( __dirname, '../node_modules' );
 
-const stories = [
-	process.env.NODE_ENV !== 'test' && './stories/**/*.@(js|jsx|mdx)',
-	path.join( modulesDir, '@automattic/jetpack-components/components/**/stories/*.@(js|jsx|mdx)' ),
-	path.join( modulesDir, '@automattic/jetpack-base-styles/stories/*.@(js|jsx|mdx)' ),
-].filter( Boolean );
+const storiesSearch = '*.@(js|jsx|mdx|ts|tsx)';
+
+const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
+	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
+	.filter( Boolean );
 
 const customEnvVariables = {};
 
@@ -43,10 +41,12 @@ module.exports = {
 			name: '@storybook/addon-docs',
 			options: { configureJSX: true },
 		},
-		'@storybook/addon-knobs',
 		'@storybook/addon-storysource',
 		'@storybook/addon-viewport',
 		'@storybook/addon-a11y',
+		'@storybook/addon-essentials',
+		'storybook-addon-mock',
+		'storybook-addon-turbo-build',
 	],
 	managerWebpack: updateEmotionAliases,
 	// Workaround:
@@ -62,6 +62,11 @@ module.exports = {
 		} );
 
 		const finalConfig = updateEmotionAliases( config );
+
+		// Conform to Webpack module resolution rule for Search dashboard.
+		finalConfig.resolve.modules.push(
+			path.join( __dirname, '../../../packages/search/src/dashboard/' )
+		);
 
 		return finalConfig;
 	},

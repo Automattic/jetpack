@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-import refx from 'refx';
 import { flowRight } from 'lodash';
-
-/**
- * Internal dependencies
- */
+import refx from 'refx';
 import effects from './effects';
 
 /**
  * Applies the custom middlewares used specifically for the Story Player.
  *
- * @param {Object} store  - Store Object.
- * @returns {Object} Update Store Object.
+ * @param {object} store  - Store Object.
+ * @returns {object} Update Store Object.
  */
 export default function applyMiddlewares( store ) {
 	const middlewares = [ refx( effects ) ];

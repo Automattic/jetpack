@@ -10,7 +10,7 @@ The easiest way to get the latest version by using the [Jetpack Beta plugin](htt
 
 Alternatively, the next is by grabbing the zip from the build plugin repo.
 
-1. Download https://github.com/Automattic/jetpack-backup-plugin/archive/refs/heads/master.zip
+1. Download https://github.com/Automattic/jetpack-backup-plugin/archive/refs/heads/trunk.zip
 2. Install via the wp-admin Add Plugin via upload method.
 
 Lastly, if you have made changes to the plugin, you can either use the Jetpack Docker setup or the following to build from source:

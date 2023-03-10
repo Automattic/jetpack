@@ -1,18 +1,7 @@
-/**
- * External dependencies
- */
-import { isEmpty } from 'lodash';
-
-/**
- * WordPress dependencies
- */
 import { Button, FormTokenField } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { isEmpty } from 'lodash';
 import useRestaurantSearch, { possibleEmbed } from './use-restaurant-search';
 
 const MAX_SUGGESTIONS = 20;
@@ -62,7 +51,7 @@ export default function RestaurantPicker( props ) {
 			{ props.onSubmit ? (
 				<form onSubmit={ onSubmit }>
 					{ formInput }
-					<Button isSecondary type="submit">
+					<Button variant="secondary" type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>

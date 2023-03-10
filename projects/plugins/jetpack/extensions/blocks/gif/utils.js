@@ -1,19 +1,12 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { GIPHY_API_KEY } from './constants';
 
-export const getSearchUrl = ( searchText ) => {
+export const getSearchUrl = searchText => {
 	return `https://api.giphy.com/v1/gifs/search?q=${ encodeURIComponent(
 		searchText
 	) }&api_key=${ encodeURIComponent( GIPHY_API_KEY ) }&limit=10`;
 };
 
-export const getUrlWithId = ( giphyId ) => {
+export const getUrlWithId = giphyId => {
 	return `https://api.giphy.com/v1/gifs/${ encodeURIComponent(
 		giphyId
 	) }?api_key=${ encodeURIComponent( GIPHY_API_KEY ) }`;
@@ -47,11 +40,12 @@ export const getUrl = ( searchText = '' ) => {
 	return getSearchUrl( searchText );
 };
 
-export const getPaddingTop = ( item ) =>
-	`${ Math.floor(
-		( item.images.original.height / item.images.original.width ) * 100
-	) }%`;
+export const getPaddingTop = item =>
+	`${ Math.floor( ( item.images.original.height / item.images.original.width ) * 100 ) }%`;
 
-export const getEmbedUrl = ( item ) => item?.embed_url;
+export const getEmbedUrl = item => item?.embed_url;
 
-export const getSelectedGiphyAttributes = ( item ) => ( { giphyUrl: getEmbedUrl( item ), paddingTop: getPaddingTop( item ) } );
+export const getSelectedGiphyAttributes = item => ( {
+	giphyUrl: getEmbedUrl( item ),
+	paddingTop: getPaddingTop( item ),
+} );

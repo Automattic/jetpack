@@ -8,6 +8,7 @@ node_modules      export-ignore
 /package.json     production-exclude
 /src/**           production-exclude
 /storybook/**     production-exclude
+/tests/**         production-exclude
 
 # Files to include in the mirror repo
 /docs/**          production-include

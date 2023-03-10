@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync\Replicastore;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Sync\Modules;
 use WP_Error;
@@ -15,7 +16,7 @@ use WP_User_Query;
 /**
  * Class to handle Table Checksums for the User Meta table.
  */
-class Table_Checksum_Usermeta extends Table_Checksum {
+class Table_Checksum_Usermeta extends Table_Checksum_Users {
 	/**
 	 * Calculate the checksum based on provided range and filters.
 	 *
@@ -46,11 +47,14 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 
 		$query = "
 			SELECT
-				DISTINCT {$this->range_field}
+				DISTINCT {$this->table}.{$this->range_field}
 			FROM
 				{$this->table}
+			JOIN {$wpdb->usermeta} as um_table ON um_table.user_id = {$this->table}.ID
 			WHERE
 				{$range_filter_statement}
+				AND um_table.meta_key = '{$wpdb->prefix}user_level'
+			  	AND um_table.meta_value > 0
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
@@ -73,16 +77,49 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 				if ( ! empty( $user_object->roles ) ) {
 					$checksum_entry = crc32( implode( '#', array( $this->salt, 'roles', maybe_serialize( $user_object->roles ) ) ) );
 				}
-				if ( ! empty( $user_object->allcaps ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'capabilities', maybe_serialize( $user_object->allcaps ) ) ) );
+
+				// Meta only persisted if user is connected to WP.com.
+				if ( ( new Manager( 'jetpack' ) )->is_user_connected( $user_object->ID ) ) {
+					if ( ! empty( $user_object->allcaps ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'capabilities',
+									maybe_serialize( $user_object->allcaps ),
+								)
+							)
+						);
+					}
+					// Explicitly check that locale is not same as site locale.
+					if ( ! empty( $user_object->locale ) && get_locale() !== $user_object->locale ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'locale',
+									maybe_serialize( $user_object->locale ),
+								)
+							)
+						);
+					}
+					if ( ! empty( $user_object->allowed_mime_types ) ) {
+						$checksum_entry += crc32(
+							implode(
+								'#',
+								array(
+									$this->salt,
+									'allowed_mime_types',
+									maybe_serialize( $user_object->allowed_mime_types ),
+								)
+							)
+						);
+					}
 				}
-				if ( ! empty( $user_object->locale ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'locale', maybe_serialize( $user_object->locale ) ) ) );
-				}
-				if ( ! empty( $user_object->allowed_mime_types ) ) {
-					$checksum_entry += crc32( implode( '#', array( $this->salt, 'allowed_mime_types', maybe_serialize( $user_object->allowed_mime_types ) ) ) );
-				}
-				$checksum_entries[ $user_object->ID ] = $checksum_entry;
+
+				$checksum_entries[ $user_object->ID ] = '' . $checksum_entry;
 			}
 		}
 
@@ -90,16 +127,16 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		if ( ! $granular_result ) {
 			$checksum_sum = 0;
 			foreach ( $checksum_entries as $entry ) {
-				$checksum_sum += $entry;
+				$checksum_sum += intval( $entry );
 			}
 
 			if ( $simple_return_value ) {
-				return $checksum_sum;
+				return '' . $checksum_sum;
 			}
 
 			return array(
 				'range'    => $range_from . '-' . $range_to,
-				'checksum' => $checksum_sum,
+				'checksum' => '' . $checksum_sum,
 			);
 
 		}
@@ -141,11 +178,13 @@ class Table_Checksum_Usermeta extends Table_Checksum {
 		}
 
 		// Sanitize allowed_mime_types.
-		foreach ( $user_object->allowed_mime_types as $allowed_mime_type_short => $allowed_mime_type_long ) {
-			$allowed_mime_type_short                                     = wp_strip_all_tags( (string) $allowed_mime_type_short, true );
-			$allowed_mime_type_long                                      = wp_strip_all_tags( (string) $allowed_mime_type_long, true );
-			$user_object->allowed_mime_types[ $allowed_mime_type_short ] = $allowed_mime_type_long;
+		$allowed_mime_types = $user_object->allowed_mime_types;
+		foreach ( $allowed_mime_types as $allowed_mime_type_short => $allowed_mime_type_long ) {
+			$allowed_mime_type_short                        = wp_strip_all_tags( (string) $allowed_mime_type_short, true );
+			$allowed_mime_type_long                         = wp_strip_all_tags( (string) $allowed_mime_type_long, true );
+			$allowed_mime_types[ $allowed_mime_type_short ] = $allowed_mime_type_long;
 		}
+		$user_object->allowed_mime_types = $allowed_mime_types;
 
 		// Sanitize roles.
 		if ( is_array( $user_object->roles ) ) {

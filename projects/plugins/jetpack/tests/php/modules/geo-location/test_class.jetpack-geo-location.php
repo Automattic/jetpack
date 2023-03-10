@@ -49,7 +49,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 
 	public function test_location_display_filter_skipped_when_lacking_theme_support() {
 		$instance = $this->create_mock_instance(
-			[ 'current_theme_supports', 'the_content_location_display' ],
+			array( 'current_theme_supports', 'the_content_location_display' ),
 			self::ENABLE_CONSTRUCTOR
 		);
 
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		}
 
 		$instance = $this->create_mock_instance(
-			[ 'the_content_location_display' ],
+			array( 'the_content_location_display' ),
 			self::ENABLE_CONSTRUCTOR
 		);
 
@@ -92,7 +92,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance();
 		$meta_values = $instance->get_meta_values( 100 );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );
@@ -103,7 +103,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->assertFalse( $meta_values['is_public'] );
 		$this->assertNull( $meta_values['latitude'] );
 		$this->assertNull( $meta_values['longitude'] );
-		$this->assertEquals( '', $meta_values['label'] );
+		$this->assertSame( '', $meta_values['label'] );
 		$this->assertFalse( $meta_values['is_populated'] );
 	}
 
@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance();
 		$meta_values = $instance->get_meta_values( null );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );
@@ -122,7 +122,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$this->assertFalse( $meta_values['is_public'] );
 		$this->assertNull( $meta_values['latitude'] );
 		$this->assertNull( $meta_values['longitude'] );
-		$this->assertEquals( '', $meta_values['label'] );
+		$this->assertSame( '', $meta_values['label'] );
 		$this->assertFalse( $meta_values['is_populated'] );
 	}
 
@@ -130,7 +130,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance    = $this->get_instance_with_mock_public_post();
 		$meta_values = $instance->get_meta_values( 1 );
 
-		$this->assertTrue( is_array( $meta_values ) );
+		$this->assertIsArray( $meta_values );
 
 		$this->assertArrayHasKey( 'is_public', $meta_values );
 		$this->assertArrayHasKey( 'latitude', $meta_values );
@@ -194,7 +194,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertEquals( '', trim( $output ) );
+		$this->assertSame( '', trim( $output ) );
 	}
 
 	public function test_wp_head_aborts_when_meta_values_are_private() {
@@ -206,7 +206,7 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 		$instance->wp_head();
 		$output = ob_get_clean();
 
-		$this->assertEquals( '', trim( $output ) );
+		$this->assertSame( '', trim( $output ) );
 	}
 
 	public function test_wp_head_renders_public_meta_values() {
@@ -392,7 +392,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 			$additional_mock_methods
 		);
 
-		/* @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject */
+		/**
+		 * @var $instance Jetpack_Geo_Location|PHPUnit_Framework_MockObject_MockObject
+		 */
 		$builder = $this->getMockBuilder( Jetpack_Geo_Location::class )
 			->setMethods( $mock_methods );
 
@@ -406,9 +408,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_single() {
 		global $wp_query;
 
-		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
+		/**
+		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
+		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed', 'is_single' ] )
+			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -419,9 +423,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_single() {
 		global $wp_query;
 
-		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
+		/**
+		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
+		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed', 'is_single' ] )
+			->setMethods( array( 'is_feed', 'is_single' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -432,9 +438,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_feed() {
 		global $wp_query;
 
-		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
+		/**
+		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
+		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed' ] )
+			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )
@@ -445,9 +453,11 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	private function mock_is_not_feed() {
 		global $wp_query;
 
-		/* @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject */
+		/**
+		 * @var $wp_query WP_Query|PHPUnit_Framework_MockObject_MockObject
+		 */
 		$wp_query = $this->getMockBuilder( WP_Query::class )
-			->setMethods( [ 'is_feed' ] )
+			->setMethods( array( 'is_feed' ) )
 			->getMock();
 
 		$wp_query->expects( $this->any() )

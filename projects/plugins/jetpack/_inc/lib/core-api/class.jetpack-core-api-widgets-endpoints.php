@@ -1,11 +1,19 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Interact with a specific widget via the REST API.
+ * Currently only supports the Milestone widget.
+ *
+ * @package automattic/jetpack
+ */
+
 /**
  * Widget information getter endpoint.
- *
  */
 class Jetpack_Core_API_Widget_Endpoint {
 
 	/**
+	 * Get information about a widget that is supported by this endpoint.
+	 *
 	 * @since 5.5.0
 	 *
 	 * @param WP_REST_Request $request {
@@ -18,9 +26,9 @@ class Jetpack_Core_API_Widget_Endpoint {
 	 */
 	public function process( $request ) {
 		$widget_base = _get_widget_id_base( $request['id'] );
-		$widget_id = (int) substr( $request['id'], strlen( $widget_base ) + 1 );
+		$widget_id   = (int) substr( $request['id'], strlen( $widget_base ) + 1 );
 
-		switch( $widget_base ) {
+		switch ( $widget_base ) {
 			case 'milestone_widget':
 				$instances = get_option( 'widget_milestone_widget', array() );
 
@@ -30,7 +38,7 @@ class Jetpack_Core_API_Widget_Endpoint {
 					&& isset( $instances[ $widget_id ] )
 				) {
 					$instance = $instances[ $widget_id ];
-					$widget = new Milestone_Widget();
+					$widget   = new Milestone_Widget();
 					return $widget->get_widget_data( $instance );
 				}
 		}

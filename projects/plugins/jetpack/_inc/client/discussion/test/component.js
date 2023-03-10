@@ -1,45 +1,47 @@
-/**
- * External dependencies
- */
+import { jest } from '@jest/globals';
 import React from 'react';
-import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import { spy } from 'sinon';
-
-/**
- * Internal dependencies
- */
+import { render } from 'test/test-utils';
 import { UnwrappedComponent as SubscriptionsComponent } from '../subscriptions';
 
-describe( 'SubscriptionsComponent', () => {
-	let theSpy, props;
+// Mock settings card. It does a lot of stuff in the background that we don't care about for these tests.
+jest.mock( 'components/settings-card', () => ( {
+	__esModule: true,
+	default: () => <div>settings-card</div>,
+} ) );
 
-	before( () => {
-		theSpy = spy(),
-		props = {
-			getOptionValue: theSpy,
-			getModule: () => {
-				return {
-					description: 'Bogus module.'
-				};
-			},
-			isUnavailableInOfflineMode: () => {},
-			isSavingAnyOption: () => {}
-		};
-		shallow( <SubscriptionsComponent { ...props } /> );
+describe( 'SubscriptionsComponent', () => {
+	const theSpy = jest.fn();
+	const props = {
+		getOptionValue: theSpy,
+		getModule: () => {
+			return {
+				description: 'Bogus module.',
+			};
+		},
+		isUnavailableInOfflineMode: () => {},
+		isSavingAnyOption: () => {},
+	};
+
+	beforeEach( () => {
+		theSpy.mockClear();
 	} );
 
 	describe( 'initial state', () => {
 		it( 'queries getOptionValue', () => {
-			expect( theSpy.calledThrice ).to.be.true;
+			render( <SubscriptionsComponent { ...props } /> );
+			expect( theSpy ).toHaveBeenCalledTimes( 3 );
 		} );
+
 		it( 'does not pass the second argument to getOptionValue', () => {
-			expect( theSpy.getCall( 1 ).args[ 1 ] ).to.be.undefined;
-			expect( theSpy.getCall( 2 ).args[ 1 ] ).to.be.undefined;
+			render( <SubscriptionsComponent { ...props } /> );
+			expect( theSpy.mock.calls[ 1 ][ 1 ] ).toBeUndefined();
+			expect( theSpy.mock.calls[ 2 ][ 1 ] ).toBeUndefined();
 		} );
+
 		it( 'gets certain option values from getOptionValue', () => {
-			expect( theSpy.calledWith( 'stb_enabled' ) ).to.be.true;
-			expect( theSpy.calledWith( 'stc_enabled' ) ).to.be.true;
+			render( <SubscriptionsComponent { ...props } /> );
+			expect( theSpy ).toHaveBeenCalledWith( 'stb_enabled' );
+			expect( theSpy ).toHaveBeenCalledWith( 'stc_enabled' );
 		} );
 	} );
 } );

@@ -128,7 +128,7 @@ class Urls {
 			Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$scheme = is_ssl() ? 'https' : 'http';
-			$url    = self::get_raw_url( $url_type );
+			$url    = (string) self::get_raw_url( $url_type );
 			$url    = set_url_scheme( $url, $scheme );
 		} else {
 			$url = self::normalize_www_in_url( $url_type, $url_function );

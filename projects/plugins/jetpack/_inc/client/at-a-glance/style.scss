@@ -4,10 +4,31 @@
 
 .jp-at-a-glance {
 	margin-bottom: rem( 48px );
+
+	&__pinned-bundle {
+		margin-bottom: 1rem;
+	}
 }
 
 .jp-at-a-glance__stats-card {
 	padding: 0;
+}
+
+.jp-at-a-glance__stats-card {
+	.jp-link-button {
+		background: $white;
+		border: none;
+		padding: 2px 0;
+	}
+}
+
+.dops-banner__content {
+	.jp-link-button {
+		background: $white;
+		border: none;
+		font-size: 0.75rem;
+		padding: 1px 0;
+	}
 }
 
 .jp-at-a-glance__stats-empty {
@@ -174,7 +195,12 @@
 	margin: rem( 8px ) 0;
 }
 
-.jp-at-a-glance__stats-cta-buttons {
+.jp-at-a-glance__stats-ctas {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+
 	@include breakpoint( '>660px' ) {
 		text-align: right;
 		flex-basis: 70%;
@@ -182,11 +208,16 @@
 
 	@include breakpoint( '<660px' ) {
 		text-align: center;
+		flex-direction: column;
 
 		.dops-button {
 			width: 100%;
 			margin-bottom: rem( 4px );
 		}
+	}
+
+	.jp-at-a-glance__stats-ctas-wpcom-stats {
+		margin-left: 16px;
 	}
 
 	.dops-button {
@@ -231,8 +262,7 @@
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba(30, 140, 190, 0.8);
-
+	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba( 30, 140, 190, 0.8 );
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
@@ -447,4 +477,10 @@
 
 .jp-dash-item__videopress-storage {
 	margin-top: 1em;
+}
+
+.jp-dash-item__action-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 26px;
 }

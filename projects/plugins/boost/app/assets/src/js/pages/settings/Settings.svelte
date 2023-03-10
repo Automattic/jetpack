@@ -1,33 +1,43 @@
-<script>
-	import Tips from './sections/Tips.svelte';
-	import Score from './sections/Score.svelte';
-	import urlFragment from '../../stores/url-fragment';
+<script lang="ts">
+	import { derived } from 'svelte/store';
+	import ReRouter from '../../elements/ReRouter.svelte';
+	import Footer from '../../sections/Footer.svelte';
+	import Header from '../../sections/Header.svelte';
+	import config from '../../stores/config';
+	import { connection } from '../../stores/connection';
+	import { Router, Route } from '../../utils/router';
 	import AdvancedCriticalCss from './sections/AdvancedCriticalCss.svelte';
 	import Modules from './sections/Modules.svelte';
-	import { derived } from 'svelte/store';
+	import Score from './sections/Score.svelte';
+	import Support from './sections/Support.svelte';
+	import Tips from './sections/Tips.svelte';
 
-	// Map of sub-pages to display for each URL fragment.
-	const subPages = {
-		'#critical-css-advanced': AdvancedCriticalCss,
-	};
-
-	const subPage = derived( urlFragment, fragment => subPages[ fragment ] );
+	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
+		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
+	} );
 </script>
 
-<div class="jb-section--alt jb-section--scores">
-	<Score />
-</div>
+<ReRouter to="/getting-started" when={$shouldGetStarted}>
+	<div id="jb-settings" class="jb-settings jb-settings--main">
+		<div class="jb-container">
+			<Header />
+		</div>
 
-{#if $subPage}
-	<div class="jb-section jb-section--subpage">
-		<svelte:component this={$subPage} />
-	</div>
-{:else}
-	<div class="jb-section jb-section--main">
-		<Modules />
-	</div>
-{/if}
+		<div class="jb-section jb-section--alt jb-section--scores">
+			<Score />
+		</div>
 
-<div class="jb-section--alt">
-	<Tips />
-</div>
+		<Router>
+			<div class="jb-section jb-section--main">
+				<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
+				<Route path="/" component={Modules} />
+			</div>
+		</Router>
+
+		<Tips />
+
+		<Support />
+
+		<Footer />
+	</div>
+</ReRouter>

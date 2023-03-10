@@ -32,7 +32,7 @@ class Table_Checksum {
 	public $table_configuration = array();
 
 	/**
-	 * Perform Text Conversion to UTF8.
+	 * Perform Text Conversion to latin1.
 	 *
 	 * @var boolean
 	 */
@@ -60,7 +60,7 @@ class Table_Checksum {
 	public $checksum_fields = array();
 
 	/**
-	 * Field(s) to be used in generating the checksum value that need utf8 conversion.
+	 * Field(s) to be used in generating the checksum value that need latin1 conversion.
 	 *
 	 * @var array
 	 */
@@ -134,7 +134,7 @@ class Table_Checksum {
 	 *
 	 * @param string  $table The table to calculate checksums for.
 	 * @param string  $salt  Optional salt to add to the checksum.
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @throws Exception Throws exception from inner functions.
 	 */
@@ -182,28 +182,34 @@ class Table_Checksum {
 
 		return array(
 			'posts'                      => array(
-				'table'           => $wpdb->posts,
-				'range_field'     => 'ID',
-				'key_fields'      => array( 'ID' ),
-				'checksum_fields' => array( 'post_modified_gmt' ),
-				'filter_values'   => Sync\Settings::get_disallowed_post_types_structured(),
+				'table'                     => $wpdb->posts,
+				'range_field'               => 'ID',
+				'key_fields'                => array( 'ID' ),
+				'checksum_fields'           => array( 'post_modified_gmt' ),
+				'filter_values'             => Sync\Settings::get_disallowed_post_types_structured(),
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'posts' );
+				},
 			),
 			'postmeta'                   => array(
-				'table'                => $wpdb->postmeta,
-				'range_field'          => 'post_id',
-				'key_fields'           => array( 'post_id', 'meta_key' ),
-				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'        => Sync\Settings::get_allowed_post_meta_structured(),
-				'parent_table'         => 'posts',
-				'parent_join_field'    => 'ID',
-				'table_join_field'     => 'post_id',
+				'table'                     => $wpdb->postmeta,
+				'range_field'               => 'post_id',
+				'key_fields'                => array( 'post_id', 'meta_key' ),
+				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
+				'filter_values'             => Sync\Settings::get_allowed_post_meta_structured(),
+				'parent_table'              => 'posts',
+				'parent_join_field'         => 'ID',
+				'table_join_field'          => 'post_id',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'posts' );
+				},
 			),
 			'comments'                   => array(
-				'table'           => $wpdb->comments,
-				'range_field'     => 'comment_ID',
-				'key_fields'      => array( 'comment_ID' ),
-				'checksum_fields' => array( 'comment_date_gmt' ),
-				'filter_values'   => array(
+				'table'                     => $wpdb->comments,
+				'range_field'               => 'comment_ID',
+				'key_fields'                => array( 'comment_ID' ),
+				'checksum_fields'           => array( 'comment_date_gmt' ),
+				'filter_values'             => array(
 					'comment_type'     => array(
 						'operator' => 'IN',
 						'values'   => apply_filters(
@@ -216,48 +222,66 @@ class Table_Checksum {
 						'values'   => array( 'spam' ),
 					),
 				),
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'comments' );
+				},
 			),
 			'commentmeta'                => array(
-				'table'                => $wpdb->commentmeta,
-				'range_field'          => 'comment_id',
-				'key_fields'           => array( 'comment_id', 'meta_key' ),
-				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
-				'filter_values'        => Sync\Settings::get_allowed_comment_meta_structured(),
-				'parent_table'         => 'comments',
-				'parent_join_field'    => 'comment_ID',
-				'table_join_field'     => 'comment_id',
+				'table'                     => $wpdb->commentmeta,
+				'range_field'               => 'comment_id',
+				'key_fields'                => array( 'comment_id', 'meta_key' ),
+				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
+				'filter_values'             => Sync\Settings::get_allowed_comment_meta_structured(),
+				'parent_table'              => 'comments',
+				'parent_join_field'         => 'comment_ID',
+				'table_join_field'          => 'comment_id',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'comments' );
+				},
 			),
 			'terms'                      => array(
-				'table'                => $wpdb->terms,
-				'range_field'          => 'term_id',
-				'key_fields'           => array( 'term_id' ),
-				'checksum_fields'      => array( 'term_id' ),
-				'checksum_text_fields' => array( 'name', 'slug' ),
-				'parent_table'         => 'term_taxonomy',
+				'table'                     => $wpdb->terms,
+				'range_field'               => 'term_id',
+				'key_fields'                => array( 'term_id' ),
+				'checksum_fields'           => array( 'term_id' ),
+				'checksum_text_fields'      => array( 'name', 'slug' ),
+				'parent_table'              => 'term_taxonomy',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'terms' );
+				},
 			),
 			'termmeta'                   => array(
-				'table'                => $wpdb->termmeta,
-				'range_field'          => 'term_id',
-				'key_fields'           => array( 'term_id', 'meta_key' ),
-				'checksum_text_fields' => array( 'meta_key', 'meta_value' ),
-				'parent_table'         => 'term_taxonomy',
+				'table'                     => $wpdb->termmeta,
+				'range_field'               => 'term_id',
+				'key_fields'                => array( 'term_id', 'meta_key' ),
+				'checksum_text_fields'      => array( 'meta_key', 'meta_value' ),
+				'parent_table'              => 'term_taxonomy',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'terms' );
+				},
 			),
 			'term_relationships'         => array(
-				'table'             => $wpdb->term_relationships,
-				'range_field'       => 'object_id',
-				'key_fields'        => array( 'object_id' ),
-				'checksum_fields'   => array( 'object_id', 'term_taxonomy_id' ),
-				'parent_table'      => 'term_taxonomy',
-				'parent_join_field' => 'term_taxonomy_id',
-				'table_join_field'  => 'term_taxonomy_id',
+				'table'                     => $wpdb->term_relationships,
+				'range_field'               => 'object_id',
+				'key_fields'                => array( 'object_id' ),
+				'checksum_fields'           => array( 'object_id', 'term_taxonomy_id' ),
+				'parent_table'              => 'term_taxonomy',
+				'parent_join_field'         => 'term_taxonomy_id',
+				'table_join_field'          => 'term_taxonomy_id',
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'terms' );
+				},
 			),
 			'term_taxonomy'              => array(
-				'table'                => $wpdb->term_taxonomy,
-				'range_field'          => 'term_taxonomy_id',
-				'key_fields'           => array( 'term_taxonomy_id' ),
-				'checksum_fields'      => array( 'term_taxonomy_id', 'term_id', 'parent' ),
-				'checksum_text_fields' => array( 'taxonomy', 'description' ),
-				'filter_values'        => Sync\Settings::get_allowed_taxonomies_structured(),
+				'table'                     => $wpdb->term_taxonomy,
+				'range_field'               => 'term_taxonomy_id',
+				'key_fields'                => array( 'term_taxonomy_id' ),
+				'checksum_fields'           => array( 'term_taxonomy_id', 'term_id', 'parent' ),
+				'checksum_text_fields'      => array( 'taxonomy', 'description' ),
+				'filter_values'             => Sync\Settings::get_allowed_taxonomies_structured(),
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'terms' );
+				},
 			),
 			'links'                      => $wpdb->links, // TODO describe in the array format or add exceptions.
 			'options'                    => $wpdb->options, // TODO describe in the array format or add exceptions.
@@ -281,11 +305,14 @@ class Table_Checksum {
 				'is_table_enabled_callback' => array( $this, 'enable_woocommerce_tables' ),
 			),
 			'users'                      => array(
-				'table'                => $wpdb->users,
-				'range_field'          => 'ID',
-				'key_fields'           => array( 'ID' ),
-				'checksum_text_fields' => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
-				'filter_values'        => array(),
+				'table'                     => $wpdb->users,
+				'range_field'               => 'ID',
+				'key_fields'                => array( 'ID' ),
+				'checksum_text_fields'      => array( 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ),
+				'filter_values'             => array(),
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'users' );
+				},
 			),
 
 			/**
@@ -294,14 +321,17 @@ class Table_Checksum {
 			 * This prevents us from doing a direct comparison in the database.
 			 */
 			'usermeta'                   => array(
-				'table'           => $wpdb->users,
+				'table'                     => $wpdb->users,
 				/**
 				 * Range field points to ID, which in this case is the `WP_User` ID,
 				 * since we're querying the whole WP_User objects, instead of meta entries in the DB.
 				 */
-				'range_field'     => 'ID',
-				'key_fields'      => array(),
-				'checksum_fields' => array(),
+				'range_field'               => 'ID',
+				'key_fields'                => array(),
+				'checksum_fields'           => array(),
+				'is_table_enabled_callback' => function () {
+					return false !== Sync\Modules::get_module( 'users' );
+				},
 			),
 		);
 	}
@@ -518,13 +548,13 @@ class Table_Checksum {
 	 *
 	 * @return string
 	 *
-	 * @throws Exception Throws and exception if validation fails in the internal function calls.
+	 * @throws Exception Throws an exception if validation fails in the internal function calls.
 	 */
 	protected function build_checksum_query( $range_from = null, $range_to = null, $filter_values = null, $granular_result = false ) {
 		global $wpdb;
 
 		// Escape the salt.
-		$salt = $wpdb->prepare( '%s', $this->salt ); // TODO escape or prepare statement.
+		$salt = $wpdb->prepare( '%s', $this->salt );
 
 		// Prepare the compound key.
 		$key_fields = array();
@@ -542,11 +572,11 @@ class Table_Checksum {
 		foreach ( $this->checksum_fields as $field ) {
 			$checksum_fields[] = $this->table . '.' . $field;
 		}
-		// Apply utf8 conversion if enabled.
+		// Apply latin1 conversion if enabled.
 		if ( $this->perform_text_conversion ) {
 			// Convert text fields to allow for encoding discrepancies as WP.com is latin1.
 			foreach ( $this->checksum_text_fields as $field ) {
-				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using utf8 )';
+				$checksum_fields[] = 'CONVERT(' . $this->table . '.' . $field . ' using latin1 )';
 			}
 		} else {
 			// Conversion disabled, default to table prefixing.
@@ -665,7 +695,7 @@ class Table_Checksum {
 
 		// Only make the distinct count when we know there can be multiple entries for the range column.
 		$distinct_count = '';
-		if ( count( $this->key_fields ) > 1 || 'terms' === $this->table ) {
+		if ( count( $this->key_fields ) > 1 || $wpdb->terms === $this->table || $wpdb->term_relationships === $this->table ) {
 			$distinct_count = 'DISTINCT';
 		}
 

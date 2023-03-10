@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: fix tax page deletion for single entries.

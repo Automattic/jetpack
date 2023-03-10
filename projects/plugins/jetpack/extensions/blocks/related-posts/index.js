@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import './style.scss';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'related-posts';
 
@@ -64,6 +57,20 @@ export const settings = {
 		html: false,
 		multiple: false,
 		reusable: false,
+		color: {
+			gradients: true,
+			link: true,
+		},
+		spacing: {
+			margin: true,
+			padding: true,
+		},
+		typography: {
+			__experimentalFontFamily: true,
+			fontSize: true,
+			lineHeight: true,
+		},
+		align: [ 'wide', 'full' ],
 	},
 
 	transforms: {

@@ -12,7 +12,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-control.php';
 require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 
-require_jetpack_file( 'modules/masterbar/nudges/bootstrap.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/nudges/bootstrap.php';
 
 /**
  * Class Test_CSS_Customizer_Nudge

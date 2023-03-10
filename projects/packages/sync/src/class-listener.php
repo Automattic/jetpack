@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -14,7 +15,7 @@ use Automattic\Jetpack\Roles;
  */
 class Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
-	const QUEUE_STATE_CHECK_TIMEOUT   = 300; // 5 minutes.
+	const QUEUE_STATE_CHECK_TIMEOUT   = 30; // 30 seconds.
 
 	/**
 	 * Sync queue.
@@ -239,7 +240,7 @@ class Listener {
 			 */
 			$args        = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
 			$action_data = array( $args );
-			if ( ! is_null( $previous_end ) ) {
+			if ( $previous_end !== null ) {
 				$action_data[] = $previous_end;
 			}
 			// allow listeners to abort.
@@ -269,6 +270,11 @@ class Listener {
 	public function enqueue_action( $current_filter, $args, $queue ) {
 		// don't enqueue an action during the outbound http request - this prevents recursion.
 		if ( Settings::is_sending() ) {
+			return;
+		}
+
+		if ( ! ( new Connection_Manager() )->is_connected() ) {
+			// Don't enqueue an action if the site is disconnected.
 			return;
 		}
 
@@ -420,7 +426,7 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
+			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
 				if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
 					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
@@ -429,7 +435,7 @@ class Listener {
 			}
 
 			$actor['ip']         = $ip;
-			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
 		}
 
 		return $actor;
@@ -474,7 +480,8 @@ class Listener {
 	 */
 	public function get_request_url() {
 		if ( isset( $_SERVER['HTTP_HOST'], $_SERVER['REQUEST_URI'] ) ) {
-			return 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- False positive, sniff misses the call to esc_url_raw.
+			return esc_url_raw( 'http' . ( isset( $_SERVER['HTTPS'] ) ? 's' : '' ) . '://' . wp_unslash( "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ) );
 		}
 		return is_admin() ? get_admin_url( get_current_blog_id() ) : home_url();
 	}

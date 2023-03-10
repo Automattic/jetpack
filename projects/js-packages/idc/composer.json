@@ -1,0 +1,19 @@
+{
+	"name": "automattic/js-idc",
+	"description": "Jetpack IDC package.",
+	"license": "GPL-2.0-or-later",
+	"require": {},
+	"require-dev": {
+		"automattic/jetpack-changelogger": "@dev"
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	]
+}

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
  * This is the endpoint class for `/site` endpoints.
@@ -150,17 +151,18 @@ class Jetpack_Core_API_Site_Endpoint {
 		 * - Sharing counts (not currently supported in Jetpack -- https://github.com/Automattic/jetpack/issues/844 )
 		 */
 		$stats = null;
-		if ( function_exists( 'stats_get_from_restapi' ) ) {
-			$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
+		if ( function_exists( 'convert_stats_array_to_object' ) ) {
+				$stats = convert_stats_array_to_object(
+					( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) )
+				);
 		}
-
 		$has_stats = null !== $stats && ! is_wp_error( $stats );
 
 		// Yearly visitors.
 		if ( $has_stats && $stats->stats->visitors > 0 ) {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
-				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
+				'title'       => esc_html__( 'Jetpack Stats', 'jetpack' ),
 				'description' => esc_html__( 'Visitors tracked by Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->visitors ),
 			);
@@ -237,17 +239,19 @@ class Jetpack_Core_API_Site_Endpoint {
 		}
 
 		// Number of VideoPress videos on the site.
-		$videopress_attachments = wp_count_attachments( 'video/videopress' );
-		if (
-			isset( $videopress_attachments->{'video/videopress'} )
-			&& $videopress_attachments->{'video/videopress'} > 0
-		) {
-			$benefits[] = array(
-				'name'        => 'video-hosting',
-				'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
-				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
-				'value'       => absint( $videopress_attachments->{'video/videopress'} ),
-			);
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			$videopress_attachments = wp_count_attachments( 'video/videopress' );
+			if (
+				isset( $videopress_attachments->{'video/videopress'} )
+				&& $videopress_attachments->{'video/videopress'} > 0
+			) {
+				$benefits[] = array(
+					'name'        => 'video-hosting',
+					'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
+					'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
+					'value'       => absint( $videopress_attachments->{'video/videopress'} ),
+				);
+			}
 		}
 
 		// Number of active Publicize connections.
@@ -263,7 +267,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			if ( $number_of_connections > 0 ) {
 				$benefits[] = array(
 					'name'        => 'publicize',
-					'title'       => esc_html__( 'Publicize', 'jetpack' ),
+					'title'       => esc_html__( 'Jetpack Social', 'jetpack' ),
 					'description' => esc_html__( 'Live social media site connections, powered by Jetpack', 'jetpack' ),
 					'value'       => absint( $number_of_connections ),
 				);
@@ -277,6 +281,14 @@ class Jetpack_Core_API_Site_Endpoint {
 				'title'       => esc_html__( 'Sharing', 'jetpack' ),
 				'description' => esc_html__( 'The number of times visitors have shared your posts with the world using Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->shares ),
+			);
+		}
+
+		if ( Jetpack::is_module_active( 'search' ) && ! class_exists( 'Automattic\\Jetpack\\Search_Plugin\\Jetpack_Search_Plugin' ) ) {
+			$benefits[] = array(
+				'name'        => 'search',
+				'title'       => esc_html__( 'Search', 'jetpack' ),
+				'description' => esc_html__( 'Help your visitors find exactly what they are looking for, fast', 'jetpack' ),
 			);
 		}
 

@@ -1,11 +1,11 @@
 {
 	"name": "automattic/jetpack-compat",
 	"description": "Compatibility layer with previous versions of Jetpack",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^2.0"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"files": [
@@ -29,11 +29,12 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-compat",
+		"textdomain": "jetpack-compat",
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-compat/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "1.6.x-dev"
+			"dev-trunk": "1.7.x-dev"
 		}
 	}
 }

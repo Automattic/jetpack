@@ -1,0 +1,655 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+.post-type-zerobs_form #form-embed, .post-type-zerobs_form #form-preview, .zbscrmFrontEndForm #form-embed, .zbscrmFrontEndForm #form-preview,
+.zbs-edit-wrap-form #form-embed,
+.zbs-edit-wrap-form #form-preview {
+  min-height: 50px;
+  background: white;
+  margin-bottom: 20px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+  background: #fff;
+  padding: 10px;
+}
+.post-type-zerobs_form #form-embed h1, .post-type-zerobs_form #form-preview h1, .zbscrmFrontEndForm #form-embed h1, .zbscrmFrontEndForm #form-preview h1,
+.zbs-edit-wrap-form #form-embed h1,
+.zbs-edit-wrap-form #form-preview h1 {
+  margin-top: 5px;
+}
+.post-type-zerobs_form tr.wh-large textarea, .zbscrmFrontEndForm tr.wh-large textarea,
+.zbs-edit-wrap-form tr.wh-large textarea {
+  font-size: 20px;
+}
+.post-type-zerobs_form .zbs_shortcode_message, .zbscrmFrontEndForm .zbs_shortcode_message,
+.zbs-edit-wrap-form .zbs_shortcode_message {
+  margin-top: -10px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  background: aliceblue;
+  padding: 12px;
+  border: 1px solid #00A0D3;
+  border-radius: 4px;
+}
+.post-type-zerobs_form .zbs_shortcode_message p, .zbscrmFrontEndForm .zbs_shortcode_message p,
+.zbs-edit-wrap-form .zbs_shortcode_message p {
+  text-align: center;
+  margin: 0px;
+}
+.post-type-zerobs_form .zbs_shortcode_message .shorty, .zbscrmFrontEndForm .zbs_shortcode_message .shorty,
+.zbs-edit-wrap-form .zbs_shortcode_message .shorty {
+  font-weight: 900;
+  margin-top: 5px;
+}
+.post-type-zerobs_form .caption, .zbscrmFrontEndForm .caption,
+.zbs-edit-wrap-form .caption {
+  text-align: center;
+  margin-top: 7px;
+  color: #999;
+  font-weight: 100;
+}
+.post-type-zerobs_form .welcomeh1, .zbscrmFrontEndForm .welcomeh1,
+.zbs-edit-wrap-form .welcomeh1 {
+  font-size: 26px;
+  text-align: center;
+  padding: 5px;
+  font-weight: 900;
+}
+.post-type-zerobs_form .welcomeh3, .zbscrmFrontEndForm .welcomeh3,
+.zbs-edit-wrap-form .welcomeh3 {
+  font-size: 15px;
+  text-align: center;
+  color: #999;
+  padding: 5px;
+  text-transform: uppercase;
+  font-weight: 100;
+  padding: 0px;
+  margin: 0px;
+  margin-bottom: 24px;
+}
+.post-type-zerobs_form #zbs-field-chooser, .zbscrmFrontEndForm #zbs-field-chooser,
+.zbs-edit-wrap-form #zbs-field-chooser {
+  width: 50%;
+}
+.post-type-zerobs_form #zbs-form-pre, .zbscrmFrontEndForm #zbs-form-pre,
+.zbs-edit-wrap-form #zbs-form-pre {
+  white-space: pre;
+  display: block;
+  unicode-bidi: embed;
+  white-space: pre-wrap; /* css-3 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+.post-type-zerobs_form pre, .zbscrmFrontEndForm pre,
+.zbs-edit-wrap-form pre {
+  display: block;
+  font: normal 12px/22px Monaco, Monospace !important;
+  color: #CFDBEC;
+  background-color: #2f2f2f;
+  background-image: -webkit-repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+  background-image: repeating-linear-gradient(top, #444 0px, #444 22px, #2f2f2f 22px, #2f2f2f 44px);
+  padding: 0em 1em;
+  overflow: auto;
+}
+.post-type-zerobs_form .zbs_msg, .zbscrmFrontEndForm .zbs_msg,
+.zbs-edit-wrap-form .zbs_msg {
+  text-align: center;
+  margin-top: -20px;
+  margin-bottom: 20px;
+}
+.post-type-zerobs_form .hide, .zbscrmFrontEndForm .hide,
+.zbs-edit-wrap-form .hide {
+  display: none;
+}
+.post-type-zerobs_form .third, .zbscrmFrontEndForm .third,
+.zbs-edit-wrap-form .third {
+  width: 30%;
+  margin-left: 1.5%;
+  margin-right: 1.5%;
+  float: left;
+  cursor: pointer;
+}
+.post-type-zerobs_form .third .selected, .zbscrmFrontEndForm .third .selected,
+.zbs-edit-wrap-form .third .selected {
+  border: 4px solid #ddd !important;
+}
+.post-type-zerobs_form .third .simple, .post-type-zerobs_form .third .naked, .post-type-zerobs_form .third .cgrab, .zbscrmFrontEndForm .third .simple, .zbscrmFrontEndForm .third .naked, .zbscrmFrontEndForm .third .cgrab,
+.zbs-edit-wrap-form .third .simple,
+.zbs-edit-wrap-form .third .naked,
+.zbs-edit-wrap-form .third .cgrab {
+  border: 1px solid #ddd;
+}
+.post-type-zerobs_form .third .cgrab, .zbscrmFrontEndForm .third .cgrab,
+.zbs-edit-wrap-form .third .cgrab {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .third .cgrab .blobby p, .zbscrmFrontEndForm .third .cgrab .blobby p,
+.zbs-edit-wrap-form .third .cgrab .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 15px;
+}
+.post-type-zerobs_form .third .cgrab .blobby .br, .zbscrmFrontEndForm .third .cgrab .blobby .br,
+.zbs-edit-wrap-form .third .cgrab .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .third .cgrab .content, .zbscrmFrontEndForm .third .cgrab .content,
+.zbs-edit-wrap-form .third .cgrab .content {
+  background: #eee;
+  padding-bottom: 30px;
+  border: 1px solid #ccc;
+  padding-top: 17px;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.post-type-zerobs_form .third .cgrab .content h1, .zbscrmFrontEndForm .third .cgrab .content h1,
+.zbs-edit-wrap-form .third .cgrab .content h1 {
+  color: black;
+  font-size: 20px;
+  padding: 5px;
+}
+.post-type-zerobs_form .third .cgrab .content h3, .zbscrmFrontEndForm .third .cgrab .content h3,
+.zbs-edit-wrap-form .third .cgrab .content h3 {
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 100;
+  font-size: 12px;
+  margin-top: -5px;
+}
+.post-type-zerobs_form .third .cgrab .content .form-wrapper, .zbscrmFrontEndForm .third .cgrab .content .form-wrapper,
+.zbs-edit-wrap-form .third .cgrab .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 6%;
+}
+.post-type-zerobs_form .third .cgrab .content .form-wrapper .input, .zbscrmFrontEndForm .third .cgrab .content .form-wrapper .input,
+.zbs-edit-wrap-form .third .cgrab .content .form-wrapper .input {
+  width: 90%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  color: #ccc;
+  font-weight: 100;
+  background: white;
+}
+.post-type-zerobs_form .third .cgrab .content .form-wrapper .textarea, .zbscrmFrontEndForm .third .cgrab .content .form-wrapper .textarea,
+.zbs-edit-wrap-form .third .cgrab .content .form-wrapper .textarea {
+  width: 90%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  color: #ccc;
+  font-weight: 100;
+  background: white;
+  height: 200px;
+  margin-bottom: 10px;
+}
+.post-type-zerobs_form .third .cgrab .content .form-wrapper .send, .zbscrmFrontEndForm .third .cgrab .content .form-wrapper .send,
+.zbs-edit-wrap-form .third .cgrab .content .form-wrapper .send {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 30px;
+  float: left;
+  text-align: center;
+  line-height: 30px;
+}
+.post-type-zerobs_form .third .cgrab .content .trailer, .zbscrmFrontEndForm .third .cgrab .content .trailer,
+.zbs-edit-wrap-form .third .cgrab .content .trailer {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+  padding: 10px;
+}
+.post-type-zerobs_form .third .simple, .zbscrmFrontEndForm .third .simple,
+.zbs-edit-wrap-form .third .simple {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .third .simple .blobby p, .zbscrmFrontEndForm .third .simple .blobby p,
+.zbs-edit-wrap-form .third .simple .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 15px;
+}
+.post-type-zerobs_form .third .simple .blobby .br, .zbscrmFrontEndForm .third .simple .blobby .br,
+.zbs-edit-wrap-form .third .simple .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .third .simple .content, .zbscrmFrontEndForm .third .simple .content,
+.zbs-edit-wrap-form .third .simple .content {
+  background: #eee;
+  padding-bottom: 30px;
+  border: 1px solid #ccc;
+  padding-top: 17px;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.post-type-zerobs_form .third .simple .content h1, .zbscrmFrontEndForm .third .simple .content h1,
+.zbs-edit-wrap-form .third .simple .content h1 {
+  color: black;
+  font-size: 20px;
+  padding: 5px;
+}
+.post-type-zerobs_form .third .simple .content h3, .zbscrmFrontEndForm .third .simple .content h3,
+.zbs-edit-wrap-form .third .simple .content h3 {
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 100;
+  font-size: 12px;
+  margin-top: -5px;
+}
+.post-type-zerobs_form .third .simple .content .form-wrapper, .zbscrmFrontEndForm .third .simple .content .form-wrapper,
+.zbs-edit-wrap-form .third .simple .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 6%;
+}
+.post-type-zerobs_form .third .simple .content .form-wrapper .input, .zbscrmFrontEndForm .third .simple .content .form-wrapper .input,
+.zbs-edit-wrap-form .third .simple .content .form-wrapper .input {
+  width: 70%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  color: #ccc;
+  font-weight: 100;
+  background: white;
+}
+.post-type-zerobs_form .third .simple .content .form-wrapper .send, .zbscrmFrontEndForm .third .simple .content .form-wrapper .send,
+.zbs-edit-wrap-form .third .simple .content .form-wrapper .send {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 30px;
+  float: left;
+  text-align: center;
+  line-height: 30px;
+}
+.post-type-zerobs_form .third .simple .content .trailer, .zbscrmFrontEndForm .third .simple .content .trailer,
+.zbs-edit-wrap-form .third .simple .content .trailer {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+  padding: 10px;
+}
+.post-type-zerobs_form .third .naked, .zbscrmFrontEndForm .third .naked,
+.zbs-edit-wrap-form .third .naked {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .third .naked .blobby p, .zbscrmFrontEndForm .third .naked .blobby p,
+.zbs-edit-wrap-form .third .naked .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 15px;
+}
+.post-type-zerobs_form .third .naked .blobby .br, .zbscrmFrontEndForm .third .naked .blobby .br,
+.zbs-edit-wrap-form .third .naked .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .third .naked .content, .zbscrmFrontEndForm .third .naked .content,
+.zbs-edit-wrap-form .third .naked .content {
+  padding-bottom: 45px;
+  margin: 0 auto;
+  position: relative;
+}
+.post-type-zerobs_form .third .naked .content .form-wrapper, .zbscrmFrontEndForm .third .naked .content .form-wrapper,
+.zbs-edit-wrap-form .third .naked .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 3%;
+}
+.post-type-zerobs_form .third .naked .content .form-wrapper .input, .zbscrmFrontEndForm .third .naked .content .form-wrapper .input,
+.zbs-edit-wrap-form .third .naked .content .form-wrapper .input {
+  width: 33%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  color: #ccc;
+  font-weight: 100;
+}
+.post-type-zerobs_form .third .naked .content .form-wrapper .send, .zbscrmFrontEndForm .third .naked .content .form-wrapper .send,
+.zbs-edit-wrap-form .third .naked .content .form-wrapper .send {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 30px;
+  float: left;
+  text-align: center;
+  line-height: 30px;
+}
+.post-type-zerobs_form iframe, .zbscrmFrontEndForm iframe,
+.zbs-edit-wrap-form iframe {
+  border: 0px solid;
+}
+.post-type-zerobs_form .embed .zbs_poweredby, .zbscrmFrontEndForm .embed .zbs_poweredby,
+.zbs-edit-wrap-form .embed .zbs_poweredby {
+  font-size: 11px;
+}
+.post-type-zerobs_form .embed .selected, .zbscrmFrontEndForm .embed .selected,
+.zbs-edit-wrap-form .embed .selected {
+  border: 4px solid #ddd !important;
+}
+.post-type-zerobs_form .embed .simple, .post-type-zerobs_form .embed .naked, .post-type-zerobs_form .embed .cgrab, .zbscrmFrontEndForm .embed .simple, .zbscrmFrontEndForm .embed .naked, .zbscrmFrontEndForm .embed .cgrab,
+.zbs-edit-wrap-form .embed .simple,
+.zbs-edit-wrap-form .embed .naked,
+.zbs-edit-wrap-form .embed .cgrab {
+  border: 1px solid #ddd;
+}
+.post-type-zerobs_form .embed .zbsForm_success, .zbscrmFrontEndForm .embed .zbsForm_success,
+.zbs-edit-wrap-form .embed .zbsForm_success {
+  display: none;
+}
+.post-type-zerobs_form .embed .simple, .zbscrmFrontEndForm .embed .simple,
+.zbs-edit-wrap-form .embed .simple {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .embed .simple .blobby p, .zbscrmFrontEndForm .embed .simple .blobby p,
+.zbs-edit-wrap-form .embed .simple .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 16px;
+}
+.post-type-zerobs_form .embed .simple .blobby .br, .zbscrmFrontEndForm .embed .simple .blobby .br,
+.zbs-edit-wrap-form .embed .simple .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .embed .simple .content, .zbscrmFrontEndForm .embed .simple .content,
+.zbs-edit-wrap-form .embed .simple .content {
+  background: #eee;
+  padding-bottom: 30px;
+  border: 1px solid #ccc;
+  padding-top: 17px;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.post-type-zerobs_form .embed .simple .content h1, .zbscrmFrontEndForm .embed .simple .content h1,
+.zbs-edit-wrap-form .embed .simple .content h1 {
+  color: black;
+  font-size: 20px;
+  padding: 5px;
+}
+.post-type-zerobs_form .embed .simple .content h3, .zbscrmFrontEndForm .embed .simple .content h3,
+.zbs-edit-wrap-form .embed .simple .content h3 {
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 100;
+  font-size: 12px;
+  margin-top: -5px;
+}
+.post-type-zerobs_form .embed .simple .content br, .zbscrmFrontEndForm .embed .simple .content br,
+.zbs-edit-wrap-form .embed .simple .content br {
+  display: none;
+}
+.post-type-zerobs_form .embed .simple .content .form-wrapper, .zbscrmFrontEndForm .embed .simple .content .form-wrapper,
+.zbs-edit-wrap-form .embed .simple .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 6%;
+}
+.post-type-zerobs_form .embed .simple .content .form-wrapper .input, .zbscrmFrontEndForm .embed .simple .content .form-wrapper .input,
+.zbs-edit-wrap-form .embed .simple .content .form-wrapper .input {
+  width: 70%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  font-weight: 100;
+  background: white;
+}
+.post-type-zerobs_form .embed .simple .content .form-wrapper .send, .post-type-zerobs_form .embed .simple .content .form-wrapper input[type=submit], .zbscrmFrontEndForm .embed .simple .content .form-wrapper .send, .zbscrmFrontEndForm .embed .simple .content .form-wrapper input[type=submit],
+.zbs-edit-wrap-form .embed .simple .content .form-wrapper .send,
+.zbs-edit-wrap-form .embed .simple .content .form-wrapper input[type=submit] {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 33px;
+  float: left;
+  text-align: center;
+  line-height: 12px;
+  border: 0px;
+}
+.post-type-zerobs_form .embed .simple .content .trailer, .zbscrmFrontEndForm .embed .simple .content .trailer,
+.zbs-edit-wrap-form .embed .simple .content .trailer {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+  padding: 10px;
+}
+.post-type-zerobs_form .embed .cgrab, .zbscrmFrontEndForm .embed .cgrab,
+.zbs-edit-wrap-form .embed .cgrab {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .embed .cgrab .blobby p, .zbscrmFrontEndForm .embed .cgrab .blobby p,
+.zbs-edit-wrap-form .embed .cgrab .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 16px;
+}
+.post-type-zerobs_form .embed .cgrab .blobby .br, .zbscrmFrontEndForm .embed .cgrab .blobby .br,
+.zbs-edit-wrap-form .embed .cgrab .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .embed .cgrab .content, .zbscrmFrontEndForm .embed .cgrab .content,
+.zbs-edit-wrap-form .embed .cgrab .content {
+  background: #eee;
+  padding-bottom: 30px;
+  border: 1px solid #ccc;
+  padding-top: 17px;
+  margin: 0 auto;
+  position: relative;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.post-type-zerobs_form .embed .cgrab .content h1, .zbscrmFrontEndForm .embed .cgrab .content h1,
+.zbs-edit-wrap-form .embed .cgrab .content h1 {
+  color: black;
+  font-size: 20px;
+  padding: 5px;
+}
+.post-type-zerobs_form .embed .cgrab .content h3, .zbscrmFrontEndForm .embed .cgrab .content h3,
+.zbs-edit-wrap-form .embed .cgrab .content h3 {
+  text-transform: uppercase;
+  color: #999;
+  font-weight: 100;
+  font-size: 12px;
+  margin-top: -5px;
+}
+.post-type-zerobs_form .embed .cgrab .content .form-wrapper, .zbscrmFrontEndForm .embed .cgrab .content .form-wrapper,
+.zbs-edit-wrap-form .embed .cgrab .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 6%;
+}
+.post-type-zerobs_form .embed .cgrab .content .form-wrapper .input, .zbscrmFrontEndForm .embed .cgrab .content .form-wrapper .input,
+.zbs-edit-wrap-form .embed .cgrab .content .form-wrapper .input {
+  width: 90%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  font-weight: 100;
+  background: white;
+}
+.post-type-zerobs_form .embed .cgrab .content .form-wrapper .textarea, .zbscrmFrontEndForm .embed .cgrab .content .form-wrapper .textarea,
+.zbs-edit-wrap-form .embed .cgrab .content .form-wrapper .textarea {
+  width: 90%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  font-weight: 100;
+  background: white;
+  height: 200px;
+  margin-bottom: 10px;
+}
+.post-type-zerobs_form .embed .cgrab .content .form-wrapper .send, .post-type-zerobs_form .embed .cgrab .content .form-wrapper input[type=submit], .zbscrmFrontEndForm .embed .cgrab .content .form-wrapper .send, .zbscrmFrontEndForm .embed .cgrab .content .form-wrapper input[type=submit],
+.zbs-edit-wrap-form .embed .cgrab .content .form-wrapper .send,
+.zbs-edit-wrap-form .embed .cgrab .content .form-wrapper input[type=submit] {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 33px;
+  float: left;
+  text-align: center;
+  line-height: 12px;
+  border: 0px;
+}
+.post-type-zerobs_form .embed .cgrab .content .trailer, .zbscrmFrontEndForm .embed .cgrab .content .trailer,
+.zbs-edit-wrap-form .embed .cgrab .content .trailer {
+  margin-top: 5px;
+  font-size: 11px;
+  color: #999;
+  padding: 10px;
+}
+.post-type-zerobs_form .embed .naked, .zbscrmFrontEndForm .embed .naked,
+.zbs-edit-wrap-form .embed .naked {
+  position: relative;
+  padding: 10px;
+  min-height: 100px;
+}
+.post-type-zerobs_form .embed .naked .zbs_poweredby, .zbscrmFrontEndForm .embed .naked .zbs_poweredby,
+.zbs-edit-wrap-form .embed .naked .zbs_poweredby {
+  font-size: 11px;
+  text-align: right;
+  margin-top: 8px;
+}
+.post-type-zerobs_form .embed .naked .zbsForm_success, .zbscrmFrontEndForm .embed .naked .zbsForm_success,
+.zbs-edit-wrap-form .embed .naked .zbsForm_success {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 14px;
+}
+.post-type-zerobs_form .embed .naked .blobby p, .zbscrmFrontEndForm .embed .naked .blobby p,
+.zbs-edit-wrap-form .embed .naked .blobby p {
+  color: #ddd;
+  background: #ddd;
+  line-height: 16px;
+}
+.post-type-zerobs_form .embed .naked .blobby .br, .zbscrmFrontEndForm .embed .naked .blobby .br,
+.zbs-edit-wrap-form .embed .naked .blobby .br {
+  color: white;
+  background: white;
+}
+.post-type-zerobs_form .embed .naked .content, .zbscrmFrontEndForm .embed .naked .content,
+.zbs-edit-wrap-form .embed .naked .content {
+  padding-bottom: 45px;
+  margin: 0 auto;
+  position: relative;
+}
+.post-type-zerobs_form .embed .naked .content .form-wrapper, .zbscrmFrontEndForm .embed .naked .content .form-wrapper,
+.zbs-edit-wrap-form .embed .naked .content .form-wrapper {
+  margin: 0 auto;
+  position: relative;
+  margin-left: 3%;
+}
+.post-type-zerobs_form .embed .naked .content .form-wrapper .input, .zbscrmFrontEndForm .embed .naked .content .form-wrapper .input,
+.zbs-edit-wrap-form .embed .naked .content .form-wrapper .input {
+  width: 33%;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  font-weight: 100;
+}
+.post-type-zerobs_form .embed .naked .content .form-wrapper .send, .post-type-zerobs_form .embed .naked .content .form-wrapper input[type=submit], .zbscrmFrontEndForm .embed .naked .content .form-wrapper .send, .zbscrmFrontEndForm .embed .naked .content .form-wrapper input[type=submit],
+.zbs-edit-wrap-form .embed .naked .content .form-wrapper .send,
+.zbs-edit-wrap-form .embed .naked .content .form-wrapper input[type=submit] {
+  width: 20%;
+  background: #0d6db8;
+  color: white;
+  height: 33px;
+  float: left;
+  text-align: center;
+  line-height: 12px;
+  border: 0px;
+}
+.post-type-zerobs_form .clear, .zbscrmFrontEndForm .clear,
+.zbs-edit-wrap-form .clear {
+  clear: both;
+}
+
+.widget .content h3, .mh-sidebar .content h3 {
+  margin-top: 10px !important;
+  margin-bottom: 10px;
+}
+.widget .simple .input, .mh-sidebar .simple .input {
+  width: 90% !important;
+  float: left;
+  margin-right: 2%;
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  font-weight: 100;
+  background: white;
+}
+.widget .simple .send, .widget .simple input[type=submit], .mh-sidebar .simple .send, .mh-sidebar .simple input[type=submit] {
+  width: 80% !important;
+  background: #0d6db8;
+  color: white;
+  height: 33px;
+  float: left;
+  text-align: center;
+  line-height: 12px;
+  border: 0px;
+  margin-top: 10px !important;
+  margin-left: 8%;
+}
+
+.zbscrmReCaptcha {
+  display: block;
+  width: 100%;
+  clear: both;
+  margin-bottom: 8px;
+}
+
+.naked .zbscrmReCaptcha, .simple .zbscrmReCaptcha {
+  padding-top: 8px;
+}

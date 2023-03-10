@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { Button, ExternalLink, Icon } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
-import getJetpackData from './../../../shared/get-jetpack-data';
 import { get } from 'lodash';
+import { installAndActivatePlugin, activatePlugin } from './../../../shared/plugin-management';
 
 const pluginPathWithoutPhp = 'creative-mail-by-constant-contact/creative-mail-plugin';
 const pluginSlug = 'creative-mail-by-constant-contact';
@@ -17,10 +14,12 @@ export const pluginStateEnum = Object.freeze( {
 } );
 
 const CreativeMailPluginIsInstalling = ( { isActivating } ) => {
-	const btnTxt = isActivating ? __( 'Activating…', 'jetpack' ) : __( 'Installing…', 'jetpack' );
+	const btnTxt = isActivating
+		? __( 'Activating…', 'jetpack' )
+		: __( 'Installing…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	return (
 		<Button
-			isSecondary
+			variant="secondary"
 			icon={ <Icon style={ { animation: 'rotation 2s infinite linear' } } icon="update" /> }
 			disabled
 			aria-label={ btnTxt }
@@ -35,7 +34,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 	isInstalling,
 } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em style={ { color: 'rgba(38, 46, 57, 0.7)' } }>
 				{ __(
 					'To start sending email campaigns, install the Creative Mail plugin for WordPress.',
@@ -44,7 +43,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 				<br />
 				{ isInstalling && <CreativeMailPluginIsInstalling /> }
 				{ ! isInstalling && (
-					<Button isSecondary onClick={ installAndActivateCreativeMailPlugin }>
+					<Button variant="secondary" onClick={ installAndActivateCreativeMailPlugin }>
 						{ __( 'Install Creative Mail plugin', 'jetpack' ) }
 					</Button>
 				) }
@@ -55,7 +54,7 @@ const CreativeMailPluginIsNotInstalled = ( {
 
 const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalling } ) => {
 	return (
-		<p>
+		<p className="jetpack-contact-form__integration-panel">
 			<em>
 				{ __(
 					'To start sending email campaigns, activate the Creative Mail plugin for WordPress.',
@@ -65,7 +64,7 @@ const CreativeMailPluginIsInstalled = ( { activateCreativeMailPlugin, isInstalli
 			<br />
 			{ isInstalling && <CreativeMailPluginIsInstalling isActivating /> }
 			{ ! isInstalling && (
-				<Button isSecondary onClick={ activateCreativeMailPlugin }>
+				<Button variant="secondary" onClick={ activateCreativeMailPlugin }>
 					{ __( 'Activate Creative Mail Plugin', 'jetpack' ) }
 				</Button>
 			) }

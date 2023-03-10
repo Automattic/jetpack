@@ -1,16 +1,14 @@
 <?php
-
-use Automattic\Jetpack\Sync\Defaults;
-
 /**
  * Testing CRUD on Meta
  */
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
@@ -25,9 +23,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		parent::set_up();
 
 		// create a post
-		$this->meta_module = Modules::get_module( "meta" );
+		$this->meta_module = Modules::get_module( 'meta' );
 		Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
-		$this->post_id = $this->factory->post->create();
+		$this->post_id = self::factory()->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		$this->sender->do_sync();
 	}
@@ -55,7 +53,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$meta_key_value = $this->server_replica_storage->get_metadata( 'post', $this->post_id, $this->whitelisted_post_meta, true );
-		$this->assertEquals( '', $meta_key_value );
+		$this->assertSame( '', $meta_key_value );
 	}
 
 	public function test_added_post_meta_is_synced() {
@@ -78,6 +76,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is synced after an add_post_meta.
+	 */
 	public function test_add_then_updated_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -88,6 +89,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that update_post_meta is sycned.
+	 */
 	public function test_updated_post_meta_is_synced() {
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 		update_post_meta( $this->post_id, $this->whitelisted_post_meta, 'bar', 'foo' );
@@ -98,6 +102,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify that delete_post_meta triggers sync.
+	 */
 	public function test_deleted_post_meta_is_synced() {
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
 
@@ -111,6 +118,9 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify deleting all post meta is synced.
+	 */
 	public function test_delete_all_post_meta_is_synced() {
 
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
@@ -124,19 +134,39 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $this->post_id, $this->whitelisted_post_meta ), $meta_key_array );
 	}
 
+	/**
+	 * Verify private meta is not synced.
+	 */
 	public function test_doesn_t_sync_private_meta() {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+	}
+
+	/**
+	 * Verify search allowed meta is not synced if Search module inactive.
+	 */
+	public function test_doesn_t_sync_search_meta() {
+		$this->assertFalse( \Jetpack::is_module_active( 'search' ) );
+
+		// A meta key that is only in Search module.
+		add_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
+
+		$this->sender->do_sync();
+		$this->assertEquals(
+			array(),
+			$this->server_replica_storage->get_metadata( 'post', $this->post_id, 'session_transcript' )
+		);
+		delete_post_meta( $this->post_id, 'session_transcript1234', 'foo' );
 	}
 
 	public function test_post_meta_whitelist_cab_be_appened_in_settings() {
 		add_post_meta( $this->post_id, '_private_meta', 'foo' );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_private_meta', true ) );
 
 		Settings::update_settings( array( 'post_meta_whitelist' => array( '_private_meta' ) ) );
 
@@ -148,12 +178,12 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_comment_meta_whitelist_cab_be_appened_in_settings() {
-		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 
 		add_comment_meta( $comment_ids[0], '_private_meta', 'foo' );
 		$this->sender->do_sync();
 
-		$this->assertEquals( null, $this->server_replica_storage->get_metadata( 'comment', $comment_ids[0], '_private_meta', true ) );
+		$this->assertSame( '', $this->server_replica_storage->get_metadata( 'comment', $comment_ids[0], '_private_meta', true ) );
 
 		Settings::update_settings( array( 'comment_meta_whitelist' => array( '_private_meta' ) ) );
 
@@ -169,7 +199,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// check that these values exists in the whitelist options
 		$white_listed_post_meta = Defaults::$post_meta_whitelist;
 
-		// update all the opyions.
+		// update all the options.
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			add_post_meta( $this->post_id, $meta_key, 'foo' );
 		}
@@ -186,7 +216,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
 	public function test_sync_whitelisted_comment_meta() {
@@ -195,7 +225,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		// check that these values exists in the whitelist options
 		$white_listed_comment_meta = Defaults::$comment_meta_whitelist;
 
-		$comment_ids = $this->factory->comment->create_post_comments( $this->post_id );
+		$comment_ids = self::factory()->comment->create_post_comments( $this->post_id );
 
 		// update all the comment meta
 		foreach ( $white_listed_comment_meta as $meta_key ) {
@@ -214,7 +244,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist );
 
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEmpty( $whitelist_and_option_keys_difference, 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
 	}
 
 	public function test_syncs_wpas_skip_meta() {
@@ -228,7 +258,12 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_daily_akismet_meta_cleanup() {
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
-		$post_id = wp_insert_post( array( 'post_type' => 'feedback', 'post_title' => 'fun' ) );
+		$post_id = wp_insert_post(
+			array(
+				'post_type'  => 'feedback',
+				'post_title' => 'fun',
+			)
+		);
 		// This event can trigger a deletion of many _feedbacakismet_values terms.
 		add_post_meta( $post_id, '_feedback_akismet_values', '1' );
 
@@ -249,7 +284,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( get_post_meta( $post_id, '_feedback_akismet_values', true ), $meta_key_value );
 	}
 
-	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
+	public function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_metadata( $type, $object_id, $meta_key, true ), 'Synced option doesn\'t match local option.' );
 	}
 
@@ -262,7 +297,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 
 		$module = Modules::get_module( 'meta' );
 		$metas  = $module->get_object_by_id( 'post', $this->post_id, $this->whitelisted_post_meta );
-		$this->assertEquals( '', $metas[0]['meta_value'] );
+		$this->assertSame( '', $metas[0]['meta_value'] );
 	}
 
 	/**

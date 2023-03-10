@@ -54,7 +54,7 @@
 	$the_search.on( 'keyup search', function ( e ) {
 		// Don't trigger change on tab, since it's only used for accessibility
 		// anyway, and will remove all checked boxes
-		if ( e.keyCode !== 9 ) {
+		if ( e.code !== 'Tab' ) {
 			modules.trigger( 'change' );
 		}
 	} );
@@ -79,11 +79,11 @@
 		event.preventDefault();
 	} );
 } )(
-	this,
+	window,
 	jQuery,
 	window.jetpackModulesData.modules,
-	this.jetpackModules.models,
-	this.jetpackModules.views,
+	window.jetpackModules.models,
+	window.jetpackModules.views,
 	window.jetpackModulesData.i18n,
 	window.jetpackModulesData.modalinfo,
 	window.jetpackModulesData.nonces

@@ -1,19 +1,18 @@
 {
 	"name": "automattic/jetpack-identity-crisis",
 	"description": "Identity Crisis.",
-	"type": "library",
+	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-connection": "^1.30",
-		"automattic/jetpack-constants": "^1.6",
-		"automattic/jetpack-options": "^1.13",
-		"automattic/jetpack-status": "^1.8",
-		"automattic/jetpack-tracking": "^1.13",
-		"automattic/jetpack-logo": "^1.5"
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-constants": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-logo": "@dev",
+		"automattic/jetpack-assets": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "^2.0",
-		"yoast/phpunit-polyfills": "1.0.1",
+		"automattic/jetpack-changelogger": "@dev",
+		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/wordbless": "@dev"
 	},
 	"autoload": {
@@ -23,25 +22,23 @@
 	},
 	"scripts": {
 		"build-development": [
-			"Composer\\Config::disableProcessTimeout",
 			"pnpm run build"
 		],
 		"build-production": [
-			"Composer\\Config::disableProcessTimeout",
 			"NODE_ENV='production' pnpm run build"
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"@composer install",
-			"phpdbg -d memory_limit=2048M -d max_execution_time=900 -qrr ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
-			"@composer install",
 			"@composer phpunit"
 		],
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
 	},
 	"repositories": [
 		{
@@ -57,6 +54,7 @@
 	"extra": {
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-identity-crisis",
+		"textdomain": "jetpack-idc",
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-identity-crisis.php"
 		},
@@ -64,7 +62,12 @@
 			"link-template": "https://github.com/Automattic/jetpack-identity-crisis/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-master": "0.2.x-dev"
+			"dev-trunk": "0.8.x-dev"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true
 		}
 	}
 }

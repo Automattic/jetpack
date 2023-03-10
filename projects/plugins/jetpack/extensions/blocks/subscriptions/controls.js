@@ -1,19 +1,17 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { ToggleControl, PanelBody, RangeControl } from '@wordpress/components';
+import { numberFormat } from '@automattic/jetpack-components';
+import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
 	PanelColorSettings,
 	FontSizePicker,
-	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-
-/**
- * Internal dependencies
- */
-import { ButtonWidthControl } from '../button/button-width-panel';
+import { ToggleControl, PanelBody, RangeControl, TextareaControl } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n, sprintf } from '@wordpress/i18n';
+import InspectorNotice from '../../shared/components/inspector-notice';
+import { WidthControl } from '../../shared/width-panel';
 import {
 	MIN_BORDER_RADIUS_VALUE,
 	MAX_BORDER_RADIUS_VALUE,
@@ -29,6 +27,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import PaidPlanPanel from './paid-plan';
+import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -41,9 +41,11 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
+	setBorderColor,
 	setButtonBackgroundColor,
 	setTextColor,
 	showSubscribersTotal,
@@ -51,12 +53,33 @@ export default function SubscriptionControls( {
 	subscriberCount,
 	textColor,
 	buttonWidth,
+	successMessage,
 } ) {
+	const { isPublicizeEnabled } = usePublicizeConfig();
+
 	return (
 		<>
+			{ isNewsletterFeatureEnabled() && <PaidPlanPanel /> }
+			{ subscriberCount > 0 && (
+				<InspectorNotice>
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %s is the number of subscribers. The \xA0 non-breaking space is to make sure the last two words are on the same line. */
+							_n(
+								'<span>%s reader</span> is\xA0subscribed.',
+								'<span>%s readers</span> are\xA0subscribed.',
+								subscriberCount,
+								'jetpack'
+							),
+							numberFormat( subscriberCount )
+						),
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
+					) }
+				</InspectorNotice>
+			) }
 			{ isGradientAvailable && (
 				<PanelColorGradientSettings
-					title={ __( 'Color Settings', 'jetpack' ) }
+					title={ __( 'Color', 'jetpack' ) }
 					className="wp-block-jetpack-subscriptions__backgroundpanel"
 					settings={ [
 						{
@@ -64,24 +87,17 @@ export default function SubscriptionControls( {
 							onColorChange: setButtonBackgroundColor,
 							gradientValue: buttonGradient.gradientValue,
 							onGradientChange: buttonGradient.setGradient,
-							label: __( 'Button Background Color', 'jetpack' ),
+							label: __( 'Button Background', 'jetpack' ),
 						},
 						{
 							colorValue: textColor.color,
 							onColorChange: setTextColor,
-							label: __( 'Button Text Color', 'jetpack' ),
+							label: __( 'Button Text', 'jetpack' ),
 						},
 						{
 							colorValue: borderColor.color,
-							onColorChange: newBorderColor => {
-								// Note: setBorderColor from withColors hook does not
-								// work correctly with shortcode border color rendering.
-								setAttributes( {
-									borderColor: newBorderColor,
-									customBorderColor: newBorderColor,
-								} );
-							},
-							label: __( 'Border Color', 'jetpack' ),
+							onColorChange: setBorderColor,
+							label: __( 'Border', 'jetpack' ),
 						},
 					] }
 					initialOpen={ true }
@@ -114,14 +130,7 @@ export default function SubscriptionControls( {
 						},
 						{
 							value: borderColor.color,
-							onColorChange: newBorderColor => {
-								// Note: setBorderColor from withColors hook does not
-								// work correctly with shortcode border color rendering.
-								setAttributes( {
-									borderColor: newBorderColor,
-									customBorderColor: newBorderColor,
-								} );
-							},
+							onColorChange: setBorderColor,
 							label: __( 'Border Color', 'jetpack' ),
 						},
 					] }
@@ -140,7 +149,7 @@ export default function SubscriptionControls( {
 			) }
 
 			<PanelBody
-				title={ __( 'Text Settings', 'jetpack' ) }
+				title={ __( 'Typography', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__textpanel"
 			>
@@ -156,11 +165,12 @@ export default function SubscriptionControls( {
 							customFontSize: newFontSize,
 						} );
 					} }
+					// This is changing in the future, and we need to do this to silence the deprecation warning.
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Border Settings', 'jetpack' ) }
+				title={ __( 'Border', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__borderpanel"
 			>
@@ -184,9 +194,8 @@ export default function SubscriptionControls( {
 					onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Spacing Settings', 'jetpack' ) }
+				title={ __( 'Spacing', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__spacingpanel"
 			>
@@ -199,7 +208,6 @@ export default function SubscriptionControls( {
 					allowReset
 					onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 				/>
-
 				<RangeControl
 					value={ spacing }
 					label={ __( 'Space Between', 'jetpack' ) }
@@ -210,14 +218,13 @@ export default function SubscriptionControls( {
 					onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 				/>
 
-				<ButtonWidthControl
+				<WidthControl
 					width={ buttonWidth }
 					onChange={ newButtonWidth => setAttributes( { buttonWidth: newButtonWidth } ) }
 				/>
 			</PanelBody>
-
 			<PanelBody
-				title={ __( 'Display Settings', 'jetpack' ) }
+				title={ __( 'Settings', 'jetpack' ) }
 				initialOpen={ false }
 				className="wp-block-jetpack-subscriptions__displaypanel"
 			>
@@ -230,12 +237,22 @@ export default function SubscriptionControls( {
 					help={ () => {
 						if ( ! subscriberCount || subscriberCount < 1 ) {
 							return __(
-								'This will remain hidden on your website until you have at least one subscriber.',
+								'This will remain hidden until there is at least one subscriber.',
 								'jetpack'
 							);
 						}
 					} }
 				/>
+				{ showSubscribersTotal && isPublicizeEnabled ? (
+					<ToggleControl
+						disabled={ ! showSubscribersTotal }
+						label={ __( 'Include social followers in count', 'jetpack' ) }
+						checked={ includeSocialFollowers }
+						onChange={ () => {
+							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+						} }
+					/>
+				) : null }
 
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
@@ -244,6 +261,14 @@ export default function SubscriptionControls( {
 						setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 					} }
 				/>
+				{ ! isSimpleSite() && (
+					<TextareaControl
+						value={ successMessage }
+						label={ __( 'Success message', 'jetpack' ) }
+						help={ __( 'Edit the message displayed when a user subscribes.', 'jetpack' ) }
+						onChange={ newSuccessMessage => setAttributes( { successMessage: newSuccessMessage } ) }
+					/>
+				) }
 			</PanelBody>
 		</>
 	);

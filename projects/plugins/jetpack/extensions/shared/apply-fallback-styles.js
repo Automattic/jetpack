@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { withFallbackStyles } from '@wordpress/components';
 
 /**

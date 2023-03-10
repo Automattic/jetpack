@@ -11,13 +11,13 @@
 namespace Automattic\Jetpack\Post_List;
 
 use PHPUnit\Framework\TestCase;
-
 /**
  * PHPUnit tests for the Post_Thumbnail class.
  *
  * @package automattic/jetpack-post-list
  */
 class Test_Post_Thumbnail extends TestCase {
+
 	/**
 	 * Test that we get a null image attachment ID from invalid post content.
 	 *
@@ -97,5 +97,20 @@ class Test_Post_Thumbnail extends TestCase {
 			'Name found in example slideshow post.'        => array( 18, $post_content_slideshow_image ),
 			'Name found in example image block post.'      => array( 24, $post_content_image_block ),
 		);
+	}
+
+	/**
+	 * Test that when an ID is found, but we can't get the attachment details
+	 * we still return null
+	 */
+	public function test_get_post_thumbnail_returns_null_when_attachment_unavailable() {
+		$post               = new \stdClass();
+		$post->ID           = 1;
+		$post->post_content = '<!-- wp:image {"id":24,"sizeSlug":"large","linkDestination":"none"} -->
+<figure class="wp-block-image size-large"><img src="http://localhost/wp-content/uploads/2021/08/b311c1481829913164f33a353de10a66-3-1024x448.jpeg" alt="" class="wp-image-24"/></figure>
+<!-- /wp:image -->';
+		$result             = Post_Thumbnail::get_post_thumbnail( $post );
+
+		$this->assertNull( $result );
 	}
 }

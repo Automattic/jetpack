@@ -13,10 +13,10 @@ pre {
 	max-width: 800px;
 }
 
-#make_xmlrpc_requests {
+#make_connection_requests {
 	float: right;
 }
 
-#current_xmlrpc_errors {
+#current_connection_errors {
 	float: left;
 }

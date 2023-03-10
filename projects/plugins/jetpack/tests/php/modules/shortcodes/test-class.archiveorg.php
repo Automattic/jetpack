@@ -21,12 +21,12 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes() {
-		$content = '[archiveorg]';
+		$content           = '[archiveorg]';
 		$shortcode_content = do_shortcode( $content );
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- error: missing archive.org ID -->', $shortcode_content );
 
-		$content = '[archiveorg-book]';
+		$content           = '[archiveorg-book]';
 		$shortcode_content = do_shortcode( $content );
 		$this->assertNotEquals( $content, $shortcode_content );
 		$this->assertEquals( '<!-- error: missing archive.org book ID -->', $shortcode_content );
@@ -38,9 +38,9 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcode_single_element() {
-		$id = 'Wonderfu1958';
-		$title = 'Archive.org';
-		$content = "[archiveorg id='$id' width='600' height='300']";
+		$id                = 'Wonderfu1958';
+		$title             = 'Archive.org';
+		$content           = "[archiveorg id='$id' width='600' height='300']";
 		$shortcode_content = do_shortcode( $content );
 		$this->assertStringContainsString( "iframe title=\"$title\" src=\"https://archive.org/embed/$id\" width=\"600\" height=\"300\"", $shortcode_content );
 	}
@@ -51,9 +51,9 @@ class WP_Test_Jetpack_Shortcodes_ArchiveOrg extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcode_book() {
-		$id = 'goodytwoshoes00newyiala';
-		$title = 'Archive.org Book';
-		$content = "[archiveorg-book id='$id' width='600' height='300']";
+		$id                = 'goodytwoshoes00newyiala';
+		$title             = 'Archive.org Book';
+		$content           = "[archiveorg-book id='$id' width='600' height='300']";
 		$shortcode_content = do_shortcode( $content );
 		$this->assertStringContainsString( "iframe title=\"$title\" src=\"https://archive.org/stream/$id?ui=embed#mode/1up\" width=\"600\" height=\"300\"", $shortcode_content );
 	}

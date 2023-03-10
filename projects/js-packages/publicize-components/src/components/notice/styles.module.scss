@@ -1,0 +1,28 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.notice {
+	margin-bottom: 16px;
+}
+
+.notice--default {
+	color: $gray-700;
+}
+
+.notice--warning,
+.notice--error {
+	padding: 8px 16px;
+
+	a {
+		color: inherit;
+	}
+}
+
+.notice--warning {
+	background-color: lighten( $alert-yellow, 35% );
+	border-left: 2px solid $alert-yellow;
+}
+
+.notice--error {
+	background-color: lighten( $alert-red, 35% );
+	border-left: 2px solid $alert-red;
+}

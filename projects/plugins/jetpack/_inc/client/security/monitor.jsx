@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { __, _x } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
-import { ModuleToggle } from 'components/module-toggle';
+import ConnectUserBar from 'components/connect-user-bar';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ConnectUserBar from 'components/connect-user-bar';
+import analytics from 'lib/analytics';
+import React, { Component } from 'react';
 
 export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {

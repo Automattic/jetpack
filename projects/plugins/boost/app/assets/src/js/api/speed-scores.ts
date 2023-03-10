@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
-import api from './api';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import { standardizeError } from '../utils/standardize-error';
-import { isJsonObject, JSONObject } from '../utils/json-types';
 import { castToNumber } from '../utils/cast-to-number';
-import pollPromise from '../utils/poll-promise';
 import { castToString } from '../utils/cast-to-string';
+import { isJsonObject, JSONObject } from '../utils/json-types';
+import { SupportUrl } from '../utils/paid-plan';
+import pollPromise from '../utils/poll-promise';
+import { standardizeError } from '../utils/standardize-error';
+import api from './api';
 
 const pollTimeout = 2 * 60 * 1000;
 const pollInterval = 5 * 1000;
@@ -23,11 +17,12 @@ type SpeedScores = {
 
 type SpeedScoresSet = {
 	current: SpeedScores;
-	previous: SpeedScores;
+	noBoost: SpeedScores;
+	isStale: boolean;
 };
 
 type ParsedApiResponse = {
-	id?: string;
+	status: string;
 	scores?: SpeedScoresSet;
 };
 
@@ -57,8 +52,7 @@ export async function requestSpeedScores( force = false ): Promise< SpeedScoresS
 
 /**
  * Helper method for parsing a response from a speed score API request. Returns
- * scores (if ready), or a request id to use for future polling if the speed
- * score is not yet ready.
+ * scores (if ready), and a status (success|pending|error).
  *
  * @param {JSONObject} response - API response to parse
  * @return {ParsedApiResponse} API response, processed.
@@ -77,6 +71,7 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 	// Check if ready.
 	if ( isJsonObject( response.scores ) ) {
 		return {
+			status: 'success',
 			scores: {
 				current: isJsonObject( response.scores.current )
 					? {
@@ -87,24 +82,24 @@ function parseResponse( response: JSONObject ): ParsedApiResponse {
 							mobile: 0,
 							desktop: 0,
 					  },
-				previous: isJsonObject( response.scores.previous )
+				noBoost: isJsonObject( response.scores.noBoost )
 					? {
-							mobile: castToNumber( response.scores.previous.mobile, 0 ),
-							desktop: castToNumber( response.scores.previous.desktop, 0 ),
+							mobile: castToNumber( response.scores.noBoost.mobile, 0 ),
+							desktop: castToNumber( response.scores.noBoost.desktop, 0 ),
 					  }
 					: null,
+				isStale: !! response.scores.isStale,
 			},
 		};
 	}
 
-	// No metrics yet. Make sure there is an id for polling.
-	const requestId = castToString( response.id );
-	if ( ! requestId ) {
+	const requestStatus = castToString( response.status );
+	if ( ! requestStatus ) {
 		throw new Error( __( 'Invalid response while requesting metrics', 'jetpack-boost' ) );
 	}
 
 	return {
-		id: requestId,
+		status: requestStatus,
 	};
 }
 
@@ -161,31 +156,82 @@ export function getScoreLetter( mobile: number, desktop: number ): string {
 }
 
 /**
- * Find out if scores were improved.
- *
- * Only show the speed scores if there was an improvement on either mobile or desktop, and neither worsened.
+ * Find out if site scores changed. We fire a popout modal if they improve or worsen.
+ * The message varies depending on the results of the speed scores so lets modify this
  *
  * @param {SpeedScoresSet} scores
  * @return boolean
  */
-export function didScoresImprove( scores: SpeedScoresSet ): boolean {
+export function didScoresChange( scores: SpeedScoresSet ): boolean {
 	const current = scores.current;
-	const previous = scores.previous;
+	const noBoost = scores.noBoost;
 
-	// Consider the score was improved if either desktop or mobile improved and neither worsened.
-	return (
-		null !== current &&
-		null !== previous &&
-		current.mobile >= previous.mobile &&
-		current.desktop >= previous.desktop &&
-		current.mobile + current.desktop > previous.mobile + previous.desktop
-	);
+	// lets make this a little bit more readable. If one of the scores is null.
+	// then the scores haven't changed. So return false.
+	if ( null == current || null == noBoost ) {
+		return false;
+	}
+
+	// if either the mobile or the desktop scores have changed. Return true.
+	if ( current.mobile !== noBoost.mobile || current.desktop !== noBoost.desktop ) {
+		return true;
+	}
+
+	//else if reach here then the scores are the same.
+	return false;
 }
 
-export function getScoreImprovementPercentage( scores: SpeedScoresSet ): number {
-	const current = scores.current.mobile + scores.current.desktop;
-	const previous = scores.previous.mobile + scores.previous.desktop;
-	const improvement = current / previous - 1;
+/**
+ * Determine the change in scores to pass through to other functions.
+ *
+ * @param scores
+ * @return percentage
+ */
+export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
+	const current = scores.current;
+	const noBoost = scores.noBoost;
+	let currentScore = 0;
+	let noBoostScore = 0;
 
-	return Math.round( improvement * 100 );
+	if ( current !== null && noBoost !== null ) {
+		currentScore = scores.current.mobile + scores.current.desktop;
+		noBoostScore = scores.noBoost.mobile + scores.noBoost.desktop;
+		const change = currentScore / noBoostScore - 1;
+		return Math.round( change * 100 );
+	}
+	return 0;
+}
+
+export type ScoreChangeMessage = {
+	id: string;
+	title: string;
+	message: string;
+	cta: string;
+	ctaLink: string;
+};
+
+export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage | null {
+	const changePercentage = getScoreMovementPercentage( scores );
+	if ( changePercentage > 5 ) {
+		return {
+			id: 'score-increase',
+			title: __( 'Your site got faster', 'jetpack-boost' ),
+			message: __( 'That great! If you’re happy, why not rate Boost?', 'jetpack-boost' ),
+			cta: __( 'Rate the Plugin', 'jetpack-boost' ),
+			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
+		};
+	} else if ( changePercentage < -5 && Jetpack_Boost.preferences.prioritySupport ) {
+		return {
+			id: 'score-decrease',
+			title: __( 'Speed score has fallen', 'jetpack-boost' ),
+			message: __(
+				'Jetpack Boost should not slow down your site. Try refreshing your score. If the problem persists please contact support',
+				'jetpack-boost'
+			),
+			cta: __( 'Contact Support', 'jetpack-boost' ),
+			ctaLink: SupportUrl,
+		};
+	}
+
+	return null;
 }

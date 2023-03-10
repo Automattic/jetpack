@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 
 class AdminNotices extends React.Component {
@@ -110,7 +107,7 @@ class AdminNotices extends React.Component {
 		}
 
 		if ( $adminNotices.length > 0 ) {
-			jQuery( '.dops-notice__dismiss' ).click( function () {
+			jQuery( '.dops-notice__dismiss' ).on( 'click', function () {
 				jQuery( this ).parent().closest( 'div' ).hide();
 			} );
 		}

@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Build localized strings for use with the Business Hours Block.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Business Hours: Localized week
@@ -6,22 +11,32 @@
  * @since 7.1
  */
 class WPCOM_REST_API_V2_Endpoint_Business_Hours extends WP_REST_Controller {
-	function __construct() {
+	/**
+	 * Constructor.
+	 */
+	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'business-hours';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
+	/**
+	 * Register endpoint route.
+	 */
 	public function register_routes() {
-		// GET /sites/<blog_id>/business-hours/localized-week - Return the localized
-		register_rest_route( $this->namespace, '/' . $this->rest_base . '/localized-week', array(
+		// GET /sites/<blog_id>/business-hours/localized-week - Return the localized.
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/localized-week',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_localized_week' ),
-				'permission_callback' => '__return_true',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_localized_week' ),
+					'permission_callback' => '__return_true',
+				),
 			)
-		) );
+		);
 	}
 
 	/**

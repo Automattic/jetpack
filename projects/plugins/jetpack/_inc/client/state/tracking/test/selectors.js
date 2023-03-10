@@ -1,12 +1,10 @@
-import { expect } from 'chai';
-
 import {
 	getTrackingSettings,
 	isFetchingTrackingSettingsList,
 	isUpdatingTrackingSettings,
 } from '../reducer';
 
-let state = {
+const state = {
 	jetpack: {
 		trackingSettings: {
 			items: {
@@ -22,23 +20,23 @@ let state = {
 
 describe( 'items selectors', () => {
 	describe( '#getTrackingSettings', () => {
-		it( 'should return state.jetpack.trackingSettings.items', () => {
+		test( 'should return state.jetpack.trackingSettings.items', () => {
 			const output = getTrackingSettings( state );
-			expect( output ).to.equal( state.jetpack.trackingSettings.items );
+			expect( output ).toEqual( state.jetpack.trackingSettings.items );
 		} );
 	} );
 } );
 
 describe( 'requests selectors', () => {
 	describe( '#isFetchingTrackingSettings', () => {
-		it( 'should return state.jetpack.trackingSettings.requests.isFetchingTrackingSettings', () => {
-			expect( isFetchingTrackingSettingsList( state ) ).to.be.true;
+		test( 'should return state.jetpack.trackingSettings.requests.isFetchingTrackingSettings', () => {
+			expect( isFetchingTrackingSettingsList( state ) ).toBe( true );
 		} );
 	} );
 
 	describe( '#isUpdatingTrackingSettings', () => {
-		it( 'should return state.jetpack.trackingSettings.requests.isUpdatingTrackingSettings', () => {
-			expect( isUpdatingTrackingSettings( state ) ).to.be.true;
+		test( 'should return state.jetpack.trackingSettings.requests.isUpdatingTrackingSettings', () => {
+			expect( isUpdatingTrackingSettings( state ) ).toBe( true );
 		} );
 	} );
 } );

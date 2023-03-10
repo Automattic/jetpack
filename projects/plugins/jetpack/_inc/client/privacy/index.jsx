@@ -1,33 +1,22 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SettingsCard from 'components/settings-card';
+import SettingsGroup from 'components/settings-group';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getSettings } from 'state/settings';
 import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
 import {
 	getTrackingSettings,
 	isUpdatingTrackingSettings,
 	isFetchingTrackingSettingsList,
 } from 'state/tracking/reducer';
-import { getSettings } from 'state/settings';
-import SettingsCard from 'components/settings-card';
-import SettingsGroup from 'components/settings-group';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 
 const trackPrivacyPolicyView = () =>
 	analytics.tracks.recordJetpackClick( {
@@ -106,6 +95,7 @@ class Privacy extends React.Component {
 		return (
 			this.isPrivacyFound() && (
 				<div>
+					<h1 className="screen-reader-text">{ __( 'Jetpack Privacy Settings', 'jetpack' ) }</h1>
 					<SettingsCard
 						{ ...this.props }
 						header={ _x( 'Privacy Settings', 'Settings header', 'jetpack' ) }
@@ -133,7 +123,6 @@ class Privacy extends React.Component {
 												<ExternalLink
 													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
-													target="_blank"
 													rel="noopener noreferrer"
 												/>
 											),
@@ -152,7 +141,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-privacy' ) }
 												onClick={ trackPrivacyPolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -170,7 +158,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'a8c-cookies' ) }
 												onClick={ trackCookiePolicyView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),
@@ -188,7 +175,6 @@ class Privacy extends React.Component {
 											<ExternalLink
 												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 												onClick={ trackPrivacyCenterView }
-												target="_blank"
 												rel="noopener noreferrer"
 											/>
 										),

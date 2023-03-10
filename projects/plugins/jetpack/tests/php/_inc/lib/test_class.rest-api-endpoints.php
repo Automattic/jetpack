@@ -7,10 +7,15 @@
  */
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
-require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+require_once __DIR__ . '/../../../../modules/widgets/milestone.php';
 
+/**
+ * phpcs:disable PEAR.NamingConventions.ValidClassName.Invalid
+ */
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
+	// phpcs:enable PEAR.NamingConventions.ValidClassName.Invalid
 
 	/**
 	 * Used to store an instance of the WP_REST_Server.
@@ -31,7 +36,8 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		parent::set_up();
 
 		global $wp_rest_server;
-		$this->server = $wp_rest_server = new WP_REST_Server;
+		$wp_rest_server = new WP_REST_Server();
+		$this->server   = $wp_rest_server;
 		do_action( 'rest_api_init' );
 	}
 
@@ -53,7 +59,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @since 4.4.0
 	 */
 	protected function load_rest_endpoints_direct() {
-		require_once dirname( __FILE__ ) . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
+		require_once __DIR__ . '/../../../../_inc/lib/class.core-rest-api-endpoints.php';
 	}
 
 	/**
@@ -78,9 +84,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * @return WP_User
 	 */
 	protected function create_and_get_user( $role = '' ) {
-		return $this->factory->user->create_and_get( array(
-			'role' => empty( $role ) ? 'subscriber' : $role,
-		) );
+		return self::factory()->user->create_and_get(
+			array(
+				'role' => empty( $role ) ? 'subscriber' : $role,
+			)
+		);
 	}
 
 	/**
@@ -88,17 +96,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param string $route       REST API path to be append to /jetpack/v4/
-	 * @param array  $json_params When present, parameters are added to request in JSON format
-	 * @param string $method      Request method to use, GET or POST
-	 * @param array  $params      Parameters to add to endpoint
+	 * @param string $route       REST API path to be appended to /jetpack/v4/.
+	 * @param array  $json_params When present, parameters are added to request in JSON format.
+	 * @param string $method      Request method to use, GET or POST.
+	 * @param array  $params      Parameters to add to endpoint.
 	 *
 	 * @return WP_REST_Response
 	 */
 	protected function create_and_get_request( $route = '', $json_params = array(), $method = 'GET', $params = array() ) {
 		$request = new WP_REST_Request( $method, "/jetpack/v4/$route" );
 
-		if ( 'GET' !== $method && !empty( $json_params ) ) {
+		if ( 'GET' !== $method && ! empty( $json_params ) ) {
 			$request->set_header( 'content-type', 'application/json' );
 		}
 		if ( ! empty( $json_params ) ) {
@@ -167,10 +175,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response_data = $response->get_data();
 		$tested_data   = array();
 		foreach ( $data as $key => $value ) {
-			if ( isset( $response_data[$key] ) ) {
-				$tested_data[$key] = $response_data[$key];
+			if ( isset( $response_data[ $key ] ) ) {
+				$tested_data[ $key ] = $response_data[ $key ];
 			} else {
-				$tested_data[$key] = null;
+				$tested_data[ $key ] = null;
 			}
 		}
 		$this->assertEquals( $data, $tested_data );
@@ -183,6 +191,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_admin_page_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
@@ -201,6 +210,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Subscribers only have access to connect, which is not available in Dev Mode so this should fail
@@ -217,6 +227,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::view_admin_page_permission_check() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -226,6 +237,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_connection_permission() {
 
+		StatusCache::clear();
 		$this->load_rest_endpoints_direct();
 
 		// Current user doesn't have credentials, so checking permissions should fail
@@ -252,11 +264,13 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 
 		// It should not work in Offline Mode.
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::connect_url_permission_callback() );
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -291,7 +305,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::disconnect_site_permission_callback() );
-
 	}
 
 	/**
@@ -330,7 +343,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// User has capability so this should work this time
 		$this->assertTrue( REST_Connector::activate_plugins_permission_check() );
-
 	}
 
 	/**
@@ -417,17 +429,20 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 	}
 
 	/**
@@ -437,6 +452,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 */
 	public function test_jetpack_connection_status_staging() {
 
+		StatusCache::clear();
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'asd.qwe.1' );
 
@@ -447,19 +463,23 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, connected site.
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => true,
-			'isStaging'   => true,
-			'offlineMode' => array(
-				'isActive'        => false,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => false,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => true,
+				'isStaging'   => true,
+				'offlineMode' => array(
+					'isActive'        => false,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => false,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_is_staging_site', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -473,6 +493,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$user = $this->create_and_get_user();
 		wp_set_current_user( $user->ID );
 
+		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 
 		// Create REST request in JSON format and dispatch
@@ -480,19 +501,23 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// Success, authenticated user and connected site
 		$this->assertResponseStatus( 200, $response );
-		$this->assertResponseData( array(
-			'isActive'    => false,
-			'isStaging'   => false,
-			'offlineMode' => array(
-				'isActive'        => true,
-				'constant'        => false,
-				'url'             => false,
-				'filter'          => true,
-				'wpLocalConstant' => false,
+		$this->assertResponseData(
+			array(
+				'isActive'    => false,
+				'isStaging'   => false,
+				'offlineMode' => array(
+					'isActive'        => true,
+					'constant'        => false,
+					'url'             => false,
+					'filter'          => true,
+					'wpLocalConstant' => false,
+				),
 			),
-		), $response );
+			$response
+		);
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
 	}
 
 	/**
@@ -575,10 +600,11 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				'path'   => '/wp-admin/admin.php',
 				'query'  =>
 					array(
-						'page'     => 'jetpack',
-						'action'   => 'register',
-					)
-			), $response
+						'page'   => 'jetpack',
+						'action' => 'register',
+					),
+			),
+			$response
 		);
 	}
 
@@ -594,7 +620,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_Options::is_valid( array( 'onboarding' ) ) );
 		$this->assertTrue( ctype_alnum( Jetpack_Options::get_option( 'onboarding' ) ) );
-		$this->assertTrue( in_array( 'onboarding', Jetpack_Options::get_option_names( 'network' ) ) );
+		$this->assertContains( 'onboarding', Jetpack_Options::get_option_names( 'network' ) );
 	}
 
 	/**
@@ -630,8 +656,9 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			array(
 				'scheme' => 'http',
 				'host'   => 'example.org',
-				'path'   => '/wp-admin/admin.php'
-			), $response
+				'path'   => '/wp-admin/admin.php',
+			),
+			$response
 		);
 	}
 
@@ -648,6 +675,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 
 		add_filter( 'pre_http_request', array( $this, 'mock_xmlrpc_success' ), 10, 3 );
@@ -679,7 +707,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		// No way. Master user can't be unlinked. This is intended
 		$this->assertResponseStatus( 403, $response );
-
 	}
 
 	/** Test unlinking a user will also remove related cached data.
@@ -694,6 +721,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered.
+		Jetpack_Options::update_option( 'blog_token', 'h0n3y.b4dg3r' );
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
 		// Add a dummy transient.
 		$transient_key = "jetpack_connected_user_data_$user->ID";
@@ -762,7 +790,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 
 		// It should also work correctly with a POST body that is not JSON encoded
-		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
+		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'show' => array( 'post', 'page' ) ) );
@@ -787,7 +815,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
 
-		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
+		$response      = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
 
 		$this->assertResponseStatus( 200, $response );
@@ -811,33 +839,33 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$widget_instances = array(
 			3 => array(
-				'title' => 'Ouou',
-				'event' => 'The Biog Day',
-				'unit' => 'years',
-				'type' => 'until',
+				'title'   => 'Ouou',
+				'event'   => 'The Biog Day',
+				'unit'    => 'years',
+				'type'    => 'until',
 				'message' => 'The big day is here.',
-				'year' => date( 'Y' ) + 10,
-				'month' => date( 'm' ),
-				'hour' => '0',
-				'min' => '00',
-				'day' => date( 'd' )
-			)
+				'year'    => gmdate( 'Y' ) + 10,
+				'month'   => gmdate( 'm' ),
+				'hour'    => '0',
+				'min'     => '00',
+				'day'     => gmdate( 'd' ),
+			),
 		);
 
 		update_option( 'widget_milestone_widget', $widget_instances );
 
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ][] = 'milestone_widget-3';
 		}
 		$_wp_sidebars_widgets = $sidebars;
 		wp_set_sidebars_widgets( $sidebars );
 
 		$wp_registered_widgets['milestone_widget-3'] = array(
-			'name' => 'Milestone Widget',
-			'id' => 'milestone_widget-3',
+			'name'     => 'Milestone Widget',
+			'id'       => 'milestone_widget-3',
 			'callback' => array( 'Milestone_Widget', 'widget' ),
-			'params' => array()
+			'params'   => array(),
 		);
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
@@ -846,7 +874,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>',
 			),
 			$response
 		);
@@ -854,7 +882,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$widget_instances[3] = array_merge(
 			$widget_instances[3],
 			array(
-				'year' => date( 'Y' ) + 1,
+				'year' => gmdate( 'Y' ) + 1,
 				'unit' => 'months',
 			)
 		);
@@ -864,14 +892,14 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>',
 			),
 			$response
 		);
 
 		// Cleaning up the sidebars
 		$sidebars = wp_get_sidebars_widgets();
-		foreach( $sidebars as $key => $sidebar ) {
+		foreach ( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
 		}
 		$_wp_sidebars_widgets = $sidebars;
@@ -922,12 +950,12 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 				3 => array(
 					'title' => 'Ouou',
 					'event' => 'The Biog Day',
-				)
+				),
 			)
 		);
 
-		foreach( wp_get_sidebars_widgets() as $sidebar ) {
-			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar ) );
+		foreach ( wp_get_sidebars_widgets() as $sidebar ) {
+			$this->assertFalse( array_search( 'milestone_widget-3', $sidebar, true ) );
 		}
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
@@ -993,41 +1021,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'recommendations/step', array(), 'GET' );
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData( array( 'step' => $test_data ), $response );
-	}
-
-	/**
-	 * Test saving and retrieving licensing errors.
-	 *
-	 * @since 9.0.0
-	 */
-	public function test_licensing_error() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_admin_page' );
-		wp_set_current_user( $user->ID );
-
-		// Should be empty by default.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( '', $response->get_data() );
-
-		// Should accept updates.
-		$response = $this->create_and_get_request(
-			'licensing/error',
-			array(
-				'error' => 'foo',
-			),
-			'POST'
-		);
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( true, $response->get_data() );
-
-		// Should return updated value.
-		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/licensing/error' );
-		$response = $this->server->dispatch( $request );
-		$this->assertResponseStatus( 200, $response );
-		$this->assertEquals( 'foo', $response->get_data() );
 	}
 
 	/**
@@ -1247,5 +1240,34 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Confirm that the request failed.
 		$this->assertResponseStatus( 500, $response );
 		$this->assertResponseData( array( 'code' => 'site_not_registered' ), $response );
+	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint fails.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_with_invalid_user_permissions() {
+		wp_set_current_user( 0 );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( rest_authorization_required_code(), $response );
+	}
+
+	/**
+	 * Test the `/seen-wc-connection-modal` endpoint succeeds.
+	 *
+	 * @since 10.4.0
+	 */
+	public function test_post_seen_wc_connection_modal_success() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		$response = $this->create_and_get_request( 'seen-wc-connection-modal', array(), 'POST' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( array( 'success' => true ), $response );
 	}
 } // class end

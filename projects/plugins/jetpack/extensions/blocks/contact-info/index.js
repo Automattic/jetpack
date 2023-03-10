@@ -1,21 +1,16 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import './editor.scss';
-import './style.scss';
 import { name as addressName, settings as addressSettings } from './address/';
+import edit from './edit';
 import { name as emailName, settings as emailSettings } from './email/';
 import { name as phoneName, settings as phoneSettings } from './phone/';
-import { getIconColor } from '../../shared/block-icons';
+
+import './editor.scss';
+import './style.scss';
 
 const attributes = {};
 
@@ -50,6 +45,67 @@ export const settings = {
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
+	},
+	// Transform from classic widget
+	transforms: {
+		from: [
+			{
+				type: 'block',
+				blocks: [ 'core/legacy-widget' ],
+				isMatch: ( { idBase, instance } ) => {
+					if ( ! instance?.raw ) {
+						return false;
+					}
+					return idBase === 'widget_contact_info';
+				},
+				transform: ( { instance } ) => {
+					let innerBlocks = [
+						createBlock( 'core/heading', {
+							content: instance.raw.title,
+						} ),
+						createBlock( 'jetpack/email', {
+							email: instance.raw.email,
+						} ),
+						createBlock( 'jetpack/phone', {
+							phone: instance.raw.phone,
+						} ),
+						createBlock( 'jetpack/address', {
+							address: instance.raw.address,
+						} ),
+					];
+
+					if ( instance.raw.hours ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'core/paragraph', { content: instance.raw.hours } ),
+						];
+					}
+
+					if ( instance.raw.showmap && instance.raw.address ) {
+						innerBlocks = [
+							...innerBlocks,
+							createBlock( 'jetpack/map', {
+								address: instance.raw.address,
+							} ),
+						];
+					}
+
+					return createBlock( 'jetpack/contact-info', {}, innerBlocks );
+				},
+			},
+		],
 	},
 	attributes,
 	edit,

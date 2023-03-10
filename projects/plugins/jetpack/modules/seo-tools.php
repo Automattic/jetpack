@@ -26,6 +26,8 @@ $jetpack_seo_conflicting_plugins = array(
 	'slim-seo/slim-seo.php',
 	'wp-seopress/seopress.php',
 	'wp-seopress-pro/seopress-pro.php',
+	'seo-key/seo-key.php',
+	'seo-key-pro/seo-key.php',
 );
 
 foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
@@ -39,8 +41,8 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 	}
 }
 
-/** This filter is documented in modules/seo-tools/jetpack-seo-utils.php */
+/** This filter is documented in modules/seo-tools/class-jetpack-seo-utils.php */
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
-	require_once __DIR__ . '/seo-tools/jetpack-seo.php';
+	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
 	new Jetpack_SEO();
 }

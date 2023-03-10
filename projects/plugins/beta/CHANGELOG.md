@@ -1,5 +1,51 @@
 # Changelog
 
+## 3.1.4 - 2023-01-11
+### Changed
+- Admin menu: ensure that the Jetpack Beta menu always lives under the main Jetpack menu.
+
+## 3.1.3 - 2022-09-20
+### Changed
+- Renaming `master` references to `trunk` [#24712]
+- Updated package dependencies.
+
+## 3.1.2 - 2022-06-08
+### Added
+- Adding trunk branch cases in preparation for monorepo branch renaming
+- Set `Update URI` in the plugin header.
+
+### Changed
+- PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
+- Updated package dependencies.
+
+### Fixed
+- Download from the correct URL when updating to a version tagged like "v3.1.1" rather than "3.1.1".
+- Ensure that WP CLI is present before extending the class.
+- Fixed testing tips links
+
+## 3.1.1 - 2022-03-01
+### Added
+- Added docs to JS file.
+
+### Changed
+- Updated composer.lock
+
+## 3.1.0 - 2021-12-08
+### Added
+- Added an action to auto-create a GitHub release when a version is tagged.
+- Improved exception handling when network access to a8c servers is impaired.
+
+### Changed
+- Updated Beta release instructions to avoid extra MacOS files in the ZIP.
+- Updated package dependencies
+
+## 3.0.3 - 2021-10-06
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Remove unused variable in plugin-select.template.php.
+
 ## 3.0.2 - 2021-07-29
 ### Added
 - Use WP core's ajax updater to apply updates.

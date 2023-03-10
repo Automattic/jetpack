@@ -4,7 +4,23 @@ Identity Crisis
 
 ## Usage
 
-To initialize Identity Crisis checks the following snippet is required.
+The Identity Crisis package can be initialized using the Config package as shown in the example below.
+
+```php
+use Automattic\Jetpack\Config;
+
+// Configuring as early as plugins_loaded priority 1
+// to make sure every action handler gets properly set.
+add_action( 'plugins_loaded', 'configure_identity_crisis', 1 );
+
+function configure_identity_crisis() {
+    $config = new Config();
+    $config->ensure( 'identity_crisis' );
+}
+```
+
+
+The Identity Crisis package can also be initialized directly.
 
 ```php
 // Initialize Identity Crisis.

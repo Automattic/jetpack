@@ -7,7 +7,7 @@ This component renders a customizable connection banner. This banner uses the co
 - *title* - (required) the banner title.
 - *description* - the banner description.
 - *className* - any additional CSS classes.
-- *icon* - the component icon.
+- *icon* - the component icon. Provide a Gridicon string name, or a React element.
 - *connectUser* - whether the connect button should be used in user connection context (by default it handles site connection). Defaults to `false`.
 - *from* - an additional query param to be passed to the connect url by the connect button.
 - *asLink* - whether the connect button should be displayed as link, instead of button. Defaults to `false`.

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 export { default as save } from './save';
 import { LAYOUT_DEFAULT } from './constants';
 

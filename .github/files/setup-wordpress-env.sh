@@ -10,7 +10,7 @@
 # - WP_BRANCH: Version of WordPress to check out.
 #
 # Other:
-# - GITHUB_PATH: File written to if set to propagate composer path.
+# - GITHUB_ENV: File written to to set environment variables for later steps.
 
 set -eo pipefail
 
@@ -30,34 +30,39 @@ echo "::endgroup::"
 
 echo "::group::Preparing WordPress from \"$WP_BRANCH\" branch";
 case "$WP_BRANCH" in
-	master)
-		git clone --depth=1 --branch master git://develop.git.wordpress.org/ /tmp/wordpress-master
+	trunk)
+		TAG=trunk
 		;;
 	latest)
-		LATEST=$(php ./tools/get-wp-version.php)
-		# 5.8.1 does not have the polyfill stuff backported.
-		# @todo: Remove this once 5.8.1 is no longer "latest".
-		if [[ "$LATEST" == "5.8.1" ]]; then
-			LATEST=5.8
-		fi
-		git clone --depth=1 --branch "$LATEST" git://develop.git.wordpress.org/ /tmp/wordpress-latest
+		TAG=$(php ./tools/get-wp-version.php)
 		;;
 	previous)
 		# We hard-code the version here because there's a time near WP releases where
 		# we've dropped the old 'previous' but WP hasn't actually released the new 'latest'
-		git clone --depth=1 --branch 5.7 git://develop.git.wordpress.org/ /tmp/wordpress-previous
+		TAG=6.0
 		;;
 	*)
 		echo "Unrecognized value for WP_BRANCH: $WP_BRANCH" >&2
 		exit 1
 		;;
 esac
+git clone --depth=1 --branch "$TAG" git://develop.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH"
+# We need a built version of WordPress to test against, so download that into the src directory instead of what's in wordpress-develop.
+rm -rf "/tmp/wordpress-$WP_BRANCH/src"
+git clone --depth=1 --branch "$TAG" git://core.git.wordpress.org/ "/tmp/wordpress-$WP_BRANCH/src"
 echo "::endgroup::"
+
+if [[ -n "$GITHUB_ENV" ]]; then
+	echo "WORDPRESS_DEVELOP_DIR=/tmp/wordpress-$WP_BRANCH" >> "$GITHUB_ENV"
+	echo "WORDPRESS_DIR=/tmp/wordpress-$WP_BRANCH/src" >> "$GITHUB_ENV"
+fi
 
 # Don't symlink, it breaks when copied later.
 export COMPOSER_MIRROR_PATH_REPOS=true
 
 BASE="$(pwd)"
+PKGVERSIONS="$(jq -nc 'reduce inputs as $in ({}; .[$in.name] |= ( $in.extra["branch-alias"]["dev-trunk"] // "dev-trunk" ) )' projects/packages/*/composer.json)"
+EXIT=0
 for PLUGIN in projects/plugins/*/composer.json; do
 	DIR="${PLUGIN%/composer.json}"
 	NAME="$(basename "$DIR")"
@@ -70,14 +75,33 @@ for PLUGIN in projects/plugins/*/composer.json; do
 		echo 'Platform reqs pass, running `composer install`'
 		composer install
 	else
-		echo 'Platform reqs failed, running `composer update`'
-		composer update
+		# Composer can't directly tell us which packages are dev deps, but we can get lists of all deps and just the non-dev deps.
+		# So we use `diff` to find which aren't in the non-dev list, and `sed` to extract just the `> ` lines with the actual package names (and remove the `> ` too).
+		# Adding `|| true` makes sure the exit code stays 0 so `-eo pipefail` doesn't trigger.
+		TMP=$(diff <(composer info --locked --no-dev --format=json | jq -r '.locked[].name' | sort) <(composer info --locked --format=json | jq -r '.locked[].name' | sort) | sed -n 's/^> //p' || true)
+		if [[ -n "$TMP" ]]; then
+			echo 'Platform reqs failed, running `composer update` for dev dependencies'
+			DEPS=()
+			mapfile -t DEPS <<<"$TMP"
+			if ! composer update "${DEPS[@]}"; then
+				echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;') and updating dev deps didn't help. The plugin is likely broken for that PHP version."
+				EXIT=1
+			fi
+		else
+			echo "::error::plugins/$NAME: Platform reqs failed for PHP $(php -r 'echo PHP_VERSION;'). The plugin is likely broken for that PHP version."
+			EXIT=1
+		fi
 	fi
 	cd "$BASE"
 
 	cp -r "$DIR" "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME"
 	# Plugin dir for tests in WP >= 5.6-beta1
 	ln -s "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME" "/tmp/wordpress-$WP_BRANCH/tests/phpunit/data/plugins/$NAME"
+
+	# Update monorepo repo entry in composer.json to point back here, and to mirror per COMPOSER_MIRROR_PATH_REPOS.
+	JSON="$(jq --tab --arg dir "$BASE/$DIR" --argjson pkgversions "$PKGVERSIONS" '( .repositories // empty | .[] | select( .options.monorepo ) ) |= ( .url |= "\($dir)/\(.)" | .options.symlink |= false | .options.versions |= $pkgversions )' "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json")"
+	echo "$JSON" > "/tmp/wordpress-$WP_BRANCH/src/wp-content/plugins/$NAME/composer.json"
+
 	echo "::endgroup::"
 done
 
@@ -89,4 +113,4 @@ sed -i "s/yourusernamehere/root/" wp-tests-config.php
 sed -i "s/yourpasswordhere/root/" wp-tests-config.php
 sed -i "s/localhost/127.0.0.1/" wp-tests-config.php
 
-exit 0;
+exit $EXIT

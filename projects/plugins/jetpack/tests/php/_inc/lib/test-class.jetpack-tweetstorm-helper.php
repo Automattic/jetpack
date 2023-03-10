@@ -16,7 +16,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
 		Requests::$transport[ serialize( array() ) ] = 'Tweetstorm_Requests_Transport_Override';
 	}
 
@@ -24,7 +23,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 	 * Tearing down.
 	 */
 	public static function tear_down_after_class() {
-		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions -- This is cloning the internal behaviour of Requests.
 		unset( Requests::$transport[ serialize( array() ) ] );
 
 		parent::tear_down_after_class();
@@ -478,7 +476,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		for ( $ii = 0; $ii < $tweet_count; $ii++ ) {
 			$this->assertTweetContains( $content[ $ii ], $tweet_blocks[ $ii ], $boundaries[ $ii ], $tweets[ $ii ], false );
 		}
-
 	}
 
 	/**
@@ -1695,7 +1692,6 @@ class WP_Test_Jetpack_Tweetstorm_Helper extends WP_UnitTestCase {
 		$expected_blocks = array( $blocks );
 
 		$this->assertTweetGenerated( $blocks, $expected_content, $expected_boundaries, $expected_blocks );
-
 	}
 	/**
 	 * Test that a gallery block with a GIF not as the first image has that GIF filtered out.

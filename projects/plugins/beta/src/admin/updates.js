@@ -1,4 +1,6 @@
 /**
+ * Update message hooks.
+ *
  * @param {jQuery}  $ - jQuery object.
  * @param {object}  wp - WP object.
  * @param {object}  i18n - I18n data.
@@ -42,7 +44,7 @@
 		// some release version card.
 		$( '.existing-branch-for-' + response.slug ).remove();
 
-		wp.a11y.speak( wp.i18n.__( 'Update completed successfully.' ) );
+		wp.a11y.speak( wp.i18n.__( 'Update completed successfully.', 'jetpack-beta' ) );
 		wp.updates.decrementCount( 'plugin' );
 		$document.trigger( 'wp-plugin-update-success', response );
 	}
@@ -72,6 +74,7 @@
 		}
 		const $button = $notice.find( '.update-branch' );
 
+		// eslint-disable-next-line @wordpress/valid-sprintf
 		const errorMessage = wp.i18n.sprintf( i18n.failedmsg, response.errorMessage );
 
 		$notice.addClass( 'is-error' );

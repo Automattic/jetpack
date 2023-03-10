@@ -1,0 +1,51 @@
+name: "Turnstile"
+description: "Wait for any previous workflow runs to complete"
+inputs:
+  poll-interval:
+    description: "Polling interval, in seconds."
+    default: 60
+  token:
+    description: "Access token. Defaults to `github.token`."
+    default: ${{ github.token }}
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        INTERVAL: ${{ inputs.poll-interval }}
+        TOKEN: ${{ inputs.token }}
+      run: |
+        echo '::group::Fetch workflow info from run ID'
+        JSON="$(curl -v -L --get \
+          --header "Authorization: token $TOKEN" \
+          --url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+        )"
+        echo "$JSON"
+        jq -e '.workflow_id' <<<"$JSON" &> /dev/null || { echo "🤯 API response does not have .workflow_id"; exit 1; }
+        echo '::endgroup::'
+
+        WORKFLOW_ID="$(jq -r '.workflow_id' <<<"$JSON")"
+        BRANCH="$(jq -r '.head_branch' <<<"$JSON")"
+        echo "Workflow ID: $WORKFLOW_ID"
+        echo "Branch: $BRANCH"
+
+        while true; do
+          echo '::group::Checking for previous runs in progress'
+          JSON="$(curl -v -L --get \
+            --header "Authorization: token $TOKEN" \
+            --url "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/workflows/${WORKFLOW_ID}/runs" \
+            --data-urlencode "branch=$BRANCH" \
+            --data-urlencode "status=in_progress" \
+            --data-urlencode "per_page=100" \
+          )"
+          echo "$JSON"
+          jq -e '.workflow_runs | type == "array"' <<<"$JSON" &> /dev/null || { echo "🤯 API response does not have .workflow_runs array"; exit 1; }
+          echo '::endgroup::'
+          RUNS="$(jq -r -e --argjson id "$GITHUB_RUN_ID" '[ .workflow_runs[] | select( .id < $id ) | .html_url ] | join( " " )' <<<"$JSON")"
+          if [[ -z "$RUNS" ]]; then
+            echo '👉 No earlier runs in progress!'
+            break
+          fi
+          echo "✋ Waiting for runs in progress: $RUNS"
+          sleep "$INTERVAL"
+        done

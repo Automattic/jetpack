@@ -6,6 +6,8 @@
  */
 class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
+	private $icon_id;
+
 	/**
 	 * Include Open Graph functions before each test.
 	 *
@@ -14,7 +16,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	public function set_up() {
 		parent::set_up();
 
-		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
+		$this->icon_id = self::create_upload_object( __DIR__ . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
@@ -26,7 +28,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Restoring global variables.
 		global $wp_the_query;
-		$wp_the_query = new WP_Query(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_the_query = new WP_Query();
 
 		wp_delete_attachment( $this->icon_id );
 	}
@@ -61,8 +63,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Test Valid-sized Jetpack's Site Logo
 		$image_url = jetpack_og_get_image( 200, 200 );
-		$image_id = jetpack_get_site_logo( 'id' );
-		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		$image_id  = jetpack_get_site_logo( 'id' );
+		$logo      = wp_get_attachment_image_src( $image_id, 'full' );
 		$this->assertEquals( $logo[0], $image_url['src'] );
 
 		delete_option( 'site_logo' );
@@ -70,8 +72,8 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		// Test Valid-sized core's Site Icon
 		$image_url = jetpack_og_get_image( 200, 200 );
-		$image_id = get_option( 'site_icon' );
-		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		$image_id  = get_option( 'site_icon' );
+		$icon      = wp_get_attachment_image_src( $image_id, 'full' );
 		$this->assertEquals( $icon[0], $image_url['src'] );
 
 		delete_option( 'site_icon' );
@@ -89,7 +91,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// A test shortcode that should be removed from descriptions.
 		add_shortcode(
 			'foo',
-			function() {
+			function () {
 				return 'bar';
 			}
 		);
@@ -165,11 +167,11 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			'height' => 250,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		$image_urls = array();
 		for ( $i = 1; $i <= $number_of_images; $i++ ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				'image' . $i . '.jpg',
 				$post_id,
 				array(
@@ -191,7 +193,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 			);
 		}
 
-		$second_post_id = $this->factory->post->create(
+		$second_post_id = self::factory()->post->create(
 			array( 'post_content' => $post_html )
 		);
 
@@ -221,5 +223,65 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		// We expect jetpack_og_get_image to return the first of the images in the post.
 		$first_image_url = $post_info['img_urls'][0];
 		$this->assertEquals( $first_image_url, $chosen_image['src'] );
+	}
+
+	/**
+	 * Helper function to get default alt text.
+	 *
+	 * @return string
+	 */
+	public function get_default_alt_text() {
+		return 'Default alt text';
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct default alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_default() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], '' );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct filtered alt text.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_filter() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		add_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+		$image = jetpack_og_get_image();
+		remove_filter( 'jetpack_open_graph_image_default_alt_text', array( $this, 'get_default_alt_text' ) );
+
+		$this->assertEquals( $image['alt_text'], $this->get_default_alt_text() );
+	}
+
+	/**
+	 * Test if jetpack_og_get_image returns the correct alt text when set.
+	 *
+	 * @author automattic
+	 * @covers ::jetpack_og_get_image
+	 * @since 10.4
+	 */
+	public function test_jetpack_og_get_image_alt_text_when_set() {
+		$this->go_to( get_permalink( $this->icon_id ) );
+
+		$alt_text = 'Example Alt Text';
+
+		update_post_meta( $this->icon_id, '_wp_attachment_image_alt', $alt_text );
+
+		$image = jetpack_og_get_image();
+
+		$this->assertEquals( $image['alt_text'], $alt_text );
 	}
 }

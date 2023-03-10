@@ -8,6 +8,8 @@
 
 use Automattic\Jetpack\Blocks;
 
+require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
+
 /**
  * Class Jetpack_Memberships
  * This class represents the Memberships functionality.
@@ -31,6 +33,14 @@ class Jetpack_Memberships {
 	 * @var string
 	 */
 	public static $connected_account_id_option_name = 'jetpack-memberships-connected-account-id';
+
+	/**
+	 * Post meta that will store the level of access for newsletters
+	 *
+	 * @var string
+	 */
+	public static $newsletter_access_level_meta_name = \Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
+
 	/**
 	 * Button block type to use.
 	 *
@@ -65,6 +75,13 @@ class Jetpack_Memberships {
 	 * @var Jetpack_Memberships
 	 */
 	private static $instance;
+
+	/**
+	 * Cached results of user_can_view_post() method.
+	 *
+	 * @var array
+	 */
+	private static $user_can_view_post_cache = array();
 
 	/**
 	 * Currencies we support and Stripe's minimum amount for a transaction in that currency.
@@ -108,8 +125,9 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
+			// Yes, `pro-plan` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
+			$wpcom_plan_slug     = defined( 'ENABLE_PRO_PLAN' ) ? 'pro-plan' : 'personal-bundle';
+			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? $wpcom_plan_slug : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -312,7 +330,7 @@ class Jetpack_Memberships {
 			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$content       = str_replace( 'wp-block-jetpack-recurring-payments', 'wp-block-jetpack-recurring-payments wp-block-button', $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
+			return preg_replace( '/(href=".*")/U', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attributes, $plan_id );
@@ -377,7 +395,7 @@ class Jetpack_Memberships {
 		return sprintf(
 			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
 			esc_attr(
-				Jetpack_Gutenberg::block_classes(
+				Blocks::classes(
 					self::$button_block_name,
 					$attrs,
 					array( 'wp-block-button' )
@@ -414,6 +432,15 @@ class Jetpack_Memberships {
 	}
 
 	/**
+	 * Get the newsletter access level
+	 *
+	 * @return string|void
+	 */
+	public static function get_newsletter_access_level() {
+		return get_post_meta( get_the_ID(), self::$newsletter_access_level_meta_name, true );
+	}
+
+	/**
 	 * Determines whether the current user can edit.
 	 *
 	 * @return bool Whether the user can edit.
@@ -422,6 +449,39 @@ class Jetpack_Memberships {
 		$user = wp_get_current_user();
 		// phpcs:ignore ImportDetection.Imports.RequireImports.Symbol
 		return 0 !== $user->ID && current_user_can( 'edit_post', get_the_ID() );
+	}
+
+	/**
+	 * Determines whether the current user can view the post based on the newsletter access level
+	 * and caches the result.
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_can_view_post() {
+		$user_id   = get_current_user_id();
+		$post_id   = get_the_ID() || 0;
+		$cache_key = sprintf( '%d_%d', $user_id, $post_id );
+
+		if ( isset( self::$user_can_view_post_cache[ $cache_key ] ) ) {
+			return self::$user_can_view_post_cache[ $cache_key ];
+		}
+
+		$value                                        = self::user_can_view_post_nocache();
+		self::$user_can_view_post_cache[ $cache_key ] = $value;
+		return $value;
+	}
+
+	/**
+	 * Determines whether the post can be viewed based on the newsletter access level
+	 *
+	 * @return bool Whether the post can be viewed
+	 */
+	public static function user_can_view_post_nocache() {
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+
+		$newsletter_access_level = self::get_newsletter_access_level();
+		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
 	/**
@@ -446,15 +506,52 @@ class Jetpack_Memberships {
 	 * Whether the site's plan supports the Recurring Payments block.
 	 */
 	public static function is_supported_jetpack_recurring_payments() {
-		// For WPCOM sites.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
-			$site_id = get_current_blog_id();
-			return has_any_blog_stickers( array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		$api_available     = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		$supported_in_plan = Jetpack_Plan::supports( 'recurring-payments' );
+		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available && $supported_in_plan );
+	}
+
+	/**
+	 * Whether site has any paid plan.
+	 *
+	 * @param string $type - Type of a plan for which site is configured. For now supports empty and newsletter.
+	 *
+	 * @return bool
+	 */
+	public static function has_configured_plans_jetpack_recurring_payments( $type = '' ) {
+		if ( ! self::is_supported_jetpack_recurring_payments() ) {
+			return false;
 		}
-		// For Jetpack sites.
-		return (
-			Jetpack::is_connection_ready() &&
-			Jetpack_Plan::supports( 'recurring-payments' )
+		$query = array(
+			'post_type'      => self::$post_type_plan,
+			'posts_per_page' => 1,
+		);
+
+		// We want to see if user has any plan marked as a newsletter set up.
+		if ( 'newsletter' === $type ) {
+			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
+			$query['meta_value'] = true;
+		}
+
+		$plans = get_posts( $query );
+		return ( count( $plans ) > 0 );
+	}
+
+	/**
+	 * Return all plans
+	 *
+	 * @return array
+	 */
+	public static function get_all_plans_id_jetpack_recurring_payments() {
+		if ( ! self::is_supported_jetpack_recurring_payments() ) {
+			return array();
+		}
+		return get_posts(
+			array(
+				'post_type'      => self::$post_type_plan,
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+			)
 		);
 	}
 
@@ -470,13 +567,14 @@ class Jetpack_Memberships {
 		}
 
 		if ( self::is_enabled_jetpack_recurring_payments() ) {
-			$deprecated = function_exists( 'gutenberg_get_post_from_context' );
-			$uses       = $deprecated ? 'context' : 'uses_context';
 			Blocks::jetpack_register_block(
 				'jetpack/recurring-payments',
 				array(
-					'render_callback' => array( $this, 'render_button' ),
-					$uses             => array( 'isPremiumContentChild' ),
+					'render_callback'  => array( $this, 'render_button' ),
+					'uses_context'     => array( 'isPremiumContentChild' ),
+					'provides_context' => array(
+						'jetpack/parentBlockWidth' => 'width',
+					),
 				)
 			);
 		} else {

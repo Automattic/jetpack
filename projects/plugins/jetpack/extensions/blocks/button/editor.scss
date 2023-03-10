@@ -30,22 +30,6 @@ div[data-type="jetpack/button"][data-align] {
 	}
 }
 
-.jetpack-button__width-settings {
-	display: flex;
-	align-items: center;
-
-	.components-button-group {
-		display: flex;
-		margin-right: 1em;
-	}
-
-	&:not(.is-aligned) {
-		.components-unit-control-wrapper {
-			flex: 1;
-		}
-	}
-}
-
 .wp-block-jetpack-button,
 .wp-block-button__link.has-custom-width {
 	max-width: 100%;

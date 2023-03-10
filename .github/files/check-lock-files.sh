@@ -26,7 +26,7 @@ done
 for FILE in $(git -c core.quotepath=off ls-files 'pnpm-lock.yaml' '**/pnpm-lock.yaml'); do
 	cd $(dirname "$FILE")
 	echo "::group::$FILE - pnpm install"
-	pnpm install
+	pnpm install --no-frozen-lockfile
 	echo "::endgroup::"
 	if ! git diff --exit-code pnpm-lock.yaml; then
 		echo "---" # Bracket message containing newlines for better visibility in GH's logs.

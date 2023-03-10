@@ -1,18 +1,17 @@
 module.exports = {
-	// This project uses react, so load the shared react config.
-	root: true,
-	extends: [ '../../../.eslintrc.react.js', 'plugin:@wordpress/eslint-plugin/i18n' ],
+	extends: [ require.resolve( 'jetpack-js-tools/eslintrc/react' ) ],
 	parserOptions: {
 		requireConfigFile: false,
 		babelOptions: {
-			presets: [ '@babel/preset-react' ],
+			presets: [ require.resolve( '@babel/preset-react' ) ],
 		},
 	},
 	rules: {
-		// Enforce the use of the Jetpack textdomain.
+		// Enforce use of the correct textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
+				// @todo: Change this to something not "jetpack".
 				allowedTextDomain: 'jetpack',
 			},
 		],

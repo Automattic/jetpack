@@ -1,14 +1,8 @@
 // The code in this file is copied entirely from https://github.com/WordPress/gutenberg/blob/HEAD/packages/block-library/src/button/color-props.js
 /* eslint-disable */
 
-/**
- * External dependencies
- */
 import classnames from 'classnames';
 
-/**
- * WordPress dependencies
- */
 import { getColorClassName, __experimentalGetGradientClass } from '@wordpress/block-editor';
 
 export default function getColorAndStyleProps( attributes ) {

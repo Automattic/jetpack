@@ -1,0 +1,15 @@
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-inspector-notice {
+	padding: 24px;
+	margin: 0 16px 24px;
+	background: $gray-100;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	> .jetpack-logo {
+		margin-left: 12px;
+	}
+}

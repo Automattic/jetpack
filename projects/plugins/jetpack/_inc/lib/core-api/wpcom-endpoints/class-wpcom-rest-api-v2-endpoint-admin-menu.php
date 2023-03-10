@@ -26,6 +26,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	public $rest_base = 'admin-menu';
 
 	/**
+	 *
+	 * Set of core dashicons.
+	 *
+	 * @var array
+	 */
+	private $dashicon_list;
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Menu constructor.
 	 */
 	public function __construct() {
@@ -75,11 +83,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function get_item( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter, VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/mu-plugins/masterbar/admin-menu/load.php';
-		} else {
-			require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
-		}
+		require_once JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/load.php';
 
 		// All globals need to be declared for menu items to properly register.
 		global $admin_page_hooks, $menu, $menu_order, $submenu, $_wp_menu_nopriv, $_wp_submenu_nopriv; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -322,11 +326,31 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			if ( 0 === strpos( $icon, 'data:image/svg+xml' ) ) {
 				$img = $icon;
 			} elseif ( 0 === strpos( $icon, 'dashicons-' ) ) {
-				$img = sanitize_html_class( $icon );
+				$img = $this->prepare_dashicon( $icon );
 			}
 		}
 
 		return $img;
+	}
+
+	/**
+	 * Prepares the dashicon for consumption by Calypso. If the dashicon isn't found in a list of known icons
+	 * we will return the default dashicon.
+	 *
+	 * @param string $icon The dashicon string to check.
+	 *
+	 * @return string If the dashicon exists in core we return the dashicon, otherwise we return the default dashicon.
+	 */
+	private function prepare_dashicon( $icon ) {
+		if ( empty( $this->dashicon_set ) ) {
+			$this->dashicon_list = include JETPACK__PLUGIN_DIR . '/modules/masterbar/admin-menu/dashicon-set.php';
+		}
+
+		if ( isset( $this->dashicon_list[ $icon ] ) && $this->dashicon_list[ $icon ] ) {
+			return $icon;
+		}
+
+		return 'dashicons-admin-generic';
 	}
 
 	/**
@@ -354,7 +378,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			}
 
 			// Disallow other external URLs.
-			return '';
+			if ( 0 !== strpos( $url, get_site_url() ) ) {
+				return '';
+			}
+			// The URL matches that of the site, treat it as an internal URL.
 		}
 
 		// Internal URLs.
@@ -370,8 +397,14 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 				! file_exists( ABSPATH . "/wp-admin/$menu_file" )
 			)
 		) {
+			$admin_is_parent = false;
+			if ( ! empty( $parent_slug ) ) {
+				$menu_hook       = get_plugin_page_hook( $parent_slug, 'admin.php' );
+				$admin_is_parent = ! empty( $menu_hook ) || ( ( 'index.php' !== $parent_slug ) && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! file_exists( ABSPATH . "/wp-admin/$parent_file" ) );
+			}
+
 			if (
-				( 'admin.php' !== $parent_file && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
+				( false === $admin_is_parent && file_exists( WP_PLUGIN_DIR . "/$parent_file" ) && ! is_dir( WP_PLUGIN_DIR . "/$parent_file" ) ) ||
 				( file_exists( ABSPATH . "/wp-admin/$parent_file" ) && ! is_dir( ABSPATH . "/wp-admin/$parent_file" ) )
 			) {
 				$url = add_query_arg( array( 'page' => $url ), admin_url( $parent_slug ) );
@@ -397,10 +430,12 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 	private function parse_menu_item( $title ) {
 		$item = array();
 
-		if ( false !== strpos( $title, 'count-' ) ) {
-			preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches );
+		if (
+			false !== strpos( $title, 'count-' )
+			&& preg_match( '/<span class=".+\s?count-(\d*).+\s?<\/span><\/span>/', $title, $matches )
+		) {
 
-			$count = absint( $matches[1] );
+			$count = (int) ( $matches[1] );
 			if ( $count > 0 ) {
 				// Keep the counter in the item array.
 				$item['count'] = $count;
@@ -410,8 +445,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'inline-text' ) ) {
-			preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches );
+		if (
+			false !== strpos( $title, 'inline-text' )
+			&& preg_match( '/<span class="inline-text".+\s?>(.+)<\/span>/', $title, $matches )
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -423,8 +460,10 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 			$title = trim( str_replace( $matches[0], '', $title ) );
 		}
 
-		if ( false !== strpos( $title, 'awaiting-mod' ) ) {
-			preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches );
+		if (
+			false !== strpos( $title, 'awaiting-mod' )
+			&& preg_match( '/<span class="awaiting-mod">(.+)<\/span>/', $title, $matches )
+		) {
 
 			$text = $matches[1];
 			if ( $text ) {
@@ -437,7 +476,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Menu extends WP_REST_Controller {
 		}
 
 		// It's important we sanitize the title after parsing data to remove any unexpected markup but keep the content.
-		// We are also capilizing the first letter in case there was a counter (now parsed) in front of the title.
+		// We are also capitalizing the first letter in case there was a counter (now parsed) in front of the title.
 		$item['title'] = ucfirst( wp_strip_all_tags( $title ) );
 
 		return $item;

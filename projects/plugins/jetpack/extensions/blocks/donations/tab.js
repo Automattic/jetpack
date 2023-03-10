@@ -1,16 +1,9 @@
-/**
- * WordPress dependencies
- */
 import { RichText } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState, useMemo } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import Amount from './amount';
+import { __, sprintf } from '@wordpress/i18n';
 import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import Amount from './amount';
 
 const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	const {

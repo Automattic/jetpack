@@ -1,0 +1,41 @@
+.prompt {
+	border: 2px solid var( --jp-green-40 );
+	border-radius: 4px;
+	padding: calc( var( --spacing-base ) * 2 ) calc( var( --spacing-base ) * 3 );
+	display: block;
+	justify-content: space-between;
+	align-items: center;
+	gap: calc( var( --spacing-base ) * 3 );
+	text-align: left;
+	background: none;
+	margin: 0;
+	width: 100%;
+	text-decoration: none;
+	color: var( --jp-gray-90 );
+
+	&:focus, &:active {
+		outline-color: var( --jp-black );
+	}
+
+	// somewhat unfortunate specificity override
+	.buttons button.button {
+		font-size: var( --font-body-small );
+	}
+}
+
+.header {
+	font-size: var( --font-body );
+}
+
+.buttons {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-base);
+	align-content: space-between;
+}
+
+.button {
+	width: 100%;
+	align-items: center;
+	justify-content: space-between;
+}

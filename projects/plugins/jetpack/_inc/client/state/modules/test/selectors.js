@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import {
 	isFetchingModulesList,
 	isActivatingModule,
@@ -16,7 +14,7 @@ import {
 	hasAnySecurityFeature,
 } from '../reducer';
 
-let state = {
+const state = {
 	jetpack: {
 		modules: {
 			items: {
@@ -30,8 +28,8 @@ let state = {
 					activated: true,
 					options: {
 						c: {
-							currentValue: 2
-						}
+							currentValue: 2,
+						},
 					},
 					override: 'inactive',
 				},
@@ -44,206 +42,205 @@ let state = {
 			requests: {
 				fetchingModulesList: true,
 				activating: {
-					'module-a': true
+					'module-a': true,
 				},
 				deactivating: {
-					'module-b': true
+					'module-b': true,
 				},
 				updatingOption: {
 					'module-c': {
-						n_per_minute: true
-					}
-				}
-			}
-		}
-	}
+						n_per_minute: true,
+					},
+				},
+			},
+		},
+	},
 };
 
 describe( 'requests selectors', () => {
 	describe( '#isFetchingModulesList', () => {
-		it( 'should return state.jetpack.modules.requests.fetchingModulesList', () => {
+		test( 'should return state.jetpack.modules.requests.fetchingModulesList', () => {
 			const stateIn = state;
 			const output = isFetchingModulesList( stateIn );
-			expect( output ).to.be.true;
+			expect( output ).toBe( true );
 		} );
 	} );
 
 	describe( '#isActivatingModule', () => {
-		it( 'should return state.jetpack.modules.requests.activating[ module_slug ]', () => {
+		test( 'should return state.jetpack.modules.requests.activating[ module_slug ]', () => {
 			const stateIn = state;
 			const output = isActivatingModule( stateIn, 'module-a' );
-			expect( output ).to.be.true;
+			expect( output ).toBe( true );
 		} );
 	} );
 
 	describe( '#isDeactivatingModule', () => {
-		it( 'should return state.jetpack.modules.requests.deactivating[ module_slug ]', () => {
+		test( 'should return state.jetpack.modules.requests.deactivating[ module_slug ]', () => {
 			const stateIn = state;
 			const output = isDeactivatingModule( stateIn, 'module-b' );
-			expect( output ).to.be.true;
+			expect( output ).toBe( true );
 		} );
 	} );
 
 	describe( '#isUpdatingModuleOption', () => {
-		it( 'should return state.jetpack.modules.requests.updatingOpton[ module_slug ][ option_name ]', () => {
+		test( 'should return state.jetpack.modules.requests.updatingOpton[ module_slug ][ option_name ]', () => {
 			const stateIn = state;
 			const output = isUpdatingModuleOption( stateIn, 'module-c', 'n_per_minute' );
-			expect( output ).to.be.true;
+			expect( output ).toBe( true );
 		} );
 	} );
 } );
 
 describe( 'items selectors', () => {
 	describe( '#getModules', () => {
-		it( 'should return state.jetpack.modules.items', () => {
+		test( 'should return state.jetpack.modules.items', () => {
 			const stateIn = state;
 			const output = getModules( stateIn );
-			expect( output ).to.eql( stateIn.jetpack.modules.items );
+			expect( output ).toEqual( stateIn.jetpack.modules.items );
 		} );
 	} );
 
 	describe( '#getModule', () => {
-		it( 'should return state.jetpack.modules.items[ module_slug ]', () => {
+		test( 'should return state.jetpack.modules.items[ module_slug ]', () => {
 			const stateIn = state;
 			const output = getModule( stateIn, 'module-a' );
-			expect( output ).to.eql( stateIn.jetpack.modules.items[ 'module-a' ] );
+			expect( output ).toEqual( stateIn.jetpack.modules.items[ 'module-a' ] );
 		} );
 	} );
 
 	describe( '#isModuleActivated', () => {
-		it( 'should return state.jetpack.modules.items[ module_slug ].activated', () => {
+		test( 'should return state.jetpack.modules.items[ module_slug ].activated', () => {
 			const stateIn = state;
 			const output = isModuleActivated( stateIn, 'module-a' );
-			expect( output ).to.eql( stateIn.jetpack.modules.items[ 'module-a' ].activated );
+			expect( output ).toEqual( stateIn.jetpack.modules.items[ 'module-a' ].activated );
 		} );
 	} );
 
-	describe( '#getModuleOverride',  () => {
-		it( 'should return active when module forced on', () => {
-			expect( getModuleOverride( state, 'module-a' ) ).to.eql( 'active' );
+	describe( '#getModuleOverride', () => {
+		test( 'should return active when module forced on', () => {
+			expect( getModuleOverride( state, 'module-a' ) ).toBe( 'active' );
 		} );
 
-		it( 'should return inactive when module forced off', () => {
-			expect( getModuleOverride( state, 'module-b' ) ).to.eql( 'inactive' );
+		test( 'should return inactive when module forced off', () => {
+			expect( getModuleOverride( state, 'module-b' ) ).toBe( 'inactive' );
 		} );
 
-		it( 'should return false when module not overriden', () => {
-			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
-		} );
-	} );
-
-	describe( '#isModuleForcedActive',  () => {
-		it( 'should return true when module forced on', () => {
-			expect( isModuleForcedActive( state, 'module-a' ) ).to.be.true;
-		} );
-
-		it( 'should return false when module not overriden', () => {
-			expect( getModuleOverride( state, 'module-c' ) ).to.be.false;
+		test( 'should return false when module not overriden', () => {
+			expect( getModuleOverride( state, 'module-c' ) ).toBe( false );
 		} );
 	} );
 
-	describe( '#isModuleForcedInactive',  () => {
-		it( 'should return true when module forced off', () => {
-			expect( isModuleForcedInactive( state, 'module-b' ) ).to.be.true;
+	describe( '#isModuleForcedActive', () => {
+		test( 'should return true when module forced on', () => {
+			expect( isModuleForcedActive( state, 'module-a' ) ).toBe( true );
 		} );
 
-		it( 'should return false when module not overriden', () => {
-			expect( isModuleForcedInactive( state, 'module-c' ) ).to.be.false;
+		test( 'should return false when module not overriden', () => {
+			expect( getModuleOverride( state, 'module-c' ) ).toBe( false );
+		} );
+	} );
+
+	describe( '#isModuleForcedInactive', () => {
+		test( 'should return true when module forced off', () => {
+			expect( isModuleForcedInactive( state, 'module-b' ) ).toBe( true );
+		} );
+
+		test( 'should return false when module not overriden', () => {
+			expect( isModuleForcedInactive( state, 'module-c' ) ).toBe( false );
 		} );
 	} );
 
 	describe( '#hasAnyOfTheseModules', () => {
-		it( 'should return true when at least one of the passed modules is available', () => {
-			expect( hasAnyOfTheseModules( state, [ 'module-b' ] ) ).to.be.true;
+		test( 'should return true when at least one of the passed modules is available', () => {
+			expect( hasAnyOfTheseModules( state, [ 'module-b' ] ) ).toBe( true );
 		} );
 
-		it( 'should return false when none of the passed modules is available', () => {
-			expect( hasAnyOfTheseModules( state, [ 'module-d' ] ) ).to.be.false;
+		test( 'should return false when none of the passed modules is available', () => {
+			expect( hasAnyOfTheseModules( state, [ 'module-d' ] ) ).toBe( false );
 		} );
 	} );
 
 	describe( '#hasAnyPerformanceFeature', () => {
-		it( 'should return true when at least one of the performance modules is available', () => {
+		test( 'should return true when at least one of the performance modules is available', () => {
 			const stateIn = {
 				jetpack: {
 					modules: {
 						items: {
 							'lazy-images': {},
-						}
+						},
 					},
-				}
+				},
 			};
-			expect( hasAnyPerformanceFeature( stateIn ) ).to.be.true;
+			expect( hasAnyPerformanceFeature( stateIn ) ).toBe( true );
 		} );
 
-		it( 'should return false when at least one of the performance modules is available', () => {
+		test( 'should return false when at least one of the performance modules is available', () => {
 			const stateIn = {
 				jetpack: {
 					modules: {
-						items: {}
+						items: {},
 					},
-				}
+				},
 			};
-			expect( hasAnyPerformanceFeature( stateIn ) ).to.be.false;
+			expect( hasAnyPerformanceFeature( stateIn ) ).toBe( false );
 		} );
 	} );
 
 	describe( '#hasAnySecurityFeature', () => {
-		it( 'should return true when none of the performance modules is available', () => {
+		test( 'should return true when none of the performance modules is available', () => {
 			const stateIn = {
 				jetpack: {
 					modules: {
 						items: {
-							'protect': {},
-						}
+							protect: {},
+						},
 					},
 					pluginsData: {
 						items: {
 							'akismet/akismet.php': {
 								active: false,
-							}
-						}
-					}
-				}
+							},
+						},
+					},
+				},
 			};
-			expect( hasAnySecurityFeature( stateIn ) ).to.be.true;
+			expect( hasAnySecurityFeature( stateIn ) ).toBe( true );
 		} );
 
-		it( 'should return true when at least the Akismet plugin is active', () => {
+		test( 'should return true when at least the Akismet plugin is active', () => {
 			const stateIn = {
 				jetpack: {
 					modules: {
-						items: {}
+						items: {},
 					},
 					pluginsData: {
 						items: {
 							'akismet/akismet.php': {
 								active: true,
-							}
-						}
-					}
-				}
+							},
+						},
+					},
+				},
 			};
-			expect( hasAnySecurityFeature( stateIn ) ).to.be.true;
+			expect( hasAnySecurityFeature( stateIn ) ).toBe( true );
 		} );
 
-		it( 'should return false when none of the security features are available', () => {
+		test( 'should return false when none of the security features are available', () => {
 			const stateIn = {
 				jetpack: {
 					modules: {
-						items: {
-						}
+						items: {},
 					},
 					pluginsData: {
 						items: {
 							'akismet/akismet.php': {
 								active: false,
-							}
-						}
-					}
-				}
+							},
+						},
+					},
+				},
 			};
-			expect( hasAnySecurityFeature( stateIn ) ).to.be.false;
+			expect( hasAnySecurityFeature( stateIn ) ).toBe( false );
 		} );
 	} );
 } );

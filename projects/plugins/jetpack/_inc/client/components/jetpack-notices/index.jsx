@@ -1,25 +1,20 @@
-/**
- * External dependencies
- */
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import ConnectionBanner from 'components/connection-banner';
+import NoticesList from 'components/global-notices';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import ConnectionBanner from 'components/connection-banner';
-import DismissableNotices from './dismissable';
+import { withRouter } from 'react-router-dom';
+import SocialLogo from 'social-logos';
 import {
 	getSiteConnectionStatus,
 	getSiteOfflineMode,
+	isConnectionOwner,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -28,6 +23,7 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
+	isAtomicSite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -36,13 +32,10 @@ import {
 } from 'state/initial-state';
 import { getLicensingError, clearLicensingError } from 'state/licensing';
 import { getSiteDataErrors } from 'state/site';
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
-import JetpackStateNotices from './state-notices';
+import DismissableNotices from './dismissable';
 import JetpackConnectionErrors from './jetpack-connection-errors';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import NoticesList from 'components/global-notices';
 import PlanConflictWarning from './plan-conflict-warning';
-import SimpleNotice from 'components/notice';
+import JetpackStateNotices from './state-notices';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -191,7 +184,7 @@ export class UserUnlinked extends React.Component {
 						) }
 						callToAction={ __( 'Create account', 'jetpack' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-						icon="my-sites"
+						icon={ <SocialLogo icon="wordpress" size={ 24 } /> }
 						className="is-jetpack-info"
 						from="unlinked-user-connect"
 						connectUser={ true }
@@ -217,15 +210,17 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
+		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+
 		return (
 			<div aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
 					this.props.userCanConnectSite &&
-					! this.props.isReconnectingSite &&
 					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
 						<JetpackConnectionErrors
 							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
+							display={ ! this.props.isReconnectingSite }
 						/>
 					) }
 				<JetpackStateNotices />
@@ -247,7 +242,8 @@ class JetpackNotices extends React.Component {
 					this.props.userCanConnectAccount &&
 					this.props.hasConnectedOwner &&
 					! siteDataErrors.length &&
-					! this.props.connectionErrors.length && (
+					! this.props.connectionErrors.length &&
+					! isUserConnectScreen && (
 						<UserUnlinked
 							connectUrl={ this.props.connectUrl }
 							siteConnected={ true === this.props.siteConnectionStatus }
@@ -285,8 +281,10 @@ export default connect(
 			userCanConnectSite: userCanConnectSite( state ),
 			userCanConnectAccount: userCanConnectAccount( state ),
 			userIsSubscriber: userIsSubscriber( state ),
+			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
+			isAtomicSite: isAtomicSite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
@@ -304,4 +302,4 @@ export default connect(
 			},
 		};
 	}
-)( JetpackNotices );
+)( withRouter( JetpackNotices ) );

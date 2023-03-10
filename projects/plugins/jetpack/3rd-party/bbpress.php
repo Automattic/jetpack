@@ -23,7 +23,7 @@ function jetpack_bbpress_compat() {
 	 *
 	 * @since 8.5.0 Moved from root-level file and check_rest_api_compat()
 	 */
-	require_once 'class-jetpack-bbpress-rest-api.php';
+	require_once __DIR__ . '/class-jetpack-bbpress-rest-api.php';
 	Jetpack_BbPress_REST_API::instance();
 
 	// Adds sharing buttons to bbPress items.

@@ -134,12 +134,8 @@ class Jetpack_Twitter_Cards {
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
-			if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
-			}
-
 			if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-				jetpack_require_lib( 'class.media-summary' );
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 			}
 
 			// Test again, class should already be auto-loaded in Jetpack.
@@ -330,8 +326,8 @@ class Jetpack_Twitter_Cards {
 	 * Validate the settings submission.
 	 */
 	public static function settings_validate() {
-		if ( wp_verify_nonce( $_POST['jetpack_twitter_cards_nonce'], 'jetpack-twitter-cards-settings' ) ) {
-			update_option( 'jetpack-twitter-cards-site-tag', trim( ltrim( wp_strip_all_tags( $_POST['jetpack-twitter-cards-site-tag'] ), '@' ) ) );
+		if ( isset( $_POST['jetpack_twitter_cards_nonce'] ) && wp_verify_nonce( $_POST['jetpack_twitter_cards_nonce'], 'jetpack-twitter-cards-settings' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			update_option( 'jetpack-twitter-cards-site-tag', isset( $_POST['jetpack-twitter-cards-site-tag'] ) ? trim( ltrim( wp_strip_all_tags( filter_var( wp_unslash( $_POST['jetpack-twitter-cards-site-tag'] ) ) ), '@' ) ) : '' );
 		}
 	}
 
@@ -339,7 +335,7 @@ class Jetpack_Twitter_Cards {
 	 * Initiates the class.
 	 */
 	public static function init() {
-		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'twitter_cards_tags' ) );
+		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'twitter_cards_tags' ), 11 ); // $priority=11: this should hook into jetpack_open_graph_tags after 'class.jetpack-seo.php' has done so.
 		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'prioritize_creator_over_default_site' ), 99, 2 );

@@ -22,6 +22,7 @@ class Test_Jetpack_JITM extends TestCase {
 	public function set_up() {
 		Monkey\setUp();
 
+		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
 		Functions\when( 'site_url' )->justReturn( 'unit-test' );
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
@@ -69,43 +70,27 @@ class Test_Jetpack_JITM extends TestCase {
 
 		// mock the static method and return a dummy value
 		$mockAssets
-			->shouldReceive( 'get_file_url_for_environment' )
-			->andReturn( 'the_file_url' );
+			->shouldReceive( 'register_script' )
+			->withSomeOfArgs( 'jetpack-jitm', '../build/index.js' )
+			->once();
+
+		$mockAssets
+			->shouldReceive( 'enqueue_script' )
+			->withArgs( array( 'jetpack-jitm' ) )
+			->once();
 
 		$jitm = new JITM();
 		$screen = (object) array( 'id' => 'jetpack_foo' ); // fake screen object
 		$jitm->prepare_jitms( $screen );
 
-		// Assert the action was added
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
-
 		// Set up mocks for a bunch of methods called by the hook.
-		Functions\expect( 'plugins_url' )->once()->andReturn( 'the_plugin_url' );
 		Functions\when( 'esc_url_raw' )->justReturn( '' );
 		Functions\when( 'esc_html__' )->justReturn( '' );
 		Functions\when( 'wp_create_nonce' )->justReturn( '' );
 		Functions\when( 'rest_url' )->justReturn( '' );
-		Functions\expect( 'wp_register_style' )->once()->with(
-			'jetpack-jitm-css',
-			'the_plugin_url',
-			false,
-			\Mockery::type( 'string' )
-		);
-		Functions\expect( 'wp_style_add_data' )->with(
-			'jetpack-jitm-css',
-			\Mockery::type( 'string' ),
-			\Mockery::type( 'string' )
-		);
-		Functions\expect( 'wp_enqueue_style' )->once()->with( 'jetpack-jitm-css' );
-		Functions\expect( 'wp_enqueue_script' )->once()->with(
-			'jetpack-jitm-new',
-			'the_file_url',
-			array( 'jquery' ),
-			JITM::PACKAGE_VERSION,
-			true
-		);
+
 		Functions\expect( 'wp_localize_script' )->once()->with(
-			'jetpack-jitm-new',
+			'jetpack-jitm',
 			'jitm_config',
 			\Mockery::type( 'array' )
 		);

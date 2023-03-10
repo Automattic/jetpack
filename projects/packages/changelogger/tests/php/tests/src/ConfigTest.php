@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelogger config.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_putenv, WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -338,7 +336,7 @@ class ConfigTest extends TestCase {
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
-		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
+		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic \$c;\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
 		file_put_contents(
 			'dummy.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"

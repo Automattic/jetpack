@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'class-jetpack-podcast-helper' );
+require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 require_once __DIR__ . '/mocks/class-simplepie.php';
 require_once __DIR__ . '/mocks/class-simplepie-item.php';
 
@@ -32,8 +32,8 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 
 		$error = $podcast_helper->get_track_data( 'invalid_id' );
 		$this->assertWPError( $error );
-		$this->assertSame( $error->get_error_code(), 'feed_error' );
-		$this->assertSame( $error->get_error_message(), 'Feed error.' );
+		$this->assertSame( 'feed_error', $error->get_error_code() );
+		$this->assertSame( 'Feed error.', $error->get_error_message() );
 	}
 
 	/**
@@ -90,8 +90,8 @@ class WP_Test_Jetpack_Podcast_Helper extends WP_UnitTestCase {
 		// Can't find an episode.
 		$error = $podcast_helper->get_track_data( 'invalid_id' );
 		$this->assertWPError( $error );
-		$this->assertSame( $error->get_error_code(), 'no_track' );
-		$this->assertSame( $error->get_error_message(), 'The track was not found.' );
+		$this->assertSame( 'no_track', $error->get_error_code() );
+		$this->assertSame( 'The track was not found.', $error->get_error_message() );
 
 		// Success.
 		$episode = $podcast_helper->get_track_data( 1 );

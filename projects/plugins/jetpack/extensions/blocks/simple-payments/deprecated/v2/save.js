@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import { formatPriceFallback } from '../../utils';
 
 export default function Save( { attributes } ) {

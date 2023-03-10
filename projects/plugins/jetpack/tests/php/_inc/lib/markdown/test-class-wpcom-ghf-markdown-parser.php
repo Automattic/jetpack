@@ -17,7 +17,6 @@ class WP_Test_WPCom_GHF_Markdown_Parser extends WP_UnitTestCase {
 	/**
 	 * Test that links are preserved when going through the Markdown parser.
 	 *
-	 * @covers WPCom_GHF_Markdown_Parser->transform
 	 * @dataProvider get_text_urls
 	 *
 	 * @since 9.2.0

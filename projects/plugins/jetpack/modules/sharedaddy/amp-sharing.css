@@ -37,6 +37,15 @@ amp-social-share::before,
 	color: #656565;
 }
 
+amp-social-share[type='email'] {
+	background: #e9e9e9;
+	color: #656565;
+}
+
+amp-social-share[type='email']::before {
+	content: '\f410';
+}
+
 amp-social-share[type='tumblr'] {
 	background: #2c4762;
 }

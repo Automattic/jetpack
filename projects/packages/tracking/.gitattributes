@@ -8,3 +8,4 @@ tests/           export-ignore
 
 # Files not needed in the production build.
 /changelog/**    production-exclude
+.phpcs.dir.xml   production-exclude

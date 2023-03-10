@@ -1,0 +1,41 @@
+.relative-col {
+	position: relative;
+}
+
+.close-link {
+	position: absolute;
+	right: 32px;
+	top: 32px;
+	z-index: 1;
+}
+
+.account-description {
+	color: var(--jp-gray-50);
+	font-size: 13px;
+	margin-bottom: 16px;
+	width: 60%;
+}
+
+.account-images {
+	display: flex;
+	align-items: center;
+}
+
+.wordpress {
+	margin-right: 8px;
+	max-width: 110px;
+}
+
+.google {
+	width: 16px;
+}
+
+.apple {
+	margin-left: 8px;
+	height: 18px;
+}
+
+.all-features {
+	display: inline-flex;
+	align-items: center;
+}

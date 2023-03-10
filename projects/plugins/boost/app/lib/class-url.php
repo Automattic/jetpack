@@ -43,17 +43,19 @@ class Url {
 		$current_url = site_url();
 
 		if ( isset( $_SERVER ) && is_array( $_SERVER ) ) {
+			// phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitization happens at the end
 			$scheme = isset( $_SERVER['HTTPS'] ) && 'on' === $_SERVER['HTTPS'] ? 'https' : 'http';
-			$host   = ! empty( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : null;
-			$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '';
+			$host   = ! empty( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : null;
+			$path   = ! empty( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
 
 			// Support for local plugin development and testing using ngrok.
-			if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) {
-				$host = $_SERVER['HTTP_X_ORIGINAL_HOST'];
+			if ( ! empty( $_SERVER['HTTP_X_ORIGINAL_HOST'] ) && false !== strpos( $_SERVER['HTTP_X_ORIGINAL_HOST'], 'ngrok.io' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
+				$host = wp_unslash( $_SERVER['HTTP_X_ORIGINAL_HOST'] );
 			}
+			// phpcs:enable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			if ( $host ) {
-				$current_url = sprintf( '%s://%s%s', $scheme, $host, $path );
+				$current_url = esc_url_raw( sprintf( '%s://%s%s', $scheme, $host, $path ) );
 			}
 		}
 

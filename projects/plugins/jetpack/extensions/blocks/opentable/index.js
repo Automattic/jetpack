@@ -1,24 +1,12 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import { defaultAttributes, getStyleOptions } from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import deprecatedV2 from './deprecated/v2';
 import edit from './edit';
 import icon from './icon';
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
-import { getIconColor } from '../../shared/block-icons';
-import { supportsCollections } from '../../shared/block-category';
-
-/**
- * Style dependencies
- */
 import './editor.scss';
 import './view.scss';
 
@@ -46,7 +34,10 @@ export const settings = {
 	save: ( { attributes: { rid } } ) => (
 		<div>
 			{ rid.map( ( restaurantId, restaurantIndex ) => (
-				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` } key={ `${ restaurantId }-${ restaurantIndex }` } >
+				<a
+					href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
+					key={ `${ restaurantId }-${ restaurantIndex }` }
+				>
 					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
 				</a>
 			) ) }

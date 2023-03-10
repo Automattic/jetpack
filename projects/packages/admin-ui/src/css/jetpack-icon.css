@@ -1,0 +1,14 @@
+@font-face {
+	font-family: 'jetpack';
+	src: url( '../fonts/jetpack/jetpack.eot' );
+	src: url( '../fonts/jetpack/jetpack.eot?#iefix' ) format( 'embedded-opentype' ),
+		url( '../fonts/jetpack/jetpack.woff' ) format( 'woff' ),
+		url( '../fonts/jetpack/jetpack.ttf' ) format( 'truetype' );
+	font-weight: normal;
+	font-style: normal;
+}
+
+li.toplevel_page_jetpack .wp-menu-image:before {
+	font-family: 'jetpack' !important;
+	content: '\f100';
+}

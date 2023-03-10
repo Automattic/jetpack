@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -31,6 +33,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'classname'                   => 'widget_contact_info',
 				'description'                 => __( 'Display a map with your location, hours, and contact information.', 'jetpack' ),
 				'customize_selective_refresh' => true,
+				'show_instance_in_rest'       => true,
 			);
 			parent::__construct(
 				'widget_contact_info',
@@ -47,6 +50,18 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			add_action( 'wp_ajax_customize-contact-info-api-key', array( $this, 'ajax_check_api_key' ) );
+			add_filter( 'widget_types_to_hide_from_legacy_widget_block', array( $this, 'hide_widget_in_block_editor' ) );
+		}
+
+		/**
+		 * Remove the "Contact info and Map" widget from the Legacy Widget block
+		 *
+		 * @param array $widget_types List of widgets that are currently removed from the Legacy Widget block.
+		 * @return array $widget_types New list of widgets that will be removed.
+		 */
+		public function hide_widget_in_block_editor( $widget_types ) {
+			$widget_types[] = 'widget_contact_info';
+			return $widget_types;
 		}
 
 		/**
@@ -95,7 +110,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 			if ( '' !== $instance['title'] ) {
-				echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $args['before_title'] . $instance['title'] . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			}
 
 			/**
@@ -470,7 +485,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		public function ajax_check_api_key() {
 			if ( isset( $_POST['apikey'] ) ) {
 				if ( check_ajax_referer( 'customize_contact_info_api_key' ) && current_user_can( 'customize' ) ) {
-					$apikey                     = wp_kses( $_POST['apikey'], array() );
+					$apikey                     = wp_kses( wp_unslash( $_POST['apikey'] ), array() );
 					$default_instance           = $this->defaults();
 					$default_instance['apikey'] = $apikey;
 					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );

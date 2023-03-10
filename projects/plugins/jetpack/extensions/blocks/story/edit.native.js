@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-import { Text, View, TouchableWithoutFeedback } from 'react-native';
-/**
- * WordPress dependencies
- */
-import { Image } from '@wordpress/components';
 import {
-	BlockIcon,
 	MediaPlaceholder,
 	BlockMediaUpdateProgress,
 	MEDIA_TYPE_IMAGE,
 	MEDIA_TYPE_VIDEO,
 } from '@wordpress/block-editor';
-import { __, sprintf } from '@wordpress/i18n';
+import { Image } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { getProtocol } from '@wordpress/url';
+import { __ } from '@wordpress/i18n';
 import {
 	requestMediaFilesFailedRetryDialog,
 	requestMediaFilesSaveCancelDialog,
@@ -25,13 +16,10 @@ import {
 	mediaFilesBlockReplaceSync,
 	requestMediaFilesEditorLoad,
 } from '@wordpress/react-native-bridge';
-
-/**
- * Internal dependencies
- */
-import { icon } from '.';
+import { View, TouchableWithoutFeedback } from 'react-native';
 import styles from './editor.scss';
 import StoryEditingButton from './story-editing-button';
+import { icon } from '.';
 
 const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus } ) => {
 	const { mediaFiles } = attributes;
@@ -182,7 +170,7 @@ const StoryEdit = ( { attributes, isSelected, clientId, setAttributes, onFocus }
 		// trigger the ADD MEDIA bottom sheet just yet, but only give the placedholder the right appearance.
 		<View pointerEvents="none" style={ styles[ 'content-placeholder' ] }>
 			<MediaPlaceholder
-				icon={ <BlockIcon icon={ icon } /> }
+				icon={ icon }
 				labels={ {
 					title: __( 'Story', 'jetpack' ),
 					instructions: __( 'ADD MEDIA', 'jetpack' ),

@@ -1,5 +1,5 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/verification-tools/verification-tools-utils.php';
+require __DIR__ . '/../../../../modules/verification-tools/verification-tools-utils.php';
 
 class WP_Test_Jetpack_Verification_Tools_Utils extends WP_UnitTestCase {
 

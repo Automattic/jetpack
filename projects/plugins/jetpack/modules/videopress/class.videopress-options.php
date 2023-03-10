@@ -1,59 +1,62 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
+/**
+ * VideoPress Options
+ *
+ * @package automattic/jetpack
+ */
 
+use Automattic\Jetpack\VideoPress\Options as Package_Options;
+
+/**
+ * VideoPress Options class.
+ *
+ * @deprecated 11.2
+ */
 class VideoPress_Options {
 
-	/** @var string */
+	/**
+	 * Option name.
+	 *
+	 * @var string $option_name The 'videopress' option name
+	 * @deprecated 11.2
+	 */
 	public static $option_name = 'videopress';
 
-	/** @var array */
+	/**
+	 * VideoPress Options.
+	 *
+	 * @var array $options An array of associated VideoPress options (default empty)
+	 * @deprecated 11.2
+	 */
 	protected static $options = array();
 
 	/**
 	 * Get VideoPress options
+	 *
+	 * @return array An array of VideoPress options.
+	 * @deprecated 11.2
 	 */
 	public static function get_options() {
-		// Make sure we only get options from the database and services once per connection.
-		if ( count( self::$options ) > 0 ) {
-			return self::$options;
-		}
-
-		$defaults = array(
-			'meta' => array(
-				'max_upload_size' => 0,
-			),
-		);
-
-		self::$options = Jetpack_Options::get_option( self::$option_name, array() );
-		self::$options = array_merge( $defaults, self::$options );
-
-		// Make sure that the shadow blog id never comes from the options, but instead uses the
-		// associated shadow blog id, if videopress is enabled.
-		self::$options['shadow_blog_id'] = 0;
-
-		// Use the Jetpack ID for the shadow blog ID if we have a plan that supports VideoPress
-		if ( Jetpack_Plan::supports( 'videopress' ) ) {
-			self::$options['shadow_blog_id'] = Jetpack_Options::get_option( 'id' );
-		}
-
-		return self::$options;
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
+		return Package_Options::get_options();
 	}
 
 	/**
 	 * Update VideoPress options
+	 *
+	 * @param mixed $options VideoPress options.
 	 */
 	public static function update_options( $options ) {
-		Jetpack_Options::update_option( self::$option_name, $options );
-
-		self::$options = $options;
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
+		return Package_Options::update_options( $options );
 	}
 
 	/**
 	 * Runs when the VideoPress module is deactivated.
 	 */
 	public static function delete_options() {
-		Jetpack_Options::delete_option( self::$option_name );
-
-		self::$options = array();
+		_deprecated_function( __METHOD__, 'jetpack-11.2' );
+		return Package_Options::delete_options();
 	}
 
 }

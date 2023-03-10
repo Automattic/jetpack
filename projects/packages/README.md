@@ -4,7 +4,7 @@ These Composer packages offer a unified code base that we will share among proje
 
 ## Installing Composer
 
-You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/master/docs/development-environment.md#installing-composer) and then continue here.
+You need Composer to use the packages. If you don't have it installed, go and check how to [install Composer](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#composer) and then continue here.
 
 ## Defining required packages
 
@@ -61,26 +61,6 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 $logo = new Jetpack_Logo();
 ```
 
-### Package textdomains
-
-Jetpack's packages use the 'jetpack' textdomain for translatable strings. Plugins that use these packages must change the textdomains in the packages when preparing the plugin for release. A few tools that can help automate this process are [node-wp-i18n](https://github.com/cedaro/node-wp-i18n) and [wp-textdomain](https://github.com/timelsass/wp-textdomain).
-
-For example, a plugin could change the textdomain during the Composer `post-autoload-dump` event with the following script in the plugin's `composer.json` file:
-
-`"post-autoload-dump": "node  {path_to_script}/update_textdomain.js"`
-
-where the `update_textdomain.js` file contains something like:
-
-```
-const wpTextdomain = require( 'wp-textdomain' );
-
-wpTextdomain( './vendor/automattic/**/*.php', {
-	domain: 'plugin-textdomain',
-	fix: true,
-	glob: { follow: true },
-} );
-```
-
 ## Deploying packages
 
 While the script we use to deploy the package takes care of everything, we might need to setup some stuff online in GitHub and Packagist. Let's use the Autoloader package as an example. 
@@ -88,12 +68,12 @@ While the script we use to deploy the package takes care of everything, we might
 1. Before you merge the PR introducing the new package in Jetpack, run through the steps below.
 2. Create an online repository in GitHub for the package. In this case, it's https://github.com/Automattic/jetpack-autoloader.
 3. Add an initial valid `composer.json` to the repository. You can copy it from your PR in the Jetpack repo.
-4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `master` branch.
+4. You'll want to update the repository settings to be just like the Autoloader repo; check the repository description, disable issues, set up branch protection rules for the `trunk` branch.
 5. Go to https://packagist.org/packages/submit and insert the URL of the GitHub repository.
 6. Upon submission, add Crew members as package maintainers, as well as the `automattic` account.
 
 
-Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-master` version of the package available to the public.
+Once this is all done, you can merge your PR in the Jetpack repo. When you do so, the changes will be automatically pushed to the new package repo, and your changes will become available in the `dev-trunk` version of the package available to the public.
 
 ## Unit Tests
 You may run unit tests locally for any given package by running `composer phpunit` within the package directory.
@@ -131,5 +111,6 @@ When needing to add a package version number inside a DocBlock, please use `$$ne
 - `@since $$next-version$$`
 - `@deprecated $$next-version$$`
 - `@deprecated since $$next-version$$`
+- `_deprecated_function( __METHOD__, 'package-$$next-version$$' );` (other WordPress deprecation functions also work, but note it must be all on one line).
 
 The `$$next-version$$` specifier will be automatically replaced with the correct package version number the next time a new version of that package is released.

@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import type { SvelteComponent } from 'svelte';
 import { __, _n, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import type { ErrorSet } from '../stores/critical-css-recommendations';
-import type { CriticalCssErrorDetails } from '../stores/critical-css-status';
-import { castToNumber } from './cast-to-number';
 import UrlComponentsExample from '../pages/settings/elements/UrlComponentsExample.svelte';
+import { CriticalCssErrorDetails } from '../stores/critical-css-state-types';
+import { castToNumber } from './cast-to-number';
+import type { ErrorSet } from '../stores/critical-css-state-errors';
+import type { SvelteComponent } from 'svelte';
 
 type Suggestion = {
 	paragraph: string;
@@ -201,7 +194,7 @@ function httpErrorSuggestion( code: number, count: number ): Suggestion {
 				list: [
 					__( 'Visit the link and check for an error.', 'jetpack-boost' ),
 					__(
-						'<retry>Try to generate Critical CSS again<retry>, in case the error was intermittent.',
+						'<retry>Try to generate Critical CSS again</retry>, in case the error was intermittent.',
 						'jetpack-boost'
 					),
 					sprintf(
@@ -270,7 +263,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				urlCount( set ),
 				'jetpack-boost'
 			),
-		suggestion: set => ( {
+		suggestion: _set => ( {
 			paragraph: __(
 				'This may indicate that a WordPress plugin is redirecting users who are not logged in to a different location, or it may indicate that your hosting provider is redirecting your WordPress site to a different URL.',
 				'jetpack-boost'
@@ -288,11 +281,11 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 					'If you believe the issue is resolved, please <retry>try again</retry>.',
 					'jetpack-boost'
 				),
-				__(
-					'If you think that the redirection is valid, then it is safe to ignore this issue.',
-					'jetpack-boost'
-				),
 			],
+			closingParagraph: __(
+				'If you think that the redirection is valid, then it is safe to ignore this issue.',
+				'jetpack-boost'
+			),
 		} ),
 	},
 
@@ -445,7 +438,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 				'jetpack-boost'
 			),
 		rawError: set => Object.values( set.byUrl )[ 0 ].message,
-		suggestion: set => ( {
+		suggestion: _set => ( {
 			paragraph: __(
 				'Jetpack Boost uses iframes while generating your Critical CSS. Unfortunately, your site has a special configuration header which prevents it from loading inside an iframe. The header is called "X-Frame-Options: DENY". This can be added to a WordPress site either by using a plugin, or by server configuration.',
 				'jetpack-boost'

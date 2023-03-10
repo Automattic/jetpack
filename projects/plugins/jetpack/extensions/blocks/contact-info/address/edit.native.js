@@ -1,16 +1,9 @@
-/**
- * External dependencies
- */
-import { View } from 'react-native';
-import { __ } from '@wordpress/i18n';
 import { InspectorControls, PlainText } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import { useEffect, useRef, useState } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import { View } from 'react-native';
 import stylesEditor from '../editor.scss';
 import styles from '../style.scss';
 

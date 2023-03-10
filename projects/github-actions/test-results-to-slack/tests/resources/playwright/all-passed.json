@@ -1,0 +1,201 @@
+{
+	"config": {
+		"forbidOnly": false,
+		"fullyParallel": false,
+		"globalSetup": null,
+		"globalTeardown": null,
+		"globalTimeout": 0,
+		"grep": {},
+		"grepInvert": null,
+		"maxFailures": 0,
+		"metadata": {},
+		"preserveOutput": "always",
+		"projects": [
+			{
+				"outputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results",
+				"repeatEach": 1,
+				"retries": 2,
+				"name": "",
+				"testDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+				"testIgnore": [],
+				"testMatch": [ "**/?(*.)@(spec|test).*" ],
+				"timeout": 300000
+			}
+		],
+		"reporter": [
+			[ "list", null ],
+			[
+				"json",
+				{
+					"outputFile": "./output/summary.json"
+				}
+			],
+			[
+				"/home/runner/work/jetpack/jetpack/node_modules/.pnpm/allure-playwright@2.0.0-beta.19/node_modules/allure-playwright/dist/index.js",
+				null
+			],
+			[ "/home/runner/work/jetpack/jetpack/tools/e2e-commons/reporters/reporter.cjs", null ],
+			[ "github", null ]
+		],
+		"reportSlowTests": null,
+		"rootDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+		"quiet": false,
+		"shard": null,
+		"updateSnapshots": "missing",
+		"version": "1.25.0",
+		"workers": 1,
+		"webServer": null,
+		"_watchMode": false,
+		"_webServers": [],
+		"_globalOutputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e/output/results",
+		"_configDir": "/home/runner/work/jetpack/jetpack/projects/plugins/jetpack/tests/e2e",
+		"_testGroupsCount": 1,
+		"_workerIsolation": "isolate-pools"
+	},
+	"suites": [
+		{
+			"title": "specs/sync/sync.test.js",
+			"file": "specs/sync/sync.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Sync",
+					"file": "specs/sync/sync.test.js",
+					"line": 16,
+					"column": 6,
+					"specs": [
+						{
+							"title": "Normal Sync flow",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 36848,
+											"stdout": [],
+											"stderr": [
+												{
+													"buffer": ""
+												}
+											],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Publish a post",
+													"duration": 12220
+												},
+												{
+													"title": "Assert post is synced",
+													"duration": 3196
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/sync/sync.test.js",
+							"line": 49,
+							"column": 2
+						},
+						{
+							"title": "Disabled Sync Flow",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 22001,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Disabled Sync",
+													"duration": 2133
+												},
+												{
+													"title": "Publish a post",
+													"duration": 9110
+												},
+												{
+													"title": "Assert post is not synced",
+													"duration": 164
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/sync/sync.test.js",
+							"line": 74,
+							"column": 2
+						},
+						{
+							"title": "Dedicated Sync Flow",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 26916,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"steps": [
+												{
+													"title": "Enable Dedicated Sync",
+													"duration": 2129
+												},
+												{
+													"title": "Publish a post",
+													"duration": 11598
+												},
+												{
+													"title": "Assert post is synced",
+													"duration": 2759
+												}
+											],
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/sync/sync.test.js",
+							"line": 102,
+							"column": 2
+						}
+					]
+				}
+			]
+		}
+	],
+	"errors": []
+}

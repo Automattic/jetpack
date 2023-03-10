@@ -107,7 +107,7 @@ class Jetpack_Photon {
 	 * Enables the noresize mode for Photon, allowing to avoid intermediate size files generation.
 	 */
 	private function enable_noresize_mode() {
-		jetpack_require_lib( 'class.jetpack-photon-image-sizes' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image-sizes.php';
 
 		// The main objective of noresize mode is to disable additional resized image versions creation.
 		// This filter handles removal of additional sizes.
@@ -896,7 +896,7 @@ class Jetpack_Photon {
 	 * @return array An array of Photon image urls and widths.
 	 */
 	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
-		if ( ! is_array( $sources ) ) {
+		if ( ! is_array( $sources ) || array() === $sources ) {
 			return $sources;
 		}
 		$upload_dir = wp_get_upload_dir();
@@ -1092,7 +1092,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no host is found.
-		if ( is_null( $url_info['host'] ) ) {
+		if ( $url_info['host'] === null ) {
 			return false;
 		}
 
@@ -1102,7 +1102,7 @@ class Jetpack_Photon {
 		}
 
 		// Bail if no path is found.
-		if ( is_null( $url_info['path'] ) ) {
+		if ( $url_info['path'] === null ) {
 			return false;
 		}
 
@@ -1238,18 +1238,6 @@ class Jetpack_Photon {
 	}
 
 	/**
-	 * Returns empty array.
-	 *
-	 * @deprecated 8.8.0 Use filter_photon_noresize_intermediate_sizes.
-	 *
-	 * @return array Empty array.
-	 */
-	public function noresize_intermediate_sizes() {
-		_deprecated_function( __METHOD__, 'jetpack-8.8.0', '::filter_photon_noresize_intermediate_sizes' );
-		return __return_empty_array();
-	}
-
-	/**
 	 * Enqueue Photon helper script
 	 *
 	 * @uses wp_enqueue_script, plugins_url
@@ -1304,7 +1292,6 @@ class Jetpack_Photon {
 		$this->should_rest_photon_image_downsize_override( $request );
 
 		return $response;
-
 	}
 
 	/**
@@ -1321,6 +1308,7 @@ class Jetpack_Photon {
 				&& 'edit' === $request->get_param( 'context' )
 			)
 			|| false !== strpos( $route, 'wpcom/v2/external-media/copy' )
+			|| (bool) $request->get_header( 'x-wp-api-fetch-from-editor' )
 		) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()
 			// Late execution to avoid conflict with other plugins as we really don't want to run in this situation.
@@ -1350,7 +1338,6 @@ class Jetpack_Photon {
 		}
 
 		$this->should_rest_photon_image_downsize_override( $request );
-
 	}
 
 	/**

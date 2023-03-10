@@ -24,16 +24,16 @@ Remove Notice
 
 [Read the full readme](../../notices/README.md)
 
-## State Notices [#](https://github.com/Automattic/jetpack/blob/master/_inc/client/components/jetpack-notices/state-notices.jsx)
+## [State Notices](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/_inc/client/components/jetpack-notices/state-notices.jsx)
 
 These are triggered by PHP, most commonly to display an error during connection.
 
-- These notices are triggered by a cookie set in the browser in PHP, by the `Jetpack::state()` [#](https://github.com/Automattic/jetpack/blob/master/class.jetpack.php#L4661) method.
+- These notices are triggered by a cookie set in the browser in PHP, [by the `state()` method](https://github.com/Automattic/jetpack/blob/trunk/projects/packages/status/src/class-cookiestate.php).
 - They do not persist (gone after page refresh)
 - They are dismissible.
 - They do not take any props, nor are they connected to the Redux state tree.
 
-## Dismissible Notice [#](https://github.com/Automattic/jetpack/blob/master/_inc/client/components/jetpack-notices/dismissable.jsx)
+## [Dismissible Notice](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/_inc/client/components/jetpack-notices/dismissable.jsx)
 
 - These are notices that are triggered by actions.
 - Each notice has a corresponding key, which is set in the `jetpack-notices/reducer.js` file

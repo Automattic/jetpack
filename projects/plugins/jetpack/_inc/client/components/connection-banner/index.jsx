@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
 import classNames from 'classnames';
-
-/**
- * Internal dependencies
- */
-import Banner from 'components/banner';
+import { Banner, connect as bannerConnect } from 'components/banner';
 import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import Gridicon from 'components/gridicon';
+import PropTypes from 'prop-types';
+import React from 'react';
 
-class ConnectionBanner extends Banner {
+export class ConnectionBanner extends Banner {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
 		className: PropTypes.string,
 		description: PropTypes.node,
-		icon: PropTypes.string,
+		icon: PropTypes.oneOfType( [ PropTypes.element, PropTypes.string ] ),
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
@@ -28,6 +21,9 @@ class ConnectionBanner extends Banner {
 	getIcon() {
 		const icon = this.props.icon;
 
+		if ( icon && 'object' === typeof icon ) {
+			return <div className="jp-connection-banner__icon">{ icon }</div>;
+		}
 		return (
 			<div className="dops-banner__icons">
 				<div className="dops-banner__icon">
@@ -75,4 +71,4 @@ class ConnectionBanner extends Banner {
 	}
 }
 
-export default ConnectionBanner;
+export default bannerConnect( ConnectionBanner );

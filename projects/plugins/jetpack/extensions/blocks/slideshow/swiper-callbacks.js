@@ -1,8 +1,4 @@
-/**
- * External dependencies
- */
 import { escapeHTML } from '@wordpress/escape-html';
-import { forEach } from 'lodash';
 
 const SIXTEEN_BY_NINE = 16 / 9;
 const MAX_HEIGHT_PERCENT_OF_WINDOW_HEIGHT = 0.8;
@@ -78,7 +74,7 @@ function announceCurrentSlide( swiper ) {
 }
 
 function swiperApplyAria( swiper ) {
-	forEach( swiper.slides, ( slide, index ) => {
+	( swiper.slides || [] ).forEach( ( slide, index ) => {
 		slide.setAttribute( 'aria-hidden', index === swiper.activeIndex ? 'false' : 'true' );
 		if ( index === swiper.activeIndex ) {
 			slide.setAttribute( 'tabindex', '-1' );
@@ -90,7 +86,7 @@ function swiperApplyAria( swiper ) {
 }
 
 function swiperPaginationRender( swiper ) {
-	forEach( swiper.pagination.bullets, bullet => {
+	( swiper.pagination.bullets || [] ).forEach( bullet => {
 		bullet.addEventListener( 'click', () => {
 			const currentSlide = swiper.slides[ swiper.realIndex ];
 			setTimeout( () => {

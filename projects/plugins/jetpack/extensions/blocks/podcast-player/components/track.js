@@ -1,21 +1,9 @@
-/**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
- * WordPress dependencies
- */
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import TrackIcon from './track-icon';
-import TrackError from './track-error';
-
+import classnames from 'classnames';
 import { getColorClassName } from '../utils';
+import TrackError from './track-error';
+import TrackIcon from './track-icon';
 
 const Track = memo(
 	( {
@@ -48,10 +36,10 @@ const Track = memo(
 			inlineStyle.color = colors.secondary.custom;
 		}
 
-		/* translators: This needs to be a single word with no spaces. It describes
-		the current item in the group. A screen reader will announce it as "[title],
-		current track". */
-		const ariaCurrent = isActive ? __( 'track', 'jetpack' ) : undefined;
+		const /* translators: This needs to be a single word with no spaces. It describes
+			   the current item in the group. A screen reader will announce it as "[title],
+			   current track". */
+			ariaCurrent = isActive ? __( 'track', 'jetpack' ) : undefined;
 
 		return (
 			<li

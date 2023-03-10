@@ -1,0 +1,7 @@
+{
+	"testSites": {
+		"default": {
+			"apiPassword": "API_PASSWORD"
+		}
+	}
+}

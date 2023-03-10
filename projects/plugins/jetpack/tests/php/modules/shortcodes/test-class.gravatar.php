@@ -49,7 +49,7 @@ class WP_Test_Jetpack_Shortcodes_Gravatar extends WP_UnitTestCase {
 	public function test_shortcodes_gravatar_profile() {
 		$email   = 'user@example.org';
 		$content = "[gravatar_profile who='$email']";
-		$user    = $this->factory->user->create_and_get(
+		$user    = self::factory()->user->create_and_get(
 			array(
 				'user_email' => $email,
 			)

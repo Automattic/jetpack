@@ -5,6 +5,7 @@
  * @package jetpack
  */
 
+use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -99,6 +100,38 @@ class Jetpack_Pre_Connection_JITMs {
 	}
 
 	/**
+	 * Returns partnership related pre-connection messages.
+	 *
+	 * @since 10.4
+	 *
+	 * @return array An array containing the pre-connection JITM messages.
+	 */
+	private function maybe_get_raw_partnership_messages() {
+		$partner_coupon = Jetpack_Partner_Coupon::get_coupon();
+
+		if ( ! $partner_coupon ) {
+			return array();
+		}
+
+		return array(
+			array(
+				'id'             => 'jpsetup-partner-coupon',
+				'message_path'   => '/wp:(plugin-install|themes|update-core|upload|users|tools|options-general):admin_notices/',
+				/* Translators: 1: Product name, 2: Partner name. */
+				'message'        => sprintf( esc_html__( 'Get %1$s with your %2$s account', 'jetpack' ), $partner_coupon['product']['title'], $partner_coupon['partner']['name'] ),
+				'description'    => $partner_coupon['product']['description'],
+				'button_caption' => esc_html__( 'Redeem coupon', 'jetpack' ),
+				'button_link'    => $this->generate_admin_url(
+					array(
+						'page' => 'jetpack#/dashboard',
+						'from' => 'pre-connection-jitm--jpsetup-partner-coupon',
+					)
+				),
+			),
+		);
+	}
+
+	/**
 	 * Adds the input query arguments to the admin url.
 	 *
 	 * @param array $args The query arguments.
@@ -118,7 +151,7 @@ class Jetpack_Pre_Connection_JITMs {
 	 * @return array The array of pre-connection JITMs.
 	 */
 	public function add_pre_connection_jitms( $pre_connection_messages ) {
-		$jetpack_messages = $this->get_raw_messages();
+		$jetpack_messages = array_merge( $this->get_raw_messages(), $this->maybe_get_raw_partnership_messages() );
 
 		if ( ! is_array( $pre_connection_messages ) ) {
 			// The incoming messages aren't an array, so just return Jetpack's messages.

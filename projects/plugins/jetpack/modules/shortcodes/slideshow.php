@@ -191,7 +191,7 @@ class Jetpack_Slideshow_Shortcode {
 				'ids' => wp_list_pluck( $gallery, 'id' ),
 			);
 
-			if ( 'true' == $autostart ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- attribute can be stored as boolean or string.
+			if ( 'true' == $autostart ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- attribute can be stored as boolean or string.
 				$amp_args['autoplay'] = true;
 			}
 
@@ -216,42 +216,23 @@ class Jetpack_Slideshow_Shortcode {
 		// Enqueue scripts.
 		$this->enqueue_scripts();
 
-		$output = '';
-
-		if ( defined( 'JSON_HEX_AMP' ) ) {
-			// This is nice to have, but not strictly necessary since we use _wp_specialchars() below.
-			$gallery = wp_json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); // phpcs:ignore PHPCompatibility
-		} else {
-			$gallery = wp_json_encode( $attr['gallery'] );
-		}
-
-		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
+		$output = '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
 
 		/*
-		 * The input to json_encode() above can contain '&quot;'.
-		 *
-		 * For calls to json_encode() lacking the JSON_HEX_AMP option,
-		 * that '&quot;' is left unaltered.  Running '&quot;' through esc_attr()
-		 * also leaves it unaltered since esc_attr() does not double-encode.
-		 *
-		 * This means we end up with an attribute like
-		 * `data-gallery="{&quot;foo&quot;:&quot;&quot;&quot;}"`,
-		 * which is interpreted by the browser as `{"foo":"""}`,
-		 * which cannot be JSON decoded.
-		 *
-		 * The preferred workaround is to include the JSON_HEX_AMP (and friends)
-		 * options, but these are not available until 5.3.0.
-		 * Alternatively, we can use _wp_specialchars( , , , true ) instead of
-		 * esc_attr(), which will double-encode.
-		 *
-		 * Since we can't rely on JSON_HEX_AMP, we do both.
-		 *
-		 * @todo Update when minimum is PHP 5.3+
+		 * Checking for JSON_HEX_AMP and friends here allows us to get rid of
+		 * '&quot;', that can sometimes be included in the JSON input in some languages like French.
 		 */
-		$gallery_attributes = _wp_specialchars( wp_check_invalid_utf8( $gallery ), ENT_QUOTES, false, true );
+		$gallery_attributes = _wp_specialchars(
+			wp_check_invalid_utf8(
+				wp_json_encode( $attr['gallery'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT )
+			),
+			ENT_QUOTES,
+			false,
+			true
+		);
 
 		$output .= sprintf(
-			'<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s" itemscope itemtype="https://schema.org/ImageGallery"></div>',
+			'<div id="%s" class="jetpack-slideshow-window jetpack-slideshow jetpack-slideshow-%s" data-trans="%s" data-autostart="%s" data-gallery="%s" itemscope itemtype="https://schema.org/ImageGallery"></div>',
 			esc_attr( $attr['selector'] . '-slideshow' ),
 			esc_attr( $attr['color'] ),
 			esc_attr( $attr['trans'] ),

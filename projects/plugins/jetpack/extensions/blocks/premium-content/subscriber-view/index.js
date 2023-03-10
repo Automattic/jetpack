@@ -1,15 +1,8 @@
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import icon from '../_inc/icon.js';
+import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
-import deprecated from './deprecated';
-import icon from '../_inc/icon.js';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 
 const name = 'premium-content/subscriber-view';
 const settings = {

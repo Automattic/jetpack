@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility.

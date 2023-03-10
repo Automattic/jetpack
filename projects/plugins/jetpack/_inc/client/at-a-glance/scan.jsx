@@ -1,26 +1,23 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
+import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _n } from '@wordpress/i18n';
+import Button from 'components/button';
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
+import {
+	getPlanClass,
+	getJetpackProductUpsellByFeature,
+	FEATURE_SECURITY_SCANNING_JETPACK,
+} from 'lib/plans/constants';
+import { get, isArray, noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _n } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import restApi from '@automattic/jetpack-api';
-import analytics from 'lib/analytics';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { getScanStatus, isFetchingScanStatus } from 'state/scan';
-import { isPluginInstalled } from 'state/site/plugins';
 import {
 	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
@@ -31,17 +28,10 @@ import {
 	isOfflineMode,
 	connectUser,
 } from 'state/connection';
-import DashItem from 'components/dash-item';
-import { get, isArray } from 'lodash';
-import { getUpgradeUrl, isAtomicSite, showBackups } from 'state/initial-state';
-import JetpackBanner from 'components/jetpack-banner';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import {
-	getPlanClass,
-	getJetpackProductUpsellByFeature,
-	FEATURE_SECURITY_SCANNING_JETPACK,
-} from 'lib/plans/constants';
-import { numberFormat } from 'components/number-format';
+import { isAtomicSite, showBackups } from 'state/initial-state';
+import { getScanStatus, isFetchingScanStatus } from 'state/scan';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { isPluginInstalled } from 'state/site/plugins';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -66,7 +56,7 @@ const renderCard = props => (
 		overrideContent={ props.overrideContent }
 	>
 		{ isArray( props.content ) ? (
-			props.content
+			props.content.map( ( el, i ) => <React.Fragment key={ i }>{ el }</React.Fragment> )
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
 		) }
@@ -85,6 +75,7 @@ class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -106,6 +97,15 @@ class DashScan extends Component {
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
+		trackUpgradeButtonView: noop,
+	};
+
+	trackScansClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			type: 'scans-link',
+			target: 'at-a-glance',
+			feature: 'scans',
+		} );
 	};
 
 	onActivateVaultPressClick = () => {
@@ -207,11 +207,13 @@ class DashScan extends Component {
 					<p className="jp-dash-item__description" key="inactive-scanning">
 						{ createInterpolateElement(
 							__(
-								'VaultPress is not active, <a>please activate</a> to enable automatic scanning for security for threats.',
+								'VaultPress is not active, <Button>please activate</Button> to enable automatic scanning for security for threats.',
 								'jetpack'
 							),
 							{
-								a: <a href="javascript:void(0)" onClick={ this.onActivateVaultPressClick } />,
+								Button: (
+									<Button className="jp-link-button" onClick={ this.onActivateVaultPressClick } />
+								),
 							}
 						) }
 					</p>,
@@ -259,6 +261,7 @@ class DashScan extends Component {
 				eventFeature="scan"
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
+				trackBannerDisplay={ this.props.trackUpgradeButtonView }
 			/>
 		);
 	}
@@ -293,6 +296,7 @@ class DashScan extends Component {
 				href={ url }
 				target="_blank"
 				rel="noopener noreferrer"
+				onClick={ this.trackScansClick }
 			>
 				{ message }
 			</Card>
@@ -338,7 +342,7 @@ class DashScan extends Component {
 			return (
 				<>
 					{ renderActiveCard(
-						__( 'Please finish your setup by entering your server’s credentials.', 'jetpack' )
+						__( 'Enter your SSH, SFTP, or FTP credentials to enable one-click fixes', 'jetpack' )
 					) }
 					{ this.renderAction(
 						getRedirectUrl( 'jetpack-scan-dash-credentials', { site: siteRawUrl } ),
@@ -444,7 +448,7 @@ export default connect(
 			sitePlan,
 			planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 			showBackups: showBackups( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'scan' ),
 			hasConnectedOwner: hasConnectedOwnerSelector( state ),
 		};
 	},

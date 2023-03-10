@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.WP.CapitalPDangit.Misspelled
 /**
  * Module Name: Backups and Scanning
  * Module Description: Protect your site with daily or real-time backups and automated virus scanning and threat detection.
@@ -15,6 +15,9 @@
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );
 
+/**
+ * Conditionally enable module configuration.
+ */
 function vaultpress_jetpack_stub() {
 	if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
 		Jetpack::enable_module_configurable( __FILE__ );
@@ -23,11 +26,17 @@ function vaultpress_jetpack_stub() {
 	}
 }
 
+/**
+ * Text for filter jetpack_module_free_text_vaultpress.
+ */
 function vaultpress_jetpack_module_free_text() {
 	return __( 'Active', 'jetpack' );
 }
 
+/**
+ * URL for filter jetpack_module_configuration_url_vaultpress.
+ */
 function vaultpress_jetpack_configure_url() {
-	include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+	include_once ABSPATH . '/wp-admin/includes/plugin.php';
 	return menu_page_url( 'vaultpress', false );
 }

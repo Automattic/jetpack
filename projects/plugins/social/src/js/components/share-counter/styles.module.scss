@@ -1,0 +1,39 @@
+@keyframes meter {
+	0% {
+		width: 0%;
+	}
+	100% {
+		width: var( --width );
+	}
+}
+
+.text {
+	color: var( --jp-gray-80 );
+}
+
+.meter {
+	position: relative;
+	margin-top: 16px;
+	height: 24px;
+	background-color: var( --jp-gray );
+	border-radius: 24px;
+	overflow: hidden;
+
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		background-color: var( --jp-gray-80 );
+		animation: meter 0.6s cubic-bezier( 0.445, 0.05, 0.55, 0.95 ) forwards;
+	}
+}
+
+.meter--close::before {
+	background-color: var( --jp-yellow-20 );
+}
+
+.meter--full::before {
+	background-color: var( --jp-red-40 );
+}

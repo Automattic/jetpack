@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+<?php
 /**
  * Parser for a keepachangelog.com format changelog.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid, WordPress.NamingConventions.ValidVariableName
 
 namespace Automattic\Jetpack\Changelog;
 
@@ -180,7 +178,7 @@ class KeepAChangelogParser extends Parser {
 			if ( '[' === $version[0] && ']' === substr( $version, -1 ) ) {
 				$version = substr( $version, 1, -1 );
 				if ( ! isset( $links[ $version ] ) ) {
-					throw new InvalidArgumentException( "Heading seems to have a linked version, but link was not found: $heading" );
+					throw new InvalidArgumentException( "Heading seems to have a linked version, but link was not found: $heading. Please ensure this version has a URL defined at the end of the changelog." );
 				}
 				$link                  = $links[ $version ];
 				$usedlinks[ $version ] = true;

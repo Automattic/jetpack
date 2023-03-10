@@ -1,8 +1,6 @@
 module.exports = {
-	...require( '@wordpress/prettier-config' ),
-	...require( '../../../.prettierrc'),
-	plugins: [ 'prettier-plugin-svelte' ],
+	...require( '../../../.prettierrc.js' ),
+	plugins: [ require.resolve( 'prettier-plugin-svelte' ) ],
 	svelteStrictMode: false,
-	svelteBracketNewLine: true,
 	svelteIndentScriptAndStyle: true,
 };

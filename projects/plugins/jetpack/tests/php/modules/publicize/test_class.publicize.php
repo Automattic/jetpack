@@ -1,14 +1,33 @@
 <?php
-require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
+if ( ! function_exists( 'publicize_init' ) ) {
+	/**
+	 * Some tests rely on this function which won't get defined unless we mock lots
+	 * of things and require the module code. Instead we'll define it here.
+	 *
+	 * @return Publicize Object
+	 */
+	function publicize_init() {
+		global $publicize;
+
+		return $publicize;
+	}
+}
 
 /**
  * @group publicize
- * @covers Publicize
+ * @covers Jetpack_Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
-
-	private $in_publish_filter = false;
+	/**
+	 * In the publish filter?
+	 *
+	 * @var bool
+	 */
+	private $in_publish_filter  = false;
 	private $publicized_post_id = null;
 	private $post;
 	private $original_user = 0;
@@ -20,6 +39,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @var integer $user_id ID of current user.
 	 */
 	private $user_id;
+
+	private $publicize;
 
 	/**
 	 * Index in 'publicize_connections' test data of normal connection.
@@ -43,43 +64,50 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
-		$this->publicize = publicize_init();
+		global $publicize_ui;
+		$publicize_ui = new Automattic\Jetpack\Publicize\Publicize_UI();
+
+		$this->setup_publicize_mock();
+
+		$this->publicize          = publicize_init();
 		$this->publicized_post_id = null;
 
-		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
+		$post_id    = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		$this->user_id = $this->factory->user->create();
+		$this->user_id = self::factory()->user->create();
 		wp_set_current_user( $this->user_id );
 
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				// Normally connected facebook
-				'facebook' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => $this->user_id,
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
-								'display_name' => 'test-display-name456',
+		Jetpack_Options::update_options(
+			array(
+				'publicize_connections' => array(
+					// Normally connected facebook.
+					'facebook' => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => $this->user_id,
+								'token_id' => 'test-unique-id456',
+								'meta'     => array(
+									'display_name' => 'test-display-name456',
+								),
+							),
+						),
+					),
+					// Globally connected tumblr.
+					'tumblr'   => array(
+						'id_number' => array(
+							'connection_data' => array(
+								'user_id'  => 0,
+								'token_id' => 'test-unique-id123',
+								'meta'     => array(
+									'display_name' => 'test-display-name123',
+								),
 							),
 						),
 					),
 				),
-				// Globally connected tumblr
-				'tumblr' => array(
-					'id_number' => array(
-						'connection_data' => array(
-							'user_id'  => 0,
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
-								'display_name' => 'test-display-name123',
-							),
-						),
-					),
-				),
-			),
-		) );
+			)
+		);
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 
@@ -90,9 +118,23 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Tear down.
 	 */
 	public function tear_down() {
+		unset( $GLOBALS['publicize'] );
+		unset( $GLOBALS['publicize_ui'] );
+
 		wp_set_current_user( $this->original_user );
 
 		parent::tear_down();
+	}
+
+	private function setup_publicize_mock() {
+		global $publicize;
+		$this->publicize = $this->getMockBuilder( 'Automattic\Jetpack\Publicize\Publicize' )->setMethods( array( 'test_connection' ) )->getMock();
+
+		$this->publicize->method( 'test_connection' )
+			->withAnyParameters()
+			->willReturn( true );
+
+		$publicize = $this->publicize;
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
@@ -120,7 +162,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	}
 
 	public function test_filter_can_prevent_publicize() {
-		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ), 10, 2 );
+		add_filter( 'publicize_should_publicize_published_post', array( $this, 'prevent_publicize_post' ) );
 
 		$this->post->post_status = 'publish';
 
@@ -132,10 +174,10 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	public function test_publicize_does_not_fire_on_post_types_that_do_not_support_it() {
 		$args = array(
 			'public' => true,
-			'label'  => 'unregister post type'
+			'label'  => 'unregister post type',
 		);
 		register_post_type( 'foo', $args );
-		$this->post->post_type = 'foo';
+		$this->post->post_type   = 'foo';
 		$this->post->post_status = 'publish';
 
 		wp_insert_post( $this->post->to_array() );
@@ -145,7 +187,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		unregister_post_type( 'foo' );
 	}
 
-	function assertPublicized( $should_have_publicized, $post ) {
+	public function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
 			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
 			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
@@ -155,7 +197,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		}
 	}
 
-	function set_post_flags_check( $flags, $post ) {
+	public function set_post_flags_check( $flags, $post ) {
 		if ( $flags['publicize_post'] ) {
 			$this->publicized_post_id = $post->ID;
 		}
@@ -163,7 +205,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		return $flags;
 	}
 
-	function prevent_publicize_post( $should_publicize, $post ) {
+	public function prevent_publicize_post() {
 		return false;
 	}
 
@@ -210,22 +252,24 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 			'id_number' => array(
 				'connection_data' => array(
 					'user_id' => 0,
-				)
-			)
+				),
+			),
 		);
-		$twitter_connection = array(
+		$twitter_connection  = array(
 			'id_number_2' => array(
 				'connection_data' => array(
 					'user_id' => 1,
-				)
+				),
+			),
+		);
+		Jetpack_Options::update_options(
+			array(
+				'publicize_connections' => array(
+					'facebook' => $facebook_connection,
+					'twitter'  => $twitter_connection,
+				),
 			)
 		);
-		Jetpack_Options::update_options( array(
-			'publicize_connections' => array(
-				'facebook' => $facebook_connection,
-				'twitter'  => $twitter_connection,
-			)
-		) );
 
 		$publicize = publicize_init();
 
@@ -237,8 +281,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_set_current_user( 1 );
 		$this->assertSame(
 			array(
-			'facebook' => $facebook_connection,
-			'twitter' => $twitter_connection
+				'facebook' => $facebook_connection,
+				'twitter'  => $twitter_connection,
 			),
 			$publicize->get_all_connections_for_user()
 		);
@@ -397,7 +441,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_wpas_submit_post() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list  = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$first_connection = $connection_list[0];
 		$this->assertEquals(
 			'facebook',
@@ -409,9 +453,9 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		// Get connection list again now that filter has been added.
 		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
 
-		$this->assertEquals(
+		$this->assertCount(
 			1,
-			count( $connection_list ),
+			$connection_list,
 			'Connection list should be 1 long after \'facebook\' (Normal) connection removed.'
 		);
 		$first_connection = $connection_list[0];
@@ -432,7 +476,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_global_connection() {
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['global'],
@@ -450,7 +494,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_global' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['global'],
@@ -473,7 +517,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_normal_connection() {
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertFalse(
 			$normal_connection['global'],
@@ -493,7 +537,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'publicize_checkbox_global_default', array( $this, 'publicize_connection_filter_no_normal' ), 10, 4 );
 
 		// Get connection list again now that filter has been added.
-		$connection_list     = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 
 		$this->assertSame( $before, json_encode( $normal_connection ), 'Normal connection should be unaffected by filter to uncheck global connection' );
@@ -507,7 +551,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_normal_connection() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$normal_connection = $connection_list[ self::NORMAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$normal_connection['enabled'],
@@ -532,7 +576,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_global_connection() {
-		$connection_list = $this->publicize->get_filtered_connection_data( $this->post->ID );
+		$connection_list   = $this->publicize->get_filtered_connection_data( $this->post->ID );
 		$global_connection = $connection_list[ self::GLOBAL_CONNECTION_INDEX ];
 		$this->assertTrue(
 			$global_connection['enabled'],
@@ -596,6 +640,21 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Test that newlines are not stripped from multiline custom messages
+	 * in the classic editor interface.
+	 */
+	public function test_newlines_preserved_with_custom_message() {
+		$_SERVER['REQUEST_METHOD'] = 'post';
+		$test_message              = "This is\na multiline\nmessage";
+		$_POST['wpas_title']       = $test_message;
+		$_POST['wpas']             = 'submit';
+
+		$this->post->post_status = 'publish';
+		$post_id                 = wp_insert_post( $this->post->to_array() );
+
+		$this->assertEquals( $test_message, get_post_meta( $post_id, $this->publicize->POST_MESS, true ) );
+	}
 	/**
 	 * Filter callback to uncheck checkbox for 'facebook' connection.
 	 *

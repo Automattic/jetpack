@@ -94,54 +94,41 @@ class Declarations extends PersistentList {
 		$ast = $traverser->traverse( $ast );
 	}
 
+	/**
+	 * Recreates list of declarations from a passed JSON file
+	 *
+	 * @param string $file_path JSON file path.
+	 */
 	public function load( $file_path ) {
-		$row = 1;
-		if ( ( $handle = fopen( $file_path, 'r' ) ) !== false ) {
-			while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
-				$num = count( $data );
-				@list( $type, $file, $line, $class_name, $name, $static, $params_json, $deprecated ) = $data;
-				switch ( $type ) {
-					case 'class':
-						$this->add( new Declarations\Class_( $file, $line, $class_name ) );
-						break;
+		// phpcs:ignore
+		$contents = json_decode( file_get_contents( $file_path ) );
 
-					case 'property':
-						$this->add( new Declarations\Class_Property( $file, $line, $class_name, $name, $static ) );
-						break;
+		foreach ( $contents as $obj ) {
+			switch ( $obj->decl_type ) {
+				case 'class':
+					$this->add( Declarations\Class_::from_map( $obj ) );
+					break;
 
-					case 'class_const':
-						$this->add( new Declarations\Class_Const( $file, $line, $class_name, $name ) );
-						break;
+				case 'property':
+					$this->add( Declarations\Class_Property::from_map( $obj ) );
+					break;
 
-					case 'method':
-						$params      = json_decode( $params_json );
-						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static, $deprecated );
-						if ( is_array( $params ) ) {
-							foreach ( $params as $param ) {
-								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
-							}
-						}
+				case 'class_const':
+					$this->add( Declarations\Class_Const::from_map( $obj ) );
+					break;
 
-						$this->add( $declaration );
+				case 'method':
+					$this->add( Declarations\Class_Method::from_map( $obj ) );
+					break;
 
-						break;
-
-					case 'function':
-						$params      = json_decode( $params_json );
-						$declaration = new Declarations\Function_( $file, $line, $name, $deprecated );
-						if ( is_array( $params ) ) {
-							foreach ( $params as $param ) {
-								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
-							}
-						}
-
-						$this->add( $declaration );
-
-						break;
-				}
-				$row++;
+				case 'function':
+					$this->add( Declarations\Function_::from_map( $obj ) );
+					break;
+				default:
+					// TODO: Implement handlers to other difference types.
+					echo "Declaration not implemented: " . $obj->decl_type . "\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					break;
 			}
-			fclose( $handle );
 		}
 	}
 }

@@ -1,0 +1,60 @@
+/**
+Slyling up the Jetpack State
+ */
+
+.jetpack-debug-cookie-state {
+	margin-top: 20px;
+	float: left;
+	clear: both;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block {
+	margin-bottom: 20px;
+}
+
+.jetpack-debug-cookie-state .cookie-state-field {
+	position: relative;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block label {
+	display: inline-block;
+	font-weight: bold;
+	width: 120px;
+	vertical-align: top;
+	margin-top: 5px;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block .cookie-state-field {
+	display: inline-block;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block select {
+	margin-top: -3px;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block .input-text {
+	width: 100px;
+	height: 35px;
+	font-size: 15px;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block button {
+	height: 35px;
+	width: 80px;
+	cursor: pointer;
+}
+
+.jetpack-debug-cookie-state .cookie-state-block textarea {
+	width: 400px;
+	height: 200px;
+}
+
+.jetpack-debug-cookie-state .block-hide {
+	display: none;
+}
+
+.jetpack-debug-cookie-state #cookie-state-response {
+	margin-top: 30px;
+	border: 4px dashed grey;
+	padding: 10px;
+}

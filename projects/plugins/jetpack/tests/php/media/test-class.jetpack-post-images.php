@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'modules/shortcodes/slideshow.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
@@ -16,8 +16,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
-		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
 	}
 
 	/**
@@ -32,8 +32,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$result = Jetpack_PostImages::from_html( $s );
 
 		$this->assertIsArray( $result );
-		$this->assertFalse( empty( $result ) );
-		$this->assertEquals( 'Alt Text.', $result[ 0 ][ 'alt_text' ] );
+		$this->assertNotEmpty( $result );
+		$this->assertEquals( 'Alt Text.', $result[0]['alt_text'] );
 	}
 
 	/**
@@ -42,11 +42,13 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
-		$slideshow = new Jetpack_Slideshow_Shortcode();
+		$slideshow = new Jetpack_Slideshow_Shortcode(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
-		$post_id = $this->factory->post->create( array(
-			'post_content' => '[slideshow]',
-		) );
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => '[slideshow]',
+			)
+		);
 
 		$images = Jetpack_PostImages::from_slideshow( $post_id );
 
@@ -59,9 +61,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
-		$post_id = $this->factory->post->create( array(
-			'post_content' => '[gallery 1,2,3]',
-		) );
+		$post_id = self::factory()->post->create(
+			array(
+				'post_content' => '[gallery 1,2,3]',
+			)
+		);
 
 		$images = Jetpack_PostImages::from_gallery( $post_id );
 
@@ -77,13 +81,20 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_attachment_is_correct_array() {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
-		$img_dimensions = array( 'width' => 250, 'height' => 250 );
+		$img_dimensions = array(
+			'width'  => 250,
+			'height' => 250,
+		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
-			'post_mime_type' => 'image/jpeg',
-			'post_type'      => 'attachment',
-		) );
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
 		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
@@ -93,12 +104,13 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		wp_update_post(
 			array(
 				'ID'           => $post_id,
-				'post_content' => $img_html
-			) );
+				'post_content' => $img_html,
+			)
+		);
 
 		$images = Jetpack_PostImages::from_attachment( $post_id );
 
-		$this->assertEquals( 1, count( $images ) );
+		$this->assertCount( 1, $images );
 		$this->assertEquals( $img_url, $images[0]['src'] );
 		$this->assertEquals( $alt_text, $images[0]['alt_text'] );
 	}
@@ -110,20 +122,27 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
-	 * 	@type int $post_id Post ID.
-	 * 	@type string $img_url Image URL we'll look to extract.
+	 *  @type int $post_id Post ID.
+	 *  @type string $img_url Image URL we'll look to extract.
 	 * }
 	 */
 	protected function get_post_with_image_block() {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
-		$img_dimensions = array( 'width' => 250, 'height' => 250 );
+		$img_dimensions = array(
+			'width'  => 250,
+			'height' => 250,
+		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
-			'post_mime_type' => 'image/jpeg',
-			'post_type'      => 'attachment'
-		) );
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
 		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
@@ -136,9 +155,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create( array(
-			'post_content' => $post_html,
-		) );
+		$second_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $post_html,
+			)
+		);
 
 		return array(
 			'post_id'  => $second_post_id,
@@ -182,8 +203,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( $post_info['img_url'], $images[ 0 ][ 'src' ] );
-		$this->assertEquals( $post_info['alt_text'], $images[ 0 ][ 'alt_text' ] );
+		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
+		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
 	}
 
 	/**
@@ -212,25 +233,32 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
-	 * 	@type int   $post_id  Post ID.
-	 * 	@type array $img_urls Image URLs we'll look to extract.
+	 *  @type int   $post_id  Post ID.
+	 *  @type array $img_urls Image URLs we'll look to extract.
 	 * }
 	 */
 	protected function get_post_with_gallery_block() {
-		$img_urls = array(
+		$img_urls       = array(
 			'image.jpg'  => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image.jpg',
 			'image2.jpg' => 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/image2.jpg',
 		);
-		$img_dimensions = array( 'width' => 250, 'height' => 250 );
+		$img_dimensions = array(
+			'width'  => 250,
+			'height' => 250,
+		);
 
 		// Create post.
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 		// Attach images.
-		foreach( $img_urls as $img_name => $img_url ) {
-			$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
-				'post_mime_type' => 'image/jpeg',
-				'post_type'      => 'attachment'
-			) );
+		foreach ( $img_urls as $img_name => $img_url ) {
+			$attachment_id = self::factory()->attachment->create_object(
+				$img_name,
+				$post_id,
+				array(
+					'post_mime_type' => 'image/jpeg',
+					'post_type'      => 'attachment',
+				)
+			);
 			wp_update_attachment_metadata( $attachment_id, $img_dimensions );
 
 			// Update our array to store attachment IDs. We'll need them later.
@@ -243,7 +271,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'<!-- wp:gallery {"ids":[%s]} --><ul class="wp-block-gallery columns-3 is-cropped">',
 			implode( ',', array_keys( $img_urls ) )
 		);
-		foreach( $img_urls as $img_id => $img_url ) {
+		foreach ( $img_urls as $img_id => $img_url ) {
 			$gallery_html .= sprintf(
 				'<li class="blocks-gallery-item"><figure><img src="%1$s" alt="" data-id="%2$d" class="wp-image-%2$d"/></figure></li>',
 				$img_id,
@@ -253,9 +281,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$gallery_html .= '</ul><!-- /wp:gallery -->';
 
 		// Create another post with those pictures.
-		$second_post_id = $this->factory->post->create( array(
-			'post_content' => $gallery_html,
-		) );
+		$second_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $gallery_html,
+			)
+		);
 
 		return array(
 			'post_id'  => $second_post_id,
@@ -290,15 +320,15 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 6.9.0
 	 */
 	public function test_get_attachment_data_returns_false_on_unavailable_data() {
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( PHP_INT_MAX, '', 200, 200 ) );
 
 		$post = $this->get_post_with_image_block();
 
 		// Testing the height condition.
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', 200, PHP_INT_MAX ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( $post['post_id'], '', 200, PHP_INT_MAX ) );
 
 		// Testing the width condition.
-		$this->assertEquals( false, Jetpack_PostImages::get_attachment_data( $post['post_id'], '', PHP_INT_MAX, 200 ) );
+		$this->assertFalse( Jetpack_PostImages::get_attachment_data( $post['post_id'], '', PHP_INT_MAX, 200 ) );
 	}
 
 	/**
@@ -308,20 +338,27 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 *
 	 * @return array $post_info {
 	 * An array of information about our post.
-	 * 	@type int $post_id Post ID.
-	 * 	@type string $img_url Image URL we'll look to extract.
+	 *  @type int $post_id Post ID.
+	 *  @type string $img_url Image URL we'll look to extract.
 	 * }
 	 */
 	protected function get_post_with_columns_block() {
 		$img_name       = 'image.jpg';
 		$alt_text       = 'Alt Text.';
-		$img_dimensions = array( 'width' => 250, 'height' => 250 );
+		$img_dimensions = array(
+			'width'  => 250,
+			'height' => 250,
+		);
 
-		$post_id       = $this->factory->post->create();
-		$attachment_id = $this->factory->attachment->create_object( $img_name, $post_id, array(
-			'post_mime_type' => 'image/jpeg',
-			'post_type'      => 'attachment'
-		) );
+		$post_id       = self::factory()->post->create();
+		$attachment_id = self::factory()->attachment->create_object(
+			$img_name,
+			$post_id,
+			array(
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
 		wp_update_attachment_metadata( $attachment_id, $img_dimensions );
 		update_post_meta( $attachment_id, '_wp_attachment_image_alt', $alt_text );
 
@@ -334,9 +371,11 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			$attachment_id
 		);
 
-		$second_post_id = $this->factory->post->create( array(
-			'post_content' => $post_html,
-		) );
+		$second_post_id = self::factory()->post->create(
+			array(
+				'post_content' => $post_html,
+			)
+		);
 
 		return array(
 			'post_id'  => $second_post_id,
@@ -382,8 +421,8 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( $post_info['img_url'], $images[ 0 ][ 'src' ] );
-		$this->assertEquals( $post_info['alt_text'], $images[ 0 ][ 'alt_text' ] );
+		$this->assertEquals( $post_info['img_url'], $images[0]['src'] );
+		$this->assertEquals( $post_info['alt_text'], $images[0]['alt_text'] );
 	}
 
 	/**
@@ -446,10 +485,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 			'height' => 1920,
 		);
 
-		$post_id = $this->factory->post->create();
+		$post_id = self::factory()->post->create();
 
 		foreach ( $media_items as $key => $media ) {
-			$attachment_id = $this->factory->attachment->create_object(
+			$attachment_id = self::factory()->attachment->create_object(
 				$media['name'],
 				$post_id,
 				array(
@@ -500,10 +539,10 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$story_html .= ']} --><div class="wp-block-jetpack-story wp-story"></div><!-- /wp:jetpack/story -->';
 
 		// Create another post with that story.
-		$second_post_id = $this->factory->post->create( array( 'post_content' => $story_html ) );
+		$second_post_id = self::factory()->post->create( array( 'post_content' => $story_html ) );
 
 		$image_urls = array_map(
-			function( $element ) {
+			function ( $element ) {
 				return $element['url'];
 			},
 			$media_items
@@ -534,7 +573,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		// We can't get a preview image for non-VideoPress video, so the video
 		// should have been skipped and only the image extracted.
-		$this->assertEquals( 1, count( $images ) );
+		$this->assertCount( 1, $images );
 
 		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
 	}
@@ -558,7 +597,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( 2, count( $images ) );
+		$this->assertCount( 2, $images );
 
 		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
 
@@ -586,7 +625,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 
 		$images = Jetpack_PostImages::from_blocks( $post_info['post_id'] );
 
-		$this->assertEquals( 2, count( $images ) );
+		$this->assertCount( 2, $images );
 
 		$this->assertEquals( $post_info['img_urls'][0], $images[0]['src'] );
 
@@ -594,4 +633,59 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 		$expected_poster_url = str_replace( 'mp4', 'jpg', $post_info['img_urls'][1] );
 		$this->assertEquals( $expected_poster_url, $images[1]['src'] );
 	}
+
+	/**
+	 * Test if the array extracted is empty in case post_id is invalid.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @dataProvider provider_gravatar_invalid_posts
+	 *
+	 * @since 11.4
+	 *
+	 * @param int|string|null $post_id  The post ID.
+	 */
+	public function test_from_gravatar_invalid( $post_id ) {
+		$image_details = Jetpack_PostImages::from_gravatar( $post_id );
+		$this->assertEquals( array(), $image_details );
+	}
+
+	/**
+	 * Test data for our tests for Jetpack_PostImages::from_gravatar.
+	 *
+	 * @return array
+	 */
+	public function provider_gravatar_invalid_posts() {
+
+		return array(
+			'invalid (null) post id'                  => array(
+				null,
+			),
+			'post id does not match an existing post' => array(
+				5,
+			),
+		);
+	}
+
+	/**
+	 * Test if the array extracted has a valid image when sending a valid post.
+	 *
+	 * @covers Jetpack_PostImages::from_gravatar
+	 * @since 11.4
+	 */
+	public function test_from_gravatar_returns_valid_image() {
+
+		$post_id = self::factory()->post->create();
+
+		$images = Jetpack_PostImages::from_gravatar( $post_id );
+
+		$this->assertCount( 1, $images );
+		$this->assertEquals( 'image', $images[0]['type'] );
+		$this->assertEquals( 'gravatar', $images[0]['from'] );
+		$this->assertStringContainsString( 'gravatar.com/avatar/?s=96&d=mm&r=g', $images[0]['src'] );
+		$this->assertEquals( 96, $images[0]['src_width'] );
+		$this->assertEquals( 96, $images[0]['src_height'] );
+		$this->assertNotEmpty( $images[0]['href'] );
+		$this->assertSame( '', $images[0]['alt_text'] );
+	}
+
 } // end class

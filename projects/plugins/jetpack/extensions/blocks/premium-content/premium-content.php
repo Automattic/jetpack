@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Premium_Content;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 require_once __DIR__ . '/_inc/access-check.php';
@@ -25,7 +26,7 @@ const FEATURE_NAME = 'premium-content/container';
  */
 function register_block() {
 	// Only load this block on WordPress.com.
-	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || jetpack_is_atomic_site() ) {
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site() ) {
 		// Determine required `context` key based on Gutenberg version.
 		$deprecated = function_exists( 'gutenberg_get_post_from_context' );
 		$provides   = $deprecated ? 'providesContext' : 'provides_context';
@@ -74,7 +75,7 @@ function render_block( $attributes, $content ) {
 	}
 
 	// We don't use FEATURE_NAME here because styles are not in /container folder.
-	Jetpack_Gutenberg::load_styles_as_required( 'premium-content' );
+	Jetpack_Gutenberg::load_assets_as_required( 'premium-content' );
 	return $content;
 }
 
@@ -85,7 +86,7 @@ function render_block( $attributes, $content ) {
  */
 function render_stripe_nudge() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		\jetpack_require_lib( 'memberships' );
+		\require_lib( 'memberships' );
 		$blog_id  = get_current_blog_id();
 		$settings = (array) \get_memberships_settings_for_site( $blog_id );
 
@@ -94,8 +95,8 @@ function render_stripe_nudge() {
 			__( 'Connect to Stripe to use this block on your site.', 'jetpack' ),
 			__( 'Connect', 'jetpack' )
 		);
-	} elseif ( jetpack_is_atomic_site() ) {
-		// On Atomic sites, the Stripe connection url is not easily available
+	} elseif ( ( new Host() )->is_woa_site() ) {
+		// On WoA sites, the Stripe connection url is not easily available
 		// server-side, so we redirect them to the post in the editor in order
 		// to connect.
 		return stripe_nudge(
@@ -119,7 +120,7 @@ function render_stripe_nudge() {
  * @return string Final content to render.
  */
 function stripe_nudge( $checkout_url, $description, $button_text ) {
-	\jetpack_require_lib( 'components' );
+	require_once JETPACK__PLUGIN_DIR . '_inc/lib/components.php';
 	return \Jetpack_Components::render_frontend_nudge(
 		array(
 			'checkoutUrl' => $checkout_url,

@@ -1,0 +1,15 @@
+<?php
+/**
+ * Jetpack Boost Plugin
+ *
+ * Plugin Name:       Jetpack Boost
+ * Description:       Boost your WordPress site's performance, from the creators of Jetpack
+ * Version: 2.0.0-alpha
+ * Author:            Automattic
+ * Author URI:        https://automattic.com
+ * License:           GPL-2.0+
+ * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
+ * Text Domain:       jetpack-boost
+ *
+ * @package automattic/jetpack-boost
+ */

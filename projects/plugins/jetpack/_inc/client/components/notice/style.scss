@@ -55,6 +55,10 @@
 			overflow: hidden;
 		}
 	}
+
+	&.is-hidden {
+	  display: none;
+	}
 }
 
 .dops-notice__icon-wrapper {

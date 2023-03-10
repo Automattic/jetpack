@@ -15,31 +15,16 @@ use Automattic\Jetpack\Status;
  */
 class Jetpack_Debugger {
 	/**
-	 * Returns 30 for use with a filter.
-	 *
-	 * To allow time for WP.com to run upstream testing, this function exists to increase the http_request_timeout value
-	 * to 30.
-	 *
-	 * @deprecated 8.0.0
-	 *
-	 * @return int 30
-	 */
-	public static function jetpack_increase_timeout() {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Jetpack_Cxn_Tests::increase_timeout' );
-		return 30; // seconds.
-	}
-
-	/**
 	 * Disconnect Jetpack and redirect user to connection flow.
 	 *
 	 * Used in class.jetpack-admin.php.
 	 */
 	public static function disconnect_and_redirect() {
-		if ( ! ( isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' ) ) ) {
+		if ( ! ( isset( $_GET['nonce'] ) && wp_verify_nonce( $_GET['nonce'], 'jp_disconnect' ) ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 			return;
 		}
 
-		if ( isset( $_GET['disconnect'] ) && $_GET['disconnect'] ) {
+		if ( ! empty( $_GET['disconnect'] ) ) {
 			if ( Jetpack::is_connection_ready() ) {
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );

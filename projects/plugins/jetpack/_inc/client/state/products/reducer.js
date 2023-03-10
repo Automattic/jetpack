@@ -1,12 +1,5 @@
-/**
- * External dependencies
- */
 import { assign } from 'lodash';
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import {
 	JETPACK_PRODUCTS_FETCH,
 	JETPACK_PRODUCTS_FETCH_FAIL,

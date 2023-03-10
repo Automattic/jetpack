@@ -5,13 +5,13 @@
  * @package automattic/jetpack
  */
 
-use PHP_CodeSniffer\Filters\Filter;
+use PHP_CodeSniffer\Files\LocalFile;
 use PHP_CodeSniffer\Util;
 
 /**
  * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  */
-class Jetpack_Phpcs_Exclude_Filter extends Filter {
+class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
 	/**
 	 * Files to exclude.
 	 *
@@ -56,7 +56,8 @@ class Jetpack_Phpcs_Exclude_Filter extends Filter {
 		}
 
 		$this->load_exclude();
-		$file = Util\Common::realpath( $this->current() );
+		$current = $this->current();
+		$file    = Util\Common::realpath( $current instanceof LocalFile ? $current->getFilename() : $current );
 		return ! isset( $this->exclude[ $file ] );
 	}
 

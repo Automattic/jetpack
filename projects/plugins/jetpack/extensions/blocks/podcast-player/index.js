@@ -1,25 +1,11 @@
-/**
- * External dependencies
- */
-
-/**
- * WordPress dependencies
- */
 import { __, _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
-import save from './save';
 import { queueMusic } from './icons/';
-import { getIconColor } from '../../shared/block-icons';
+import save from './save';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 import './editor.scss';
 
@@ -39,15 +25,11 @@ export const settings = {
 		_x( 'embed', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		/*
-		 * Support for block's alignment (left, center, right, wide, full). When
-		 * true, it adds block controls to change block’s alignment.
-		 */
-		align: false, // [ 'left', 'right', 'full' ]
-		/*
-		 * Support for wide alignment, that requires additional support in themes.
-		 */
-		alignWide: true,
+		align: [ 'wide', 'full' ],
+		spacing: {
+			padding: true,
+			margin: true,
+		},
 		/*
 		 * When true, a new field in the block sidebar allows to define an id for
 		 * the block and a button to copy the direct link.

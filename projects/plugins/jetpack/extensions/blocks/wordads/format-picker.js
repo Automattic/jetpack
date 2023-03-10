@@ -1,12 +1,5 @@
-/**
- * External Dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Dropdown, MenuItem, NavigableMenu, Path, SVG, ToolbarGroup } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
 import { AD_FORMATS } from './constants';
 
 const label = __( 'Pick an ad format', 'jetpack' );
@@ -14,7 +7,7 @@ const label = __( 'Pick an ad format', 'jetpack' );
 export default function FormatPicker( { value, onChange } ) {
 	return (
 		<Dropdown
-			position="bottom right"
+			placement="bottom-start"
 			renderToggle={ ( { onToggle, isOpen } ) => {
 				return (
 					<ToolbarGroup

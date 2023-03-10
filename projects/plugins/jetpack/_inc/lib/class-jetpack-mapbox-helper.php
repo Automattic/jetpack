@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status\Host;
+
 /**
  * Class Jetpack_Mapbox_Helper
  */
@@ -39,14 +41,14 @@ class Jetpack_Mapbox_Helper {
 
 		// If on WordPress.com, try to return the access token straight away.
 		if ( self::is_wpcom() && defined( 'WPCOM_MAPBOX_ACCESS_TOKEN' ) ) {
-			jetpack_require_lib( 'mapbox-blocklist' );
+			require_lib( 'mapbox-blocklist' );
 			return wpcom_is_site_blocked_from_map_block( $site_id )
 				? self::format_access_token()
 				: self::format_access_token( WPCOM_MAPBOX_ACCESS_TOKEN, 'wpcom' );
 		}
 
 		// If not on WordPress.com or Atomic, return an empty access token.
-		if ( ! $site_id || ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) ) {
+		if ( ! $site_id || ( ! self::is_wpcom() && ! ( new Host() )->is_woa_site() ) ) {
 			return self::format_access_token();
 		}
 

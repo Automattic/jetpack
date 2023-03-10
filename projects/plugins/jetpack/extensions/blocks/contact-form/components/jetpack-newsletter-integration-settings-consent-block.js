@@ -1,11 +1,8 @@
-/**
- * External dependencies
- */
-import { Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
-import { useCallback, useMemo } from '@wordpress/element';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
+import { Button } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const useInsertConsentBlock = () => {
 	const selectedBlock = useSelect( select => select( 'core/block-editor' ).getSelectedBlock(), [] );
@@ -37,7 +34,7 @@ const NoConsentBlockSettings = () => {
 					'jetpack'
 				) }
 			</p>
-			<Button isSecondary onClick={ insertConsentBlock } style={ { marginBottom: '1em' } }>
+			<Button variant="secondary" onClick={ insertConsentBlock } style={ { marginBottom: '1em' } }>
 				{ __( 'Add email permission request', 'jetpack' ) }
 			</Button>
 			<br />

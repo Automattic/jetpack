@@ -13,6 +13,7 @@ use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
 use GP_Locale;
 use GP_Locales;
 use Jetpack;
@@ -94,6 +95,12 @@ class Masterbar {
 	 * @var int
 	 */
 	private $user_site_count;
+	/**
+	 * If the site is hosted on WordPress.com on Atomic
+	 *
+	 * @var bool
+	 */
+	private $site_woa;
 
 	/**
 	 * Constructor
@@ -107,12 +114,13 @@ class Masterbar {
 		}
 
 		$this->user_data       = $connection_manager->get_connected_user_data( $this->user_id );
-		$this->user_login      = $this->user_data['login'];
-		$this->user_email      = $this->user_data['email'];
-		$this->display_name    = $this->user_data['display_name'];
-		$this->user_site_count = $this->user_data['site_count'];
-		$this->is_rtl          = 'rtl' === $this->user_data['text_direction'];
-		$this->user_locale     = $this->user_data['user_locale'];
+		$this->user_login      = isset( $this->user_data['login'] ) ? $this->user_data['login'] : '';
+		$this->user_email      = isset( $this->user_data['email'] ) ? $this->user_data['email'] : '';
+		$this->display_name    = isset( $this->user_data['display_name'] ) ? $this->user_data['display_name'] : '';
+		$this->user_site_count = isset( $this->user_data['site_count'] ) ? $this->user_data['site_count'] : '';
+		$this->is_rtl          = isset( $this->user_data['text_direction'] ) && 'rtl' === $this->user_data['text_direction'];
+		$this->user_locale     = isset( $this->user_data['user_locale'] ) ? $this->user_data['user_locale'] : '';
+		$this->site_woa        = ( new Host() )->is_woa_site();
 
 		// Store part of the connected user data as user options so it can be used
 		// by other files of the masterbar module without making another XMLRPC
@@ -123,7 +131,7 @@ class Masterbar {
 			update_user_option( $this->user_id, 'jetpack_admin_menu_link_destination', $this->user_data['use_wp_admin_links'] ? '1' : '0' );
 		}
 		// If Atomic, store and install user locale.
-		if ( jetpack_is_atomic_site() ) {
+		if ( $this->site_woa ) {
 			$this->user_locale = $this->get_jetpack_locale( $this->user_locale );
 			$this->install_locale( $this->user_locale );
 			update_user_option( $this->user_id, 'locale', $this->user_locale, true );
@@ -161,8 +169,6 @@ class Masterbar {
 		Assets::add_resource_hint(
 			array(
 				'//s0.wp.com',
-				'//s1.wp.com',
-				'//s2.wp.com',
 				'//0.gravatar.com',
 				'//1.gravatar.com',
 				'//2.gravatar.com',
@@ -170,8 +176,8 @@ class Masterbar {
 			'dns-prefetch'
 		);
 
-		// Atomic only.
-		if ( jetpack_is_atomic_site() ) {
+		// WordPress.com on Atomic only.
+		if ( $this->site_woa ) {
 			/*
 			 * override user setting that hides masterbar from site's front.
 			 * https://github.com/Automattic/jetpack/issues/7667
@@ -200,8 +206,8 @@ class Masterbar {
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
 
-		// Hides and replaces the language dropdown for the current user, on Atomic.
-		if ( jetpack_is_atomic_site() &&
+		// Hides and replaces the language dropdown for the current user, on WoA.
+		if ( $this->site_woa &&
 			defined( 'IS_PROFILE_PAGE' ) && IS_PROFILE_PAGE ) {
 			add_action( 'user_edit_form_tag', array( $this, 'hide_language_dropdown' ) );
 			add_action( 'personal_options', array( $this, 'replace_language_dropdown' ), 9 );
@@ -304,7 +310,7 @@ class Masterbar {
 				'_inc/build/masterbar/masterbar/tracks-events.min.js',
 				'modules/masterbar/masterbar/tracks-events.js'
 			),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			false
 		);
@@ -329,8 +335,7 @@ class Masterbar {
 			return set_url_scheme( $this->sandbox_url . $file, 'https' );
 		}
 
-		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
-		$url = 'https://s' . $i . '.wp.com' . $file;
+		$url = 'https://s0.wp.com' . $file;
 
 		return set_url_scheme( $url, 'https' );
 	}
@@ -434,7 +439,11 @@ class Masterbar {
 			}
 		}
 
-		return $jetpack_locale;
+		if ( isset( $jetpack_locale ) ) {
+			return $jetpack_locale;
+		}
+
+		return 'en_US';
 	}
 
 	/**
@@ -465,7 +474,7 @@ class Masterbar {
 	 * Hide language dropdown on user edit form.
 	 */
 	public function hide_language_dropdown() {
-		add_filter( 'get_available_languages', '__return_null' );
+		add_filter( 'get_available_languages', '__return_empty_array' );
 	}
 
 	/**
@@ -611,7 +620,6 @@ class Masterbar {
 				),
 			)
 		);
-
 	}
 
 	/**
@@ -844,7 +852,7 @@ class Masterbar {
 
 		$help_link = Redirect::get_url( 'jetpack-support' );
 
-		if ( jetpack_is_atomic_site() ) {
+		if ( $this->site_woa ) {
 			$help_link = Redirect::get_url( 'calypso-help' );
 		}
 
@@ -1248,11 +1256,12 @@ class Masterbar {
 				)
 			);
 
+			$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
 			if ( is_admin() ) {
 				// In wp-admin the `return` query arg will return to that page after closing the Customizer.
 				$customizer_url = add_query_arg(
 					array(
-						'return' => rawurlencode( site_url( $_SERVER['REQUEST_URI'] ) ),
+						'return' => rawurlencode( site_url( $request_uri ) ),
 					),
 					wp_customize_url()
 				);
@@ -1263,7 +1272,7 @@ class Masterbar {
 				 * non-home URLs won't work unless we undo domain mapping
 				 * since the Customizer preview is unmapped to always have HTTPS.
 				 */
-				$current_page   = '//' . $this->primary_site_slug . $_SERVER['REQUEST_URI'];
+				$current_page   = '//' . $this->primary_site_slug . $request_uri;
 				$customizer_url = add_query_arg( array( 'url' => rawurlencode( $current_page ) ), wp_customize_url() );
 			}
 
@@ -1280,8 +1289,7 @@ class Masterbar {
 				)
 			);
 			$meta        = array(
-				'class' => 'mb-icon',
-				'class' => 'inline-action',
+				'class' => 'mb-icon inline-action',
 			);
 			$href        = false;
 
@@ -1381,7 +1389,7 @@ class Masterbar {
 				)
 			);
 
-			if ( jetpack_is_atomic_site() ) {
+			if ( $this->site_woa ) {
 				$domain_title = $this->create_menu_item_pair(
 					array(
 						'url'   => Redirect::get_url( 'calypso-domains' ),
@@ -1460,7 +1468,7 @@ class Masterbar {
 	 * @return void
 	 */
 	private function add_my_home_submenu_item( &$wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
+		if ( ! current_user_can( 'manage_options' ) || ! $this->site_woa ) {
 			return;
 		}
 

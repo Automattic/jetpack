@@ -1,11 +1,11 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * The Image Sizes library.
  *
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'class.jetpack-photon-image' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
 
 /**
  * Class Jetpack_Photon_ImageSizes
@@ -15,17 +15,23 @@ jetpack_require_lib( 'class.jetpack-photon-image' );
 class Jetpack_Photon_ImageSizes {
 
 	/**
-	 * @var array $data Attachment metadata.
+	 * Attachment metadata.
+	 *
+	 * @var array
 	 */
 	public $data;
 
 	/**
-	 * @var Image Image to be resized.
+	 * Image to be resized.
+	 *
+	 * @var Image
 	 */
 	public $image;
 
 	/**
-	 * @var null|array $sizes Intermediate sizes.
+	 * Intermediate sizes.
+	 *
+	 * @var null|array
 	 */
 	public static $sizes = null;
 
@@ -99,6 +105,8 @@ class Jetpack_Photon_ImageSizes {
 	}
 
 	/**
+	 * Add filtered sizes.
+	 *
 	 * @return array
 	 */
 	public function filtered_sizes() {
@@ -170,13 +178,14 @@ class Jetpack_Photon_ImageSizes {
 	}
 
 	/**
-	 * @param array $size_data
+	 * Resize image.
+	 *
+	 * @param array $size_data Resize parameters.
 	 *
 	 * @return array|\WP_Error Array for usage in $metadata['sizes']; WP_Error on failure.
 	 */
 	protected function resize( $size_data ) {
 
 		return $this->image->get_size( $size_data );
-
 	}
 }

@@ -9,7 +9,7 @@ if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && defined( 'JETPACK__PLUGIN_DIR'
 	require_once JETPACK__PLUGIN_DIR . 'modules/module-extras.php';
 }
 
-require_jetpack_file( 'class.json-api-endpoints.php' );
+require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 /**
  * Tests for /sites/%s/categories/slug:%s
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_Json_Api_Endpoints extends WP_UnitTestCase {
 		// Reset taxonomy URL structure after changing permalink structure.
 		create_initial_taxonomies();
 
-		$category = wp_insert_term( 'test_category', 'category' );
+		$category = wp_insert_term( 'test_category', 'category' ); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
 		$endpoint = $this->create_get_category_endpoint();
 

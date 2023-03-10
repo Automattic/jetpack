@@ -1,0 +1,10 @@
+.step-progress-bar {
+    display: flex;
+    align-items: center;
+}
+
+.step-progress-bar__label {
+    margin-left: 1rem;
+    font-size: 11px;
+    color: var( --jp-gray-50 );
+}

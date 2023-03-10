@@ -1,19 +1,11 @@
-/**
- * External dependencies
- */
+import classNames from 'classnames';
+import uid from 'component-uid';
+import RootChild from 'components/root-child';
+import debugFactory from 'debug';
+import { assign } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import ReactDom from 'react-dom';
-import debugFactory from 'debug';
-import classNames from 'classnames';
-import clickOutside from 'click-outside';
-import uid from 'component-uid';
-import { assign } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,
 	unbindWindowListeners,
@@ -170,7 +162,7 @@ class Popover extends Component {
 		this.close( true );
 	}
 
-	// --- cliclout side ---
+	// --- click outside ---
 	bindClickoutHandler( el = this.domContainer ) {
 		if ( ! el ) {
 			this.debug( 'no element to bind clickout side ' );
@@ -183,13 +175,18 @@ class Popover extends Component {
 		}
 
 		this.debug( 'binding `clickout` event' );
-		this._clickoutHandlerReference = clickOutside( el, this.onClickout );
+		this._clickoutHandlerReference = e => {
+			if ( ! el.contains( e.target ) ) {
+				this.onClickout( e );
+			}
+		};
+		document.addEventListener( 'click', this._clickoutHandlerReference, true );
 	}
 
 	unbindClickoutHandler() {
 		if ( this._clickoutHandlerReference ) {
 			this.debug( 'unbinding `clickout` listener ...' );
-			this._clickoutHandlerReference();
+			document.removeEventListener( 'click', this._clickoutHandlerReference, true );
 			this._clickoutHandlerReference = null;
 		}
 	}
@@ -342,7 +339,7 @@ class Popover extends Component {
 	}
 
 	hide() {
-		// unbind clickout-side event every time the component is hidden.
+		// unbind click-outside event every time the component is hidden.
 		this.unbindClickoutHandler();
 		this.setState( { show: false } );
 		this.clearShowTimer();

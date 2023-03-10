@@ -34,18 +34,18 @@ $data_path = '/Users/dan/Downloads/'; // Obviously, update this!
  */
 
 // scan a whole directory.
-echo "*** Find Jetpack master declarations\n";
+echo "*** Find Jetpack trunk declarations\n";
 $dir_declarations = new Automattic\Jetpack\Analyzer\Declarations();
 $jetpack_exclude  = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 $dir_declarations->scan( $base_path, $jetpack_exclude );
-$dir_declarations->save( $data_path . 'master.csv' );
+$dir_declarations->save( $data_path . 'trunk.csv' );
 // $dir_declarations->output(); // .
 
 // test loading the output into another analyzer.
-echo "*** Load Jetpack master declarations\n";
-$master_declarations = new Automattic\Jetpack\Analyzer\Declarations();
-$master_declarations->load( $data_path . 'master.csv' );
-// $master_declarations->output(); // .
+echo "*** Load Jetpack trunk declarations\n";
+$trunk_declarations = new Automattic\Jetpack\Analyzer\Declarations();
+$trunk_declarations->load( $data_path . 'trunk.csv' );
+// $trunk_declarations->output(); // .
 
 // analyze a separate code base.
 $jp74_base_path = '/Users/dan/Downloads/jetpack';
@@ -59,7 +59,7 @@ $jp74_declarations->load( $data_path . 'jp74.csv' );
 
 echo "*** Finding differences between the two versions\n";
 $differences = new Automattic\Jetpack\Analyzer\Differences();
-$differences->find( $master_declarations, $jp74_declarations, $base_path );
+$differences->find( $trunk_declarations, $jp74_declarations, $base_path );
 
 // $differences->output(); // .
 // $differences->save( $data_path . 'differences.csv' ); // .

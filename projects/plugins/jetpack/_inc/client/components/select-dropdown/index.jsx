@@ -1,21 +1,14 @@
 /** @ssr-ready **/
 
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-import ReactDom from 'react-dom';
-import React from 'react';
 import classNames from 'classnames';
-import { filter, find, findIndex, map, result } from 'lodash';
-
-/**
- * Internal dependencies
- */
-import DropdownItem from 'components/select-dropdown/item';
-import DropdownSeparator from 'components/select-dropdown/separator';
-import DropdownLabel from 'components/select-dropdown/label';
 import Count from 'components/count';
+import DropdownItem from 'components/select-dropdown/item';
+import DropdownLabel from 'components/select-dropdown/label';
+import DropdownSeparator from 'components/select-dropdown/separator';
+import { filter, find, findIndex, map, result } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
+import ReactDom from 'react-dom';
 
 import './style.scss';
 

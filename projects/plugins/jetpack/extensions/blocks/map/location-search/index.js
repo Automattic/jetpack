@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
-import { Component, createRef } from '@wordpress/element';
 import { BaseControl, TextControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { Component, createRef } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import Lookup from '../lookup';
 
 const placeholderText = __( 'Add a marker…', 'jetpack' );

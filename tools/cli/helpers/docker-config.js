@@ -1,10 +1,7 @@
-/**
- * External dependencies
- */
 import { readFileSync, writeFileSync, existsSync } from 'fs';
-import yaml from 'js-yaml';
 import path from 'path';
 import chalk from 'chalk';
+import yaml from 'js-yaml';
 
 export const dockerFolder = `tools/docker`;
 const overrideConfigFile = `${ dockerFolder }/jetpack-docker-config.yml`;
@@ -177,9 +174,7 @@ const setMappings = ( argv, config ) => {
 
 	if ( argv.type === 'dev' ) {
 		mappingsCompose.services.sftp = {
-			volumes: volumesMapping.map( vol =>
-				vol.startsWith( '/var/www/html' ) ? '/home/wordpress' + vol : vol
-			),
+			volumes: volumesMapping.map( vol => vol.replace( ':', ':/home/wordpress' ) ),
 		};
 	}
 

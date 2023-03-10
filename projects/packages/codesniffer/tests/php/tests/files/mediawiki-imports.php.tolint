@@ -11,6 +11,7 @@ namespace Dummy;
 
 use Z;
 use X;
+
 use Y;
 use Dummy\Unnecessary;
 use Unused;
@@ -39,9 +40,6 @@ class Dummy_Class {
 		// MediaWiki.ExtraCharacters.ParenthesesAroundKeyword.
 		require_once( 'bar.php' );
 		$u->clone = clone( $x );
-
-		// MediaWiki.Usage.DirUsage.
-		$u->dir = dirname( __FILE__ );
 
 		// MediaWiki.Usage.DoubleNotOperator.
 		$u->bool = ! ! $u->bool;

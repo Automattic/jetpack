@@ -1,6 +1,6 @@
 @use "sass:math";
 
-@import '../../../shared/styles/gutenberg-base-styles.scss';
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 @import '../../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 

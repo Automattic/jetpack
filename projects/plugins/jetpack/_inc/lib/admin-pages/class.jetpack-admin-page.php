@@ -1,36 +1,55 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Main class file for Jetpack Admin pages.
+ *
+ * @package automattic/jetpack
+ */
 
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 
-// Shared logic between Jetpack admin pages
+/**
+ * Shared logic between Jetpack admin pages.
+ */
 abstract class Jetpack_Admin_Page {
-	// Add page specific actions given the page hook
-	abstract function add_page_actions( $hook );
+	/**
+	 * Add page specific actions given the page hook.
+	 *
+	 * @param string $hook Hook of current page.
+	 */
+	abstract public function add_page_actions( $hook );
 
-	// Create a menu item for the page and returns the hook
-	abstract function get_page_hook();
+	/**
+	 * Create a menu item for the page and returns the hook.
+	 *
+	 * @return string|false Return value from WordPress's `add_menu_page()` or `add_submenu_page()`.
+	 */
+	abstract public function get_page_hook();
 
-	// Enqueue and localize page specific scripts
-	abstract function page_admin_scripts();
+	/**
+	 * Enqueue and localize page specific scripts.
+	 */
+	abstract public function page_admin_scripts();
 
-	// Render page specific HTML
-	abstract function page_render();
+	/**
+	 * Render page specific HTML
+	 */
+	abstract public function page_render();
 
 	/**
 	 * Should we block the page rendering because the site is in IDC?
 	 *
 	 * @var bool
 	 */
-	static $block_page_rendering_for_idc;
+	public static $block_page_rendering_for_idc;
 
 	/**
 	 * Function called after admin_styles to load any additional needed styles.
 	 *
 	 * @since 4.3.0
 	 */
-	function additional_styles() {}
+	public function additional_styles() {}
 
 	/**
 	 * The constructor.
@@ -52,7 +71,10 @@ abstract class Jetpack_Admin_Page {
 		);
 	}
 
-	function add_actions() {
+	/**
+	 * Add common page actions and attach page-specific actions.
+	 */
+	public function add_actions() {
 		$is_offline_mode = ( new Status() )->is_offline_mode();
 
 		// If user is not an admin and site is in Offline Mode or not connected yet then don't do anything.
@@ -70,7 +92,7 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
-		// Initialize menu item for the page in the admin
+		// Initialize menu item for the page in the admin.
 		$hook = $this->get_page_hook();
 
 		// Attach hooks common to all Jetpack admin pages based on the created hook.
@@ -113,41 +135,53 @@ abstract class Jetpack_Admin_Page {
 		if ( ( 'index.php' === $pagenow || 'plugins.php' === $pagenow ) ) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
-
 	}
 
-	// Render the page with a common top and bottom part, and page specific content
-	function render() {
+	/**
+	 * Render the page with a common top and bottom part, and page specific content.
+	 */
+	public function render() {
 		// We're in an IDC: we need a decision made before we show the UI again.
 		if ( self::$block_page_rendering_for_idc ) {
 			return;
 		}
 
-		// Check if we are looking at the main dashboard
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
+		// Check if we are looking at the main dashboard.
+		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic.
 			$this->page_render();
 			return;
 		}
 		self::wrap_ui( array( $this, 'page_render' ) );
 	}
 
-	function admin_help() {
+	/**
+	 * Load Help tab.
+	 *
+	 * @todo This may no longer be used.
+	 */
+	public function admin_help() {
 		$this->jetpack->admin_help();
 	}
 
-	function admin_page_load() {
-		// This is big.  For the moment, just call the existing one.
+	/**
+	 * Call the existing admin page events.
+	 */
+	public function admin_page_load() {
 		$this->jetpack->admin_page_load();
 	}
 
-	// Add page specific scripts and jetpack stats for all menu pages
-	function admin_scripts() {
-		$this->page_admin_scripts(); // Delegate to inheriting class
+	/**
+	 * Add page specific scripts and jetpack stats for all menu pages.
+	 */
+	public function admin_scripts() {
+		$this->page_admin_scripts(); // Delegate to inheriting class.
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
-	// Enqueue the Jetpack admin stylesheet
-	function admin_styles() {
+	/**
+	 * Enqueue the Jetpack admin stylesheet.
+	 */
+	public function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
 		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
@@ -162,7 +196,7 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @return bool
 	 */
-	function is_rest_api_enabled() {
+	public function is_rest_api_enabled() {
 		return /** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
 			apply_filters( 'rest_enabled', true ) &&
 			/** This filter is documented in wp-includes/rest-api/class-wp-rest-server.php */
@@ -174,11 +208,11 @@ abstract class Jetpack_Admin_Page {
 	 *
 	 * @since 4.4.0
 	 *
-	 * @param $page
+	 * @param WP_Screen $page Current WP_Screen object.
 	 *
 	 * @return array
 	 */
-	function check_plan_deactivate_modules( $page ) {
+	public function check_plan_deactivate_modules( $page ) {
 		if (
 			( new Status() )->is_offline_mode()
 			|| ! in_array(
@@ -189,7 +223,8 @@ abstract class Jetpack_Admin_Page {
 					'jetpack_page_vaultpress',
 					'jetpack_page_stats',
 					'jetpack_page_akismet-key-config',
-				)
+				),
+				true
 			)
 		) {
 			return false;
@@ -231,7 +266,10 @@ abstract class Jetpack_Admin_Page {
 		);
 	}
 
-	static function load_wrapper_styles() {
+	/**
+	 * Enqueue inline wrapper styles for the main container.
+	 */
+	public static function load_wrapper_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
@@ -241,6 +279,12 @@ abstract class Jetpack_Admin_Page {
 			}
 			#wpbody-content {
 				background-color: #f6f6f6;
+			}
+
+			@media (max-width: 782px) {
+				#wpbody-content {
+					padding-bottom: 50px;
+				}
 			}
 
 			#jp-plugin-container .wrap {
@@ -272,6 +316,14 @@ abstract class Jetpack_Admin_Page {
 		wp_add_inline_style( 'dops-css', $custom_css );
 	}
 
+	/**
+	 * Build header, content, and footer for admin page.
+	 *
+	 * @param string $callback Callback to produce the content of the page. The callback is responsible for any needed escaping.
+	 * @param array  $args Options for the wrapping. Also passed to the `jetpack_admin_pages_wrap_ui_after_callback` action.
+	 *   - is-wide: (bool) Set the "is-wide" class on the wrapper div, which increases the max width. Default false.
+	 *   - show-nav: (bool) Whether to show the navigation bar at the top of the page. Default true.
+	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults          = array(
 			'is-wide'  => false,
@@ -300,7 +352,7 @@ abstract class Jetpack_Admin_Page {
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__logo-container">
 						<a class="jp-masthead__logo-link" href="<?php echo esc_url( $jetpack_admin_url ); ?>">
-							<svg class="jetpack-logo__masthead" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32"><path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path><path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z"></path><path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z"></path><path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z"></path><path d="M93,22h-3v-1.5c-0.9,0.7-1.9,1.5-3.5,1.5c-1.5,0-3.1-1.1-3.1-3.2c0-2.9,2.5-3.4,4.2-3.7l2.4-0.3v-0.3c0-1.5-0.5-2.3-2-2.3 c-0.7,0-2.3,0.5-3.7,1.1L84,11c1.2-0.4,3-1,4.4-1c2.7,0,4.6,1.4,4.6,4.7L93,22z M90,16.4l-2.2,0.4c-0.7,0.1-1.4,0.5-1.4,1.6 c0,0.9,0.5,1.4,1.3,1.4s1.5-0.5,2.3-1V16.4z"></path><path d="M104.5,21.3c-1.1,0.4-2.2,0.6-3.5,0.6c-4.2,0-5.9-2.4-5.9-5.9c0-3.7,2.3-6,6.1-6c1.4,0,2.3,0.2,3.2,0.5V13 c-0.8-0.3-2-0.6-3.2-0.6c-1.7,0-3.2,0.9-3.2,3.6c0,2.9,1.5,3.8,3.3,3.8c0.9,0,1.9-0.2,3.2-0.7V21.3z"></path><path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z"></path><path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z"></path></svg>
+							<svg class="jetpack-logo__masthead" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path><path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z"></path><path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z"></path><path d="M71,10h3v1.3c1.1-0.8,1.9-1.3,3.3-1.3c2.5,0,4.5,1.8,4.5,5.6s-2.2,6.3-5.8,6.3c-0.9,0-1.3-0.1-2-0.3V28h-3V10z M76.5,12.3 c-0.8,0-1.6,0.4-2.5,1.2v5.9c0.6,0.1,0.9,0.2,1.8,0.2c2,0,3.2-1.3,3.2-3.9C79,13.4,78.1,12.3,76.5,12.3z"></path><path d="M93,22h-3v-1.5c-0.9,0.7-1.9,1.5-3.5,1.5c-1.5,0-3.1-1.1-3.1-3.2c0-2.9,2.5-3.4,4.2-3.7l2.4-0.3v-0.3c0-1.5-0.5-2.3-2-2.3 c-0.7,0-2.3,0.5-3.7,1.1L84,11c1.2-0.4,3-1,4.4-1c2.7,0,4.6,1.4,4.6,4.7L93,22z M90,16.4l-2.2,0.4c-0.7,0.1-1.4,0.5-1.4,1.6 c0,0.9,0.5,1.4,1.3,1.4s1.5-0.5,2.3-1V16.4z"></path><path d="M104.5,21.3c-1.1,0.4-2.2,0.6-3.5,0.6c-4.2,0-5.9-2.4-5.9-5.9c0-3.7,2.3-6,6.1-6c1.4,0,2.3,0.2,3.2,0.5V13 c-0.8-0.3-2-0.6-3.2-0.6c-1.7,0-3.2,0.9-3.2,3.6c0,2.9,1.5,3.8,3.3,3.8c0.9,0,1.9-0.2,3.2-0.7V21.3z"></path><path d="M110,15.2c0.2-0.3,0.2-0.8,3.8-5.2h3.7l-4.6,5.7l5,6.3h-3.7l-4.2-5.8V22h-3V6h3V15.2z"></path><path d="M58.5,21.3c-1.5,0.5-2.7,0.6-4.2,0.6c-3.6,0-5.8-1.8-5.8-6c0-3.1,1.9-5.9,5.5-5.9s4.9,2.5,4.9,4.9c0,0.8,0,1.5-0.1,2h-7.3 c0.1,2.5,1.5,2.8,3.6,2.8c1.1,0,2.2-0.3,3.4-0.7C58.5,19,58.5,21.3,58.5,21.3z M56,15c0-1.4-0.5-2.9-2-2.9c-1.4,0-2.3,1.3-2.4,2.9 C51.6,15,56,15,56,15z"></path></svg>
 						</a>
 					</div>
 					<?php
@@ -350,7 +402,7 @@ abstract class Jetpack_Admin_Page {
 			call_user_func( $callback );
 			$callback_ui = ob_get_contents();
 			ob_end_clean();
-			echo $callback_ui;
+			echo $callback_ui;// phpcs:ignore WordPress.Security.EscapeOutput -- Callback is responsible for any needed escaping.
 			?>
 			<!-- END OF CALLBACK -->
 
@@ -411,6 +463,5 @@ abstract class Jetpack_Admin_Page {
 			</div>
 		</div>
 		<?php
-		return;
 	}
 }

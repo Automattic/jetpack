@@ -2,15 +2,12 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-/**
- * External Dependencies
- */
+import classNames from 'classnames';
+import { createFocusTrap } from 'focus-trap';
+import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import classNames from 'classnames';
-import { assign, omit } from 'lodash';
-import { createFocusTrap } from 'focus-trap';
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
@@ -72,8 +69,7 @@ class Modal extends React.Component {
 	}
 
 	handleEscapeKey = e => {
-		if ( e.keyCode === 27 ) {
-			// escape key maps to keycode `27`
+		if ( e.code === 'Escape' ) {
 			this.maybeClose();
 		}
 	};

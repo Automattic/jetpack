@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
+import icon from './icon';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
-import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );

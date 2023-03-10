@@ -1,17 +1,10 @@
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
 import classNames from 'classnames';
-import { noop } from 'lodash';
-
-/**
- * Internal Dependencies
- */
 import Card from 'components/card';
 import CompactCard from 'components/card/compact';
 import Gridicon from 'components/gridicon';
+import { noop } from 'lodash';
+import PropTypes from 'prop-types';
+import React from 'react';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import './style.scss';
 

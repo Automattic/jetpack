@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- This file expects $template_props set outside the file.
+
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 /**

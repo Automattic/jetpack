@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Plan;
@@ -96,8 +97,8 @@ class Dashboard_Switcher_Tracking {
 			if ( class_exists( '\WPCOM_Store_API' ) ) {
 				// @todo: Maybe introduce a wrapper for this since we are duplicating it from WPCOM_Admin_Menu:253
 				$products = \WPCOM_Store_API::get_current_plan( \get_current_blog_id() );
-				if ( array_key_exists( 'product_name_short', $products ) ) {
-					return $products['product_name_short'];
+				if ( ! empty( $products['product_slug'] ) ) {
+					return $products['product_slug'];
 				}
 			}
 
@@ -106,8 +107,8 @@ class Dashboard_Switcher_Tracking {
 
 		// @todo: Maybe introduce a helper for this since we are duplicating it from Atomic_Admin_Menu:240
 		$products = Jetpack_Plan::get();
-		if ( array_key_exists( 'product_name_short', $products ) ) {
-			return $products['product_name_short'];
+		if ( ! empty( $products['product_slug'] ) ) {
+			return $products['product_slug'];
 		}
 
 		return 'N/A'; // maybe we should return free or null? At the moment we use it for passing it to the event.
@@ -123,13 +124,14 @@ class Dashboard_Switcher_Tracking {
 	 * @param array $event_properties The event properties.
 	 */
 	private function record_jetpack_event( $event_properties ) {
-		if ( \jetpack_is_atomic_site() ) {
+		$woa = ( new Host() )->is_woa_site();
+		if ( $woa ) {
 			add_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ), 10, 2 );
 		}
 
 		$this->tracking->record_user_event( self::JETPACK_EVENT_NAME, $event_properties );
 
-		if ( \jetpack_is_atomic_site() ) {
+		if ( $woa ) {
 			\remove_filter( 'jetpack_options', array( __CLASS__, 'mark_jetpack_tos_as_read' ) );
 		}
 	}
@@ -140,7 +142,7 @@ class Dashboard_Switcher_Tracking {
 	 * @param array $event_props Event props.
 	 */
 	public static function wpcom_tracks_record_event( $event_props ) {
-		jetpack_require_lib( 'tracks/client' );
+		require_lib( 'tracks/client' );
 		\tracks_record_event( \wp_get_current_user(), self::WPCOM_EVENT_NAME, $event_props );
 	}
 
@@ -152,7 +154,7 @@ class Dashboard_Switcher_Tracking {
 	 * @return string
 	 */
 	public static function get_jetpack_tracking_product() {
-		return \jetpack_is_atomic_site() ? 'atomic' : 'jetpack';
+		return ( new Host() )->is_woa_site() ? 'atomic' : 'jetpack';
 	}
 
 	/**

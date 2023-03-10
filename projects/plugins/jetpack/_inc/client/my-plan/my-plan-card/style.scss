@@ -102,8 +102,11 @@
 
 .my-plan-card__details {
 	padding-top: 8px;
-	white-space: nowrap;
 	color: $gray-darken-10;
+
+	@include breakpoint( '>480px' ) {
+		white-space: nowrap;
+	}
 
 	@include breakpoint( '>960px' ) {
 		padding-top: 0;

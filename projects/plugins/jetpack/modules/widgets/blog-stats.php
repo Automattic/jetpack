@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileNam
 /**
  * Blog Stats Widget.
  *
@@ -6,6 +6,10 @@
  *
  * @package automattic/jetpack
  */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 
 /**
  * Disable direct access/execution to/of the widget code.
@@ -26,7 +30,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	/**
 	 * Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 		$widget_ops = array(
 			'classname'                   => 'blog-stats',
 			'description'                 => esc_html__( 'Show a hit counter for your blog.', 'jetpack' ),
@@ -61,13 +65,13 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 *
 	 * We query the WordPress.com Stats REST API endpoint.
 	 *
-	 * @uses stats_get_from_restapi(). That function caches data locally for 5 minutes.
+	 * @uses Automattic\Jetpack\Stats\WPCOM_Stats->get_stats. That function caches data locally for 5 minutes.
 	 *
 	 * @return string|false $views All Time Stats for that blog.
 	 */
 	public function get_stats() {
 		// Get data from the WordPress.com Stats REST API endpoint.
-		$stats = stats_get_from_restapi( array( 'fields' => 'stats' ) );
+		$stats = convert_stats_array_to_object( ( new WPCOM_Stats() )->get_stats( array( 'fields' => 'stats' ) ) );
 
 		if ( isset( $stats->stats->views ) ) {
 			return $stats->stats->views;
@@ -85,7 +89,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 *
 	 * @return void
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults() );
 		?>
 
@@ -112,7 +116,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 *
 	 * @return array Updated safe values to be saved.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance          = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		$instance['hits']  = wp_kses( $new_instance['hits'], array() );
@@ -128,16 +132,16 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	 * @param array $args     Widget arguments.
 	 * @param array $instance Saved values from database.
 	 */
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults() );
 
 		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		echo $args['before_widget'];
+		echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+			echo $args['before_title'] . $title . $args['after_title']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
 
 		// Get the Site Stats.
@@ -155,7 +159,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 			esc_html_e( 'There was an issue retrieving stats. Please try again later.', 'jetpack' );
 		}
 
-		echo $args['after_widget'];
+		echo $args['after_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'blog_stats' );
@@ -168,7 +172,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
  * @since 4.5.0
  */
 function jetpack_blog_stats_widget_init() {
-	if ( function_exists( 'stats_get_from_restapi' ) ) {
+	if ( Jetpack::is_module_active( 'stats' ) ) {
 		register_widget( 'Jetpack_Blog_Stats_Widget' );
 	}
 }

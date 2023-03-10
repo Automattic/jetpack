@@ -13,7 +13,7 @@
 
 ## FILES
 /modules/**/*/block.js
-/modules/**/*.min.css.map
+/modules/**/*.css.map
 /modules/**/*.min.css
 /modules/**/*-rtl.css
 /modules/module-headings.php

@@ -1,30 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import ExternalLink from 'components/external-link';
-import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
-import Textarea from 'components/textarea';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from '../components/text-input';
+import TextInput from 'components/text-input';
+import Textarea from 'components/textarea';
+import analytics from 'lib/analytics';
+import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
+import React from 'react';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {
@@ -90,7 +79,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								{ isAdsActive &&
 									createInterpolateElement(
 										__(
-											'Jetpack Ads automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
+											'WordAds automatically generates a custom <link1>ads.txt</link1> tailored for your site. If you need to add additional entries for other networks please add them in the space below, one per line. <link2>Check here for more details</link2>.',
 											'jetpack'
 										),
 										{
@@ -187,7 +176,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<a
+											<ExternalLink
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 												target="_blank"
 												rel="noopener noreferrer"
@@ -287,34 +276,17 @@ export const Ads = withModuleSettingsFormHelpers(
 									{ __( 'Second ad below post', 'jetpack' ) }
 								</span>
 							</CompactFormToggle>
-							<small className="jp-form-setting-explanation">
-								{ isAdsActive &&
-									createInterpolateElement(
-										__(
-											'You can place additional ads using the Ad widget. <link>Try it out!</link>',
-											'jetpack'
-										),
-										{
-											link: (
-												<a
-													className="jp-module-settings__external-link"
-													href="customize.php?autofocus[panel]=widgets"
-												/>
-											),
-										}
-									) }
-							</small>
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup
 						hasChild
 						support={ {
 							text: __(
-								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).',
+								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
 							link: this.props.isAtomicSite
-								? getRedirectUrl( 'wpcom-support-ccpa' )
+								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
@@ -329,7 +301,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __(
-									'Enable targeted advertising to California site visitors (CCPA)',
+									'Enable targeted advertising to site visitors in all US states.',
 									'jetpack'
 								) }
 							</span>
@@ -338,26 +310,9 @@ export const Ads = withModuleSettingsFormHelpers(
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ createInterpolateElement(
-											__(
-												'For more information about the California Consumer Privacy Act (CCPA) <br/>and how it pertains to your site, please consult our <link>CCPA guide for site owners</link>.',
-												'jetpack'
-											),
-											{
-												br: <br />,
-												link: (
-													<ExternalLink
-														icon={ true }
-														href={
-															this.props.isAtomicSite
-																? getRedirectUrl( 'wpcom-support-ccpa' )
-																: getRedirectUrl( 'jetpack-support-ads' )
-														}
-														target="_blank"
-														rel="noopener noreferrer"
-													/>
-												),
-											}
+										{ __(
+											'Some US states have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
+											'jetpack'
 										) }
 									</small>
 								</p>
@@ -365,11 +320,10 @@ export const Ads = withModuleSettingsFormHelpers(
 									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
 									{ createInterpolateElement(
 										__(
-											'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. <br/>You can use the <widgetLink>Do Not Sell Link (CCPA) Widget</widgetLink>, or the <code>[ccpa-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+											'If you enable targeted advertising in all US states, you are required to place a "Do Not Sell or Share My Personal Information" link on every page of your site where targeted advertising will appear. You can use the <widgetLink>Do Not Sell Link Widget</widgetLink>, or the <code>[privacy-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
 											'jetpack'
 										),
 										{
-											br: <br />,
 											code: <code />,
 											widgetLink: (
 												<a
@@ -381,7 +335,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									) }
 									<span className="jp-form-setting-explanation">
 										{ __(
-											'Failure to add this link will result in non-compliance with CCPA.',
+											'Failure to add this link will result in non-compliance with privacy laws in some US states.',
 											'jetpack'
 										) }
 									</span>
@@ -405,7 +359,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								/>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).',
+										'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
 										'jetpack'
 									) }
 								</span>

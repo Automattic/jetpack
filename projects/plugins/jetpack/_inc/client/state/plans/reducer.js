@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { combineReducers } from 'redux';
-
-/**
- * Internal dependencies
- */
 import { SET_PLAN_DURATION } from 'state/action-types';
 
 const selectedPlanDuration = ( initialState = 'yearly', action ) => {

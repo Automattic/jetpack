@@ -1,6 +1,6 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-jetpack_require_lib( 'class.media' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
 
 new WPCOM_JSON_API_Get_Media_v1_2_Endpoint(
 	array(
@@ -36,6 +36,7 @@ new WPCOM_JSON_API_Get_Media_v1_2_Endpoint(
 			'exif'                       => '(array) (Image & audio only) Exif (meta) information about the media item',
 			'rating'                     => '(string) (Video only) VideoPress rating of the video',
 			'display_embed'              => '(string) Video only. Whether to share or not the video.',
+			'allow_download'             => '(string) Video only. Whether the video can be downloaded or not.',
 			'videopress_guid'            => '(string) (Video only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
 			'videopress_processing_done' => '(bool) (Video only) If the video is uploaded on a blog with VideoPress, this will return the status of processing on the video.',
 			'revision_history'           => '(object) An object with `items` and `original` keys. ' .
@@ -53,8 +54,19 @@ new WPCOM_JSON_API_Get_Media_v1_2_Endpoint(
 	)
 );
 
-class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1_1_Endpoint {
-	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+/**
+ * GET Media v1_2 endpoint class.
+ */
+class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1_1_Endpoint { //phpcs:ignore
+	/**
+	 *
+	 * API callback.
+	 *
+	 * @param string $path - the path.
+	 * @param int    $blog_id - the blog ID.
+	 * @param int    $media_id - the media ID.
+	 */
+	public function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$response = parent::callback( $path, $blog_id, $media_id );
 
 		if ( is_wp_error( $response ) ) {
@@ -66,8 +78,8 @@ class WPCOM_JSON_API_Get_Media_v1_2_Endpoint extends WPCOM_JSON_API_Get_Media_v1
 
 		// expose `revision_history` object.
 		$response->revision_history = (object) array(
-			'items'       => (array) Jetpack_Media::get_revision_history( $media_id ),
-			'original'    => (object) Jetpack_Media::get_original_media( $media_id )
+			'items'    => (array) Jetpack_Media::get_revision_history( $media_id ),
+			'original' => (object) Jetpack_Media::get_original_media( $media_id ),
 		);
 
 		return $response;

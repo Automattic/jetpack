@@ -1,0 +1,24 @@
+.jp-idc__idc-screen .jp-idc__safe-mode {
+	text-align: center;
+
+	.jp-idc__safe-mode__staying-safe {
+		display: flex;
+		justify-content: center;
+		padding: 6px;
+
+		.jp-components-spinner {
+			margin: 0 10px;
+		}
+	}
+
+	&, button {
+		font-size: 16px;
+		line-height: 24px;
+		color: #2C3338;
+	}
+
+	button {
+		padding: 0;
+		text-decoration: underline;
+	}
+}

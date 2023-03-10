@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Shortcodes_Instagram extends WP_UnitTestCase {
 			),
 		);
 
-		$api_query = wp_parse_url( $url, PHP_URL_QUERY );
+		$api_query      = wp_parse_url( $url, PHP_URL_QUERY );
 		$api_query_args = null;
 		wp_parse_str( $api_query, $api_query_args );
 
@@ -199,7 +199,7 @@ BODY;
 	public function test_instagram_oembed_fetch_url( $original, $expected ) {
 		global $post;
 
-		$post = $this->factory->post->create_and_get( array( 'post_content' => $original ) );
+		$post = self::factory()->post->create_and_get( array( 'post_content' => $original ) );
 
 		setup_postdata( $post );
 		ob_start();
@@ -427,7 +427,7 @@ BODY;
 					'hidecaption' => 'true',
 				),
 			),
-			'url_in_att_takes_precedence' => array(
+			'url_in_att_takes_precedence'  => array(
 				'https://www.instagram.com/p/BnMO9vRleEx',
 				array(
 					'url' => $base_instagram_url,

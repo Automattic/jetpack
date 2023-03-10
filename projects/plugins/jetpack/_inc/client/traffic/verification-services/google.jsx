@@ -1,28 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import ExternalLink from 'components/external-link';
-import TextInput from 'components/text-input';
-import { isFetchingSiteData } from 'state/site';
-import { FormLabel } from 'components/forms';
-import Gridicon from 'components/gridicon';
 import Button from 'components/button';
+import { FormLabel } from 'components/forms';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import Gridicon from 'components/gridicon';
+import TextInput from 'components/text-input';
+import analytics from 'lib/analytics';
 import requestExternalAccess from 'lib/sharing';
+import PropTypes from 'prop-types';
+import React from 'react';
+import { connect } from 'react-redux';
+import { userCanManageOptions } from 'state/initial-state';
 import { getExternalServiceConnectUrl } from 'state/publicize/reducer';
+import { isFetchingSiteData } from 'state/site';
 import {
 	checkVerifyStatusGoogle,
 	verifySiteGoogle,
@@ -34,8 +25,6 @@ import {
 	getGoogleSiteVerificationError,
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
-import { userCanManageOptions } from 'state/initial-state';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 class GoogleVerificationServiceComponent extends React.Component {
 	static propTypes = {
@@ -257,9 +246,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -275,18 +261,12 @@ class GoogleVerificationServiceComponent extends React.Component {
 										{
 											a1: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
 												<ExternalLink
-													icon
-													iconSize={ 16 }
-													target="_blank"
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'

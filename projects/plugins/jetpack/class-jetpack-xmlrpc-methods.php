@@ -97,7 +97,7 @@ class Jetpack_XMLRPC_Methods {
 		 * @param string $data Optional data about the event.
 		 */
 		do_action( 'jetpack_event_log', 'disconnect' );
-		Jetpack::disconnect();
+		( new Connection_Manager( 'jetpack' ) )->disconnect_site();
 
 		return true;
 	}
@@ -113,7 +113,7 @@ class Jetpack_XMLRPC_Methods {
 
 		$method       = (string) $json_api_args[0];
 		$url          = (string) $json_api_args[1];
-		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
+		$post_body    = $json_api_args[2] === null ? null : (string) $json_api_args[2];
 		$user_details = (array) $json_api_args[4];
 		$locale       = (string) $json_api_args[5];
 
@@ -141,7 +141,7 @@ class Jetpack_XMLRPC_Methods {
 				$locale_pieces = explode( '-', $locale );
 				$new_locale    = $locale_pieces[0];
 				$new_locale   .= ( ! empty( $locale_pieces[1] ) ) ? '_' . strtoupper( $locale_pieces[1] ) : '';
-			} else {
+			} else { // phpcs:ignore Universal.ControlStructures.DisallowLonelyIf.Found
 				// .com might pass 'fr' because thats what our language files are named as, where core seems
 				// to do fr_FR - so try that if we don't think we can load the file.
 				if ( ! file_exists( WP_LANG_DIR . '/' . $locale . '.mo' ) ) {

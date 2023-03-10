@@ -17,6 +17,7 @@ use PHPUnit\Framework\TestCase;
  * @preserveGlobalState disabled
  */
 class PluginLocatorTest extends TestCase {
+	use \Yoast\PHPUnitPolyfills\Polyfills\AssertIsType;
 
 	/**
 	 * A mock of the path processor we're using.
@@ -85,7 +86,7 @@ class PluginLocatorTest extends TestCase {
 	 */
 	public function test_using_option_does_nothing_without_valid_plugin() {
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 
 		add_test_option(
@@ -101,7 +102,7 @@ class PluginLocatorTest extends TestCase {
 			->willReturn( false );
 
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -124,7 +125,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( WP_PLUGIN_DIR . '/dummy_current', $plugin_paths );
 	}
@@ -148,7 +149,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths', true );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( WP_PLUGIN_DIR . '/dummy_current', $plugin_paths );
 	}
@@ -172,7 +173,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( WP_PLUGIN_DIR . '/dummy_current', $plugin_paths );
 	}
@@ -190,7 +191,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_option( 'test_plugin_paths' );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -203,7 +204,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 
 		$_REQUEST['action'] = 'deactivate';
@@ -211,7 +212,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'deactivate' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 
 		$_REQUEST['action']  = 'activate-selected';
@@ -219,7 +220,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'activate-selected' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -232,7 +233,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 
 		$_REQUEST['action'] = 'activate';
@@ -240,7 +241,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array() );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertEmpty( $plugin_paths );
 	}
 
@@ -262,7 +263,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'activate' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( WP_PLUGIN_DIR . '/dummy_current', $plugin_paths );
 	}
@@ -285,7 +286,7 @@ class PluginLocatorTest extends TestCase {
 
 		$plugin_paths = $this->locator->find_using_request_action( array( 'activate-selected' ) );
 
-		$this->assertTrue( is_array( $plugin_paths ) );
+		$this->assertIsArray( $plugin_paths );
 		$this->assertCount( 1, $plugin_paths );
 		$this->assertContains( WP_PLUGIN_DIR . '/dummy_current', $plugin_paths );
 	}

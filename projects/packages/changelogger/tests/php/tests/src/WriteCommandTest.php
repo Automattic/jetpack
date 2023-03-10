@@ -1,11 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Tests for the changelogger write command.
  *
  * @package automattic/jetpack-changelogger
  */
-
-// phpcs:disable WordPress.WP.AlternativeFunctions, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 namespace Automattic\Jetpack\Changelogger\Tests;
 
@@ -463,6 +461,7 @@ class WriteCommandTest extends CommandTestCase {
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
 						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
 						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
 					),
 				),
@@ -478,6 +477,7 @@ class WriteCommandTest extends CommandTestCase {
 					'changes' => array(
 						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
 						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
 						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
 					),
 				),
@@ -486,6 +486,22 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^$}m' ),
 				true,
 				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
+			),
+			'Deduplication, --dedupliacte=-1'              => array(
+				array( '--deduplicate' => '-1' ),
+				array(
+					'changes' => array(
+						'initial-release' => "Significance: patch\nType: added\n\nInitial release.\n",
+						'added-stuff'     => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-dup' => "Significance: patch\nType: added\n\nStuff.\n",
+						'added-stuff-2'   => "Significance: patch\nType: added\n\nStuff. And more stuff.\n",
+					),
+				),
+				array(),
+				0,
+				array( '{^$}m' ),
+				true,
+				"# Changelog\n\n## 1.0.2 - $date\n### Added\n- Initial release.\n- Stuff.\n- Stuff.\n- Stuff. And more stuff.\n\n## 1.0.1 - 2021-02-23\n\nPrologue for v1.0.1\n\n### Added\n- Stuff.\n\n### Removed\n- Other stuff.\n\nEpilogue for v1.0.1\n\n## 1.0.0 - 2021-02-23\n\n- Initial release.\n",
 			),
 			'Deduplication, --dedupliacte=2'               => array(
 				array( '--deduplicate' => '2' ),
@@ -1013,6 +1029,40 @@ class WriteCommandTest extends CommandTestCase {
 				array( '{^$}' ),
 				true,
 				'changelog' => "# Changelog\n\n## 1.0.1 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0 - 2021-02-24\n\n- Initial release\n",
+			),
+
+			'Writing a new prerelease based on an old one' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.1-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (2)' => array(
+				array( '--prerelease' => 'beta.2' ),
+				array(
+					'changelog' => "# Changelog\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 2.0.0-beta.2 - $date\n### Fixed\n- Fixed a thing.\n\n## 2.0.0-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+			),
+			'Writing a new prerelease based on an old one (3)' => array(
+				array( '--prerelease' => 'alpha' ),
+				array(
+					'changelog' => "# Changelog\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
+				),
+				array(),
+				0,
+				array( '{^$}' ),
+				true,
+				'changelog' => "# Changelog\n\n## 1.0.2-alpha - $date\n### Fixed\n- Fixed a thing.\n\n## 1.0.1-beta - 2021-10-12\n\n- Beta\n\n## 1.0.0 - 2021-02-24\n\n- Initial release\n",
 			),
 		);
 	}

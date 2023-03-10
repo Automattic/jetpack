@@ -1,8 +1,5 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 
 const hasAddress = ( { address, addressLine2, addressLine3, city, region, postal, country } ) => {
 	return [ address, addressLine2, addressLine3, city, region, postal, country ].some(
@@ -26,22 +23,16 @@ const Address = ( {
 		{ city && ! ( region || postal ) && <div className="jetpack-address__city">{ city }</div> }
 		{ city && ( region || postal ) && (
 			<div>
-				{ [
-					<span className="jetpack-address__city">{ city }</span>,
-					', ',
-					<span className="jetpack-address__region">{ region }</span>,
-					' ',
-					<span className="jetpack-address__postal">{ postal }</span>,
-				] }
+				<span className="jetpack-address__city">{ city }</span>
+				{ ', ' }
+				<span className="jetpack-address__region">{ region }</span>{ ' ' }
+				<span className="jetpack-address__postal">{ postal }</span>
 			</div>
 		) }
 		{ ! city && ( region || postal ) && (
 			<div>
-				{ [
-					<span className="jetpack-address__region">{ region }</span>,
-					' ',
-					<span className="jetpack-address__postal">{ postal }</span>,
-				] }
+				<span className="jetpack-address__region">{ region }</span>{ ' ' }
+				<span className="jetpack-address__postal">{ postal }</span>
 			</div>
 		) }
 		{ country && <div className="jetpack-address__country">{ country }</div> }

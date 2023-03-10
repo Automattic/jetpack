@@ -1,8 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-include_once ABSPATH . 'wp-admin/includes/file.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+require_once ABSPATH . 'wp-admin/includes/file.php';
 
+use Automattic\Jetpack\Automatic_Install_Skin;
 
 // POST /sites/%s/plugins/new
 new Jetpack_JSON_API_Plugins_New_Endpoint(
@@ -31,7 +32,6 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 	)
 );
 
-
 new Jetpack_JSON_API_Plugins_New_Endpoint(
 	array(
 		'description'             => 'Install a plugin to a Jetpack site by uploading a zip file',
@@ -57,12 +57,36 @@ new Jetpack_JSON_API_Plugins_New_Endpoint(
 	)
 );
 
+/**
+ * Plugins new endpoint class.
+ *
+ * POST /sites/%s/plugins/new
+ */
 class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// POST /sites/%s/plugins/new
+	/**
+	 * Needed capabilities.
+	 *
+	 * @var string
+	 */
 	protected $needed_capabilities = 'install_plugins';
+
+	/**
+	 * The action.
+	 *
+	 * @var string
+	 */
 	protected $action = 'install';
 
+	/**
+	 * Validate call.
+	 *
+	 * @param int    $_blog_id - the blog ID.
+	 * @param string $capability - the capability.
+	 * @param bool   $check_manage_active - check if manage is active.
+	 *
+	 * @return bool|WP_Error a WP_Error object or true if things are good.
+	 */
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		$validate = parent::validate_call( $_blog_id, $capability, $check_manage_active );
 		if ( is_wp_error( $validate ) ) {
@@ -77,13 +101,22 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 		return $validate;
 	}
 
-	// no need to try to validate the plugin since we didn't pass one in.
-	protected function validate_input( $plugin ) {
+	/**
+	 * No need to try to validate the plugin since we didn't pass one in.
+	 *
+	 * @param string $plugin - the plugin we're validating.
+	 */
+	protected function validate_input( $plugin ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$this->bulk    = false;
 		$this->plugins = array();
 	}
 
-	function install() {
+	/**
+	 * Install the plugin.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function install() {
 		$args = $this->input();
 
 		if ( isset( $args['zip'][0]['id'] ) ) {
@@ -92,8 +125,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			if ( ! $local_file ) {
 				return new WP_Error( 'local-file-does-not-exist' );
 			}
-			jetpack_require_lib( 'class.jetpack-automatic-install-skin' );
-			$skin     = new Jetpack_Automatic_Install_Skin();
+			$skin     = new Automatic_Install_Skin();
 			$upgrader = new Plugin_Upgrader( $skin );
 
 			$pre_install_plugin_list = get_plugins();
@@ -127,7 +159,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 				return new WP_Error( 'plugin_already_installed' );
 			}
 
-			$this->plugins         = $plugin;
+			$this->plugins           = $plugin;
 			$this->log[ $plugin[0] ] = $upgrader->skin->get_upgrade_messages();
 
 			return true;

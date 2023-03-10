@@ -1,7 +1,3 @@
-/**
- * External dependencies
- */
-
 import { Component } from '@wordpress/element';
 
 class MapSave extends Component {

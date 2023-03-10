@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum;
 use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Usermeta;
+use Automattic\Jetpack\Sync\Replicastore\Table_Checksum_Users;
 use Exception;
 use WP_Error;
 
@@ -1174,7 +1175,7 @@ class Replicastore implements Replicastore_Interface {
 	 *
 	 * @access public
 	 *
-	 * @param boolean $perform_text_conversion If text fields should be UTF8 converted.
+	 * @param boolean $perform_text_conversion If text fields should be latin1 converted.
 	 *
 	 * @return array Checksums.
 	 */
@@ -1302,7 +1303,7 @@ class Replicastore implements Replicastore_Interface {
 	 * @param string $salt                    Salt, used for $wpdb->prepare()'s args.
 	 * @param bool   $only_range_edges        Only return the range edges and not the actual checksums.
 	 * @param bool   $detailed_drilldown      If the call should return a detailed drilldown for the checksum or only the checksum.
-	 * @param bool   $perform_text_conversion If text fields should be converted to UTF8 during the checksum calculation.
+	 * @param bool   $perform_text_conversion If text fields should be converted to latin1 during the checksum calculation.
 	 *
 	 * @return array|WP_Error The checksum histogram.
 	 * @throws Exception Throws an exception if data validation fails inside `Table_Checksum` calls.
@@ -1318,7 +1319,7 @@ class Replicastore implements Replicastore_Interface {
 		}
 
 		// Validate / Determine Buckets.
-		if ( is_null( $buckets ) || $buckets < 1 ) {
+		if ( $buckets === null || $buckets < 1 ) {
 			$buckets = $this->calculate_buckets( $table, $start_id, $end_id );
 		}
 		if ( is_wp_error( $buckets ) ) {
@@ -1444,6 +1445,9 @@ class Replicastore implements Replicastore_Interface {
 	 * @throws Exception Might throw an exception if any of the input parameters were invalid.
 	 */
 	public function get_table_checksum_instance( $table, $salt = null, $perform_text_conversion = false ) {
+		if ( 'users' === $table ) {
+			return new Table_Checksum_Users( $table, $salt, $perform_text_conversion );
+		}
 		if ( 'usermeta' === $table ) {
 			return new Table_Checksum_Usermeta( $table, $salt, $perform_text_conversion );
 		}

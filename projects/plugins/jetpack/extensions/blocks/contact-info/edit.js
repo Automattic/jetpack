@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
 import { InnerBlocks } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
-/**
- * Internal dependencies
- */
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
 	'jetpack/address',

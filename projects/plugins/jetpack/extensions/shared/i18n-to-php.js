@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import React from 'react';
 
 // How (and why) does this transform work?

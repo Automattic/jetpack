@@ -2,9 +2,6 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/label-has-for */
 
-/**
- * External Dependencies
- */
 import React from 'react';
 
 /**

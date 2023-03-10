@@ -1,12 +1,34 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+/**
+ * Get user Backup endpoint class.
+ *
+ * /sites/%s/users/%d/backup      -> $blog_id, $user_id
+ */
 class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
-	// /sites/%s/users/%d/backup      -> $blog_id, $user_id
 
+	/**
+	 * Needed capabilities.
+	 *
+	 * @var array
+	 */
 	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
+
+	/**
+	 * The user ID.
+	 *
+	 * @var int
+	 */
 	protected $user_id;
 
-	function validate_input( $user_id ) {
+	/**
+	 * Validate input.
+	 *
+	 * @param int $user_id - the user ID.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public function validate_input( $user_id ) {
 		if ( empty( $user_id ) || ! is_numeric( $user_id ) ) {
 			return new WP_Error( 'user_id_not_specified', __( 'You must specify a User ID', 'jetpack' ), 400 );
 		}
@@ -16,6 +38,11 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 		return true;
 	}
 
+	/**
+	 * The result.
+	 *
+	 * @return array|WP_Error
+	 */
 	protected function result() {
 		// Disable Sync as this is a read-only operation and triggered by sync activity.
 		\Automattic\Jetpack\Sync\Actions::mark_sync_read_only();

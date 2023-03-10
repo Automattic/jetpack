@@ -1,19 +1,9 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
-import { getIconColor } from '../../shared/block-icons';
 
-/**
- * Style dependencies
- */
 import './editor.scss';
 
 export const name = 'amazon';

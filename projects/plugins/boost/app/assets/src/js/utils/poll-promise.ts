@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 type Resolve< ReturnType = void > = ( value: ReturnType | PromiseLike< ReturnType > ) => void;

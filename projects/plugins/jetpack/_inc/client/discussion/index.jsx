@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import Card from 'components/card';
+import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule, getModuleOverride } from 'state/modules';
-import { getSettings } from 'state/settings';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
+import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import QuerySite from 'components/data/query-site';
+import { getSettings } from 'state/settings';
 import { Comments } from './comments';
 import Subscriptions from './subscriptions';
 
@@ -56,6 +49,7 @@ export class Discussion extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm

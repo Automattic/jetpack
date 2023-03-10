@@ -1,1 +1,6 @@
 wordpress
+node_modules
+vendor
+jetpack_vendor
+.cache
+build

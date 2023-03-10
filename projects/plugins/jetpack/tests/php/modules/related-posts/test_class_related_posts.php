@@ -1,6 +1,6 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../../modules/related-posts.php';
+require __DIR__ . '/../../../../modules/related-posts.php';
 
 class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 
@@ -20,7 +20,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	 * @since  4.7.0
 	 */
 	public function test_options_ok() {
-		$options = $options_after_parse = array(
+		$options_after_parse = array(
 			'enabled'         => true,
 			'show_headline'   => true,
 			'show_thumbnails' => true,
@@ -30,6 +30,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 			'headline'        => 'Related',
 			'size'            => null,
 		);
+		$options             = $options_after_parse;
 
 		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( $options ) );
 	}
@@ -40,7 +41,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	 * @since  4.7.0
 	 */
 	public function test_options_enabled_true_if_not_set() {
-		$options = $options_after_parse = array(
+		$options_after_parse = array(
 			// The option 'enabled' isn't passed if it's saved in Customizer
 			'show_headline'   => true,
 			'show_thumbnails' => true,
@@ -50,6 +51,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 			'headline'        => 'Related',
 			'size'            => null,
 		);
+		$options             = $options_after_parse;
 
 		// Must be true after saving in Customizer
 		$options_after_parse['enabled'] = true;
@@ -74,15 +76,25 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 			'size'            => null,
 		);
 
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'enabled'   => false,
-			'show_date' => true,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'enabled'   => false,
+					'show_date' => true,
+				)
+			)
+		);
 
 		$options_after_parse['show_date'] = false;
-		$this->assertEquals( $options_after_parse, Jetpack_RelatedPosts::init()->parse_options( array(
-			'show_date' => false,
-		) ) );
+		$this->assertEquals(
+			$options_after_parse,
+			Jetpack_RelatedPosts::init()->parse_options(
+				array(
+					'show_date' => false,
+				)
+			)
+		);
 	}
 
 	/**
@@ -91,7 +103,7 @@ class WP_Test_Jetpack_RelatedPosts extends WP_UnitTestCase {
 	 * @since  4.7.0
 	 */
 	public function test_options_enabled_false_if_not_customizer_key() {
-		$options = $options_after_parse = array(
+		$options = array(
 			'enabled'         => false, // set to false
 			'show_headline'   => true,
 			'show_thumbnails' => true,

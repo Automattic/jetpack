@@ -48,6 +48,12 @@
 		<testsuite name="sso">
 			<directory prefix="test_" suffix=".php">php/modules/sso</directory>
 		</testsuite>
+		<testsuite name="subscriptions">
+			<directory prefix="test_" suffix=".php">php/modules/subscriptions</directory>
+		</testsuite>
+		<testsuite name="premium-content">
+			<directory prefix="test_" suffix=".php">php/extensions/blocks/premium-content</directory>
+		</testsuite>
 		<testsuite name="contact-form">
 			<directory prefix="test" suffix=".php">php/modules/contact-form</directory>
 		</testsuite>
@@ -83,6 +89,7 @@
 				<directory suffix=".php">../views</directory>
 				<directory suffix=".php">../tools</directory>
 				<directory suffix=".php">../node_modules</directory>
+				<directory suffix=".php">../vendor</directory>
 			</exclude>
 		</whitelist>
 	</filter>

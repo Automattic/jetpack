@@ -17,6 +17,10 @@ function usage {
 		 - `@since $$next-version$$`
 		 - `@deprecated $$next-version$$`
 		 - `@deprecated since $$next-version$$`
+		 - `_deprecated_function( ..., 'prefix-$$next-version$$' )`
+		   Other WordPress deprecation functions also work. The call must be on one
+		   line, indented with tabs, and the '$$next-version$$' token must be in a
+		   single-quoted string.
 	EOH
 	exit 1
 }
@@ -68,7 +72,7 @@ fi
 # Determine the version
 [[ -z "$2" ]] && die "A version must be specified."
 VERSION="$2"
-if ! grep -E -q '^[0-9]+(\.[0-9]+)+(-(alpha|beta)([-.]?[0-9]+)?)?$' <<<"$VERSION"; then
+if ! grep -E -q '^[0-9]+(\.[0-9]+)+(-(a|alpha|beta)([-.]?[0-9]+)?)?$' <<<"$VERSION"; then
 	proceed_p "Version $VERSION does not seem to be a valid version number." "Continue?"
 fi
 VE=$(sed 's/[&\\/]/\\&/g' <<<"$VERSION")
@@ -79,7 +83,9 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 	grep -F -q '$$next-version$$' "$FILE" 2>/dev/null || continue
 	debug "Processing $FILE"
 
-	sed -i.bak -E -e 's!(@since|@deprecated( [sS]ince)?) \$\$next-version\$\$!\1 '"$VE"'!g' "$FILE"
+	sed -i.bak -E -e 's!(@since|@deprecated( +[sS]ince)?)( +)\$\$next-version\$\$!\1\3'"$VE"'!g' "$FILE"
+	rm "$FILE.bak" # We need a backup file because macOS requires it.
+	sed -i.bak -E -e $'s!(^\t*_deprecated_(function|constructor|file|argument|hook)\\( .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
 
 	if grep -F -q '$$next-version$$' "$FILE"; then

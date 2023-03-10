@@ -1,17 +1,14 @@
-/**
- * External dependencies
- */
 const path = require( 'path' );
-
-/**
- * WordPress dependencies
- */
 const postcssPlugins = require( '@wordpress/postcss-plugins-preset' );
+const projects = require( './projects' );
+
+const includePaths = [ path.resolve( __dirname ) ].concat( projects );
 
 module.exports = ( { config } ) => {
+	config.devtool = false;
 	config.module.rules.push(
 		{
-			test: /\/stories\/.+\.js$/,
+			test: /\/stories\/.+\.[jt]sx$/,
 			loader: require.resolve( '@storybook/source-loader' ),
 			enforce: 'pre',
 		},
@@ -31,11 +28,7 @@ module.exports = ( { config } ) => {
 				},
 				'sass-loader',
 			],
-			include: [
-				path.resolve( __dirname ),
-				path.join( __dirname, '../../components/components' ),
-				path.join( __dirname, '../../base-styles/stories' ),
-			],
+			include: includePaths,
 		}
 	);
 

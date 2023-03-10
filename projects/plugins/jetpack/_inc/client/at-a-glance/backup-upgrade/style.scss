@@ -1,0 +1,45 @@
+.jp-dash-upgrade-backup {
+    margin-bottom: 0px;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+
+    &__popup {
+        position: absolute;
+        top: -10px;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        width: 337px;
+        background: rgba(255, 255, 255, 0.86);
+        border: 1px solid var( --jp-gray );
+        box-sizing: border-box;
+        backdrop-filter: blur(13px);
+        border-radius: 4px;
+        padding: 32px 28px;
+        z-index: 99;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        &-close-icon {
+            position: absolute;
+            right: 13px;
+            top: 13px;
+        }
+
+        &-lock-icon {
+            width: 16px;
+            height: 19px;
+            margin-bottom: 0.5em;
+        }
+
+        &-title {
+            font-style: normal;
+            font-weight: 700;
+            font-size: 12px;
+            line-height: 19px;
+            text-align: center;
+            color: #101517;
+        }
+    }
+}

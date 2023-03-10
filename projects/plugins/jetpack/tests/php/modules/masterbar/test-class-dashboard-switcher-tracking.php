@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking;
 use Automattic\Jetpack\Tracking;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php';
 
 /**
  * Class Test_Dashboard_Switcher_Tracking
@@ -59,10 +59,15 @@ class Test_Dashboard_Switcher_Tracking extends \WP_UnitTestCase {
 			'plan'         => 'business',
 		);
 
-		$tracking->expects( $this->once() )->method( 'record_user_event' )->with(
-			Dashboard_Switcher_Tracking::JETPACK_EVENT_NAME,
-			$event_properties
-		);
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$event_properties['blog_id'] = get_current_blog_id();
+		} else {
+			// record_user_event only gets called outside WP.com.
+			$tracking->expects( $this->once() )->method( 'record_user_event' )->with(
+				Dashboard_Switcher_Tracking::JETPACK_EVENT_NAME,
+				$event_properties
+			);
+		}
 
 		$wpcom_tracks = function ( $properties ) use ( $event_properties ) {
 			$this->assertEquals( $event_properties, $properties );

@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __ } from '@wordpress/i18n';
 import { FormLabel, FormLegend } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
-import { getModule } from 'state/modules';
-import { currentThemeSupports } from 'state/initial-state';
-import { isModuleFound } from 'state/search';
+import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ModuleOverriddenBanner from 'components/module-overridden-banner';
+import analytics from 'lib/analytics';
+import React from 'react';
+import { connect } from 'react-redux';
+import { currentThemeSupports } from 'state/initial-state';
+import { getModule } from 'state/modules';
+import { isModuleFound } from 'state/search';
 
 class ThemeEnhancements extends React.Component {
 	/**
@@ -86,6 +79,14 @@ class ThemeEnhancements extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'learn-more',
 			feature: 'infinite-scroll',
+			extra: 'not-supported-link',
+		} );
+	};
+
+	trackVisitCustomizer = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'visit-customizer',
+			feature: 'custom-css',
 			extra: 'not-supported-link',
 		} );
 	};
@@ -201,6 +202,25 @@ class ThemeEnhancements extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-custom-css' ),
 						} }
 					>
+						<FormLegend className="jp-form-label-wide">{ customCSS.name }</FormLegend>
+						<span>
+							<p>
+								{ __(
+									'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features.',
+									'jetpack'
+								) + ' ' }
+								<a
+									onClick={ this.trackVisitCustomizer }
+									href={ `${ this.props.siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
+									title={ __(
+										'Edit and add CSS directly on your site from the Customizer.',
+										'jetpack'
+									) }
+								>
+									{ __( 'Access the Customizer here.', 'jetpack' ) }
+								</a>
+							</p>
+						</span>
 						<ModuleToggle
 							slug="custom-css"
 							activated={ !! this.props.getOptionValue( 'custom-css' ) }

@@ -1,0 +1,1 @@
+PHP_CodeSniffer\Exceptions\RuntimeException: text_domain property is not set for Jetpack.Functions.I18n

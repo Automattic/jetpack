@@ -1,41 +1,34 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
+import { numberFormat } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
+import Button from 'components/button';
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
+import QueryAkismetData from 'components/data/query-akismet-data';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import JetpackBanner from 'components/jetpack-banner';
+import analytics from 'lib/analytics';
+import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
+import { noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
-import Card from 'components/card';
-import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
-import DashItem from 'components/dash-item';
 import { getAkismetData } from 'state/at-a-glance';
-import { getSitePlan } from 'state/site';
-import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
-import { getJetpackProductUpsellByFeature, FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import JetpackBanner from 'components/jetpack-banner';
-import restApi from '@automattic/jetpack-api';
-import QueryAkismetData from 'components/data/query-akismet-data';
+import { getApiNonce } from 'state/initial-state';
+import { siteHasFeature } from 'state/site';
 
 class DashAkismet extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
 
 		// Connected props
-		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
+		akismetData: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object, PropTypes.number ] )
+			.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
@@ -46,6 +39,7 @@ class DashAkismet extends Component {
 		siteAdminUrl: '',
 		akismetData: 'N/A',
 		isOfflineMode: '',
+		trackUpgradeButtonView: noop,
 	};
 
 	trackActivateClick() {
@@ -79,11 +73,21 @@ class DashAkismet extends Component {
 		return false;
 	};
 
+	trackModerateClick() {
+		analytics.tracks.recordJetpackClick( {
+			type: 'moderate-link',
+			target: 'at-a-glance',
+			feature: 'anti-spam',
+		} );
+	}
+
+	onModerateClick = () => {
+		this.trackModerateClick();
+	};
+
 	getContent() {
 		const akismetData = this.props.akismetData;
-		const labelName = __( 'Anti-spam', 'jetpack' );
-		const isSiteOnFreePlan =
-			'jetpack_free' === get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
+		const labelName = __( 'Akismet Anti-spam', 'jetpack' );
 
 		const support = {
 			text: __(
@@ -96,9 +100,9 @@ class DashAkismet extends Component {
 
 		const getAkismetUpgradeBanner = () => {
 			const description = createInterpolateElement(
-				__( 'Already have a key? <a>Activate Akismet</a>', 'jetpack' ),
+				__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>', 'jetpack' ),
 				{
-					a: <a href="javascript:void(0)" onClick={ this.onActivateClick } />,
+					Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
 				}
 			);
 
@@ -112,6 +116,7 @@ class DashAkismet extends Component {
 					eventFeature="akismet"
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
+					trackBannerDisplay={ this.props.trackUpgradeButtonView }
 				/>
 			);
 		};
@@ -134,6 +139,22 @@ class DashAkismet extends Component {
 		};
 
 		const getBanner = () => {
+			if ( this.props.isOfflineMode ) {
+				return (
+					<DashItem
+						label={ labelName }
+						module="akismet"
+						support={ support }
+						pro={ true }
+						className="jp-dash-item__is-inactive"
+					>
+						<p className="jp-dash-item__description">
+							{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
+						</p>
+					</DashItem>
+				);
+			}
+
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
 		};
 
@@ -141,7 +162,7 @@ class DashAkismet extends Component {
 			if ( '0' !== this.props.akismetData ) {
 				return (
 					<>
-						<h2 className="jp-dash-item__count">{ this.props.akismetData }</h2>
+						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
 						<p className="jp-dash-item__description">
 							{ _x( 'Spam comments blocked.', 'Example: "412 Spam comments blocked"', 'jetpack' ) }
 						</p>
@@ -169,9 +190,7 @@ class DashAkismet extends Component {
 			);
 		}
 
-		const hasSitePlan = false !== this.props.sitePlan;
-
-		if ( isSiteOnFreePlan ) {
+		if ( ! this.props.hasAntiSpam && ! this.props.hasAkismet ) {
 			if ( 'not_installed' === akismetData ) {
 				return (
 					<DashItem
@@ -179,7 +198,6 @@ class DashAkismet extends Component {
 						module="akismet"
 						support={ support }
 						className="jp-dash-item__is-inactive"
-						status={ hasSitePlan ? 'pro-uninstalled' : 'no-pro-uninstalled-or-inactive' }
 						pro={ true }
 						overrideContent={ getBanner() }
 					/>
@@ -192,7 +210,6 @@ class DashAkismet extends Component {
 						label={ labelName }
 						module="akismet"
 						support={ support }
-						status={ hasSitePlan ? 'pro-inactive' : 'no-pro-uninstalled-or-inactive' }
 						className="jp-dash-item__is-inactive"
 						pro={ true }
 						overrideContent={ getBanner() }
@@ -247,7 +264,8 @@ class DashAkismet extends Component {
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
+					href={ `${ this.props.siteAdminUrl }edit-comments.php` }
+					onClick={ this.onModerateClick }
 				>
 					{ __( 'Moderate comments', 'jetpack' ) }
 				</Card>
@@ -269,11 +287,12 @@ export default connect(
 	state => {
 		return {
 			akismetData: getAkismetData( state ),
-			sitePlan: getSitePlan( state ),
 			isOfflineMode: isOfflineMode( state ),
-			upgradeUrl: getUpgradeUrl( state, 'aag-akismet' ),
+			upgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
 			nonce: getApiNonce( state ),
 			hasConnectedOwner: hasConnectedOwner( state ),
+			hasAntiSpam: siteHasFeature( state, 'antispam' ),
+			hasAkismet: siteHasFeature( state, 'akismet' ),
 		};
 	},
 	dispatch => ( {

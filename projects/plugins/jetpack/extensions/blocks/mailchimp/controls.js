@@ -1,15 +1,7 @@
-/**
- * External dependencies
- */
-
-import { __ } from '@wordpress/i18n';
 import { ExternalLink, PanelBody, TextControl } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import MailchimpGroups from './mailchimp-groups';
+import { __ } from '@wordpress/i18n';
 import { NOTIFICATION_PROCESSING, NOTIFICATION_SUCCESS, NOTIFICATION_ERROR } from './constants';
+import MailchimpGroups from './mailchimp-groups';
 
 export function MailChimpBlockControls( {
 	auditionNotification,

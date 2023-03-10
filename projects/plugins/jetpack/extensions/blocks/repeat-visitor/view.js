@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import cookie from 'cookie';
-
-/**
- * Internal dependencies
- */
 import { COOKIE_NAME, MAX_COOKIE_AGE } from './constants';
 
 function getViewCount() {

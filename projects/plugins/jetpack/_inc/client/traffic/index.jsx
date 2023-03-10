@@ -1,34 +1,27 @@
-/**
- * External dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
+import Card from 'components/card';
+import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule, getModuleOverride } from 'state/modules';
-import { getSettings } from 'state/settings';
 import {
 	isSiteConnected,
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	hasConnectedOwner,
 } from 'state/connection';
-import { isModuleFound } from 'state/search';
-import QuerySite from 'components/data/query-site';
-import SEO from './seo';
-import { GoogleAnalytics } from './google-analytics';
-import { Ads } from './ads';
-import { SiteStats } from './site-stats';
-import Shortlinks from './shortlinks';
-import { RelatedPosts } from './related-posts';
-import { VerificationServices } from './verification-services';
-import Sitemaps from './sitemaps';
 import { getLastPostUrl, isAtomicSite } from 'state/initial-state';
+import { getModule, getModuleOverride } from 'state/modules';
+import { isModuleFound } from 'state/search';
+import { getSettings } from 'state/settings';
+import { Ads } from './ads';
+import { GoogleAnalytics } from './google-analytics';
+import { RelatedPosts } from './related-posts';
+import SEO from './seo';
+import Shortlinks from './shortlinks';
+import { SiteStats } from './site-stats';
+import Sitemaps from './sitemaps';
+import { VerificationServices } from './verification-services';
 
 export class Traffic extends React.Component {
 	static displayName = 'TrafficSettings';
@@ -74,12 +67,13 @@ export class Traffic extends React.Component {
 		return (
 			<div>
 				<QuerySite />
+				<h1 className="screen-reader-text">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
 				<Card
 					title={
 						this.props.searchTerm
 							? __( 'Traffic', 'jetpack' )
 							: __(
-									'Maximize your site’s visibility in search engines and view traffic stats in real time.',
+									'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
 									'jetpack'
 							  )
 					}
@@ -116,6 +110,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
@@ -125,7 +120,6 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }

@@ -60,11 +60,7 @@ class Jetpack_Media_Summary {
 		}
 
 		if ( ! class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				jetpack_require_lib( 'class.wpcom-media-meta-extractor' );
-			} else {
-				jetpack_require_lib( 'class.media-extractor' );
-			}
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-extractor.php';
 		}
 
 		$post      = get_post( $post_id );
@@ -100,6 +96,7 @@ class Jetpack_Media_Summary {
 			if ( $switched ) {
 				restore_current_blog();
 			}
+			self::$cache[ $cache_key ] = $return;
 			return $return;
 		}
 
@@ -143,7 +140,7 @@ class Jetpack_Media_Summary {
 								$return['secure']['video'] = $return['video'];
 							}
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 					case 'youtube':
 						if ( 0 === $return['count']['video'] ) {
@@ -153,7 +150,7 @@ class Jetpack_Media_Summary {
 							$return['secure']['video'] = self::https( $return['video'] );
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 					case 'vimeo':
 						if ( 0 === $return['count']['video'] ) {
@@ -168,7 +165,7 @@ class Jetpack_Media_Summary {
 								$return['secure']['image'] = 'https://secure-a.vimeocdn.com' . $poster_url_parts['path'];
 							}
 						}
-						$return['count']['video']++;
+						++$return['count']['video'];
 						break;
 				}
 			}
@@ -203,7 +200,7 @@ class Jetpack_Media_Summary {
 							$return['secure']['image'] = self::https( $return['image'] );
 						}
 					}
-					$return['count']['video']++;
+					++$return['count']['video'];
 				}
 			}
 		}
@@ -220,7 +217,7 @@ class Jetpack_Media_Summary {
 					unset( $paragraphs[ $i ] );
 					continue;
 				}
-				$number_of_paragraphs++;
+				++$number_of_paragraphs;
 			}
 
 			$number_of_paragraphs = $number_of_paragraphs - $return['count']['video']; // subtract amount for videos.
@@ -239,7 +236,7 @@ class Jetpack_Media_Summary {
 				$return['images'] = $extract['image'];
 				foreach ( $return['images'] as $image ) {
 					$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
-					$return['count']['image']++;
+					++$return['count']['image'];
 				}
 			} elseif ( ! empty( $extract['has']['image'] ) ) {
 				// ... Or we try and select a single image that would make sense.
@@ -258,12 +255,12 @@ class Jetpack_Media_Summary {
 						unset( $paragraphs[ $i ] );
 						continue;
 					}
-					$number_of_paragraphs++;
+					++$number_of_paragraphs;
 				}
 
 				$return['image']           = $extract['image'][0]['url'];
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
-				$return['count']['image']++;
+				++$return['count']['image'];
 
 				if ( $number_of_paragraphs <= 2 && 1 === count( $extract['image'] ) ) {
 					// If we have lots of text or images, let's not treat it as an image post, but return its first image.
@@ -417,7 +414,7 @@ class Jetpack_Media_Summary {
 	 * @return array Array of words.
 	 */
 	public static function split_content_in_words( $text ) {
-		$words = preg_split( '/[\s!?;,.]+/', $text, null, PREG_SPLIT_NO_EMPTY );
+		$words = preg_split( '/[\s!?;,.]+/', $text, -1, PREG_SPLIT_NO_EMPTY );
 
 		// Return an empty array if the split above fails.
 		return $words ? $words : array();

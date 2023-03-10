@@ -4,7 +4,7 @@
  * references in jetpack-carousel.js updated to match new version number. This is to prevent
  * clashes with 3rd party plugin/themes usage of swiper
  */
-/**
+/*!
  * Swiper 6.7.0
  * Most modern mobile touch slider and framework with hardware accelerated transitions
  * https://swiperjs.com
@@ -62,7 +62,7 @@
 		return _extends.apply( this, arguments );
 	}
 
-	/**
+	/*!
 	 * SSR Window 3.0.0
 	 * Better handling for window object in SSR environment
 	 * https://github.com/nolimits4web/ssr-window
@@ -223,7 +223,7 @@
 		return win;
 	}
 
-	/**
+	/*!
 	 * Dom7 3.0.0
 	 * Minimalistic JavaScript library for DOM manipulation, with a jQuery-compatible API
 	 * https://framework7.io/docs/dom7.html

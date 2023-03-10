@@ -7,8 +7,11 @@ name: PHP Compatibility
 
 on: pull_request
 concurrency:
-  group: phpcompatibility-${{ github.event_name }}-${{ github.ref }}
+  group: phpcompatibility-dev-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  COMPOSER_ROOT_VERSION: "dev-trunk"
 
 jobs:
   changed_files:
@@ -31,7 +34,11 @@ jobs:
               # If composer or phpcs config changed, there may be a new standard.
               - 'composer.json'
               - 'composer.lock'
+              - '.phpcs.config.xml'
               - '.phpcs.xml.dist'
+              - '.phpcsignore'
+              - '**/.phpcs.dir.xml'
+              - '**/.phpcsignore'
               # If other files used by this workflow changed, run it to test those changes.
               - '.github/files/phpcompatibility-dev-phpcs.xml'
               - '.github/matchers/phpcs-problem-matcher.json'
@@ -45,7 +52,7 @@ jobs:
     timeout-minutes: 5  # 2021-01-18: Successful runs seem to take ~1 minute.
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -63,6 +70,8 @@ jobs:
           fi
           composer remove --dev automattic/jetpack-codesniffer
           composer require --dev phpcompatibility/php-compatibility=dev-develop
+          # Update any other packages needing update now too.
+          composer update
 
       - name: Run phpcs for PHPCompatibility
         run: |

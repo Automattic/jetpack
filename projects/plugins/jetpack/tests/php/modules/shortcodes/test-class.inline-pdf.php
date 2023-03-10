@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 
 		$url      = 'https://jetpackme.files.wordpress.com/2017/08/jetpack-tips-for-hosts.pdf';
 		$filename = 'jetpack-tips-for-hosts.pdf';
-		$post     = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
+		$post     = self::factory()->post->create_and_get( array( 'post_content' => $url ) );
 
 		setup_postdata( $post );
 
@@ -46,38 +46,9 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 
 		$this->assertStringContainsString(
 			sprintf(
-				'<p><object data="%1$s" type="application/pdf" width="100%%" height="800" style="height: 800px;"><p><a href="%1$s">Click to access %2$s</a></p></object></p>' . "\n",
+				'<p><a href="%1$s" target="_blank" rel="noopener noreferrer nofollow">Click to access %2$s</a></p>' . "\n",
 				$url,
 				$filename
-			),
-			$actual
-		);
-	}
-
-	/**
-	 * Test Inline PDFs on AMP views.
-	 *
-	 * @covers ::jetpack_inline_pdf_embed_handler
-	 * @since 8.4.0
-	 */
-	public function test_shortcodes_inline_pdf_amp() {
-		global $post;
-
-		$url  = 'https://jetpackme.files.wordpress.com/2017/08/jetpack-tips-for-hosts.pdf';
-		$post = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
-
-		setup_postdata( $post );
-
-		// Test AMP version.
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		ob_start();
-		the_content();
-		$actual = ob_get_clean();
-
-		$this->assertStringContainsString(
-			sprintf(
-				'<p><a href="%1$s">PDF Document</a></p>',
-				$url
 			),
 			$actual
 		);

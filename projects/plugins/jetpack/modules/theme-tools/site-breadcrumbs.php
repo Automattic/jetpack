@@ -37,7 +37,7 @@ function jetpack_breadcrumbs() {
 		if ( $ancestors ) {
 			foreach ( $ancestors as $ancestor ) {
 				$breadcrumb .= '<span itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><meta itemprop="position" content="' . esc_attr( $position ) . '"><a href="' . esc_url( get_permalink( $ancestor ) ) . '" itemprop="item"><span itemprop="name">' . esc_html( get_the_title( $ancestor ) ) . '</span></a></span>';
-				$position++;
+				++$position;
 			}
 		}
 		$breadcrumb .= '<span class="current-page" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem"><meta itemprop="position" content="' . esc_attr( $position ) . '"><span itemprop="name">' . esc_html( get_the_title( $post_id ) ) . '</span></span>';

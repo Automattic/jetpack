@@ -86,4 +86,19 @@ class Warning extends PersistentListItem {
 			$this->old_declaration->display_name(),
 		);
 	}
+
+	/**
+	 * Returns an array of the Warnings item.
+	 *
+	 * @return array mapped array ready for JSONification.
+	 */
+	public function to_map() {
+		return array(
+			'warn_type'    => $this->type,
+			'path'         => $this->path,
+			'line'         => $this->line,
+			'message'      => $this->message,
+			'display_name' => $this->old_declaration->display_name(),
+		);
+	}
 }

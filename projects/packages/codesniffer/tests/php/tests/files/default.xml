@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<!-- Ruleset under test. -->
+	<rule ref="../../../../Jetpack/ruleset.xml" />
+
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="domain" />
+		</properties>
+	</rule>
+
+</ruleset>

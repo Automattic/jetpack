@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/trait.http-request-cache.php';
-require_jetpack_file( 'extensions/blocks/slideshow/slideshow.php' );
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/slideshow/slideshow.php';
 
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
@@ -28,17 +28,25 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 		}
 
 		// Otherwise, create the two images we're going to be using ourselves!
-		$a1 = self::factory()->attachment->create_object( 'image1.jpg', 0, array(
-			'file'           => 'image1.jpg',
-			'post_mime_type' => 'image/jpeg',
-			'post_type'      => 'attachment',
-		) );
+		$a1 = self::factory()->attachment->create_object(
+			'image1.jpg',
+			0,
+			array(
+				'file'           => 'image1.jpg',
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
 
-		$a2 = self::factory()->attachment->create_object( 'image1.jpg', 0, array(
-			'file'           => 'image2.jpg',
-			'post_mime_type' => 'image/jpeg',
-			'post_type'      => 'attachment',
-		) );
+		$a2 = self::factory()->attachment->create_object(
+			'image1.jpg',
+			0,
+			array(
+				'file'           => 'image2.jpg',
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+			)
+		);
 
 		$this->ids = "{$a1},{$a2}";
 	}
@@ -83,7 +91,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( 0, strpos( $shortcode_content, '<p class="jetpack-slideshow-noscript robots-nocontent">This slideshow requires JavaScript.</p>' ) );
+		$this->assertSame( 0, strpos( $shortcode_content, '<p class="jetpack-slideshow-noscript robots-nocontent">This slideshow requires JavaScript.</p>' ) );
 	}
 
 	public function test_shortcodes_slideshow_html() {
@@ -91,7 +99,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( ! false, strpos( $shortcode_content, 'class="slideshow-window jetpack-slideshow' ) );
+		$this->assertEquals( ! false, strpos( $shortcode_content, 'class="jetpack-slideshow-window jetpack-slideshow' ) );
 	}
 
 	public function test_shortcodes_slideshow_autostart_off() {
@@ -154,6 +162,11 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * @param string $expected  The expected markup, after processing the shortcode.
 	 */
 	public function test_shortcodes_slideshow_amp( $shortcode, $expected ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 
 		$this->assertStringContainsString( $expected, do_shortcode( $shortcode ) );

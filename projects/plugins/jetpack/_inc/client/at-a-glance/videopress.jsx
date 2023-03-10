@@ -1,43 +1,39 @@
-/**
- * External dependencies
- */
+import ProgressBar from '@automattic/components/dist/esm/progress-bar';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import Button from 'components/button';
+import DashItem from 'components/dash-item';
+import JetpackBanner from 'components/jetpack-banner';
+import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
+import { noop } from 'lodash';
+import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import DashItem from 'components/dash-item';
-import {
-	getPlanClass,
-	getJetpackProductUpsellByFeature,
-	FEATURE_VIDEOPRESS,
-} from 'lib/plans/constants';
-import { ProgressBar } from '@automattic/components';
-import JetpackBanner from 'components/jetpack-banner';
-import { isModuleAvailable } from 'state/modules';
 import {
 	connectUser,
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
 } from 'state/connection';
-import { getUpgradeUrl } from 'state/initial-state';
-import { hasActiveVideoPressPurchase, getSitePlan, getVideoPressStorageUsed } from 'state/site';
+import { isModuleAvailable } from 'state/modules';
+import {
+	isFetchingSitePurchases,
+	getSitePlan,
+	getVideoPressStorageUsed,
+	siteHasFeature,
+} from 'state/site';
 
 class DashVideoPress extends Component {
 	static propTypes = {
 		hasConnectedOwner: PropTypes.bool.isRequired,
-		isOfflineMode: PropTypes.bool.isRequired,
+		isOffline: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		trackUpgradeButtonView: PropTypes.func,
+	};
+
+	static defaultProps = {
+		trackUpgradeButtonView: noop,
 	};
 
 	activateVideoPress = () => this.props.updateOptions( { videopress: true } );
@@ -53,39 +49,31 @@ class DashVideoPress extends Component {
 			link: getRedirectUrl( 'jetpack-support-videopress' ),
 		};
 
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const {
 			hasConnectedOwner,
-			hasVideoPressPurchase,
+			hasVideoPressFeature,
+			hasVideoPressUnlimitedStorage,
+			isFetching,
 			isOffline,
 			upgradeUrl,
 			videoPressStorageUsed,
 		} = this.props;
 
-		const hasUpgrade =
-			includes(
-				[
-					'is-premium-plan',
-					'is-business-plan',
-					'is-daily-security-plan',
-					'is-realtime-security-plan',
-					'is-complete-plan',
-				],
-				planClass
-			) || hasVideoPressPurchase;
-
-		const shouldDisplayStorage = hasVideoPressPurchase && null !== videoPressStorageUsed;
-		const shouldDisplayBanner = hasConnectedOwner && ! hasUpgrade && ! isOffline;
+		const shouldDisplayStorage =
+			hasVideoPressFeature && ! hasVideoPressUnlimitedStorage && null !== videoPressStorageUsed;
+		const shouldDisplayBanner =
+			hasConnectedOwner && ! hasVideoPressFeature && ! isOffline && ! isFetching;
 
 		const bannerText =
-			! hasVideoPressPurchase && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
+			! hasVideoPressFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
 				? __(
 						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
 						'jetpack'
 				  )
 				: __(
 						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
-						'jetpack'
+						'jetpack',
+						/* dummy arg to avoid bad minification */ 0
 				  );
 
 		if ( this.props.getOptionValue( 'videopress' ) && hasConnectedOwner ) {
@@ -124,6 +112,7 @@ class DashVideoPress extends Component {
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"
 									href={ upgradeUrl }
+									trackBannerDisplay={ this.props.trackUpgradeButtonView }
 								/>
 							) }
 						</>
@@ -140,7 +129,8 @@ class DashVideoPress extends Component {
 				className="jp-dash-item__is-inactive"
 				noToggle={ ! hasConnectedOwner }
 				overrideContent={
-					! hasConnectedOwner && (
+					! hasConnectedOwner &&
+					! isOffline && (
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
@@ -162,11 +152,11 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate</a> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
+									'<Button>Activate</Button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateVideoPress } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
 								}
 						  ) }
 				</p>
@@ -182,11 +172,16 @@ class DashVideoPress extends Component {
 export default connect(
 	state => ( {
 		hasConnectedOwner: hasConnectedOwnerSelector( state ),
-		hasVideoPressPurchase: hasActiveVideoPressPurchase( state ),
+		hasVideoPressFeature:
+			siteHasFeature( state, 'videopress-1tb-storage' ) ||
+			siteHasFeature( state, 'videopress-unlimited-storage' ) ||
+			siteHasFeature( state, 'videopress' ),
+		hasVideoPressUnlimitedStorage: siteHasFeature( state, 'videopress-unlimited-storage' ),
 		isModuleAvailable: isModuleAvailable( state, 'videopress' ),
 		isOffline: isOfflineMode( state ),
+		isFetching: isFetchingSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
-		upgradeUrl: getUpgradeUrl( state, 'videopress-upgrade' ),
+		upgradeUrl: getProductDescriptionUrl( state, 'videopress' ),
 		videoPressStorageUsed: getVideoPressStorageUsed( state ),
 	} ),
 	dispatch => ( {

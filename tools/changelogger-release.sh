@@ -5,18 +5,23 @@ set -eo pipefail
 BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-b] <slug>
+		usage: $0 [-v] [-p] [-H] [-a|-b|-r <version>] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
 		 - Run \`tools/replace-next-version-tag.sh\`
 		 - Run \`tools/project-version.sh\`
 
+		Pass \`-p\` to add PR numbers to change entries by passing \`--add-pr-num\` to changelogger.
+		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
+		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
+		Pass \`-H\` if doing a hard-way package release on a plugin release branch.
 	EOH
 	exit 1
 }
@@ -27,8 +32,10 @@ fi
 
 # Sets options.
 VERBOSE=
-BETA=false
-while getopts ":vbh" opt; do
+ADDPRNUM=
+ALPHABETA=
+HARDWAY=
+while getopts ":vpabhHr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -37,8 +44,20 @@ while getopts ":vbh" opt; do
 				VERBOSE="-v"
 			fi
 			;;
+		p)
+			ADDPRNUM="--add-pr-num"
+			;;
+		a)
+			ALPHABETA=alpha
+			;;
 		b)
-			BETA=true
+			ALPHABETA=beta
+			;;
+		r)
+			ALPHABETA=$OPTARG
+			;;
+		H)
+			HARDWAY=-H
 			;;
 		h)
 			usage
@@ -63,6 +82,7 @@ fi
 
 # Determine the project
 [[ -z "$1" ]] && die "A project slug must be specified."
+[[ $# -gt 1 ]] && die "Only one project slug must be specified, got:$(printf ' "%s"' "$@")"$'\n'"(note all options must come before the project slug)"
 SLUG="${1#projects/}" # DWIM
 SLUG="${SLUG%/}" # Sanitize
 if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
@@ -70,23 +90,34 @@ if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
 fi
 
 cd "$BASE"
-pnpx jetpack install --all
+pnpm jetpack install --all
 
-DEPS="$(tools/find-project-deps.php)"
+DEPS="$(pnpm jetpack dependencies json)"
 declare -A RELEASED
 
 # Release a project
 #  - $1: Project slug.
-#  - $2: Beta flag.
+#  - $2: Alpha/Beta flag.
 #  - $3: Project that depended on this project.
 #  - $4: Indent.
 function releaseProject {
 	local SLUG="$1"
-	local BETA="$2"
+	local ALPHABETA="$2"
 	local FROM="$3"
 	local I="$4"
 
 	cd "$BASE/projects/$SLUG"
+
+	# If it's being depended on by something (and not a js-package), check that it has a mirror repo set up.
+	# Can't do the release without one.
+	if [[ -n "$FROM" && "$SLUG" != js-packages/* ]] &&
+		! jq -e '.extra["mirror-repo"] // null' composer.json > /dev/null
+	then
+		error "${I}Cannot release $SLUG as it has no mirror repo configured!"
+		info "${I}See https://github.com/Automattic/jetpack/blob/trunk/docs/monorepo.md#mirror-repositories for details."
+		exit 1
+	fi
+
 	local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ ! -d "$CHANGES_DIR" || -z "$(ls -- "$CHANGES_DIR")" ]]; then
 		if [[ -z "$FROM" ]]; then
@@ -104,8 +135,6 @@ function releaseProject {
 	local CL
 	if [[ -x vendor/bin/changelogger ]]; then
 		CL=vendor/bin/changelogger
-	elif [[ -x bin/changelogger ]]; then
-		CL=bin/changelogger
 	else
 		yellow "${I}No changelogger! Skipping."
 		return
@@ -116,9 +145,18 @@ function releaseProject {
 	if [[ -n "$VERBOSE" ]]; then
 		ARGS+=( "$VERBOSE" )
 	fi
+	if [[ -n "$ADDPRNUM" ]]; then
+		ARGS+=( "$ADDPRNUM" )
+	fi
 	ARGS+=( "--default-first-version" )
-	if $BETA; then
+	if [[ "$ALPHABETA" == "alpha" ]]; then
+		local P=$(alpha_tag "$CL" composer.json 1)
+		[[ "$P" == "alpha" ]] && die "Cannot use -a with $SLUG"
+		ARGS+=( "--prerelease=$P" )
+	elif [[ "$ALPHABETA" == "beta" ]]; then
 		ARGS+=( "--prerelease=beta" )
+	elif [[ -n "$ALPHABETA" ]]; then
+		ARGS+=( "--use-version=$ALPHABETA" )
 	fi
 	debug "${I}  $CL ${ARGS[*]}"
 	$CL "${ARGS[@]}"
@@ -128,7 +166,7 @@ function releaseProject {
 	local VER=$($CL version current)
 
 	# Replace $$next-version$$
-	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "${VER%-beta}"
+	"$BASE"/tools/replace-next-version-tag.sh "$SLUG" "$(sed -E -e 's/-(beta|a\.[0-9]+)$//' <<<"$VER")"
 
 	# Update versions.
 	ARGS=()
@@ -142,30 +180,38 @@ function releaseProject {
 	# Release deps.
 	debug "${I}  Processing dependencies..."
 	for D in $(jq --argjson deps "$DEPS" --arg slug "$SLUG" -nr '$deps[$slug] // [] | .[]'); do
-		releaseProject "$D" false "$SLUG" "$I  "
+		releaseProject "$D" "" "$SLUG" "$I  "
 	done
 
 	debug "${I}Done processing $SLUG!"
 }
 
-releaseProject "$SLUG" "$BETA"
+releaseProject "$SLUG" "$ALPHABETA"
 
 cd "$BASE"
 info "Updating dependencies..."
 SLUGS=()
 # Use a temp variable so pipefail works
-TMP="$(tools/get-build-order.php 2>/dev/null)"
-TMP=monorepo$'\n'"$TMP"
+TMP="$(pnpm jetpack dependencies build-order --pretty)"
 mapfile -t SLUGS <<<"$TMP"
-for SLUG in "${SLUGS[@]}"; do
-	if [[ -n "${RELEASED[$SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -U $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -U "$SLUG"
+
+TMPDIR="${TMPDIR:-/tmp}"
+TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
+
+for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
+	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U "$DEPENDENCY_SLUG"
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE -u $SLUG"
-		tools/check-intra-monorepo-deps.sh $VERBOSE -u "$SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u "$DEPENDENCY_SLUG"
 	fi
 done
+
+rm "$TEMP"
+
+debug "  Updating pnpm.lock..."
+pnpm install --silent
 
 cat <<-EOM
 
@@ -173,7 +219,7 @@ cat <<-EOM
 
 	  git diff '**/CHANGELOG.md'
 
-	Feel free to edit them as needed. Then commit and push a PR, and have it merged.
+	Feel free to edit them as needed. Then commit and push those changes.
 
 EOM
 
@@ -182,8 +228,6 @@ if [[ "$SLUG" == plugins/* ]]; then
 	VER=
 	if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
 		VER=$(cd "projects/$SLUG" && vendor/bin/changelogger version current)
-	elif [[ -x "projects/$SLUG/bin/changelogger" ]]; then
-		VER=$(cd "projects/$SLUG" && bin/changelogger version current)
 	fi
 	if [[ -n "$VER" ]]; then
 		cat <<-EOM

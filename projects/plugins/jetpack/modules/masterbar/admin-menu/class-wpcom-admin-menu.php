@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Status;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -16,14 +18,24 @@ require_once __DIR__ . '/class-admin-menu.php';
  */
 class WPcom_Admin_Menu extends Admin_Menu {
 	/**
+	 * Holds the current plan, set by get_current_plan().
+	 *
+	 * @var array
+	 */
+	private $current_plan = array();
+
+	/**
 	 * WPcom_Admin_Menu constructor.
 	 */
 	protected function __construct() {
 		parent::__construct();
 
 		add_action( 'wp_ajax_sidebar_state', array( $this, 'ajax_sidebar_state' ) );
+		add_action( 'wp_ajax_jitm_dismiss', array( $this, 'wp_ajax_jitm_dismiss' ) );
+		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
+		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 	}
 
 	/**
@@ -39,14 +51,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( ! $this->is_api_request ) {
 			$this->add_browse_sites_link();
 			$this->add_site_card_menu();
-			$nudge = $this->get_upsell_nudge();
-			if ( $nudge ) {
-				parent::add_upsell_nudge( $nudge );
-			}
 			$this->add_new_site_link();
 		}
 
-		$this->add_beta_testing_menu();
+		$this->add_woocommerce_installation_menu( $this->get_current_plan() );
 
 		ksort( $GLOBALS['menu'] );
 	}
@@ -80,15 +88,27 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Retrieve the number of blogs that the current user has.
+	 *
+	 * @return int
+	 */
+	public function get_current_user_blog_count() {
+		if ( function_exists( '\get_blog_count_for_user' ) ) {
+			return \get_blog_count_for_user( get_current_user_id() );
+		}
+		return count( get_blogs_of_user( get_current_user_id() ) );
+	}
+
+	/**
 	 * Adds the site switcher link if user has more than one site.
 	 */
 	public function add_browse_sites_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) < 2 ) {
+		if ( $this->get_current_user_blog_count() < 2 ) {
 			return;
 		}
 
 		// Add the menu item.
-		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/home', null, 'dashicons-arrow-left-alt2', 0 );
+		add_menu_page( __( 'site-switcher', 'jetpack' ), __( 'Browse sites', 'jetpack' ), 'read', 'https://wordpress.com/sites', null, 'dashicons-arrow-left-alt2', 0 );
 		add_filter( 'add_menu_classes', array( $this, 'set_browse_sites_link_class' ) );
 	}
 
@@ -115,7 +135,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds a link to the menu to create a new site.
 	 */
 	public function add_new_site_link() {
-		if ( count( get_blogs_of_user( get_current_user_id() ) ) > 1 ) {
+		if ( $this->get_current_user_blog_count() > 1 ) {
 			return;
 		}
 
@@ -127,17 +147,19 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default        = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( wpcom_is_coming_soon() && is_private_blog() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$default         = plugins_url( 'globe-icon.svg', __FILE__ );
+		$icon            = get_site_icon_url( 32, $default );
+		$blog_name       = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$status          = new Status();
+		$is_private_site = $status->is_private_site();
+		$is_coming_soon  = $status->is_coming_soon();
 
 		if ( $default === $icon && blavatar_exists( $this->domain ) ) {
 			$icon = blavatar_url( $this->domain, 'img', 32 );
 		}
 
 		$badge = '';
-		if ( is_private_blog() || $is_coming_soon ) {
+		if ( $is_private_site || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
 				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
@@ -225,6 +247,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 				'tracks_impression_cta_name'   => $message->tracks['display']['props']['cta_name'],
 				'tracks_click_event_name'      => $message->tracks['click']['name'],
 				'tracks_click_cta_name'        => $message->tracks['click']['props']['cta_name'],
+				'dismissible'                  => $message->is_dismissible,
+				'feature_class'                => $message->feature_class,
+				'id'                           => $message->id,
 			);
 		}
 	}
@@ -247,17 +272,28 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Gets the current plan and stores it in $this->current_plan so the database is only called once per request.
+	 *
+	 * @return array
+	 */
+	private function get_current_plan() {
+		if ( empty( $this->current_plan ) && class_exists( 'WPCOM_Store_API' ) ) {
+			$this->current_plan = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+		}
+		return $this->current_plan;
+	}
+
+	/**
 	 * Adds Upgrades menu.
 	 *
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
-		if ( class_exists( 'WPCOM_Store_API' ) ) {
-			$products = \WPCOM_Store_API::get_current_plan( get_current_blog_id() );
-			if ( array_key_exists( 'product_name_short', $products ) ) {
-				$plan = $products['product_name_short'];
-			}
+		$current_plan = $this->get_current_plan();
+		if ( ! empty( $current_plan['product_name_short'] ) ) {
+			$plan = $current_plan['product_name_short'];
 		}
+
 		parent::add_upgrades_menu( $plan );
 
 		$last_upgrade_submenu_position = $this->get_submenu_item_count( 'paid-upgrades.php' );
@@ -267,6 +303,10 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
 		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
 			add_submenu_page( 'paid-upgrades.php', __( 'Emails', 'jetpack' ), __( 'Emails', 'jetpack' ), 'manage_options', 'https://wordpress.com/email/' . $this->domain, null, $last_upgrade_submenu_position );
+		}
+
+		if ( defined( 'WPCOM_ENABLE_ADD_ONS_MENU_ITEM' ) && WPCOM_ENABLE_ADD_ONS_MENU_ITEM ) {
+			add_submenu_page( 'paid-upgrades.php', __( 'Add-Ons', 'jetpack' ), __( 'Add-Ons', 'jetpack' ), 'manage_options', 'https://wordpress.com/add-ons/' . $this->domain, null, 1 );
 		}
 	}
 
@@ -310,6 +350,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
+		if ( Blaze::should_initialize() ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );
 	}
 
@@ -362,7 +405,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Saves the sidebar state ( expanded / collapsed ) via an ajax request.
 	 */
 	public function ajax_sidebar_state() {
-		$expanded    = filter_var( $_REQUEST['expanded'], FILTER_VALIDATE_BOOLEAN ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$expanded    = isset( $_REQUEST['expanded'] ) ? filter_var( wp_unslash( $_REQUEST['expanded'] ), FILTER_VALIDATE_BOOLEAN ) : false; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$user_id     = get_current_user_id();
 		$preferences = get_user_attribute( $user_id, 'calypso_preferences' );
 		if ( empty( $preferences ) ) {
@@ -383,13 +426,33 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Handle ajax requests to dismiss a just-in-time-message
+	 */
+	public function wp_ajax_jitm_dismiss() {
+		check_ajax_referer( 'jitm_dismiss' );
+		require_lib( 'jetpack-jitm/jitm-engine' );
+		if ( isset( $_REQUEST['id'] ) && isset( $_REQUEST['feature_class'] ) ) {
+			JITM\Engine::dismiss( sanitize_text_field( wp_unslash( $_REQUEST['id'] ) ), sanitize_text_field( wp_unslash( $_REQUEST['feature_class'] ) ) );
+		}
+		wp_die();
+	}
+
+	/**
 	 * Syncs the sidebar collapsed state from Calypso Preferences.
 	 */
 	public function sync_sidebar_collapsed_state() {
 		$calypso_preferences = get_user_attribute( get_current_user_id(), 'calypso_preferences' );
 
 		$sidebar_collapsed = isset( $calypso_preferences['sidebarCollapsed'] ) ? $calypso_preferences['sidebarCollapsed'] : false;
-		set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+
+		// Read the current stored setting and convert it to boolean in order to be able to compare the values later.
+		$current_sidebar_collapsed_setting = ( 'f' === get_user_setting( 'mfold' ) ) ? true : false;
+
+		// Only set the setting if the value differs, as `set_user_setting` always updates at least the timestamp
+		// which leads to unnecessary user meta cache purging on all wp-admin screen requests.
+		if ( $current_sidebar_collapsed_setting !== $sidebar_collapsed ) {
+			set_user_setting( 'mfold', $sidebar_collapsed ? 'f' : 'o' );
+		}
 	}
 
 	/**

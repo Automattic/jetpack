@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
+import * as WPElement from '@wordpress/element';
+import { _x } from '@wordpress/i18n';
+import accessibleFocus from 'lib/accessible-focus';
+import { assign } from 'lodash';
+import Main from 'main';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import { assign } from 'lodash';
-import { _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import accessibleFocus from 'lib/accessible-focus';
-import store from 'state/redux-store';
-import Main from 'main';
 import * as actionTypes from 'state/action-types';
+import store from 'state/redux-store';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
@@ -39,7 +32,8 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<div>
 			<Provider store={ store }>
 				<HashRouter>
@@ -58,6 +52,9 @@ function render() {
 						</Route>
 						<Route path="/plans">
 							<Main routeName={ getRouteName( '/plans' ) } />
+						</Route>
+						<Route path="/recommendations">
+							<Main routeName={ getRouteName( '/recommendations' ) } />
 						</Route>
 						<Route path="/plans-prompt">
 							<Main routeName={ getRouteName( '/plans-prompt' ) } />
@@ -83,6 +80,9 @@ function render() {
 						<Route path="/sharing">
 							<Main routeName={ getRouteName( '/sharing' ) } />
 						</Route>
+						<Route path="/license/activation">
+							<Main routeName={ getRouteName( '/license/activation' ) } />
+						</Route>
 						<Route path="/wpbody-content" component={ Main } />
 						<Route path="/wp-toolbar" component={ Main } />
 						<Route path="/privacy" component={ Main } />
@@ -92,9 +92,13 @@ function render() {
 					</Switch>
 				</HashRouter>
 			</Provider>
-		</div>,
-		container
+		</div>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 /**
@@ -113,6 +117,8 @@ export function getRouteName( path ) {
 			return _x( 'My Plan', 'Navigation item.', 'jetpack' );
 		case '/plans':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
+		case '/recommendations':
+			return _x( 'Recommendations', 'Navigation item.', 'jetpack' );
 		case '/plans-prompt':
 			return _x( 'Plans', 'Navigation item.', 'jetpack' );
 		case '/settings':
@@ -129,6 +135,8 @@ export function getRouteName( path ) {
 			return _x( 'Writing', 'Navigation item.', 'jetpack' );
 		case '/sharing':
 			return _x( 'Sharing', 'Navigation item.', 'jetpack' );
+		case '/license/activation':
+			return _x( 'License', 'Navigation item.', 'jetpack' );
 		default:
 			return _x( 'At A Glance', 'Navigation item.', 'jetpack' );
 	}

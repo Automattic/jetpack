@@ -1,11 +1,4 @@
-/**
- * External dependencies
- */
 import { Component, createRef } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 import Column from '../column';
 import Gallery from '../gallery';
 import Row from '../row';

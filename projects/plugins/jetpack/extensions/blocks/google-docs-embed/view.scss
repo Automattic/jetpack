@@ -1,0 +1,214 @@
+/**
+ * Shared Editor and Front End styles for Google Docs
+ */
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+/* style the error message */
+.wp-block-jetpack-google-docs-embed {
+	border: 1px solid #ccc;
+	/* if this block appears in the row block, add a flex-basis, because padding on flex items is resolved against the inline size of their containing block, so the browser sees padding-bottom: x% as 0 */
+	flex-basis: 50%;
+
+	&.aligncenter {
+		margin-left: auto;
+		margin-right: auto;
+	}
+
+	&.alignleft,
+	&.alignright {
+		margin-bottom: 20px;
+		max-width: 600px;
+	}
+
+	&.alignleft {
+
+		@media only screen and (min-width: $break-small) {
+			float: left;
+			margin-right: 20px !important;
+		}
+	}
+
+	&.alignright {
+
+		@media only screen and (min-width: $break-small) {
+			float: right;
+			margin-left: 20px !important;
+		}
+	}
+
+	&.ar-50 {
+
+		.wp-block-jetpack-google-docs-embed__wrapper {
+
+			&::before {
+				padding-top: 50%;
+			}
+		}
+	}
+
+	&.ar-100 {
+
+		.wp-block-jetpack-google-docs-embed__wrapper {
+
+			&::before {
+				padding-top: 100%;
+			}
+		}
+	}
+
+	&__wrapper {
+		position: relative;
+
+		&::before {
+			content: "";
+			display: block;
+			padding-top: 50%;
+		}
+
+		&--error {
+
+			&::before {
+				content: none;
+			}
+		}
+	}
+
+	&__error-msg {
+		background-color: #f8f9fa;
+		color: #333;
+		font-size: 16px;
+		margin: 0;
+		padding: 20px;
+
+		&::before {
+			background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.125 12A7.875 7.875 0 0 1 12 4.124a7.875 7.875 0 1 1-7.875 7.874ZM12 3a9 9 0 1 0 0 17.999A9 9 0 1 0 12 3Zm.041 5.28c.31 0 .563.253.563.563v4.5a.562.562 0 0 1-1.125 0v-4.5c0-.31.252-.562.562-.562Zm-.562 7.313c0-.31.252-.563.562-.563h.011a.562.562 0 0 1 0 1.125h-.01a.562.562 0 0 1-.563-.562Z' fill='%231E2935'/%3E%3C/svg%3E%0A");
+			background-position: center top;
+			background-repeat: no-repeat;
+			background-size: 20px;
+			content: "";
+			display: inline-block;
+			height: 20px;
+			margin-right: 8px;
+			position: relative;
+			top: 4px;
+			width: 20px;
+		}
+
+		a {
+			color: #333;
+			text-decoration: underline;
+
+			&:hover,
+			&:focus {
+				text-decoration: none;
+			}
+		}
+	}
+
+	.loader {
+		background-color: white;
+		display: none;
+		height: 100%;
+		position: absolute;
+		text-align: center;
+		top: 0;
+		width: 100%;
+		z-index: 99;
+
+		&.is-active {
+			display: block;
+		}
+
+		span {
+			position: relative;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+	}
+
+	iframe {
+		max-width: 100%;
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		height: 100%;
+		width: 100%;
+	}
+}
+
+.editor-styles-wrapper {
+	.wp-block-jetpack-google-docs-embed {
+
+		figure {
+			margin: 0;
+		}
+	}
+
+	[data-align="left"],
+	[data-align="right"] {
+
+		.wp-block-jetpack-google-docs-embed {
+			width: auto;
+		}
+
+		.wp-block-jetpack-google-docs-embed__wrapper::before {
+			content: none;
+		}
+
+		iframe {
+			position: relative;
+		}
+	}
+
+	[data-align="left"] {
+
+		.wp-block-jetpack-google-docs-embed {
+			margin-right: 20px;
+		}
+	}
+
+	[data-align="right"] {
+
+		.wp-block-jetpack-google-docs-embed {
+			margin-left: 20px;
+		}
+	}
+}
+
+/* AMP pages */
+html[amp] {
+
+    .wp-block-jetpack-google-docs-embed {
+
+        &.alignleft,
+        &.alignright {
+            float: none;
+        }
+
+		&__wrapper {
+
+			&::before {
+				content: none;
+			}
+		}
+
+		&__error-msg {
+
+
+			&::before {
+				background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M1.5 3.5v11h11V10H14v5a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5v1.5H1.5Z' fill='%231E2935'/%3E%3Cpath d='m15.922 1.178-8.907 8.907-1.06-1.06L14.86.118l1.06 1.06Z' fill='%231E2935'/%3E%3Cpath d='M7.5 0H16v1.5H7.5V0Z' fill='%231E2935'/%3E%3Cpath d='M16 0v8.5h-1.5V0H16Z' fill='%231E2935'/%3E%3C/svg%3E");
+				background-size: 12px;
+				height: 12px;
+				top: 1px;
+				width: 12px;
+			}
+		}
+
+		.loader {
+            display: none;
+        }
+
+    }
+}

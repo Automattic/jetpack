@@ -34,8 +34,8 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	 * @since 4.5.0
 	 */
 	public function test_shortcodes_mailchimp_form() {
-		$uuid = '1ca7856462585a934b8674c71';
-		$lid = '2d24f1898b';
+		$uuid    = '1ca7856462585a934b8674c71';
+		$lid     = '2d24f1898b';
 		$content = "[mailchimp_subscriber_popup baseUrl=mc.us11.list-manage.com uuid=$uuid lid=$lid]";
 
 		$shortcode_content = do_shortcode( $content );

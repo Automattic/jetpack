@@ -1,29 +1,19 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import { getCurrentVersion, getSiteAdminUrl, isAtomicSite } from 'state/initial-state';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action.jsx';
+import UpgradeNoticeContent from 'components/upgrade-notice-content';
+import React from 'react';
+import { connect } from 'react-redux';
+import { getCurrentVersion, getSiteAdminUrl, isAtomicPlatform } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
-import NoticeAction from 'components/notice/notice-action.jsx';
-import SimpleNotice from 'components/notice';
-import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
 class JetpackStateNotices extends React.Component {
 	static displayName = 'JetpackStateNotices';
@@ -88,16 +78,14 @@ class JetpackStateNotices extends React.Component {
 					key
 				);
 				break;
-			case 'site_blacklisted':
+			case 'connection_disabled':
 				message = createInterpolateElement(
 					__(
 						"This site can't be connected to WordPress.com because it violates our <a>Terms of Service</a>.",
 						'jetpack'
 					),
 					{
-						a: (
-							<a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />
-						),
+						a: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
 					}
 				);
 				break;
@@ -202,7 +190,7 @@ class JetpackStateNotices extends React.Component {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated':
-				if ( ! this.props.isAtomicSite ) {
+				if ( ! this.props.isAtomicPlatform ) {
 					message = createInterpolateElement(
 						sprintf(
 							/* translators: placeholder is a version number, like 8.8. */
@@ -280,7 +268,7 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for updated Jetpack.
-		if ( messageContent && messageContent.release_post_content && ! this.props.isAtomicSite ) {
+		if ( messageContent && messageContent.release_post_content && ! this.props.isAtomicPlatform ) {
 			return (
 				<UpgradeNoticeContent
 					dismiss={ this.dismissJetpackStateNotice }
@@ -322,7 +310,7 @@ class JetpackStateNotices extends React.Component {
 export default connect( state => {
 	return {
 		currentVersion: getCurrentVersion( state ),
-		isAtomicSite: isAtomicSite( state ),
+		isAtomicPlatform: isAtomicPlatform( state ),
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),

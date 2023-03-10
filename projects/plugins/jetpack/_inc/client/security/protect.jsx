@@ -1,24 +1,17 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { includes } from 'lodash';
-import { __, _x, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
-import Textarea from 'components/textarea';
+import ConnectUserBar from 'components/connect-user-bar';
 import FoldableCard from 'components/foldable-card';
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import ConnectUserBar from 'components/connect-user-bar';
+import Textarea from 'components/textarea';
+import analytics from 'lib/analytics';
+import { includes } from 'lodash';
+import React, { Component } from 'react';
 
 export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -94,7 +87,7 @@ export const Protect = withModuleSettingsFormHelpers(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ _x( 'Protect', 'Settings header', 'jetpack' ) }
+					header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<SettingsGroup

@@ -1,4 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 	 */
 	public function test_render_sharing_html() {
 		global $post;
-		$post = $this->factory()->post->create_and_get( array( 'post_title' => 'Test post' ) );
+		$post = self::factory()->post->create_and_get( array( 'post_title' => 'Test post' ) );
 
 		// Facebook.
 		$services = array(

@@ -1,0 +1,1323 @@
+{
+	"config": {
+		"forbidOnly": false,
+		"fullyParallel": false,
+		"globalSetup": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/lib/setupTests.js",
+		"globalTeardown": null,
+		"globalTimeout": 0,
+		"grep": {},
+		"grepInvert": null,
+		"maxFailures": 0,
+		"metadata": {},
+		"preserveOutput": "always",
+		"projects": [
+			{
+				"outputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results",
+				"repeatEach": 1,
+				"retries": 0,
+				"name": "",
+				"testDir": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e",
+				"testIgnore": [],
+				"testMatch": [ "**/?(*.)@(spec|test).*" ],
+				"timeout": 300000
+			}
+		],
+		"reporter": [
+			[ "list", null ],
+			[
+				"json",
+				{
+					"outputFile": "./output/summary.json"
+				}
+			],
+			[
+				"/home/runner/work/jetpack/jetpack/node_modules/.pnpm/allure-playwright@2.0.0-beta.19/node_modules/allure-playwright/dist/index.js",
+				null
+			],
+			[ "/home/runner/work/jetpack/jetpack/tools/e2e-commons/reporters/reporter.cjs", null ],
+			[ "github", null ]
+		],
+		"reportSlowTests": null,
+		"rootDir": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e",
+		"quiet": false,
+		"shard": null,
+		"updateSnapshots": "missing",
+		"version": "1.25.0",
+		"workers": 1,
+		"webServer": null,
+		"_watchMode": false,
+		"_webServers": [],
+		"_globalOutputDir": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results",
+		"_configDir": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e",
+		"_testGroupsCount": 9,
+		"_workerIsolation": "isolate-pools"
+	},
+	"suites": [
+		{
+			"title": "specs/common.test.js",
+			"file": "specs/common.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [
+				{
+					"title": "Click on the plugins page should navigate to Boost settings page",
+					"ok": true,
+					"tags": [],
+					"tests": [
+						{
+							"timeout": 300000,
+							"annotations": [],
+							"expectedStatus": "passed",
+							"projectName": "",
+							"results": [
+								{
+									"workerIndex": 0,
+									"status": "passed",
+									"duration": 6867,
+									"stdout": [],
+									"stderr": [],
+									"retry": 0,
+									"attachments": []
+								}
+							],
+							"status": "expected"
+						}
+					],
+					"file": "specs/common.test.js",
+					"line": 17,
+					"column": 1
+				},
+				{
+					"title": "Click on the sidebar Boost Jetpack submenu should navigate to Boost settings page",
+					"ok": true,
+					"tags": [],
+					"tests": [
+						{
+							"timeout": 300000,
+							"annotations": [],
+							"expectedStatus": "passed",
+							"projectName": "",
+							"results": [
+								{
+									"workerIndex": 0,
+									"status": "passed",
+									"duration": 7136,
+									"stdout": [],
+									"stderr": [],
+									"retry": 0,
+									"attachments": []
+								}
+							],
+							"status": "expected"
+						}
+					],
+					"file": "specs/common.test.js",
+					"line": 26,
+					"column": 1
+				},
+				{
+					"title": "Deactivating the plugin should clear Critical CSS and Dismissed Recommendation notice option",
+					"ok": true,
+					"tags": [],
+					"tests": [
+						{
+							"timeout": 300000,
+							"annotations": [],
+							"expectedStatus": "passed",
+							"projectName": "",
+							"results": [
+								{
+									"workerIndex": 0,
+									"status": "passed",
+									"duration": 30878,
+									"stdout": [],
+									"stderr": [],
+									"retry": 0,
+									"attachments": []
+								}
+							],
+							"status": "expected"
+						}
+					],
+					"file": "specs/common.test.js",
+					"line": 36,
+					"column": 1
+				}
+			]
+		},
+		{
+			"title": "specs/connection.test.js",
+			"file": "specs/connection.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Settings Page Connection",
+					"file": "specs/connection.test.js",
+					"line": 6,
+					"column": 6,
+					"specs": [
+						{
+							"title": "Should be already connected to WP.com on a fresh install with Jetpack plugin activated and Jetpack already connected",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 43054,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/connection.test.js",
+							"line": 7,
+							"column": 2
+						},
+						{
+							"title": "Should connect to WP.com on a fresh install with Jetpack plugin activated",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 63395,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/connection.test.js",
+							"line": 16,
+							"column": 2
+						},
+						{
+							"title": "Should connect to WP.com on a fresh install without Jetpack plugin activated",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 48316,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/connection.test.js",
+							"line": 30,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/critical-css.test.js",
+			"file": "specs/critical-css.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Critical CSS module",
+					"file": "specs/critical-css.test.js",
+					"line": 8,
+					"column": 6,
+					"specs": [
+						{
+							"title": "No Critical CSS meta information should show on the admin when the module is inactive",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 3996,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 27,
+							"column": 2
+						},
+						{
+							"title": "No Critical CSS should be available on the frontend when the module is inactive",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 2583,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 36,
+							"column": 2
+						},
+						{
+							"title": "Critical CSS should be generated when the module is active",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 10883,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 47,
+							"column": 2
+						},
+						{
+							"title": "Critical CSS meta information should show on the admin when the module is re-activated",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 5625,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 60,
+							"column": 2
+						},
+						{
+							"title": "Critical CSS should be available on the frontend when the module is active",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 325,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 70,
+							"column": 2
+						},
+						{
+							"title": "Critical CSS Admin message should show when the theme is changed",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 12527,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 76,
+							"column": 2
+						},
+						{
+							"title": "Critical CSS should be generated with an error (advanced recommendations)",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 14461,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 97,
+							"column": 2
+						},
+						{
+							"title": "User can access the Critical advanced recommendations and go back to settings page",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 4221,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/critical-css.test.js",
+							"line": 128,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/jetpack-compatibility.test.js",
+			"file": "specs/jetpack-compatibility.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Jetpack compatibility",
+					"file": "specs/jetpack-compatibility.test.js",
+					"line": 11,
+					"column": 6,
+					"specs": [
+						{
+							"title": "The Jetpack lazy-image module activation reflects in Boost dashboard",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 9241,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/jetpack-compatibility.test.js",
+							"line": 16,
+							"column": 2
+						},
+						{
+							"title": "The Jetpack lazy-image module deactivation reflects in Boost dashboard",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 8561,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/jetpack-compatibility.test.js",
+							"line": 29,
+							"column": 2
+						},
+						{
+							"title": "The Boost lazy-image module activation reflects in Jetpack dashboard",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 8003,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/jetpack-compatibility.test.js",
+							"line": 42,
+							"column": 2
+						},
+						{
+							"title": "The Boost lazy-image module deactivation reflects in Jetpack dashboard",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 8015,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/jetpack-compatibility.test.js",
+							"line": 52,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/lazy-images.test.js",
+			"file": "specs/lazy-images.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Lazy Images module",
+					"file": "specs/lazy-images.test.js",
+					"line": 10,
+					"column": 6,
+					"specs": [
+						{
+							"title": "Images on a post should not be lazy loaded when the module is inactive",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 3042,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/lazy-images.test.js",
+							"line": 24,
+							"column": 2
+						},
+						{
+							"title": "Images on a post should be lazy loaded when the module is active",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 3224,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/lazy-images.test.js",
+							"line": 34,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/modules-common.test.js",
+			"file": "specs/modules-common.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Modules",
+					"file": "specs/modules-common.test.js",
+					"line": 13,
+					"column": 15,
+					"specs": [
+						{
+							"title": "The critical-css module should be disabled by default",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 81,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 28,
+							"column": 3
+						},
+						{
+							"title": "The critical-css module state should toggle to an inverse state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 447,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 35,
+							"column": 3
+						},
+						{
+							"title": "The critical-css module state should revert back to original state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 384,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 43,
+							"column": 3
+						},
+						{
+							"title": "The lazy-images module should be disabled by default",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 67,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 28,
+							"column": 3
+						},
+						{
+							"title": "The lazy-images module state should toggle to an inverse state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 1156,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 35,
+							"column": 3
+						},
+						{
+							"title": "The lazy-images module state should revert back to original state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 1248,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 43,
+							"column": 3
+						},
+						{
+							"title": "The render-blocking-js module should be disabled by default",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 54,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 28,
+							"column": 3
+						},
+						{
+							"title": "The render-blocking-js module state should toggle to an inverse state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 330,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 35,
+							"column": 3
+						},
+						{
+							"title": "The render-blocking-js module state should revert back to original state",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 326,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/modules-common.test.js",
+							"line": 43,
+							"column": 3
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/render-blocking-js.test.js",
+			"file": "specs/render-blocking-js.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Render Blocking JS module",
+					"file": "specs/render-blocking-js.test.js",
+					"line": 8,
+					"column": 6,
+					"specs": [
+						{
+							"title": "JavaScript on a post should be at its original position in the document when the module is inactive",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 3371,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/render-blocking-js.test.js",
+							"line": 16,
+							"column": 2
+						},
+						{
+							"title": "JavaScript on a post should be pushed at the bottom of the document when the module is active",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 3173,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/render-blocking-js.test.js",
+							"line": 32,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/score-auto-refresh.test.js",
+			"file": "specs/score-auto-refresh.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Auto refresh of speed scores",
+					"file": "specs/score-auto-refresh.test.js",
+					"line": 6,
+					"column": 6,
+					"specs": [
+						{
+							"title": "Enabling lazy-images should refresh scores",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 8498,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/score-auto-refresh.test.js",
+							"line": 21,
+							"column": 3
+						},
+						{
+							"title": "Enabling render-blocking-js should refresh scores",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 7658,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/score-auto-refresh.test.js",
+							"line": 21,
+							"column": 3
+						},
+						{
+							"title": "Score refresh should debounce between multiple module toggle",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 4532,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/score-auto-refresh.test.js",
+							"line": 34,
+							"column": 2
+						}
+					]
+				}
+			]
+		},
+		{
+			"title": "specs/speed-score.test.js",
+			"file": "specs/speed-score.test.js",
+			"line": 0,
+			"column": 0,
+			"specs": [],
+			"suites": [
+				{
+					"title": "Speed Score feature",
+					"file": "specs/speed-score.test.js",
+					"line": 7,
+					"column": 6,
+					"specs": [
+						{
+							"title": "The Speed Score section should display a mobile and desktop speed score greater than zero",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "passed",
+											"duration": 2874,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/speed-score.test.js",
+							"line": 22,
+							"column": 2
+						},
+						{
+							"title": "The Speed Scores should be able to refresh",
+							"ok": false,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 0,
+											"status": "failed",
+											"duration": 128561,
+											"error": {
+												"message": "Error: Score should be displayed\n\nReceived: \u001b[31mnull\u001b[39m",
+												"stack": "Error: Score should be displayed\n\nReceived: \u001b[31mnull\u001b[39m\n    at captureStackTrace (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/util.js:98:56)\n    at Proxy.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/expect.js:166:54)\n    at file:///home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/specs/speed-score.test.js:39:82\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:426:9\n    at TestInfoImpl._runFn (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:166:7)\n    at /home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:376:26\n    at TimeoutManager.runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/timeoutManager.js:73:7)\n    at TestInfoImpl._runWithTimeout (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/testInfo.js:154:26)\n    at WorkerRunner._runTest (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:356:5)\n    at WorkerRunner.runTestGroup (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/workerRunner.js:218:11)\n    at process.<anonymous> (/home/runner/work/jetpack/jetpack/node_modules/.pnpm/@playwright+test@1.25.0/node_modules/@playwright/test/lib/worker.js:88:5)"
+											},
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": [
+												{
+													"name": "video",
+													"contentType": "video/webm",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/video.webm"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-1.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-2.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-3.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-4.zip"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-5.zip"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-1.png"
+												},
+												{
+													"name": "trace",
+													"contentType": "application/zip",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/trace-6.zip"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-2.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-3.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-4.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-5.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-6.png"
+												},
+												{
+													"name": "screenshot",
+													"contentType": "image/png",
+													"path": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/output/results/specs-speed-score-Speed-Score-feature-The-Speed-Scores-should-be-able-to-refresh/test-failed-7.png"
+												}
+											],
+											"errorLocation": {
+												"file": "/home/runner/work/jetpack/jetpack/projects/plugins/boost/tests/e2e/specs/speed-score.test.js",
+												"column": 82,
+												"line": 39
+											}
+										}
+									],
+									"status": "unexpected"
+								}
+							],
+							"file": "specs/speed-score.test.js",
+							"line": 33,
+							"column": 2
+						},
+						{
+							"title": "Should be able to hover info icon next to overall score and see the detailed overall score description popin",
+							"ok": true,
+							"tags": [],
+							"tests": [
+								{
+									"timeout": 300000,
+									"annotations": [],
+									"expectedStatus": "passed",
+									"projectName": "",
+									"results": [
+										{
+											"workerIndex": 1,
+											"status": "passed",
+											"duration": 59037,
+											"stdout": [],
+											"stderr": [],
+											"retry": 0,
+											"attachments": []
+										}
+									],
+									"status": "expected"
+								}
+							],
+							"file": "specs/speed-score.test.js",
+							"line": 42,
+							"column": 2
+						}
+					]
+				}
+			]
+		}
+	],
+	"errors": []
+}

@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import colorValidator from '../../shared/colorValidator';
 
 export default {

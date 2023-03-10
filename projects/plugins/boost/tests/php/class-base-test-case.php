@@ -22,6 +22,7 @@ abstract class Base_Test_Case extends TestCase {
 	 */
 	protected function set_up() {
 		Monkey\setUp();
+		Monkey\Functions\stubEscapeFunctions();
 
 		add_filter(
 			'jetpack_boost_module_enabled',

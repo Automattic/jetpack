@@ -8,15 +8,16 @@
 
 	color: $wpui-header-dark;
 	font-size: rem( 14px );
-	font-weight: bold;
 	line-height: 1.5;
 }
 
-.jetpack-money-back-guarantee svg {
+.jetpack-money-back-guarantee__icon svg {
 	display: block;
-
-	margin-right: 10px;
 
 	height: 23px;
 	width: 23px;
+}
+
+.jetpack-money-back-guarantee__text {
+	margin-left: 8px;
 }

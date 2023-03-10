@@ -1,16 +1,17 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export default {
 	subscribePlaceholder: {
 		type: 'string',
-		default: __( 'Email Address', 'jetpack' ),
+		default: __( 'Type your email…', 'jetpack' ),
 	},
 	showSubscribersTotal: {
 		type: 'boolean',
 		default: false,
+	},
+	includeSocialFollowers: {
+		type: 'boolean',
+		default: true,
 	},
 	buttonOnNewLine: {
 		type: 'boolean',
@@ -76,5 +77,12 @@ export default {
 	},
 	spacing: {
 		type: 'number',
+	},
+	successMessage: {
+		type: 'string',
+		default: __(
+			"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.",
+			'jetpack'
+		),
 	},
 };

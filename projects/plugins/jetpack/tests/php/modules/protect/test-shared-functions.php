@@ -16,8 +16,8 @@ class WP_Test_Jetpack_Protect_Shared_Functions extends WP_UnitTestCase {
 	/**
 	 * Test `jetpack_protect_get_ip` and `jetpack_clean_ip`.
 	 *
-	 * @covers jetpack_protect_get_ip
-	 * @covers jetpack_clean_ip
+	 * @covers ::jetpack_protect_get_ip
+	 * @covers ::jetpack_clean_ip
 	 * @dataProvider provide_jetpack_protect_get_ip
 	 * @param string|false $expect Expected output.
 	 * @param array        $server Data for `$_SERVER`.

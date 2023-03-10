@@ -5,3 +5,21 @@
 		}
 	}
 }
+
+.jp-license-activation-notice__external-link {
+	svg.gridicons-external {
+		margin-left: 0.25rem;
+	}
+}
+
+.jp-unlinked-notice .jp-connection-banner__icon {
+	align-self: center;
+	margin-right: 1rem;
+	line-height: 0;
+}
+
+.loading-notice {
+	height: 47px;
+    margin-bottom: 24px;
+    border-radius: 3px;
+}

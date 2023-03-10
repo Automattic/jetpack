@@ -10,6 +10,8 @@
  30 | WARNING | [x] assertEquals accepts many non-numeric values, please use strict alternatives like assertSame (MediaWiki.PHPUnit.AssertEquals.Float)
  31 | WARNING | [x] assertEquals accepts many non-string values, please use strict alternatives like assertSame (MediaWiki.PHPUnit.AssertEquals.FalsyString)
  32 | WARNING | [x] assertEquals accepts many non-string values, please use strict alternatives like assertSame (MediaWiki.PHPUnit.AssertEquals.NumericString)
+ 35 | WARNING | [x] The expected value goes before the actual value in assertions (MediaWiki.PHPUnit.AssertionOrder.WrongOrder)
+ 36 | WARNING | [x] The expected value goes before the actual value in assertions (MediaWiki.PHPUnit.AssertionOrder.WrongOrder)
  39 | WARNING | [x] assertArrayHasKey should be used instead of manually using assertTrue with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayHasKey)
  40 | WARNING | [x] assertArrayNotHasKey should be used instead of manually using assertFalse with the result of array_key_exists (MediaWiki.PHPUnit.SpecificAssertions.assertArrayNotHasKey)
  41 | WARNING | [x] assertContains should be used instead of manually using assertTrue with the result of in_array (MediaWiki.PHPUnit.SpecificAssertions.assertContains)

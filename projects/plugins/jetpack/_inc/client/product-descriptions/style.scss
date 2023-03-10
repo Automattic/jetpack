@@ -1,0 +1,13 @@
+@import '../scss/mixin_breakpoint.scss';
+
+.jp-product-description {
+	@include breakpoint( '<960px' ) {
+		max-width: 550px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+.jp-product-descriptions__loading {
+	padding-top: 48px;
+}

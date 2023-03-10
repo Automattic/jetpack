@@ -1,7 +1,14 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Google reCAPTCHA utilities, for use in the sharing feature.
+ *
+ * @package automattic/jetpack
+ */
 
 /**
  * Class that handles reCAPTCHA.
+ *
+ * @deprecated 11.0
  */
 class Jetpack_ReCaptcha {
 
@@ -167,7 +174,7 @@ class Jetpack_ReCaptcha {
 	 */
 	public function get_verify_request_params( $response, $remote_ip ) {
 		return array(
-			'body' => array(
+			'body'      => array(
 				'secret'   => $this->secret_key,
 				'response' => $response,
 				'remoteip' => $remote_ip,

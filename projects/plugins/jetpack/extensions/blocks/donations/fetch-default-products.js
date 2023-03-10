@@ -1,6 +1,3 @@
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 
 const fetchDefaultProducts = async currency => {
@@ -11,6 +8,7 @@ const fetchDefaultProducts = async currency => {
 			data: {
 				type: 'donation',
 				currency,
+				is_editable: false,
 			},
 		} );
 		return result;

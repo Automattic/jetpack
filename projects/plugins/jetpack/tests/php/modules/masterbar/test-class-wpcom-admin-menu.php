@@ -8,8 +8,8 @@
 use Automattic\Jetpack\Dashboard_Customizations\WPcom_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-wpcom-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-wpcom-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_WPcom_Admin_Menu.
@@ -122,7 +122,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 0, $menu );
 
 		// Give user a second site.
-		$blog_id = $this->factory->blog->create();
+		$blog_id = self::factory()->blog->create();
 		add_user_to_blog( $blog_id, get_current_user_id(), 'editor' );
 
 		static::$admin_menu->add_browse_sites_link();
@@ -130,10 +130,10 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$browse_sites_menu_item = array(
 			'Browse sites',
 			'read',
-			'https://wordpress.com/home',
+			'https://wordpress.com/sites',
 			'site-switcher',
-			'menu-top toplevel_page_https://wordpress.com/home',
-			'toplevel_page_https://wordpress.com/home',
+			'menu-top toplevel_page_https://wordpress.com/sites',
+			'toplevel_page_https://wordpress.com/sites',
 			'dashicons-arrow-left-alt2',
 		);
 		$this->assertSame( $menu[0], $browse_sites_menu_item );
@@ -183,13 +183,15 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 			'
 <div class="site__info">
 	<div class="site__title">' . get_option( 'blogname' ) . '</div>
-	<div class="site__domain">' . static::$domain . "</div>\n\t</div>",
+	<div class="site__domain">' . static::$domain . '</div>
+
+</div>',
 			'read',
 			$home_url,
 			'site-card',
 			'menu-top toplevel_page_' . $home_url,
 			'toplevel_page_' . $home_url,
-			'data:image/svg+xml,%3Csvg%20class%3D%22gridicon%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Ctitle%3EGlobe%3C%2Ftitle%3E%3Crect%20fill-opacity%3D%220%22%20x%3D%220%22%20width%3D%2224%22%20height%3D%2224%22%2F%3E%3Cg%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M12%202C6.477%202%202%206.477%202%2012s4.477%2010%2010%2010%2010-4.477%2010-10S17.523%202%2012%202zm0%2018l2-2%201-1v-2h-2v-1l-1-1H9v3l2%202v1.93c-3.94-.494-7-3.858-7-7.93l1%201h2v-2h2l3-3V6h-2L9%205v-.41C9.927%204.21%2010.94%204%2012%204s2.073.212%203%20.59V6l-1%201v2l1%201%203.13-3.13c.752.897%201.304%201.964%201.606%203.13H18l-2%202v2l1%201h2l.286.286C18.03%2018.06%2015.24%2020%2012%2020z%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E',
+			plugins_url( 'modules/masterbar/admin-menu/globe-icon.svg', JETPACK__PLUGIN_FILE ),
 		);
 
 		$this->assertEquals( $menu[1], $site_card_menu_item );
@@ -212,26 +214,11 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
 
-		// Atomic fallback site icon counts as no site icon.
-		add_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
-		remove_filter( 'get_site_icon_url', array( $this, 'wpcomsh_site_icon_url' ) );
-		$this->assertStringNotContainsString( 'has-site-icon', $menu[1][4] );
-
 		// Custom site icon triggers CSS class.
 		add_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$menu = static::$admin_menu->set_site_card_menu_class( $menu );
 		remove_filter( 'get_site_icon_url', array( $this, 'custom_site_icon_url' ) );
 		$this->assertStringContainsString( 'has-site-icon', $menu[1][4] );
-	}
-
-	/**
-	 * Shim wpcomsh fallback site icon.
-	 *
-	 * @return string
-	 */
-	public function wpcomsh_site_icon_url() {
-		return 'https://s0.wp.com/i/webclip.png';
 	}
 
 	/**
@@ -253,7 +240,7 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 
 		static::$admin_menu->add_upgrades_menu();
 
-		$this->assertSame( 'https://wordpress.com/plans/my-plan/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
+		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
 		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
 
 		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
@@ -273,7 +260,6 @@ class Test_WPcom_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_inbox_menu() {
 		global $menu;
 
-		add_filter( 'jetpack_show_wpcom_inbox_menu', '__return_true' );
 		static::$admin_menu->add_inbox_menu();
 
 		$this->assertSame( 'https://wordpress.com/inbox/' . static::$domain, $menu['4.64424'][2] );

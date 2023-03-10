@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { Circle } from '@wordpress/components';
 
 export default ( {

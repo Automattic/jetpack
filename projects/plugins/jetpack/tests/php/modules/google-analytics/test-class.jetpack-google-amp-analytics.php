@@ -36,7 +36,7 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 
 		self::$woo_enabled = true;
 
-		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
+		$woo_tests_dir = __DIR__ . '/../../../../woocommerce/tests';
 
 		if ( ! file_exists( $woo_tests_dir ) ) {
 			error_log( 'PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
@@ -112,7 +112,7 @@ class WP_Test_Jetpack_Google_AMP_Analytics extends WP_UnitTestCase {
 				$event['ga_params'][ 'pr' . $i . 'id' ] = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 				$event['ga_params'][ 'pr' . $i . 'nm' ] = $item->get_name();
 				$event['ga_params'][ 'pr' . $i . 'qt' ] = $item->get_quantity();
-				$i++;
+				++$i;
 			}
 		}
 

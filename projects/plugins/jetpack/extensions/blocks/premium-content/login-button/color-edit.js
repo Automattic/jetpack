@@ -1,21 +1,12 @@
 // The code in this file is copied entirely from https://github.com/WordPress/gutenberg/blob/HEAD/packages/block-library/src/button/color-edit.js
 /* eslint-disable */
 
-/**
- * External dependencies
- */
 import { pickBy, isEqual, isObject, identity, mapValues } from 'lodash';
 
-/**
- * WordPress dependencies
- */
 import { __ } from '@wordpress/i18n';
 import { useState, useEffect, useRef, Platform } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 
-/**
- * Internal dependencies
- */
 import {
 	getColorObjectByColorValue,
 	getColorObjectByAttributeValues,
@@ -54,7 +45,7 @@ function ColorPanel( { settings, clientId, enableContrastChecking = true } ) {
 
 	const title = isWebPlatform
 		? __( 'Color settings', 'jetpack' )
-		: __( 'Color Settings', 'jetpack' );
+		: __( 'Color Settings', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	useEffect( () => {
 		if ( isWebPlatform && ! enableContrastChecking ) {

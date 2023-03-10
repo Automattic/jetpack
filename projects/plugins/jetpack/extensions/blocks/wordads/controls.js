@@ -1,13 +1,6 @@
-/**
- * External dependencies
- */
 import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import FormatPicker from './format-picker';
 
 export const AdVisibilityToggle = ( { value, onChange } ) => (

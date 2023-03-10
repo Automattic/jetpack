@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Copy Post
  * Module Description: Enable the option to copy entire posts and pages, including tags and settings
@@ -9,7 +9,11 @@
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: copy, duplicate
+ *
+ * @package automattic/jetpack
  */
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 /**
  * Copy Post class.
@@ -29,7 +33,7 @@ class Jetpack_Copy_Post {
 			return;
 		}
 
-		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) {
+		if ( ! empty( $_GET['jetpack-copy'] ) && 'post-new.php' === $GLOBALS['pagenow'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- update_post_data() handles access check.
 			add_action( 'wp_insert_post', array( $this, 'update_post_data' ), 10, 3 );
 			add_filter( 'pre_option_default_post_format', '__return_empty_string' );
 		}
@@ -44,13 +48,17 @@ class Jetpack_Copy_Post {
 	 * @return void
 	 */
 	public function update_post_data( $target_post_id, $post, $update ) {
-		global $wp_version;
 		// This `$update` check avoids infinite loops of trying to update our updated post.
 		if ( $update ) {
 			return;
 		}
 
-		$source_post = get_post( $_GET['jetpack-copy'] );
+		// Shouldn't happen, since this filter is only added when the value isn't empty, but check anyway.
+		if ( empty( $_GET['jetpack-copy'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+
+		$source_post = get_post( intval( $_GET['jetpack-copy'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! $source_post instanceof WP_Post ||
 			! $this->user_can_access_post( $source_post->ID ) ||
 			! $this->validate_post_type( $source_post ) ) {
@@ -70,15 +78,8 @@ class Jetpack_Copy_Post {
 		add_filter( 'default_content', array( $this, 'filter_content' ), 10, 2 );
 		add_filter( 'default_excerpt', array( $this, 'filter_excerpt' ), 10, 2 );
 
-		/*
-		 * Required to avoid the block editor from adding default blocks according to post format.
-		 * @todo: simplify once WordPress 5.8 is the minimum required version.
-		 */
-		if ( version_compare( $wp_version, '5.8', '>=' ) ) {
-			add_filter( 'block_editor_settings_all', array( $this, 'remove_post_format_template' ) );
-		} else {
-			add_filter( 'block_editor_settings', array( $this, 'remove_post_format_template' ) );
-		}
+		// Required to avoid the block editor from adding default blocks according to post format.
+		add_filter( 'block_editor_settings_all', array( $this, 'remove_post_format_template' ) );
 
 		/**
 		 * Fires after all updates have been performed, and default content filters have been added.
@@ -324,8 +325,8 @@ class Jetpack_Copy_Post {
 		);
 
 		// Insert the Copy action before the Trash action.
-		$edit_offset = array_search( 'trash', array_keys( $actions ), true );
-		$updated_actions     = array_merge(
+		$edit_offset     = array_search( 'trash', array_keys( $actions ), true );
+		$updated_actions = array_merge(
 			array_slice( $actions, 0, $edit_offset ),
 			$edit_action,
 			array_slice( $actions, $edit_offset )

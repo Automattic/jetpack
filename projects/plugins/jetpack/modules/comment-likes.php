@@ -26,6 +26,27 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
 class Jetpack_Comment_Likes {
 
 	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
+
+	/**
+	 * Blog ID
+	 *
+	 * @var int
+	 */
+	public $blog_id;
+
+	/**
+	 * Site home URL domain
+	 *
+	 * @var string
+	 */
+	public $domain;
+
+	/**
 	 * Initialize comment like module
 	 */
 	public static function init() {
@@ -42,11 +63,10 @@ class Jetpack_Comment_Likes {
 	 * Construct comment like module.
 	 */
 	private function __construct() {
-		$this->settings  = new Jetpack_Likes_Settings();
-		$this->blog_id   = Jetpack_Options::get_option( 'id' );
-		$this->url       = home_url();
-		$this->url_parts = wp_parse_url( $this->url );
-		$this->domain    = $this->url_parts['host'];
+		$this->settings = new Jetpack_Likes_Settings();
+		$this->blog_id  = Jetpack_Options::get_option( 'id' );
+		$url_parts      = wp_parse_url( home_url() );
+		$this->domain   = $url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
@@ -167,24 +187,7 @@ class Jetpack_Comment_Likes {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
-		wp_enqueue_script(
-			'postmessage',
-			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
-		wp_enqueue_script(
-			'jetpack_resize',
-			Assets::get_file_url_for_environment(
-				'_inc/build/jquery.jetpack-resize.min.js',
-				'_inc/jquery.jetpack-resize.js'
-			),
-			array( 'jquery' ),
-			JETPACK__VERSION,
-			true
-		);
-		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js', __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js', __FILE__ ), array(), JETPACK__VERSION, true );
 	}
 
 	/**

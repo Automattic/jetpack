@@ -1,0 +1,94 @@
+import { Meta, Source, Story, Canvas } from '@storybook/addon-docs';
+import { Preview } from "@storybook/addon-docs/blocks";
+import dedent from 'ts-dedent';
+import Dialog from '../index';
+import ProductOffer from '../../product-offer';
+import BoostImage from './boost.png';
+import styles from './style.module.scss';
+
+<Meta
+	title="JS Packages/Components/Dialog" component={ Dialog }
+/>
+
+export const Template = ( { isTwoSections } ) => (
+	<Dialog
+		primary= {
+			<div className={ styles.section }>
+				<div>Primary</div>
+				<strong>4 | 5 | 7</strong>
+			</div>
+		}
+		secondary= {
+			<div className={ styles.section }>
+				<div>Secondary</div>
+				<strong>4 | 3 | 5</strong>
+				<div>isTwoSections: <strong>{ isTwoSections ? 'yes' : 'no' }</strong></div>
+			</div>
+		}
+		isTwoSections= { isTwoSections }
+	/>
+);
+
+# Dialog
+
+Render a two-sections layout simple composition, built based on the primary <a href="?path=/docs/js-packages-components-layout--default">Layout component</a>.
+
+<Source
+  language='jsx'
+  code={dedent`
+import Dialog from '@automattic/jetpack-components';
+// ...
+	
+<Dialog
+  primary={ <PrimaryComponent /> }
+  secondary={ <SecondaryComponent /> }
+  isTwoSections={ true }
+/>
+`}
+/>
+
+<Story
+	name="Readme"
+	args={ {
+		isTwoSections: true,
+	} }
+>
+	{ Template.bind( {} ) }
+</Story>
+
+The cols number for each section depends on the viewport width. The following table shows how they are defined:
+
+ &nbsp; | Small (sm) | Medium (md) | Large (lg) 
+------|------|------|-----
+primary | 4 | 5 | 7
+secondary | 4 | 3 | 5
+
+Finally, when the Dialog is defined as not a two-sections layout (<a href="#istwosections">isTwoSections property</a>), the secondary section won't show in Mobile (sm breakpoint).
+
+## API
+
+The components accepts the following properties:
+
+
+### primary
+
+- Type: `React.ReactNode`, `string`.
+
+Primary-section content.
+
+### secondary
+
+- Type: `React.ReactNode`, `string`.
+- Optional.
+
+Primary-section content.
+
+### isTwoSections
+
+- Type: `boolean`.
+- Optional.
+- Default: `false`
+
+It handles two sections layout:
+  - Add card styles to the main wrapper when it is not a two-sections layout.
+  - When it's false, the secondary section won't show in Mobile.

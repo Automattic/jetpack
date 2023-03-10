@@ -1,17 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
+import userEvent from '@testing-library/user-event';
 import { PinterestBlockControls } from '../controls';
 
 describe( 'PinterestBlockControls', () => {
@@ -25,9 +13,10 @@ describe( 'PinterestBlockControls', () => {
 		setEditingState.mockClear();
 	} );
 
-	test( 'calls setEditingState when clicking edit icon', () => {
+	test( 'calls setEditingState when clicking edit icon', async () => {
+		const user = userEvent.setup();
 		render( <PinterestBlockControls { ...defaultProps } /> );
-		userEvent.click( screen.getByRole( 'button' ) );
+		await user.click( screen.getByRole( 'button' ) );
 		expect( setEditingState ).toHaveBeenCalledWith( true );
 	} );
 } );

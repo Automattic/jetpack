@@ -457,7 +457,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param array  $cart_item_data Other cart data.
 	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
+		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) ) : 0;
 		// if the referring post is not a product OR the product being added is not the same as post.
 		// (eg. related product list on single product page) then include a product view event.
 		$product_by_referer_postid = wc_get_product( $referer_postid );

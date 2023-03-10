@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 /**
  * Test class for Grunion_Contact_Form
@@ -13,6 +13,9 @@ require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
  * @covers Grunion_Contact_Form
  */
 class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
+
+	private $post;
+	private $plugin;
 
 	/**
 	 * Sets up the test environment before the class tests begin.
@@ -44,13 +47,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$this->set_globals();
 
-		$author_id = $this->factory->user->create(
+		$author_id = self::factory()->user->create(
 			array(
 				'user_email' => 'john@example.com',
 			)
 		);
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'draft',
 				'post_author' => (string) $author_id,
@@ -159,9 +162,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		 *   3_Radio
 		 *   4_Text
 		 */
-		$this->assertEquals( $extra_fields['5_Dropdown'], 'First option', 'When the first option of a dropdown field with label Dropdown is selected, there should be metadata with that key and value' );
-		$this->assertEquals( $extra_fields['6_Radio'], 'Second option', 'When the first option of a radio button field with label Radio is selected, there should be metadata with that key and value' );
-		$this->assertEquals( $extra_fields['7_Text'], 'Texty text', 'When the text field with label Text is filled with the text \'Texty text\', there should be metadata with that key and value' );
+		$this->assertEquals( 'First option', $extra_fields['5_Dropdown'], 'When the first option of a dropdown field with label Dropdown is selected, there should be metadata with that key and value' );
+		$this->assertEquals( 'Second option', $extra_fields['6_Radio'], 'When the first option of a radio button field with label Radio is selected, there should be metadata with that key and value' );
+		$this->assertEquals( 'Texty text', $extra_fields['7_Text'], 'When the text field with label Text is filled with the text \'Texty text\', there should be metadata with that key and value' );
 	}
 
 	/**
@@ -340,10 +343,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$submission = $feedback[0];
 		$email      = get_post_meta( $submission->ID, '_feedback_email', true );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
 		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
 
@@ -393,10 +396,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertContains( 'john <john@example.com>', $args['to'] );
 		$this->assertEquals( 'Hello there!', $args['subject'] );
 
-		$expected  = '<b>Name:</b> John Doe<br /><br />';
-		$expected .= '<b>Dropdown:</b> First option<br /><br />';
-		$expected .= '<b>Radio:</b> Second option<br /><br />';
-		$expected .= '<b>Text:</b> Texty text<br /><br />';
+		$expected  = '<p><strong>Name:</strong><br /><span>John Doe</span></p>';
+		$expected .= '<p><strong>Dropdown:</strong><br /><span>First option</span></p>';
+		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
+		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
 		// Divides email by the first empty line.
 		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
@@ -525,7 +528,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'     => 'feedback',
 				'post_status'   => 'spam',
@@ -544,7 +547,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers ::grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_type'   => 'feedback',
 				'post_status' => 'spam',
@@ -736,7 +739,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'id'          => 'funID',
 		);
 
-		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'url' ) );
+		$expected_attributes = array_merge( $attributes, array( 'input_type' => 'text' ) );
 		$this->assertValidField( $this->render_field( $attributes ), $expected_attributes );
 	}
 
@@ -926,9 +929,16 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$attributes['class'] = 'jp-contact-form-date';
 		}
+
+		$css_class = "grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap grunion-field-wrap";
+
+		if ( 'select' === $attributes['type'] ) {
+			$css_class .= ' contact-form-dropdown-wrap ui-front';
+		}
+
 		$this->assertEquals(
 			$wrapper_div->getAttribute( 'class' ),
-			"grunion-field-wrap grunion-field-{$attributes['type']}-wrap {$attributes['class']}-wrap",
+			$css_class,
 			'div class attribute doesn\'t match'
 		);
 
@@ -990,13 +1000,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		if ( 'date' === $attributes['type'] ) {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} jp-contact-form-date",
+				"{$attributes['type']} jp-contact-form-date grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		} else {
 			$this->assertEquals(
 				$input->getAttribute( 'class' ),
-				"{$attributes['type']} {$attributes['class']}",
+				"{$attributes['type']} {$attributes['class']} grunion-field",
 				'input class attribute doesn\'t match'
 			);
 		}
@@ -1019,13 +1029,13 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label ' . $attributes['type'], 'label class doesn\'t match' );
 
 		$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'], 'Input name doesn\'t match' );
-		$this->assertEquals( $input->getAttribute( 'value' ), 'Yes', 'Input value doesn\'t match' );
+		$this->assertEquals( 'Yes', $input->getAttribute( 'value' ), 'Input value doesn\'t match' );
 		$this->assertEquals( $input->getAttribute( 'type' ), $attributes['type'], 'Input type doesn\'t match' );
 		if ( $attributes['default'] ) {
-			$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+			$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 		}
 
-		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+		$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 	}
 
 	/**
@@ -1044,7 +1054,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Inputs.
 		if ( 'select' === $attributes['type'] ) {
-			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label select', 'label class doesn\'t match' );
+			$this->assertEquals( 'grunion-field-label select', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 
 			$select = $this->getFirstElement( $wrapper_div, 'select' );
 			$this->assertEquals(
@@ -1059,7 +1069,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				'label for does not equal input name!'
 			);
 
-			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'], ' select class does not match expected' );
+			$this->assertEquals( $select->getAttribute( 'class' ), 'select ' . $attributes['class'] . ' grunion-field contact-form-dropdown', ' select class does not match expected' );
 
 			// Options.
 			$options = $select->getElementsByTagName( 'option' );
@@ -1070,7 +1080,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				$option = $options->item( $i );
 				$this->assertEquals( $option->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
 				if ( 0 === $i ) {
-					$this->assertEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is not selected' );
+					$this->assertEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is not selected' );
 				} else {
 					$this->assertNotEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is selected' );
 				}
@@ -1078,7 +1088,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
 			}
 		} else {
-			$this->assertEquals( $label->getAttribute( 'class' ), 'grunion-field-label', 'label class doesn\'t match' );
+			$this->assertEquals( 'grunion-field-label', $label->getAttribute( 'class' ), 'label class doesn\'t match' );
 			// Radio and Checkboxes.
 			$labels = $wrapper_div->getElementsByTagName( 'label' );
 			$n      = $labels->length - 1;
@@ -1097,9 +1107,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 					$this->assertEquals( $input->getAttribute( 'name' ), $attributes['id'] . '[]', 'Input name doesn\'t match' );
 				}
 				$this->assertEquals( $input->getAttribute( 'value' ), $attributes['values'][ $i ], 'Input value doesn\'t match' );
-				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'], 'Input class doesn\'t match' );
+				$this->assertEquals( $input->getAttribute( 'class' ), $attributes['type'] . ' ' . $attributes['class'] . ' grunion-field', 'Input class doesn\'t match' );
 				if ( 0 === $i ) {
-					$this->assertEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
 					$this->assertNotEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
 				}
@@ -1230,7 +1240,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1291,7 +1301,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1301,7 +1311,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1332,7 +1342,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( '', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1385,7 +1395,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1395,7 +1405,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1420,7 +1430,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		$expected_result = array(
 			'Contact Form' => array( 'subj1', 'subj2' ),
-			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1490,7 +1500,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj1',
-					'4_Comment'    => 'This is my test 15',
+					'Comment'      => 'This is my test 15',
 				),
 			),
 			array(
@@ -1500,7 +1510,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				),
 				array(
 					'Contact Form' => 'subj2',
-					'4_Comment'    => 'This is my test 16',
+					'Comment'      => 'This is my test 16',
 				),
 			),
 		);
@@ -1529,7 +1539,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4' ),
 			'key5'         => array( 'value5' ),
 			'key6'         => array( 'value6' ),
-			'4_Comment'    => array( 'This is my test 16' ),
+			'Comment'      => array( 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1601,10 +1611,9 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$result = $plugin->map_parsed_field_contents_of_post_to_field_names( $input_data );
 
 		$expected_result = array(
-			'Contact Form' => 'This is my form',
-			'1_Name'       => 'John Smith',
-			'3_Website'    => 'http://example.com',
-			'4_Comment'    => 'This is my comment!',
+			'1_Name'    => 'John Smith',
+			'3_Website' => 'http://example.com',
+			'4_Comment' => 'This is my comment!',
 		);
 
 		$this->assertEquals( $expected_result, $result );
@@ -1656,7 +1665,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertSame( 'feedback', $data['group_id'], 'group_id matches' );
 			$this->assertSame( 'Feedback', $data['group_label'], 'group_label matches' );
 			$this->assertSame( true, ! empty( $data['item_id'] ), 'has item_id key' );
-			$this->assertCount( 9, $data['data'], 'has total expected data keys' );
+			$this->assertCount( 10, $data['data'], 'has total expected data keys' );
 		}
 	}
 
@@ -1767,5 +1776,184 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->plugin->_internal_personal_data_eraser( 'jane@example.com', 1, 1 );
 		$posts = get_posts( array( 'post_type' => 'feedback' ) );
 		$this->assertCount( 0, $posts, 'posts count matches after deleting the other feedback responder' );
+	}
+
+	/**
+	 * Tests the functionality of the grunion_contact_form_apply_block_attribute() function.
+	 */
+	public function test_grunion_contact_form_apply_block_attribute() {
+		// No contact form block.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
+		// Contact form block without attributes.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"foo":"bar"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
+		// Contact form block with attributes.
+		$original = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"customThankyou":"message"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$expected = <<<EOT
+<!-- wp:template-part {"slug":"post-meta-icons","theme":"pub/zoologist"} /-->
+
+<!-- wp:spacer {"height":"150px"} -->
+<div style="height:150px;" aria-hidden="true" class="wp-block-spacer"></div>
+<!-- /wp:spacer -->
+
+<!-- wp:jetpack/contact-form {"customThankyou":"message","foo":"bar"} -->
+<div class="wp-block-jetpack-contact-form"><!-- wp:jetpack/field-name {"label":"Single Template","required":true} /-->
+
+<!-- wp:jetpack/field-textarea /-->
+
+<!-- wp:jetpack/button {"element":"button","text":"Contact Us"} /--></div>
+<!-- /wp:jetpack/contact-form -->
+
+<!-- wp:group {"style":{"spacing":{"padding":{"top":"30px","right":"20px","bottom":"0px","left":"20px"}}},"layout":{"inherit":true}} -->
+<div class="wp-block-group" style="padding-top:30px;padding-right:20px;padding-bottom:0;padding-left:20px;"><!-- wp:columns {"align":"wide","className":"next-prev-links"} -->
+<div class="wp-block-columns alignwide next-prev-links"><!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"type":"previous","label":"←","showTitle":true} /--></div>
+<!-- /wp:column -->
+
+<!-- wp:column -->
+<div class="wp-block-column"><!-- wp:post-navigation-link {"textAlign":"right","label":"→","showTitle":true} /--></div>
+<!-- /wp:column --></div>
+<!-- /wp:columns -->
+
+<!-- wp:post-comments /--></div>
+<!-- /wp:group -->
+EOT;
+		$this->assertEquals(
+			$expected,
+			grunion_contact_form_apply_block_attribute( $original, array( 'foo' => 'bar' ) )
+		);
 	}
 } // end class

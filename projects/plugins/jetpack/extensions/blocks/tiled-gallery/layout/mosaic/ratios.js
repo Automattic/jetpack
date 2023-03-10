@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import {
 	drop,
 	every,
@@ -26,10 +23,9 @@ export function ratioFromImage( { height, width } ) {
 /**
  * Build three columns, each of which should contain approximately 1/3 of the total ratio
  *
- * @param  {Array.<number>}         ratios      Ratios of images put into shape
- * @param  {number}                 columnCount Number of columns
- *
- * @return {Array.<Array.<number>>}             Shape of rows and columns
+ * @param  {Array.<number>}         ratios      - Ratios of images put into shape
+ * @param  {number}                 columnCount - Number of columns
+ * @returns {Array.<Array.<number>>}             Shape of rows and columns
  */
 export function ratiosToColumns( ratios, columnCount ) {
 	// If we don't have more than 1 per column, just return a simple 1 ratio per column shape

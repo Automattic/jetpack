@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Add `./extensions/plugins` folder to the building system.

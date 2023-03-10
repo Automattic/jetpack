@@ -35,7 +35,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	public function test_shortcodes_archives_type_default() {
 		$archives = archives_shortcode( array() );
 
-		$this->assertEquals( $archives, '<p>' . __( 'Your blog does not currently have any published posts.' , 'jetpack' ) . '</p>' );
+		$this->assertEquals( $archives, '<p>' . __( 'Your blog does not currently have any published posts.', 'jetpack' ) . '</p>' );
 	}
 
 	/**
@@ -70,11 +70,16 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @param string $expected The expected return value of the shortcode callback.
 	 */
 	public function test_shortcodes_archives_format_option( $is_amp, $expected ) {
+		if ( $is_amp && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com is in the process of removing AMP plugin.' );
+			return;
+		}
+
 		if ( $is_amp ) {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$post     = $this->factory->post->create_and_get();
+		$post     = self::factory()->post->create_and_get();
 		$expected = str_replace(
 			array( '{{permalink}}', '{{title}}' ),
 			array( get_permalink( $post ), $post->post_title ),
@@ -93,9 +98,9 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_format_html() {
-		$this->factory->post->create( array() );
+		self::factory()->post->create( array() );
 		$attr = array(
-			'format' => 'html'
+			'format' => 'html',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -109,11 +114,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_yearly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'yearly'
+			'type' => 'yearly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -127,11 +134,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_monthly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'monthly'
+			'type' => 'monthly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -145,11 +154,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_weekly() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'weekly'
+			'type' => 'weekly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -163,11 +174,13 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_daily() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
-			'type' => 'daily'
+			'type' => 'daily',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -181,16 +194,16 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_one() {
-		$this->factory->post->create( array() );
-		$this->factory->post->create( array() );
+		self::factory()->post->create( array() );
+		self::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'limit' => '1'
+			'limit'  => '1',
 		);
 
 		$archives = archives_shortcode( $attr );
 
-		$this->assertEquals( 1, substr_count( $archives, '<li>' ) );
+		$this->assertSame( 1, substr_count( $archives, '<li>' ) );
 	}
 
 	/**
@@ -199,11 +212,11 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_zero_is_all() {
-		$this->factory->post->create( array() );
-		$this->factory->post->create( array() );
+		self::factory()->post->create( array() );
+		self::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'limit' => '0'
+			'limit'  => '0',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -217,15 +230,19 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_showcount() {
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_date' => '2014-01-01 01:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_date' => '2014-01-01 01:00:00',
+			)
+		);
 		$attr = array(
 			'showcount' => 'true',
-			'type' => 'yearly'
+			'type'      => 'yearly',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -241,10 +258,10 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	public function test_shortcodes_archives_before() {
 		$content = 'test_string';
 
-		$this->factory->post->create( array() );
+		self::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'before' => $content
+			'before' => $content,
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -260,10 +277,10 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	public function test_shortcodes_archives_after() {
 		$content = 'test_string';
 
-		$this->factory->post->create( array() );
+		self::factory()->post->create( array() );
 		$attr = array(
 			'format' => 'html',
-			'after' => $content
+			'after'  => $content,
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -277,16 +294,20 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_asc() {
-		$this->factory->post->create( array(
-			'post_title' => 'first',
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_title' => 'last',
-			'post_date' => '2014-01-01 02:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_title' => 'first',
+				'post_date'  => '2014-01-01 01:00:00',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_title' => 'last',
+				'post_date'  => '2014-01-01 02:00:00',
+			)
+		);
 		$attr = array(
-			'order' => 'asc'
+			'order' => 'asc',
 		);
 
 		$archives = archives_shortcode( $attr );
@@ -300,16 +321,20 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_desc() {
-		$this->factory->post->create( array(
-			'post_title' => 'first',
-			'post_date' => '2014-01-01 01:00:00'
-		) );
-		$this->factory->post->create( array(
-			'post_title' => 'last',
-			'post_date' => '2014-01-01 02:00:00'
-		) );
+		self::factory()->post->create(
+			array(
+				'post_title' => 'first',
+				'post_date'  => '2014-01-01 01:00:00',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_title' => 'last',
+				'post_date'  => '2014-01-01 02:00:00',
+			)
+		);
 		$attr = array(
-			'order' => 'desc'
+			'order' => 'desc',
 		);
 
 		$archives = archives_shortcode( $attr );

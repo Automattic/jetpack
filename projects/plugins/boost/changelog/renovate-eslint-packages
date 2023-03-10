@@ -1,4 +1,5 @@
 Significance: patch
-Type: changed
+Type: fixed
+Comment: Fix new eslint sniffs. Should be no change to the project itself.
 
-Updated package dependencies
+

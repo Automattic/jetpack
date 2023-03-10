@@ -1,17 +1,10 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
 import './editor.scss';
 import './style.scss';
-import BusinessHours from './edit';
-import renderMaterialIcon from '../../shared/render-material-icon';
 import { getIconColor } from '../../shared/block-icons';
+import renderMaterialIcon from '../../shared/render-material-icon';
+import BusinessHours from './edit';
 
 /**
  * Block Registrations:
@@ -89,6 +82,18 @@ export const settings = {
 	category: 'grow',
 	supports: {
 		html: true,
+		color: {
+			gradients: true,
+		},
+		spacing: {
+			margin: true,
+			padding: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
+		align: [ 'wide', 'full' ],
 	},
 	keywords: [
 		_x( 'opening hours', 'block search term', 'jetpack' ),

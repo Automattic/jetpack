@@ -1,0 +1,32 @@
+@import 'instant-search/lib/styles/helper';
+@import 'lib/base-styles';
+
+.jp-search-configure-app-wrapper {
+	flex-grow: 1;
+
+	.jp-search-configure-loading-spinner {
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate( -50%, -50% );
+	}
+
+	.jetpack-instant-search {
+		background: $gray-100;
+		position: absolute;
+		padding-top: 2em;
+
+		// Adjusts z-index for Customberg only, so color picker is not hidden behind overlay.
+		// Needs to have equal z-index to .interface-interface-skeleton__sidebar.
+		z-index: 90;
+
+		.jetpack-instant-search__search-results-wrapper {
+			max-width: initial;
+		}
+
+		// Disables opening search results without disabling the sort option selector.
+		a:not( .jetpack-instant-search__search-sort-option ) {
+			pointer-events: none;
+		}
+	}
+}

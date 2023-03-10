@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Plugins_Installer;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -29,7 +31,7 @@ class WC_Services_Installer {
 	 * @return object The WC_Services_Installer object.
 	 */
 	public static function init() {
-		if ( is_null( self::$instance ) ) {
+		if ( self::$instance === null ) {
 			self::$instance = new WC_Services_Installer();
 		}
 		return self::$instance;
@@ -126,8 +128,7 @@ class WC_Services_Installer {
 	 * @return bool result of installation
 	 */
 	private function install() {
-		jetpack_require_lib( 'plugins' );
-		$result = Jetpack_Plugins::install_plugin( 'woocommerce-services' );
+		$result = Plugins_Installer::install_plugin( 'woocommerce-services' );
 
 		if ( is_wp_error( $result ) ) {
 			return false;
@@ -145,7 +146,7 @@ class WC_Services_Installer {
 		$result = activate_plugin( 'woocommerce-services/woocommerce-services.php' );
 
 		// Activate_plugin() returns null on success.
-		return is_null( $result );
+		return $result === null;
 	}
 }
 

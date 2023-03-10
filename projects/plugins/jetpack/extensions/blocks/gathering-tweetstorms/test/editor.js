@@ -1,12 +1,23 @@
-/**
- * External dependencies
- */
-import { mount } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import { render, screen } from '@testing-library/react';
+import { useSelect } from '@wordpress/data';
 import addTweetstormToTweets from '../editor';
+
+jest.mock( '@wordpress/data/build/components/use-select', () => jest.fn() );
+
+// Fake <BlockControls> so we can easily test if it was inserted or not.
+jest.mock( '@wordpress/block-editor/build/components/block-controls', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="BlockControls">BlockControls</div>,
+} ) );
+
+useSelect.mockImplementation( cb => {
+	return cb( () => ( {
+		getEditedPostAttribute: () => ( {} ),
+		isFirstMultiSelectedBlock: jest.fn().mockReturnValueOnce( true ),
+		getMultiSelectedBlockClientIds: () => [],
+		getBlockName: () => 'DaName',
+	} ) );
+} );
 
 describe( 'addTweetstormToTweets', () => {
 	const baseEditFunction = () => {
@@ -55,12 +66,11 @@ describe( 'addTweetstormToTweets', () => {
 		const wrappedBlock = addTweetstormToTweets( block );
 
 		expect( wrappedBlock ).not.toEqual( block );
-		expect( wrappedBlock.edit.name ).toEqual( 'Component' );
+		expect( wrappedBlock.edit.name ).toBe( 'Component' );
 
-		const wrapper = mount( <wrappedBlock.edit { ...block.props } /> );
-
-		expect( wrapper.exists( '#baseEdit' ) ).toEqual( true );
-		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 1 );
+		render( <wrappedBlock.edit { ...block.props } /> );
+		expect( screen.getByText( 'Base Edit' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'BlockControls' ) ).toBeInTheDocument();
 	} );
 
 	it( 'should not add block controls when passed a core/embed block definition with a different providerNameSlug', () => {
@@ -79,11 +89,10 @@ describe( 'addTweetstormToTweets', () => {
 		const wrappedBlock = addTweetstormToTweets( block );
 
 		expect( wrappedBlock ).not.toEqual( block );
-		expect( wrappedBlock.edit.name ).toEqual( 'Component' );
+		expect( wrappedBlock.edit.name ).toBe( 'Component' );
 
-		const wrapper = mount( <wrappedBlock.edit { ...block.props } /> );
-
-		expect( wrapper.exists( '#baseEdit' ) ).toEqual( true );
-		expect( wrapper.find( 'BlockControlsFill' ) ).toHaveLength( 0 );
+		render( <wrappedBlock.edit { ...block.props } /> );
+		expect( screen.getByText( 'Base Edit' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'BlockControls' ) ).not.toBeInTheDocument();
 	} );
 } );

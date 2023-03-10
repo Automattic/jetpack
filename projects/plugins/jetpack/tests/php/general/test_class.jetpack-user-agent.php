@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 /**
  * Tests for Jetpack's legacy User Agent class.
  *

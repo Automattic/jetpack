@@ -1,27 +1,14 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
-import {
-	Placeholder,
-	SandBox,
-	Button,
-	ExternalLink,
-	withNotices,
-} from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
-import { withViewportMatch } from '@wordpress/viewport';
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { InspectorControls } from '@wordpress/block-editor';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
+import { Placeholder, SandBox, Button, ExternalLink, withNotices } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { useEffect, useState } from '@wordpress/element';
+import { __, _x } from '@wordpress/i18n';
+import { withViewportMatch } from '@wordpress/viewport';
 import GoogleCalendarInspectorControls from './controls';
 import icon from './icon';
 import { URL_REGEX, parseEmbed } from './utils';
-import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 export function GoogleCalendarEdit( props ) {
 	const {
@@ -67,7 +54,7 @@ export function GoogleCalendarEdit( props ) {
 		);
 	};
 
-	const handleEmbed = ( event ) => {
+	const handleEmbed = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -84,7 +71,7 @@ export function GoogleCalendarEdit( props ) {
 		noticeOperations.removeAllNotices();
 	};
 
-	const getEditForm = ( formClassName ) => (
+	const getEditForm = formClassName => (
 		<form onSubmit={ handleEmbed } className={ formClassName }>
 			<textarea
 				type="text"
@@ -94,7 +81,7 @@ export function GoogleCalendarEdit( props ) {
 				placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
 				onChange={ event => setEditedEmbed( event.target.value ) }
 			/>
-			<Button isSecondary type="submit">
+			<Button variant="secondary" type="submit">
 				{ _x( 'Embed', 'button label', 'jetpack' ) }
 			</Button>
 		</form>
@@ -116,7 +103,7 @@ export function GoogleCalendarEdit( props ) {
 			<GoogleCalendarInspectorControls
 				className={ `${ defaultClassName }-embed-form-sidebar` }
 				embedValue={ editedEmbed }
-				onChange={ ( event ) => setEditedEmbed( event.target.value ) }
+				onChange={ event => setEditedEmbed( event.target.value ) }
 				onSubmit={ handleEmbed }
 			/>
 		</InspectorControls>
@@ -124,9 +111,9 @@ export function GoogleCalendarEdit( props ) {
 
 	if ( editingUrl || ! url ) {
 		const supportLink =
-				 isSimpleSite() || isAtomicSite()
-					 ? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
-					 : 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
+			isSimpleSite() || isAtomicSite()
+				? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
+				: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
 
 		return (
 			<div className={ className }>
@@ -134,7 +121,7 @@ export function GoogleCalendarEdit( props ) {
 				<Placeholder
 					className={ className }
 					label={ __( 'Google Calendar', 'jetpack' ) }
-					icon={ <BlockIcon icon={ icon } /> }
+					icon={ icon }
 					instructions={
 						<ol className={ `${ defaultClassName }-placeholder-instructions` }>
 							<li>{ permissionsLink }</li>
@@ -167,10 +154,7 @@ export function GoogleCalendarEdit( props ) {
 			<div>
 				<SandBox html={ html } onFocus={ hideOverlay } />
 				{ ! interactive && (
-					<div
-						className="block-library-embed__interactive-overlay"
-						onMouseUp={ hideOverlay }
-					/>
+					<div className="block-library-embed__interactive-overlay" onMouseUp={ hideOverlay } />
 				) }
 			</div>
 		</div>

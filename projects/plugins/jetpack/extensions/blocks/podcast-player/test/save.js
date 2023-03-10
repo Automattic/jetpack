@@ -1,6 +1,3 @@
-/**
- * Internal dependencies
- */
 import save from '../save';
 
 const exampleSettings = {

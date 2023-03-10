@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
-Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, biskobe, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
+Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 10.1
-Requires at least: 5.7
+Stable tag: 11.9
+Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 5.8
+Tested up to: 6.2
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -17,7 +17,7 @@ WordPress security, performance, marketing, and design tools — Jetpack is made
 = 24/7 AUTO SITE SECURITY =
 We guard your site so you can run your site or business. Jetpack Security provides easy-to-use, comprehensive WordPress site security including auto real-time backups and easy restores, malware scans, and spam protection. Essential features like brute force protection and downtime / uptime monitoring are free.
 
-* Back up your site automatically in real time and restore to any point with one click. Unlimited storage for your backup. Great for eCommerce stores especially Woo.
+* Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
 * See every site change and who made it with the activity log, great for coordination, debug, maintenance, or troubleshooting.
 * Automatically perform malware scans and security scans for other code threats. One click fix to restore your site for malware.
@@ -26,6 +26,8 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Monitor your site uptime / downtime and get an instant alert of any change by email.
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
+
+You can purchase all of Jetpack’s security features in our Security bundle, or VaultPress Backup, Scan, and Akismet Anti-spam can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
 Get blazing fast site speed with Jetpack, the premier WP plugin built to leverage the power of AMP, a tool that helps optimize your site on mobile devices. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
@@ -62,12 +64,12 @@ Quickly customize your site to make it stand out — no coding needed.
 = INTEGRATIONS =
 Jetpack is updated monthly to ensure seamless integration with top WordPress plugins and other tech products.
 
-* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores
+* Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
-* Better understand your customers and marketing with Google Analytics (GA) integration
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn
-* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow
-* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal
+* Better understand your customers and marketing with Google Analytics (GA) integration.
+* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
+* Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
@@ -195,7 +197,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
 * Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
 * Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.﻿
+* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
 * Star Rating Block - The Ratings block allows any site author to add reviews to the site.
 * Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
@@ -242,56 +244,13 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 10.1 - 2021-09-07
-#### Major Enhancements
-- Search: add a Gutenberg powered customization interface.
-
+### 12.0-a.1 - 2023-03-08
 #### Enhancements
-- Carousel: photo info and comment sections stay open once toggled on.
-- Carousel: show image info icon even if Exif metadata option is off.
-- Carousel: use photo description as caption if caption and title fields are blank.
-- Form Block: scroll to subscription message after submitting the form.
-- Jetpack Assistant: introduce a new "Product Suggestion" step to inform new users of relevant Jetpack services.
-- Search: greater theme compatibility, including label coloring and custom checkbox margins.
-- Search: improves handling of breadcrumb display.
-- Search: visual, functional, and accessibility improvements to new wp-admin section and customization interface.
-- Secure Sign On: remove additional redirect during sign in process.
-- Shortcodes: allow wrapping quizzes together with the Quiz shortcode.
-- Spotify Shortcode: add lazy loading support.
-- Stats: add the ability to collapse the nudges UI.
-- Tiled Gallery Block: ensure it can be used when in Offline Mode.
-- Widget Visibility: rename taxonomy label "All Pages" in dropdown.
-
-#### Improved compatibility
-- Browser Compatibility: allow use of new JavaScript features not supported by Internet Explorer 11.
-- Image CDN: added support for the WEBP format.
-- Mailchimp Block: updates terminology to use "Audience" instead of "Lists".
-- Media: allow ZIP files to be uploaded to sites via WordPress.com.
-- Related Posts: allow shortcodes in Related Posts titles.
-
-#### Bug fixes
-- Blocks: fix HTML markup of buttons added to blocks.
-- Carousel: fix a bug that changes the cursor to a pointer over all nested blocks.
-- Carousel: fix bug preventing user from swiping in gallery when images are configured to link to Attachment Page.
-- Carousel: hide UI controls in the carousel for single images.
-- Contact Form: disable the Block Editor for contact form submissions.
-- Custom CSS: ensure that short CSS is added inline instead of via an external file.
-- Dashboard: add a new message to the backup card if the site is too new to have an accurate status.
-- Dashboard: ensure that the image CDN does not get enabled by default when using the Site Accelerator toggle while in Offline mode.
-- Facebook Page Widget: fix a bug that prevented widget from being added in the wp-admin widget editor.
-- Form Block: fix form button alignment in editor.
-- Instant Search: ensure box-shadow and text-shadow aren't applied to search buttons.
-- Search: fix search widgets not saving in block widget editor.
-- Search: fix various issues with scrolling on both desktop and mobile devices.
-- Search: fix wrapping issue on super wide screens.
-- Search: hide search sub menu on site disconnection.
-- Search: improve style specificity for result highlights in Customberg.
-- Slideshow Block: fix intermittent issue where next/prev buttons sometimes don't respond to clicks.
-- Social Icons: fix being unable to remove icons from widget.
-- Social Icons Widget: fix issue in wp-admin widget editor where icons don't save on refresh.
-- Stats: allow better translations of page view counts in the Stats widget.
-- Video Block: fix resizing so that video block doesn't display black bars on the sides.
+- Admin: fix submenu positioning in admin menu.
+- Blocks: add a new Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors.
+- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer.
+- Stats: updates the layout of the loading and some sections on the Stats page.
 
 --------
 
-[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/master/projects/plugins/jetpack/CHANGELOG.md#changelog)
+[See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

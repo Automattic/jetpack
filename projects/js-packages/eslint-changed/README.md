@@ -34,8 +34,8 @@ The following options are used with manual mode:
 
 ### With git
 
-In git mode, `eslint-changed` needs to be able to run `git` and `eslint`. If these are not available by those names in the shell path,
-set environment variables `GIT` and/or `ESLINT` as appropriate.
+In git mode, `eslint-changed` needs to be able to run `git`. If this is not available by that name in the shell path,
+set environment variable `GIT` as appropriate.
 
 The following options are used with manual mode:
 
@@ -51,18 +51,18 @@ This will compare the staged changes with HEAD.
 npx eslint-changed --git
 ```
 
-This will compare HEAD with origin/master.
+This will compare HEAD with origin/trunk.
 ```bash
-npx eslint-changed --git --git-base origin/master
+npx eslint-changed --git --git-base origin/trunk
 ```
 
 This does much the same as the previous example, but manually. If you're using something other than git, you might do something like this.
 ```bash
 # Produce a diff.
-git diff origin/master...HEAD > /tmp/diff
+git diff origin/trunk...HEAD > /tmp/diff
 
-# Check out the merge-base of origin/master and HEAD.
-git checkout origin/master...HEAD
+# Check out the merge-base of origin/trunk and HEAD.
+git checkout origin/trunk...HEAD
 
 # Run ESLint.
 npx eslint --format=json . > /tmp/eslint.orig.json

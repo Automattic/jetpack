@@ -1,13 +1,13 @@
-/**
- * Internal dependencies
- */
-import { PODCAST_FEED, EMBED_BLOCK } from './constants';
-
-/**
- * WordPress dependencies
- */
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
+
+export const fetchTrackQuantity = async () => {
+	const trackQuantity = await apiFetch( {
+		path: '/wpcom/v2/podcast-player/track-quantity',
+	} );
+	return trackQuantity;
+};
 
 export const fetchPodcastFeed = async ( { url, guids = [], fetchEpisodeOptions = false } ) => {
 	// First try calling our endpoint for Podcast parsing.

@@ -1,9 +1,8 @@
 /* global jpConnect */
 
 jQuery( document ).ready( function ( $ ) {
-	var connectButton = $( '.jp-connect-button, .jp-banner__alt-connect-button' ).eq( 0 );
+	var connectButton = $( '.jp-connect-button, #jp-connect-button--alt' ).eq( 0 );
 	var tosText = $( '.jp-connect-full__tos-blurb' );
-	var jetpackConnectIframe = $( '<iframe class="jp-jetpack-connect__iframe" />' );
 	// Sections that only show up in the first Set Up screen
 	var connectionHelpSections = $(
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph, .jp-connect-full__testimonial'
@@ -41,22 +40,16 @@ jQuery( document ).ready( function ( $ ) {
 				jetpackConnectButton.handleConnection();
 			}
 		},
-		selectAndStartAuthorizationFlow: function ( data ) {
-			if ( data.allowInplaceAuthorization && 'original' !== jpConnect.forceVariation ) {
-				jetpackConnectButton.handleAuthorizeInPlaceFlow( data );
+		startAuthorizationFlow: function ( data ) {
+			if ( data.alternateAuthorizeUrl ) {
+				window.location = data.alternateAuthorizeUrl;
 			} else {
-				// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
-				// or we're dealing with Safari which has issues with handling 3rd party cookies.
-				if ( data.alternateAuthorizeUrl ) {
-					window.location = data.alternateAuthorizeUrl;
-				} else {
-					window.location = data.authorizeUrl;
-				}
+				window.location = data.authorizeUrl;
 			}
 		},
 		handleConnection: function () {
 			// Alternative connection buttons should redirect to the main one for the "connect in place" flow.
-			if ( connectButton.hasClass( 'jp-banner__alt-connect-button' ) ) {
+			if ( connectButton.attr( 'id' ) === 'jp-connect-button--alt' ) {
 				// Make sure we don't lose the `from` parameter, if set.
 				var fromParam = ( connectButtonFrom && '&from=' + connectButtonFrom ) || '';
 				window.location = jpConnect.connectInPlaceUrl + fromParam;
@@ -83,10 +76,9 @@ jQuery( document ).ready( function ( $ ) {
 					registration_nonce: jpConnect.registrationNonce,
 					_wpnonce: jpConnect.apiNonce,
 					from: connectButtonFrom,
-					no_iframe: 'original' === jpConnect.forceVariation,
 				},
 				error: jetpackConnectButton.handleConnectionError,
-				success: jetpackConnectButton.selectAndStartAuthorizationFlow,
+				success: jetpackConnectButton.startAuthorizationFlow,
 			} );
 		},
 		triggerLoadingState: function () {
@@ -99,28 +91,6 @@ jQuery( document ).ready( function ( $ ) {
 			var spinnerOuter = $( '<div>' ).addClass( 'jp-spinner__outer' ).appendTo( spinner );
 			$( '<div>' ).addClass( 'jp-spinner__inner' ).appendTo( spinnerOuter );
 			loadingText.after( spinner );
-		},
-		handleAuthorizeInPlaceFlow: function ( data ) {
-			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr(
-				'src',
-				data.authorizeUrl + '&from=' + connectButtonFrom + '&iframe_source=jetpack-connect-main'
-			);
-			jetpackConnectIframe.on( 'load', function () {
-				jetpackConnectIframe.show();
-				$( '.jp-connect-full__button-container' ).hide();
-				$( '#jp-connect-full__step1-header' ).hide();
-				$( '#jp-connect-full__step2-header' ).show();
-			} );
-			jetpackConnectIframe.hide();
-			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
-
-			// At this point we are pretty sure if things work out that we will be loading the admin script
-			var link = document.createElement( 'link' );
-			link.rel = 'preload';
-			link.as = 'script';
-			link.href = jpConnect.preFetchScript;
-			document.head.appendChild( link );
 		},
 		fetchPlanType: function () {
 			return $.ajax( {
@@ -137,10 +107,7 @@ jQuery( document ).ready( function ( $ ) {
 			} );
 		},
 		receiveData: function ( event ) {
-			if (
-				event.origin !== jpConnect.jetpackApiDomain ||
-				event.source !== jetpackConnectIframe.get( 0 ).contentWindow
-			) {
+			if ( event.origin !== jpConnect.jetpackApiDomain ) {
 				return;
 			}
 
@@ -150,7 +117,6 @@ jQuery( document ).ready( function ( $ ) {
 					jetpackConnectButton.handleAuthorizationComplete();
 					break;
 				case 'wpcom_nocookie':
-					jetpackConnectIframe.hide();
 					jetpackConnectButton.handleConnectionError();
 					break;
 			}

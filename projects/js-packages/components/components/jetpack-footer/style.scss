@@ -7,6 +7,11 @@
 	max-width: 1128px;
 
 	color: #000;
+
+	a, a:hover, a:visited {
+		color: #000;
+		text-decoration: none;
+	}
 }
 .jp-dashboard-footer__module-name,
 .jp-dashboard-footer__jetpack-symbol {

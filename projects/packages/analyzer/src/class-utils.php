@@ -31,7 +31,14 @@ class Utils {
 		}
 	}
 
-	static function node_to_class_name( $node, $class_for_self = null ) {
+	/**
+	 * Gets string representation of the Node's class
+	 *
+	 * @param Node $node Node.
+	 * @param any  $class_for_self Class reference.
+	 * @return string
+	 */
+	public static function node_to_class_name( $node, $class_for_self = null ) {
 		if ( $node instanceof Node\Expr\Variable
 			|| $node instanceof Node\Stmt\Class_ ) {
 			$class_name = $node->name;
@@ -39,16 +46,35 @@ class Utils {
 			$class_name = '\\' . implode( '\\', $node->parts );
 		} elseif ( $node instanceof Node\Expr\PropertyFetch ) {
 			$class_name =
-						'$'
-						. self::maybe_stringify( $node->var->name )
-						. '->' . self::maybe_stringify( $node->name->name );
+				'$'
+				. self::maybe_stringify( $node->var->name )
+				. '->' . self::maybe_stringify( $node->name->name );
 		} elseif ( $node instanceof Node\Expr\ArrayDimFetch ) {
 
-			$class_name =
-						'$'
-						. self::maybe_stringify( $node->var->name )
-						. '[' . self::maybe_stringify( $node->dim->value )
-						. ']';
+			$dim_val = null;
+			$var_val = null;
+			if ( $node->dim instanceof Node\Expr\Variable ) {
+				$dim_val = '[$' . self::maybe_stringify( $node->dim->name ) . ']';
+			} elseif ( $node->dim instanceof Node\Expr\PropertyFetch ) {
+				$dim_val = '[$' . self::maybe_stringify( $node->dim->var->name ) . '->' . self::maybe_stringify( $node->dim->name->name ) . ']';
+			} elseif ( $node->dim instanceof Node\Expr\ArrayDimFetch ) {
+				$dim_val = '[$' . self::maybe_stringify( $node->dim->var->name ) . '["' . self::maybe_stringify( $node->dim->dim->value ) . '"]]';
+			} else {
+				$dim_val = '[' . self::maybe_stringify( $node->dim->value ) . ']';
+			}
+			if ( $node->var instanceof Node\Expr\ArrayDimFetch ) {
+				$var_val = self::maybe_stringify( $node->var->var->name );
+
+				if ( $node->var->dim instanceof Node\Expr\Variable ) {
+					$var_val = $var_val . '[$' . self::maybe_stringify( $node->var->dim->name ) . ']';
+				} else {
+					$var_val = $var_val . '["' . self::maybe_stringify( $node->var->dim->value ) . '"]';
+				}
+			} else {
+				$var_val = self::maybe_stringify( $node->var->name );
+			}
+
+			$class_name = '$' . $var_val . $dim_val;
 		} else {
 			if ( method_exists( $node, 'toCodeString' ) ) {
 				$class_name = $node->toCodeString();
@@ -64,7 +90,13 @@ class Utils {
 		return $class_name;
 	}
 
-	static function maybe_stringify( $object ) {
+	/**
+	 * Get string representation of a passed object
+	 *
+	 * @param any $object Any object type.
+	 * @return string
+	 */
+	public static function maybe_stringify( $object ) {
 		$is_stringifiable = (
 			is_numeric( $object )
 			|| is_string( $object )

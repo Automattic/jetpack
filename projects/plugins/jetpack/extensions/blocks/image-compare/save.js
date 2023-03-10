@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { RichText } from '@wordpress/block-editor';
 
 const save = ( { attributes, className } ) => {

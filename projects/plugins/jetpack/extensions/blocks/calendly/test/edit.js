@@ -1,31 +1,17 @@
-/**
- * @jest-environment jsdom
- */
-
-/**
- * External dependencies
- */
-import '@testing-library/jest-dom/extend-expect';
-import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '@testing-library/react';
-
+import userEvent from '@testing-library/user-event';
 // this is necessary because block editor store becomes unregistered during jest initialization
-import { register } from '@wordpress/data';
 import { store as blockEditorStore } from '@wordpress/block-editor';
+import { register } from '@wordpress/data';
+import testEmbedUrl from '../../../shared/test-embed-url';
+import { CalendlyEdit } from '../edit';
+
 register( blockEditorStore );
 
-// Need to mock InnerBlocks before import the CalendlyEdit component as it
-// requires the Gutenberg store setup to operate.
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	InnerBlocks: () => <button>Mocked button</button>,
 } ) );
-
-/**
- * Internal dependencies
- */
-import testEmbedUrl from '../../../shared/test-embed-url';
-import { CalendlyEdit } from '../edit';
 
 jest.mock( '../../../shared/test-embed-url', () => ( {
 	__esModule: true,
@@ -100,33 +86,34 @@ describe( 'CalendlyEdit', () => {
 	} );
 
 	describe( 'parseEmbedCode', () => {
-		test( 'displays error notice when empty embed url submitted', () => {
+		test( 'displays error notice when empty embed url submitted', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			expect( removeAllNotices ).toHaveBeenCalled();
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
-		test( 'displays error notice when updated embed code fails to parse', () => {
+		test( 'displays error notice when updated embed code fails to parse', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.paste(
-				screen.getByPlaceholderText( 'Calendly web address or embed code…' ),
-				'invalid-url'
-			);
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.click( screen.getByPlaceholderText( 'Calendly web address or embed code…' ) );
+			await user.paste( 'invalid-url' );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			expect( removeAllNotices ).toHaveBeenCalled();
 			expect( createErrorNotice ).toHaveBeenCalled();
 		} );
 
 		test( 'parsed embed code is tested before updating attributes', async () => {
+			const user = userEvent.setup();
 			render( <CalendlyEdit { ...propsWithoutUrl } /> );
 
-			userEvent.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
-			userEvent.click( screen.getByRole( 'button', { name: 'Embed' } ) );
+			await user.type( screen.getByRole( 'textbox' ), 'https://calendly.com/valid-url' );
+			await user.click( screen.getByRole( 'button', { name: 'Embed' } ) );
 
 			await waitFor( () =>
 				expect( testEmbedUrl ).toHaveBeenCalledWith(
@@ -141,7 +128,7 @@ describe( 'CalendlyEdit', () => {
 		const attributes = { ...defaultAttributes, url: 'https://calendly.com/invalid-url' };
 		render( <CalendlyEdit { ...{ ...defaultProps, attributes } } /> );
 
-		await waitFor( () => expect( screen.getByText( 'Embedding…' ) ).toBeInTheDocument() );
+		await expect( screen.findByText( 'Embedding…' ) ).resolves.toBeInTheDocument();
 	} );
 
 	test( 'renders inline preview with iframe component', async () => {
@@ -151,7 +138,9 @@ describe( 'CalendlyEdit', () => {
 		await waitFor( () => ( iframe = screen.getByTitle( 'Calendly' ) ) );
 
 		expect( iframe ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( iframe.parentElement ).toHaveClass( 'calendly-style-inline' );
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
 	} );
 
@@ -177,6 +166,7 @@ describe( 'CalendlyEdit', () => {
 		const link = screen.getByText( 'Need help finding your embed code?' );
 
 		expect( link ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
 		expect( link.parentElement ).toHaveClass( 'wp-block-jetpack-calendly-learn-more' );
 	} );
 } );

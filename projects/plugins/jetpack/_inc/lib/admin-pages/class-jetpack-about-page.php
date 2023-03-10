@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once 'class.jetpack-admin-page.php';
+require_once __DIR__ . '/class.jetpack-admin-page.php';
 
 /**
  * Builds the landing page and its menu.
@@ -41,7 +41,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	public function get_page_hook() {
 		// Add the main admin Jetpack menu.
 		return add_submenu_page(
-			null,
+			'',
 			esc_html__( 'About Jetpack', 'jetpack' ),
 			'',
 			'jetpack_admin_page',
@@ -53,10 +53,12 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	/**
 	 * Add page action
 	 *
-	 * @param string $hook Hook of current page, unused.
+	 * @param string $hook Hook of current page.
 	 */
-	public function add_page_actions( $hook ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		$this->a8c_data = $this->fetch_a8c_data();
+	public function add_page_actions( $hook ) {
+		if ( 'admin_page_jetpack_about' === $hook ) {
+			$this->a8c_data = $this->fetch_a8c_data();
+		}
 	}
 
 	/**
@@ -92,6 +94,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	public function page_render() {
 		?>
 		<div class="jp-lower">
+			<h1 class="screen-reader-text"><?php esc_html_e( 'About Jetpack', 'jetpack' ); ?></h1>
 			<div class="jetpack-about__link-back">
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack' ) ); ?>">
 					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>
@@ -517,7 +520,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			<?php
 
 		}
-
 	}
 
 	/**
@@ -537,7 +539,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				true
 			);
 			if ( ! empty( $data ) && is_array( $data ) ) {
-				set_transient( 'jetpack_a8c_data', $data, DAY_IN_SECONDS );
+				set_transient( 'jetpack_a8c_data', $data, WEEK_IN_SECONDS );
 			} else {
 				// Fallback if everything fails.
 				$data = array(

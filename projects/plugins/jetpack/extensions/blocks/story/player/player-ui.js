@@ -1,26 +1,15 @@
-/**
- * External dependencies
- */
-import classNames from 'classnames';
-import { some } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { useResizeObserver } from '@wordpress/compose';
-import { __ } from '@wordpress/i18n';
 import { useDispatch, useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
-import Slide from './slide';
+import { useRef, useState, useEffect, useLayoutEffect, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
+import { some } from 'lodash';
 import icon from '../icon';
-import ProgressBar from './progress-bar';
 import { Background, Controls, Header, Overlay } from './components';
 import useLongPress from './lib/use-long-press';
+import ProgressBar from './progress-bar';
+import Slide from './slide';
 
 export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	const { setFullscreen, setEnded, setPlaying, setMuted, showSlide } = useDispatch(
@@ -156,7 +145,9 @@ export default function PlayerUI( { id, slides, metadata, disabled } ) {
 	if ( fullscreen ) {
 		label = [
 			__( 'You are currently playing a story.', 'jetpack' ),
-			playing ? __( 'Press space to pause.', 'jetpack' ) : __( 'Press space to play.', 'jetpack' ),
+			playing
+				? __( 'Press space to pause.', 'jetpack' )
+				: __( 'Press space to play.', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
 			__( 'Press escape to exit.', 'jetpack' ),
 		].join( ' ' );
 	} else {

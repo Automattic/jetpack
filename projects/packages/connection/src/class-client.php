@@ -23,11 +23,42 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		if ( isset( $args['url'] ) ) {
+			/**
+			 * Filters the remote request url.
+			 *
+			 * @since 1.30.12
+			 *
+			 * @param string The remote request url.
+			 */
+			$args['url'] = apply_filters( 'jetpack_remote_request_url', $args['url'] );
+		}
+
 		$result = self::build_signed_request( $args, $body );
 		if ( ! $result || is_wp_error( $result ) ) {
 			return $result;
 		}
-		return self::_wp_remote_request( $result['url'], $result['request'] );
+
+		$response = self::_wp_remote_request( $result['url'], $result['request'] );
+
+		Error_Handler::get_instance()->check_api_response_for_errors(
+			$response,
+			$result['auth'],
+			empty( $args['url'] ) ? '' : $args['url'],
+			empty( $args['method'] ) ? 'POST' : $args['method'],
+			'rest'
+		);
+
+		/**
+		 * Fired when the remote request response has been received.
+		 *
+		 * @since 1.30.8
+		 *
+		 * @param array|WP_Error The HTTP response.
+		 */
+		do_action( 'jetpack_received_remote_request_response', $response );
+
+		return $response;
 	}
 
 	/**
@@ -40,6 +71,7 @@ class Client {
 	 *
 	 *     @type String $url     The request URL.
 	 *     @type array  $request Request arguments.
+	 *     @type array  $auth    Authorization data.
 	 * }
 	 */
 	public static function build_signed_request( $args, $body = null ) {
@@ -112,7 +144,7 @@ class Client {
 		}
 
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing.
-		if ( is_null( $body ) ) {
+		if ( $body === null ) {
 			$body_hash = '';
 
 		} else {
@@ -182,7 +214,7 @@ class Client {
 			$url = add_query_arg( 'signature', rawurlencode( $signature ), $url );
 		}
 
-		return compact( 'url', 'request' );
+		return compact( 'url', 'request', 'auth' );
 	}
 
 	/**
@@ -287,7 +319,7 @@ class Client {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		// Only trust the Date header on some responses.
-		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  WordPress.PHP.StrictComparisons.LooseComparison
+		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) { // phpcs:ignore  Universal.Operators.StrictComparisons.LooseNotEqual
 			return;
 		}
 
@@ -461,18 +493,5 @@ class Client {
 		}
 
 		return $data;
-	}
-
-	/**
-	 * Gets protocol string.
-	 *
-	 * @return string Always 'https'.
-	 *
-	 * @deprecated 1.19.2 WP.com API no longer supports requests using `http://`.
-	 */
-	public static function protocol() {
-		_deprecated_function( __METHOD__, '1.19.2' );
-
-		return 'https';
 	}
 }

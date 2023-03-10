@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.5] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.7.4] - 2022-07-26
+### Changed
+- Updated package dependencies. [#25158]
+
+## [1.7.3] - 2022-06-21
+### Changed
+- Renaming master to trunk. [#24661]
+
+## [1.7.2] - 2022-05-18
+### Fixed
+- Fix new PHPCS sniffs. [#24366]
+
+## [1.7.1] - 2022-04-26
+### Changed
+- Updated package dependencies.
+
+## [1.7.0] - 2022-03-23
+### Added
+- Migrated GlotPress locale classes into compat pkg
+
+## [1.6.8] - 2021-12-14
+### Changed
+- Updated package dependencies.
+
+## [1.6.7] - 2021-10-19
+### Changed
+- Updated package dependencies.
+
+## [1.6.6] - 2021-09-28
+### Fixed
+- Register WP hooks even if WP isn't loaded yet.
+
 ## [1.6.5] - 2021-05-25
 ### Changed
 - Updated package dependencies.
@@ -85,6 +121,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Jetpack 7.5: Back compatibility package
 
+[1.7.5]: https://github.com/Automattic/jetpack-compat/compare/v1.7.4...v1.7.5
+[1.7.4]: https://github.com/Automattic/jetpack-compat/compare/v1.7.3...v1.7.4
+[1.7.3]: https://github.com/Automattic/jetpack-compat/compare/v1.7.2...v1.7.3
+[1.7.2]: https://github.com/Automattic/jetpack-compat/compare/v1.7.1...v1.7.2
+[1.7.1]: https://github.com/Automattic/jetpack-compat/compare/v1.7.0...v1.7.1
+[1.7.0]: https://github.com/Automattic/jetpack-compat/compare/v1.6.8...v1.7.0
+[1.6.8]: https://github.com/Automattic/jetpack-compat/compare/v1.6.7...v1.6.8
+[1.6.7]: https://github.com/Automattic/jetpack-compat/compare/v1.6.6...v1.6.7
+[1.6.6]: https://github.com/Automattic/jetpack-compat/compare/v1.6.5...v1.6.6
 [1.6.5]: https://github.com/Automattic/jetpack-compat/compare/v1.6.4...v1.6.5
 [1.6.4]: https://github.com/Automattic/jetpack-compat/compare/v1.6.3...v1.6.4
 [1.6.3]: https://github.com/Automattic/jetpack-compat/compare/v1.6.2...v1.6.3

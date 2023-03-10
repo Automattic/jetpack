@@ -1,11 +1,5 @@
-/**
- * External dependencies
- */
+import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
@@ -24,11 +18,8 @@ import {
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
-	SITE_RECONNECT,
-	SITE_RECONNECT_FAIL,
+	JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 } from 'state/action-types';
-import restApi from '@automattic/jetpack-api';
-import { isSafari, doNotUseConnectionIframe } from 'state/initial-state';
 
 export const fetchSiteConnectionStatus = () => {
 	return dispatch => {
@@ -149,6 +140,8 @@ export const disconnectSite = ( reloadAfter = false ) => {
 
 				if ( reloadAfter ) {
 					window.location.reload();
+				} else {
+					dispatch( fetchSiteConnectionStatus() );
 				}
 			} )
 			.catch( error => {
@@ -236,54 +229,12 @@ export const resetConnectUser = () => {
 	};
 };
 
-export const reconnectSite = () => {
-	return ( dispatch, getState ) => {
+export const setHasSeenWCConnectionModal = () => {
+	return dispatch => {
 		dispatch( {
-			type: SITE_RECONNECT,
+			type: JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL,
 		} );
-		dispatch(
-			createNotice( 'is-info', __( 'Reconnecting Jetpack', 'jetpack' ), {
-				id: 'reconnect-jetpack',
-			} )
-		);
-		return restApi
-			.reconnect()
-			.then( connectionStatusData => {
-				const status = connectionStatusData.status;
-				const authorizeUrl = connectionStatusData.authorizeUrl;
-				// status: in_progress, aka user needs to re-connect their WP.com account.
-				if ( 'in_progress' === status ) {
-					// Redirect user to authorize WP.com if in-place connection is restricted.
-					if ( isSafari( getState() ) || doNotUseConnectionIframe( getState() ) ) {
-						return window.location.replace( authorizeUrl );
-					}
-					// Set connectUrl and initiate in-place auth flow.
-					dispatch( {
-						type: CONNECT_URL_FETCH_SUCCESS,
-						connectUrl: authorizeUrl,
-					} );
-					dispatch( connectUser() );
-				} else {
-					window.location.reload();
-				}
-			} )
-			.catch( error => {
-				dispatch( {
-					type: SITE_RECONNECT_FAIL,
-					error: error,
-				} );
-				dispatch( removeNotice( 'reconnect-jetpack' ) );
-				dispatch(
-					createNotice(
-						'is-error',
-						sprintf(
-							/* translators: placeholder is the error. */
-							__( 'There was an error reconnecting Jetpack. Error: %s', 'jetpack' ),
-							error.response.message || error.response.code
-						),
-						{ id: 'reconnect-jetpack' }
-					)
-				);
-			} );
+
+		return restApi.setHasSeenWCConnectionModal();
 	};
 };

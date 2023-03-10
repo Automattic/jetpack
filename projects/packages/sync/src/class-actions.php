@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
-use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Status;
@@ -23,13 +22,31 @@ use WP_Error;
 class Actions {
 
 	/**
-	 * Name of the retry-after option prefix
+	 * Name of the retry-after option prefix.
 	 *
 	 * @access public
 	 *
 	 * @var string
 	 */
 	const RETRY_AFTER_PREFIX = 'jp_sync_retry_after_';
+
+	/**
+	 * Name of the error log option prefix.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const ERROR_LOG_PREFIX = 'jp_sync_error_log_';
+
+	/**
+	 * Name of the last successful sync option prefix.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const LAST_SUCCESS_PREFIX = 'jp_sync_last_success_';
 
 	/**
 	 * A variable to hold a sync sender object.
@@ -72,6 +89,8 @@ class Actions {
 	/**
 	 * Initialize Sync for cron jobs, set up listeners for WordPress Actions,
 	 * and set up a shut-down action for sending actions to WordPress.com
+	 * If dedicated Sync is enabled and this is a dedicated Sync request
+	 * up an init action for sending actions to WordPress.com instead.
 	 *
 	 * @access public
 	 * @static
@@ -79,6 +98,17 @@ class Actions {
 	public static function init() {
 		// Everything below this point should only happen if we're a valid sync site.
 		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		// If dedicated Sync is enabled and this is a dedicated Sync request, no need to
+		// initialize Sync for cron jobs or set up a shut-down action for sending actions to WordPress.com.
+		// We only need to set up an init action for sending actions to WordPress.com and exit early.
+		// Note: We also need to initialize the listener so that callable and constant changes, eg actions that
+		// rely on 'jetpack_sync_before_send_queue_sync' are picked up and added to the queue if needed.
+		if ( Settings::is_dedicated_sync_enabled() && Dedicated_Sender::is_dedicated_sync_request() ) {
+			self::initialize_listener();
+			add_action( 'init', array( __CLASS__, 'add_dedicated_sync_sender_init' ), 90 );
 			return;
 		}
 
@@ -147,6 +177,22 @@ class Actions {
 	}
 
 	/**
+	 * Immediately sends actions on init for the current dedicated Sync request.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function add_dedicated_sync_sender_init() {
+		if ( apply_filters(
+			'jetpack_sync_sender_should_load',
+			true
+		) ) {
+			self::initialize_sender();
+			self::$sender->do_dedicated_sync_and_exit();
+		}
+	}
+
+	/**
 	 * Define JETPACK_SYNC_READ_ONLY constant if not defined.
 	 * This notifies sync to not run in shutdown if it was initialized during init.
 	 *
@@ -175,6 +221,13 @@ class Actions {
 
 		if ( Constants::is_true( 'DOING_CRON' ) ) {
 			return self::sync_via_cron_allowed();
+		}
+
+		/**
+		 * For now, if dedicated Sync is enabled we will always initialize send, even for GET and unauthenticated requests.
+		 */
+		if ( Settings::is_dedicated_sync_enabled() ) {
+			return true;
 		}
 
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
@@ -294,8 +347,29 @@ class Actions {
 				$debug['debug_details']['active_connection'] = false;
 			}
 		}
-		return $debug;
 
+		// Sync locks.
+		$debug['debug_details']['dedicated_sync_enabled'] = Settings::is_dedicated_sync_enabled();
+
+		$queue      = self::$sender->get_sync_queue();
+		$full_queue = self::$sender->get_full_sync_queue();
+
+		$debug['debug_details']['sync_locks'] = array(
+			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
+			'retry_time_full_sync'                  => get_option( self::RETRY_AFTER_PREFIX . 'full_sync' ),
+			'next_sync_time_sync'                   => self::$sender->get_next_sync_time( 'sync' ),
+			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
+			'queue_locked_sync'                     => $queue->is_locked(),
+			'queue_locked_full_sync'                => $full_queue->is_locked(),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
+		);
+
+		// Sync Logs.
+		$debug['debug_details']['last_succesful_sync'] = get_option( self::LAST_SUCCESS_PREFIX . 'sync', '' );
+		$debug['debug_details']['sync_error_log']      = get_option( self::ERROR_LOG_PREFIX . 'sync', '' );
+
+		return $debug;
 	}
 
 	/**
@@ -357,28 +431,20 @@ class Actions {
 	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null, $buffer_id = null ) {
 
 		$query_args = array(
-			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
-			'codec'      => $codec_name,
-			'timestamp'  => $sent_timestamp,
-			'queue'      => $queue_id,
-			'home'       => Urls::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'    => Urls::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
-			'cd'         => sprintf( '%.4f', $checkout_duration ),
-			'pd'         => sprintf( '%.4f', $preprocess_duration ),
-			'queue_size' => $queue_size,
-			'buffer_id'  => $buffer_id,
+			'sync'           => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
+			'codec'          => $codec_name,
+			'timestamp'      => $sent_timestamp,
+			'queue'          => $queue_id,
+			'cd'             => sprintf( '%.4f', $checkout_duration ),
+			'pd'             => sprintf( '%.4f', $preprocess_duration ),
+			'queue_size'     => $queue_size,
+			'buffer_id'      => $buffer_id,
+			// TODO this will be extended in the future. Might be good to extract in a separate method to support future entries too.
+			'sync_flow_type' => Settings::is_dedicated_sync_enabled() ? 'dedicated' : 'default',
 		);
 
-		// Has the site opted in to IDC mitigation?
-		if ( Identity_Crisis::should_handle_idc() ) {
-			$query_args['idc'] = true;
-		}
+		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 20;
 
-		if ( \Jetpack_Options::get_option( 'migrate_for_idc', false ) ) {
-			$query_args['migrate_for_idc'] = true;
-		}
-
-		$query_args['timeout'] = Settings::is_doing_cron() ? 30 : 15;
 		if ( 'immediate-send' === $queue_id ) {
 			$query_args['timeout'] = 30;
 		}
@@ -401,7 +467,7 @@ class Actions {
 		if ( ! class_exists( '\\Jetpack_IXR_Client' ) ) {
 			return new WP_Error(
 				'ixr_client_missing',
-				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack' )
+				esc_html__( 'Sync has been aborted because the IXR client is missing.', 'jetpack-sync' )
 			);
 		}
 
@@ -425,37 +491,49 @@ class Actions {
 			}
 		}
 
+		// Enable/Disable Dedicated Sync flow via response headers.
+		$dedicated_sync_header = $rpc->get_response_header( 'Jetpack-Dedicated-Sync' );
+		if ( false !== $dedicated_sync_header ) {
+			Dedicated_Sender::maybe_change_dedicated_sync_status_from_wpcom_header( $dedicated_sync_header );
+		}
+
 		if ( ! $result ) {
 			if ( false === $retry_after ) {
 				// We received a non standard response from WP.com, lets backoff from sending requests for 1 minute.
 				update_option( self::RETRY_AFTER_PREFIX . $queue_id, microtime( true ) + 60, false );
 			}
+			// Record Sync Errors.
+			$error_log = get_option( self::ERROR_LOG_PREFIX . $queue_id, array() );
+			if ( ! is_array( $error_log ) ) {
+				$error_log = array();
+			}
+			// Trim existing array to last 4 entries.
+			if ( 5 <= count( $error_log ) ) {
+				$error_log = array_slice( $error_log, -4, null, true );
+			}
+			// Add new error indexed to time.
+			$error = $rpc->get_jetpack_error();
+			$error->add_data( $rpc->get_last_response() );
+			$error_log[ (string) microtime( true ) ] = $error;
+			// Update the error log.
+			update_option( self::ERROR_LOG_PREFIX . $queue_id, $error_log );
+
+			// return request error.
 			return $rpc->get_jetpack_error();
 		}
 
 		$response = $rpc->getResponse();
 
 		// Check if WordPress.com IDC mitigation blocked the sync request.
-		if ( is_array( $response ) && isset( $response['error_code'] ) ) {
-			$error_code              = $response['error_code'];
-			$allowed_idc_error_codes = array(
-				'jetpack_url_mismatch',
-				'jetpack_home_url_mismatch',
-				'jetpack_site_url_mismatch',
-			);
-
-			if ( in_array( $error_code, $allowed_idc_error_codes, true ) ) {
-				\Jetpack_Options::update_option(
-					'sync_error_idc',
-					Identity_Crisis::get_sync_error_idc_option( $response )
-				);
-			}
-
+		if ( Identity_Crisis::init()->check_response_for_idc( $response ) ) {
 			return new WP_Error(
 				'sync_error_idc',
-				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack' )
+				esc_html__( 'Sync has been blocked from WordPress.com because it would cause an identity crisis', 'jetpack-sync' )
 			);
 		}
+
+		// Record last successful sync.
+		update_option( self::LAST_SUCCESS_PREFIX . $queue_id, microtime( true ), false );
 
 		return $response;
 	}
@@ -469,7 +547,7 @@ class Actions {
 	 * @return bool|null False if sync is not allowed.
 	 */
 	public static function do_initial_sync() {
-		// Lets not sync if we are not suppose to.
+		// Let's not sync if we are not supposed to.
 		if ( ! self::sync_allowed() ) {
 			return false;
 		}
@@ -489,6 +567,20 @@ class Actions {
 		);
 
 		self::do_full_sync( $initial_sync_config );
+	}
+
+	/**
+	 * Do an initial full sync only if one has not already been started.
+	 *
+	 * @return bool|null False if the initial full sync was already started, otherwise null.
+	 */
+	public static function do_only_first_initial_sync() {
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		if ( $full_sync_module && $full_sync_module->is_started() ) {
+			return false;
+		}
+
+		static::do_initial_sync();
 	}
 
 	/**
@@ -531,9 +623,9 @@ class Actions {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
 			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
 			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack' ) :
+				__( 'Every minute', 'jetpack-sync' ) :
 				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack' ), $minutes );
+				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
@@ -601,10 +693,18 @@ class Actions {
 				break;
 			}
 
+			/**
+			 * Only try to sync once if Dedicated Sync is enabled. Dedicated Sync has its own requeueing mechanism
+			 * that will re-run it if there are items in the queue at the end.
+			 */
+			if ( 'sync' === $type && $executions >= 1 && Settings::is_dedicated_sync_enabled() ) {
+				break;
+			}
+
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 
 			// # of send actions performed.
-			$executions ++;
+			++$executions;
 
 		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 
@@ -643,6 +743,36 @@ class Actions {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
+	}
+
+	/**
+	 * Initializes sync for Instant Search.
+	 *
+	 * @access public
+	 * @static
+	 */
+	public static function initialize_search() {
+		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+			return;
+		}
+		$search_module = new \Automattic\Jetpack\Search\Module_Control();
+		if ( $search_module->is_instant_search_enabled() ) {
+			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
+		}
+	}
+
+	/**
+	 * Add Search updates to Sync Filters.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 * @return array A list of sync modules that now includes Search's modules.
+	 */
+	public static function add_search_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\Search';
+		return $sync_modules;
 	}
 
 	/**
@@ -822,7 +952,7 @@ class Actions {
 	 * @param string $new_version New version of the plugin.
 	 * @param string $old_version Old version of the plugin.
 	 */
-	public static function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
+	public static function cleanup_on_upgrade( $new_version = '', $old_version = '' ) {
 		if ( wp_next_scheduled( 'jetpack_sync_send_db_checksum' ) ) {
 			wp_clear_scheduled_hook( 'jetpack_sync_send_db_checksum' );
 		}
@@ -908,5 +1038,37 @@ class Actions {
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
 		return $result;
+	}
+
+	/**
+	 * Reset Sync locks.
+	 *
+	 * @access public
+	 * @static
+	 * @since 1.43.0
+	 *
+	 * @param bool $unlock_queues Whether to unlock Sync queues. Defaults to true.
+	 */
+	public static function reset_sync_locks( $unlock_queues = true ) {
+		// Next sync locks.
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full_sync' );
+		delete_option( Sender::NEXT_SYNC_TIME_OPTION_NAME . '_full-sync-enqueue' );
+		// Retry after locks.
+		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
+		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
+		// Dedicated sync locks.
+		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
+
+		// Queue locks.
+		// Note that we are just unlocking the queues here, not reseting them.
+		if ( $unlock_queues ) {
+			$sync_queue = new Queue( 'sync' );
+			$sync_queue->unlock();
+
+			$full_sync_queue = new Queue( 'full_sync' );
+			$full_sync_queue->unlock();
+		}
 	}
 }

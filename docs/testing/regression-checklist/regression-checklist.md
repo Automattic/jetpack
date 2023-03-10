@@ -50,7 +50,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 
 ## Features
 
-- [ ] Publicize: Connect and share a post
+- [ ] Jetpack Social: Connect and share a post
 - [ ] SSO login
 - [ ] Stats registers views
 - [ ] Stats registers views in AMP views
