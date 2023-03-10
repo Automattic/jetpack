@@ -4,13 +4,16 @@ namespace Automattic\Jetpack_Boost\Features\Optimizations\Minify;
 
 use WP_Styles;
 
+// Disable complaints about enqueuing stylesheets, as this class alters the way enqueuing them works.
+// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
+
 class Concatenate_CSS extends WP_Styles {
 	private $dependency_path_mapping;
 	private $old_styles;
 
 	public $allow_gzip_compression;
 
-	function __construct( $styles ) {
+	public function __construct( $styles ) {
 		if ( empty( $styles ) || ! ( $styles instanceof WP_Styles ) ) {
 			$this->old_styles = new WP_Styles();
 		} else {
@@ -32,7 +35,7 @@ class Concatenate_CSS extends WP_Styles {
 		);
 	}
 
-	function do_items( $handles = false, $group = false ) {
+	public function do_items( $handles = false, $group = false ) {
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$stylesheets = array();
 		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
@@ -53,11 +56,11 @@ class Concatenate_CSS extends WP_Styles {
 			// http://core.trac.wordpress.org/attachment/ticket/16827/colors-hacked-fixed.diff
 			// http://core.trac.wordpress.org/ticket/20729
 			$css_url = $obj->src;
-			if ( 'colors' == $obj->handle && true === $css_url ) {
+			if ( 'colors' === $obj->handle && true === $css_url ) {
 				$css_url = wp_style_loader_src( $css_url, $obj->handle );
 			}
 
-			$css_url_parsed = parse_url( $obj->src );
+			$css_url_parsed = wp_parse_url( $obj->src );
 			$extra          = $obj->extra;
 
 			// Don't concat by default
@@ -141,9 +144,9 @@ class Concatenate_CSS extends WP_Styles {
 			unset( $this->to_do[ $key ] );
 		}
 
-		foreach ( $stylesheets as $idx => $stylesheets_group ) {
+		foreach ( $stylesheets as $_idx => $stylesheets_group ) {
 			foreach ( $stylesheets_group as $media => $css ) {
-				if ( 'noconcat' == $media ) {
+				if ( 'noconcat' === $media ) {
 					foreach ( $css as $handle ) {
 						if ( $this->do_item( $handle, $group ) ) {
 							$this->done[] = $handle;
@@ -165,6 +168,7 @@ class Concatenate_CSS extends WP_Styles {
 					$path_str = "$path_str?m=$mtime";
 
 					if ( $this->allow_gzip_compression ) {
+						// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 						$path_64 = base64_encode( gzcompress( $path_str ) );
 						if ( strlen( $path_str ) > ( strlen( $path_64 ) + 1 ) ) {
 							$path_str = '-' . $path_64;
@@ -187,6 +191,7 @@ class Concatenate_CSS extends WP_Styles {
 				$style_tag = apply_filters( 'page_optimize_style_loader_tag', $style_tag, $handles, $href, $media );
 				$style_tag = apply_filters( 'style_loader_tag', $style_tag, $handles, $href, $media );
 
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				echo $style_tag . "\n";
 
 				array_map( array( $this, 'print_inline_style' ), array_keys( $css ) );
@@ -196,19 +201,19 @@ class Concatenate_CSS extends WP_Styles {
 		return $this->done;
 	}
 
-	function __isset( $key ) {
+	public function __isset( $key ) {
 		return isset( $this->old_styles->$key );
 	}
 
-	function __unset( $key ) {
+	public function __unset( $key ) {
 		unset( $this->old_styles->$key );
 	}
 
-	function &__get( $key ) {
+	public function &__get( $key ) {
 		return $this->old_styles->$key;
 	}
 
-	function __set( $key, $value ) {
+	public function __set( $key, $value ) {
 		$this->old_styles->$key = $value;
 	}
 }

@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.29.0 - 2023-03-08
+### Added
+- Add loading placeholder component into js-packages [#29270]
+
+### Changed
+- Updated package dependencies. [#29216]
+
 ## 0.28.0 - 2023-02-28
 ### Added
 - Added arrow-left and arrow-right icons to the Gridicon component [#28826]
