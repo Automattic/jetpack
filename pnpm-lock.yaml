@@ -1354,6 +1354,9 @@ importers:
       '@wordpress/i18n':
         specifier: 4.28.0
         version: 4.28.0
+      '@wordpress/icons':
+        specifier: 9.19.0
+        version: 9.19.0
       classnames:
         specifier: 2.3.1
         version: 2.3.1
@@ -2270,6 +2273,9 @@ importers:
 
   projects/plugins/boost:
     dependencies:
+      '@automattic/format-currency':
+        specifier: 1.0.1
+        version: 1.0.1
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
@@ -6053,7 +6059,6 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       regenerator-runtime: 0.13.11
-    dev: true
 
   /@babel/template@7.20.7:
     resolution: {integrity: sha512-8SegXApWe6VoNw0r9JHpSteLKTpTiLZ4rMlGIm9JQ18KiCtyQiAMEazujAHrUS5flrcqYZa75ukev3P6QmUwUw==}
@@ -11128,7 +11133,7 @@ packages:
     resolution: {integrity: sha512-mjpchAandG1igJSDgK2JON61rTaTT7dIZ2X47o6mNCODbh1AVE0O6aX7+edRRCFyeUdyYnUFin+MALH2n7jKog==}
     engines: {node: '>=12'}
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.20.7
       '@wordpress/element': 5.5.0
       '@wordpress/primitives': 3.26.0
 

@@ -22,6 +22,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
@@ -50,10 +51,6 @@
 </script>
 
 <div class="jb-container--narrow">
-	{#if ! cloudCssAvailable}
-		<PremiumCTA />
-	{/if}
-
 	<Module
 		slug="critical-css"
 		on:enabled={resume}
@@ -61,17 +58,34 @@
 		on:disabled={() => ( alreadyResumed = false )}
 	>
 		<h3 slot="title">
-			{__( 'Optimize CSS Loading', 'jetpack-boost' )}
+			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
 		</h3>
-		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( criticalCssLink )}
-			/>
-		</p>
+
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+
+				<PremiumTooltip />
+			</p>
+		</div>
 
 		<div slot="meta">
 			<CriticalCssMeta />
@@ -82,6 +96,12 @@
 				this={RegenerateCriticalCssSuggestion}
 				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
 			/>
+		</div>
+
+		<div slot="cta">
+			{#if ! cloudCssAvailable}
+				<PremiumCTA />
+			{/if}
 		</div>
 	</Module>
 
@@ -95,15 +115,30 @@
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
 			<span class="jb-badge">Upgraded</span>
 		</h3>
-		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( criticalCssLink )}
-			/>
-		</p>
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+			</p>
+		</div>
+
 		<div slot="meta" class="jb-feature-toggle__meta">
 			<CloudCssMeta />
 		</div>
