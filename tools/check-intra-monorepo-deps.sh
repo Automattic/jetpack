@@ -159,13 +159,7 @@ if $UPDATE; then
 		local OLDDIR=$PWD
 		cd "$BASE/projects/$SLUG"
 
-		local ARGS=()
-		ARGS=( add --no-interaction --significance=patch )
-		local CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
-		if [[ -n "$CLTYPE" ]]; then
-			ARGS+=( "--type=$CLTYPE" )
-		fi
-
+		local ARGS=( "$2" "$3" )
 		if [[ -n "$CL_FILENAME" ]]; then
 			ARGS+=( --filename="$CL_FILENAME" )
 		fi
@@ -173,13 +167,11 @@ if $UPDATE; then
 			ARGS+=( --filename-auto-suffix )
 		fi
 
-		ARGS+=( --entry="$2" --comment="$3" )
-
 		local CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-			changelogger "${ARGS[@]}"
+			changelogger_add "${ARGS[@]}"
 		else
-			changelogger "${ARGS[@]}"
+			changelogger_add "${ARGS[@]}"
 			info "Updating version for $SLUG"
 			local PRERELEASE=$(alpha_tag composer.json 0)
 			local VER=$(changelogger version next --default-first-version --prerelease=$PRERELEASE) || { error "$VER"; EXIT=1; cd "$OLDDIR"; return; }
