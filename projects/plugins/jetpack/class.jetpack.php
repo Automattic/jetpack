@@ -1240,10 +1240,6 @@ class Jetpack {
 		 */
 		require_once JETPACK__PLUGIN_DIR . '_inc/social-logos.php';
 		jetpack_register_social_logos();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
 	}
 
 	/**
@@ -3306,7 +3302,6 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'load-plugins.php', array( $this, 'plugins_page_init_jetpack_state' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 
 		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
@@ -3712,15 +3707,6 @@ p {
 			'<p><a href="' . $support_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
 			'<p><a href="' . self::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
-	}
-
-	/**
-	 * Enqueues the jetpack-icons style.
-	 *
-	 * @return void
-	 */
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**

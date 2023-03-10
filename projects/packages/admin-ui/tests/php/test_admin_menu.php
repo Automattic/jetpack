@@ -36,7 +36,7 @@ class Admin_Menu_Test extends TestCase {
 				'read',
 				'jetpack',
 				'__return_null',
-				'div',
+				'dashicons-chart-pie',
 				3
 			);
 

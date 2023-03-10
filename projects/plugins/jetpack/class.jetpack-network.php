@@ -280,7 +280,8 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), 'div', 3 );
+		$icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMCcgaGVpZ2h0PScyMCcgdmlld0JveD0nMCAwIDQwIDQwJyA+PHBhdGggZmlsbD0nI2EwYTVhYScgZD0nTTIwIDBjMTEuMDQ2IDAgMjAgOC45NTQgMjAgMjBzLTguOTU0IDIwLTIwIDIwUzAgMzEuMDQ2IDAgMjAgOC45NTQgMCAyMCAwem0xMSAxN0gyMXYxOWwxMC0xOXpNMTkgNEw5IDIzaDEwVjR6Jy8+PC9zdmc+';
+		add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_network_admin_page', 'jetpack', array( $this, 'wrap_network_admin_page' ), $icon, 3 );
 		$jetpack_sites_page_hook    = add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'wrap_network_admin_page' ) );
 		$jetpack_settings_page_hook = add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'wrap_render_network_admin_settings_page' ) );
 		add_action( "admin_print_styles-$jetpack_sites_page_hook", array( 'Jetpack_Admin_Page', 'load_wrapper_styles' ) );
@@ -292,21 +293,6 @@ class Jetpack_Network {
 		 */
 		require_once JETPACK__PLUGIN_DIR . '_inc/genericons.php';
 		jetpack_register_genericons();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
-	}
-
-	/**
-	 * Adds JP menu icon
-	 *
-	 * @since 2.9
-	 **/
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**

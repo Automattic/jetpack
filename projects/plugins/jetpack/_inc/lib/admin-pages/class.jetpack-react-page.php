@@ -30,7 +30,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return string|false Return value from WordPress's `add_menu_page()`.
 	 */
 	public function get_page_hook() {
-		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div', 3 );
+		$icon = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMCcgaGVpZ2h0PScyMCcgdmlld0JveD0nMCAwIDQwIDQwJyA+PHBhdGggZmlsbD0nI2EwYTVhYScgZD0nTTIwIDBjMTEuMDQ2IDAgMjAgOC45NTQgMjAgMjBzLTguOTU0IDIwLTIwIDIwUzAgMzEuMDQ2IDAgMjAgOC45NTQgMCAyMCAwem0xMSAxN0gyMXYxOWwxMC0xOXpNMTkgNEw5IDIzaDEwVjR6Jy8+PC9zdmc+';
+		return add_menu_page( 'Jetpack', 'Jetpack', 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), $icon, 3 );
 	}
 
 	/**
