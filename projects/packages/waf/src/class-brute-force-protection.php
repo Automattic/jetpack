@@ -12,7 +12,6 @@ use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Jetpack;
 use Jetpack_Client_Server;
 use Jetpack_IXR_Client;
-use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -799,10 +798,10 @@ class Brute_Force_Protection {
 	public function get_main_blog_jetpack_id() {
 		if ( ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
-			$id = Jetpack_Options::get_option( 'id', false );
+			$id = Jetpack::get_option( 'id', false );
 			restore_current_blog();
 		} else {
-			$id = Jetpack_Options::get_option( 'id' );
+			$id = Jetpack::get_option( 'id' );
 		}
 
 		return $id;
