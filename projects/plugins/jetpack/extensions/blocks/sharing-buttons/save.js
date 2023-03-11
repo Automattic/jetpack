@@ -11,21 +11,9 @@ function SaveSharingButtons({ attributes }) {
 							<ul sharingEventsAdded="true">
 								{attributes.services.map(service => (
 									<li className={`share-${service}`}>
-										<SocialButton service={service} link={attributes.link} />
+										<SocialButton service={service} post={attributes.post} />
 									</li>
 								))}
-								<li className="share-facebook">
-									<a
-										rel="nofollow noopener noreferrer"
-										shared="sharing-facebook-1"
-										className="share-facebook sd-button share-icon"
-										href={`${attributes.link}/?share=facebook&amp;nb=1"`}
-										target="_blank"
-										title="Click to share on Facebook"
-									>
-										<span>Facebook</span>
-									</a>
-								</li>
 								<li className="share-end"></li>
 							</ul>
 						</div>

@@ -1,20 +1,16 @@
 /**
  * External dependencies
  */
-import { BlockIcon } from '@wordpress/block-editor';
-import { Placeholder, withNotices } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useState, useContext, useEffect } from '@wordpress/element';
+import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { share as icon } from '@wordpress/icons';
 
 /**
  * Internal dependencies
  */
-import ServicesSelector from './components/ServicesSelector';
-import SharingButtonsContext from './context';
-import './editor.scss';
 import availableServices from './available-services';
+import ServicesSelector from './components/ServicesSelector';
+import './editor.scss';
 
 /**
  * Write the block editor UI.
@@ -33,7 +29,7 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 	);
 
 	useEffect(() => {
-		setAttributes({ ...attributes, link: post.link });
+		setAttributes({ ...attributes, post });
 	}, [post, setAttributes]);
 
 	const handleServiceSelect = service => {
@@ -50,17 +46,11 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 
 	return (
 		<div className={className}>
-			<SharingButtonsContext.Provider
-				value={{
-					post,
-				}}
-			>
-				<ServicesSelector
-					selectedServices={attributes.services}
-					onServiceSelected={handleServiceSelect}
-					services={availableServices}
-				/>
-			</SharingButtonsContext.Provider>
+			<ServicesSelector
+				selectedServices={attributes.services}
+				onServiceSelected={handleServiceSelect}
+				services={availableServices}
+			/>
 			<Instructions />
 		</div>
 	);
