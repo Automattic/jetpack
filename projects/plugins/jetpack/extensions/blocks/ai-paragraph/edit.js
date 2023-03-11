@@ -17,9 +17,21 @@ export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 const is_untriggered = state => state === AI_BLOCK_STATE.DEFAULT;
 const is_triggered = state => state !== AI_BLOCK_STATE.DEFAULT;
-const is_loading = state => state === AI_BLOCK_STATE.PROCESSING;
+const is_processing = state => state === AI_BLOCK_STATE.PROCESSING;
+const is_done = state => state === AI_BLOCK_STATE.DONE;
 
-// Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
+/**
+ * Creates the prompt that will eventually be sent to OpenAI.
+ *
+ * It uses the current post title, content (before the actual AI block) - or a slice of it if too
+ * long, and tags + categories names
+ *
+ * @param {string} postTitle
+ * @param {string} contentBeforeCurrentBlock
+ * @param {Array<string>} categoriesNames
+ * @param {Array<string>} tagsNames
+ * @returns {string}|false - The prompt
+ */
 export const createPrompt = (
 	postTitle = '',
 	contentBeforeCurrentBlock = [],
@@ -73,8 +85,15 @@ export const createPrompt = (
 	return prompt.trim();
 };
 
+/**
+ * Returns taxonomy objects (categories or tags).
+ *
+ * @param {string} postAttribute
+ * @param {string} taxonomy
+ * @returns {[Array, boolean]} - Array of taxonomy objects and a boolean indicating if we are still loading
+ */
 function useTaxonomy( postAttribute, taxonomy ) {
-	let loaded = false;
+	let loading = false;
 	const taxonomies =
 		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( postAttribute ) ) || [];
 	const taxonomyObjects = useSelect(
@@ -84,7 +103,7 @@ function useTaxonomy( postAttribute, taxonomy ) {
 					const _taxonomy = select( 'core' ).getEntityRecord( 'taxonomy', taxonomy, taxonomyId );
 
 					if ( ! _taxonomy ) {
-						loaded = true;
+						loading = true;
 						return;
 					}
 
@@ -94,7 +113,7 @@ function useTaxonomy( postAttribute, taxonomy ) {
 		},
 		[ taxonomies ]
 	);
-	return [ taxonomyObjects, loaded ];
+	return [ taxonomyObjects, loading ];
 }
 
 export default function Edit( { attributes: { state }, setAttributes, clientId } ) {
@@ -111,16 +130,16 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const [ categoryObjects, categoriesLoaded ] = useTaxonomy( 'categories', 'category' );
+	const [ categoryObjects, categoriesLoading ] = useTaxonomy( 'categories', 'category' );
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
 		.map( ( { name } ) => name )
 		.join( ', ' );
 
-	const [ tagObjects, tagsLoaded ] = useTaxonomy( 'tags', 'post_tag' );
+	const [ tagObjects, tagsLoading ] = useTaxonomy( 'tags', 'post_tag' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const isTaxonomyLoaded = categoriesLoaded && tagsLoaded;
+	const isTaxonomyStillLoading = categoriesLoading || tagsLoading;
 
 	const contentBefore = useSelect( select => {
 		const editor = select( 'core/block-editor' );
@@ -138,7 +157,11 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 	}, [ contentBefore ] );
 
 	const getSuggestionFromOpenAI = useCallback( () => {
-		if ( !! content || is_triggered( state ) ) {
+		// Don't trigger a new prompt:
+		// - if the content exists
+		// - if the taxonomy is still loading
+		// - or we're currently loading one.
+		if ( !! content || isTaxonomyStillLoading || is_triggered( state ) ) {
 			return;
 		}
 
@@ -180,57 +203,71 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				setAttributes( { state: AI_BLOCK_STATE.DEFAULT } );
 			} );
 	}, [
-		content,
-		state,
-		currentPostTitle,
-		contentBefore,
 		categoryNames,
-		tagNames,
-		tracks,
+		content,
+		contentBefore,
+		currentPostTitle,
+		isTaxonomyStillLoading,
 		postId,
 		setAttributes,
+		state,
+		tagNames,
+		tracks,
 	] );
 
-	useEffect( () => {
-		if ( isTaxonomyLoaded && is_untriggered( state ) && ! errorMessage ) {
-			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
+	// Waiting state means there is nothing to be done until it resolves
+	const isWaitingState = isTaxonomyStillLoading || is_processing( state );
 
-			if ( containsAiUntriggeredParagraph() ) {
-				setErrorMessage(
-					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-				);
-			} else if ( ! prompt ) {
-				setErrorMessage(
-					/** translators: First placeholder is a number of more characters we need */
-					__(
-						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
-						'jetpack'
-					)
-				);
-				setNeedsMoreCharacters( true );
-			} else if ( needsMoreCharacters ) {
-				setErrorMessage(
-					/** translators: This is to retry to complete the text */
-					__( 'Ready to retry', 'jetpack' )
-				);
-				setShowRetry( true );
-				setNeedsMoreCharacters( false );
-			} else if ( ! showRetry ) {
-				getSuggestionFromOpenAI();
-			}
+	// Content is loaded
+	const contentIsLoaded = is_done( state );
+
+	// We do nothing if we are waiting for stuff OR if the content is already loaded.
+	const noLogicNeeded = contentIsLoaded || isWaitingState;
+
+	useEffect( () => {
+		if ( noLogicNeeded ) {
+			return;
+		}
+
+		if ( containsAiUntriggeredParagraph() ) {
+			setErrorMessage(
+				/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+				__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+			);
+			return;
+		}
+
+		const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
+
+		if ( ! prompt ) {
+			setErrorMessage(
+				/** translators: First placeholder is a number of more characters we need */
+				__(
+					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
+					'jetpack'
+				)
+			);
+			setNeedsMoreCharacters( true );
+			return;
+		} else if ( needsMoreCharacters ) {
+			setErrorMessage(
+				/** translators: This is to retry to complete the text */
+				__( 'Ready to retry', 'jetpack' )
+			);
+			setShowRetry( true );
+			setNeedsMoreCharacters( false );
+		} else if ( ! showRetry ) {
+			getSuggestionFromOpenAI();
 		}
 	}, [
 		categoryNames,
 		containsAiUntriggeredParagraph,
 		contentBefore,
 		currentPostTitle,
-		errorMessage,
 		getSuggestionFromOpenAI,
-		isTaxonomyLoaded,
 		needsMoreCharacters,
+		noLogicNeeded,
 		showRetry,
-		state,
 		tagNames,
 	] );
 
@@ -279,7 +316,7 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		<div { ...blockProps }>
 			<InnerBlocks />
 
-			{ errorMessage && (
+			{ ! is_done( state ) && ! isTaxonomyStillLoading && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
@@ -289,7 +326,7 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				</Placeholder>
 			) }
 
-			{ is_loading( state ) && (
+			{ ! is_done( state ) && isWaitingState && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {
