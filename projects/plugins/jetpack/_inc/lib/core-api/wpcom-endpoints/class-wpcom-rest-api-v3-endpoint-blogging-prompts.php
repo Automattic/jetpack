@@ -1,5 +1,4 @@
-<?php // phpcs:ignoreFile Generic.Files.OneObjectStructurePerFile.MultipleFound -- placeholder trait only needed in this endpoint. Should be moved to shared REST API file if ever needed for additional endpoints.
-
+<?php
 /**
  * Blogging prompts endpoint for wpcom/v3.
  *
@@ -9,8 +8,9 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 
-// Load placeholer trait when this code is not running on wpcom.
+// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- placeholder trait only needed in this endpoint. Should be moved to shared REST API file if ever needed for additional endpoints.
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! trait_exists( 'WPCOM_REST_API_V2_Jetpack_Auth_Trait' ) ) {
+	// Load placeholer trait when this code is not running on wpcom.
 	trait WPCOM_REST_API_V2_Jetpack_Auth_Trait {}
 }
 
@@ -430,7 +430,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		// Prefer request as user, if possible. Fall back to blog request to show prompt data for unconnected users.
 		$response = ( new Manager() )->is_user_connected()
-			? Client::wpcom_json_api_request_as_user( $api_url, '3' )
+			? Client::wpcom_json_api_request_as_user( $api_url, '3', array(), null, 'wpcom' )
 			: Client::wpcom_json_api_request_as_blog( $api_url, 'v3', array(), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) ) {
