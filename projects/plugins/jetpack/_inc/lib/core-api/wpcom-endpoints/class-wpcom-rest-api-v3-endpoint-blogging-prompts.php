@@ -1,4 +1,5 @@
-<?php
+<?php // phpcs:ignoreFile Generic.Files.OneObjectStructurePerFile.MultipleFound -- placeholder trait only needed in this endpoint. Should be moved to shared REST API file if ever needed for additional endpoints.
+
 /**
  * Blogging prompts endpoint for wpcom/v3.
  *
@@ -8,9 +9,8 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- placeholder trait only needed in this endpoint. Should be moved to shared REST API file if ever needed for additional endpoints.
+// Load placeholer trait when this code is not running on wpcom.
 if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! trait_exists( 'WPCOM_REST_API_V2_Jetpack_Auth_Trait' ) ) {
-	// Load placeholer trait when this code is not running on wpcom.
 	trait WPCOM_REST_API_V2_Jetpack_Auth_Trait {}
 }
 
@@ -424,20 +424,13 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
 	public function proxy_request_to_wpcom( $request, $path = '' ) {
-		$blog_id     = \Jetpack_Options::get_option( 'id' );
-		$path        = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
-		$api_url     = add_query_arg( $request->get_query_params(), $path );
-		$_locale     = $request->get_param( '_locale' );
-		$user_locale = get_user_locale();
-
-		// Default to user's site locale, in case it doesn't match their WP.com locale setting or isn't set for the request.
-		if ( ( 'user' === $_locale || ! $_locale ) && $user_locale ) {
-			$api_url = add_query_arg( '_locale', $user_locale, $api_url );
-		}
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$path    = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
+		$api_url = add_query_arg( $request->get_query_params(), $path );
 
 		// Prefer request as user, if possible. Fall back to blog request to show prompt data for unconnected users.
 		$response = ( new Manager() )->is_user_connected()
-			? Client::wpcom_json_api_request_as_user( $api_url, '3', array(), null, 'wpcom' )
+			? Client::wpcom_json_api_request_as_user( $api_url, '3' )
 			: Client::wpcom_json_api_request_as_blog( $api_url, 'v3', array(), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) ) {
