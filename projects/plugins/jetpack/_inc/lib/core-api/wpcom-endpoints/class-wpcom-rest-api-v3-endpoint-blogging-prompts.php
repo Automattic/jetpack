@@ -405,7 +405,8 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function permissions_check() {
-		if ( current_user_can( 'edit_posts' ) || $this->is_jetpack_authorized_for_site_filtered() ) {
+		$is_jetpack_authorized = method_exists( $this, 'is_jetpack_authorized_for_site_filtered' ) && $this->is_jetpack_authorized_for_site_filtered();
+		if ( current_user_can( 'edit_posts' ) || $is_jetpack_authorized ) {
 			return true;
 		}
 
