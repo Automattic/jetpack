@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
 class Status {
 
