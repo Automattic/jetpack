@@ -8,8 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import availableServices from './available-services';
-import ServicesSelector from './components/ServicesSelector';
+import EditorSharingButtons from './components/EditorSharingButtons';
 import './editor.scss';
 
 /**
@@ -18,19 +17,19 @@ import './editor.scss';
  * @returns {object} The UI displayed when user edits this block.
  */
 function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI, setAttributes }) {
-	const { post } = useSelect(
-		select => {
-			const { getCurrentPost } = select('core/editor');
-			return {
-				post: getCurrentPost(),
-			};
-		},
-		[attributes]
-	);
+	/**
+	 * Fetch post data from the REST API.
+	 */
+	const { post } = useSelect(select => {
+		const { getCurrentPost } = select('core/editor');
+		return {
+			post: getCurrentPost(),
+		};
+	}, []);
 
 	useEffect(() => {
 		setAttributes({ ...attributes, post });
-	}, [post, setAttributes]);
+	}, [post, setAttributes, attributes]);
 
 	const handleServiceSelect = service => {
 		const { services } = attributes;
@@ -40,18 +39,23 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 			return;
 		}
 
-		const newServices = Array.isArray(services) ? services.concat(service) : [service];
-		setAttributes({ ...attributes, services: newServices });
+		const updatedServices = Array.isArray(services) ? [...services, service] : [service];
+		setAttributes({ ...attributes, services: updatedServices });
 	};
 
 	return (
 		<div className={className}>
-			<ServicesSelector
-				selectedServices={attributes.services}
-				onServiceSelected={handleServiceSelect}
-				services={availableServices}
-			/>
-			<Instructions />
+			<p className={`${className}__block-title`}>{__('Sharing buttons')}</p>
+			<div className={`${className}__block-body`}>
+				<p>{__('Edit visible sharing buttons:')}</p>
+				<EditorSharingButtons
+					selectedServices={attributes.services || []}
+					onServiceClick={handleServiceSelect}
+				/>
+			</div>
+			<div className={`${className}__block-footer`}>
+				<Instructions />
+			</div>
 		</div>
 	);
 }
