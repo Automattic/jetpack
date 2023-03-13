@@ -5,7 +5,6 @@ import {
 	Container,
 	Col,
 	getRedirectUrl,
-	JetpackVaultPressBackupLogo,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
@@ -20,6 +19,8 @@ import { STORE_ID } from '../../store';
 import Backups from '../Backups';
 import BackupStorageSpace from '../backup-storage-space';
 import ReviewRequest from '../review-request';
+import Header from './header';
+import { useIsFullyConnected } from './hooks';
 import NoBackupCapabilities from './no-backup-capabilities';
 import './style.scss';
 import '../masthead/masthead-style.scss';
@@ -30,8 +31,7 @@ const Admin = () => {
 	const { tracks } = useAnalytics();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const connectionLoaded = 0 < Object.keys( connectionStatus ).length;
-	const isFullyConnected =
-		connectionLoaded && connectionStatus.hasConnectedOwner && connectionStatus.isRegistered;
+	const isFullyConnected = useIsFullyConnected();
 
 	useEffect( () => {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
@@ -45,7 +45,7 @@ const Admin = () => {
 			showHeader={ isFullyConnected }
 			showFooter={ isFullyConnected }
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-			header={ <JetpackVaultPressBackupLogo /> }
+			header={ <Header /> }
 		>
 			<div id="jetpack-backup-admin-container" className="jp-content">
 				<div className="content">
