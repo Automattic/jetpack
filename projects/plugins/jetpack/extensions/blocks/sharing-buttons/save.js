@@ -9,7 +9,7 @@ function SaveSharingButtons({ attributes }) {
 						<h3 className="sd-title">Share this:</h3>
 						<div className="sd-content">
 							<ul sharingEventsAdded="true">
-								{attributes.services.map(service => (
+								{attributes.services?.map(service => (
 									<li className={`share-${service}`}>
 										<SocialButton service={service} post={attributes.post} />
 									</li>

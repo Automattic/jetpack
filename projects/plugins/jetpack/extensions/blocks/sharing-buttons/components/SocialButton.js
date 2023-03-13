@@ -16,9 +16,9 @@ const SocialButton = ({ service, post }) => {
 				href={href}
 				className={`share-${service} sd-button share-icon`}
 				target="_blank"
-				title={`Click to share on ${availableServices[service]}`}
+				title={`Click to share on ${availableServices[service]?.label}`}
 			>
-				<span>{availableServices[service]}</span>
+				<span>{availableServices[service].label}</span>
 			</a>
 		);
 	}
@@ -30,9 +30,9 @@ const SocialButton = ({ service, post }) => {
 			href={`${post.link}?share=${service}&nb=1`}
 			className={`share-${service} sd-button share-icon`}
 			target="_blank"
-			title={`Click to share on ${availableServices[service]}`}
+			title={`Click to share on ${availableServices[service]?.label}`}
 		>
-			<span>{availableServices[service]}</span>
+			<span>{availableServices[service].label}</span>
 		</a>
 	);
 };
