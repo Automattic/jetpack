@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack_Boost\Modules;
 
-use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Lib\Setup;
@@ -15,17 +15,17 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blo
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
-class Features implements Has_Setup {
+class Modules implements Has_Setup {
 
 	/**
-	 * @var Feature_Module[] - Optimization modules
+	 * @var Module[] - Optimization modules
 	 */
-	protected $features = array();
+	protected $modules = array();
 
 	/**
-	 * @var Feature[] - Classes that handle all Jetpack Boost featues.
+	 * @var Pluggable[] - Classes that handle all Jetpack Boost featues.
 	 */
-	const FEATURES = array(
+	const MODULES = array(
 		Critical_CSS::class,
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
@@ -43,10 +43,10 @@ class Features implements Has_Setup {
 	 */
 	public function __construct() {
 
-		foreach ( self::FEATURES as $feature ) {
-			if ( $feature::is_available() ) {
-				$slug                    = $feature::get_slug();
-				$this->features[ $slug ] = new Feature_Module( new $feature() );
+		foreach ( self::MODULES as $module ) {
+			if ( $module::is_available() ) {
+				$slug                   = $module::get_slug();
+				$this->modules[ $slug ] = new Module( new $module() );
 			}
 		}
 	}
@@ -55,7 +55,7 @@ class Features implements Has_Setup {
 		$forced_disabled_modules = $this->get_disabled_modules();
 
 		if ( empty( $forced_disabled_modules ) ) {
-			return $this->features;
+			return $this->modules;
 		}
 
 		if ( array( 'all' ) === $forced_disabled_modules ) {
@@ -63,9 +63,9 @@ class Features implements Has_Setup {
 		}
 
 		$available_modules = array();
-		foreach ( $this->features as $slug => $feature ) {
+		foreach ( $this->modules as $slug => $module ) {
 			if ( ! in_array( $slug, $forced_disabled_modules, true ) ) {
-				$available_modules[ $slug ] = $feature;
+				$available_modules[ $slug ] = $module;
 			}
 		}
 
@@ -73,8 +73,8 @@ class Features implements Has_Setup {
 	}
 
 	public function have_enabled_modules() {
-		foreach ( $this->features as $feature_module ) {
-			if ( $feature_module->is_enabled() ) {
+		foreach ( $this->modules as $module ) {
+			if ( $module->is_enabled() ) {
 				return true;
 			}
 		}
@@ -83,8 +83,8 @@ class Features implements Has_Setup {
 
 	public function get_status() {
 		$status = array();
-		foreach ( $this->features as $slug => $feature_module ) {
-			$status[ $slug ] = $feature_module->is_enabled();
+		foreach ( $this->modules as $slug => $module ) {
+			$status[ $slug ] = $module->is_enabled();
 		}
 		return $status;
 	}
@@ -101,17 +101,17 @@ class Features implements Has_Setup {
 		REST_API::register( $feature->get_endpoints() );
 	}
 
-	public function init_features() {
+	public function init_modules() {
 
-		foreach ( $this->available_modules() as $slug => $feature_module ) {
+		foreach ( $this->available_modules() as $slug => $module ) {
 
-			if ( ! $feature_module->is_enabled() ) {
+			if ( ! $module->is_enabled() ) {
 				continue;
 			}
 
-			Setup::add( $feature_module->feature );
+			Setup::add( $module->feature );
 
-			$this->register_endpoints( $feature_module->feature );
+			$this->register_endpoints( $module->feature );
 
 			do_action( "jetpack_boost_{$slug}_initialized", $this );
 
@@ -122,7 +122,7 @@ class Features implements Has_Setup {
 	 * @inheritDoc
 	 */
 	public function setup() {
-		add_action( 'plugins_loaded', array( $this, 'init_features' ) );
+		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
 	}
 
 	/**

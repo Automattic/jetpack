@@ -3,10 +3,10 @@
 namespace Automattic\Jetpack_Boost\Features\Image_Guide;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 
-class Image_Guide implements Feature {
+class Image_Guide implements Pluggable {
 
 	public function setup() {
 
