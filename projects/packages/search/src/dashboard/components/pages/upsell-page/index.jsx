@@ -25,7 +25,7 @@ import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
-import './upsell-page.scss';
+import './styles.scss';
 
 const AUTOMATTIC_WEBSITE = 'https://automattic.com/';
 const JETPACK_SEARCH__LINK = 'https://jetpack.com/upgrade/search';
