@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Update isPrivate video property on state after privacy changes.
