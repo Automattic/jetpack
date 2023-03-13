@@ -137,12 +137,6 @@ proceed_p "" "Proceed releasing above projects?"
 
 # Get the release branches for the projects.
 declare -A PREFIXES
-
-# If we're releasing Jetpack, we need to set that prefix first.
-if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
-	PREFIXES["$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/plugins/jetpack/composer.json)"]=$(jq -r '.version' "$BASE"/projects/plugins/jetpack/composer.json)
-fi
-
 for SLUG in "${!PROJECTS[@]}"; do
 	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$SLUG"/composer.json)
 	if [[ -n "$PREFIX" ]] && [[ ! "${PREFIXES[*]}" =~ $PREFIX ]]; then
