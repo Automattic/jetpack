@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Updated pricing table component to allow a custom tooltip class. Will allow more flexibility over styling individual tooltips.
