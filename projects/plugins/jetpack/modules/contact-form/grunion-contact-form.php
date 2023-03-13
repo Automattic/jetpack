@@ -389,7 +389,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
@@ -530,6 +529,8 @@ class Grunion_Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack' )
 			);
 		}
+
+		self::enqueue_contact_forms_style_script();
 
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
