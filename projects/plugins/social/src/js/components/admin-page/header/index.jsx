@@ -1,4 +1,6 @@
 import { useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element/build-types';
+import { __ } from '@wordpress/i18n';
 import { STORE_ID } from './../../../store';
 import Logo from './../../logo';
 import styles from './styles.module.scss';
@@ -21,8 +23,17 @@ const AdminPageHeader = () => {
 
 			{ showPricingPage && (
 				<p>
-					Already have an existing plan or license key?{ ' ' }
-					<a href={ activateLicenseUrl }>Click here to get started</a>
+					{
+						( createInterpolateElement(
+							__(
+								'Already have an existing plan or license key? <a>Click here to get started</a>',
+								'jetpack-social'
+							)
+						),
+						{
+							a: <a href={ activateLicenseUrl } />,
+						} )
+					}
 				</p>
 			) }
 		</div>
