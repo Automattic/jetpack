@@ -183,10 +183,6 @@ fi
 # Loop through the projects and update the changelogs after building the arguments.
 for PLUGIN in "${!PROJECTS[@]}"; do
 	yellow "Updating the changelog files for $PLUGIN."
-	
-	if [[ ${ARGS} ]]; then
-		unset ARGS
-	fi
 
 	# Add the PR numbers to the changelog.
 	ARGS=('-p')
