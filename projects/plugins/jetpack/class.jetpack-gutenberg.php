@@ -461,7 +461,7 @@ class Jetpack_Gutenberg {
 		}
 
 		// Newsletter plan has not yet ben configured
-		if ( Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+		if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
 			return false;
 		}
 
