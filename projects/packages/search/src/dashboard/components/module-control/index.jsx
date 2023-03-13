@@ -63,7 +63,7 @@ export default function SearchModuleControl( {
 } ) {
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteAdminUrl(), [] );
 	const { isUserConnected } = useConnection( {
-		redirectUri: `${ adminUrl }admin.php?page=jetpack-search`,
+		redirectUri: 'admin.php?page=jetpack-search',
 		from: 'jetpack-search',
 	} );
 	const isWpcom = useSelect( select => select( STORE_ID ).isWpcom(), [] );

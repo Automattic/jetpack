@@ -43,7 +43,11 @@ const VideoDetails = ( {
 
 			<div>
 				<Text variant="body-small">{ __( 'File name', 'jetpack-videopress-pkg' ) }</Text>
-				{ loading ? <Placeholder height={ 24 } /> : <Text>{ filename }</Text> }
+				{ loading ? (
+					<Placeholder height={ 24 } />
+				) : (
+					<Text className={ styles.filename }>{ filename }</Text>
+				) }
 			</div>
 
 			<div>

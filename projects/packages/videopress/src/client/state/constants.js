@@ -63,6 +63,8 @@ export const UPDATE_VIDEO_POSTER = 'UPDATE_VIDEO_POSTER';
 
 export const SET_VIDEOPRESS_SETTINGS = 'SET_VIDEOPRESS_SETTINGS';
 
+export const UPDATE_VIDEO_IS_PRIVATE = 'UPDATE_VIDEO_IS_PRIVATE';
+
 /*
  * Accepted file extensions
  */

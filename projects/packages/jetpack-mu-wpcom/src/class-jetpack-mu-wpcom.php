@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '1.1.0';
+	const PACKAGE_VERSION = '1.1.2';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -70,6 +70,10 @@ class Jetpack_Mu_Wpcom {
 	 * Load WP REST API plugins for wpcom
 	 */
 	public static function load_wpcom_rest_api_endpoints() {
+		if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
+			return;
+		}
+
 		// We don't use `wpcom_rest_api_v2_load_plugin_files` because it operates inconsisently.
 		$plugins = glob( __DIR__ . '/features/wpcom-endpoints/*.php' );
 
