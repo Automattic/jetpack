@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2023-03-08
+### Added
+- Add weekly/monthly props to sent message tracking [#28999]
+- Add form responses app and state into package (out of plugin) [#29007]
+- Fix search by invalidating resolution on the selector [#29259]
+- Implement RWD navigation for feedback dashboard [#29315]
+
+### Changed
+- Forms: Move field width settings and remove placeholder field from MC/SC fields [#29292]
+- Updated package dependencies. [#29216]
+
+### Fixed
+- Add defaults for Jetpack Forms CSS variables. [#29236]
+- Fix table interactions for feedback dashboard [#29282]
+- Forms Responses endpoint: fix permission check. [#29223]
+- Move search into state, fix double fetch on search and paging [#29336]
+
 ## [0.6.0] - 2023-02-28
 ### Added
 - Added a page navigation component for the new feedback dashboard [#28826]
@@ -60,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.7.0]: https://github.com/automattic/jetpack-forms/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/automattic/jetpack-forms/compare/v0.5.1...v0.6.0
 [0.5.1]: https://github.com/automattic/jetpack-forms/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/automattic/jetpack-forms/compare/v0.4.0...v0.5.0

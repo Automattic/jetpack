@@ -11,7 +11,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		id,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
-		slug: filename,
 	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
@@ -25,6 +24,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		display_embed: displayEmbed,
 		privacy_setting: privacySetting,
 		needs_playback_token: needsPlaybackToken,
+		is_private: isPrivate,
 	} = jetpackVideoPress;
 
 	const {
@@ -32,7 +32,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		poster,
 		upload_date: uploadDate,
 		duration,
-		is_private: isPrivate,
 		file_url_base: fileURLBase,
 		finished,
 		files = {
@@ -49,6 +48,8 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
 	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
+
+	const filename = url?.split( '/' ).slice( -1 )[ 0 ];
 
 	return {
 		id,
