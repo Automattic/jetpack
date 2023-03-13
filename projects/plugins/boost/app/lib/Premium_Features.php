@@ -30,6 +30,10 @@ class Premium_Features {
 		return $features;
 	}
 
+	public static function has_any() {
+		return count( self::get_features() ) > 0;
+	}
+
 	public static function clear_cache() {
 		Transient::delete( self::TRANSIENT_KEY );
 	}

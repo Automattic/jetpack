@@ -35,9 +35,10 @@ if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
 
 /**
- * Stats content marker.
+ * Stats content markers.
  * Used to test for content vs script when parsing server-generated HTML.
  */
+const STATS_BODY_MARKER    = '<div id="statchart"';
 const STATS_CONTENT_MARKER = '<div class="gotonewdash">';
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
@@ -409,7 +410,7 @@ function stats_reports_css() {
 #stats-loading-wrap p {
 	text-align: center;
 	font-size: 2em;
-	margin: 7.5em 15px 0 0;
+	margin-bottom: 3em;
 	height: 64px;
 	line-height: 64px;
 }
@@ -477,16 +478,11 @@ function jetpack_admin_ui_stats_report_page_wrapper() {
  * @param bool $main_chart_only (default: false) Main Chart Only.
  */
 function stats_reports_page( $main_chart_only = false ) {
-	// TODO: Replace or remove "View stats on WordPress.com right now" link.
-	// Probably makes more sense to advertise Odyssey here.
-	// TODO: Remove DIV with debug tools. (currently hidden for easier testing)
-
 	if ( isset( $_GET['dashboard'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		return stats_dashboard_widget_content();
 	}
 
-	$blog_id   = Stats_Options::get_option( 'blog_id' );
-	$stats_url = Redirect::get_url( 'calypso-stats' );
+	$blog_id = Stats_Options::get_option( 'blog_id' );
 
 	if ( ! $main_chart_only && ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$nojs_url = add_query_arg( 'nojs', '1' );
@@ -526,7 +522,6 @@ function stats_reports_page( $main_chart_only = false ) {
 		</div>
 		<div id="stats-loading-wrap" class="wrap">
 		<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( $static_url ); ?>" /></p>
-		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 		<p class="hide-if-js"><?php esc_html_e( 'Jetpack Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Jetpack Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
@@ -729,9 +724,7 @@ function stats_parse_header_section( $html ) {
  * @return string
  */
 function stats_parse_content_section( $html ) {
-	// TODO: Skip past gotonewdash DIV.
-	// Doesn't make sense to push users to Calypso once Odyssey is ready.
-	$body = strstr( $html, STATS_CONTENT_MARKER );
+	$body = strstr( $html, STATS_BODY_MARKER );
 	// Enforce a string result instead of string|false.
 	if ( $body === false ) {
 		return '';
@@ -770,27 +763,41 @@ function stats_print_odyssey_nudge( $html ) {
 	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
 	?>
 	<style>
-		.stats-odyssey-nudge {
+		.stats-odyssey-notice {
 			display: flex;
-			align-items: flex-start;
 			font-size: var( --font-body );
 
 			border: 1px solid var( --jp-gray-5 );
-			border-radius: 4px;
-			border-color: var( --jp-black );
+			border-left-color: var( --jp-black );
 			border-left-width: 6px;
-			padding: 24px 31px 27px 18px;
+			border-radius: 4px;
 
 			margin-top: 24px;
+			background: white;
+			position: relative;
 		}
-		.stats-odyssey-nudge--content {
-			flex-grow: 1;
+		.stats-odyssey-notice--content {
+			padding: 24px 0 24px 30px;
+			font-size: 2em;
+			width: 100%;
 		}
-		.stats-odyssey-nudge--title {
-			font-weight: 600;
+		.stats-odyssey-notice--content-header {
+			font-size: 24px;
+			line-height: 32px;
+			margin: 0;
 			margin-bottom: 8px;
 		}
-		.stats-odyssey-nudge--close-button {
+		.stats-odyssey-notice--content-text {
+			font-size: 16px;
+			margin: 0;
+		}
+		.stats-odyssey-notice--image-container {
+			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
+			background-size: cover;
+			padding-right: 28px;
+			width: 100%;
+		}
+		.stats-odyssey-notice--close-button {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
@@ -798,12 +805,12 @@ function stats_print_odyssey_nudge( $html ) {
 			border: none;
 			cursor: pointer;
 		}
-		.stats-odyssey-nudge--action-bar {
+		.stats-odyssey-notice--action-bar {
 			display: flex;
 			align-items: center;
-			margin-top: 20px;
+			margin-top: 24px;
 		}
-		.stats-odyssey-nudge--primary-button {
+		.stats-odyssey-notice--primary-button {
 			margin-right: 18px;
 			padding-left: 20px;
 			padding-right: 20px;
@@ -811,7 +818,7 @@ function stats_print_odyssey_nudge( $html ) {
 			border-color: black;
 			background-color: black;
 		}
-		.stats-odyssey-nudge--primary-button:hover {
+		.stats-odyssey-notice--primary-button:hover {
 			border-color: #3c434a;
 			background-color: #3c434a;
 		}
@@ -832,6 +839,7 @@ function stats_print_odyssey_nudge( $html ) {
 		}
 		.is-secondary-link {
 			color: black;
+			font-size: var( --font-body );
 		}
 		.is-secondary-link:hover {
 			color: black;
@@ -840,18 +848,19 @@ function stats_print_odyssey_nudge( $html ) {
 			display: none;
 		}
 	</style>
-	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<div class="stats-odyssey-nudge--content">
-			<div class="stats-odyssey-nudge--title"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></div>
-			<?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?>
-			<div class="stats-odyssey-nudge--action-bar">
-				<button class="dops-button stats-odyssey-nudge--primary-button">
+	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
+		<div class="stats-odyssey-notice--content">
+			<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></h2>
+			<p class="stats-odyssey-notice--content-text"><?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?></p>
+			<div class="stats-odyssey-notice--action-bar">
+				<button class="dops-button stats-odyssey-notice--primary-button">
 					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
 				</button>
 				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
 			</div>
 		</div>
-		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
+		<div class="stats-odyssey-notice--image-container"></div>
+		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
 }

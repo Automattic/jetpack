@@ -39,10 +39,10 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$this->namespace,
 			$this->rest_base . '/responses',
 			array(
-				'methods'           => WP_REST_Server::READABLE,
-				'callback'          => array( $this, 'get_responses' ),
-				'permissions_check' => array( $this, 'get_responses_permission_check' ),
-				'args'              => array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_responses' ),
+				'permission_callback' => array( $this, 'get_responses_permission_check' ),
+				'args'                => array(
 					'limit'   => array(
 						'default'  => 20,
 						'type'     => 'integer',

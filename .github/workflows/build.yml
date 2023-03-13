@@ -115,7 +115,7 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
           DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
@@ -157,7 +157,7 @@ jobs:
         with:
           name: jetpack-build
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
 
       - name: Prepare plugin zips
         id: prepare
@@ -290,7 +290,7 @@ jobs:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish

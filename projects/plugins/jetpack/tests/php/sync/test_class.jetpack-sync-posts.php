@@ -1303,7 +1303,7 @@ That was a cool video.';
 	 */
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
 		$this->server_event_storage->reset();
-		do_action( 'wp_after_insert_post', $post_ID, $post, false );
+		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 
 		$this->sender->do_sync();
 

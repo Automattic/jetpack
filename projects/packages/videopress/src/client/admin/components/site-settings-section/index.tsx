@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
 import { usePermission } from '../../hooks/use-permission';
 import { useVideoPressSettings } from '../../hooks/use-videopress-settings';
 import { CheckboxCheckmark } from '../video-filter';
+import { SITE_TYPE_ATOMIC } from './constants';
 import { SiteSettingsSectionProps } from './types';
 /**
  * Types
@@ -23,9 +24,19 @@ import type React from 'react';
  */
 const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 	videoPressVideosPrivateForSite,
+	siteIsPrivate,
+	siteType,
 	onPrivacyChange,
 } ) => {
 	const { canPerformAction } = usePermission();
+	const siteIsAtomicPrivate = siteIsPrivate && siteType === SITE_TYPE_ATOMIC;
+	const disablePrivacyToggle = ! canPerformAction || siteIsAtomicPrivate;
+	const disabledReason = siteIsAtomicPrivate
+		? __(
+				'You cannot change this setting because your site is private. You can only choose the video privacy default on public sites.',
+				'jetpack-videopress-pkg'
+		  )
+		: null;
 
 	return (
 		<Container horizontalSpacing={ 0 } horizontalGap={ 0 }>
@@ -34,7 +45,7 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					{ __( 'Settings', 'jetpack-videopress-pkg' ) }
 				</Text>
 			</Col>
-			<Col sm={ 12 } md={ 6 } lg={ 6 }>
+			<Col sm={ 12 } md={ 12 } lg={ 12 }>
 				<CheckboxCheckmark
 					for={ 'settings-site-privacy' }
 					label={ __(
@@ -43,7 +54,8 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 					) }
 					onChange={ onPrivacyChange }
 					checked={ videoPressVideosPrivateForSite }
-					disabled={ ! canPerformAction }
+					disabled={ disablePrivacyToggle }
+					disabledReason={ disabledReason }
 				/>
 			</Col>
 		</Container>
@@ -52,10 +64,12 @@ const SiteSettingsSection: React.FC< SiteSettingsSectionProps > = ( {
 
 export const ConnectSiteSettingsSection = () => {
 	const { settings, onUpdate } = useVideoPressSettings();
-	const { videoPressVideosPrivateForSite } = settings;
+	const { videoPressVideosPrivateForSite, siteIsPrivate, siteType } = settings;
 	return (
 		<SiteSettingsSection
 			videoPressVideosPrivateForSite={ videoPressVideosPrivateForSite }
+			siteIsPrivate={ siteIsPrivate }
+			siteType={ siteType }
 			onPrivacyChange={ newPrivacyValue => {
 				onUpdate( {
 					videoPressVideosPrivateForSite: newPrivacyValue,
