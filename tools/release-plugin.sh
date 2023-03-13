@@ -9,6 +9,7 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/version-compare.sh"
 . "$BASE/tools/includes/normalize-version.sh"
+. "$BASE/tools/includes/changelogger.sh"
 
 
 # Instructions
@@ -100,11 +101,10 @@ done
 
 # Try to obtain a version number for plugins that we didn't supply.
 for SLUG in "${!PROJECTS[@]}"; do
+	cd "$BASE"
 	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
-		cd "$BASE"
-		if [[ -x "projects/$SLUG/vendor/bin/changelogger" ]]; then
-			PROJECTS["$SLUG"]=$(cd "projects/$SLUG" && vendor/bin/changelogger version next)
-		fi
+		cd "projects/$SLUG"
+		PROJECTS["$SLUG"]=$(changelogger version next)
 	fi
 done
 
