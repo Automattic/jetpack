@@ -243,7 +243,7 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 	return (
 		<div className="poster-panel__frame-picker">
 			{ ! isRequestingEmbedPreview && (
-				<div ref={ playerWrapperRef } className="poster-panel__frame-picker__snadbox">
+				<div ref={ playerWrapperRef } className="poster-panel__frame-picker__sandbox">
 					<SandBox html={ html } scripts={ globalScripts } />
 				</div>
 			) }
