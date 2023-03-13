@@ -70,7 +70,7 @@ while [[ $# -gt 0 ]]; do
 	fi
 	
 	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
-		PROJECTS["$PLUGIN"]+=$2
+		PROJECTS["$PLUGIN"]=$2
 		SHIFT="2"
 	else
 		PROJECTS["$PLUGIN"]=''
