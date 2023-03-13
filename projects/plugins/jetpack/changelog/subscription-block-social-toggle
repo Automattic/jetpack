@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Don't show "Include social followers in count" when showSubscribersTotal is not toggled or isPublicizeEnabled is false
