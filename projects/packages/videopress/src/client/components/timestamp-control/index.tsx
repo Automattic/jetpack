@@ -170,6 +170,7 @@ export const TimestampControl = ( {
 	onChange,
 	onDebounceChange,
 	wait = 1000,
+	fineAdjustment = 50,
 }: TimestampControlProps ): React.ReactElement => {
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
@@ -190,7 +191,7 @@ export const TimestampControl = ( {
 			<RangeControl
 				className={ styles[ 'timestamp-range-control' ] }
 				min={ 0 }
-				step={ 0.1 }
+				step={ fineAdjustment }
 				initialPosition={ value }
 				value={ value }
 				max={ max }

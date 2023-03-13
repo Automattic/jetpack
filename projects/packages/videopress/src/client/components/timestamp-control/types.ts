@@ -1,6 +1,7 @@
 export type TimestampInputProps = {
 	value: number;
 	max?: number;
+	fineAdjustment?: number;
 	onChange?: ( ms: number ) => void;
 };
 
