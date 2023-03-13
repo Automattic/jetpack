@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Overrides launchpad_screen to `off` for staging sites `is_wpcom_staging_site`
