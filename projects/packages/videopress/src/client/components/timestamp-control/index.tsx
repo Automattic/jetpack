@@ -67,7 +67,8 @@ export const TimestampInput = ( {
 	};
 
 	// Check whether it should add hours input.
-	const hasHours = Math.floor( ( max / ( 1000 * 60 * 60 ) ) % 24 );
+	const biggerThanOneHour = Math.floor( ( max / ( 1000 * 60 * 60 ) ) % 24 );
+	const biggerThanOneMinute = Math.floor( ( max / ( 1000 * 60 ) ) % 60 );
 
 	const computeTimeValue = ( unit: string ) => ( newValue: number ) => {
 		if ( typeof newValue === 'string' && ! isNaN( parseInt( newValue, 10 ) ) ) {
@@ -97,10 +98,10 @@ export const TimestampInput = ( {
 	return (
 		<div
 			className={ classnames( styles[ 'timestamp-input-wrapper' ], {
-				[ styles[ 'has-hours' ] ]: hasHours > 0,
+				[ styles[ 'has-hours' ] ]: biggerThanOneHour > 0,
 			} ) }
 		>
-			{ hasHours > 0 && (
+			{ biggerThanOneHour > 0 && (
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
@@ -121,23 +122,26 @@ export const TimestampInput = ( {
 				</>
 			) }
 
-			<NumberControl
-				className={ styles[ 'timestamp-control-input' ] }
-				min={ 0 }
-				max={ 59 }
-				step={ 1 }
-				hideLabelFromVision
-				spinControls="none"
-				placeholder="00"
-				isPressEnterToChange
-				isDragEnabled={ false }
-				isShiftStepEnabled={ false }
-				__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
-				value={ time.value.mm < 10 ? `0${ time.value.mm }` : time.value.mm }
-				onChange={ computeTimeValue( 'mm' ) }
-			/>
-
-			<TimeDivider />
+			{ biggerThanOneMinute > 0 && (
+				<>
+					<NumberControl
+						className={ styles[ 'timestamp-control-input' ] }
+						min={ 0 }
+						max={ 59 }
+						step={ 1 }
+						hideLabelFromVision
+						spinControls="none"
+						placeholder="00"
+						isPressEnterToChange
+						isDragEnabled={ false }
+						isShiftStepEnabled={ false }
+						__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
+						value={ time.value.mm < 10 ? `0${ time.value.mm }` : time.value.mm }
+						onChange={ computeTimeValue( 'mm' ) }
+					/>
+					<TimeDivider />
+				</>
+			) }
 
 			<NumberControl
 				className={ styles[ 'timestamp-control-input' ] }
