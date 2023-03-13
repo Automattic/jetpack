@@ -6,7 +6,7 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
-class Feature_Status implements Endpoint {
+class Module_Status implements Endpoint {
 
 	public function request_methods() {
 		return \WP_REST_Server::EDITABLE;
@@ -41,7 +41,6 @@ class Feature_Status implements Endpoint {
 	}
 
 	public function name() {
-		// @TODO: Rename module to optimization here as well?
 		return '/module/(?P<slug>[a-z\-]+)/status';
 	}
 }

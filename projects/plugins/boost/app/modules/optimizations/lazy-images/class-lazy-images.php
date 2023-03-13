@@ -3,9 +3,9 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images;
 
 use Automattic\Jetpack\Jetpack_Lazy_Images;
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Lazy_Images implements Feature {
+class Lazy_Images implements Pluggable {
 
 	public function setup() {
 		add_action( 'wp', array( Jetpack_Lazy_Images::class, 'instance' ) );
