@@ -139,7 +139,7 @@ proceed_p "" "Proceed releasing above projects?"
 declare -A PREFIXES
 
 # If we're releasing Jetpack, we need to set that prefix first.
-if [[ "${!PROJECTS[*]}" =~ "plugins/jetpack" ]]; then
+if [[ -v PROJECTS["plugins/jetpack"] ]]; then
 	PREFIXES["$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/plugins/jetpack/composer.json)"]=$(jq -r '.version' "$BASE"/projects/plugins/jetpack/composer.json)
 fi
 
