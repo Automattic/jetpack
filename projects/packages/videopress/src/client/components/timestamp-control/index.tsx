@@ -62,6 +62,7 @@ export const TimestampInput = ( {
 	disabled,
 	value,
 	max,
+	autoHideTimeInputs = true,
 }: TimestampInputProps ): React.ReactElement => {
 	const time = {
 		value: getTimeDataByValue( value ),
@@ -99,10 +100,10 @@ export const TimestampInput = ( {
 	return (
 		<div
 			className={ classnames( styles[ 'timestamp-input-wrapper' ], {
-				[ styles[ 'has-hours' ] ]: biggerThanOneHour > 0,
+				[ styles[ 'has-hours' ] ]: biggerThanOneHour > 0 || ! autoHideTimeInputs,
 			} ) }
 		>
-			{ biggerThanOneHour > 0 && (
+			{ ( biggerThanOneHour > 0 || ! autoHideTimeInputs ) && (
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
@@ -124,7 +125,7 @@ export const TimestampInput = ( {
 				</>
 			) }
 
-			{ biggerThanOneMinute > 0 && (
+			{ ( biggerThanOneMinute > 0 || ! autoHideTimeInputs ) && (
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
@@ -180,6 +181,7 @@ export const TimestampControl = ( {
 	onDebounceChange,
 	wait = 1000,
 	fineAdjustment = 50,
+	autoHideTimeInputs = true,
 }: TimestampControlProps ): React.ReactElement => {
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
@@ -200,6 +202,7 @@ export const TimestampControl = ( {
 				max={ max }
 				value={ value }
 				onChange={ onChangeHandler }
+				autoHideTimeInputs={ autoHideTimeInputs }
 			/>
 
 			<RangeControl

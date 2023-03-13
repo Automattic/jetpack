@@ -4,6 +4,7 @@ export type TimestampInputProps = {
 	max?: number;
 	fineAdjustment?: number;
 	onChange?: ( ms: number ) => void;
+	autoHideTimeInputs?: boolean;
 };
 
 export type TimestampControlProps = TimestampInputProps & {

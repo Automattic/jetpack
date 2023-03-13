@@ -43,6 +43,7 @@ _default.args = {
 	wait: 100,
 	fineAdjustment: 50,
 	disabled: false,
+	autoHideTimeInputs: true,
 	onChange: ( newTime: number ) => {
 		console.log( { newTime } ); // eslint-disable-line no-console
 	},
