@@ -31,7 +31,7 @@ import { isURL, getProtocol, addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
-import { View, TouchableWithoutFeedback, Text } from 'react-native';
+import { ActivityIndicator, View, TouchableWithoutFeedback, Text } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -344,7 +344,8 @@ class VideoPressEdit extends Component {
 												),
 											} }
 										>
-											{ videoContainerHeight > 0 && iconContainer }
+											{ videoContainerHeight > 0 &&
+												( isLoadingMetadata ? <ActivityIndicator /> : iconContainer ) }
 											{ isUploadFailed && (
 												<Text style={ style.uploadFailedText }>{ retryMessage }</Text>
 											) }
