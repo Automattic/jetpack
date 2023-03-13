@@ -74,7 +74,5 @@ jetpack_boost_register_option( 'critical_css_suggest_regenerate', Boolean_Entry:
  * Register module status options for each feature.
  */
 foreach ( Automattic\Jetpack_Boost\Modules\Modules::MODULES as $feature_class ) {
-	if ( $feature_class::is_available() ) {
-		jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Boolean_Entry::class );
-	}
+	jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Boolean_Entry::class );
 }
