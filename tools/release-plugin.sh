@@ -80,7 +80,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
-if [[ "${!PROJECTS[*]}" =~ "jetpack" ]]; then
+if [[ -n "${PROJECTS[jetpack]+ok}" && -z "${PROJECTS[mu-wpcom-plugin]+ok}" ]]; then
 	PROJECTS["mu-wpcom-plugin"]=''
 fi
 
