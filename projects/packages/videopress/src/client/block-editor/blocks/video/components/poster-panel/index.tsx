@@ -31,6 +31,33 @@ import './style.scss';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type React from 'react';
 
+// Global scripts array to be run in the Sandbox context.
+const globalScripts = [];
+
+// Populate scripts array with videopresAjaxURLBlob blobal var.
+if ( window.videopressAjax ) {
+	const videopresAjaxURLBlob = new Blob(
+		[
+			`var videopressAjax = ${ JSON.stringify( {
+				...window.videopressAjax,
+				context: 'sandbox',
+			} ) };`,
+		],
+		{
+			type: 'text/javascript',
+		}
+	);
+
+	globalScripts.push(
+		URL.createObjectURL( videopresAjaxURLBlob ),
+		window.videopressAjax.bridgeUrl
+	);
+}
+
+if ( window?.videoPressEditorState?.playerBridgeUrl ) {
+	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+}
+
 /**
  * Sidebar Control component.
  *
@@ -131,36 +158,13 @@ export function PosterDropdown( {
 	);
 }
 
+const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
+	return iFrameRef?.current?.querySelector( '.components-sandbox' )?.contentWindow;
+};
+
 type PosterFramePickerProps = {
 	guid: VideoGUID;
 };
-
-// Global scripts array to be run in the Sandbox context.
-const globalScripts = [];
-
-// Populate scripts array with videopresAjaxURLBlob blobal var.
-if ( window.videopressAjax ) {
-	const videopresAjaxURLBlob = new Blob(
-		[
-			`var videopressAjax = ${ JSON.stringify( {
-				...window.videopressAjax,
-				context: 'sandbox',
-			} ) };`,
-		],
-		{
-			type: 'text/javascript',
-		}
-	);
-
-	globalScripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
-		window.videopressAjax.bridgeUrl
-	);
-}
-
-if ( window?.videoPressEditorState?.playerBridgeUrl ) {
-	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
-}
 
 /**
  * React component to pick a frame from the VideoPress video
@@ -170,24 +174,93 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  */
 function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( 0 );
+	const [ duration, setDuration ] = useState( 0 );
+	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
-		autoplay: false,
+		autoplay: true, // Hack 1/2: Set autoplay true to be able to control the video.
 		controls: false,
 		loop: false,
 		muted: true,
 	} );
 
-	const { preview = { html: null } } = usePreview( url );
+	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
+
+	/**
+	 * Handler function to deal with the communication
+	 * between the iframe, which contains the video,
+	 * and the parent window.
+	 *
+	 * @param {MessageEvent} event - Message event
+	 */
+	function listenEventsHandler( event: MessageEvent ) {
+		const { data: eventData = {}, source } = event;
+		const { event: eventName } = event?.data || {};
+
+		// Set the video duration for the TimestampControl component.
+		if ( eventName === 'videopress_durationchange' ) {
+			if ( eventData?.durationMs ) {
+				setDuration( eventData.durationMs );
+			}
+		}
+
+		/*
+		 * Hack 2/2: Stop the video once it's loaded.
+		 * More about Permission Policy:
+		 * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
+		 */
+		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
+			setTimeout( () => {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: 0.1 },
+					{ targetOrigin: '*' }
+				);
+				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
+			}, 100 );
+		}
+	}
+
+	// Listen player events.
+	useEffect( () => {
+		if ( ! html ) {
+			return;
+		}
+
+		const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
+
+		return () => {
+			// Remove the listener when the component is unmounted.
+			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
+		};
+	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
 	return (
 		<div className="poster-panel__frame-picker">
-			<div className="poster-panel__frame-picker__snadbox">
-				<SandBox html={ html } scripts={ globalScripts } />
-			</div>
+			{ ! isRequestingEmbedPreview && (
+				<div ref={ playerWrapperRef } className="poster-panel__frame-picker__snadbox">
+					<SandBox html={ html } scripts={ globalScripts } />
+				</div>
+			) }
 
-			<TimestampControl max={ 1000 * 60 * 60 } value={ timestamp } onChange={ setTimestamp } />
+			<TimestampControl
+				max={ duration }
+				value={ timestamp }
+				wait={ 250 }
+				onChange={ setTimestamp }
+				onDebounceChange={ iframeTimePosition => {
+					const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
+					sandboxIFrameWindow?.postMessage( {
+						event: 'videopress_action_set_currenttime',
+						currentTime: iframeTimePosition / 1000,
+					} );
+				} }
+			/>
 		</div>
 	);
 }
