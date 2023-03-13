@@ -4,10 +4,13 @@
 	import { __ } from '@wordpress/i18n';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Footer from '../../sections/Footer.svelte';
 	import config from '../../stores/config';
 	import Logo from '../../svg/jetpack-green.svg';
+	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
+	import ActivateLicense from './ActivateLicense.svelte';
 
 	async function goToCheckout() {
 		const eventProps = {};
@@ -28,6 +31,17 @@
 </script>
 
 <div id="jb-settings" class="jb-settings">
+	<div class="jb-settings-header jb-benefits-header">
+		<div class="jb-container jb-container--fixed">
+			<div class="jb-settings-header__logo">
+				<JetpackBoostLogo />
+			</div>
+
+			<ActivateLicense />
+		</div>
+	</div>
+
+	<div class="jb-benefits__body">
 		<div class="jb-container jb-container--fixed mt-2">
 			<BackButton />
 			<div class="jb-card">
@@ -42,7 +56,9 @@
 					</p>
 					<ul class="jb-checklist my-2">
 						<li>{__( 'Automatic critical CSS regeneration', 'jetpack-boost' )}</li>
-						<li>{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}</li>
+						<li>
+							{__( 'Performance scores are recalculated after each change', 'jetpack-boost' )}
+						</li>
 						<li>{__( 'Dedicated email support', 'jetpack-boost' )}</li>
 					</ul>
 				</div>
@@ -70,5 +86,43 @@
 					'jetpack-boost'
 				)}
 			</footer>
+		</div>
+	</div>
+
+	<div class="jb-benefits-footer">
+		<Footer />
 	</div>
 </div>
+
+<style lang="scss">
+	.jb-benefits-header {
+		padding-block-start: 40px;
+		padding-block-end: 40px;
+		background-color: var( --jp-white );
+		height: unset;
+
+		.jb-settings-header__logo {
+			max-width: 240px;
+			height: unset;
+		}
+
+		.jb-container--fixed {
+			flex-basis: 100%;
+
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			flex-wrap: wrap;
+			gap: 24px;
+		}
+	}
+
+	.jb-benefits__body {
+		background-color: var( --jp-white-off );
+		padding-block-end: 64px;
+	}
+
+	.jb-benefits-footer {
+		background-color: var( --jp-white );
+	}
+</style>
