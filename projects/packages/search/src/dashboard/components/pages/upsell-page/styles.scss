@@ -11,6 +11,17 @@
 	> div {
 		margin-left: 0;
 	}
+
+	&__header {
+		display: flex;
+		justify-content: space-between;
+		flex-wrap: wrap;
+		gap: calc( var( --horizontal-spacing ) * 3 );
+	}
+
+	&__logo {
+		flex-shrink: 0;
+	}
 }
 
 .price-tip {
