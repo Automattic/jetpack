@@ -1,5 +1,4 @@
 import {
-	JetpackSearchLogo,
 	AdminPage,
 	Container,
 	Col,
@@ -24,6 +23,7 @@ import SearchPromotionBlock from 'components/search-promotion';
 import useProductCheckoutWorkflow from 'hooks/use-product-checkout-workflow';
 import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
+import Header from './header';
 
 import './styles.scss';
 
@@ -91,7 +91,7 @@ export default function UpsellPage( { isLoading = false } ) {
 					<AdminPage
 						moduleName={ __( 'Jetpack Search', 'jetpack-search-pkg' ) }
 						a8cLogoHref={ AUTOMATTIC_WEBSITE }
-						header={ <JetpackSearchLogo /> }
+						header={ <Header /> }
 						moduleNameHref={ JETPACK_SEARCH__LINK }
 					>
 						<AdminSectionHero>
