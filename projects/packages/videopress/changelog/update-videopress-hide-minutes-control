@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-VideoPress: add disabled and autoHideTimeInputs props to TimestampControl component
+VideoPress: add disabled and autoHideTimeInput props to TimestampControl component
