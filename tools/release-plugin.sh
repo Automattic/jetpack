@@ -81,7 +81,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # If we're releasing Jetpack, we're also releasing mu-wpcom-plugin.
-if [[ -n "${PROJECTS[jetpack]+ok}" && -z "${PROJECTS[mu-wpcom-plugin]+ok}" ]]; then
+if [[ -v PROJECTS["jetpack"] && ! -v PROJECTS["mu-wpcom-plugin"] ]]; then
 	PROJECTS["mu-wpcom-plugin"]=''
 fi
 
@@ -139,7 +139,7 @@ proceed_p "" "Proceed releasing above projects?"
 declare -A PREFIXES
 for SLUG in "${!PROJECTS[@]}"; do
 	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$SLUG"/composer.json)
-	if [[ -n "$PREFIX" ]] && [[ ! "${PREFIXES[*]}" =~ $PREFIX ]]; then
+	if [[ -n "$PREFIX" && ! -v PREFIXES["$PREFIX"] ]]; then
 		PREFIXES["$PREFIX"]=${PROJECTS[$SLUG]}
 	elif [[ -z "$PREFIX" ]]; then
 		die "No release branch prefix found for $SLUG, aborting."
