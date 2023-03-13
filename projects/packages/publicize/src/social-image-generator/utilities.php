@@ -23,5 +23,8 @@ function get_image_url( $post_id ) {
 		return '';
 	}
 
-	return add_query_arg( array( 'query' => rawurlencode( 't=' . $token ) ), Redirect::get_url( 'sigenerate' ) );
+	return add_query_arg(
+		array( 'query' => rawurlencode( 't=' . $token ) ),
+		Redirect::get_url( 'sigenerate', array( 'site' => null ) )
+	);
 }

@@ -63,7 +63,7 @@ class Utilities_Test extends BaseTestCase {
 				'enabled' => true,
 			)
 		);
-		$this->assertEquals( get_image_url( $this->post_id ), 'https://jetpack.com/redirect/?source=sigenerate&site=example.org&query=t%3D' . rawurlencode( $token ) );
+		$this->assertEquals( get_image_url( $this->post_id ), 'https://jetpack.com/redirect/?source=sigenerate&query=t%3D' . rawurlencode( $token ) );
 	}
 
 	/**
