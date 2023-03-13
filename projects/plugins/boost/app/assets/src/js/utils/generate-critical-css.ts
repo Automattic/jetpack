@@ -11,7 +11,7 @@ import {
 	Provider,
 } from '../stores/critical-css-state-types';
 import { JSONObject } from '../stores/data-sync-client';
-import { recordBoostEvent } from './analytics';
+import { recordBoostEvent, TracksEventProperties } from './analytics';
 import { castToNumber } from './cast-to-number';
 import { logPreCriticalCSSGeneration } from './console';
 import { isSameOrigin } from './is-same-origin';
