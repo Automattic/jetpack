@@ -110,13 +110,13 @@ done
 
 # Check the plugin version(s) to use for the plugin(s).
 function check_ver {
-	normalize_version_number "$1"
+	normalize_version_number "$2"
 	if [[ ! "$NORMALIZED_VERSION" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 		red "\"$NORMALIZED_VERSION\" does not appear to be a valid version number."
 		return 1
 	fi
 	local CUR_VERSION
-	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$2")
+	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "$1")
 	# shellcheck disable=SC2310
 	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
 		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
@@ -126,7 +126,7 @@ function check_ver {
 }
 
 for PLUGIN in "${!PROJECTS[@]}"; do
-	if ! check_ver "${PROJECTS[$PLUGIN]}" "$PLUGIN"; then
+	if ! check_ver "$PLUGIN" "${PROJECTS[$PLUGIN]}"; then
 		die "Please specify a valid version number."
 	fi
 	echo "Releasing $PLUGIN ${PROJECTS[$PLUGIN]}"
