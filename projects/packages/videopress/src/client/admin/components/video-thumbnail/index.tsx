@@ -17,7 +17,7 @@ import styles from './style.module.scss';
 /**
  * Types
  */
-import { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
+import type { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
 import type React from 'react';
 
 export const VideoThumbnailDropdownButtons = ( {
@@ -76,6 +76,7 @@ export const VideoThumbnailDropdown = ( {
 	onUseDefaultThumbnail,
 	onSelectFromVideo,
 	onUploadImage,
+	busy = false,
 }: VideoThumbnailDropdownProps ) => {
 	return (
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
@@ -86,6 +87,7 @@ export const VideoThumbnailDropdown = ( {
 						variant="secondary"
 						className={ styles[ 'thumbnail__edit-button' ] }
 						icon={ edit }
+						disabled={ busy }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 					/>
@@ -163,6 +165,8 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 			loading = false,
 			uploading = false,
 			processing = false,
+			deleting = false,
+			updating = false,
 			onUseDefaultThumbnail,
 			onSelectFromVideo,
 			onUploadImage,
@@ -172,6 +176,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		ref
 	) => {
 		const [ isSmall ] = useBreakpointMatch( 'sm' );
+		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)
 		let thumbnail = defaultThumbnail;
@@ -211,6 +216,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 						onUseDefaultThumbnail={ onUseDefaultThumbnail }
 						onSelectFromVideo={ onSelectFromVideo }
 						onUploadImage={ onUploadImage }
+						busy={ busy }
 					/>
 				) }
 				{ Number.isFinite( duration ) && (

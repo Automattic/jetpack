@@ -9,11 +9,12 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices } from '@wordpress/components';
+import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { caption as captionIcon } from '@wordpress/icons';
 import classNames from 'classnames';
 import debugFactory from 'debug';
 /**
@@ -21,17 +22,19 @@ import debugFactory from 'debug';
  */
 import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
+import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
+import Player from './components/player';
 import PosterImageBlockControl from './components/poster-image-block-control';
+import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
-import VideoPressPlayer from './components/videopress-player';
 import VideoPressUploader from './components/videopress-uploader';
 import { description, title } from '.';
 /**
@@ -141,6 +144,8 @@ export default function VideoPressEdit( {
 	// Detect if the chapter file is auto-generated.
 	const chapter = tracks?.filter( track => track.kind === 'chapters' )?.[ 0 ];
 
+	const [ showCaption, setShowCaption ] = useState( !! caption );
+
 	const {
 		videoData,
 		isRequestingVideoData,
@@ -151,24 +156,7 @@ export default function VideoPressEdit( {
 	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	// Get video preview status.
-	const defaultPreview = { html: null, scripts: [], width: null, height: null };
-	const { preview, isRequestingEmbedPreview } = useSelect(
-		select => {
-			if ( ! videoPressUrl ) {
-				return {
-					preview: defaultPreview,
-					isRequestingEmbedPreview: false,
-				};
-			}
-
-			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || defaultPreview,
-				isRequestingEmbedPreview:
-					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
-			};
-		},
-		[ videoPressUrl ]
-	);
+	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Pick video properties from preview.
 	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
@@ -437,6 +425,9 @@ export default function VideoPressEdit( {
 		);
 	}
 
+	const removeCaptionLabel = __( 'Remove caption', 'jetpack-videopress-pkg' );
+	const addCaptionLabel = __( 'Add caption', 'jetpack-videopress-pkg' );
+
 	// Show VideoPress player.
 	return (
 		<div
@@ -447,6 +438,18 @@ export default function VideoPressEdit( {
 			} ) }
 		>
 			<BlockControls group="block">
+				<ToolbarButton
+					onClick={ () => {
+						setShowCaption( ! showCaption );
+						if ( showCaption && caption ) {
+							setAttributes( { caption: undefined } );
+						}
+					} }
+					icon={ captionIcon }
+					isPressed={ showCaption }
+					label={ showCaption ? removeCaptionLabel : addCaptionLabel }
+				/>
+
 				<PosterImageBlockControl
 					attributes={ attributes }
 					setAttributes={ setAttributes }
@@ -514,11 +517,30 @@ export default function VideoPressEdit( {
 					isRequestingVideoData={ isRequestingVideoData }
 					{ ...{ attributes, setAttributes } }
 				/>
+
 				<PlaybackPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+
+				<PosterPanel
+					clientId={ clientId }
+					attributes={ attributes }
+					setAttributes={ setAttributes }
+				/>
+
 				<PrivacyAndRatingPanel
 					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
 				/>
-				<ColorPanel { ...{ attributes, setAttributes, isRequestingVideoData } } />
+			</InspectorControls>
+
+			{ /*
+			 * __experimentalGroup is a temporary prop to allow us to group the color panel,
+			 * and it will be replaced with the `group` prop once it's stabilized.
+			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
+			 */ }
+			<InspectorControls __experimentalGroup="color">
+				<ColorPanel
+					clientId={ clientId }
+					{ ...{ attributes, setAttributes, isRequestingVideoData } }
+				/>
 			</InspectorControls>
 
 			<ConnectBanner
@@ -534,7 +556,8 @@ export default function VideoPressEdit( {
 				} }
 			/>
 
-			<VideoPressPlayer
+			<Player
+				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				scripts={ scripts }

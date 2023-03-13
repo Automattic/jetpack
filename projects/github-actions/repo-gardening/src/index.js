@@ -9,6 +9,7 @@ const flagOss = require( './tasks/flag-oss' );
 const gatherSupportReferences = require( './tasks/gather-support-references' );
 const notifyDesign = require( './tasks/notify-design' );
 const notifyEditorial = require( './tasks/notify-editorial' );
+const notifyKitKat = require( './tasks/notify-kitkat' );
 const replyToCustomersReminder = require( './tasks/reply-to-customers-reminder' );
 const triageNewIssues = require( './tasks/triage-new-issues' );
 const wpcomCommitReminder = require( './tasks/wpcom-commit-reminder' );
@@ -51,6 +52,11 @@ const automations = [
 		event: 'pull_request_target',
 		action: [ 'labeled' ],
 		task: ifNotClosed( notifyEditorial ),
+	},
+	{
+		event: 'issues',
+		action: [ 'labeled' ],
+		task: notifyKitKat,
 	},
 	{
 		event: 'push',
