@@ -42,6 +42,7 @@ _default.args = {
 	value: 236 * 1000, // 3:56
 	wait: 100,
 	fineAdjustment: 50,
+	disabled: false,
 	onChange: ( newTime: number ) => {
 		console.log( { newTime } ); // eslint-disable-line no-console
 	},

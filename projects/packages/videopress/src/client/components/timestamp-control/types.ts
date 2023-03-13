@@ -1,4 +1,5 @@
 export type TimestampInputProps = {
+	disabled?: boolean;
 	value: number;
 	max?: number;
 	fineAdjustment?: number;

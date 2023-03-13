@@ -58,9 +58,10 @@ function getTimeDataByValue( value ) {
 }
 
 export const TimestampInput = ( {
+	onChange,
+	disabled,
 	value,
 	max,
-	onChange,
 }: TimestampInputProps ): React.ReactElement => {
 	const time = {
 		value: getTimeDataByValue( value ),
@@ -105,6 +106,7 @@ export const TimestampInput = ( {
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						disabled={ disabled }
 						min={ 0 }
 						max={ 99 }
 						step={ 1 }
@@ -126,6 +128,7 @@ export const TimestampInput = ( {
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						disabled={ disabled }
 						min={ 0 }
 						max={ 59 }
 						step={ 1 }
@@ -145,6 +148,7 @@ export const TimestampInput = ( {
 
 			<NumberControl
 				className={ styles[ 'timestamp-control-input' ] }
+				disabled={ disabled }
 				min={ 0 }
 				max={ 59 }
 				step={ 1 }
@@ -169,6 +173,7 @@ export const TimestampInput = ( {
  * @returns {React.ReactElement}          TimestampControl react component.
  */
 export const TimestampControl = ( {
+	disabled = false,
 	max,
 	value,
 	onChange,
@@ -190,9 +195,15 @@ export const TimestampControl = ( {
 
 	return (
 		<div className={ styles[ 'timestamp-control' ] }>
-			<TimestampInput max={ max } value={ value } onChange={ onChangeHandler } />
+			<TimestampInput
+				disabled={ disabled }
+				max={ max }
+				value={ value }
+				onChange={ onChangeHandler }
+			/>
 
 			<RangeControl
+				disabled={ disabled }
 				className={ styles[ 'timestamp-range-control' ] }
 				min={ 0 }
 				step={ fineAdjustment }
