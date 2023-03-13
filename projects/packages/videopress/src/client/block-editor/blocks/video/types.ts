@@ -98,8 +98,8 @@ export type DetailsPanelProps = VideoControlProps & {
 };
 
 export type VideoPreview = {
-	html?: string;
-	scripts: Array< string >;
-	width?: number;
-	height?: number;
+	html: string;
+	scripts?: Array< string >;
+	width: number;
+	height: number;
 };
