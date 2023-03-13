@@ -45,16 +45,11 @@ function SharingButtonsEdit({ attributes, className, noticeOperations, noticeUI,
 
 	return (
 		<div className={className}>
-			<p className={`${className}__block-title`}>{__('Sharing buttons')}</p>
 			<div className={`${className}__block-body`}>
-				<p>{__('Edit visible sharing buttons:')}</p>
 				<EditorSharingButtons
 					selectedServices={attributes.services || []}
 					onServiceClick={handleServiceSelect}
 				/>
-			</div>
-			<div className={`${className}__block-footer`}>
-				<Instructions />
 			</div>
 		</div>
 	);

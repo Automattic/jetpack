@@ -1,5 +1,5 @@
 import { Button } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 
 function EditorSharingButton({ className, selected, onClick, children }) {
 	const getButtonVariant = useCallback(() => {
