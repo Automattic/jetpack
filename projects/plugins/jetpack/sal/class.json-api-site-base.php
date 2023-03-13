@@ -1453,6 +1453,9 @@ abstract class SAL_Site {
 	 * @return string
 	 */
 	public function get_launchpad_screen() {
+		if ( $this->is_wpcom_staging_site() ) {
+			return 'off';
+		}
 		return get_option( 'launchpad_screen' );
 	}
 
