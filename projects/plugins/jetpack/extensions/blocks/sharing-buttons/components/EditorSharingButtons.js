@@ -4,6 +4,7 @@
 
   @TODO: The goal here is to implement the same markup and styles as Calypso, in order to achieve feature parity.
 */
+import SocialIcon from 'social-logos';
 import { SVG, ButtonGroup, Button } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import availableServices from '../available-services';
@@ -16,14 +17,17 @@ function EditorSharingButtons({ selectedServices, onServiceClick }) {
 			<ButtonGroup className="editor-sharing-buttons__services">
 				{Object.keys(availableServices).map(service => (
 					<EditorSharingButton
-						className="editor-sharing-buttons__button"
+						className={`editor-sharing-buttons__button share-${service}`}
 						key={service}
 						selected={selectedServices.includes(service)}
 						onClick={() => {
 							onServiceClick(service);
 						}}
 					>
-						{availableServices[service].label}
+						<SocialIcon icon={availableServices[service].icon} size={24} />
+						<span className="editor-sharing-buttons__service-label">
+							{availableServices[service].label}
+						</span>
 					</EditorSharingButton>
 				))}
 			</ButtonGroup>
