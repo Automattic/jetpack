@@ -48,21 +48,11 @@ for DIR in $(git -c core.quotepath=off diff --name-only HEAD | grep -E -v '(^|/)
 	echo "Adding change file for $SLUG"
 	cd "$DIR"
 
-	ARGS=()
-	ARGS=( add --filename="${CHANGEFILE}" --no-interaction --filename-auto-suffix --significance=patch )
-
-	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
-	if [[ -n "$CLTYPE" ]]; then
-		ARGS+=( "--type=$CLTYPE" )
-	fi
-
-	ARGS+=( --entry="Updated package dependencies." )
-
 	CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
 	if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
-		changelogger "${ARGS[@]}"
+		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 	else
-		changelogger "${ARGS[@]}"
+		changelogger_add 'Updated package dependencies.' '' --filename="${CHANGEFILE}" --filename-auto-suffix
 		echo "Updating version for $SLUG"
 		PRERELEASE=$(alpha_tag composer.json 0)
 		VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || { echo "$VER"; exit 1; }
