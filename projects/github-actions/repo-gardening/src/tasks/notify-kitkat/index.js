@@ -36,7 +36,7 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 }
 
 /**
- * Check for a Kitkat Input Requested label on an issue.
+ * Check for a label showing that it was already escalated.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
@@ -46,8 +46,11 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
  */
 async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in the Escalated to Kitkat label.
-	return labels.includes( '[Status] Escalated to Kitkat' );
+
+	// Does the list of labels includes the "[Status] Escalated" or "[Status] Escalated to Kitkat" label?
+	return (
+		labels.includes( '[Status] Escalated' ) || labels.includes( '[Status] Escalated to Kitkat' )
+	);
 }
 
 /**
@@ -178,7 +181,7 @@ async function notifyKitKat( payload, octokit ) {
 			owner: ownerLogin,
 			repo,
 			issue_number: number,
-			labels: [ '[Status] Escalated to Kitkat' ],
+			labels: [ '[Status] Escalated' ],
 		} );
 	}
 }

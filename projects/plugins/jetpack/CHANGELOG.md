@@ -2,6 +2,35 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.3 - 2023-03-13
+### Enhancements
+- Add additonal valid param to membership status endpoint for paid newsletters [#29351]
+- Add image to Odyssey upgrade notice on larger layouts [#29273]
+- Add some UI to to prevent user to be confused when changing post visibility regarding Newsletter settings.
+  Add an intro for users. [#29042]
+- Forms: Multiple Choice and Single Choice fields redesign [#29290]
+- Post-purchase recommendations for customizing search now points to the search customizer instead of Jetpack Cloud [#29375]
+- USe chat GPT API [#29332]
+
+### Improved compatibility
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+
+### Bug fixes
+- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters. [#29393]
+- Don't show "Include social followers in count" when showSubscribersTotal is not toggled or isPublicizeEnabled is false [#28944]
+- Make slideshow block's play and pause icons visible. [#29330]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Added tracking of Jetpack Forms exports to CSV files. [#29102]
+- Adding better error handling to Writing Prompt block [#29348]
+- Better handling for loading state and empty results [#29387]
+- Fix writing prompt post meta not saving when post immediately published [#29349]
+- Move action bar components out of inbox [#29360]
+- Move BulkActionsMenu component inside Inbox, too tailored to be reused [#29386]
+- Readme fixup. [#29364]
+- Updated package dependencies. [#29434]
+- Writing Prompt block: prevent multiple requests when fetching prompt or tags [#29373]
+
 ## 12.0-a.1 - 2023-03-08
 ### Enhancements
 - Admin: fix submenu positioning in admin menu. [#28355]
