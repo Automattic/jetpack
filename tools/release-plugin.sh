@@ -209,7 +209,7 @@ git add --all
 git commit -am "Changelog edits."
 
 # If we're releasing Jetpack and it's a beta, amend the readme.txt
-if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" =~ '-beta' ]]; then
+if [[ -v PROJECTS["plugins/jetpack"] && "${PROJECTS[plugins/jetpack]}" == *-beta ]]; then
 	yellow "Releasing a beta for Jetpack, amending the readme.txt"
 	pnpm jetpack changelog squash plugins/jetpack readme
 	git commit -am "Amend readme.txt"
