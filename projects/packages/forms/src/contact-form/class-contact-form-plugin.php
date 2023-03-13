@@ -368,9 +368,21 @@ class Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
+			'jetpack/field-option-checkbox',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+			)
+		);
+		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -547,6 +559,19 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -770,7 +795,7 @@ class Contact_Form_Plugin {
 			// end of copy-pasta from wp-includes/template-loader.php.
 
 			// Ensure 'block_template' attribute is added to any shortcodes in the template.
-			$template = grunion_contact_form_set_block_template_attribute( $template );
+			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
 
 			// Process the block template to populate Grunion_Contact_Form::$last
 			get_the_block_template_html();
@@ -891,6 +916,10 @@ class Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field' ) );
+
+		// We need 'contact-field-option' to be registered, so it's included to the get_shortcode_regex() method
+		// But we don't need a callback because we're handling contact-field-option manually
+		add_shortcode( 'contact-field-option', '__return_null' );
 	}
 
 	/**

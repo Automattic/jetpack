@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Blogging Prompts: avoid PHP notices with non-existing REST query paarameters.
