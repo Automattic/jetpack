@@ -5,8 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.3.0-beta2 - 2023-03-08
+## 1.3.0 - 2023-03-13
 ### Added
+- Add ability to toggle automatic and manual firewall rules independently. [#27726]
+- Add improved messaging for currently enabled firewall features. [#27845]
+- Disable Jetpack Firewall on unsupported environments. [#27939]
 - Add link to pricing page for getting started with an existing plan or license key. [#27745]
 
 ### Changed
@@ -15,22 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility. [#28530]
 
 ### Fixed
-- Remove unnecessary full path from example in UI. [#29037]
 - Fix connection button loading indicators. [#28514]
 - Fix Protect status report caching. [#28766]
-
-## 1.3.0-beta - 2023-01-25
-### Added
-- Add ability to toggle automatic and manual firewall rules independently. [#27726]
-- Add improved messaging for currently enabled firewall features. [#27845]
-- Disable Jetpack Firewall on unsupported environments. [#27939]
-
-### Changed
-- Updated package dependencies. [#28303]
-
-### Fixed
-- Assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28397] [#28273]
-- Updated composer.lock [#28185]
+- Remove unnecessary full path from example in UI. [#29037]
+- Other assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28397] [#28273]
 
 ## 1.2.0 - 2023-01-16
 ### Added
