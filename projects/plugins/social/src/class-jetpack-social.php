@@ -208,6 +208,7 @@ class Jetpack_Social {
 
 		$state = array(
 			'siteData' => array(
+				'adminUrl'          => esc_url( admin_url() ),
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
