@@ -347,7 +347,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email. Please try again!", 'jetpack-waf' ) );
 		}
 		$this->email_address = $email;
-		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
+		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack_Options::get_option( 'id' ) );
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
