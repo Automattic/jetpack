@@ -6,16 +6,16 @@ import { useSelect } from '@wordpress/data';
 /*
  * Types
  */
-import { videoPreviewDefaults } from '../../../block-editor/blocks/video/types';
-import type { VideoPreview } from '../../../block-editor/blocks/video/types';
+import { videoPreviewPropsDefaults } from '../../../block-editor/blocks/video/types';
+import type { VideoPreviewProps } from '../../../block-editor/blocks/video/types';
 
 export type UsePreviewProps = {
-	preview: VideoPreview;
+	preview: VideoPreviewProps;
 	isRequestingEmbedPreview: boolean;
 };
 
-const defaultPreview: VideoPreview = {
-	...videoPreviewDefaults,
+const defaultPreview: VideoPreviewProps = {
+	...videoPreviewPropsDefaults,
 	html: null,
 	scripts: [],
 	width: null,

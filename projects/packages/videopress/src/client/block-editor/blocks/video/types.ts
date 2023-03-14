@@ -97,7 +97,7 @@ export type DetailsPanelProps = VideoControlProps & {
 	isRequestingVideoData: boolean;
 };
 
-export type VideoPreview = {
+export type VideoPreviewProps = {
 	html: string;
 	width: number;
 	height: number;
@@ -110,7 +110,10 @@ export type VideoPreview = {
 	provider_name: string;
 };
 
-export const videoPreviewDefaults: Pick< VideoPreview, 'version' | 'type' | 'provider_name' > = {
+export const videoPreviewPropsDefaults: Pick<
+	VideoPreviewProps,
+	'version' | 'type' | 'provider_name'
+> = {
 	version: '1.0',
 	type: 'video',
 	provider_name: 'VideoPress',

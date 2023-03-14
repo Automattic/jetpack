@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { VideoBlockAttributes, VideoPreview } from '../../types';
+import { VideoBlockAttributes, VideoPreviewProps } from '../../types';
 
 export type PlayerProps = {
 	showCaption: boolean;
@@ -10,6 +10,6 @@ export type PlayerProps = {
 	attributes: VideoBlockAttributes;
 	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	scripts: string[];
-	preview: VideoPreview;
+	preview: VideoPreviewProps;
 	isRequestingEmbedPreview: boolean;
 };
