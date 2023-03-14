@@ -1240,7 +1240,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			'key4'         => array( 'value4', 'value4' ),
 			'key5'         => array( '', 'value5' ),
 			'key6'         => array( '', 'value6' ),
-			'Comment'      => array( 'This is my test 15', 'This is my test 16' ),
+			'4_Comment'    => array( 'This is my test 15', 'This is my test 16' ),
 		);
 
 		$this->assertEquals( $expected_result, $result );
