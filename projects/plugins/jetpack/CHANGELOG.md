@@ -2,6 +2,12 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 11.9.1 - 2023-03-14
+### Bug fixes
+- Forms: fix fatal error on sites using old AMP versions [#29444]
+- Forms: fix issue with exported form data column and fields being incorrect [#29448]
+- Sharing: ensure the sharing icons can appear when using a CDN to serve static assets on your site. [#29441]
+
 ## 11.9 - 2023-03-07
 ### Enhancements
 - Assistant: add new card to highlight VaultPress Backup. [#28741]
