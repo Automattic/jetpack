@@ -1,5 +1,7 @@
 import { JetpackVaultPressBackupLogo } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import useCapabilities from '../../hooks/useCapabilities';
 import { STORE_ID } from '../../store';
 import { useIsFullyConnected } from './hooks';
@@ -38,8 +40,17 @@ const Header = () => {
 			</span>
 			{ shouldShowActivateLicenseLink && (
 				<p>
-					Already have an existing plan or license key?{ ' ' }
-					<a href={ activateLicenseUrl }>Click here to get started</a>
+					{
+						( createInterpolateElement(
+							__(
+								'Already have an existing plan or license key? <a>Click here to get started</a>',
+								'jetpack-backup-pkg'
+							)
+						),
+						{
+							a: <a href={ activateLicenseUrl } />,
+						} )
+					}
 				</p>
 			) }
 		</div>

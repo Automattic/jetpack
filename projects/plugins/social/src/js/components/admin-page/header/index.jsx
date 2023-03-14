@@ -1,5 +1,5 @@
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element/build-types';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { STORE_ID } from './../../../store';
 import Logo from './../../logo';
