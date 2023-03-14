@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing: do not display buttons in JSON requests available when using the ActivityPub plugin.
