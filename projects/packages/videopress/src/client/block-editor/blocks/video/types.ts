@@ -101,7 +101,6 @@ export type VideoPreviewProps = {
 	html: string;
 	width: number;
 	height: number;
-	scripts: Array< string >;
 	thumbnail_height: number;
 	thumbnail_width: number;
 	version: string;

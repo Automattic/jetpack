@@ -15,7 +15,6 @@ export type UsePreviewProps = {
 
 const defaultPreview: VideoPreviewProps = {
 	html: null,
-	scripts: [],
 	width: null,
 	height: null,
 	thumbnail_height: null,
