@@ -2,6 +2,8 @@
  * WordPress dependencies
  */
 import { MediaPlaceholder, InspectorControls } from '@wordpress/block-editor';
+import { PanelBody } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -12,6 +14,7 @@ import { View } from 'react-native';
  */
 import DetailsPanel from './components/details-panel';
 import { VideoPressIcon as icon } from './components/icons';
+import PlaybackPanel from './components/playback-panel';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from './constants';
 import style from './style.scss';
 
@@ -62,6 +65,9 @@ export default function VideoPressEdit( {
 			{ isSelected && (
 				<InspectorControls>
 					<DetailsPanel { ...{ attributes, setAttributes } } />
+					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
+						<PlaybackPanel { ...{ attributes, setAttributes } } />
+					</PanelBody>
 				</InspectorControls>
 			) }
 			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
