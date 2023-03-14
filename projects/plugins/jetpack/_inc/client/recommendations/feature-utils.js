@@ -165,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Custom Site Search', 'jetpack' ),
 				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 			};
 	}
 };
@@ -471,7 +471,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -543,7 +543,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};
