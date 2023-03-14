@@ -11,27 +11,39 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { getSubscriberCounts } from './api';
 import './panel.scss';
+import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 
-function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
+function AccessLevelSelectorPanel( {
+	setPostMeta,
+	accessLevel,
+	followerCount,
+	subscribersCount,
+	paidSubscribersCount,
+} ) {
 	if ( ! isNewsletterFeatureEnabled() ) {
 		return null;
 	}
 
 	return (
 		<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
-			<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			<NewsletterAccess
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				followerCount={ followerCount }
+				subscribersCount={ subscribersCount }
+				paidSubscribersCount={ paidSubscribersCount }
+			/>
 		</PluginDocumentSettingPanel>
 	);
 }
 
 export default function SubscribePanels() {
-	const [ subscriberCount, setSubscriberCount ] = useState( null );
-	const [ paidSubscriberCount, setPaidSubscriberCount ] = useState( null );
+	const [ subscribersCount, setSubscribersCount ] = useState( null );
+	const [ paidSubscribersCount, setPaidSubscribersCount ] = useState( null );
 	const [ followerCount, setFollowerCount ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
@@ -41,9 +53,9 @@ export default function SubscribePanels() {
 
 	useEffect( () => {
 		getSubscriberCounts( counts => {
-			setSubscriberCount( counts.email_subscribers );
+			setSubscribersCount( counts.email_subscribers );
 			setFollowerCount( counts.social_followers );
-			setPaidSubscriberCount( counts.paid_subscribers );
+			setPaidSubscribersCount( counts.paid_subscribers );
 		} );
 	}, [] );
 
@@ -74,31 +86,45 @@ export default function SubscribePanels() {
 	// We still need to render the access level selector, as historical posts need a way to edit their access level for people visiting them on the web.
 	// TODO: Additionally, pages also can be protected. They will not send an email, but can be a resource that needs the acces selector.
 	if ( postWasEverPublished ) {
-		return <AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />;
+		return (
+			<AccessLevelSelectorPanel
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				followerCount={ followerCount }
+				subscribersCount={ subscribersCount }
+				paidSubscribersCount={ paidSubscribersCount }
+			/>
+		);
 	}
 
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
 	if (
-		( ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ) &&
-		( ! Number.isFinite( paidSubscriberCount ) || paidSubscriberCount <= 0 ) &&
+		( ! Number.isFinite( subscribersCount ) || subscribersCount <= 0 ) &&
+		( ! Number.isFinite( paidSubscribersCount ) || paidSubscribersCount <= 0 ) &&
 		( ! Number.isFinite( followerCount ) || followerCount <= 0 )
 	) {
 		return null;
 	}
 
 	// In the paid-subscriber only, we send to a restricted number of subscribers
-	const realSubscriberCount =
+	const realSubscribersCount =
 		accessOptions[ accessLevel ] === accessOptions.paid_subscribers
-			? paidSubscriberCount
-			: subscriberCount;
+			? paidSubscribersCount
+			: subscribersCount;
 	// We send to the social followers only when it is "everybody"
-	const realFollowerCount =
+	const realFollowersCount =
 		accessOptions[ accessLevel ] === accessOptions.everybody ? followerCount : 0;
 
-	const showNotices = Number.isFinite( realSubscriberCount ) && realSubscriberCount > 0;
+	const showNotices = Number.isFinite( realSubscribersCount ) && realSubscribersCount > 0;
 	return (
 		<>
-			<AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			<AccessLevelSelectorPanel
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				followerCount={ followerCount }
+				subscribersCount={ subscribersCount }
+				paidSubscribersCount={ paidSubscribersCount }
+			/>
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
@@ -123,7 +149,7 @@ export default function SubscribePanels() {
 				{ ! showMisconfigurationMessage && showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							realFollowerCount !== 0
+							realFollowersCount !== 0
 								? sprintf(
 										/* translators: 1$s will be subscribers, %2$s will be social followers */
 										__(
@@ -132,18 +158,18 @@ export default function SubscribePanels() {
 										),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', realSubscriberCount, 'jetpack' ),
-											numberFormat( realSubscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscribersCount, 'jetpack' ),
+											numberFormat( realSubscribersCount )
 										),
 										sprintf(
 											/* translators: %s will be a number of social followers */
 											_n(
 												'%s social follower',
 												'%s social followers',
-												realFollowerCount,
+												realFollowersCount,
 												'jetpack'
 											),
-											numberFormat( realFollowerCount )
+											numberFormat( realFollowersCount )
 										)
 								  )
 								: sprintf(
@@ -151,8 +177,8 @@ export default function SubscribePanels() {
 										__( 'This post will reach <span>%1$s</span>.', 'jetpack' ),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', realSubscriberCount, 'jetpack' ),
-											numberFormat( realSubscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscribersCount, 'jetpack' ),
+											numberFormat( realSubscribersCount )
 										)
 								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
@@ -165,6 +191,9 @@ export default function SubscribePanels() {
 						setPostMeta={ setPostMeta }
 						accessLevel={ accessLevel }
 						withModal={ false }
+						followerCount={ followerCount }
+						subscribersCount={ subscribersCount }
+						paidSubscribersCount={ paidSubscribersCount }
 					/>
 				) }
 			</PluginPrePublishPanel>
@@ -181,13 +210,18 @@ export default function SubscribePanels() {
 										),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscribersCount, 'jetpack' ),
+											numberFormat( realSubscribersCount )
 										),
 										sprintf(
 											/* translators: %s will be a number of social followers */
-											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-											numberFormat( followerCount )
+											_n(
+												'%s social follower',
+												'%s social followers',
+												realFollowersCount,
+												'jetpack'
+											),
+											numberFormat( realFollowersCount )
 										)
 								  )
 								: sprintf(
@@ -195,8 +229,8 @@ export default function SubscribePanels() {
 										__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', realSubscribersCount, 'jetpack' ),
+											numberFormat( realSubscribersCount )
 										)
 								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }

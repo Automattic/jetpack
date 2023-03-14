@@ -5,10 +5,9 @@ import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wo
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
 import './settings.scss';
@@ -60,19 +59,13 @@ export function MisconfigurationWarning( { accessLevel } ) {
 	);
 }
 
-function NewsletterAccessChoices( { accessLevel, onChange } ) {
-	const [ subscribersCount, setSubscribersCount ] = useState( null );
-	const [ paidSubscribersCount, setPaidSubscribersCount ] = useState( null );
-	const [ followerCount, setFollowerCount ] = useState( null );
-
-	useEffect( () => {
-		getSubscriberCounts( counts => {
-			setSubscribersCount( counts.email_subscribers );
-			setFollowerCount( counts.social_followers );
-			setPaidSubscribersCount( counts.paid_subscribers );
-		} );
-	}, [] );
-
+function NewsletterAccessChoices( {
+	accessLevel,
+	onChange,
+	subscribersCount,
+	paidSubscribersCount,
+	followerCount,
+} ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -112,7 +105,14 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	);
 }
 
-export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true } ) {
+export function NewsletterAccess( {
+	accessLevel,
+	setPostMeta,
+	subscribersCount,
+	paidSubscribersCount,
+	followerCount,
+	withModal = true,
+} ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
 		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
@@ -186,6 +186,9 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
+													followerCount={ followerCount }
+													subscribersCount={ subscribersCount }
+													paidSubscribersCount={ paidSubscribersCount }
 													onChange={ setPostMeta }
 												/>
 											</div>
@@ -196,7 +199,13 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 
 							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
 								<FlexBlock>
-									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+									<NewsletterAccessChoices
+										accessLevel={ accessLevel }
+										followerCount={ followerCount }
+										subscribersCount={ subscribersCount }
+										paidSubscribersCount={ paidSubscribersCount }
+										onChange={ setPostMeta }
+									/>
 								</FlexBlock>
 							) }
 						</Flex>
