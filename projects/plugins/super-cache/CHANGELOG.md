@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed undefined PHP variable when trying to delete a protected folder. [#28524]
+- Fixed deprecation warnings on PHP 8.1+. [#28959]
 
 ## [1.9.3-beta] - 2023-01-23
 ### Added

@@ -27,6 +27,7 @@ const JetpackFieldControls = ( {
 	id,
 	placeholder,
 	placeholderField = 'placeholder',
+	hidePlaceholder,
 	required,
 	setAttributes,
 	width,
@@ -94,17 +95,18 @@ const JetpackFieldControls = ( {
 						onChange={ value => setAttributes( { required: value } ) }
 						help={ __( 'You can edit the "required" label in the editor', 'jetpack-forms' ) }
 					/>
-
-					<TextControl
-						label={ __( 'Placeholder text', 'jetpack-forms' ) }
-						value={ placeholder }
-						onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
-						help={ __(
-							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
-							'jetpack-forms'
-						) }
-					/>
-
+					{ ! hidePlaceholder && (
+						<TextControl
+							label={ __( 'Placeholder text', 'jetpack-forms' ) }
+							value={ placeholder }
+							onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
+							help={ __(
+								'Show visitors an example of the type of content expected. Otherwise, leave blank.',
+								'jetpack-forms'
+							) }
+						/>
+					) }
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack-forms' ) }
 						checked={ attributes.shareFieldAttributes }
@@ -118,7 +120,6 @@ const JetpackFieldControls = ( {
 					colorSettings={ colorSettings }
 				/>
 				<PanelBody title={ __( 'Input Field Styles', 'jetpack-forms' ) } initialOpen={ false }>
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<BaseControl>
 						<FontSizePicker
 							withReset={ true }

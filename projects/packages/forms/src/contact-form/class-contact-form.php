@@ -733,11 +733,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Contact_Form_Plugin::$using_contact_form_field ) {
-			$att_strs = array();
+			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+
+			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
+				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
+
+				if ( ! empty( $matches[0] ) ) {
+					$options = array();
+					foreach ( $matches[0] as $shortcode ) {
+						$attr      = shortcode_parse_atts( $shortcode );
+						$options[] = $attr['label'];
+					}
+
+					$attributes['options'] = $options;
+				}
+			}
+
 			if ( ! isset( $attributes['label'] ) ) {
-				$type                = isset( $attributes['type'] ) ? $attributes['type'] : null;
 				$attributes['label'] = self::get_default_label_from_type( $type );
 			}
+
+			$att_strs = array();
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = self::esc_shortcode_val( $val );
@@ -756,7 +772,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 				}
 			}
 
-			$html = '[contact-field ' . implode( ' ', $att_strs );
+			$shortcode_type = 'contact-field';
+			if ( $type === 'field-option' ) {
+				$shortcode_type = 'contact-field-option';
+			}
+
+			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
 
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
 				$html .= ']' . esc_html( $content ) . '[/contact-field]';

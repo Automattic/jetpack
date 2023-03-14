@@ -1,0 +1,6 @@
+.jp-forms__search-form {
+	input.components-input-control__input {
+		// hateful important: couldn't override input's style
+		height: 36px !important;
+	}
+}

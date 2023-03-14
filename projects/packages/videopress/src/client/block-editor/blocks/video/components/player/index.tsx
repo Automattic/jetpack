@@ -45,6 +45,7 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * @returns {React.ReactElement} Playback block sidebar panel
  */
 export default function Player( {
+	showCaption,
 	html,
 	isSelected,
 	attributes,
@@ -55,6 +56,7 @@ export default function Player( {
 }: PlayerProps ): React.ReactElement {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
+
 	const { maxWidth, caption, videoRatio } = attributes;
 
 	/*
@@ -185,6 +187,16 @@ export default function Player( {
 		paddingBottom?: number;
 	} = {};
 
+	// Focus the caption when we click to add one.
+	const captionRef = useCallback(
+		( node: HTMLElement ) => {
+			if ( node && ! caption ) {
+				node.focus();
+			}
+		},
+		[ caption ]
+	);
+
 	if ( videoPlayerTemporaryHeight !== 'auto' ) {
 		wrapperElementStyle.height = videoPlayerTemporaryHeight || 200;
 		wrapperElementStyle.paddingBottom = videoPlayerTemporaryHeight
@@ -228,13 +240,16 @@ export default function Player( {
 				</div>
 			</ResizableBox>
 
-			{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
+			{ showCaption && ( ! RichText.isEmpty( caption ) || isSelected ) && (
 				<RichText
+					identifier="caption"
 					tagName="figcaption"
-					placeholder={ __( 'Write caption…', 'jetpack-videopress-pkg' ) }
+					aria-label={ __( 'Video caption text', 'jetpack-videopress-pkg' ) }
+					placeholder={ __( 'Add caption', 'jetpack-videopress-pkg' ) }
 					value={ caption }
-					onChange={ value => setAttributes( { caption: value } ) }
+					onChange={ ( value: string ) => setAttributes( { caption: value } ) }
 					inlineToolbar
+					ref={ captionRef }
 				/>
 			) }
 		</figure>
