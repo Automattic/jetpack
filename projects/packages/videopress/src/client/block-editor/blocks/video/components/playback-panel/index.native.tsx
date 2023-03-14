@@ -1,14 +1,16 @@
 /**
  *External dependencies
  */
-import { ExternalLink, PanelBody, ToggleControl } from '@wordpress/components';
-import { createInterpolateElement, useCallback } from '@wordpress/element';
+import { useNavigation } from '@react-navigation/native';
+import { PanelBody, ToggleControl, BottomSheet } from '@wordpress/components';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Icon, chevronRight } from '@wordpress/icons';
+import { Text } from 'react-native';
 /**
  * Internal dependencies
  */
 import { VideoControlProps } from '../../types';
-import styles from './style.module.scss';
 /**
  * Types
  */
@@ -21,6 +23,19 @@ import type React from 'react';
  * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
+	const [ showSubSheet, setShowSubSheet ] = useState( false );
+	const navigation = useNavigation();
+
+	const goBack = () => {
+		setShowSubSheet( false );
+		navigation.goBack();
+	};
+
+	const openSubSheet = () => {
+		navigation.navigate( BottomSheet.SubSheet.screenName );
+		setShowSubSheet( true );
+	};
+
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
@@ -33,80 +48,95 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 	);
 
 	return (
-		<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
-			<ToggleControl
-				label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange( 'autoplay' ) }
-				checked={ autoplay }
-				help={
-					<>
-						<span className={ styles[ 'help-message' ] }>
-							{ __(
-								'Start playing the video as soon as the page loads.',
-								'jetpack-videopress-pkg'
-							) }
-						</span>
-						{ autoplay && (
-							<span className={ styles[ 'help-message' ] }>
-								{ __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack-videopress-pkg'
+		<BottomSheet.SubSheet
+			navigationButton={
+				<BottomSheet.Cell
+					label={ __( 'Playback Settings', 'jetpack-videopress-pkg' ) }
+					onPress={ openSubSheet }
+					leftAlign
+				>
+					<Icon icon={ chevronRight }></Icon>
+				</BottomSheet.Cell>
+			}
+			showSheet={ showSubSheet }
+		>
+			<>
+				<BottomSheet.NavBar>
+					<BottomSheet.NavBar.BackButton onPress={ goBack } />
+					<BottomSheet.NavBar.Heading>
+						{ __( 'Playback Settings', 'jetpack-videopress-pkg' ) }
+					</BottomSheet.NavBar.Heading>
+				</BottomSheet.NavBar>
+
+				<PanelBody>
+					<ToggleControl
+						label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange( 'autoplay' ) }
+						checked={ autoplay }
+						help={
+							<>
+								<Text>
+									{ __(
+										'Start playing the video as soon as the page loads.',
+										'jetpack-videopress-pkg'
+									) }
+								</Text>
+								{ autoplay && (
+									<Text>
+										{ __(
+											'Note: Autoplaying videos may cause usability issues for some visitors.',
+											'jetpack-videopress-pkg'
+										) }
+									</Text>
 								) }
-							</span>
+							</>
+						}
+					/>
+
+					<ToggleControl
+						label={ __( 'Loop', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange( 'loop' ) }
+						checked={ loop }
+						help={ __( 'Restarts the video when it reaches the end.', 'jetpack-videopress-pkg' ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Muted', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange( 'muted' ) }
+						checked={ muted }
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Controls', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange( 'controls' ) }
+						checked={ controls }
+						help={ __( 'Display the video playback controls.', 'jetpack-videopress-pkg' ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Play Inline', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange( 'playsinline' ) }
+						checked={ playsinline }
+						help={ __(
+							'Play the video inline instead of full-screen on mobile devices.',
+							'jetpack-videopress-pkg'
 						) }
-					</>
-				}
-			/>
+					/>
 
-			<ToggleControl
-				label={ __( 'Loop', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange( 'loop' ) }
-				checked={ loop }
-				help={ __( 'Restarts the video when it reaches the end.', 'jetpack-videopress-pkg' ) }
-			/>
-
-			<ToggleControl
-				label={ __( 'Muted', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange( 'muted' ) }
-				checked={ muted }
-			/>
-
-			<ToggleControl
-				label={ __( 'Show Controls', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange( 'controls' ) }
-				checked={ controls }
-				help={ __( 'Display the video playback controls.', 'jetpack-videopress-pkg' ) }
-			/>
-
-			<ToggleControl
-				label={ __( 'Play Inline', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange( 'playsinline' ) }
-				checked={ playsinline }
-				help={ __(
-					'Play the video inline instead of full-screen on mobile devices.',
-					'jetpack-videopress-pkg'
-				) }
-			/>
-
-			<ToggleControl
-				label={ __( 'Preload Metadata', 'jetpack-videopress-pkg' ) }
-				onChange={ handleAttributeChange(
-					'preload',
-					preload === 'metadata' ? 'none' : 'metadata'
-				) }
-				checked={ preload === 'metadata' }
-				help={ __(
-					'Preload the video metadata when the page is loaded.',
-					'jetpack-videopress-pkg'
-				) }
-			/>
-
-			{ createInterpolateElement(
-				__( 'Send us your <a>VideoPress feedback</a>', 'jetpack-videopress-pkg' ),
-				{
-					a: <ExternalLink href="https://automattic.survey.fm/videopress-feedback" />,
-				}
-			) }
-		</PanelBody>
+					<ToggleControl
+						label={ __( 'Preload Metadata', 'jetpack-videopress-pkg' ) }
+						onChange={ handleAttributeChange(
+							'preload',
+							preload === 'metadata' ? 'none' : 'metadata'
+						) }
+						checked={ preload === 'metadata' }
+						help={ __(
+							'Preload the video metadata when the page is loaded.',
+							'jetpack-videopress-pkg'
+						) }
+					/>
+				</PanelBody>
+			</>
+		</BottomSheet.SubSheet>
 	);
 }
