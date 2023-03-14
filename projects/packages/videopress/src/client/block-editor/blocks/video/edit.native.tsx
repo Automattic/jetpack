@@ -85,11 +85,7 @@ export default function VideoPressEdit( {
 			<Player
 				html={ preview.html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
-				attributes={ attributes }
-				preview={ preview }
-				showCaption={ true }
 				isSelected={ isSelected }
-				setAttributes={ setAttributes }
 			/>
 		</View>
 	);

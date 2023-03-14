@@ -1,13 +1,22 @@
 /**
  * External dependencies
  */
-
 /**
  * WordPress dependencies
  */
 import { SandBox } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { View, Text } from 'react-native';
+/**
+ * Internal dependencies
+ */
+import style from '../../style.scss';
+/**
+ * Types
+ */
+import type { PlayerProps } from './types';
+
+type NativePlayerProps = Pick< PlayerProps, 'html' | 'isRequestingEmbedPreview' | 'isSelected' >;
 
 /**
  * VideoPlayer react component
@@ -15,16 +24,28 @@ import { View, Text } from 'react-native';
  * @param {object} props - Component props.
  * @param {string} props.html - HTML markup for the player.
  * @param {boolean} props.isRequestingEmbedPreview - Whether the preview is being requested.
+ * @param {boolean} props.isSelected - Whether the block is selected.
  * @returns {object}                     - React component.
  */
-export default function Player( { html, isRequestingEmbedPreview } ) {
-	// If we don't have `html` then the embed player is loading.
-	const loadingVideoPlayer = ! html;
+export default function Player( {
+	html,
+	isRequestingEmbedPreview,
+	isSelected,
+}: NativePlayerProps ) {
+	// Set up style for when the player is loading.
+	const loadingStyle: { height?: number } = {};
+	if ( ! html || isRequestingEmbedPreview ) {
+		loadingStyle.height = 250;
+	}
 
 	return (
-		<View>
+		<View style={ { ...style[ 'wp-block-jetpack-videopress__video-player' ], ...loadingStyle } }>
+			{ ! isSelected && (
+				<View style={ style[ 'wp-block-jetpack-videopress__video-player-overlay' ] } />
+			) }
+
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
-			{ loadingVideoPlayer && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
+			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 		</View>
 	);
 }
