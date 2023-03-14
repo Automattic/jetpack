@@ -10,7 +10,7 @@
 
 			<h2 class="jb-setup-banner__title">
 				<?php esc_html_e( 'The easiest speed optimization plugin for WordPress', 'jetpack-boost' ); ?>
-			</h1>
+			</h2>
 
 			<p class="jb-setup-banner__text">
 				<?php esc_html_e( "You're almost done. Set up Jetpack Boost and generate your site's Critical CSS to see the impact on your PageSpeed scores.", 'jetpack-boost' ); ?>

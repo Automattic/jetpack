@@ -52,8 +52,10 @@ import {
 	WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT,
 	UPDATE_PAGINATION_AFTER_DELETE,
 	FLUSH_DELETED_VIDEOS,
+	UPDATE_VIDEO_IS_PRIVATE,
 } from './constants';
 import { mapVideoFromWPV2MediaEndpoint } from './utils/map-videos';
+import { videoIsPrivate } from './utils/video-is-private';
 
 /**
  * Utility function to pool the video data until poster is ready.
@@ -180,6 +182,13 @@ const updateVideoPrivacy = ( id, level ) => async ( { dispatch, select, resolveS
 			// @todo: implement error handling / UI
 			return;
 		}
+
+		// determine if video is private and update the state for it
+		const { videoPressVideosPrivateForSite } = select.getVideoPressSettings();
+		dispatch.updateVideoIsPrivate(
+			id,
+			videoIsPrivate( privacySetting, videoPressVideosPrivateForSite )
+		);
 
 		return dispatch( { type: UPDATE_VIDEO_PRIVACY, id, privacySetting } );
 	} catch ( error ) {
@@ -447,6 +456,10 @@ const updateVideoPressSettings = settings => async ( { dispatch } ) => {
 	}
 };
 
+const updateVideoIsPrivate = ( id, isPrivate ) => {
+	return { type: UPDATE_VIDEO_IS_PRIVATE, id, isPrivate };
+};
+
 const dismissFirstVideoPopover = () => {
 	return { type: DISMISS_FIRST_VIDEO_POPOVER };
 };
@@ -494,6 +507,8 @@ const actions = {
 
 	setVideoPressSettings,
 	updateVideoPressSettings,
+
+	updateVideoIsPrivate,
 };
 
 export { actions as default };

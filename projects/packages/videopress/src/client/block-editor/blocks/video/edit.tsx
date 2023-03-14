@@ -11,7 +11,7 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect, useDispatch } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { caption as captionIcon } from '@wordpress/icons';
@@ -22,6 +22,7 @@ import debugFactory from 'debug';
  */
 import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
+import { usePreview } from '../../hooks/use-preview';
 import { useSyncMedia } from '../../hooks/use-video-data-update';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
@@ -155,27 +156,15 @@ export default function VideoPressEdit( {
 	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	// Get video preview status.
-	const defaultPreview = { html: null, scripts: [], width: null, height: null };
-	const { preview, isRequestingEmbedPreview } = useSelect(
-		select => {
-			if ( ! videoPressUrl ) {
-				return {
-					preview: defaultPreview,
-					isRequestingEmbedPreview: false,
-				};
-			}
-
-			return {
-				preview: select( coreStore ).getEmbedPreview( videoPressUrl ) || defaultPreview,
-				isRequestingEmbedPreview:
-					select( coreStore ).isRequestingEmbedPreview( videoPressUrl ) || false,
-			};
-		},
-		[ videoPressUrl ]
-	);
+	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
+	const { html: previewHtml, width: previewWidth, height: previewHeight } = preview;
+
+	// The `scripts` const was being pulled form the preview object but the preview object doesn't have scripts property.
+	// Since preview.scripts was undefined, it was removed from the VideoPreviewProps type.
+	// @TODO - determine if scripts is needed as a prop to the Player component. if not needed this scripts const can be removed.
+	const scripts = [];
 
 	/*
 	 * Store the preview markup and video thumbnail image

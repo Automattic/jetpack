@@ -21,6 +21,7 @@ declare global {
 			showScorePrompt: boolean;
 			prioritySupport: boolean;
 		};
+		isPremium: boolean;
 		version: string;
 		api: {
 			namespace: string;
@@ -64,8 +65,6 @@ declare global {
 		generateCriticalCSS: typeof generateCriticalCSS;
 		BrowserInterfaceIframe: typeof BrowserInterfaceIframe;
 	};
-
-	type TracksEventProperties = { [ key: string ]: string | number };
 
 	const jpTracksAJAX: {
 		record_ajax_event(

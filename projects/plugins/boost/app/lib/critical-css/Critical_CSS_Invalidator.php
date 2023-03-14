@@ -6,7 +6,7 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_Cron;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Cron;
 
 class Critical_CSS_Invalidator {
 	/**
