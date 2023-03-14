@@ -12,7 +12,7 @@ import { isURL, getProtocol } from '@wordpress/url';
  */
 import { buildVideoPressURL } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { description, title } from '../../index';
+import { title } from '../../index';
 import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
