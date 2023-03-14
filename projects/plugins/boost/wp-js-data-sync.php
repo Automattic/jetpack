@@ -6,17 +6,26 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack_Boost\Data_Sync\Cloud_CSS_Sync;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Read_Only\Entry_Handler as Read_Only_Entry_Handler;
+use Automattic\Jetpack_Boost\Data_Sync\Read_Only\Storage as Read_Only_Storage;
 use Automattic\Jetpack_Boost\Lib\Status;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 }
 /**
- * Functions to make it easier to interface with Async Option:
+ * Functions to make it easier to interface with Data Sync:
  */
 function jetpack_boost_register_option( $name, $handler ) {
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 					->register( $name, $handler );
+}
+/**
+ * Functions to make it easier to interface with Data Sync based config:
+ */
+function jetpack_boost_register_read_only( $name, $handler ) {
+	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+					->register( $name, $handler, Read_Only_Storage::class );
 }
 
 /**
@@ -25,7 +34,7 @@ function jetpack_boost_register_option( $name, $handler ) {
  * @return Data_Sync_Entry
  */
 function jetpack_boost_ds( $name ) {
-	return Registry::get_instance( 'jetpack_boost_ds' )->get_entry( $name );
+	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )->get_entry( $name );
 }
 
 function jetpack_boost_ds_get( $option ) {
@@ -76,3 +85,5 @@ jetpack_boost_register_option( 'critical_css_suggest_regenerate', Boolean_Entry:
 foreach ( Automattic\Jetpack_Boost\Modules\Modules::MODULES as $feature_class ) {
 	jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Boolean_Entry::class );
 }
+
+jetpack_boost_register_read_only( 'available_modules', Read_Only_Entry_Handler::class );
