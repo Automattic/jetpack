@@ -1,0 +1,50 @@
+.timestamp-control__controls-wrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 8px;
+
+	.timestamp-range-control,
+	.timestamp-range-control:last-child {
+		margin-bottom: 0;
+		flex-grow: 2;
+
+		:global .components-base-control__field {
+			margin-bottom: 0;
+		}
+	} 
+}
+
+.timestamp-input-wrapper {
+	display: flex;
+	align-items: center;
+	border-color: #949494;
+    border-style: solid;
+	justify-content: space-around;
+    border-width: 1px;
+	max-width: 58px;
+	padding: 0px;
+
+	&.has-hours {
+		max-width: 83px;
+	}
+
+	.timestamp-control-input {
+		width: 24px;
+		margin-bottom: 0;
+		&:last-child{
+			margin-bottom: 0;
+		}
+	}
+
+	:global {
+		.components-input-control__input {
+			padding-left: 0 !important;
+			padding-right: 0 !important;
+			text-align: center;
+		}
+		.components-input-control__backdrop {
+			border-style: none !important;
+		}
+	}
+}

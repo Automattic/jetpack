@@ -1,12 +1,15 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { filter, isEmpty, map, trim } from 'lodash';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldConsent from './components/jetpack-field-consent';
-import { JetpackDropdownEdit } from './components/jetpack-field-dropdown';
+import JetpackDropdown from './components/jetpack-field-dropdown';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import { JetpackFieldOptionEdit } from './components/jetpack-field-option';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import { getIconColor } from './util/block-icons';
 import { useFormWrapper } from './util/form';
@@ -32,7 +35,7 @@ const FieldDefaults = {
 		},
 		options: {
 			type: 'array',
-			default: [ '' ],
+			default: [],
 		},
 		defaultValue: {
 			type: 'string',
@@ -81,6 +84,10 @@ const FieldDefaults = {
 		},
 		borderColor: {
 			type: 'string',
+		},
+		shareFieldAttributes: {
+			type: 'boolean',
+			default: true,
 		},
 	},
 	transforms: {
@@ -157,6 +164,49 @@ const FieldDefaults = {
 	example: {},
 };
 
+const OptionFieldDefaults = {
+	category: 'contact-form',
+	edit: JetpackFieldOptionEdit,
+	attributes: {
+		label: {
+			type: 'string',
+		},
+		fieldType: {
+			enum: [ 'checkbox', 'radio' ],
+			default: 'checkbox',
+		},
+	},
+	supports: {
+		reusable: false,
+		html: false,
+	},
+};
+
+const multiFieldV1 = fieldType => ( {
+	attributes: {
+		...FieldDefaults.attributes,
+		label: {
+			type: 'string',
+			default: fieldType === 'checkbox' ? 'Choose several options' : 'Choose one option',
+		},
+	},
+	migrate: attributes => {
+		const blockName = `jetpack/field-option-${ fieldType }`;
+		const nonEmptyOptions = filter( attributes.options, o => ! isEmpty( trim( o ) ) );
+		const newInnerBlocks = map( nonEmptyOptions, option =>
+			createBlock( blockName, {
+				label: option,
+			} )
+		);
+
+		attributes.options = [];
+
+		return [ attributes, newInnerBlocks ];
+	},
+	isEligible: attr => attr.options && filter( attr.options, o => ! isEmpty( trim( o ) ) ).length,
+	save: () => null,
+} );
+
 const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
 };
@@ -227,6 +277,7 @@ const EditCheckbox = props => {
 
 	return (
 		<JetpackFieldCheckbox
+			clientId={ props.clientId }
 			label={ props.attributes.label } // label intentionally left blank
 			required={ props.attributes.required }
 			requiredText={ props.attributes.requiredText }
@@ -246,6 +297,7 @@ const EditConsent = ( { attributes, clientId, isSelected, name, setAttributes } 
 	const { id, width, consentType, implicitConsentMessage, explicitConsentMessage } = attributes;
 	return (
 		<JetpackFieldConsent
+			clientId={ clientId }
 			id={ id }
 			isSelected={ isSelected }
 			width={ width }
@@ -507,6 +559,36 @@ export const childBlocks = [
 		},
 	},
 	{
+		name: 'field-option-checkbox',
+		settings: {
+			...OptionFieldDefaults,
+			parent: [ 'jetpack/field-checkbox-multiple' ],
+			title: __( 'Multiple Choice Option', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<>
+					<Path
+						d="M5.5 10.5H8.5V13.5H5.5V10.5ZM8.5 9H5.5C4.67157 9 4 9.67157 4 10.5V13.5C4 14.3284 4.67157 15 5.5 15H8.5C9.32843 15 10 14.3284 10 13.5V10.5C10 9.67157 9.32843 9 8.5 9ZM12 12.75H20V11.25H12V12.75Z"
+						fill={ getIconColor() }
+					/>
+				</>
+			),
+		},
+	},
+	{
+		name: 'field-option-radio',
+		settings: {
+			...OptionFieldDefaults,
+			parent: [ 'jetpack/field-radio' ],
+			title: __( 'Single Choice Option', 'jetpack-forms' ),
+			icon: renderMaterialIcon(
+				<Path
+					d="M7.5 13.5C6.67157 13.5 6 12.8284 6 12C6 11.1716 6.67157 10.5 7.5 10.5C8.32843 10.5 9 11.1716 9 12C9 12.8284 8.32843 13.5 7.5 13.5ZM4.5 12C4.5 13.6569 5.84315 15 7.5 15C9.15685 15 10.5 13.6569 10.5 12C10.5 10.3431 9.15685 9 7.5 9C5.84315 9 4.5 10.3431 4.5 12ZM12.5 12.75H20.5V11.25H12.5V12.75Z"
+					fill={ getIconColor() }
+				/>
+			),
+		},
+	},
+	{
 		name: 'field-checkbox-multiple',
 		settings: {
 			...FieldDefaults,
@@ -523,6 +605,7 @@ export const childBlocks = [
 				/>
 			),
 			edit: editMultiField( 'checkbox' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -530,6 +613,7 @@ export const childBlocks = [
 					default: 'Choose several options',
 				},
 			},
+			deprecated: [ multiFieldV1( 'checkbox' ) ],
 		},
 	},
 	{
@@ -555,6 +639,7 @@ export const childBlocks = [
 				</Fragment>
 			),
 			edit: editMultiField( 'radio' ),
+			save: () => <InnerBlocks.Content />,
 			attributes: {
 				...FieldDefaults.attributes,
 				label: {
@@ -562,6 +647,7 @@ export const childBlocks = [
 					default: 'Choose one option',
 				},
 			},
+			deprecated: [ multiFieldV1( 'radio' ) ],
 		},
 	},
 	{
@@ -584,12 +670,16 @@ export const childBlocks = [
 					d="M5 4.5H19C19.2761 4.5 19.5 4.72386 19.5 5V19C19.5 19.2761 19.2761 19.5 19 19.5H5C4.72386 19.5 4.5 19.2761 4.5 19V5C4.5 4.72386 4.72386 4.5 5 4.5ZM19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3ZM8.93582 10.1396L8.06396 11.3602L11.9999 14.1716L15.9358 11.3602L15.064 10.1396L11.9999 12.3283L8.93582 10.1396Z"
 				/>
 			),
-			edit: JetpackDropdownEdit,
+			edit: JetpackDropdown,
 			attributes: {
 				...FieldDefaults.attributes,
 				toggleLabel: {
 					type: 'string',
 					default: null,
+				},
+				options: {
+					type: 'array',
+					default: [ '' ],
 				},
 			},
 		},

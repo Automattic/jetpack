@@ -6,6 +6,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
  * Internal dependencies
  */
 import { STORE_ID } from '../../../state';
+import { SITE_TYPE_JETPACK } from '../../components/site-settings-section/constants';
 /**
  * types
  */
@@ -22,6 +23,8 @@ export const useVideoPressSettings = (): useVideoPressSettingsProps => {
 	return {
 		settings: {
 			videoPressVideosPrivateForSite: settings?.videoPressVideosPrivateForSite ?? false,
+			siteIsPrivate: settings?.siteIsPrivate ?? false,
+			siteType: settings?.siteType ?? SITE_TYPE_JETPACK,
 		},
 
 		onUpdate: settingsToUpdate => dispatch.updateVideoPressSettings( settingsToUpdate ),

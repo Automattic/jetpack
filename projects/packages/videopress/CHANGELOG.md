@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2023-03-13
+### Added
+- VideoPress: Add download button to video details page [#29403]
+- VideoPress: add fineAdjusment to TimestampControl component [#29439]
+- VideoPress: add story for PosterPanel component [#29398]
+- VideoPress: first approach of TimestampControl component [#29358]
+
+### Changed
+- VideoPress: add Range control to the Timestamp control component [#29368]
+- VideoPress: Move is_private and private_enabled_for_site fields to the jetpack_videopress property on the media endpoint response. [#29404]
+- VideoPress: Separate loading states in video details page and disable redirect on save [#29369]
+- VideoPress: set video URL based on the video privacy [#29389]
+- VideoPress: Update isPrivate video property on state after privacy changes. [#29421]
+- VideoPress block: Add settings toggle to native block. [#29248]
+
+### Fixed
+- VideoPress: Fix filename with token [#29395]
+- VideoPress: Fix video URL available to copying in video details page [#29370]
+
+## [0.12.0] - 2023-03-08
+### Added
+- VideoPress: add caption control to video block toolbar [#29233]
+- VideoPress: add chapters generation from description to dashboard [#29155]
+- VideoPress: add story for the Banner component [#29296]
+- VideoPress: add support to "private" as site default privacy on public Atomic sites. [#29104]
+- VideoPress: Add video delete action to details page [#29161]
+- VideoPress: Disable the video's privacy toggle on the VideoPress dashboard for private Atomic sites. [#29169]
+
+### Changed
+- Add usePreview hook [#29164]
+- Updated package dependencies. [#29216]
+- VideoPress: rewrite player by using TypeScript [#29226]
+
+### Fixed
+- VideoPress: fix requesting video data on Simple sites [#29261]
+
+## [0.11.0] - 2023-02-28
+### Added
+- Added support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode. [#28865]
+- VideoPress: add a note about __experimentalGroup InspectorControls property [#29152]
+- VideoPress: add player-bridge. Update player loading state [#29057]
+- VideoPress: add Poster panel to video block sidebar [#29150]
+- VideoPress: move the Playback Bar color panel into the colors panel group [#29054]
+- VideoPress: set poster height in block sidebar based on video ratio [#29173]
+
+### Changed
+- Updated package dependencies. [#29117]
+- VideoPress: tweak Remove poster button [#29157]
+
+### Removed
+- VideoPress: removed deprecated wp-block-bridge lib [#29107]
+- VideoPress: remove uploading image for video poster when uploading video [#29183]
+
 ## [0.10.12] - 2023-02-20
 ### Added
 - VideoPress: flush token when the requester retries [#28930]
@@ -727,6 +780,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.12.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.12.0...v0.12.1
+[0.12.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.12...v0.11.0
 [0.10.12]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.11...v0.10.12
 [0.10.11]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.10...v0.10.11
 [0.10.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.9...v0.10.10

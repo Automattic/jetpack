@@ -59,11 +59,10 @@ jobs:
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         with:
-          result-encoding: string
           script: |
             const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
-            const commentId = await checkTestReminderComment( github, context, core );
-            return commentId;
+            const data = await checkTestReminderComment( github, context, core );
+            return data;
 
       - name: Build changed projects
         id: build
@@ -116,24 +115,30 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          COMMENT_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
+          DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
           script: |
-            const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
+            const { BRANCH_NAME, TEST_COMMENT_INDICATOR } = process.env;
+            const data = JSON.parse( process.env.DATA );
+            const commands = data.projects.reduce( ( acc, cur ) => {
+              return acc += `
+              \`\`\`
+              bin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }
+              \`\`\`
+              `;
+            }, '' );
             const commentBody = `${ TEST_COMMENT_INDICATOR }
             Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run
-            \`\`\`
-            bin/jetpack-downloader test jetpack ${ BRANCH_NAME }
-            \`\`\`
+            ${ commands }
             to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody,
-              comment_id: +COMMENT_ID,
+              comment_id: +data.commentId,
             } );
 
   jetpack_beta:
@@ -152,7 +157,7 @@ jobs:
         with:
           name: jetpack-build
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
 
       - name: Prepare plugin zips
         id: prepare
@@ -285,7 +290,7 @@ jobs:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish

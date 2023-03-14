@@ -368,9 +368,21 @@ class Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
+			'jetpack/field-option-checkbox',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+			)
+		);
+		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -547,6 +559,19 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -770,7 +795,7 @@ class Contact_Form_Plugin {
 			// end of copy-pasta from wp-includes/template-loader.php.
 
 			// Ensure 'block_template' attribute is added to any shortcodes in the template.
-			$template = grunion_contact_form_set_block_template_attribute( $template );
+			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
 
 			// Process the block template to populate Grunion_Contact_Form::$last
 			get_the_block_template_html();
@@ -891,6 +916,10 @@ class Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field' ) );
+
+		// We need 'contact-field-option' to be registered, so it's included to the get_shortcode_regex() method
+		// But we don't need a callback because we're handling contact-field-option manually
+		add_shortcode( 'contact-field-option', '__return_null' );
 	}
 
 	/**
@@ -1665,12 +1694,12 @@ class Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
 
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1686,8 +1715,15 @@ class Contact_Form_Plugin {
 				/**
 				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
 				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -1863,7 +1899,56 @@ class Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 		exit();
+	}
+
+	/**
+	 * Send an event to Tracks
+	 *
+	 * @param string $event_name - the name of the event.
+	 * @param array  $event_props - event properties to send.
+	 *
+	 * @return null|void
+	 */
+	public function record_tracks_event( $event_name, $event_props ) {
+		/*
+		 * Event details.
+		 */
+		$event_user = wp_get_current_user();
+
+		/*
+		 * Record event.
+		 * We use different libs on wpcom and Jetpack.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$event_name             = 'wpcom_' . $event_name;
+			$event_props['blog_id'] = get_current_blog_id();
+			// logged out visitor, record event with blog owner.
+			if ( empty( $event_user->ID ) ) {
+				$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
+				$event_user    = get_userdata( $event_user_id );
+			}
+
+			require_lib( 'tracks/client' );
+			tracks_record_event( $event_user, $event_name, $event_props );
+		} else {
+			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+			if ( ! $user_connected ) {
+				return;
+			}
+			// logged out visitor, record event with Jetpack master user.
+			if ( empty( $event_user->ID ) ) {
+				$master_user_id = Jetpack_Options::get_option( 'master_user' );
+				if ( ! empty( $master_user_id ) ) {
+					$event_user = get_userdata( $master_user_id );
+				}
+			}
+
+			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking->record_user_event( $event_name, $event_props, $event_user );
+		}
 	}
 
 	/**
@@ -1950,6 +2035,7 @@ class Contact_Form_Plugin {
 		}
 
 		$all_fields = array_unique( $all_fields );
+
 		return $all_fields;
 	}
 
@@ -2009,6 +2095,7 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
+		$fields['all_fields']           = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 
