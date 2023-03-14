@@ -4,7 +4,7 @@ Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
 Stable tag: 11.9
 Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -197,7 +197,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
 * Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
 * Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.﻿
+* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
 * Star Rating Block - The Ratings block allows any site author to add reviews to the site.
 * Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
@@ -244,12 +244,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.1 - 2023-03-08
+### 12.0-a.3 - 2023-03-13
 #### Enhancements
-- Admin: fix submenu positioning in admin menu.
-- Blocks: add a new Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors.
-- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer.
-- Stats: updates the layout of the loading and some sections on the Stats page.
+- Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar.
+- Forms: redesign the Multiple Choice and Single Choice fields
+
+#### Improved compatibility
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+
+#### Bug fixes
+- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters.
+- Subscribe Block: don't show "Include social followers in count" when "Show subscribers count" is off, or Publicize is disabled.
+- Slideshow Block: make slideshow block's play and pause icons visible.
 
 --------
 

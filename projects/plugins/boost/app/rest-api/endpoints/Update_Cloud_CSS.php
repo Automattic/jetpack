@@ -6,7 +6,7 @@
  */
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
@@ -22,8 +22,7 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 	}
 
 	public function response( $request ) {
-		$feature = new Cloud_CSS();
-		return $feature->update_cloud_css( $request->get_params() );
+		return ( new Cloud_CSS() )->update_cloud_css( $request->get_params() );
 	}
 
 	public function permissions() {

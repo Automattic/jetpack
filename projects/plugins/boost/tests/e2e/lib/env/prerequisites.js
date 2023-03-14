@@ -12,7 +12,6 @@ export function boostPrerequisitesBuilder( page ) {
 		connected: undefined,
 		jetpackDeactivated: undefined,
 		mockSpeedScore: undefined,
-		getStarted: false,
 	};
 
 	return {
@@ -40,10 +39,6 @@ export function boostPrerequisitesBuilder( page ) {
 			state.clean = true;
 			return this;
 		},
-		withGetStarted( shouldGetStarted ) {
-			state.getStarted = shouldGetStarted;
-			return this;
-		},
 		async build() {
 			await buildPrerequisites( state, page );
 		},
@@ -57,7 +52,6 @@ async function buildPrerequisites( state, page ) {
 		testPostTitles: () => ensureTestPosts( state.testPostTitles ),
 		clean: () => ensureCleanState( state.clean ),
 		mockSpeedScore: () => ensureMockSpeedScoreState( state.mockSpeedScore ),
-		getStarted: () => ensureGetStartedState( state.getStarted, page ),
 	};
 
 	logger.prerequisites( JSON.stringify( state, null, 2 ) );
@@ -99,16 +93,6 @@ export async function ensureMockSpeedScoreState( mockSpeedScore ) {
 	}
 }
 
-export async function ensureGetStartedState( shouldGetStarted ) {
-	if ( shouldGetStarted ) {
-		logger.prerequisites( 'Enabling getting started' );
-		await execWpCommand( 'jetpack-boost getting_started true' );
-	} else {
-		logger.prerequisites( 'Disabling getting started' );
-		await execWpCommand( 'jetpack-boost getting_started false' );
-	}
-}
-
 export async function activateModules( modules ) {
 	for ( const module of modules ) {
 		logger.prerequisites( `Activating module ${ module }` );
@@ -125,7 +109,7 @@ export async function deactivateModules( modules ) {
 	}
 }
 
-export async function ensureConnectedState( requiredConnected = undefined, page ) {
+export async function ensureConnectedState( requiredConnected, page ) {
 	const isConnected = await checkIfConnected();
 
 	if ( requiredConnected && isConnected ) {
@@ -142,19 +126,16 @@ export async function ensureConnectedState( requiredConnected = undefined, page 
 }
 
 export async function connect( page ) {
-	logger.prerequisites( `Connecting Boost plugin to WP.com` );
-	// Boost cannot be connected to WP.com using the WP-CLI because the site is considered
-	// as a localhost site. The only solution is to do it via the site itself running under the localtunnel.
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
-	await jetpackBoostPage.connect();
+	await jetpackBoostPage.chooseFreePlan();
 	await jetpackBoostPage.isOverallScoreHeaderShown();
 }
 
 export async function disconnect() {
 	logger.prerequisites( `Disconnecting Boost plugin to WP.com` );
-	const cliCmd = 'jetpack-boost connection deactivate';
+	const cliCmd = 'jetpack disconnect blog';
 	const result = await execWpCommand( cliCmd );
-	expect( result ).toEqual( 'Success: Boost is disconnected from WP.com' );
+	expect( result ).toContain( 'Success: Jetpack has been successfully disconnected' );
 }
 
 export async function checkIfConnected() {

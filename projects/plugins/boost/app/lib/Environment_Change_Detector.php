@@ -30,8 +30,13 @@ class Environment_Change_Detector {
 	}
 
 	public function handle_post_change( $post_id, $post ) {
-		$post_types = get_post_types( array( 'name' => $post->post_type ), 'objects' );
-		if ( empty( $post_types ) || ! isset( $post_types['post'] ) || $post_types['post']->public !== true ) {
+		// Ignore changes to any post which is not published.
+		if ( 'publish' !== $post->post_status ) {
+			return;
+		}
+
+		// Ignore changes to post types which do not affect the front-end UI
+		if ( ! $this->is_post_type_invalidating( $post->post_type ) ) {
 			return;
 		}
 
@@ -54,5 +59,23 @@ class Environment_Change_Detector {
 	 */
 	public function do_action( $is_major_change, $change_type ) {
 		do_action( 'handle_environment_change', $is_major_change, $change_type );
+	}
+
+	/**
+	 * Given a post_type, return true if this post type affects the front end of
+	 * the site - i.e.: should cause cached optimizations to be invalidated.
+	 *
+	 * @param string $post_type The post type to check
+	 * @return bool             True if this post type affects the front end of the site.
+	 */
+	private function is_post_type_invalidating( $post_type ) {
+		// Special cases: items which are not viewable, but affect the UI.
+		if ( in_array( $post_type, array( 'wp_template', 'wp_template_part' ), true ) ) {
+			return true;
+		}
+
+		if ( is_post_type_viewable( $post_type ) ) {
+			return true;
+		}
 	}
 }

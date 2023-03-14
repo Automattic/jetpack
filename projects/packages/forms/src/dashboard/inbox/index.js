@@ -1,16 +1,13 @@
 import { Gridicon } from '@automattic/jetpack-components';
-import {
-	Button,
-	__experimentalInputControl as InputControl, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-	SelectControl,
-} from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
 import Layout from '../components/layout';
+import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
+import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -25,7 +22,6 @@ const Inbox = () => {
 
 	const searchQuery = useSelect( select => select( STORE_NAME ).getSearchQuery() );
 
-	const [ searchText, setSearchText ] = useState( searchQuery );
 	const [ currentPage, setCurrentPage ] = useState( 1 );
 
 	const [ loading, responses, total ] = useSelect(
@@ -53,13 +49,12 @@ const Inbox = () => {
 	}, [ responses, currentResponseId ] );
 
 	const handleSearch = useCallback(
-		event => {
-			event.preventDefault();
-			invalidateResolution( 'getResponses', [ searchText, RESPONSES_FETCH_LIMIT, 0 ] );
+		searchTerm => {
+			invalidateResolution( 'getResponses', [ searchTerm, RESPONSES_FETCH_LIMIT, 0 ] );
 			setCurrentPage( 1 );
-			setSearchQuery( searchText );
+			setSearchQuery( searchTerm );
 		},
-		[ searchText, setSearchQuery, setCurrentPage, invalidateResolution ]
+		[ setSearchQuery, setCurrentPage, invalidateResolution ]
 	);
 
 	const handlePageChange = useCallback(
@@ -102,22 +97,8 @@ const Inbox = () => {
 	return (
 		<Layout title={ title } className={ classes }>
 			<div className="jp-forms__actions">
-				<form className="jp-forms__actions-form">
-					<SelectControl
-						options={ [
-							{ label: __( 'Bulk actions', 'jetpack-forms' ), value: '' },
-							{ label: __( 'Trash', 'jetpack-forms' ), value: 'trash' },
-							{ label: __( 'Move to spam', 'jetpack-forms' ), value: 'spam' },
-						] }
-					/>
-					<Button variant="secondary">{ __( 'Apply', 'jetpack-forms' ) }</Button>
-				</form>
-				<form className="jp-forms__actions-form" onSubmit={ handleSearch }>
-					<InputControl onChange={ setSearchText } value={ searchText } />
-					<Button type="submit" variant="secondary">
-						{ __( 'Search', 'jetpack-forms' ) }
-					</Button>
-				</form>
+				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } />
+				<BulkActionsMenu />
 			</div>
 
 			<div className="jp-forms__inbox-content">
