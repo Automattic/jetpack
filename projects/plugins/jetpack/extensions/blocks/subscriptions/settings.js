@@ -5,11 +5,10 @@ import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wo
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', 'post', 'meta' );
-import {  useEffect, useState, createInterpolateElement } from '@wordpress/element';
+import { useEffect, useState, createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getSubscriberCounts } from './api';
 import InspectorNotice from '../../shared/components/inspector-notice';
+import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 
 import './settings.scss';
