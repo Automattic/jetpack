@@ -201,25 +201,6 @@ if ( version_compare( get_bloginfo( 'version' ), '5.8.2', '<' ) && 30 === has_ac
 add_filter( 'gutenberg_use_widgets_block_editor', '__return_false', 100 );
 
 /**
- * Disables the Conversation and Dialogue blocks.
- *
- * @see pbAPfg-1l8-p2
- *
- * @param array $extensions List of Jetpack blocks.
- * @return array
- */
-function wpcomsh_disable_anchor_blocks( $extensions ) {
-	return array_diff(
-		$extensions,
-		array(
-			'conversation',
-			'dialogue',
-		)
-	);
-}
-add_filter( 'jetpack_set_available_extensions', 'wpcomsh_disable_anchor_blocks' );
-
-/**
  * WPCOM Hack to allow rgba() as CSS property's values, which would otherwise be filtered by
  * `safecss_filter_attr` in `wp-includes/kses.php`.
  *
