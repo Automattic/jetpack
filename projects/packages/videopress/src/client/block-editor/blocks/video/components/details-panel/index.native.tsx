@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { PanelBody, BottomSheetTextControl } from '@wordpress/components';
+import { PanelBody, TextControl, BottomSheetTextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -23,18 +23,16 @@ export default function DetailsPanel( { attributes, setAttributes }: VideoContro
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
-			<BottomSheetTextControl
-				initialValue={ title }
+			<TextControl
+				value={ title || '' }
 				onChange={ value => setAttributes( { title: value } ) }
 				placeholder={ __( 'Add title', 'jetpack-videopress-pkg' ) }
-				cellPlaceholder={ __( 'None', 'jetpack-videopress-pkg' ) }
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 			/>
 			<BottomSheetTextControl
 				initialValue={ description }
 				onChange={ value => setAttributes( { description: value } ) }
 				placeholder={ __( 'Add description', 'jetpack-videopress-pkg' ) }
-				cellPlaceholder={ __( 'None', 'jetpack-videopress-pkg' ) }
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 			/>
 		</PanelBody>
