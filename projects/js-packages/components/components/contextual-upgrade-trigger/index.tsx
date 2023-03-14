@@ -12,7 +12,7 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	href,
 	openInNewTab = false,
 	className,
-	tooltipText = null,
+	tooltipText = '',
 } ) => {
 	const Tag = href !== undefined ? 'a' : 'button';
 	const tagProps =
@@ -23,16 +23,16 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 			<div>
 				<Tag { ...tagProps }>
 					<Text>
-						{ description }{ ' ' }
+						{ description }
 						{ tooltipText && (
-							<span className="tooltip">
+							<>
 								<Tooltip position="middle center" text={ tooltipText }>
 									<span>
 										<Icon icon={ info } size={ 12 } />
 									</span>
 								</Tooltip>
-							</span>
-						) }{ ' ' }
+							</>
+						) }
 					</Text>
 					<Text className={ styles.cta }>{ cta }</Text>
 				</Tag>

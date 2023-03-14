@@ -30,7 +30,7 @@
 	a {
 		text-decoration: none;
 		color: var(--jp-gray-80);
-		cursor: pointer !important;
+		cursor: pointer;
 
 		&::after {
 			position: absolute;
