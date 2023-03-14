@@ -1,8 +1,9 @@
 /**
  * WordPress dependencies
  */
-import { MediaPlaceholder, InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
+import { useState, useCallback } from '@wordpress/element';
 /**
  * External dependencies
  */
@@ -11,8 +12,7 @@ import { View, Text } from 'react-native';
 /**
  * Internal dependencies
  */
-import { VideoPressIcon as icon } from './components/icons';
-import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from './constants';
+import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 
 /**
@@ -33,28 +33,20 @@ export default function VideoPressEdit( {
 	 * TODO: The current components are intended to act as placeholders while block is in development.
 	 * They should eventually be edited or replaced to support VideoPress.
 	 */
+	const { guid } = attributes;
 
-	/**
-	 * Function to set attributes upon media upload
-	 *
-	 * @param {object} attributes     - Attributes associated with uploaded video.
-	 * @param {string} attributes.id  - Unique ID associated with video.
-	 * @param {string} attributes.url - URL associated with video.
-	 */
-	function onSelectMediaUploadOption( { id, url } ) {
-		setAttributes( { id, src: url } );
-	}
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 
-	if ( ! attributes.id ) {
-		return (
-			<View style={ { flex: 1 } }>
-				<MediaPlaceholder
-					allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-					onSelect={ onSelectMediaUploadOption }
-					icon={ icon }
-				/>
-			</View>
-		);
+	const handleDoneUpload = useCallback(
+		newVideoData => {
+			setIsUploadingFile( false );
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid } );
+		},
+		[ setIsUploadingFile, setAttributes ]
+	);
+
+	if ( isUploadingFile ) {
+		return <VideoPressUploader handleDoneUpload={ handleDoneUpload } />;
 	}
 
 	return (
