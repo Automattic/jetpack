@@ -1346,7 +1346,6 @@ function ZeroBSCRM_get_quote_template() {
 			}
 
 			if ( empty( $quote_notes ) ) {
-				$quote_notes = '';
 				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
 					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
 				}
