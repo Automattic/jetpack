@@ -8,14 +8,14 @@ import { useSelect } from '@wordpress/data';
  */
 import type { VideoPreview } from '../../../block-editor/blocks/video/types';
 
-export type UsePreviewResult = {
+export type UsePreviewProps = {
 	preview: VideoPreview;
 	isRequestingEmbedPreview: boolean;
 };
 
 const defaultPreview: VideoPreview = { html: null, scripts: [], width: null, height: null };
 
-export const usePreview = ( videoPressUrl?: string ): UsePreviewResult => {
+export const usePreview = ( videoPressUrl?: string ): UsePreviewProps => {
 	return useSelect(
 		select => {
 			if ( ! videoPressUrl ) {
