@@ -83,10 +83,11 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 								</Text>
 								{ autoplay && (
 									<Text>
-										{ __(
-											'Note: Autoplaying videos may cause usability issues for some visitors.',
-											'jetpack-videopress-pkg'
-										) }
+										{ '\n' +
+											__(
+												'Note: Autoplaying videos may cause usability issues for some visitors.',
+												'jetpack-videopress-pkg'
+											) }
 									</Text>
 								) }
 							</>
