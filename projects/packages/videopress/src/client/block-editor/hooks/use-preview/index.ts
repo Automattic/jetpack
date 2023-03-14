@@ -6,7 +6,6 @@ import { useSelect } from '@wordpress/data';
 /*
  * Types
  */
-import { videoPreviewPropsDefaults } from '../../../block-editor/blocks/video/types';
 import type { VideoPreviewProps } from '../../../block-editor/blocks/video/types';
 
 export type UsePreviewProps = {
@@ -15,7 +14,6 @@ export type UsePreviewProps = {
 };
 
 const defaultPreview: VideoPreviewProps = {
-	...videoPreviewPropsDefaults,
 	html: null,
 	scripts: [],
 	width: null,
@@ -23,6 +21,9 @@ const defaultPreview: VideoPreviewProps = {
 	thumbnail_height: null,
 	thumbnail_width: null,
 	title: null,
+	version: '1.0',
+	type: 'video',
+	provider_name: 'VideoPress',
 };
 
 export const usePreview = ( videoPressUrl?: string ): UsePreviewProps => {

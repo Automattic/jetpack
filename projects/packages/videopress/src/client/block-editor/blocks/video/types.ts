@@ -109,12 +109,3 @@ export type VideoPreviewProps = {
 	type: string;
 	provider_name: string;
 };
-
-export const videoPreviewPropsDefaults: Pick<
-	VideoPreviewProps,
-	'version' | 'type' | 'provider_name'
-> = {
-	version: '1.0',
-	type: 'video',
-	provider_name: 'VideoPress',
-};
