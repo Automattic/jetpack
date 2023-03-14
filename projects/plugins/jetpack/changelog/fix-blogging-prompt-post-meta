@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Fix writing prompt post meta not saving when post immediately published
