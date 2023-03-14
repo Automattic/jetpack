@@ -159,7 +159,12 @@ export default function VideoPressEdit( {
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
+	const { html: previewHtml, width: previewWidth, height: previewHeight } = preview;
+
+	// The `scripts` const was being pulled form the preview object but the preview object doesn't have scripts property.
+	// Since preview.scripts was undefined, it was removed from the VideoPreviewProps type.
+	// @TODO - determine if scripts is needed as a prop to the Player component. if not needed this scripts const can be removed.
+	const scripts = [];
 
 	/*
 	 * Store the preview markup and video thumbnail image
