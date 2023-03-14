@@ -9,7 +9,6 @@ export type PlayerProps = {
 	isSelected: boolean;
 	attributes: VideoBlockAttributes;
 	setAttributes: ( attributes: VideoBlockAttributes ) => void;
-	scripts: string[];
 	preview: VideoPreviewProps;
 	isRequestingEmbedPreview: boolean;
 };
