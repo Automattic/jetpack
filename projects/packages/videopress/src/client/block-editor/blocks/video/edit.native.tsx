@@ -11,7 +11,10 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import { getVideoPressUrl } from '../../../lib/url';
+import { usePreview } from '../../hooks/use-preview';
 import DetailsPanel from './components/details-panel';
+import Player from './components/player';
 import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 
@@ -29,13 +32,36 @@ export default function VideoPressEdit( {
 	setAttributes,
 	isSelected,
 } ): React.ReactNode {
-	/**
-	 * TODO: The current components are intended to act as placeholders while block is in development.
-	 * They should eventually be edited or replaced to support VideoPress.
-	 */
-	const { guid } = attributes;
+	const {
+		autoplay,
+		controls,
+		guid,
+		loop,
+		muted,
+		playsinline,
+		poster,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+	} = attributes;
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+
+	const videoPressUrl = getVideoPressUrl( guid, {
+		autoplay,
+		controls,
+		loop,
+		muted,
+		playsinline,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		poster,
+	} );
+
+	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -56,7 +82,15 @@ export default function VideoPressEdit( {
 					<DetailsPanel { ...{ attributes, setAttributes } } />
 				</InspectorControls>
 			) }
-			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
+			<Player
+				html={ preview.html }
+				isRequestingEmbedPreview={ isRequestingEmbedPreview }
+				attributes={ attributes }
+				preview={ preview }
+				showCaption={ true }
+				isSelected={ isSelected }
+				setAttributes={ setAttributes }
+			/>
 		</View>
 	);
 }
