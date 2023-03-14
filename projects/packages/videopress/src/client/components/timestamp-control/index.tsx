@@ -1,8 +1,13 @@
 /**
  * External dependencies
  */
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl,
+	RangeControl,
+	BaseControl,
+	useBaseControlProps,
+} from '@wordpress/components';
 import { useCallback, useRef } from '@wordpress/element';
 import classnames from 'classnames';
 /**
@@ -58,16 +63,19 @@ function getTimeDataByValue( value ) {
 }
 
 export const TimestampInput = ( {
+	onChange,
+	disabled,
 	value,
 	max,
-	onChange,
+	autoHideTimeInput = true,
 }: TimestampInputProps ): React.ReactElement => {
 	const time = {
 		value: getTimeDataByValue( value ),
 	};
 
 	// Check whether it should add hours input.
-	const hasHours = Math.floor( ( max / ( 1000 * 60 * 60 ) ) % 24 );
+	const biggerThanOneHour = max > 60 * 60 * 1000;
+	const biggerThanOneMinute = max > 60 * 1000;
 
 	const computeTimeValue = ( unit: string ) => ( newValue: number ) => {
 		if ( typeof newValue === 'string' && ! isNaN( parseInt( newValue, 10 ) ) ) {
@@ -97,13 +105,14 @@ export const TimestampInput = ( {
 	return (
 		<div
 			className={ classnames( styles[ 'timestamp-input-wrapper' ], {
-				[ styles[ 'has-hours' ] ]: hasHours > 0,
+				[ styles[ 'has-hours' ] ]: biggerThanOneHour || ! autoHideTimeInput,
 			} ) }
 		>
-			{ hasHours > 0 && (
+			{ ( biggerThanOneHour || ! autoHideTimeInput ) && (
 				<>
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						disabled={ disabled }
 						min={ 0 }
 						max={ 99 }
 						step={ 1 }
@@ -121,26 +130,31 @@ export const TimestampInput = ( {
 				</>
 			) }
 
+			{ ( biggerThanOneMinute || ! autoHideTimeInput ) && (
+				<>
+					<NumberControl
+						className={ styles[ 'timestamp-control-input' ] }
+						disabled={ disabled }
+						min={ 0 }
+						max={ 59 }
+						step={ 1 }
+						hideLabelFromVision
+						spinControls="none"
+						placeholder="00"
+						isPressEnterToChange
+						isDragEnabled={ false }
+						isShiftStepEnabled={ false }
+						__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
+						value={ time.value.mm < 10 ? `0${ time.value.mm }` : time.value.mm }
+						onChange={ computeTimeValue( 'mm' ) }
+					/>
+					<TimeDivider />
+				</>
+			) }
+
 			<NumberControl
 				className={ styles[ 'timestamp-control-input' ] }
-				min={ 0 }
-				max={ 59 }
-				step={ 1 }
-				hideLabelFromVision
-				spinControls="none"
-				placeholder="00"
-				isPressEnterToChange
-				isDragEnabled={ false }
-				isShiftStepEnabled={ false }
-				__unstableStateReducer={ buildPadInputStateReducer( 2 ) }
-				value={ time.value.mm < 10 ? `0${ time.value.mm }` : time.value.mm }
-				onChange={ computeTimeValue( 'mm' ) }
-			/>
-
-			<TimeDivider />
-
-			<NumberControl
-				className={ styles[ 'timestamp-control-input' ] }
+				disabled={ disabled }
 				min={ 0 }
 				max={ 59 }
 				step={ 1 }
@@ -164,15 +178,21 @@ export const TimestampInput = ( {
  * @param {TimestampControlProps} props - Component props.
  * @returns {React.ReactElement}          TimestampControl react component.
  */
-export const TimestampControl = ( {
-	max,
-	value,
-	onChange,
-	onDebounceChange,
-	wait = 1000,
-	fineAdjustment = 50,
-}: TimestampControlProps ): React.ReactElement => {
+export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
+	const {
+		disabled = false,
+		max,
+		value,
+		onChange,
+		onDebounceChange,
+		wait = 1000,
+		fineAdjustment = 50,
+		autoHideTimeInput = true,
+	} = props;
+
 	const debounceTimer = useRef< NodeJS.Timeout >();
+
+	const { baseControlProps } = useBaseControlProps( props );
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
@@ -185,21 +205,30 @@ export const TimestampControl = ( {
 	);
 
 	return (
-		<div className={ styles[ 'timestamp-control' ] }>
-			<TimestampInput max={ max } value={ value } onChange={ onChangeHandler } />
+		<BaseControl { ...baseControlProps }>
+			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
+				<TimestampInput
+					disabled={ disabled }
+					max={ max }
+					value={ value }
+					onChange={ onChangeHandler }
+					autoHideTimeInput={ autoHideTimeInput }
+				/>
 
-			<RangeControl
-				className={ styles[ 'timestamp-range-control' ] }
-				min={ 0 }
-				step={ fineAdjustment }
-				initialPosition={ value }
-				value={ value }
-				max={ max }
-				showTooltip={ false }
-				withInputField={ false }
-				onChange={ onChangeHandler }
-			/>
-		</div>
+				<RangeControl
+					disabled={ disabled }
+					className={ styles[ 'timestamp-range-control' ] }
+					min={ 0 }
+					step={ fineAdjustment }
+					initialPosition={ value }
+					value={ value }
+					max={ max }
+					showTooltip={ false }
+					withInputField={ false }
+					onChange={ onChangeHandler }
+				/>
+			</div>
+		</BaseControl>
 	);
 };
 
