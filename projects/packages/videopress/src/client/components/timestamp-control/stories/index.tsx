@@ -38,6 +38,8 @@ const Template: ComponentStory< typeof TimestampControl > = args => {
 
 export const _default = Template.bind( {} );
 _default.args = {
+	label: 'Video frame',
+	help: 'Use the control to set timestamp of the video frame.',
 	max: 3600 * 1000 * 2, // 2 hours
 	value: 236 * 1000, // 3:56
 	wait: 100,
