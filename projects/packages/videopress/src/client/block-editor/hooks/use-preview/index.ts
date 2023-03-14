@@ -23,6 +23,7 @@ const defaultPreview: VideoPreviewProps = {
 	version: '1.0',
 	type: 'video',
 	provider_name: 'VideoPress',
+	provider_url: 'https://videopress.com',
 };
 
 export const usePreview = ( videoPressUrl?: string ): UsePreviewProps => {

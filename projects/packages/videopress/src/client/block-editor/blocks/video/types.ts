@@ -107,4 +107,5 @@ export type VideoPreviewProps = {
 	title: string;
 	type: string;
 	provider_name: string;
+	provider_url: string;
 };
