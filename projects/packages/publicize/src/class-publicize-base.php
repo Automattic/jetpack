@@ -1482,12 +1482,12 @@ abstract class Publicize_Base {
 	 * @param array $tags Current tags.
 	 */
 	public function get_sig_image_for_post( $tags ) {
-		$post_settings = new Social_Image_Generator\Post_Settings( get_the_ID() );
-		if ( $post_settings->is_enabled() ) {
+		$generated_image_url = Social_Image_Generator\get_image_url( get_the_ID() );
+		if ( ! empty( $generated_image_url ) ) {
 			$tags = array_merge(
 				$tags,
 				array(
-					'og:image'        => $post_settings->get_image_url( get_the_ID() ),
+					'og:image'        => $generated_image_url,
 					'og:image:width'  => 1200,
 					'og:image:height' => 630,
 				)
