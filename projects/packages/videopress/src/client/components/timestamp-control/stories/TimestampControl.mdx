@@ -22,6 +22,10 @@ React component to set a timestamp value.
 
 The timestamp value in milliseconds
 
+### disabled
+
+- type `boolean`
+
 ### onChange
 
 - type: `Function`
@@ -48,3 +52,18 @@ Time, in milliseconds, that the `onDebounceChange` function will be debounced.
 
 Maximum time value, in milliseconds, expected by the component.
 Also, if it's bigger than one hour, the hour input will be rendered into the Timestamp Input component.
+
+### fineAdjustment
+
+- type: `number`
+- default: `50`
+
+Time, in milliseconds, for every step of the Range control.
+
+### autoHideTimeInput
+
+- type: `boolean`
+- default: `True`
+
+A boolean property that controls whether the component should automatically
+hide the hours, and minutes inputs that are not needed based on the `max` value.
