@@ -102,10 +102,16 @@ export type VideoPreview = {
 	width: number;
 	height: number;
 	scripts: Array< string >;
-	thumbnail_height?: number;
-	thumbnail_width?: number;
-	version?: string;
-	title?: string;
-	type?: string;
-	provider_name?: string;
+	thumbnail_height: number;
+	thumbnail_width: number;
+	version: string;
+	title: string;
+	type: string;
+	provider_name: string;
+};
+
+export const videoPreviewDefaults: Pick< VideoPreview, 'version' | 'type' | 'provider_name' > = {
+	version: '1.0',
+	type: 'video',
+	provider_name: 'VideoPress',
 };
