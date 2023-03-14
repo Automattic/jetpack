@@ -9,11 +9,6 @@ class Available_Modules extends Storage {
 		$modules = new Modules();
 		$keys    = array_keys( $modules->available_modules() );
 
-		return array_map(
-			function ( $key ) {
-				return str_replace( '-', '_', $key );
-			},
-			$keys
-		);
+		return str_replace( '-', '_', $keys );
 	}
 }
