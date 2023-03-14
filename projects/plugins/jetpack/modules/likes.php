@@ -406,6 +406,17 @@ class Jetpack_Likes {
 			return $content;
 		}
 
+		/*
+		 * Do not output Likes on requests for other types of JSON requests
+		 * e.g. ActivityPub requests.
+		 */
+		if (
+			! empty( $_SERVER['HTTP_ACCEPT'] )
+			&& false !== stripos( filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ), 'json' )
+		) {
+			return $content;
+		}
+
 		// Ensure we don't display like button on post excerpts that are hooked inside the post content
 		if ( in_array( 'the_excerpt', (array) $wp_current_filter, true ) &&
 			in_array( 'the_content', (array) $wp_current_filter, true ) ) {
