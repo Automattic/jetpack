@@ -244,6 +244,17 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
+		/*
+		 * Do not output Related Posts on requests for other types of JSON requests
+		 * e.g. ActivityPub requests.
+		 */
+		if (
+			! empty( $_SERVER['HTTP_ACCEPT'] )
+			&& false !== stripos( filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ), 'json' )
+		) {
+			return $content;
+		}
+
 		if ( has_block( 'jetpack/related-posts' ) || Blocks::is_fse_theme() ) {
 			return $content;
 		}
