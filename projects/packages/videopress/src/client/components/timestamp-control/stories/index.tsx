@@ -41,6 +41,9 @@ _default.args = {
 	max: 3600 * 1000 * 2, // 2 hours
 	value: 236 * 1000, // 3:56
 	wait: 100,
+	fineAdjustment: 50,
+	disabled: false,
+	autoHideTimeInput: true,
 	onChange: ( newTime: number ) => {
 		console.log( { newTime } ); // eslint-disable-line no-console
 	},
