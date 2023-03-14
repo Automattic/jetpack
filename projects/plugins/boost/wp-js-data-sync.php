@@ -6,8 +6,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack_Boost\Data_Sync\Cloud_CSS_Sync;
 use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Read_Only\Available_Modules;
 use Automattic\Jetpack_Boost\Data_Sync\Read_Only\Entry_Handler as Read_Only_Entry_Handler;
-use Automattic\Jetpack_Boost\Data_Sync\Read_Only\Storage as Read_Only_Storage;
 use Automattic\Jetpack_Boost\Lib\Status;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
@@ -23,9 +23,9 @@ function jetpack_boost_register_option( $name, $handler ) {
 /**
  * Functions to make it easier to interface with Data Sync based config:
  */
-function jetpack_boost_register_read_only( $name, $handler ) {
+function jetpack_boost_register_read_only( $name, $source ) {
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-					->register( $name, $handler, Read_Only_Storage::class );
+					->register( $name, Read_Only_Entry_Handler::class, $source );
 }
 
 /**
@@ -86,4 +86,4 @@ foreach ( Automattic\Jetpack_Boost\Modules\Modules::MODULES as $feature_class ) 
 	jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Boolean_Entry::class );
 }
 
-jetpack_boost_register_read_only( 'available_modules', Read_Only_Entry_Handler::class );
+jetpack_boost_register_read_only( 'available_modules', Available_Modules::class );
