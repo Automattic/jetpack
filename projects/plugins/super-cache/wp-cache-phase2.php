@@ -33,7 +33,17 @@ function get_wp_cache_key( $url = false ) {
 		$url = '';
 	}
 	$server_port = isset( $_SERVER['SERVER_PORT'] ) ? intval( $_SERVER['SERVER_PORT'] ) : 0;
-	return do_cacheaction( 'wp_cache_key', wp_cache_check_mobile( $WPSC_HTTP_HOST . $server_port . preg_replace( '/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() ) );
+	$accept      = wpsc_get_accept_header();
+	if ( $accept === 'text/html' ) {
+		$accept = '';
+	} else {
+		$accept = '-' . $accept;
+	}
+	return do_cacheaction(
+		'wp_cache_key',
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		wp_cache_check_mobile( $WPSC_HTTP_HOST . $server_port . preg_replace( '/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() . '-' . wpsc_get_accept_header() . $accept )
+	);
 }
 
 /**
@@ -128,6 +138,11 @@ function wp_cache_serve_cache_file() {
 		return false;
 	}
 
+	if ( wpsc_get_accept_header() !== 'text/html' ) {
+		wp_cache_debug( 'wp_cache_serve_cache_file: visitor does not accept text/html. Not serving cached file.' );
+		return false;
+	}
+
 	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 
 	if (
@@ -175,6 +190,9 @@ function wp_cache_serve_cache_file() {
 			return false;
 		} elseif ( wp_cache_get_cookies_values() != '' ) {
 			wp_cache_debug( 'Cookies found. Cannot serve a supercache file. ' . wp_cache_get_cookies_values() );
+			return false;
+		} elseif ( wpsc_get_accept_header() !== 'text/html' ) {
+			wp_cache_debug( 'Accept header is not text/html. Cannot serve supercache file.' . wp_cache_get_cookies_values() );
 			return false;
 		} elseif ( isset( $wpsc_save_headers ) && $wpsc_save_headers ) {
 			wp_cache_debug( 'Saving headers. Cannot serve a supercache file.' );
@@ -443,6 +461,31 @@ function wpsc_get_auth_cookies() {
 	}
 
 	return $auth_cookies;
+}
+
+function wpsc_get_accept_header() {
+	static $accept = 'N/A';
+
+	if ( $accept === 'N/A' ) {
+		$json_list = array( 'application/json', 'application/activity+json', 'application/ld+json' );
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- $accept is checked and set below.
+		$accept = isset( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( filter_var( $_SERVER['HTTP_ACCEPT'] ) ) : '';
+
+		foreach ( $json_list as $header ) {
+			if ( strpos( $accept, $header ) ) {
+				$accept = 'application/json';
+			}
+		}
+
+		if ( $accept !== 'application/json' ) {
+			$accept = 'text/html';
+		}
+
+		wp_cache_debug( 'ACCEPT: ' . $accept );
+	}
+
+	return $accept;
 }
 
 function wp_cache_get_cookies_values() {
