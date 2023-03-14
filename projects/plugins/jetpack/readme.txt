@@ -244,12 +244,18 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.1 - 2023-03-08
+### 12.0-a.3 - 2023-03-13
 #### Enhancements
-- Admin: fix submenu positioning in admin menu.
-- Blocks: add a new Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors.
-- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer.
-- Stats: updates the layout of the loading and some sections on the Stats page.
+- Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar.
+- Forms: redesign the Multiple Choice and Single Choice fields
+
+#### Improved compatibility
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+
+#### Bug fixes
+- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters.
+- Subscribe Block: don't show "Include social followers in count" when "Show subscribers count" is off, or Publicize is disabled.
+- Slideshow Block: make slideshow block's play and pause icons visible.
 
 --------
 

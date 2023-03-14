@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Search Dashboard: fix wrong return URL when site already has a valid subscription
