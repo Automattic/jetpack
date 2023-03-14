@@ -4,7 +4,6 @@
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
