@@ -40,17 +40,15 @@ const Header = () => {
 			</span>
 			{ shouldShowActivateLicenseLink && (
 				<p>
-					{
-						( createInterpolateElement(
-							__(
-								'Already have an existing plan or license key? <a>Click here to get started</a>',
-								'jetpack-backup-pkg'
-							)
+					{ createInterpolateElement(
+						__(
+							'Already have an existing plan or license key? <a>Click here to get started</a>',
+							'jetpack-backup-pkg'
 						),
 						{
 							a: <a href={ activateLicenseUrl } />,
-						} )
-					}
+						}
+					) }
 				</p>
 			) }
 		</div>

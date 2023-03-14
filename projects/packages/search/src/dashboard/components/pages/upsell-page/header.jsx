@@ -16,17 +16,15 @@ const Header = () => {
 				<JetpackSearchLogo />
 			</span>
 			<p>
-				{
-					( createInterpolateElement(
-						__(
-							'Already have an existing plan or license key? <a>Click here to get started</a>',
-							'jetpack-search-pkg'
-						)
+				{ createInterpolateElement(
+					__(
+						'Already have an existing plan or license key? <a>Click here to get started</a>',
+						'jetpack-search-pkg'
 					),
 					{
 						a: <a href={ activateLicenseUrl } />,
-					} )
-				}
+					}
+				) }
 			</p>
 		</div>
 	);

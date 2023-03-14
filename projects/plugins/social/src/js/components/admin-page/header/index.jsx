@@ -23,17 +23,15 @@ const AdminPageHeader = () => {
 
 			{ showPricingPage && (
 				<p>
-					{
-						( createInterpolateElement(
-							__(
-								'Already have an existing plan or license key? <a>Click here to get started</a>',
-								'jetpack-social'
-							)
+					{ createInterpolateElement(
+						__(
+							'Already have an existing plan or license key? <a>Click here to get started</a>',
+							'jetpack-social'
 						),
 						{
 							a: <a href={ activateLicenseUrl } />,
-						} )
-					}
+						}
+					) }
 				</p>
 			) }
 		</div>
