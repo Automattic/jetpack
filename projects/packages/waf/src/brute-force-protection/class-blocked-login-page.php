@@ -112,7 +112,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @return string
 	 */
 	public static function get_help_url() {
-		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
+		return Redirect::get_url( 'jetpack-support-protect', array( 'anchor' => 'troubleshooting' ) );
 	}
 
 	/**
