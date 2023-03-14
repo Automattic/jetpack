@@ -68,7 +68,6 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 			icon={ <BlockIcon icon={ VideoPressIcon } /> }
 			labels={ {
 				title,
-				instructions: description,
 			} }
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
