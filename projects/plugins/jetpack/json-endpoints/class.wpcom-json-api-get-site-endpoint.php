@@ -221,6 +221,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'subscribers_count',
 		'site_migration',
 		'site_owner',
+		'is_wpcom_staging_site',
 	);
 
 	/**
@@ -245,7 +246,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
 		'is_wpcom_atomic',
-		'is_wpcom_staging_site',
 		'is_wpcom_store',
 		'woocommerce_is_active',
 		'editing_toolkit_is_active',
