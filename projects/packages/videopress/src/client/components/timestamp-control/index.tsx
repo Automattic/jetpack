@@ -1,8 +1,13 @@
 /**
  * External dependencies
  */
-// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-import { __experimentalNumberControl as NumberControl, RangeControl } from '@wordpress/components';
+import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl,
+	RangeControl,
+	BaseControl,
+	useBaseControlProps,
+} from '@wordpress/components';
 import { useCallback, useRef } from '@wordpress/element';
 import classnames from 'classnames';
 /**
@@ -173,17 +178,21 @@ export const TimestampInput = ( {
  * @param {TimestampControlProps} props - Component props.
  * @returns {React.ReactElement}          TimestampControl react component.
  */
-export const TimestampControl = ( {
-	disabled = false,
-	max,
-	value,
-	onChange,
-	onDebounceChange,
-	wait = 1000,
-	fineAdjustment = 50,
-	autoHideTimeInput = true,
-}: TimestampControlProps ): React.ReactElement => {
+export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
+	const {
+		disabled = false,
+		max,
+		value,
+		onChange,
+		onDebounceChange,
+		wait = 1000,
+		fineAdjustment = 50,
+		autoHideTimeInput = true,
+	} = props;
+
 	const debounceTimer = useRef< NodeJS.Timeout >();
+
+	const { baseControlProps } = useBaseControlProps( props );
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
@@ -196,28 +205,30 @@ export const TimestampControl = ( {
 	);
 
 	return (
-		<div className={ styles[ 'timestamp-control' ] }>
-			<TimestampInput
-				disabled={ disabled }
-				max={ max }
-				value={ value }
-				onChange={ onChangeHandler }
-				autoHideTimeInput={ autoHideTimeInput }
-			/>
+		<BaseControl { ...baseControlProps }>
+			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
+				<TimestampInput
+					disabled={ disabled }
+					max={ max }
+					value={ value }
+					onChange={ onChangeHandler }
+					autoHideTimeInput={ autoHideTimeInput }
+				/>
 
-			<RangeControl
-				disabled={ disabled }
-				className={ styles[ 'timestamp-range-control' ] }
-				min={ 0 }
-				step={ fineAdjustment }
-				initialPosition={ value }
-				value={ value }
-				max={ max }
-				showTooltip={ false }
-				withInputField={ false }
-				onChange={ onChangeHandler }
-			/>
-		</div>
+				<RangeControl
+					disabled={ disabled }
+					className={ styles[ 'timestamp-range-control' ] }
+					min={ 0 }
+					step={ fineAdjustment }
+					initialPosition={ value }
+					value={ value }
+					max={ max }
+					showTooltip={ false }
+					withInputField={ false }
+					onChange={ onChangeHandler }
+				/>
+			</div>
+		</BaseControl>
 	);
 };
 
