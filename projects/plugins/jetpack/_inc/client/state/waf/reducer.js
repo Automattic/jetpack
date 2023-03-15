@@ -15,11 +15,11 @@ export const data = ( state = {}, action ) => {
 		case WAF_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, {
 				bootstrapPath: action.settings?.bootstrap_path,
-				automaticRulesAvailable: action.settings?.automatic_rules_available,
+				automaticRulesAvailable: Boolean( action.settings?.automatic_rules_available ),
 				automaticRulesEnabled: Boolean( action.settings?.jetpack_waf_automatic_rules ),
 				manualRulesEnabled: Boolean( action.settings?.jetpack_waf_ip_list ),
-				ipAllowList: action.settings?.jetpack_waf_ip_allow_list,
-				ipBlockList: action.settings?.jetpack_waf_ip_block_list,
+				ipAllowList: action.settings?.jetpack_waf_ip_allow_list || '',
+				ipBlockList: action.settings?.jetpack_waf_ip_block_list || '',
 				shareData: Boolean( action.settings?.jetpack_waf_share_data ),
 			} );
 		default:
