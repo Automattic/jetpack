@@ -257,7 +257,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param int  $subscription_end_date
 	 * @return array
 	 */
-	private function get_payload( $is_subscribed, $is_paid_subscriber, $subscription_end_date, $status ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null ) {
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
 			$this->product_id => array(
 				'status'     => $status ? $status : 'active',
@@ -336,7 +336,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_on_not_pages() {
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
+		$this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
 		// When no post id is set, the comments should default to whatever is passed as default
@@ -352,20 +352,18 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
-		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
-
+		$post_id = $this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
 		// When post-id is passed, it should prevent access depending of the user access
-		$payload              = $this->get_payload( true, false, null, null );
-		$post_id              = $this->setup_jetpack_paid_newsletters();
+		$is_user_subscribed   = false;
+		$payload              = $this->get_payload( $is_user_subscribed );
 		$subscription_service = $this->set_returned_token( $payload );
 		$GLOBALS['post']      = get_post( $post_id );
 		$post_access_level    = 'paid_subscribers';
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
-		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 
+		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 		$this->assertFalse( apply_filters( 'comments_open', true, $post_id ) );
 	}
 
@@ -377,8 +375,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_not_displaying_for_paid_subscribers_when_defaults_to_false() {
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
-		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		$post_id = $this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
 		// When post-id is passed, it should prevent access depending of the user access
@@ -406,7 +403,16 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
 		);
+
+		// Connect the plan to a product and mark the plan as a "newsletter" plan
 		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
+
+		// Connect the site to Stripe
+		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
+
+		// Enable the newsletter feature
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
 
 		// Create a post
 		return $this->factory->post->create();
