@@ -110,6 +110,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_eligible',
 		'is_core_site_editor_enabled',
 		'is_wpcom_atomic',
+		'is_wpcom_staging_site',
 	);
 
 	/**
@@ -220,6 +221,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'subscribers_count',
 		'site_migration',
 		'site_owner',
+		'is_wpcom_staging_site',
 	);
 
 	/**

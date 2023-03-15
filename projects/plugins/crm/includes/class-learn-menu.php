@@ -291,10 +291,10 @@ class Learn_Menu {
 		}
 
 		// Forms
-		if ( zeroBSCRM_is_form_new_page() ){
-			$slug = 'editform';
-		} elseif ( zeroBSCRM_is_form_edit_page() ){
+		if ( zeroBSCRM_is_form_new_page() ) {
 			$slug = 'formnew';
+		} elseif ( zeroBSCRM_is_form_edit_page() ) {
+			$slug = 'editform';
 		}
 
 		// profile page
