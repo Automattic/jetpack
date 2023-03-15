@@ -30,8 +30,6 @@ class Post_Settings_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->post_id       = wp_insert_post(
