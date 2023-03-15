@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sharing: ensure the sharing icons can appear when using a CDN to serve static assets on your site.

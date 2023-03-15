@@ -875,7 +875,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "ec6c161155b3cef7e43d45c3d715e0ef0417f6a2"
+                "reference": "18842dbeb2bb6ee37b0b67331015ffda6a592f7a"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -897,7 +897,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.9.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -1807,7 +1807,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "85b040fdaf32308620cf7db7268d782e96815504"
+                "reference": "e3f72273e208811711383b87d4de07ff3d4cb5a9"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1830,12 +1830,15 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.20.x-dev"
+                    "dev-trunk": "0.21.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/social-image-generator/utilities.php"
                 ]
             },
             "scripts": {
@@ -2278,7 +2281,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "94b32518050a387b8c926214809c806fd64d7dbb"
+                "reference": "db9ceb08a09c7efdd95e7b06e9f06f07212ed1b2"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2300,7 +2303,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.12.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
