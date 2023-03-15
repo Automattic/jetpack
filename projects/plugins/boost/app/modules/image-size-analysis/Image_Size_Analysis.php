@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack_Boost\Features\Image_Size_Analysis;
 
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class Image_Size_Analysis implements Feature {
+class Image_Size_Analysis implements Pluggable {
 
 	public function setup() {
 		// Hello World, I shall setup myself some day.

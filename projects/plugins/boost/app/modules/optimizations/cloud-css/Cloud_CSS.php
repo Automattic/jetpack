@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Boost_API;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
@@ -15,7 +15,7 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Feature, Has_Endpoints {
+class Cloud_CSS implements Pluggable, Has_Endpoints {
 
 	/**
 	 * Critical CSS storage class instance.

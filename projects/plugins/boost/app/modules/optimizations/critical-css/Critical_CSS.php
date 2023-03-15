@@ -3,7 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Invalidator;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
@@ -15,7 +15,7 @@ use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Insert;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Critical_CSS_Start;
 
-class Critical_CSS implements Feature, Has_Endpoints {
+class Critical_CSS implements Pluggable, Has_Endpoints {
 
 	/**
 	 * Critical CSS storage class instance.

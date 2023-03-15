@@ -2,12 +2,12 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
-use Automattic\Jetpack_Boost\Contracts\Feature;
+use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
 // Allow overriding WordPress globals, as that is necessary to taking over script output.
 // phpcs:disable WordPress.WP.GlobalVariablesOverride.Prohibited
 
-class Minify implements Feature {
+class Minify implements Pluggable {
 	// @todo - handle PHP constants.
 
 	public function setup() {
