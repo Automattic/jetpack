@@ -29,3 +29,12 @@ export const requestUpdatePosterByVideoFrame = function (
 		},
 	} );
 };
+
+export const requestVideoPoster = function (
+	guid: VideoGUID
+): Promise< WPComV2VideopressPostPosterProps > {
+	return apiFetch( {
+		path: `/wpcom/v2/videopress/${ guid }/poster`,
+		method: 'GET',
+	} );
+};
