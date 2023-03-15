@@ -708,7 +708,7 @@ function zeroBS_getDemoCustomer(){
 
 	$demoData = array(
 
-		'status'           => array( 'Lead', 'Contact' ),
+		'status'           => array( 'Lead', 'Customer' ),
 		'prefix' => array('Mr', 'Mrs', 'Miss'),
 		'fname' => array('John','Jim','Mike','Melvin','Janet','Jennifer','Judy','Julie'),
 		'lname' => array('Smith','Jones','Scott','Filbert'),
