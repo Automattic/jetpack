@@ -218,7 +218,7 @@ jQuery( function ( $ ) {
 				$( '.completed-tasks-panel' ).html( completed_tasks );
 				$( '.inprogress-tasks-panel' ).html( progress_tasks );
 
-				if ( response.customer.status == 'Contact' ) {
+				if ( response.customer.status == 'Customer' ) {
 					$( '#panel-status' ).removeClass( 'blue' ).addClass( 'green' );
 				}
 				if ( response.customer.status == 'Lead' ) {
