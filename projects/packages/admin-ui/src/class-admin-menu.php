@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Admin_UI;
 
 use Automattic\Jetpack\Assets\Logo;
 
+if ( ! class_exists( 'Logo' ) ) {
+	return;
+}
+
 /**
  * This class offers a wrapper to add_submenu_page and makes sure stand-alone plugin's menu items are always added under the Jetpack top level menu.
  * If the Jetpack top level was not previously registered by other plugin, it will be registered here.
