@@ -68,6 +68,8 @@ class Main {
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
 			'media'      => new Endpoints\Attachment(),
+			'menu-items' => new Endpoints\Menu_Item(),
+			'menus'      => new Endpoints\Menu(),
 			'pages'      => new Endpoints\Page(),
 			'posts'      => new Endpoints\Post(),
 			'tags'       => new Endpoints\Tag(),
