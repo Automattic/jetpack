@@ -28,10 +28,12 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	description?: string;
 
 	poster?: string;
-	posterSource: {
-		type: 'image' | 'frame';
+	posterSource?: {
+		type: 'media-library' | 'frame';
 		atTime?: number;
 		src?: string;
+		id?: number;
+		url?: string;
 	};
 	videoRatio?: number;
 	tracks?: Array< TrackProps >;

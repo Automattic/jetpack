@@ -75,7 +75,14 @@ export function PosterDropdown( {
 
 	const { poster } = attributes;
 	const onSelectPoster = ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
-		setAttributes( { poster: image.url } );
+		setAttributes( {
+			poster: image.url,
+			posterSource: {
+				type: 'media-library',
+				id: image.id,
+				url: image.url,
+			},
+		} );
 	};
 
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
