@@ -16,6 +16,7 @@
 
 	&__text {
 		font-size: 24px;
+		margin-bottom: $grid-unit-20;
 	}
 
 	&__answers-link {
@@ -26,7 +27,6 @@
 
 	&__answers {
 		font-size: 16px;
-		margin-top: $grid-unit-20;
 	}
 
 	&__answers-gravatar {
@@ -43,5 +43,24 @@
 
 	&__spinner {
 		text-align: center;
+	}
+
+	@media only email {
+		&__label {
+			background: none;
+			padding-left: 0;
+		}
+
+		&__answers {
+			margin-bottom: 0;
+		}
+
+		&__answers-gravatar {
+			margin-bottom: 0;
+
+			&:not(:first-child) {
+				margin-left: 0;
+			}
+		}
 	}
 }
