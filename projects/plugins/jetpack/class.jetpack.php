@@ -29,6 +29,7 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Paths;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Publicize\Social_Image_Generator;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -2038,7 +2039,8 @@ class Jetpack {
 
 		$active_plugins = self::get_active_plugins();
 
-		if ( ! empty( $active_plugins ) ) {
+		// If SIG is enabled we render our own og tags, even if conflicting plugins are active.
+		if ( ! empty( $active_plugins ) && empty( Social_Image_Generator\get_image_url( get_the_ID() ) ) ) {
 			foreach ( $this->open_graph_conflicting_plugins as $plugin ) {
 				if ( in_array( $plugin, $active_plugins, true ) ) {
 					add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );

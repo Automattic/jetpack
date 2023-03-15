@@ -11,7 +11,7 @@
  * @package automattic/jetpack
  */
 
-add_action( 'wp_head', 'jetpack_og_tags' );
+add_action( 'wp_head', 'jetpack_og_tags', 100 );
 add_action( 'web_stories_story_head', 'jetpack_og_tags' );
 
 /**

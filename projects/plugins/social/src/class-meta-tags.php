@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Social;
 
+use Automattic\Jetpack\Publicize\Social_Image_Generator;
+
 /**
  * Adds the meta tags.
  */
@@ -20,7 +22,6 @@ class Meta_Tags {
 	 * @var array Array of plugin slugs.
 	 */
 	private $open_graph_conflicting_plugins = array(
-		'jetpack/jetpack.php',                                   // The Jetpack plugin adds its own meta tags.
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php', // 2 Click Social Media Buttons.
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook.
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags.
@@ -105,11 +106,19 @@ class Meta_Tags {
 
 	/**
 	 * Check if meta tags should be rendered.
+	 * If we have conflicting plugins, we won't render meta tags, unless Social Image Generator is active.
+	 * Jetpack is an exception to avoid duplicates, as it's handling SIG on it's own too.
 	 *
 	 * @return bool True if meta tags should be rendered.
 	 */
 	public function should_render_meta_tags() {
-		if ( ! empty( array_intersect( $this->get_active_plugins(), $this->open_graph_conflicting_plugins ) ) ) {
+		if (
+			is_plugin_active( 'jetpack/jetpack.php' ) ||
+			(
+				! empty( array_intersect( $this->get_active_plugins(), $this->open_graph_conflicting_plugins ) ) &&
+				empty( Social_Image_Generator\get_image_url( get_the_ID() ) )
+			)
+		) {
 			return false;
 		}
 
