@@ -1165,7 +1165,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<ul>';
 				}
 
-				$count = 1;
 				foreach ( $enabled['hidden'] as $service ) {
 					// Individual HTML for sharing service.
 					$klasses = array( 'share-' . $service->get_class() );
@@ -1178,8 +1177,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
-
-					++$count;
 				}
 
 				// End of wrapper.
