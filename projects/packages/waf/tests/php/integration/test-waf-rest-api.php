@@ -14,8 +14,6 @@ use Automattic\Jetpack\Waf\REST_Controller;
 final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		// Set a blog token and id so the site is connected.
