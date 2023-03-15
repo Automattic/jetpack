@@ -225,6 +225,10 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 
 	// Listen player events.
 	useEffect( () => {
+		if ( isRequestingEmbedPreview ) {
+			return;
+		}
+
 		if ( ! html ) {
 			return;
 		}
@@ -242,17 +246,11 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 		};
 	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
-	if ( isRequestingEmbedPreview ) {
-		return <div>HOLA!</div>;
-	}
-
 	return (
 		<div className="poster-panel__frame-picker">
-			{ ! isRequestingEmbedPreview && (
-				<div ref={ playerWrapperRef } className="poster-panel__frame-picker__sandbox">
-					<SandBox html={ html } scripts={ sandboxScripts } />
-				</div>
-			) }
+			<div ref={ playerWrapperRef } className="poster-panel__frame-picker__sandbox-wrapper">
+				<SandBox html={ html } scripts={ sandboxScripts } />
+			</div>
 
 			<TimestampControl
 				max={ duration }
