@@ -2,6 +2,7 @@
 	import { PricingCard } from '@automattic/jetpack-components';
 	import { derived } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
+	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import Footer from '../../sections/Footer.svelte';
@@ -10,7 +11,6 @@
 	import JetpackBoostLogo from '../../svg/logo.svg';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
-	import ActivateLicense from './ActivateLicense.svelte';
 
 	async function goToCheckout() {
 		const eventProps = {};

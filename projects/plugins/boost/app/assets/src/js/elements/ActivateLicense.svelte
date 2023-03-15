@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __ } from '@wordpress/i18n';
-	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import TemplatedString from './TemplatedString.svelte';
 </script>
 
 <p class="jb-activate-license">
