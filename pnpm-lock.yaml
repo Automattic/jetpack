@@ -11948,10 +11948,10 @@ packages:
       '@babel/core': ^7.8.0
     dependencies:
       '@babel/core': 7.20.12
-      '@jest/transform': 29.4.3
+      '@jest/transform': 29.5.0
       '@types/babel__core': 7.20.0
       babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.4.3(@babel/core@7.20.12)
+      babel-preset-jest: 29.5.0(@babel/core@7.20.12)
       chalk: 4.1.2
       graceful-fs: 4.2.10
       slash: 3.0.0
@@ -16870,13 +16870,13 @@ packages:
       canvas:
         optional: true
     dependencies:
-      '@jest/environment': 29.4.3
-      '@jest/fake-timers': 29.4.3
-      '@jest/types': 29.4.3
+      '@jest/environment': 29.5.0
+      '@jest/fake-timers': 29.5.0
+      '@jest/types': 29.5.0
       '@types/jsdom': 20.0.1
-      '@types/node': 18.13.0
-      jest-mock: 29.4.3
-      jest-util: 29.4.3
+      '@types/node': 18.15.0
+      jest-mock: 29.5.0
+      jest-util: 29.5.0
       jsdom: 20.0.3
     transitivePeerDependencies:
       - bufferutil
@@ -17266,10 +17266,10 @@ packages:
       node-notifier:
         optional: true
     dependencies:
-      '@jest/core': 29.4.3
-      '@jest/types': 29.4.3
+      '@jest/core': 29.5.0
+      '@jest/types': 29.5.0
       import-local: 3.1.0
-      jest-cli: 29.4.3
+      jest-cli: 29.5.0
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
