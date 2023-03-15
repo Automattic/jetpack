@@ -19,7 +19,7 @@
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
 
-	$: cloudCssAvailable = !! get( isModuleAvailableStore( 'cloud_css' ) );
+	$: cloudCssAvailable = get( isModuleAvailableStore( 'cloud_css' ) );
 	$: successCount = $criticalCssState.providers.filter( provider => provider.status === 'success' )
 		.length;
 </script>
