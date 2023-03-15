@@ -20,7 +20,7 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 
 ## 📈 Jetpack CRM Benefits:
 
-1. **Simple & Practical:** Useful features that impress contacts
+1. **Simple & Practical:** Useful features that impress customers
 2. **Fully 'yours':** Install it on your WordPress. You hold the keys
 3. **Free:** No giant monthly fees. Good value extensions are optional
 
