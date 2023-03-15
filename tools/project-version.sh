@@ -248,16 +248,7 @@ done < <(jq -r '.extra["version-constants"] // {} | to_entries | .[] | .key + " 
 
 if $DO_CHANGELOG; then
 	cd "$BASE/projects/$SLUG"
-
-	ARGS=()
-	ARGS=( add --no-interaction --significance=patch --filename=init-release-cycle --filename-auto-suffix )
-	CLTYPE="$(jq -r '.extra["changelogger-default-type"] // "changed"' composer.json)"
-	if [[ -n "$CLTYPE" ]]; then
-		ARGS+=( "--type=$CLTYPE" )
-	fi
-	ARGS+=( --entry="" --comment="Init $VERSION" )
-	changelogger "${ARGS[@]}"
-
+	changelogger_add '' "Init $VERSION" --filename=init-release-cycle --filename-auto-suffix
 	cd "$BASE"
 fi
 

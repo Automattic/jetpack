@@ -50,11 +50,8 @@ function register_block() {
 		);
 	}
 
-	if (
-		/** This filter is documented in class.jetpack-gutenberg.php */
-		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-	) {
-		return; // Stop here if our Paid Newsletter feature is not enabled.
+	if ( ! Jetpack_Gutenberg::is_newsletter_enabled() ) {
+		return; // Stop here if the Newsletter feature is not enabled.
 	}
 
 	register_post_meta(
@@ -92,20 +89,6 @@ function register_block() {
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
-
-/**
- * Check if Newsletter plans are available for a site
- *
- * @return bool - Default to false.
- */
-function has_newsletter_plans() {
-	return (
-		/** This filter is documented in class.jetpack-gutenberg.php */
-		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-		&& class_exists( 'Jetpack_Memberships' )
-		&& Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' )
-	);
-}
 
 /**
  * Returns true when in a WP.com environment.
@@ -366,9 +349,8 @@ function get_element_styles_from_attributes( $attributes ) {
  * @return string
  */
 function render_block( $attributes ) {
-	// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
-	if ( has_newsletter_plans() ) {
-		// We only want the sites that have newsletter plans to be graced by this JavaScript and thickbox.
+	if ( Jetpack_Gutenberg::is_newsletter_enabled() ) {
+		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
 			wp_enqueue_style( 'thickbox' );
