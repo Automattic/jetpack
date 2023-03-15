@@ -103,8 +103,6 @@ class WP_Test_Contact_Form extends BaseTestCase {
 
 	/**
 	 * Tears down the test environment after each unit test.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		// Remove filters after running tests.
