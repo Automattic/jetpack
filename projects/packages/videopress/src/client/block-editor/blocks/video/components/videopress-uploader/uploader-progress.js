@@ -168,6 +168,23 @@ const UploaderProgress = ( {
 		onDone,
 	} );
 
+	/**
+	 * Flag to control the processing state
+	 */
+	const [ isProcessing, setIsProcessing ] = useState( true );
+
+	/**
+	 * When the upload and the metadata update is ready,
+	 * wait for some time and then release the "Done" button.
+	 */
+	useEffect( () => {
+		if ( uploadedVideoData && ! isFinishingUpdate ) {
+			setTimeout( () => {
+				setIsProcessing( false );
+			}, 2500 );
+		}
+	}, [ uploadedVideoData, isFinishingUpdate ] );
+
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 	const resumeText = __( 'Resume', 'jetpack-videopress-pkg' );
@@ -234,7 +251,7 @@ const UploaderProgress = ( {
 					</>
 				) : (
 					<>
-						{ uploadedVideoData ? (
+						{ ! isProcessing ? (
 							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						) : (
 							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
@@ -242,8 +259,8 @@ const UploaderProgress = ( {
 						<Button
 							variant="primary"
 							onClick={ handleDoneUpload }
-							disabled={ ! uploadedVideoData || isFinishingUpdate }
-							isBusy={ ! uploadedVideoData || isFinishingUpdate }
+							disabled={ isProcessing }
+							isBusy={ isProcessing }
 						>
 							{ __( 'Done', 'jetpack-videopress-pkg' ) }
 						</Button>
