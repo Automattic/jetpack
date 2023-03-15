@@ -228,6 +228,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$data['date'] = $this->prepare_date_response( $prompt->post_date_gmt );
 		}
 
+		if ( rest_is_field_included( 'label', $fields ) ) {
+			$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+		}
+
 		if ( rest_is_field_included( 'text', $fields ) ) {
 			$text = \BloggingPrompts\prompt_without_blocks( $prompt->post_content );
 			// Allow translating a variable, since this text is imported from bloggingpromptstemplates.wordpress.com for translation.
@@ -249,6 +253,14 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		if ( rest_is_field_included( 'answered_users_sample', $fields ) ) {
 			$data['answered_users_sample'] = $this->build_answering_users_sample( $prompt->ID );
+		}
+
+		if ( rest_is_field_included( 'answered_link', $fields ) ) {
+			$data['answered_link'] = esc_url( "https://wordpress.com/tag/dailyprompt-{$prompt->ID}" );
+		}
+
+		if ( rest_is_field_included( 'answered_link_text', $fields ) ) {
+			$data['answered_link_text'] = __( 'View all responses', 'jetpack' );
 		}
 
 		return $data;
@@ -330,6 +342,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 					'description' => __( "The date the post was published, in the site's timezone.", 'jetpack' ),
 					'type'        => 'string',
 				),
+				'label'                 => array(
+					'description' => __( 'Label for the prompt.', 'jetpack' ),
+					'type'        => 'string',
+				),
 				'text'                  => array(
 					'description' => __( 'The text of the prompt. May include html tags like <em>.', 'jetpack' ),
 					'type'        => 'string',
@@ -359,6 +375,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 							),
 						),
 					),
+				),
+				'answered_link'         => array(
+					'description' => __( 'Link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				),
+				'answered_link_text'    => array(
+					'description' => __( 'Text for the link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
 				),
 			),
 		);
