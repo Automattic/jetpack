@@ -253,6 +253,7 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 			</div>
 
 			<TimestampControl
+				disabled={ isRequestingEmbedPreview }
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
