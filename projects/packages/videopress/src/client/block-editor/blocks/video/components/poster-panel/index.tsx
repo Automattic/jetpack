@@ -84,7 +84,7 @@ export function PosterDropdown( {
 	const buttonRef = useRef< HTMLButtonElement >( null );
 	const videoRatio = Number( attributes?.videoRatio ) / 100 || 9 / 16;
 
-	const [ buttonImageHeight, setButtonImageHeight ] = useState( 140 );
+	const [ posterPlaceholderHeight, setPosterPlaceholderHeight ] = useState( 140 );
 
 	useEffect( () => {
 		if ( ! poster || ! buttonRef?.current ) {
@@ -97,7 +97,7 @@ export function PosterDropdown( {
 			return;
 		}
 
-		setButtonImageHeight( buttonWidth * videoRatio );
+		setPosterPlaceholderHeight( buttonWidth * videoRatio );
 	}, [ poster, buttonRef, videoRatio ] );
 
 	return (
@@ -109,7 +109,7 @@ export function PosterDropdown( {
 					ref={ buttonRef }
 					style={ {
 						backgroundImage: poster ? `url(${ poster })` : undefined,
-						height: buttonImageHeight,
+						height: posterPlaceholderHeight,
 					} }
 					className={ `poster-panel__button ${ poster ? 'has-poster' : '' }` }
 					variant="secondary"
@@ -241,6 +241,10 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
 	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
+
+	if ( isRequestingEmbedPreview ) {
+		return <div>HOLA!</div>;
+	}
 
 	return (
 		<div className="poster-panel__frame-picker">
