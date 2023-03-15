@@ -21,8 +21,9 @@ export const settings = {
 	description: (
 		<Fragment>
 			<p>{ __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ) }</p>
-			{ /* @TODO add link */ }
-			<ExternalLink href="#">{ __( 'Learn more.', 'jetpack' ) }</ExternalLink>
+			<ExternalLink href="https://support.wordpress.com/wordpress-editor/blocks/writing-prompt-block/">
+				{ __( 'Learn more.', 'jetpack' ) }
+			</ExternalLink>
 		</Fragment>
 	),
 	icon: {
