@@ -27,7 +27,7 @@
 	},
 	"peerDependencies": {
 		"@babel/core": "^7.0.0",
-		"webpack": "^5.76.0"
+		"webpack": "^5.0.0"
 	},
 	"engines": {
 		"node": "^18.13.0",
