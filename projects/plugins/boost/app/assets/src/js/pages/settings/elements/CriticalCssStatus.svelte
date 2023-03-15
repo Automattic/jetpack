@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { get } from 'svelte/store';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
@@ -19,7 +18,7 @@
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
 
-	$: cloudCssAvailable = get( isModuleAvailableStore( 'cloud_css' ) );
+	const cloudCssAvailable = isModuleAvailableStore( 'cloud_css' );
 	$: successCount = $criticalCssState.providers.filter( provider => provider.status === 'success' )
 		.length;
 </script>
@@ -38,7 +37,7 @@
 				{#if $criticalCssState.updated}
 					<TimeAgo time={new Date( $criticalCssState.updated * 1000 )} />.
 				{/if}
-				{#if ! cloudCssAvailable}
+				{#if ! $cloudCssAvailable}
 					{__(
 						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
 						'jetpack-boost'
