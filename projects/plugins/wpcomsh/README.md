@@ -1,6 +1,6 @@
 # WordPress.com Site Helper
 
-![PHP Lint](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml/badge.svg) ![CircleCI](https://circleci.com/gh/Automattic/wpcomsh.svg?style=shield&circle-token=37baa9fa1a0fa74ad04f30ce58084d2d353a1342)
+[![PHP Lint](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/linting.yml) [![WPCloud Unit Testing](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml/badge.svg)](https://github.com/Automattic/wpcomsh/actions/workflows/wpcloud.yml)
 
 With the help of this mu-plugin, an Atomic site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
