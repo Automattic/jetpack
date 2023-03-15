@@ -6,6 +6,7 @@
 		"test": "tests"
 	},
 	"dependencies": {
+		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-svelte-data-sync-client": "workspace:*",
 		"@wordpress/components": "23.5.0",

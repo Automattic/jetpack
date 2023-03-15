@@ -113,7 +113,6 @@ class Instant_Search extends Classic_Search {
 			)
 		);
 		Assets::enqueue_script( 'jetpack-instant-search' );
-		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 	}
 
@@ -141,13 +140,6 @@ class Instant_Search extends Classic_Search {
 			'after_title'   => '</h2>',
 		);
 		register_sidebar( $args );
-	}
-
-	/**
-	 * Loads scripts for Tracks analytics library
-	 */
-	public function load_and_initialize_tracks() {
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	/**

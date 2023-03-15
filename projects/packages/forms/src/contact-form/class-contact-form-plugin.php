@@ -251,16 +251,16 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_blocks_scripts' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_editor_scripts' ) );
+		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
 	/**
 	 * Loads the Form blocks scripts.
 	 */
-	public static function load_blocks_scripts() {
+	public static function load_editor_scripts() {
 		Assets::register_script(
 			'jp-forms-blocks',
 			'../../dist/blocks/editor.js',
@@ -274,28 +274,34 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Enqueue scripts responsible for handling contact form styles.
+	 * Enqueue scripts responsible for handling contact form view scripts.
 	 */
-	private static function enqueue_contact_forms_style_script() {
-		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
+	private static function load_view_scripts() {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
 
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			\JETPACK__VERSION,
-			true
+		Assets::register_script(
+			'jp-forms-view',
+			'../../dist/blocks/view.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+			)
 		);
 	}
 
 	/**
-	 * Prevent 'contact-form-styles' script from being concatenated.
+	 * Prevent 'jp-forms-view' script from being concatenated.
 	 *
 	 * @param array  $do_concat - the concatenation flag.
 	 * @param string $handle - script name.
 	 */
-	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+	public static function disable_forms_view_script_concat( $do_concat, $handle ) {
+		if ( 'jp-forms-view' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -418,6 +424,8 @@ class Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack-forms' )
 			);
 		}
+
+		self::load_view_scripts();
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -1694,12 +1702,12 @@ class Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
 
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1715,8 +1723,15 @@ class Contact_Form_Plugin {
 				/**
 				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
 				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -1905,7 +1920,7 @@ class Contact_Form_Plugin {
 	 *
 	 * @return null|void
 	 */
-	private function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props ) {
 		/*
 		 * Event details.
 		 */
@@ -2028,6 +2043,7 @@ class Contact_Form_Plugin {
 		}
 
 		$all_fields = array_unique( $all_fields );
+
 		return $all_fields;
 	}
 
