@@ -51,13 +51,3 @@ export function recordEvent( eventName, properties, forceEnableAnalytics = false
 	( forceEnableAnalytics || isAnalyticsEnabled ) &&
 		window._tkq.push( [ 'recordEvent', eventName, { ...globalProperties, ...properties } ] );
 }
-
-/**
- * Fires a static filter selection event to Tracks.
- *
- * @param {object} properties - Event properties to send to Tracks.
- * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
- */
-export function recordStaticFilterSelect( properties, forceEnableAnalytics = false ) {
-	recordEvent( 'jetpack_instant_search_static_filter_select', properties, forceEnableAnalytics );
-}
