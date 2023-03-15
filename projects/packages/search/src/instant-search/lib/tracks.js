@@ -53,26 +53,6 @@ export function recordEvent( eventName, properties, forceEnableAnalytics = false
 }
 
 /**
- * Fires a TrainTracks render event to Tracks.
- *
- * @param {object} properties - Event properties.
- * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
- */
-export function recordTrainTracksRender( properties, forceEnableAnalytics = false ) {
-	recordEvent( 'jetpack_instant_search_traintracks_render', properties, forceEnableAnalytics );
-}
-
-/**
- * Fires a TrainTracks interaction event to Tracks.
- *
- * @param {object} properties - Event properties.
- * @param {boolean} forceEnableAnalytics - Forcibly enable analytics, ignoring the isAnalyticsEnabled flag.
- */
-export function recordTrainTracksInteract( properties, forceEnableAnalytics = false ) {
-	recordEvent( 'jetpack_instant_search_traintracks_interact', properties, forceEnableAnalytics );
-}
-
-/**
  * Fires a static filter selection event to Tracks.
  *
  * @param {object} properties - Event properties to send to Tracks.
