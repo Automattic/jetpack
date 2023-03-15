@@ -22,7 +22,7 @@
 </p>
 
 <style lang="scss">
-	:global( .jb-activate-license ) {
+	.jb-activate-license {
 		font-size: 13px;
 
 		:global( .jb-activate-license__link ) {
