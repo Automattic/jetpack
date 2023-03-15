@@ -348,7 +348,7 @@ export function useSyncMedia(
 
 		debug( 'Syncing data: ', dataToUpdate );
 
-		// Sync the block attributes data with the video data
+		// Sync the block attributes with the video metadata
 		updateMediaHandler( dataToUpdate )
 			.then( () => {
 				// Update local state with fresh video data.
