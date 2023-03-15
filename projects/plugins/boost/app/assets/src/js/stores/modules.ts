@@ -1,95 +1,51 @@
-import { get, writable, derived } from 'svelte/store';
-import api from '../api/api';
-import { setModuleState } from '../api/modules';
-import config from './config';
+// eslint-disable-next-line import/no-unresolved
+import { SyncedStoreInterface } from '@automattic/jetpack-svelte-data-sync-client/build/types';
+import { get, derived } from 'svelte/store';
+import { z } from 'zod';
+import { client } from './data-sync-client';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;
 };
 
-export type ModulesState = {
-	[ slug: string ]: {
-		enabled: boolean;
-		synced?: boolean;
-	};
-};
+export type ModulesState = SyncedStoreInterface< boolean >;
 
-const { subscribe, update, set } = writable< ModulesState >(
-	buildModuleState( get( config ).optimizations )
+export const moduleAvailabilityClient = client.createAsyncStore(
+	'available_modules',
+	z.record( z.string().min( 1 ), z.boolean() )
 );
 
-// Keep a subscribed copy for quick reading.
-let currentState: ModulesState;
-subscribe( value => ( currentState = value ) );
+export const isModuleAvailableStore = ( slug: string ) =>
+	derived(
+		moduleAvailabilityClient.store,
+		$availableModulesClient => $availableModulesClient[ slug ]
+	);
 
-/**
- * Given a set of optimizations and their on/off booleans, convert them to a ModulesState object,
- * ready for use in the modules datastore.
- *
- * @param {Optimizations} optmizations - Set of optimizations and their on/off booleans.
- * @return {ModulesState} - Object ready for use in the modules store.
- */
-function buildModuleState( optmizations: Optimizations ): ModulesState {
-	const state = {};
-
-	for ( const [ name, value ] of Object.entries( optmizations ) ) {
-		state[ name ] = {
-			enabled: value,
-		};
-	}
-
-	return state;
-}
+export const moduleStates: Record< string, ModulesState > = {};
+Object.keys( get( moduleAvailabilityClient.store ) ).forEach( async slug => {
+	moduleStates[ slug ] = client.createAsyncStore( `module_status_${ slug }`, z.boolean() );
+} );
 
 /**
  * Fetch the current state of the modules from the server.
  */
 export async function reloadModulesState() {
-	set( buildModuleState( await api.get( '/optimizations/status' ) ) );
+	// set( buildModuleState( await api.get( '/optimizations/status' ) ) );
 }
 
-export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	// Do not enable a module that isn't available.
-	if ( typeof currentState[ slug ] === 'undefined' ) {
-		return false;
-	}
-
-	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
-	let finalState = state;
-
-	// Tentatively set requested state, undo if the API fails or denies it.
-	setEnabled( slug, state );
-
-	// Run it by the API properly.
-	try {
-		finalState = await setModuleState( slug, state );
-		setEnabled( slug, finalState, true );
-	} catch ( err ) {
-		// On error, bounce back to original state and rethrow error.
-		setEnabled( slug, originalState, true );
-		throw err;
-	}
-
-	return finalState;
+export async function updateModuleState( slug: string, value: boolean ) {
+	moduleStates[ slug ].store.update( () => value );
+	await new Promise( resolve => {
+		moduleStates[ slug ].pending.subscribe( pending => {
+			if ( ! pending ) {
+				resolve( null );
+			}
+		} );
+	} );
 }
-
-function setEnabled( slug: string, enabled: boolean, synced = false ) {
-	update( state => ( {
-		...state,
-		[ slug ]: {
-			...state[ slug ],
-			enabled,
-			synced,
-		},
-	} ) );
-}
-
-export const modules = {
-	subscribe,
-	updateModuleState,
-};
 
 export const isModuleEnabledStore = ( slug: string ) =>
-	derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
-export const isModuleAvailableStore = ( slug: string ) =>
-	derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );
+	derived(
+		[ moduleStates[ slug ].store, isModuleAvailableStore( slug ) ],
+		( [ $moduleEnabled, $moduleAvailable ] ) => $moduleAvailable && $moduleEnabled
+	);

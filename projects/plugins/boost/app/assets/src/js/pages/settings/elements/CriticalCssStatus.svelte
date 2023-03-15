@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { get } from 'svelte/store';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
@@ -8,7 +9,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
-	import { modules } from '../../../stores/modules';
+	import { isModuleAvailableStore } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -18,7 +19,7 @@
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
 
-	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
+	$: cloudCssAvailable = !! get( isModuleAvailableStore( 'cloud_css' ) );
 	$: successCount = $criticalCssState.providers.filter( provider => provider.status === 'success' )
 		.length;
 </script>

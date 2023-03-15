@@ -18,7 +18,7 @@
 
 	onMount( async () => {
 		// Enable cloud-css on a successful upgrade.
-		await updateModuleState( 'cloud-css', true );
+		updateModuleState( 'cloud_css', true );
 		await regenerateCriticalCss();
 	} );
 </script>

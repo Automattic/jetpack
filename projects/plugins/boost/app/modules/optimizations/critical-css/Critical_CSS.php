@@ -64,7 +64,7 @@ class Critical_CSS implements Pluggable, Has_Endpoints {
 	}
 
 	public static function get_slug() {
-		return 'critical-css';
+		return 'critical_css';
 	}
 
 	/**

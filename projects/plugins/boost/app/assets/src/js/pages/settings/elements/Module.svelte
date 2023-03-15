@@ -6,6 +6,7 @@
 	import {
 		isModuleAvailableStore,
 		isModuleEnabledStore,
+		moduleStates,
 		updateModuleState,
 	} from '../../../stores/modules';
 
@@ -15,29 +16,19 @@
 
 	const isEnabled = isModuleEnabledStore( slug );
 	const isAvailable = isModuleAvailableStore( slug );
+	const isSaving = moduleStates[ slug ].pending;
+	const errors = moduleStates[ slug ].errors;
 
-	let error = null;
-	let isLoading = false;
-
-	async function handleToggle() {
-		if ( isLoading ) {
-			return;
+	isEnabled.subscribe( value => {
+		if ( value ) {
+			dispatch( 'enabled' );
+		} else {
+			dispatch( 'disabled' );
 		}
+	} );
 
-		error = null;
-		isLoading = true;
-
-		try {
-			if ( await updateModuleState( slug, ! $isEnabled ) ) {
-				dispatch( 'enabled' );
-			} else {
-				dispatch( 'disabled' );
-			}
-		} catch ( caughtError ) {
-			error = caughtError;
-		}
-
-		isLoading = false;
+	function handleToggle() {
+		updateModuleState( slug, ! $isEnabled );
 	}
 
 	onMount( async () => {
@@ -53,7 +44,7 @@
 			<Toggle
 				id={`jb-feature-toggle-${ slug }`}
 				checked={$isEnabled}
-				bind:disabled={isLoading}
+				disabled={$isSaving}
 				on:click={handleToggle}
 			/>
 		</div>
@@ -67,8 +58,12 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if error}
-					<ErrorNotice title={__( 'Failed to toggle feature', 'jetpack-boost' )} {error} />
+				{#if $errors.length > 0}
+					{@const  error = $errors[ 0 ] }
+					<ErrorNotice
+						title={__( 'Failed to toggle feature', 'jetpack-boost' )}
+						error={error.message}
+					/>
 				{/if}
 
 				{#if $isEnabled}

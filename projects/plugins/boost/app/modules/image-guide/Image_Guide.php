@@ -43,7 +43,7 @@ class Image_Guide implements Pluggable {
 	}
 
 	public static function get_slug() {
-		return 'image-guide';
+		return 'image_guide';
 	}
 
 	public function enqueue_assets() {

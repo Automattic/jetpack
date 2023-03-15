@@ -10,7 +10,7 @@
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
-	import { modules } from '../../../stores/modules';
+	import { moduleStates } from '../../../stores/modules';
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -43,23 +43,28 @@
 	/**
 	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
 	 */
-	const modulesInSync = derived( modules, $modules => {
-		return ! Object.values( $modules ).some( m => m.synced === false );
-	} );
+	const modulesInSync = derived(
+		Object.values( moduleStates ).map( module => module.pending ),
+		( [ ...$moduleStates ] ) => {
+			return $moduleStates.every( moduleIsPending => ! moduleIsPending );
+		}
+	);
 
+	const scoreModules = Object.assign( {}, moduleStates );
+	delete scoreModules.image_guide;
+	delete scoreModules.image_size_analysis;
+
+	const storesArray = Object.values( scoreModules ).map( module => module.store );
 	/**
 	 * String representation of the current state that may impact the score.
 	 *
 	 * @type {Readable<string>}
 	 */
 	const scoreConfigString = derived(
-		[ modules, criticalCssState ],
-		( [ $modules, $criticalCssState ] ) => {
-			const scoreModules = Object.assign( {}, $modules );
-			delete scoreModules[ 'image-guide' ];
-
+		[ criticalCssState, ...storesArray ],
+		( [ $criticalCssState, ...$modules ] ) => {
 			return JSON.stringify( {
-				modules: scoreModules,
+				modules: $modules,
 				criticalCss: {
 					created: $criticalCssState.created,
 				},

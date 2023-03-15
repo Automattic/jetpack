@@ -6,9 +6,12 @@ use Automattic\Jetpack_Boost\Modules\Modules;
 
 class Available_Modules extends Storage {
 	public function get( $_key ) {
-		$modules = new Modules();
-		$keys    = array_keys( $modules->available_modules() );
+		$modules           = Modules::MODULES;
+		$available_modules = array();
+		foreach ( $modules as $module ) {
+			$available_modules[ $module::get_slug() ] = $module::is_available();
+		}
 
-		return str_replace( '-', '_', $keys );
+		return $available_modules;
 	}
 }

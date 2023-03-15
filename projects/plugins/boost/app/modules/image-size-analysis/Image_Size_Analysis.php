@@ -15,6 +15,6 @@ class Image_Size_Analysis implements Pluggable {
 	}
 
 	public static function get_slug() {
-		return 'image-size-analysis';
+		return 'image_size_analysis';
 	}
 }

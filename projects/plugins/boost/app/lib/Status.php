@@ -39,7 +39,7 @@ class Status {
 	}
 
 	public function get_ds_entry_name() {
-		return 'module_status_' . str_replace( '-', '_', $this->slug );
+		return 'module_status_' . $this->slug;
 	}
 
 	public function is_enabled() {

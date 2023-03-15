@@ -53,7 +53,7 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 	}
 
 	public static function get_slug() {
-		return 'cloud-css';
+		return 'cloud_css';
 	}
 
 	public function get_endpoints() {
