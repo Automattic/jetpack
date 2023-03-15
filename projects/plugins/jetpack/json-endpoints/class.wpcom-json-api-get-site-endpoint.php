@@ -223,6 +223,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_migration',
 		'site_owner',
 		'is_wpcom_staging_site',
+		'was_ecommerce_trial',
 	);
 
 	/**
