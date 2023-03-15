@@ -166,6 +166,8 @@ const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
 
 type PosterFramePickerProps = {
 	guid: VideoGUID;
+	atTime: number;
+	onVideoFrameSelect: ( timestamp: number ) => void;
 };
 
 /**
@@ -174,8 +176,12 @@ type PosterFramePickerProps = {
  * @param {PosterFramePickerProps} props - Component properties
  * @returns { React.ReactElement}          React component
  */
-function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElement {
-	const [ timestamp, setTimestamp ] = useState( 0 );
+function VideoFramePicker( {
+	guid,
+	atTime = 0,
+	onVideoFrameSelect,
+}: PosterFramePickerProps ): React.ReactElement {
+	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
@@ -264,6 +270,7 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 						event: 'videopress_action_set_currenttime',
 						currentTime: iframeTimePosition / 1000,
 					} );
+					onVideoFrameSelect( iframeTimePosition );
 				} }
 			/>
 		</div>
@@ -280,7 +287,7 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 }: PosterPanelProps ): React.ReactElement {
-	const { poster } = attributes;
+	const { poster, posterSource } = attributes;
 	const [ pickFromFrame, setPickFromFrame ] = useState( false );
 	const onRemovePoster = () => {
 		setAttributes( { poster: '' } );
@@ -297,7 +304,13 @@ export default function PosterPanel( {
 			<div
 				className={ classnames( 'poster-panel__frame-wrapper', { 'is-active': pickFromFrame } ) }
 			>
-				<VideoFramePicker guid={ attributes?.guid } />
+				<VideoFramePicker
+					guid={ attributes?.guid }
+					atTime={ posterSource?.atTime }
+					onVideoFrameSelect={ timestamp =>
+						setAttributes( { posterSource: { type: 'frame', atTime: timestamp } } )
+					}
+				/>
 			</div>
 
 			<div
