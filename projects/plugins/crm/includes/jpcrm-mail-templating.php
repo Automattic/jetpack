@@ -145,7 +145,7 @@ function zeroBSCRM_mailTemplate_emailPreview($templateID=-1){
 
 			$bizInfoTable = "";
 			##WLREMOVE
-				$bizInfoTable = "<div style='text-align:right'><b>John Doe</b><br/>".__("This is replaced<br>with the customers details<br>from their profile.",'zero-bs-crm')."</div>";			
+			$bizInfoTable = '<div style="text-align:right"><b>John Doe</b><br/>' . __( 'This is replaced<br>with the contacts details<br>from their profile.', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase	
 			##/WLREMOVE
 
 			$replacements['invoice-number'] = $invNoStr;
