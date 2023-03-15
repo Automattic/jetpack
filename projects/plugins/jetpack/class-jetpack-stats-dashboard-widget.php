@@ -52,6 +52,11 @@ class Jetpack_Stats_Dashboard_Widget {
 			return;
 		}
 
+		// TODO: Migrate this head function into this class.
+		add_action( 'admin_head', 'stats_dashboard_head' );
+		// TODO: Migrate the widget function into this class.
+		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
+
 		if ( Jetpack::is_connection_ready() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
 		}
