@@ -295,7 +295,7 @@ export default function PosterPanel( {
 	setAttributes,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterSource } = attributes;
-	const [ pickFromFrame, setPickFromFrame ] = useState( false );
+	const [ pickFromFrame, setPickFromFrame ] = useState( attributes?.posterSource.type === 'frame' );
 	const onRemovePoster = () => {
 		setAttributes( { poster: '' } );
 	};
@@ -324,6 +324,7 @@ export default function PosterPanel( {
 				className={ classnames( 'poster-panel__image-wrapper', { 'is-active': ! pickFromFrame } ) }
 			>
 				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
+
 				<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
 				{ poster && (
