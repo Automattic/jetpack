@@ -21,6 +21,8 @@ export const settings = {
 			} )
 		);
 
+		const { link: postLink } = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
 		const prevIsPublishingPost = usePrevious( isPublishingPost );
@@ -42,6 +44,7 @@ export const settings = {
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
 			query: `siteSlug=${ siteFragment }`,
 		} );
+		const isNewsletter = siteIntentOption === 'newsletter';
 
 		const { tracks } = useAnalytics();
 
@@ -118,13 +121,20 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Great progress!', 'jetpack' ) }
+								{ isNewsletter
+									? __( 'Your first post is published!', 'jetpack' )
+									: __( 'Great progress!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
-								{ __(
-									'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
-									'jetpack'
-								) }
+								{ isNewsletter
+									? __(
+											'Congratulations! You did it. View your post to see how it will look on your site.',
+											'jetpack'
+									  )
+									: __(
+											'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
+											'jetpack'
+									  ) }
 							</p>
 						</div>
 						<div className="launchpad__save-modal-controls">
@@ -146,11 +156,17 @@ export const settings = {
 								</Button>
 								<Button
 									variant="primary"
-									href={ launchPadUrl }
-									onClick={ () => recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' ) }
+									href={ isNewsletter ? postLink : launchPadUrl }
+									onClick={ () =>
+										recordTracksEvent(
+											isNewsletter
+												? 'jetpack_launchpad_save_modal_view_post'
+												: 'jetpack_launchpad_save_modal_next_steps'
+										)
+									}
 									target="_top"
 								>
-									{ __( 'Next Steps', 'jetpack' ) }
+									{ isNewsletter ? __( 'View Post', 'jetpack' ) : __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
