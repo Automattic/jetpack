@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -97,8 +98,29 @@ const ActivationScreen = props => {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_success' );
 			} )
 			.catch( error => {
-				setLicenseError( error.message );
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error' );
+
+				const cannotManageLicenses =
+					error.response?.code === 'invalid_permission_manage_user_licenses';
+				if ( cannotManageLicenses ) {
+					setLicenseError(
+						createInterpolateElement(
+							__(
+								'A user connection is required to activate a license. <connectLink>Click here to connect</connectLink> or contact your site admin.',
+								'jetpack'
+							),
+							{
+								connectLink: (
+									<a href="admin.php?page=my-jetpack#/connection?returnTo=add-license" />
+								),
+							}
+						)
+					);
+
+					return;
+				}
+
+				setLicenseError( error.message );
 			} )
 			.finally( () => {
 				setIsSaving( false );
