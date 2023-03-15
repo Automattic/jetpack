@@ -1106,10 +1106,13 @@ function stats_dashboard_widget_options() {
 /**
  * Stats Dashboard Widget Control.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
 function stats_dashboard_widget_control() {
+	stats_dashboard_widget_controls_handle_submission();
 	$periods   = array(
 		'1'  => __( 'day', 'jetpack' ),
 		'7'  => __( 'week', 'jetpack' ),
@@ -1122,12 +1125,23 @@ function stats_dashboard_widget_control() {
 		'90'  => __( 'the past quarter', 'jetpack' ),
 		'365' => __( 'the past year', 'jetpack' ),
 	);
-	$defaults  = array(
+	stats_dashboard_widget_controls_html( $intervals, $periods, stats_dashboard_widget_options() );
+}
+
+/**
+ * Handle widget controls form submission.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_handle_submission() {
+	$options  = stats_dashboard_widget_options();
+	$defaults = array(
 		'top'    => 1,
 		'search' => 7,
 	);
-
-	$options = stats_dashboard_widget_options();
 
 	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
@@ -1142,6 +1156,21 @@ function stats_dashboard_widget_control() {
 		}
 		update_option( 'stats_dashboard_widget', $options );
 	}
+}
+
+/**
+ * Output HTML for widget controls.
+ *
+ * @param array $intervals Array of intervals.
+ * @param array $periods Array of periods.
+ * @param array $options Array of options.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) {
 	?>
 	<p>
 	<label for="chart"><?php esc_html_e( 'Chart stats by', 'jetpack' ); ?></label>
@@ -1187,6 +1216,8 @@ function stats_dashboard_widget_control() {
 /**
  * Jetpack Stats Dashboard Widget.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
@@ -1212,6 +1243,7 @@ function stats_jetpack_dashboard_widget() {
 
 /**
  * JavaScript and CSS for dashboard widget.
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return void
@@ -1269,6 +1301,8 @@ jQuery( function($) {
 
 /**
  * Stats Dashboard Widget Content.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return void
