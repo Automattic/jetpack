@@ -29,6 +29,11 @@ class Data_Sync_Entry {
 	/**
 	 * @var string
 	 */
+	private $namespace;
+
+	/**
+	 * @var string
+	 */
 	private $key;
 
 	/**
@@ -48,9 +53,10 @@ class Data_Sync_Entry {
 	 * @param $storage   Storage_Driver
 	 */
 	public function __construct( $namespace, $key, $entry, $storage ) {
-		$this->key     = $key;
-		$this->entry   = $entry;
-		$this->storage = $storage;
+		$this->namespace = $namespace;
+		$this->key       = $key;
+		$this->entry     = $entry;
+		$this->storage   = $storage;
 	}
 
 	public function get() {
@@ -73,7 +79,12 @@ class Data_Sync_Entry {
 		if ( ! empty( $this->storage ) ) {
 			// 3. Sanitize and store the value
 			$sanitized_value = $this->entry->sanitize( $value );
-			return $this->storage->set( $this->key, $sanitized_value );
+
+			do_action( 'jetpack_ds_before_set', $this->namespace, $this->key, $value );
+			$set = $this->storage->set( $this->key, $sanitized_value );
+			if ( $set ) {
+				do_action( 'jetpack_ds_set', $this->namespace, $this->key, $value );
+			}
 		}
 
 		return false;
