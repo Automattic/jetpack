@@ -92,7 +92,7 @@ export function PosterDropdown( {
 		}
 
 		const { current: buttonElement } = buttonRef;
-		const buttonWidth = buttonElement.offsetWidth;
+		const buttonWidth = buttonElement?.offsetWidth;
 		if ( ! buttonWidth ) {
 			return;
 		}
