@@ -1045,7 +1045,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "121acc0673174b45cd30fc631a406dc7c1d9e472"
+                "reference": "0d8cbf9eb2c6883862b4076dfe50c7eb5c6378d1"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1057,7 +1057,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.1",
+                "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",

@@ -121,7 +121,7 @@ const ThumbnailActionsDropdown = ( {
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -187,7 +187,7 @@ const PrivacyActionsDropdown = ( {
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
