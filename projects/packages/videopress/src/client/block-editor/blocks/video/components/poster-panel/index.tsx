@@ -32,7 +32,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
-const globalScripts = [];
+const sandboxScripts = [];
 
 // Populate scripts array with videopresAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
@@ -48,14 +48,16 @@ if ( window.videopressAjax ) {
 		}
 	);
 
-	globalScripts.push(
+	// Token bridge script
+	sandboxScripts.push(
 		URL.createObjectURL( videopresAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
 
+// Player bridge script
 if ( window?.videoPressEditorState?.playerBridgeUrl ) {
-	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+	sandboxScripts.push( window.videoPressEditorState.playerBridgeUrl );
 }
 
 /**
@@ -244,7 +246,7 @@ function VideoFramePicker( { guid }: PosterFramePickerProps ): React.ReactElemen
 		<div className="poster-panel__frame-picker">
 			{ ! isRequestingEmbedPreview && (
 				<div ref={ playerWrapperRef } className="poster-panel__frame-picker__sandbox">
-					<SandBox html={ html } scripts={ globalScripts } />
+					<SandBox html={ html } scripts={ sandboxScripts } />
 				</div>
 			) }
 
