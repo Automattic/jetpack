@@ -33,16 +33,19 @@ function get_wp_cache_key( $url = false ) {
 		$url = '';
 	}
 	$server_port = isset( $_SERVER['SERVER_PORT'] ) ? intval( $_SERVER['SERVER_PORT'] ) : 0;
-	$accept      = wpsc_get_accept_header();
+
+	// Prepare a tag to include in the cache key if the request is anything other than text/html
+	$accept = wpsc_get_accept_header();
 	if ( $accept === 'text/html' ) {
-		$accept = '';
+		$accept_tag = '';
 	} else {
-		$accept = '-' . $accept;
+		$accept_tag = '-' . $accept;
 	}
+
 	return do_cacheaction(
 		'wp_cache_key',
 		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		wp_cache_check_mobile( $WPSC_HTTP_HOST . $server_port . preg_replace( '/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() . '-' . wpsc_get_accept_header() . $accept )
+		wp_cache_check_mobile( $WPSC_HTTP_HOST . $server_port . preg_replace( '/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() . '-' . wpsc_get_accept_header() . $accept_tag )
 	);
 }
 
@@ -463,6 +466,11 @@ function wpsc_get_auth_cookies() {
 	return $auth_cookies;
 }
 
+/**
+ * Returns a string containing a sanitized version of the Accept header.
+ * For now, this can only respond with `text/html` or `application/json` -
+ * used to differentiate between pages which may or may not be cacheable.
+ */
 function wpsc_get_accept_header() {
 	static $accept = 'N/A';
 
