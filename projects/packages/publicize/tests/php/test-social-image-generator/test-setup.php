@@ -27,8 +27,6 @@ class Setup_Test extends BaseTestCase {
 
 	/**
 	 * Setting up the test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->sig = new Social_Image_Generator\Setup();
@@ -41,8 +39,6 @@ class Setup_Test extends BaseTestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @afterClass
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
