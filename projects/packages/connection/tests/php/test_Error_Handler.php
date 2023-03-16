@@ -24,8 +24,6 @@ class Error_Handler_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
