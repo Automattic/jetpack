@@ -1078,6 +1078,8 @@ function stats_get_blog() {
 /**
  * Stats Dashboard Widget Options.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return array
  */
@@ -1243,6 +1245,7 @@ function stats_jetpack_dashboard_widget() {
 
 /**
  * JavaScript and CSS for dashboard widget.
+ *
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
