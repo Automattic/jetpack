@@ -159,7 +159,7 @@ export default function VideoPressEdit( {
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
+	const { html: previewHtml, width: previewWidth, height: previewHeight } = preview;
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -560,7 +560,6 @@ export default function VideoPressEdit( {
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
-				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }
