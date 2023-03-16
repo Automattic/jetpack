@@ -1,6 +1,6 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import { Button, Modal } from '@wordpress/components';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useMemo } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import React from 'react';
@@ -11,7 +11,7 @@ import Fullscreen from '../assets/fullscreen.jpg';
 import Highway from '../assets/highway.jpg';
 import styles from './styles.module.scss';
 
-const TEMPLATES = [
+const TEMPLATES_DATA = [
 	{
 		name: 'highway',
 		label: 'Highway',
@@ -44,18 +44,28 @@ const TEMPLATES = [
  * @returns {React.ReactNode} - The component's rendered output.
  */
 const TemplatePicker = ( { onSelect, render, value = null } ) => {
-	const [ isOpen, setIsOpen ] = useState( true );
+	const [ isOpen, setIsOpen ] = useState( false );
 	const [ selectedTemplate, setSelectedTemplate ] = useState( value );
 
 	const openPicker = useCallback( () => setIsOpen( true ), [ setIsOpen ] );
-	const closePicker = useCallback( () => setIsOpen( false ), [ setIsOpen ] );
+	const closePicker = useCallback( () => {
+		setSelectedTemplate( value );
+		setIsOpen( false );
+	}, [ value, setSelectedTemplate, setIsOpen ] );
 	const saveAndClosePicker = useCallback( () => {
 		onSelect( selectedTemplate );
 		setIsOpen( false );
 	}, [ onSelect, setIsOpen, selectedTemplate ] );
-	const setTemplate = useCallback( template => setSelectedTemplate( template ), [
-		setSelectedTemplate,
-	] );
+
+	// Add memoized callback function for each template.
+	const TEMPLATES = useMemo(
+		() =>
+			TEMPLATES_DATA.map( template => ( {
+				...template,
+				onSelect: () => setSelectedTemplate( template.name ),
+			} ) ),
+		[ setSelectedTemplate ]
+	);
 
 	return (
 		<ThemeProvider targetDom={ document.body }>
@@ -65,13 +75,13 @@ const TemplatePicker = ( { onSelect, render, value = null } ) => {
 					<div className={ styles.templates }>
 						{ TEMPLATES.map( template => (
 							<button
-								onClick={ setTemplate( template.name ) }
+								onClick={ template.onSelect }
 								key={ template.name }
 								className={ classnames( styles.template, {
 									[ styles[ 'template--active' ] ]: template.name === selectedTemplate,
 								} ) }
 							>
-								<img src={ template.image } alt="" width={ 600 } height={ 315 } />
+								<img src={ template.image } alt="" />
 								<span className="screen-reader-text">
 									{
 										/* translators: %s is the name of the template */
