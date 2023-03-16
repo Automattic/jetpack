@@ -6,6 +6,7 @@ const projects = [
 	'../../components/components',
 	'../../connection/components',
 	'../../idc/components',
+	'../../licensing/components',
 	'../../../packages/my-jetpack/_inc/components',
 	'../../../packages/search/src/dashboard/components',
 	'../../../plugins/protect/src/js/components',
