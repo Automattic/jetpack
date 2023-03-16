@@ -7,6 +7,7 @@ import { useDebounce } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 import filesize from 'filesize';
 /**
  * Internal dependencies
@@ -17,6 +18,8 @@ import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
 import { removeFileNameExtension } from '../../../../../lib/url';
 import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
+
+const debug = debugFactory( 'videopress:block:uploader' );
 
 const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
@@ -179,7 +182,9 @@ const UploaderProgress = ( {
 	 */
 	useEffect( () => {
 		if ( uploadedVideoData && ! isFinishingUpdate ) {
+			debug( 'Waiting for some time before enabling the DONE button...' );
 			setTimeout( () => {
+				debug( 'Done, enabling the DONE button now...' );
 				setIsProcessing( false );
 			}, 2500 );
 		}
