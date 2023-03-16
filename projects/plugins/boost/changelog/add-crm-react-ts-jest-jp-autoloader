@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Our pre-commit Prettier hooks insisted that I corrected an exclude rule in tsconfig.js after merging trunk
+
+
