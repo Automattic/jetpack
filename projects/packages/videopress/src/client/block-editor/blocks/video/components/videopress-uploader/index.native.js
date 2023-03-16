@@ -59,11 +59,16 @@ const VideoPressUploader = ( { handleDoneUpload, isInteractionDisabled } ) => {
 		[ onSelectURL ]
 	);
 
+	const onResetUpload = useCallback( () => {
+		setIsUploadingInProgress( false );
+	}, [] );
+
 	if ( isUploadingInProgress ) {
 		return (
 			<UploadProgress
 				file={ uploadFile }
 				onDone={ handleDoneUpload }
+				onReset={ onResetUpload }
 				isInteractionDisabled={ isInteractionDisabled }
 			/>
 		);
