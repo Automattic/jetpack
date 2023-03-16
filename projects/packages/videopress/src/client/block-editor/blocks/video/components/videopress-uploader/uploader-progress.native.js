@@ -19,7 +19,7 @@ import { Text, TouchableWithoutFeedback, View } from 'react-native';
 import { VideoPressIcon, retryIcon } from '../icons';
 import style from './style.scss';
 
-const UploaderProgress = ( { file, onDone } ) => {
+const UploaderProgress = ( { file, onDone, isInteractionDisabled } ) => {
 	const containerStyle = usePreferredColorSchemeStyle(
 		style[ 'videopress-uploader__container' ],
 		style[ 'videopress-uploader__container--dark' ]
@@ -69,7 +69,11 @@ const UploaderProgress = ( { file, onDone } ) => {
 	}, [] );
 
 	return (
-		<TouchableWithoutFeedback onPress={ onPress }>
+		<TouchableWithoutFeedback
+			accessible={ isInteractionDisabled }
+			onPress={ onPress }
+			disabled={ isInteractionDisabled }
+		>
 			<MediaUploadProgress
 				mediaId={ file?.id }
 				onFinishMediaUploadWithSuccess={ onUploadSuccess }
