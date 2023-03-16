@@ -106,7 +106,7 @@ const ActivationScreen = props => {
 					setLicenseError(
 						createInterpolateElement(
 							__(
-								'A user connection is required to activate a license. <connectLink>Click here to connect</connectLink> or contact your site admin.',
+								'You either do not have permissions to perform this action or a user account needs to be connected. <connectLink>Click here to connect your user account</connectLink> or contact your administrator.',
 								'jetpack'
 							),
 							{
