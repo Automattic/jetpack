@@ -47,6 +47,17 @@ class Status {
 	}
 
 	/**
+	 * Update the status of the module manually.
+	 *
+	 * For backward compatibility, this method is used to update the status of the module.
+	 *
+	 * @param bool $new_status
+	 */
+	public function update( $new_status ) {
+		$this->ds->set( $new_status );
+	}
+
+	/**
 	 * Called when the module is toggled.
 	 *
 	 * Called by Modules and triggered by the `jetpack_ds_set` action.
