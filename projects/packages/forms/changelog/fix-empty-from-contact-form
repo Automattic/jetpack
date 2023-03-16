@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure IP address can be properly displayed for all form submissions.
