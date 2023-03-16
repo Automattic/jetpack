@@ -163,9 +163,15 @@ class Post extends \WP_REST_Posts_Controller {
 
 		if ( is_array( $metas ) ) {
 			foreach ( $metas as $meta_key => $meta_value ) {
-				// Add the meta data to the post
+
 				$meta_value = maybe_unserialize( $meta_value );
-				add_post_meta( $post->ID, $meta_key, $meta_value );
+				if ( ! $creating && $meta_key === '_edit_last' ) {
+					update_post_meta( $post->ID, $meta_key, $meta_value );
+				} else {
+					// Add the meta data to the post
+					add_post_meta( $post->ID, $meta_key, $meta_value );
+				}
+
 				do_action( 'import_post_meta', $post->ID, $meta_key, $meta_value );
 			}
 		}
