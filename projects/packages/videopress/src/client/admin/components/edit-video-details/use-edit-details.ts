@@ -125,6 +125,7 @@ export default () => {
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
+	const [ currentLibraryAttachment, setCurrentLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
 		'default' | 'video' | 'upload' | null
 	>( null );
@@ -147,6 +148,7 @@ export default () => {
 
 	const {
 		selectedTime,
+		setVideoFrameMs,
 
 		updatePosterImageFromFrame,
 
@@ -176,7 +178,10 @@ export default () => {
 	}, [ selectedTime ] );
 
 	const hasChanges =
-		metaChanged || selectedTime != null || libraryAttachment != null || hasPrivacySettingChanged();
+		metaChanged ||
+		selectedTime != null ||
+		libraryAttachment !== currentLibraryAttachment ||
+		hasPrivacySettingChanged();
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();
@@ -264,6 +269,10 @@ export default () => {
 
 			// privacySetting already set by the action
 			delete videoData.privacySetting;
+
+			// Reset poster image selection
+			setVideoFrameMs( null );
+			setCurrentLibraryAttachment( libraryAttachment );
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
