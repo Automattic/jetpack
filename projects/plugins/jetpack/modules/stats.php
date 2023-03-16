@@ -1100,7 +1100,7 @@ function stats_dashboard_widget_options() {
 		}
 	}
 
-		return array_merge( $defaults, $options );
+	return array_merge( $defaults, $options );
 }
 
 /**
