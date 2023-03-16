@@ -93,7 +93,7 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Load the widget footer showing Protect and Akismet stats.
+	 * Load the widget footer showing brute force protection and Akismet stats.
 	 */
 	public static function dashboard_widget_footer() {
 		?>
