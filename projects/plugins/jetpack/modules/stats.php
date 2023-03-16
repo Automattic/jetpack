@@ -1145,18 +1145,20 @@ function stats_dashboard_widget_controls_handle_submission() {
 		'search' => 7,
 	);
 
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$options['chart'] = filter_var( wp_unslash( $_POST['chart'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-		}
-		foreach ( array( 'top', 'search' ) as $key ) {
-			if ( isset( $intervals[ $_POST[ $key ] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$options[ $key ] = filter_var( wp_unslash( $_POST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-			} else {
-				$options[ $key ] = $defaults[ $key ];
+	// Check if the correct form was submitted.
+	if ( isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) {
+		// Perform nonce verification.
+		if (
+			isset( $_POST['dashboard-widget-nonce'] ) &&
+			wp_verify_nonce( filter_var( wp_unslash( $_POST['dashboard-widget-nonce'] ) ), 'edit-dashboard-widget_dashboard_stats' )
+		) {
+			// Update options.
+			$options['chart'] = isset( $_POST['chart'] ) ? (int) $_POST['chart'] : 1;
+			foreach ( array( 'top', 'search' ) as $key ) {
+				$options[ $key ] = isset( $_POST[ $key ] ) ? (int) $_POST[ $key ] : $defaults[ $key ];
 			}
+			update_option( 'stats_dashboard_widget', $options );
 		}
-		update_option( 'stats_dashboard_widget', $options );
 	}
 }
 
