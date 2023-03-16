@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e257099869022a95d990ac8f28a8020e",
+    "content-hash": "fb6e05678055e56e2697a74d2ed59efb",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1517,21 +1517,22 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "0.4.1",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399"
+                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/8cd8d874d42a2faf01a979ba36924fe60d1ba399",
-                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
+                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.6.20",
-                "roots/wordpress": "^6.0.2"
+                "roots/wordpress": "^6.0.2",
+                "yoast/phpunit-polyfills": "^1.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.5"
@@ -1555,9 +1556,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/0.4.1"
+                "source": "https://github.com/Automattic/wordbless/tree/0.4.2"
             },
-            "time": "2022-10-03T13:15:30+00:00"
+            "time": "2023-03-15T12:16:20+00:00"
         },
         {
             "name": "doctrine/instantiator",

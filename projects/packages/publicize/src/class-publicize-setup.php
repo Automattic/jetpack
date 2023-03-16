@@ -44,8 +44,6 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
 
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
-
-		self::init_social_image_generator();
 	}
 
 	/**

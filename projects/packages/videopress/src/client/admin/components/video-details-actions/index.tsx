@@ -45,7 +45,7 @@ const VideoDetailsActions = ( {
 	return (
 		<>
 			<Dropdown
-				position="bottom center"
+				placement="bottom center"
 				className={ styles.dropdown }
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button

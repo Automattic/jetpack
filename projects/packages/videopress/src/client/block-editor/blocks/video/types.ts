@@ -97,9 +97,15 @@ export type DetailsPanelProps = VideoControlProps & {
 	isRequestingVideoData: boolean;
 };
 
-export type VideoPreview = {
-	html?: string;
-	scripts: Array< string >;
-	width?: number;
-	height?: number;
+export type VideoPreviewProps = {
+	html: string;
+	width: number;
+	height: number;
+	thumbnail_height: number;
+	thumbnail_width: number;
+	version: string;
+	title: string;
+	type: string;
+	provider_name: string;
+	provider_url: string;
 };

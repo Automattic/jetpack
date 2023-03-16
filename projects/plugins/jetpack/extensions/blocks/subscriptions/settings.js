@@ -165,7 +165,7 @@ export function NewsletterAccess( {
 										focusOnMount
 										renderToggle={ ( { isOpen, onToggle } ) => (
 											<Button
-												isTertiary
+												variant="tertiary"
 												onClick={ onToggle }
 												aria-expanded={ isOpen }
 												aria-label={ sprintf(
