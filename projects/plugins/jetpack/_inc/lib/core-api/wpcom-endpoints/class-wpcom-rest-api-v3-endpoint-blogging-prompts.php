@@ -228,6 +228,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$data['date'] = $this->prepare_date_response( $prompt->post_date_gmt );
 		}
 
+		if ( rest_is_field_included( 'label', $fields ) ) {
+			$data['label'] = __( 'Daily writing prompt', 'jetpack' );
+		}
+
 		if ( rest_is_field_included( 'text', $fields ) ) {
 			$text = \BloggingPrompts\prompt_without_blocks( $prompt->post_content );
 			// Allow translating a variable, since this text is imported from bloggingpromptstemplates.wordpress.com for translation.
@@ -249,6 +253,14 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		if ( rest_is_field_included( 'answered_users_sample', $fields ) ) {
 			$data['answered_users_sample'] = $this->build_answering_users_sample( $prompt->ID );
+		}
+
+		if ( rest_is_field_included( 'answered_link', $fields ) ) {
+			$data['answered_link'] = esc_url( "https://wordpress.com/tag/dailyprompt-{$prompt->ID}" );
+		}
+
+		if ( rest_is_field_included( 'answered_link_text', $fields ) ) {
+			$data['answered_link_text'] = __( 'View all responses', 'jetpack' );
 		}
 
 		return $data;
@@ -299,16 +311,14 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			),
 		);
 
-		$args['categories']         = $parent_args['categories'];
-		$args['categories_exclude'] = $parent_args['categories_exclude'];
-		$args['exclude']            = $parent_args['exclude'];
-		$args['include']            = $parent_args['include'];
-		$args['page']               = $parent_args['page'];
-		$args['per_page']           = $parent_args['per_page'];
-		$args['order']              = $parent_args['order'];
-		$args['order']['default']   = 'asc';
-		$args['orderby']            = $parent_args['orderby'];
-		$args['search']             = $parent_args['search'];
+		$args['exclude']          = $parent_args['exclude'];
+		$args['include']          = $parent_args['include'];
+		$args['page']             = $parent_args['page'];
+		$args['per_page']         = $parent_args['per_page'];
+		$args['order']            = $parent_args['order'];
+		$args['order']['default'] = 'asc';
+		$args['orderby']          = $parent_args['orderby'];
+		$args['search']           = $parent_args['search'];
 
 		return $args;
 	}
@@ -330,6 +340,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				),
 				'date'                  => array(
 					'description' => __( "The date the post was published, in the site's timezone.", 'jetpack' ),
+					'type'        => 'string',
+				),
+				'label'                 => array(
+					'description' => __( 'Label for the prompt.', 'jetpack' ),
 					'type'        => 'string',
 				),
 				'text'                  => array(
@@ -361,6 +375,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 							),
 						),
 					),
+				),
+				'answered_link'         => array(
+					'description' => __( 'Link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
+					'format'      => 'uri',
+				),
+				'answered_link_text'    => array(
+					'description' => __( 'Text for the link to answers for the prompt.', 'jetpack' ),
+					'type'        => 'string',
 				),
 			),
 		);
@@ -400,7 +423,16 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			return $response;
 		}
 
-		return json_decode( wp_remote_retrieve_body( $response ) );
+		$response_status = wp_remote_retrieve_response_code( $response );
+		$response_body   = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( $response_status >= 400 ) {
+			$code    = isset( $response_body->code ) ? $response_body->code : 'unknown_error';
+			$message = isset( $response_body->message ) ? $response_body->message : __( 'An unknown error occurred.', 'jetpack' );
+			return new WP_Error( $code, $message, array( 'status' => $response_status ) );
+		}
+
+		return $response_body;
 	}
 
 	/**

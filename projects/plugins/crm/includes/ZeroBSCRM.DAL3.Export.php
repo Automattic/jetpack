@@ -251,7 +251,7 @@ function jpcrm_export_process_file_export() {
 
 				// == segment specific loading =================================
 
-			if ( is_array( $extraParams['segment'] ) ) {
+			if ( isset( $extraParams['segment'] ) && is_array( $extraParams['segment'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				$extra_file_name_str = '-segment-' . $extraParams['segment']['id'];
 

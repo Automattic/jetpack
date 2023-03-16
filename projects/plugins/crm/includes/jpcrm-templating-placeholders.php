@@ -186,7 +186,7 @@ class jpcrm_templating_placeholders {
 					'aliases'			=> array( )
 				),
 
-				'biz-extra-info' => array(
+				'biz-extra'          => array(
 
 					'description' => __( 'Business: Extra Info', 'zero-bs-crm' ),
 					'origin' => __( 'Global', 'zero-bs-crm' ),
@@ -1520,8 +1520,24 @@ class jpcrm_templating_placeholders {
 		global $zbs;
 		
 		// vars
-		$login_url = admin_url('admin.php?page='.$zbs->slugs['dash'] ); 
-		$portal_url = zeroBS_portal_link();
+		$login_url      = admin_url( 'admin.php?page=' . $zbs->slugs['dash'] );
+		$portal_url     = zeroBS_portal_link();
+		$biz_name       = zeroBSCRM_getSetting( 'businessname' );
+		$biz_your_name  = zeroBSCRM_getSetting( 'businessyourname' );
+		$biz_your_email = zeroBSCRM_getSetting( 'businessyouremail' );
+		$biz_your_url   = zeroBSCRM_getSetting( 'businessyoururl' );
+		$biz_extra      = zeroBSCRM_getSetting( 'businessextra' );
+		$biz_info       = zeroBSCRM_invoicing_generateInvPart_bizTable(
+			array(
+				'zbs_biz_name'      => $biz_name,
+				'zbs_biz_yourname'  => $biz_your_name,
+				'zbs_biz_extra'     => $biz_extra,
+				'zbs_biz_youremail' => $biz_your_email,
+				'zbs_biz_yoururl'   => $biz_your_url,
+				'template'          => 'pdf',
+			)
+		);
+		$social_links   = show_social_links();
 		
 		// return
 		return array(
@@ -1537,18 +1553,21 @@ class jpcrm_templating_placeholders {
 			'portal-url'        => $portal_url,
 
 			// biz stuff
-			'biz-name'			=> zeroBSCRM_getSetting('businessname'),
-			'biz-your-name'		=> zeroBSCRM_getSetting('businessyourname'),
-			'biz-your-email'	=> zeroBSCRM_getSetting('businessyouremail'),
-			'biz-your-url'		=> zeroBSCRM_getSetting('businessyoururl'),
-			'biz-extra'			=> zeroBSCRM_getSetting('businessextra'),
-			'biz-logo'			=> jpcrm_business_logo_img( '150px' ),
+			'biz-name'        => $biz_name,
+			'biz-your-name'   => $biz_your_name,
+			'biz-your-email'  => $biz_your_email,
+			'biz-your-url'    => $biz_your_url,
+			'biz-info'        => $biz_info,
+			'biz-extra'       => $biz_extra,
+			'biz-logo'        => jpcrm_business_logo_img( '150px' ),
 
 			// general
 			'powered-by'		=> zeroBSCRM_mailTemplate_poweredByHTML(),
 			'email-from-name'	=> zeroBSCRM_mailDelivery_defaultFromname(),
 			'password'			=> '<a href="' . wp_lostpassword_url() . '" title="' . __( 'Lost Password', 'zero-bs-crm' ) . '">'. __('Set Your Password', 'zero-bs-crm').'</a>',
 
+			// social
+			'social-links'    => $social_links,
 		);
 
 	}
@@ -1644,7 +1663,7 @@ class jpcrm_templating_placeholders {
 				// ##BIZ-STATE## -> biz-state
 				$key = str_replace( '#', '', strtolower( $replace_string ) );
 				if ( isset( $replacement_info['key'] ) && !empty( $replacement_info['key'] ) ) {
-					
+
 					$key = $replacement_info['key'];
 
 				}

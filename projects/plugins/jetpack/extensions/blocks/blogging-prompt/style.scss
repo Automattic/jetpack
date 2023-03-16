@@ -1,22 +1,22 @@
-.jetpack-blogging-prompts {
-	border: 1px solid #dcdcde;
+@import '@automattic/jetpack-base-styles/gutenberg-base-styles';
+
+.jetpack-blogging-prompt {
+	border: 1px solid $gray-300;
 	border-radius: 2px;
 	padding: 24px;
 
 	&__label {
+		background: no-repeat url('./icon.svg');
+		background-position: left;
+		background-size: 24px 24px;
 		font-size: 14px;
-		margin-bottom: 16px;
-
-		svg {
-			height: 24px;
-			width: 24px;
-			margin-right: 6px;
-			vertical-align: bottom;
-		}
+		margin-bottom: $grid-unit-20;
+		padding-left: 26px;
 	}
 
-	&__prompt {
+	&__text {
 		font-size: 24px;
+		margin-bottom: $grid-unit-20;
 	}
 
 	&__answers-link {
@@ -27,11 +27,10 @@
 
 	&__answers {
 		font-size: 16px;
-		margin-top: 16px;
 	}
 
 	&__answers-gravatar {
-		border: 2px solid white;
+		border: 2px solid $white;
 		border-radius: 50%;
 		height: 24px;
 		vertical-align: middle;
@@ -44,5 +43,24 @@
 
 	&__spinner {
 		text-align: center;
+	}
+
+	@media only email {
+		&__label {
+			background: none;
+			padding-left: 0;
+		}
+
+		&__answers {
+			margin-bottom: 0;
+		}
+
+		&__answers-gravatar {
+			margin-bottom: 0;
+
+			&:not(:first-child) {
+				margin-left: 0;
+			}
+		}
 	}
 }

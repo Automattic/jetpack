@@ -5,7 +5,12 @@ import { combineReducers } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { RESPONSES_FETCH, RESPONSES_FETCH_RECEIVE, RESPONSES_FETCH_FAIL } from './action-types';
+import {
+	RESPONSES_FETCH,
+	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_FETCH_FAIL,
+	RESPONSES_QUERY_SEARCH_UPDATE,
+} from './action-types';
 
 const loading = ( state = false, action ) => {
 	if ( action.type === RESPONSES_FETCH ) {
@@ -43,8 +48,17 @@ const total = ( state = 0, action ) => {
 	return state;
 };
 
+const searchQuery = ( state = '', action ) => {
+	if ( action.type === RESPONSES_QUERY_SEARCH_UPDATE ) {
+		return action.searchQuery;
+	}
+
+	return state;
+};
+
 export default combineReducers( {
 	loading,
 	responses,
 	total,
+	searchQuery,
 } );
