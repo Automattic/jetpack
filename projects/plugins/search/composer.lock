@@ -1093,7 +1093,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "121acc0673174b45cd30fc631a406dc7c1d9e472"
+                "reference": "0d487d6d35dac3dba24c28b25e7c30f54b4a6775"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1105,7 +1105,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.1",
+                "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
@@ -1117,7 +1117,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.33.x-dev"
+                    "dev-trunk": "0.34.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"

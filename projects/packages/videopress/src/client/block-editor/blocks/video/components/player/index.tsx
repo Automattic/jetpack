@@ -12,7 +12,7 @@ import type { PlayerProps } from './types';
 import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
-const globalScripts = [];
+const sandboxScripts = [];
 
 // Populate scripts array with videopresAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
@@ -28,14 +28,14 @@ if ( window.videopressAjax ) {
 		}
 	);
 
-	globalScripts.push(
+	sandboxScripts.push(
 		URL.createObjectURL( videopresAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
 
 if ( window?.videoPressEditorState?.playerBridgeUrl ) {
-	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+	sandboxScripts.push( window.videoPressEditorState.playerBridgeUrl );
 }
 
 /**
@@ -50,7 +50,6 @@ export default function Player( {
 	isSelected,
 	attributes,
 	setAttributes,
-	scripts = [],
 	preview,
 	isRequestingEmbedPreview,
 }: PlayerProps ): React.ReactElement {
@@ -227,9 +226,7 @@ export default function Player( {
 					style={ wrapperElementStyle }
 				>
 					<>
-						{ ! isRequestingEmbedPreview && (
-							<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-						) }
+						{ ! isRequestingEmbedPreview && <SandBox html={ html } scripts={ sandboxScripts } /> }
 
 						{ ! isVideoPlayerLoaded && (
 							<div className="jetpack-videopress-player__loading">

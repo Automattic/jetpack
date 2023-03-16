@@ -31,8 +31,6 @@ final class WafCompatibilityIntegrationTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		// Mock data.

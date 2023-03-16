@@ -13,6 +13,7 @@ const sharedWebpackConfig = {
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
 		editor: './src/blocks/contact-form/editor.js',
+		view: './src/blocks/contact-form/view.js',
 	},
 	output: {
 		...jetpackWebpackConfig.output,

@@ -15,8 +15,6 @@ class Test_Actions extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		// Don't try to get options directly from the database.
@@ -34,8 +32,6 @@ class Test_Actions extends BaseTestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
