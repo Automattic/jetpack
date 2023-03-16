@@ -34,14 +34,17 @@ export async function reloadModulesState() {
 }
 
 export async function updateModuleState( slug: string, value: boolean ) {
-	moduleStates[ slug ].store.update( () => value );
-	await new Promise( resolve => {
+	const untilSynced = new Promise( resolve => {
 		moduleStates[ slug ].pending.subscribe( pending => {
 			if ( ! pending ) {
 				resolve( null );
 			}
 		} );
 	} );
+
+	moduleStates[ slug ].store.update( () => value );
+
+	await untilSynced;
 }
 
 export const isModuleEnabledStore = ( slug: string ) =>
