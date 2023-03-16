@@ -44,7 +44,7 @@ export const settings = {
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
 			query: `siteSlug=${ siteFragment }`,
 		} );
-		const isNewsletter = siteIntentOption === 'newsletter';
+		const showNewsletterPostCopy = siteIntentOption === 'newsletter' && isInsidePostEditor;
 
 		const { tracks } = useAnalytics();
 
@@ -121,12 +121,12 @@ export const settings = {
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
 							<h1 className="launchpad__save-modal-heading">
-								{ isNewsletter
+								{ showNewsletterPostCopy
 									? __( 'Your first post is published!', 'jetpack' )
 									: __( 'Great progress!', 'jetpack' ) }
 							</h1>
 							<p className="launchpad__save-modal-message">
-								{ isNewsletter
+								{ showNewsletterPostCopy
 									? __(
 											'Congratulations! You did it. View your post to see how it will look on your site.',
 											'jetpack'
@@ -156,17 +156,19 @@ export const settings = {
 								</Button>
 								<Button
 									variant="primary"
-									href={ isNewsletter ? postLink : launchPadUrl }
+									href={ showNewsletterPostCopy ? postLink : launchPadUrl }
 									onClick={ () =>
 										recordTracksEvent(
-											isNewsletter
+											showNewsletterPostCopy
 												? 'jetpack_launchpad_save_modal_view_post'
 												: 'jetpack_launchpad_save_modal_next_steps'
 										)
 									}
 									target="_top"
 								>
-									{ isNewsletter ? __( 'View Post', 'jetpack' ) : __( 'Next Steps', 'jetpack' ) }
+									{ showNewsletterPostCopy
+										? __( 'View Post', 'jetpack' )
+										: __( 'Next Steps', 'jetpack' ) }
 								</Button>
 							</div>
 						</div>
