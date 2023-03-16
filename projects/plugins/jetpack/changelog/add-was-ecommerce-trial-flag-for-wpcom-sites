@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Sites API: add was_ecommerce_trial flag to data returned for site details

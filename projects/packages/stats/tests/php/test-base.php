@@ -20,8 +20,6 @@ use WP_Post;
 abstract class StatsBaseTestCase extends BaseTestCase {
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
 		// Mock Jetpack Connection.
@@ -31,8 +29,6 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();

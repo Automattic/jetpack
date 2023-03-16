@@ -85,7 +85,7 @@ export const VideoThumbnailDropdown = ( {
 	return (
 		<div className={ styles[ 'video-thumbnail-edit' ] }>
 			<Dropdown
-				position="bottom left"
+				placement="bottom left"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						variant="secondary"
