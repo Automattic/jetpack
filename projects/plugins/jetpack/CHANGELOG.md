@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.5 - 2023-03-15
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Changelog edits. [#29445]
+- Updated package dependencies.
+
 ## 12.0-a.3 - 2023-03-13
 ### Enhancements
 - Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar. [#29042]

@@ -244,19 +244,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.3 - 2023-03-13
-#### Enhancements
-- Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar.
-- Forms: redesign the Multiple Choice and Single Choice fields
-
-#### Improved compatibility
-- General: indicate full compatibility with the latest version of WordPress, 6.2.
-
-#### Bug fixes
-- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters.
-- Subscribe Block: don't show "Include social followers in count" when "Show subscribers count" is off, or Publicize is disabled.
-- Slideshow Block: make slideshow block's play and pause icons visible.
-
+### 12.0-a.5 - 2023-03-15
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)
