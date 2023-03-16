@@ -4,7 +4,7 @@
 import { MediaUploadProgress, VIDEO_ASPECT_RATIO } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
