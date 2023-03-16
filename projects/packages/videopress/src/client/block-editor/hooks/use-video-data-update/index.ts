@@ -151,8 +151,10 @@ function arrangeTracksAttributes(
 		}
 	} );
 
-	// Checks if every block attributes track is in sync with the media
-	// item, to remove tracks from the block attributes if needed
+	/*
+	 * Checks if every block attributes track is in sync with the media
+	 * item, to remove tracks from the block attributes if needed
+	 */
 	attributes.tracks.forEach( blockTrack => {
 		const trackInMedia = videoData.tracks[ blockTrack.kind ]?.[ blockTrack.srcLang ];
 		const trackExistsInMedia =
