@@ -6,7 +6,7 @@ const projects = [
 		project: 'Jetpack connection',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/connection', '--retries=1' ],
-		targets: [ 'plugins/jetpack' ],
+		targets: [ 'plugins/jetpack', 'monorepo' ],
 		suite: '',
 	},
 	{
