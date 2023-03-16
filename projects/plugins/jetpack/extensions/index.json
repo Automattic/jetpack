@@ -1,5 +1,6 @@
 {
 	"production": [
+		"blogging-prompt",
 		"business-hours",
 		"button",
 		"calendly",
@@ -57,7 +58,7 @@
 		"recipe",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "blogging-prompt", "premium-content" ],
+	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
