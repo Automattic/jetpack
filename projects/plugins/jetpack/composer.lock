@@ -1065,7 +1065,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/import",
-                "reference": "37125a5f15779eea6046766a6a78b12d9de6b810"
+                "reference": "d48cdf34e37a4831189473154bace15e30db1a55"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1083,7 +1083,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "textdomain": "jetpack-import",
                 "version-constants": {
