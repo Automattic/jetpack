@@ -5,10 +5,14 @@ import { MediaUploadProgress, VIDEO_ASPECT_RATIO } from '@wordpress/block-editor
 import { Icon } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
+import {
+	requestImageFailedRetryDialog,
+	requestImageUploadCancelDialog,
+} from '@wordpress/react-native-bridge';
 /**
  * External dependencies
  */
-import { Text, View } from 'react-native';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -26,6 +30,14 @@ const UploaderProgress = ( { file, onDone } ) => {
 	);
 
 	const [ isUploadFailed, setIsUploadFailed ] = useState( false );
+
+	const onPress = useCallback( () => {
+		if ( isUploadFailed ) {
+			requestImageFailedRetryDialog( file?.id );
+		} else {
+			requestImageUploadCancelDialog( file?.id );
+		}
+	}, [ file, isUploadFailed ] );
 
 	const onUploadSuccess = useCallback(
 		payload => {
@@ -48,21 +60,23 @@ const UploaderProgress = ( { file, onDone } ) => {
 	}, [] );
 
 	return (
-		<MediaUploadProgress
-			mediaId={ file?.id }
-			onFinishMediaUploadWithSuccess={ onUploadSuccess }
-			onFinishMediaUploadWithFailure={ onUploadFail }
-			onUpdateMediaProgress={ onUploadProgress }
-			onMediaUploadStateReset={ onUploadReset }
-			renderContent={ ( { retryMessage } ) => {
-				return (
-					<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
-						<Icon icon={ VideoPressIcon } { ...iconStyle } />
-						{ isUploadFailed && <Text style={ style.uploadFailedText }>{ retryMessage }</Text> }
-					</View>
-				);
-			} }
-		/>
+		<TouchableWithoutFeedback onPress={ onPress }>
+			<MediaUploadProgress
+				mediaId={ file?.id }
+				onFinishMediaUploadWithSuccess={ onUploadSuccess }
+				onFinishMediaUploadWithFailure={ onUploadFail }
+				onUpdateMediaProgress={ onUploadProgress }
+				onMediaUploadStateReset={ onUploadReset }
+				renderContent={ ( { retryMessage } ) => {
+					return (
+						<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
+							<Icon icon={ VideoPressIcon } { ...iconStyle } />
+							{ isUploadFailed && <Text style={ style.uploadFailedText }>{ retryMessage }</Text> }
+						</View>
+					);
+				} }
+			/>
+		</TouchableWithoutFeedback>
 	);
 };
 
