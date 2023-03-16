@@ -110,7 +110,7 @@ export function NewsletterAccess( {
 	setPostMeta,
 	subscribersCount,
 	paidSubscribersCount,
-	followerCount,
+	followersCount,
 	withModal = true,
 } ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
@@ -186,7 +186,7 @@ export function NewsletterAccess( {
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
-													followerCount={ followerCount }
+													followerCount={ followersCount }
 													subscribersCount={ subscribersCount }
 													paidSubscribersCount={ paidSubscribersCount }
 													onChange={ setPostMeta }
@@ -201,7 +201,7 @@ export function NewsletterAccess( {
 								<FlexBlock>
 									<NewsletterAccessChoices
 										accessLevel={ accessLevel }
-										followerCount={ followerCount }
+										followerCount={ followersCount }
 										subscribersCount={ subscribersCount }
 										paidSubscribersCount={ paidSubscribersCount }
 										onChange={ setPostMeta }
