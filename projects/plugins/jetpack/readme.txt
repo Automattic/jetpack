@@ -244,13 +244,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.1 - 2023-03-08
-#### Enhancements
-- Admin: fix submenu positioning in admin menu.
-- Blocks: add a new Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors.
-- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer.
-- Stats: updates the layout of the loading and some sections on the Stats page.
-
+### 12.0-a.5 - 2023-03-15
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

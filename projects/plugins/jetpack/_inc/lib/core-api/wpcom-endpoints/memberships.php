@@ -49,7 +49,18 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function ( $param ) {
-								return in_array( $param, array( 'calypso', 'earn', 'earn-newsletter', 'gutenberg', 'gutenberg-wpcom' ), true );
+								return in_array(
+									$param,
+									array(
+										'calypso',
+										'earn',
+										'earn-newsletter',
+										'gutenberg',
+										'gutenberg-wpcom',
+										'launchpad',
+									),
+									true
+								);
 							},
 						),
 						'is_editable' => array(
