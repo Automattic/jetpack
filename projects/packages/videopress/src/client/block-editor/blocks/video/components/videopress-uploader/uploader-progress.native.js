@@ -1,9 +1,13 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { MediaUploadProgress, VIDEO_ASPECT_RATIO } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
+import { useCallback, useState } from '@wordpress/element';
+/**
+ * External dependencies
+ */
 import { Text, View } from 'react-native';
 /**
  * Internal dependencies
@@ -21,14 +25,36 @@ const UploaderProgress = ( { file, onDone } ) => {
 		style[ 'videopress-uploader__icon--dark' ]
 	);
 
+	const [ isUploadFailed, setIsUploadFailed ] = useState( false );
+
+	const onUploadSuccess = useCallback(
+		payload => {
+			const { metadata, mediaServerId } = payload;
+			onDone( { id: mediaServerId, guid: metadata?.videopressGUID } );
+		},
+		[ onDone ]
+	);
+
+	const onUploadProgress = useCallback( () => {
+		setIsUploadFailed( false );
+	}, [] );
+
+	const onUploadReset = useCallback( () => {
+		setIsUploadFailed( false );
+	}, [] );
+
+	const onUploadFail = useCallback( () => {
+		setIsUploadFailed( true );
+	}, [] );
+
 	return (
 		<MediaUploadProgress
 			mediaId={ file?.id }
-			onFinishMediaUploadWithSuccess={ payload => {
-				const { metadata, mediaServerId } = payload;
-				onDone( { id: mediaServerId, guid: metadata?.videopressGUID } );
-			} }
-			renderContent={ ( { isUploadFailed, retryMessage } ) => {
+			onFinishMediaUploadWithSuccess={ onUploadSuccess }
+			onFinishMediaUploadWithFailure={ onUploadFail }
+			onUpdateMediaProgress={ onUploadProgress }
+			onMediaUploadStateReset={ onUploadReset }
+			renderContent={ ( { retryMessage } ) => {
 				return (
 					<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
 						<Icon icon={ VideoPressIcon } { ...iconStyle } />
