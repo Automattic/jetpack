@@ -60,7 +60,6 @@
 - VideoPress: pick and convert core/video VideoPress instances also from inner blocks [#29339]
 - Writing prompts: marks prompt as answered when using a writing prompt block [#29214]
 
-
 ## 11.9.1 - 2023-03-14
 ### Bug fixes
 - Forms: fix fatal error on sites using old AMP versions [#29444]
