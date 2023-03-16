@@ -16,7 +16,7 @@ import { Text, TouchableWithoutFeedback, View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { VideoPressIcon } from '../icons';
+import { VideoPressIcon, retryIcon } from '../icons';
 import style from './style.scss';
 
 const UploaderProgress = ( { file, onDone } ) => {
@@ -24,6 +24,15 @@ const UploaderProgress = ( { file, onDone } ) => {
 		style[ 'videopress-uploader__container' ],
 		style[ 'videopress-uploader__container--dark' ]
 	);
+	const iconContainerStyle = style[ 'videopress-uploader__icon-container' ];
+	const videoPressIconContainerStyle = [
+		iconContainerStyle,
+		style[ 'videopress-uploader__icon-container--videopress' ],
+	];
+	const retryIconContainerStyle = [
+		iconContainerStyle,
+		style[ 'videopress-uploader__icon-container--retry' ],
+	];
 	const iconStyle = usePreferredColorSchemeStyle(
 		style[ 'videopress-uploader__icon' ],
 		style[ 'videopress-uploader__icon--dark' ]
@@ -70,8 +79,20 @@ const UploaderProgress = ( { file, onDone } ) => {
 				renderContent={ ( { retryMessage } ) => {
 					return (
 						<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
-							<Icon icon={ VideoPressIcon } { ...iconStyle } />
-							{ isUploadFailed && <Text style={ style.uploadFailedText }>{ retryMessage }</Text> }
+							{ isUploadFailed ? (
+								<>
+									<View style={ retryIconContainerStyle }>
+										<Icon icon={ retryIcon } { ...iconStyle } />
+									</View>
+									<Text style={ style[ 'videopress-uploader__failed-text' ] }>
+										{ retryMessage }
+									</Text>
+								</>
+							) : (
+								<View style={ videoPressIconContainerStyle }>
+									<Icon icon={ VideoPressIcon } { ...iconStyle } />
+								</View>
+							) }
 						</View>
 					);
 				} }
