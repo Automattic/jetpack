@@ -64,7 +64,7 @@ function NewsletterAccessChoices( {
 	onChange,
 	subscribersCount,
 	paidSubscribersCount,
-	followerCount,
+	followersCount,
 } ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
@@ -90,14 +90,19 @@ function NewsletterAccessChoices( {
 						htmlFor={ `editor-post-${ key }-${ instanceId }` }
 						className="editor-post-visibility__label"
 					>
-						{ accessOptions[ key ].label }
+						{ accessOptions[ key ].label }{ ' ' }
+						{ getReachForAccessLevel(
+							key,
+							subscribersCount,
+							paidSubscribersCount,
+							followersCount
+						) }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
 						className="editor-post-visibility__info"
 					>
-						{ accessOptions[ key ].info }{ ' ' }
-						{ getReachForAccessLevel( key, subscribersCount, paidSubscribersCount, followerCount ) }
+						{ accessOptions[ key ].info }
 					</p>
 				</div>
 			) ) }
@@ -186,7 +191,7 @@ export function NewsletterAccess( {
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
-													followerCount={ followersCount }
+													followersCount={ followersCount }
 													subscribersCount={ subscribersCount }
 													paidSubscribersCount={ paidSubscribersCount }
 													onChange={ setPostMeta }
@@ -201,7 +206,7 @@ export function NewsletterAccess( {
 								<FlexBlock>
 									<NewsletterAccessChoices
 										accessLevel={ accessLevel }
-										followerCount={ followersCount }
+										followersCount={ followersCount }
 										subscribersCount={ subscribersCount }
 										paidSubscribersCount={ paidSubscribersCount }
 										onChange={ setPostMeta }

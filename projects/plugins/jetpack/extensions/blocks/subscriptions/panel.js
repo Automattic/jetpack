@@ -100,7 +100,7 @@ export default function SubscribePanels() {
 			<AccessLevelSelectorPanel
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
-				followerCount={ followersCount }
+				followersCount={ followersCount }
 				subscribersCount={ subscribersCount }
 				paidSubscribersCount={ paidSubscribersCount }
 			/>
@@ -122,7 +122,7 @@ export default function SubscribePanels() {
 			<AccessLevelSelectorPanel
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
-				followerCount={ followersCount }
+				followersCount={ followersCount }
 				subscribersCount={ subscribersCount }
 				paidSubscribersCount={ paidSubscribersCount }
 			/>
