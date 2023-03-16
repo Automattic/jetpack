@@ -90,4 +90,15 @@ class Waf_Constants {
 			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
 		}
 	}
+
+	/**
+	 * Set the brute force protection's API host definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_brute_force_api_host() {
+		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) ) {
+			define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
+		}
+	}
 }
