@@ -26,7 +26,7 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
 /**
  * Sets up a new post as an answer to a blogging prompt.
  *
- * When we know a user is explicitly answering a prompt, we pre-populate the post meta to mark the post as a prompt response,
+ * When we know a user is explicitly answering a prompt, pre-populate the post meta to mark the post as a prompt response,
  * in case they decide to remove the block from the post content, preventing they meta from being added later.
  *
  * Called on `wp_insert_post` hook.
@@ -42,7 +42,7 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 		return;
 	}
 
-	// Prime the API cache and make sure the prompt exists.
+	// Make sure the prompt exists.
 	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
 
 	if ( $prompt ) {
