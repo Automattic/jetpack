@@ -75,33 +75,35 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 			onPress={ onPress }
 			disabled={ isInteractionDisabled }
 		>
-			<MediaUploadProgress
-				mediaId={ file?.id }
-				onFinishMediaUploadWithSuccess={ onUploadSuccess }
-				onFinishMediaUploadWithFailure={ onUploadFail }
-				onUpdateMediaProgress={ onUploadProgress }
-				onMediaUploadStateReset={ onUploadReset }
-				renderContent={ ( { retryMessage } ) => {
-					return (
-						<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
-							{ isUploadFailed ? (
-								<>
-									<View style={ retryIconContainerStyle }>
-										<Icon icon={ retryIcon } { ...iconStyle } />
+			<View>
+				<MediaUploadProgress
+					mediaId={ file?.id }
+					onFinishMediaUploadWithSuccess={ onUploadSuccess }
+					onFinishMediaUploadWithFailure={ onUploadFail }
+					onUpdateMediaProgress={ onUploadProgress }
+					onMediaUploadStateReset={ onUploadReset }
+					renderContent={ ( { retryMessage } ) => {
+						return (
+							<View style={ [ containerStyle, { aspectRatio: VIDEO_ASPECT_RATIO } ] }>
+								{ isUploadFailed ? (
+									<>
+										<View style={ retryIconContainerStyle }>
+											<Icon icon={ retryIcon } { ...iconStyle } />
+										</View>
+										<Text style={ style[ 'videopress-uploader__failed-text' ] }>
+											{ retryMessage }
+										</Text>
+									</>
+								) : (
+									<View style={ videoPressIconContainerStyle }>
+										<Icon icon={ VideoPressIcon } { ...iconStyle } />
 									</View>
-									<Text style={ style[ 'videopress-uploader__failed-text' ] }>
-										{ retryMessage }
-									</Text>
-								</>
-							) : (
-								<View style={ videoPressIconContainerStyle }>
-									<Icon icon={ VideoPressIcon } { ...iconStyle } />
-								</View>
-							) }
-						</View>
-					);
-				} }
-			/>
+								) }
+							</View>
+						);
+					} }
+				/>
+			</View>
 		</TouchableWithoutFeedback>
 	);
 };
