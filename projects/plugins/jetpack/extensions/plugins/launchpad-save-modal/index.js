@@ -38,9 +38,6 @@ export const settings = {
 			window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
-		const isNewsletter = siteIntentOption === 'newsletter';
-		const isNewsletterPostEditor = isNewsletter && isInsidePostEditor;
-		const isNewsletterSiteEditor = isNewsletter && isInsideSiteEditor;
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
@@ -59,40 +56,36 @@ export const settings = {
 			} );
 
 		function getModalContent() {
-			let modalBody;
+			const modalContent = {
+				title: __( 'Great progress!', 'jetpack' ),
+				body: __(
+					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
+					'jetpack'
+				),
+				actionButtonHref: launchPadUrl,
+				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
+				actionButtonText: __( 'Next Steps', 'jetpack' ),
+			};
 
-			if ( isNewsletter ) {
-				if ( isNewsletterPostEditor ) {
-					modalBody = __(
+			if ( siteIntentOption === 'newsletter' ) {
+				if ( isInsidePostEditor ) {
+					modalContent.title = __( 'Your first post is published!', 'jetpack' );
+					modalContent.body = __(
 						'Congratulations! You did it. View your post to see how it will look on your site.',
 						'jetpack'
 					);
-				} else if ( isNewsletterSiteEditor ) {
-					modalBody = __(
+					modalContent.actionButtonHref = postLink;
+					modalContent.actionButtonTracksEvent = 'jetpack_launchpad_save_modal_view_post';
+					modalContent.actionButtonText = __( 'View Post', 'jetpack' );
+				} else if ( isInsideSiteEditor ) {
+					modalContent.body = __(
 						'You are one step away from bringing your site to life. Check out the next steps that will help you to setup your newsletter.',
 						'jetpack'
 					);
 				}
-			} else {
-				modalBody = __(
-					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
-					'jetpack'
-				);
 			}
 
-			return {
-				title: isNewsletterPostEditor
-					? __( 'Your first post is published!', 'jetpack' )
-					: __( 'Great progress!', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
-				body: modalBody,
-				actionButtonHref: isNewsletterPostEditor ? postLink : launchPadUrl,
-				actionButtonTracksEvent: isNewsletterPostEditor
-					? 'jetpack_launchpad_save_modal_view_post'
-					: 'jetpack_launchpad_save_modal_next_steps',
-				actionButtonText: isNewsletterPostEditor
-					? __( 'View Post', 'jetpack' )
-					: __( 'Next Steps', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
-			};
+			return modalContent;
 		}
 
 		useEffect( () => {
