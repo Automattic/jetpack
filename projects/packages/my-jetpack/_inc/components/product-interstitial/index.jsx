@@ -63,20 +63,22 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback(
-		checkout => {
+		( checkout, clickedSlug ) => {
 			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
 
 			activateOrCheckout().finally( () => {
-				const product = select( STORE_ID ).getProduct( slug );
-				if ( bundle ) {
-					// Get straight to the checkout page.
-					checkout?.();
-					return;
-				}
+				const product = select( STORE_ID ).getProduct( clickedSlug );
+
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = product?.hasRequiredPlan;
 				const isFree = product?.pricingForUi?.isFree;
 				const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+				if ( bundle & ! needsPurchase ) {
+					// Get straight to the checkout page.
+					checkout?.();
+					return;
+				}
 
 				if ( postActivationUrl ) {
 					window.location.href = postActivationUrl;
@@ -91,7 +93,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
+		[ navigateToMyJetpackOverviewPage, activate, bundle ]
 	);
 
 	const onClickGoBack = useCallback(
