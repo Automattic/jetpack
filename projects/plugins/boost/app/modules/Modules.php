@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 use Automattic\Jetpack_Boost\Features\Image_Guide\Image_Guide;
 use Automattic\Jetpack_Boost\Features\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Lib\Setup;
+use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
@@ -123,6 +124,25 @@ class Modules implements Has_Setup {
 	 */
 	public function setup() {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
+		add_action( 'jetpack_ds_set', array( $this, 'on_ds_set' ), 10, 3 );
+	}
+
+	/**
+	 * Handle module status changes when the DS is set.
+	 *
+	 * @param string $namespace The namespace of the DS.
+	 * @param string $key The name of the DS entry
+	 * @param mixed $value The value of the DS entry
+	 */
+	public function on_ds_set( $namespace, $key, $value ) {
+		$pattern_matches = array();
+		if ( $namespace === JETPACK_BOOST_DATASYNC_NAMESPACE && preg_match( '/\Amodule_status_([a-z_]+)\z/', $key, $pattern_matches ) ) {
+			$module_slug = $pattern_matches[1];
+			if ( isset( $this->modules[ $module_slug ] ) ) {
+				$status = new Status( $module_slug );
+				$status->on_update( $value );
+			}
+		}
 	}
 
 	/**
