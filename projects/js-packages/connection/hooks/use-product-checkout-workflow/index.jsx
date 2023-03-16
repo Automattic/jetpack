@@ -1,9 +1,12 @@
 import restApi from '@automattic/jetpack-api';
 import { getProductCheckoutUrl } from '@automattic/jetpack-components';
 import { useDispatch } from '@wordpress/data';
+import debugFactory from 'debug';
 import { useEffect, useState } from 'react';
 import useConnection from '../../components/use-connection';
 import { STORE_ID } from '../../state/store.jsx';
+
+const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
 
 const {
 	registrationNonce,
@@ -31,6 +34,10 @@ export default function useProductCheckoutWorkflow( {
 	siteProductAvailabilityHandler = null,
 	from,
 } = {} ) {
+	debug( 'productSlug is %s', productSlug );
+	debug( 'redirectUrl is %s', redirectUrl );
+	debug( 'siteSuffix is %s', siteSuffix );
+	debug( 'from is %s', from );
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
 	const { registerSite } = useDispatch( STORE_ID );
 
@@ -46,14 +53,21 @@ export default function useProductCheckoutWorkflow( {
 		redirectUrl,
 		isUserConnected
 	);
+	debug( 'checkoutProductUrl is %s', checkoutProductUrl );
+	debug( 'isUserConnected is %s', isUserConnected );
 
 	const handleAfterRegistration = () => {
 		return Promise.resolve(
 			siteProductAvailabilityHandler && siteProductAvailabilityHandler()
 		).then( siteHasWpcomProduct => {
 			if ( siteHasWpcomProduct ) {
+				debug( 'handleAfterRegistration: Site has a product associated' );
 				return handleConnectUser();
 			}
+			debug(
+				'handleAfterRegistration: Site does not have a product associated. Redirecting to checkout %s',
+				checkoutProductUrl
+			);
 			window.location.href = checkoutProductUrl;
 		} );
 	};
