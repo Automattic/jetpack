@@ -8,18 +8,10 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 
-// phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound -- placeholder trait only needed in this endpoint. Should be moved to shared REST API file if ever needed for additional endpoints.
-if ( ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) && ! trait_exists( 'WPCOM_REST_API_V2_Jetpack_Auth_Trait' ) ) {
-	// Load placeholer trait when this code is not running on wpcom.
-	trait WPCOM_REST_API_V2_Jetpack_Auth_Trait {}
-}
-
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */
 class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controller {
-	use WPCOM_REST_API_V2_Jetpack_Auth_Trait;
-
 	const TEMPLATE_BLOG_ID = 205876834;
 
 	/**
@@ -405,16 +397,23 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function permissions_check() {
-		$is_jetpack_authorized = method_exists( $this, 'is_jetpack_authorized_for_site_filtered' ) && $this->is_jetpack_authorized_for_site_filtered();
-		if ( current_user_can( 'edit_posts' ) || $is_jetpack_authorized ) {
+		if ( current_user_can( 'edit_posts' ) ) {
 			return true;
 		}
 
-		return new WP_Error(
-			'rest_cannot_read_prompts',
-			__( 'Sorry, you are not allowed to access blogging prompts on this site.', 'jetpack' ),
-			array( 'status' => rest_authorization_required_code() )
-		);
+		// Allow "as blog" requests to wpcom so users without accounts can insert the Writing prompt block in the editor.
+		if ( $this->is_wpcom && is_jetpack_site( get_current_blog_id() ) ) {
+			if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+				require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+			}
+
+			$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+			if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
