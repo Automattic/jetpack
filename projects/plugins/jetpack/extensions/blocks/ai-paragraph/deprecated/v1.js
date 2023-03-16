@@ -1,5 +1,6 @@
 import { useBlockProps } from '@wordpress/block-editor';
 import { pasteHandler } from '@wordpress/blocks';
+import { RawHTML } from '@wordpress/element';
 
 export default {
 	attributes: {
@@ -15,7 +16,7 @@ export default {
 	},
 	save: ( { attributes: { content } } ) => {
 		const blockProps = useBlockProps.save();
-		return <div { ...blockProps }>{ content }</div>;
+		return <RawHTML { ...blockProps }>{ content }</RawHTML>;
 	},
 	migrate: ( { content } ) => {
 		const parsedBlocks = pasteHandler( {
