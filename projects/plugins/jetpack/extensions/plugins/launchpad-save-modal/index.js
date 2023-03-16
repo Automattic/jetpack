@@ -38,13 +38,15 @@ export const settings = {
 			window?.Jetpack_LaunchpadSaveModal || {};
 		const isInsideSiteEditor = document.getElementById( 'site-editor' ) !== null;
 		const isInsidePostEditor = document.querySelector( '.block-editor' ) !== null;
+		const isNewsletter = siteIntentOption === 'newsletter';
+		const isNewsletterPostEditor = isNewsletter && isInsidePostEditor;
+		const isNewsletterSiteEditor = isNewsletter && isInsideSiteEditor;
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
 		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
 			query: `siteSlug=${ siteFragment }`,
 		} );
-		const showNewsletterPostCopy = siteIntentOption === 'newsletter' && isInsidePostEditor;
 
 		const { tracks } = useAnalytics();
 
@@ -55,6 +57,43 @@ export const settings = {
 				dont_show_again: isChecked,
 				editor_type: isInsideSiteEditor ? 'site' : 'post',
 			} );
+
+		function getModalContent() {
+			let modalBody;
+
+			if ( isNewsletter ) {
+				if ( isNewsletterPostEditor ) {
+					modalBody = __(
+						'Congratulations! You did it. View your post to see how it will look on your site.',
+						'jetpack'
+					);
+				} else if ( isNewsletterSiteEditor ) {
+					modalBody = __(
+						'You are one step away from bringing your site to life. Check out the next steps that will help you to setup your newsletter.',
+						'jetpack'
+					);
+				}
+			} else {
+				modalBody = __(
+					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
+					'jetpack'
+				);
+			}
+
+			return {
+				title: isNewsletterPostEditor
+					? __( 'Your first post is published!', 'jetpack' )
+					: __( 'Great progress!', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
+				body: modalBody,
+				actionButtonHref: isNewsletterPostEditor ? postLink : launchPadUrl,
+				actionButtonTracksEvent: isNewsletterPostEditor
+					? 'jetpack_launchpad_save_modal_view_post'
+					: 'jetpack_launchpad_save_modal_next_steps',
+				actionButtonText: isNewsletterPostEditor
+					? __( 'View Post', 'jetpack' )
+					: __( 'Next Steps', 'jetpack', /* dummy arg to avoid bad minification */ 0 ),
+			};
+		}
 
 		useEffect( () => {
 			// We want to prevent the launchpad modal from rendering on top of the first
@@ -96,6 +135,14 @@ export const settings = {
 			}
 		}, [ isCurrentPostPublished ] );
 
+		const {
+			title,
+			body,
+			actionButtonHref,
+			actionButtonTracksEvent,
+			actionButtonText,
+		} = getModalContent();
+
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
@@ -120,22 +167,8 @@ export const settings = {
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
-							<h1 className="launchpad__save-modal-heading">
-								{ showNewsletterPostCopy
-									? __( 'Your first post is published!', 'jetpack' )
-									: __( 'Great progress!', 'jetpack' ) }
-							</h1>
-							<p className="launchpad__save-modal-message">
-								{ showNewsletterPostCopy
-									? __(
-											'Congratulations! You did it. View your post to see how it will look on your site.',
-											'jetpack'
-									  )
-									: __(
-											'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
-											'jetpack'
-									  ) }
-							</p>
+							<h1 className="launchpad__save-modal-heading">{ title }</h1>
+							<p className="launchpad__save-modal-message">{ body }</p>
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
@@ -156,19 +189,11 @@ export const settings = {
 								</Button>
 								<Button
 									variant="primary"
-									href={ showNewsletterPostCopy ? postLink : launchPadUrl }
-									onClick={ () =>
-										recordTracksEvent(
-											showNewsletterPostCopy
-												? 'jetpack_launchpad_save_modal_view_post'
-												: 'jetpack_launchpad_save_modal_next_steps'
-										)
-									}
+									href={ actionButtonHref }
+									onClick={ () => recordTracksEvent( actionButtonTracksEvent ) }
 									target="_top"
 								>
-									{ showNewsletterPostCopy
-										? __( 'View Post', 'jetpack' )
-										: __( 'Next Steps', 'jetpack' ) }
+									{ actionButtonText }
 								</Button>
 							</div>
 						</div>
