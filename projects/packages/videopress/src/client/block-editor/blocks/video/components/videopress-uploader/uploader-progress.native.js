@@ -37,6 +37,10 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 		style[ 'videopress-uploader__icon' ],
 		style[ 'videopress-uploader__icon--dark' ]
 	);
+	const retryUploadTextStyle = usePreferredColorSchemeStyle(
+		style[ 'videopress-uploader__retry-upload-text' ],
+		style[ 'videopress-uploader__retry-upload-text--dark' ]
+	);
 
 	const [ isUploadFailed, setIsUploadFailed ] = useState( false );
 
@@ -90,9 +94,7 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 										<View style={ retryIconContainerStyle }>
 											<Icon icon={ retryIcon } { ...iconStyle } />
 										</View>
-										<Text style={ style[ 'videopress-uploader__failed-text' ] }>
-											{ retryMessage }
-										</Text>
+										<Text style={ retryUploadTextStyle }>{ retryMessage }</Text>
 									</>
 								) : (
 									<View style={ videoPressIconContainerStyle }>

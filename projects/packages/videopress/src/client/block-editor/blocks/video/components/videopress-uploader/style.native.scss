@@ -32,13 +32,16 @@
 
 .videopress-uploader__icon--dark {
 	fill: $gray-70;
-	width: 100%;
-	height: 100%;
 }
 
-.videopress-uploader__failed-text {
+.videopress-uploader__retry-upload-text {
 	color: $gray-dark;
 	font-size: 14;
 	margin-top: 5;
 	text-align: center;
 }
+
+.videopress-uploader__retry-upload-text--dark {
+	color: $white;
+}
+
