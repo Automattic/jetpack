@@ -191,7 +191,7 @@ const getVideo = {
 		return video;
 	},
 
-	fulfill: id => async ( { dispatch, resolveSelect } ) => {
+	fulfill: ( id, addAtEnd = false ) => async ( { dispatch, resolveSelect } ) => {
 		dispatch.setIsFetchingVideos( true );
 
 		try {
@@ -204,7 +204,7 @@ const getVideo = {
 				dispatch
 			);
 
-			dispatch.setVideo( mappedVideoData );
+			dispatch.setVideo( mappedVideoData, addAtEnd );
 			return video;
 		} catch ( error ) {
 			console.error( error ); // eslint-disable-line no-console

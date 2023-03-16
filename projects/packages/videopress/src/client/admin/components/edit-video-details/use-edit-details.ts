@@ -106,7 +106,8 @@ export default () => {
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
 	const { data: video, isFetching, processing, isDeleting, updateVideoPrivacy } = useVideo(
-		Number( videoId )
+		Number( videoId ),
+		true
 	);
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
