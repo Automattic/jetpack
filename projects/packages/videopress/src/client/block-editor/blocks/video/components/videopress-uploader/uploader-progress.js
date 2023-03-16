@@ -181,7 +181,7 @@ const UploaderProgress = ( {
 	 * wait for some time and then release the "Done" button.
 	 */
 	useEffect( () => {
-		if ( uploadedVideoData && ! isFinishingUpdate ) {
+		if ( uploadedVideoData && ! isFinishingUpdate && isProcessing ) {
 			debug( 'Waiting for some time before enabling the DONE button...' );
 			setTimeout( () => {
 				debug( 'Done, enabling the DONE button now...' );
