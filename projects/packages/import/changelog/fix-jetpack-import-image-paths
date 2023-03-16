@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix attachments path for import media endpoint
