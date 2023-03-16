@@ -17,7 +17,7 @@ import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
 
-const VideoPressUploader = ( { handleDoneUpload } ) => {
+const VideoPressUploader = ( { autoOpenMediaUpload, handleDoneUpload, onFocus } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
@@ -72,7 +72,8 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-			autoOpenMediaUpload
+			autoOpenMediaUpload={ autoOpenMediaUpload }
+			onFocus={ onFocus }
 		/>
 	);
 };
