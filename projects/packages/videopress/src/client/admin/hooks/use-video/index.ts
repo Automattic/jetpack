@@ -57,7 +57,7 @@ export default function useVideo( id: number | string ) {
 		deleteVideo: () => dispatch.deleteVideo( id ),
 
 		updateVideoPrivacy: ( level: string ) => {
-			dispatch.updateVideoPrivacy(
+			return dispatch.updateVideoPrivacy(
 				id,
 				VIDEO_PRIVACY_LEVELS.findIndex( l => l === level )
 			);
