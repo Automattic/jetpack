@@ -239,8 +239,6 @@ class Jetpack_Connection_Banner {
 			JETPACK__VERSION
 		);
 
-		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
-
 		$tracking = new Automattic\Jetpack\Tracking();
 		$identity = $tracking->tracks_get_identity( get_current_user_id() );
 
