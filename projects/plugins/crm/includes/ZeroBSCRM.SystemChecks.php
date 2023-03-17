@@ -123,12 +123,11 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	}
 
 	function zeroBSCRM_checkSystemFeat_corever($withInfo=false){
+		global $zbs;
 
 		if (!$withInfo)
-			return true;
+			return $zbs->version;
 		else {
-
-			global $zbs;
 
 			$enabled = true;
 			$enabledStr = 'Version ' . $zbs->version;
@@ -138,12 +137,11 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	}
 
 	function zeroBSCRM_checkSystemFeat_dbver($withInfo=false){
+		global $zbs;
 
 		if (!$withInfo)
-			return true;
+			return $zbs->db_version;
 		else {
-
-			global $zbs;
 
 			$enabled = true;
 			$enabledStr = 'Database Version ' . $zbs->db_version;
@@ -153,12 +151,11 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	}
 
 	function zeroBSCRM_checkSystemFeat_dalver($withInfo=false){
+		global $zbs;
 
 		if (!$withInfo)
-			return true;
+			return $zbs->dal_version;
 		else {
-
-			global $zbs;
 
 			$enabled = true;
 			$enabledStr = 'Data Access Layer Version ' . $zbs->dal_version;
@@ -170,7 +167,7 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	function zeroBSCRM_checkSystemFeat_phpver($withInfo=false){
 
 		if (!$withInfo)
-			return true;
+			return PHP_VERSION;
 		else {
 
 			$enabled = true;
@@ -181,12 +178,11 @@ function zeroBSCRM_checkSystemFeat( $key = '', $with_info = false ) {
 	}
 
 	function zeroBSCRM_checkSystemFeat_wordpressver($withInfo=false){
+		global $wp_version;
 
 		if (!$withInfo)
-			return true;
+			return $wp_version;
 		else {
-
-			global $wp_version;
 
 			$enabled = true;
 			$enabledStr = sprintf(__("WordPress Version %s", 'zero-bs-crm'), $wp_version);
