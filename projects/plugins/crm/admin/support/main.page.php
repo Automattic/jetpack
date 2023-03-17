@@ -44,7 +44,7 @@ if ( $has_license ) {
 
 	foreach ( $system_check_list as $key => $name ) {
 		$result             = zeroBSCRM_checkSystemFeat( $key );
-		$site_data[ $name ] = ( $result === 1 ? 'yes' : $result );
+		$site_data[ $name ] = ( $result === true ? 'yes' : $result );
 	}
 
 	// --- Migration data ---//
@@ -69,7 +69,7 @@ if ( $has_license ) {
 			$migration      = jpcrm_migrations_get_migration( $migration_key )[1];
 			$last_migration = $migration_key;
 
-			if ( $migration['completed'] === 0 ) {
+			if ( $migration['completed'] === false ) {
 				$site_data['Migrations'] .= " | $migration_key !!!";
 			}
 		}
@@ -103,7 +103,7 @@ if ( $has_license ) {
 	foreach ( $server_env_list as $env_key => $env_name ) {
 		$result = zeroBSCRM_checkSystemFeat( $env_key );
 
-		if ( $result === 1 ) {
+		if ( $result === true ) {
 			$result = 'yes';
 		} elseif ( is_array( $result ) ) {
 			$result = wp_json_encode( $result );
