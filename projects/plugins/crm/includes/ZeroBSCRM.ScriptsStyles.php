@@ -847,6 +847,16 @@ function jpcrm_crm_resources_page_styles_scripts() {
 
 }
 
+/**
+ * Styles and scripts for support page
+ */
+function jpcrm_support_page_styles_scripts() {
+
+	$file_css      = 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css';
+	$file_modified = filemtime( plugin_dir_path( ZBS_ROOTFILE ) . $file_css );
+
+	wp_enqueue_style( 'jpcrm-support-page', plugins_url( $file_css, ZBS_ROOTFILE ), array(), $file_modified );
+}
 
 // used in form templates & shortcode outputted forms.
 // https://wordpress.stackexchange.com/questions/165754/enqueue-scripts-styles-when-shortcode-is-present
