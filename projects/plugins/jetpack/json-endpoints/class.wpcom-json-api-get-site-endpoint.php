@@ -78,6 +78,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
 		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
 		'user_interactions'           => '(array) An array of user interactions with a site.',
+		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
 	);
 
 	/**
@@ -222,6 +223,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_migration',
 		'site_owner',
 		'is_wpcom_staging_site',
+		'was_ecommerce_trial',
 	);
 
 	/**
@@ -570,6 +572,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'p2_thumbnail_elements':
 				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
+				break;
+			case 'was_ecommerce_trial':
+				$response[ $key ] = $this->site->was_ecommerce_trial();
 				break;
 		}
 

@@ -251,16 +251,16 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_blocks_scripts' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_editor_scripts' ) );
+		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
 	/**
 	 * Loads the Form blocks scripts.
 	 */
-	public static function load_blocks_scripts() {
+	public static function load_editor_scripts() {
 		Assets::register_script(
 			'jp-forms-blocks',
 			'../../dist/blocks/editor.js',
@@ -274,28 +274,34 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Enqueue scripts responsible for handling contact form styles.
+	 * Enqueue scripts responsible for handling contact form view scripts.
 	 */
-	private static function enqueue_contact_forms_style_script() {
-		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
+	private static function load_view_scripts() {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
 
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			\JETPACK__VERSION,
-			true
+		Assets::register_script(
+			'jp-forms-view',
+			'../../dist/blocks/view.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+			)
 		);
 	}
 
 	/**
-	 * Prevent 'contact-form-styles' script from being concatenated.
+	 * Prevent 'jp-forms-view' script from being concatenated.
 	 *
 	 * @param array  $do_concat - the concatenation flag.
 	 * @param string $handle - script name.
 	 */
-	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+	public static function disable_forms_view_script_concat( $do_concat, $handle ) {
+		if ( 'jp-forms-view' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -418,6 +424,8 @@ class Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack-forms' )
 			);
 		}
+
+		self::load_view_scripts();
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}

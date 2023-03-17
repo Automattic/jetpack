@@ -21,6 +21,11 @@ class Status {
 	 */
 	protected $status_sync_map;
 
+	/**
+	 * @var Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry $ds
+	 */
+	protected $ds;
+
 	public function __construct( $slug ) {
 		$this->slug = $slug;
 
@@ -29,10 +34,16 @@ class Status {
 				Critical_CSS::get_slug(),
 			),
 		);
+
+		$this->ds = jetpack_boost_ds( $this->get_ds_entry_name() );
+	}
+
+	public function get_ds_entry_name() {
+		return 'module_status_' . str_replace( '-', '_', $this->slug );
 	}
 
 	public function is_enabled() {
-		return '1' === get_option( $this->get_option_name( $this->slug ) );
+		return $this->ds->get();
 	}
 
 	public function update( $new_status ) {
@@ -44,7 +55,7 @@ class Status {
 		 */
 		do_action( 'jetpack_boost_before_module_status_update', $this->slug, (bool) $new_status );
 
-		if ( update_option( $this->get_option_name( $this->slug ), (bool) $new_status ) ) {
+		if ( $this->ds->set( $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
 
 			// Only record analytics event if the config update succeeds.
@@ -64,10 +75,6 @@ class Status {
 		return false;
 	}
 
-	protected function get_option_name( $module_slug ) {
-		return 'jetpack_boost_status_' . $module_slug;
-	}
-
 	/**
 	 * Update modules which are to follow the status of the current module.
 	 *
@@ -82,7 +89,7 @@ class Status {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			update_option( $this->get_option_name( $mapped_module ), (bool) $new_status );
+			jetpack_boost_ds_set( 'module_status_' . $mapped_module, $new_status );
 		}
 	}
 
