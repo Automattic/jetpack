@@ -397,9 +397,11 @@ final class ZeroBSCRM {
 			'id'    => array(),
 		),
 		'a'          => array(
-			'href'  => array(),
-			'title' => array(),
+			'href'   => array(),
+			'title'  => array(),
+			'target' => array(),
 		),
+		'b'          => array(),
 		'br'         => array(),
 		'em'         => array(),
 		'strong'     => array(),
