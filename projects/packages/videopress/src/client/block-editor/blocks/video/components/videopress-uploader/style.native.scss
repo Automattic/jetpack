@@ -1,0 +1,18 @@
+.videopress-uploader__container {
+	flex-grow: 1;
+	justify-content: center;
+	align-items: center;
+	background-color: $gray-light;
+}
+
+.videopress-uploader__container--dark {
+	background-color: $gray-90;
+}
+
+.videopress-uploader__icon {
+	fill: $gray-lighten-20;
+}
+
+.videopress-uploader__icon--dark {
+	fill: $gray-70;
+}

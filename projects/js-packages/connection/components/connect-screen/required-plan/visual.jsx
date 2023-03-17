@@ -1,10 +1,13 @@
 import { ActionButton, PricingCard, TermsOfService } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
+
+const debug = debugFactory( 'jetpack:connection:ConnectScreenRequiredPlanVisual' );
 
 /**
  * The Connection Screen Visual component for consumers that require a Plan.
@@ -29,6 +32,8 @@ const ConnectScreenRequiredPlanVisual = props => {
 		buttonIsLoading,
 		logo,
 	} = props;
+
+	debug( 'props are %o', props );
 
 	const withSubscription = createInterpolateElement(
 		__( 'Already have a subscription? <connectButton/>', 'jetpack' ),
