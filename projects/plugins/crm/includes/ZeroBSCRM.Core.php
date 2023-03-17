@@ -878,10 +878,11 @@ final class ZeroBSCRM {
 		// Urls
 		$this->urls['home']              = 'https://jetpackcrm.com';
 		$this->urls['kb']                = 'https://kb.jetpackcrm.com';
-		$this->urls['support']           = 'https://kb.jetpackcrm.com/submit-a-ticket/';
-		$this->urls['feedback']          = 'https://kb.jetpackcrm.com/submit-a-ticket/';
+		$this->urls['support']           = 'https://kb.jetpackcrm.com/crm-support/';
+		$this->urls['feedback']          = 'https://kb.jetpackcrm.com/crm-support/';
 		$this->urls['pricing']           = 'https://jetpackcrm.com/pricing/';
 		$this->urls['usagetrackinginfo'] = 'https://jetpackcrm.com/usage-tracking/';
+		$this->urls['support-forum']     = 'https://wordpress.org/support/plugin/zero-bs-crm';
 
 		// WLREMOVE
 		$this->urls['betafeedbackemail'] = 'hello@jetpackcrm.com'; // SPECIFICALLY ONLY USED FOR FEEDBACK ON BETA RELEASES, DO NOT USE ELSEWHERE
