@@ -4,7 +4,6 @@ import {
 	JetpackPage,
 	JetpackMyPlanPage,
 	RecommendationsPage,
-	JetpackDashboardPage,
 } from '../pages/wp-admin/index.js';
 import {
 	AuthorizePage,
@@ -28,7 +27,7 @@ export async function doClassicConnection( page, plan = 'free' ) {
 
 	if ( plan === 'free' ) {
 		await ( await CompletePage.init( page ) ).select( 'free' );
-		await JetpackDashboardPage.init( page );
+		await RecommendationsPage.init( page );
 	} else {
 		await ( await CompletePage.init( page ) ).viewProducts();
 		await ( await PickAPlanPage.init( page ) ).select( plan );
