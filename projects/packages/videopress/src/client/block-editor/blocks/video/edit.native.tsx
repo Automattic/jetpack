@@ -46,7 +46,12 @@ export default function VideoPressEdit( {
 	);
 
 	if ( isUploadingFile ) {
-		return <VideoPressUploader handleDoneUpload={ handleDoneUpload } />;
+		return (
+			<VideoPressUploader
+				handleDoneUpload={ handleDoneUpload }
+				isInteractionDisabled={ ! isSelected }
+			/>
+		);
 	}
 
 	return (
