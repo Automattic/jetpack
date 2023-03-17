@@ -1121,16 +1121,18 @@ class jpcrm_templating_placeholders {
 				// cycle through object model & add fields
 				foreach ( $object_model as $field_index => $field_info ) {
 
-					// catching legacy secondary address contact field issues
-					$secondary_address_array = array( 'secaddr1', 'secaddr2', 'seccity', 'seccounty', 'secpostcode', 'seccountry' );
-					if ( 'contact' === $object_type_key && in_array( $field_index, $secondary_address_array, true ) ) {
-						$field_index = str_replace( 'sec', 'secaddr_', $field_index );
-					}
-
 					// deal with exclusions
 					if ( !in_array( $field_index, $excluded_slugs ) ) {
 
-						$new_key =  str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						// catching legacy secondary address contact field issues
+						$secondary_address_array = array( 'secaddr1', 'secaddr2', 'seccity', 'seccounty', 'secpostcode', 'seccountry' );
+						if ( 'contact' === $object_type_key && in_array( $field_index, $secondary_address_array, true ) ) {
+							$field_index = str_replace( 'sec', 'secaddr_', $field_index );
+							$new_key     = $object_type_key . '-' . $field_index;
+						} else {
+							$new_key = str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						}
+
 						$expected_format = '';
 
 						// add if not present
