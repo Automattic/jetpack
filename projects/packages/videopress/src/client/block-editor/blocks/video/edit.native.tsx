@@ -45,8 +45,14 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
+	const onStartUpload = useCallback( media => {
+		setAttributes( { id: media.id } );
+	}, [] );
+
 	if ( isUploadingFile ) {
-		return <VideoPressUploader handleDoneUpload={ handleDoneUpload } />;
+		return (
+			<VideoPressUploader handleDoneUpload={ handleDoneUpload } onStartUpload={ onStartUpload } />
+		);
 	}
 
 	return (

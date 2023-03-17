@@ -17,7 +17,7 @@ import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
 
-const VideoPressUploader = ( { handleDoneUpload } ) => {
+const VideoPressUploader = ( { handleDoneUpload, onStartUpload } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
@@ -44,6 +44,7 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 			if ( isUploadingFile ) {
 				setFile( media );
 				setIsUploadingInProgress( true );
+				onStartUpload( media );
 				return;
 			}
 
