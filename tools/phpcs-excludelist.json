@@ -270,7 +270,6 @@
 	"projects/plugins/crm/modules/woo-sync/includes/segment-conditions/class-segment-condition-woo-customer.php",
 	"projects/plugins/crm/modules/woo-sync/includes/segment-conditions/class-segment-condition-woo-order-count.php",
 	"projects/plugins/crm/modules/woo-sync/jpcrm-woo-sync-init.php",
-	"projects/plugins/crm/modules/zapier/class-jpcrm-zapier.php",
 	"projects/plugins/crm/public/forms/form-content.php",
 	"projects/plugins/crm/public/forms/form-naked.php",
 	"projects/plugins/crm/public/forms/form-simple.php",
