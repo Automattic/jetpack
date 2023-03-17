@@ -136,6 +136,7 @@ class JPCRM_Acceptance extends WPBrowser {
 		$this->slugs['extensions']   = 'zerobscrm-extensions';
 		// $this->slugs['export']          = "zerobscrm-export";         // <<< 403 Forbidden
 		$this->slugs['systemstatus'] = 'zerobscrm-systemstatus';
+		$this->slugs['support']      = 'jpcrm-support';
 		// $this->slugs['sync']            = "zerobscrm-sync";           // <<< 403 Forbidden
 		// These don't seem to be used anymore?
 		// $this->slugs['connect']           = "zerobscrm-connect";
