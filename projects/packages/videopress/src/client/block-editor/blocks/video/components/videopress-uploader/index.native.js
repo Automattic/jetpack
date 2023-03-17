@@ -17,7 +17,7 @@ import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
 
-const VideoPressUploader = ( { handleDoneUpload } ) => {
+const VideoPressUploader = ( { handleDoneUpload, isInteractionDisabled } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
@@ -59,8 +59,19 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 		[ onSelectURL ]
 	);
 
+	const onResetUpload = useCallback( () => {
+		setIsUploadingInProgress( false );
+	}, [] );
+
 	if ( isUploadingInProgress ) {
-		return <UploadProgress file={ uploadFile } onDone={ handleDoneUpload } />;
+		return (
+			<UploadProgress
+				file={ uploadFile }
+				onDone={ handleDoneUpload }
+				onReset={ onResetUpload }
+				isInteractionDisabled={ isInteractionDisabled }
+			/>
+		);
 	}
 
 	return (
