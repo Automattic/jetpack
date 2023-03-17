@@ -96,7 +96,7 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Load the widget footer showing Protect and Akismet stats.
+	 * Load the widget footer showing brute force protection and Akismet stats.
 	 */
 	public static function render_footer() {
 		?>
@@ -138,7 +138,7 @@ class Jetpack_Stats_Dashboard_Widget {
 					<p class="blocked-count">
 						<?php echo esc_html( number_format_i18n( get_option( 'akismet_spam_count', 0 ) ) ); ?>
 					</p>
-					<p><?php echo esc_html_x( 'Blocked spam comments.', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+					<p><?php echo esc_html_x( 'Blocked spam comments', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
 				<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
 					<a href="
 					<?php
