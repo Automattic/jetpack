@@ -113,7 +113,7 @@ function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	$locale = get_locale();
 	$route  = sprintf( '/wpcom/v3/blogging-prompts/%d', $prompt_id );
 
-	$request = new WP_REST_Request( Requests::GET, $route );
+	$request = new WP_REST_Request( 'GET', $route );
 	$request->set_param( '_locale', $locale );
 	$response = rest_do_request( $request );
 
