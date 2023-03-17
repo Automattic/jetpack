@@ -2,6 +2,7 @@ import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
@@ -28,7 +29,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: getCategoryWithFallbacks( 'text' ),
 	keywords: [
 		_x( 'writing', 'block search term', 'jetpack' ),
 		_x( 'blogging', 'block search term', 'jetpack' ),
