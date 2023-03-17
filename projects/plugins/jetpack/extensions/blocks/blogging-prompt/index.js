@@ -6,7 +6,7 @@ import edit from './edit';
 import avatar1 from './example-avatars/avatar1.jpg';
 import avatar2 from './example-avatars/avatar2.jpg';
 import avatar3 from './example-avatars/avatar3.jpg';
-import icon from './icon';
+import Icon from './icon.svg?component';
 import save from './save';
 
 /**
@@ -21,7 +21,7 @@ export const settings = {
 	title,
 	description: __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ),
 	icon: {
-		src: icon,
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: getCategoryWithFallbacks( 'text' ),

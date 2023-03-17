@@ -119,6 +119,7 @@
 		"@babel/plugin-transform-runtime": "7.19.6",
 		"@babel/preset-env": "7.20.2",
 		"@babel/runtime": "7.20.13",
+		"@svgr/webpack": "6.5.1",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
