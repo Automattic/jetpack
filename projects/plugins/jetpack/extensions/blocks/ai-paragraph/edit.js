@@ -8,15 +8,11 @@ import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
-import classNames from 'classnames';
-import { STATE as AI_BLOCK_STATE } from './attributes';
+import { deriveStates, STATE as AI_BLOCK_STATE, UNTRIGGERED_STATES } from './state';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
-
-const is_untriggered = state => state === AI_BLOCK_STATE.DEFAULT;
-const is_triggered = state => state !== AI_BLOCK_STATE.DEFAULT;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
@@ -74,12 +70,42 @@ export const createPrompt = (
 
 export default function Edit( { attributes: { state }, setAttributes, clientId } ) {
 	const [ content, setContent ] = useState( '' );
-	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
-	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
+
+	/**
+	 * Set the state of the block.
+	 *
+	 * Setting the state to ERROR or RETRY will set the error message, but RETRY
+	 * also adds the RETRY button to the error message.
+	 *
+	 * DEFAULT is the initial state.
+	 * PROCESSING is for when the block is waiting for the AI to respond.
+	 * RENDERING is after the AI has responded and the block is animating the response.
+	 * DONE after content is rendered.
+	 *
+	 * @param {string} _state - The state to set.
+	 * @param {string|false} _errorMessage - The error message to set.
+	 */
+	const setState = useCallback(
+		( _state = AI_BLOCK_STATE.RETRY, _errorMessage = false ) => {
+			setAttributes( { state: _state } );
+			setErrorMessage( _errorMessage );
+		},
+		[ setAttributes ]
+	);
+	/**
+	 * isError: true if the block is in an error state.
+	 * isTriggered: if OpenAI request has been made.
+	 * isDoneLoading: if loading & rendering is done.
+	 * isWaitingForAI: if OpenAI request is in progress.
+	 * isReadyToRetry: if the block is in an error state and can be retried.
+	 */
+	const { isError, isTriggered, isDoneLoading, isWaitingForAI, isReadyToRetry } = deriveStates(
+		state
+	);
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -152,20 +178,31 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		const blockName = 'jetpack/' + aiParagraphBlockName;
 		return (
 			contentBefore.filter(
-				block => block.name && block.name === blockName && is_untriggered( block.attributes.state )
+				block =>
+					block.name &&
+					block.name === blockName &&
+					UNTRIGGERED_STATES.includes( block.attributes.state )
 			).length > 0
 		);
 	}, [ contentBefore ] );
 
+	// Waiting state means there is nothing to be done until it resolves
+	const isWaitingState = isWaitingForAI || isLoadingCategories;
+
+	// Content is loading/loaded (i.e. processing, rendering, done).
+	const contentIsLoaded = isTriggered;
+
+	// We do nothing if we are waiting for stuff OR if the content is already loaded.
+	const noLogicNeeded = contentIsLoaded || isWaitingState;
+
 	const getSuggestionFromOpenAI = useCallback( () => {
-		if ( !! content || isLoadingCompletion || is_triggered( state ) ) {
+		if ( noLogicNeeded ) {
 			return;
 		}
 
-		setShowRetry( false );
-		setErrorMessage( false );
+		// Reset all the error handling.
+		setState( AI_BLOCK_STATE.PROCESSING );
 		setNeedsMoreCharacters( false );
-		setIsLoadingCompletion( true );
 
 		const data = {
 			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
@@ -175,94 +212,85 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 			post_id: postId,
 		} );
 
-		setAttributes( { state: AI_BLOCK_STATE.PROCESSING } );
-
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
 			method: 'POST',
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim();
+				const result = res.trim();
 				setContent( result );
-				setAttributes( { state: AI_BLOCK_STATE.RENDERING } );
-				setIsLoadingCompletion( false );
+				setState( AI_BLOCK_STATE.RENDERING );
 			} )
 			.catch( e => {
 				if ( e.message ) {
-					setErrorMessage( e.message ); // Message was already translated by the backend
+					setState( AI_BLOCK_STATE.RETRY, e.message ); // Message was already translated by the backend
 				} else {
-					setErrorMessage(
+					setState(
+						AI_BLOCK_STATE.RETRY,
 						__(
 							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
 							'jetpack'
 						)
 					);
 				}
-				setShowRetry( true );
-				setIsLoadingCompletion( false );
 			} );
 	}, [
-		content,
-		isLoadingCompletion,
-		state,
-		currentPostTitle,
-		contentBefore,
 		categoryNames,
+		contentBefore,
+		currentPostTitle,
+		noLogicNeeded,
+		postId,
+		setState,
 		tagNames,
 		tracks,
-		postId,
-		setAttributes,
 	] );
 
-	// Waiting state means there is nothing to be done until it resolves
-	const isWaitingState = isLoadingCompletion || isLoadingCategories;
-
-	// Content is loaded
-	const contentIsLoaded = is_triggered( state ) || !! content;
-
-	// We do nothing if we are waiting for stuff OR if the content is already loaded.
-	const noLogicNeeded = contentIsLoaded || isWaitingState;
-
+	// This effect is like the main event loop for the block.
+	//
+	// As state changes, this block evaluates what needs to change. A default
+	// state falls through to the bottom and triggers the OpenAI request.
 	useEffect( () => {
-		if ( ! noLogicNeeded ) {
-			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
+		if ( noLogicNeeded ) {
+			return;
+		}
+		const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
-			if ( containsAiUntriggeredParagraph() ) {
-				setErrorMessage(
-					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-				);
-			} else if ( ! prompt ) {
-				setErrorMessage(
-					/** translators: First placeholder is a number of more characters we need */
-					__(
-						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
-						'jetpack'
-					)
-				);
-				setNeedsMoreCharacters( true );
-			} else if ( needsMoreCharacters ) {
-				setErrorMessage(
-					/** translators: This is to retry to complete the text */
-					__( 'Ready to retry', 'jetpack' )
-				);
-				setShowRetry( true );
-				setNeedsMoreCharacters( false );
-			} else if ( ! needsMoreCharacters && ! showRetry ) {
-				getSuggestionFromOpenAI();
-			}
+		if ( containsAiUntriggeredParagraph() ) {
+			setState(
+				AI_BLOCK_STATE.ERROR,
+				/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+				__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+			);
+		} else if ( ! prompt ) {
+			setState(
+				AI_BLOCK_STATE.ERROR,
+				/** translators: First placeholder is a number of more characters we need */
+				__(
+					'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
+					'jetpack'
+				)
+			);
+			setNeedsMoreCharacters( true );
+		} else if ( needsMoreCharacters ) {
+			/** translators: This is to retry to complete the text */
+			setState( AI_BLOCK_STATE.RETRY, __( 'Ready to retry', 'jetpack' ) );
+			setNeedsMoreCharacters( false );
+		} else if ( state === AI_BLOCK_STATE.DEFAULT ) {
+			getSuggestionFromOpenAI();
 		}
 	}, [
-		currentPostTitle,
-		contentBefore,
 		categoryNames,
-		tagNames,
-		noLogicNeeded,
-		needsMoreCharacters,
-		showRetry,
 		containsAiUntriggeredParagraph,
+		contentBefore,
+		currentPostTitle,
 		getSuggestionFromOpenAI,
+		isReadyToRetry,
+		needsMoreCharacters,
+		noLogicNeeded,
+		setState,
+		state,
+		tagNames,
 	] );
 
 	const { replaceInnerBlocks } = useDispatch( 'core/block-editor' );
@@ -300,19 +328,18 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 		}, 50 * tokens.length );
 	}, [ state, content ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
-	// Used for styling the block in the editor.
-	const classes = classNames( `state-${ state }` );
-	const blockProps = useBlockProps( {
-		className: classes,
-	} );
+	const blockProps = useBlockProps();
 
 	return (
 		<div { ...blockProps }>
-			<InnerBlocks />
+			{ isDoneLoading && ! isError && <InnerBlocks /> }
 
-			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
-				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
-					{ showRetry && (
+			{ isError && (
+				<Placeholder
+					label={ __( 'AI Paragraph', 'jetpack' ) }
+					instructions={ errorMessage || __( 'Oops! Bad bots!', 'jetpack' ) }
+				>
+					{ ( ! errorMessage || isReadyToRetry ) && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
@@ -320,7 +347,7 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 				</Placeholder>
 			) }
 
-			{ ! content && isWaitingState && (
+			{ isWaitingForAI && ! isError && (
 				<div style={ { padding: '10px', textAlign: 'center' } }>
 					<Spinner
 						style={ {

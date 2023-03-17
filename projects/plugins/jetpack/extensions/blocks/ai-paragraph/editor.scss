@@ -2,9 +2,3 @@
  * Editor styles for Jetpack AI Paragraph
  */
 
- /* Hide the inner blocks until the AI paragraph is triggered */
-.wp-block-jetpack-ai-paragraph.state- .block-editor-inner-blocks,
-.wp-block-jetpack-ai-paragraph.state-processing .block-editor-inner-blocks
-{
-	display: none;
-}
