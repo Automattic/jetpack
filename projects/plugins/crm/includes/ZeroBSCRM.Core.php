@@ -1003,6 +1003,7 @@ final class ZeroBSCRM {
 		$this->slugs['welcome']      = 'zerobscrm-welcome';
 		$this->slugs['feedback']     = 'zerobscrm-feedback';
 		$this->slugs['crmresources'] = 'jpcrm-resources';
+		$this->slugs['support']      = 'jpcrm-support';
 		$this->slugs['extensions']   = 'zerobscrm-extensions';
 		$this->slugs['modules']      = 'zerobscrm-modules';
 		$this->slugs['export']       = 'zerobscrm-export';
