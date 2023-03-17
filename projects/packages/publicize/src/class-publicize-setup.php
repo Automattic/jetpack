@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
+
 /**
  * The class to configure and initialize the publicize package.
  */
@@ -47,6 +49,9 @@ class Publicize_Setup {
 		add_action( 'rest_api_init', array( new Social_Image_Generator\REST_Token_Controller(), 'register_routes' ) );
 
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
+
+		add_action( 'admin_init', array( static::class, 'init_social_image_generator' ) );
+		add_action( 'jetpack_heartbeat', array( static::class, 'refresh_plan_data' ) );
 	}
 
 	/**
@@ -97,11 +102,18 @@ class Publicize_Setup {
 	public static function init_social_image_generator() {
 		global $publicize;
 
-		if ( ! $publicize->is_social_image_generator_enabled( self::get_blog_id() ) ) {
+		if ( ! $publicize->is_social_image_generator_enabled() ) {
 			return;
 		}
 
 		$sig = new Social_Image_Generator\Setup();
 		$sig->init();
+	}
+
+	/**
+	 * Refreshess the plan data.
+	 */
+	public static function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
 	}
 }
