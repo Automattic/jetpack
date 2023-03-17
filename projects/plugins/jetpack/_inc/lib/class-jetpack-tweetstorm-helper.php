@@ -1649,7 +1649,7 @@ class Jetpack_Tweetstorm_Helper {
 		$requests = array_filter( $requests );
 
 		// Remove this check once WordPress 6.2 is the minimum supported version.
-		if ( version_compare( $wp_version, '6.2', '<' ) ) {
+		if ( version_compare( $wp_version, '6.2-alpha', '<' ) ) {
 			$hooks = new Requests_Hooks();
 		} else {
 			$hooks = new \WpOrg\Requests\Hooks();
@@ -1661,7 +1661,7 @@ class Jetpack_Tweetstorm_Helper {
 		);
 
 		// Remove this check once WordPress 6.2 is the minimum supported version.
-		$results = version_compare( $wp_version, '6.2', '<' )
+		$results = version_compare( $wp_version, '6.2-alpha', '<' )
 			? Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
 			: \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
 
@@ -1744,7 +1744,7 @@ class Jetpack_Tweetstorm_Helper {
 
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
 			// Remove this check once WordPress 6.2 is the minimum supported version.
-			if ( version_compare( $wp_version, '6.2', '<' ) ) {
+			if ( version_compare( $wp_version, '6.2-alpha', '<' ) ) {
 				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 			}
 			throw new \WpOrg\Requests\Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
