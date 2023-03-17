@@ -913,6 +913,7 @@ final class ZeroBSCRM {
 		$this->urls['api']           = 'https://app.jetpackcrm.com/api/updates/updates';
 		$this->urls['apilocalcheck'] = 'https://app.jetpackcrm.com/api/updates/localcheck';
 		$this->urls['smm']           = 'https://app.jetpackcrm.com/api/welcome-wizard';
+		$this->urls['api-support']   = 'https://app.jetpackcrm.com/api/support';
 
 		// account
 		$this->urls['account']     = 'https://app.jetpackcrm.com/';

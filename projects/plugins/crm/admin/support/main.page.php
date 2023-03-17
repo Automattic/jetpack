@@ -230,7 +230,7 @@ if ( $has_license ) {
 		const result = document.getElementById( "result" );
 		const subjectInput = document.getElementById( "subject" );
 		const messageInput = document.getElementById( "message" );
-		const jpcrm_api_endpoint = '<?php echo 'https://devapp.jetpackcrm.com/api/support/request'; ?>';
+		const jpcrm_api_endpoint = '<?php echo esc_url( $zbs->urls['api-support'] ); ?>/request';
 
 		form.addEventListener( "submit", async ( event ) => {
 			event.preventDefault();
