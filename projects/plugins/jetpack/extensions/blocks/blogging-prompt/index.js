@@ -15,6 +15,7 @@ import './editor.scss';
 export const name = 'blogging-prompt';
 export const title = __( 'Writing Prompt', 'jetpack' );
 export const settings = {
+	apiVersion: 2,
 	title,
 	description: (
 		<Fragment>
@@ -36,6 +37,7 @@ export const settings = {
 		align: false,
 		alignWide: false,
 		anchor: false,
+		className: true,
 		color: {
 			background: true,
 			gradients: true,
@@ -43,11 +45,15 @@ export const settings = {
 			text: true,
 		},
 		customClassName: true,
-		className: true,
 		html: false,
 		inserter: true,
 		multiple: false,
 		reusable: true,
+		spacing: {
+			margin: [ 'top', 'bottom' ],
+			padding: true,
+			blockGap: false,
+		},
 	},
 	edit,
 	save,

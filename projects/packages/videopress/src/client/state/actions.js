@@ -108,8 +108,8 @@ const setVideos = videos => {
 	return { type: SET_VIDEOS, videos };
 };
 
-const setVideo = video => {
-	return { type: SET_VIDEO, video };
+const setVideo = ( video, addAtEnd = false ) => {
+	return { type: SET_VIDEO, video, addAtEnd };
 };
 
 const setVideoPrivacy = ( { id, privacySetting } ) => {
