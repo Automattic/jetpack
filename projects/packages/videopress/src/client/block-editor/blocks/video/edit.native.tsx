@@ -59,6 +59,7 @@ export default function VideoPressEdit( {
 			<VideoPressUploader
 				autoOpenMediaUpload={ isSelected && wasBlockJustInserted }
 				handleDoneUpload={ handleDoneUpload }
+				isInteractionDisabled={ ! isSelected }
 				onFocus={ onFocus }
 			/>
 		);
