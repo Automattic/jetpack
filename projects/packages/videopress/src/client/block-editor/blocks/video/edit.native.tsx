@@ -1,7 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls } from '@wordpress/block-editor';
+import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 /**
  * External dependencies
@@ -23,14 +24,18 @@ import style from './style.scss';
  *
  * @param {object} props                 - Component props.
  * @param {object} props.attributes      - Block attributes.
+ * @param {object} props.clientId        - Block client Id.
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected	 - Whether block is selected.
+ * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
  * @returns {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
 	attributes,
+	clientId,
 	setAttributes,
 	isSelected,
+	onFocus,
 } ): React.ReactNode {
 	const {
 		autoplay,
@@ -47,6 +52,10 @@ export default function VideoPressEdit( {
 	} = attributes;
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+	const wasBlockJustInserted = useSelect(
+		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
+		[ clientId ]
+	);
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -72,7 +81,14 @@ export default function VideoPressEdit( {
 	);
 
 	if ( isUploadingFile ) {
-		return <VideoPressUploader handleDoneUpload={ handleDoneUpload } />;
+		return (
+			<VideoPressUploader
+				autoOpenMediaUpload={ isSelected && wasBlockJustInserted }
+				handleDoneUpload={ handleDoneUpload }
+				isInteractionDisabled={ ! isSelected }
+				onFocus={ onFocus }
+			/>
+		);
 	}
 
 	return (
