@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stay compatible with the upcoming version of WordPress.
