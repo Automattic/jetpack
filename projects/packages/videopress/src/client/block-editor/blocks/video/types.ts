@@ -18,6 +18,14 @@ export type VideoBlockColorAttributesProps = {
 
 type BlockSupportAlignProp = 'left' | 'center' | 'right' | 'wide' | 'full' | undefined;
 
+export type PosterSourceProps = {
+	type: 'media-library' | 'frame';
+	atTime?: number;
+	src?: string;
+	id?: number;
+	url?: string;
+};
+
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	id?: VideoId;
 	guid?: VideoGUID;
@@ -28,13 +36,7 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	description?: string;
 
 	poster?: string;
-	posterSource?: {
-		type: 'media-library' | 'frame';
-		atTime?: number;
-		src?: string;
-		id?: number;
-		url?: string;
-	};
+	posterSource?: PosterSourceProps;
 	videoRatio?: number;
 	tracks?: Array< TrackProps >;
 
