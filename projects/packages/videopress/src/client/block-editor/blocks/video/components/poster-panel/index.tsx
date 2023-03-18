@@ -205,7 +205,7 @@ function VideoFramePicker( {
 	/**
 	 * Handler function to deal with the communication
 	 * between the iframe, which contains the video,
-	 * and the parent window.
+	 * and the parent window (block editor).
 	 *
 	 * @param {MessageEvent} event - Message event
 	 */
