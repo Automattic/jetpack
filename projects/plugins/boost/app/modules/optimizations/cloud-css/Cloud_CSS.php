@@ -43,7 +43,7 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		Critical_CSS_Invalidator::init();
-		Cloud_CSS_Cron::init();
+		Cloud_CSS_Followup::init();
 
 		return true;
 	}

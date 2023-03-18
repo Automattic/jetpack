@@ -6,7 +6,8 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Cron;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
 
 class Critical_CSS_Invalidator {
 	/**
@@ -26,7 +27,7 @@ class Critical_CSS_Invalidator {
 		$storage = new Critical_CSS_Storage();
 		$storage->clear();
 		jetpack_boost_ds_delete( 'critical_css_state' );
-		Cloud_CSS_Cron::uninstall();
+		Cloud_CSS_Followup::unschedule();
 	}
 
 	/**
