@@ -44,7 +44,7 @@ export const updateWafIpAllowList = allowList => {
 			type: WAF_IP_ALLOW_LIST_UPDATED,
 			allowList,
 		} );
-  };
+	};
 };
 
 /**

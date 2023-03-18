@@ -26,11 +26,11 @@ import Textarea from '../components/textarea';
 import { getSetting } from '../state/settings/reducer';
 import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
 import {
-  getAutomaticRulesAvailable,
-  getWafSettings,
-  getWafIpAllowListInputState,
-  isFetchingWafSettings,
-  isUpdatingWafSettings
+	getAutomaticRulesAvailable,
+	getWafSettings,
+	getWafIpAllowListInputState,
+	isFetchingWafSettings,
+	isUpdatingWafSettings,
 } from '../state/waf/reducer';
 
 export const Waf = class extends Component {
@@ -53,10 +53,10 @@ export const Waf = class extends Component {
 	 * @param {object} prevProps - Next render props.
 	 */
 	componentDidUpdate = prevProps => {
-    // Sync the form values with the settings prop.
+		// Sync the form values with the settings prop.
 		if ( this.props.settings !== prevProps.settings ) {
 			this.setState( {
-        ...this.state,
+				...this.state,
 				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
 				manualRulesEnabled: this.props.settings?.manualRulesEnabled,
 				ipBlockList: this.props.settings?.ipBlockList,
@@ -64,14 +64,14 @@ export const Waf = class extends Component {
 				shareData: this.props.settings?.shareData,
 			} );
 		}
-    
-    // Sync the allow list value with the value in redux.
+
+		// Sync the allow list value with the value in redux.
 		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
-      this.setState( { 
-        ...this.state,
-        ipAllowList: this.props.allowListInputState,
-      } );
-    }
+			this.setState( {
+				...this.state,
+				ipAllowList: this.props.allowListInputState,
+			} );
+		}
 	};
 
 	/**
@@ -160,11 +160,11 @@ export const Waf = class extends Component {
 		this.setState( { ...this.state, ipBlockList: event?.target?.value } );
 	};
 
-  /**
-   * Handle IP allow list change.
-   *
-   * @param {Event} event = The event object.
-   */
+	/**
+	 * Handle IP allow list change.
+	 *
+	 * @param {Event} event - = The event object.
+	 */
 	handleIpAllowListChange = event => {
 		this.props.updateWafIpAllowList( event.target.value );
 	};
@@ -476,11 +476,11 @@ export const Waf = class extends Component {
 export default connect(
 	state => {
 		const sitePlan = getSitePlan( state );
-    const allowListInputState = getWafIpAllowListInputState( state );
+		const allowListInputState = getWafIpAllowListInputState( state );
 
 		return {
-      automaticRulesAvailable: getAutomaticRulesAvailable( state ),
-      allowListInputState:
+			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
+			allowListInputState:
 				allowListInputState !== null
 					? allowListInputState
 					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
