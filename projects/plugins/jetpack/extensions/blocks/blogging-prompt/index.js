@@ -59,9 +59,26 @@ export const settings = {
 	edit,
 	save,
 	attributes,
+	styles: [
+		{ name: 'block', label: __( 'Block', 'jetpack' ), isDefault: true },
+		{ name: 'quote', label: __( 'Quote', 'jetpack' ) },
+	],
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			answersLink: 'https://wordpress.com/tag/dailyprompt',
+			answersLinkText: __( 'View all responses', 'jetpack' ),
+			gravatars: [
+				{ url: 'https://0.gravatar.com/avatar/1234?s=96&d=identicon&r=G' },
+				{ url: 'https://1.gravatar.com/avatar/5678?s=96&d=identicon&r=G' },
+				{ url: 'https://2.gravatar.com/avatar/9012?s=96&d=identicon&r=G' },
+			],
+			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
+			promptText: 'Write about your favorite place to visit.',
+			promptFetched: true,
+			promptId: 1234,
+			showResponses: true,
+			showLabel: true,
+			tagsAdded: true,
 		},
 	},
 };

@@ -46,6 +46,12 @@
 		text-align: center;
 	}
 
+	&.is-style-quote {
+		border: none;
+		border-left: 4px solid $gray-800;
+		padding: 0 24px;
+	}
+
 	@media only email {
 		&__label {
 			background: none;
