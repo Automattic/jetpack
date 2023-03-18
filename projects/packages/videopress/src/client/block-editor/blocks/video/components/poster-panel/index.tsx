@@ -185,7 +185,7 @@ type PosterFramePickerProps = {
  */
 function VideoFramePicker( {
 	guid,
-	atTime = 0,
+	atTime = 0.1,
 	onVideoFrameSelect,
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
@@ -221,18 +221,34 @@ function VideoFramePicker( {
 		}
 
 		/*
-		 * Hack 2/2: Stop the video once it's loaded.
+		 * Hack 2/2: Since the video is autoplay;
+		 * - Wait 100ms before to control it.
+		 * - Rewind the video 1 second before the desired time.
+		 * - Stop the video after playing for 1 second.
+		 * - Ensure to set the video at the desired time.
+		 *
 		 * More about Permission Policy:
 		 * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
 		 */
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
 			setTimeout( () => {
+				// Rewind the video 1 second before the desired time.
 				source.postMessage(
-					{ event: 'videopress_action_set_currenttime', currentTime: 0.1 },
+					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 - 1 },
 					{ targetOrigin: '*' }
 				);
-				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			}, 100 );
+
+				setTimeout( () => {
+					// Stop the video after playing for 1 second.
+					source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
+
+					// Ensure to set the video at the desired time.
+					source.postMessage(
+						{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
+						{ targetOrigin: '*' }
+					);
+				}, 1000 );
+			}, 100 ); // Wait 100ms because of a race condition.
 		}
 	}
 
@@ -314,9 +330,12 @@ export default function PosterPanel( {
 				<VideoFramePicker
 					guid={ attributes?.guid }
 					atTime={ posterSource?.atTime }
-					onVideoFrameSelect={ timestamp =>
-						setAttributes( { posterSource: { type: 'frame', atTime: timestamp } } )
-					}
+					onVideoFrameSelect={ timestamp => {
+						setAttributes( {
+							posterSource: { type: 'frame', atTime: timestamp },
+							poster: '',
+						} );
+					} }
 				/>
 			</div>
 
