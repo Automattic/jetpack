@@ -36,7 +36,10 @@ class Critical_CSS_Invalidator {
 	public static function handle_clear_cache( $is_major_change ) {
 		if ( $is_major_change ) {
 			self::clear_data();
-			do_action( 'jetpack_boost_after_clear_cache' );
+
+			$cloud_css = new Cloud_CSS();
+			$cloud_css->regenerate_cloud_css();
+			Cloud_CSS_Followup::schedule();
 		}
 	}
 
