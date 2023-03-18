@@ -661,7 +661,7 @@ const FirewallPage = () => {
 			</Text>
 			<Text mb={ 4 }>
 				{ __(
-					'Add manual rules for what IP traffic the Jetpack Firewall should block or allow.',
+					'Add manual rules for what IP traffic the Jetpack Firewall and brute force protection should block or allow.',
 					'jetpack-protect'
 				) }
 			</Text>
