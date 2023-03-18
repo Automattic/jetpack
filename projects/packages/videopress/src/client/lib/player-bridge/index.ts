@@ -71,7 +71,7 @@ export async function playerBridgeHandler(
 			return;
 		}
 
-		debug( 'emit %o event', eventName );
+		debug( 'emit %o event - %o', eventName, data );
 		videoPressWindow.postMessage( data, '*' );
 	}
 }
