@@ -63,4 +63,10 @@ body.modal-open .poster-panel__dropdown {
 	margin-bottom: 8px;
 	aspect-ratio: 16 / 9;
 	background-color: #fAfAfA;
+	opacity: 0.1;
+	transition: opacity 1s ease-in-out;
+
+	&.is-seeking-start-position {
+		opacity: 1;
+	}
 }

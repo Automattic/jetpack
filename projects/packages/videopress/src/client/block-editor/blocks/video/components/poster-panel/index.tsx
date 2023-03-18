@@ -190,6 +190,7 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
+	const [ isSeekingStartPosition, setIsSeekingStartPosition ] = useState( false );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -232,6 +233,8 @@ function VideoFramePicker( {
 		 */
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
 			setTimeout( () => {
+				setIsSeekingStartPosition( true );
+
 				// Rewind the video 1 second before the desired time.
 				source.postMessage(
 					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 - 1 },
@@ -277,7 +280,12 @@ function VideoFramePicker( {
 
 	return (
 		<div className="poster-panel__frame-picker">
-			<div ref={ playerWrapperRef } className="poster-panel__frame-picker__sandbox-wrapper">
+			<div
+				ref={ playerWrapperRef }
+				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
+					'is-seeking-start-position': isSeekingStartPosition,
+				} ) }
+			>
 				<SandBox html={ html } scripts={ sandboxScripts } />
 			</div>
 
