@@ -65,7 +65,7 @@ const FirewallPage = () => {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEventHandler, recordEventAsync } = useAnalyticsTracks();
 
 	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
 
@@ -224,6 +224,11 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
+				recordEventAsync(
+					newValue
+						? 'jetpack_protect_automatic_rules_enabled'
+						: 'jetpack_protect_automatic_rules_disabled'
+				);
 			} )
 			.then( () => {
 				if ( ! upgradeIsSeen ) {
@@ -240,6 +245,7 @@ const FirewallPage = () => {
 		formState,
 		toggleAutomaticRules,
 		setNotice,
+		recordEventAsync,
 		upgradeIsSeen,
 		setWafUpgradeIsSeen,
 		handleApiError,
@@ -272,10 +278,15 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
+				recordEventAsync(
+					newValue
+						? 'jetpack_protect_brute_force_protection_enabled'
+						: 'jetpack_protect_brute_force_protection_disabled'
+				);
 			} )
 			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleBruteForceProtection, setNotice, handleApiError ] );
+	}, [ formState, toggleBruteForceProtection, handleApiError, setNotice, recordEventAsync ] );
 
 	/**
 	 * Handle Manual Rules Change
@@ -289,7 +300,7 @@ const FirewallPage = () => {
 		setFormIsSubmitting( true );
 		setFormState( { ...formState, jetpack_waf_ip_list: newManualRulesStatus } );
 		toggleManualRules()
-			.then( () =>
+			.then( () => {
 				setNotice( {
 					type: 'success',
 					duration: SUCCESS_NOTICE_DURATION,
@@ -300,11 +311,16 @@ const FirewallPage = () => {
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
-				} )
-			)
+				} );
+				recordEventAsync(
+					newManualRulesStatus
+						? 'jetpack_protect_manual_rules_enabled'
+						: 'jetpack_protect_manual_rules_disabled'
+				);
+			} )
 			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleManualRules, handleApiError, setNotice ] );
+	}, [ formState, toggleManualRules, handleApiError, setNotice, recordEventAsync ] );
 
 	/**
 	 * Handle Show Manual Rules Click
