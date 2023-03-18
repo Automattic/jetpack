@@ -211,7 +211,7 @@ function VideoFramePicker( {
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {}, source } = event;
+		const { data: eventData = {} } = event;
 		const { event: eventName } = event?.data || {};
 
 		// Set the video duration for the TimestampControl component.
@@ -234,19 +234,23 @@ function VideoFramePicker( {
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
 			setTimeout( () => {
 				setIsSeekingStartPosition( true );
+				const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
 
 				// Rewind the video 1 second before the desired time.
-				source.postMessage(
+				sandboxIFrameWindow.postMessage(
 					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 - 1 },
 					{ targetOrigin: '*' }
 				);
 
 				setTimeout( () => {
 					// Stop the video after playing for 1 second.
-					source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
+					sandboxIFrameWindow.postMessage(
+						{ event: 'videopress_action_pause' },
+						{ targetOrigin: '*' }
+					);
 
 					// Ensure to set the video at the desired time.
-					source.postMessage(
+					sandboxIFrameWindow.postMessage(
 						{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
 						{ targetOrigin: '*' }
 					);
