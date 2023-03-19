@@ -4,7 +4,7 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Handler;
 
-final class Critical_CSS_Sync extends Data_Sync_Entry_Handler {
+final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 
 	public function parse( $value ) {
 		return $value;
