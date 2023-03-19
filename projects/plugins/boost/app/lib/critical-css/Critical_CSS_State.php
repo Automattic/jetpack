@@ -22,6 +22,10 @@ class Critical_CSS_State {
 		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 	}
 
+	public function clear() {
+		jetpack_boost_ds_delete( 'critical_css_state' );
+	}
+
 	public function save() {
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'critical_css_state', $this->state );
