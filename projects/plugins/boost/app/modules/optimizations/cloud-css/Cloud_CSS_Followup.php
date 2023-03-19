@@ -4,9 +4,9 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 
-class Cloud_CSS_Cron {
+class Cloud_CSS_Followup {
 
-	const SCHEDULER_HOOK = 'jetpack_boost_check_cloud_css';
+	const SCHEDULER_HOOK = 'jetpack_boost_cloud_css_followup';
 
 	/**
 	 * Initiate the scheduler
@@ -27,10 +27,9 @@ class Cloud_CSS_Cron {
 	 */
 	public static function run() {
 		$state = new Critical_CSS_State();
-
 		if ( $state->has_errors() ) {
-			$client = new Cloud_CSS_Request();
-			$client->request_generate();
+			$cloud_css = new Cloud_CSS();
+			$cloud_css->regenerate_cloud_css();
 		}
 	}
 
@@ -41,17 +40,16 @@ class Cloud_CSS_Cron {
 	 *
 	 * @return void
 	 */
-	public static function install( $when ) {
+	public static function schedule() {
 		// Remove any existing schedule
-		self::uninstall();
-
-		wp_schedule_single_event( $when, self::SCHEDULER_HOOK );
+		self::unschedule();
+		wp_schedule_single_event( time() + HOUR_IN_SECONDS, self::SCHEDULER_HOOK );
 	}
 
 	/**
 	 * Remove the cron-job
 	 */
-	public static function uninstall() {
+	public static function unschedule() {
 		wp_clear_scheduled_hook( self::SCHEDULER_HOOK );
 	}
 }
