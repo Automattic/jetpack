@@ -1,11 +1,24 @@
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { map } from 'lodash';
 import { formatFieldName, getDisplayName, getPath } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
+	const [ responseStyle, setResponseStyle ] = useState( {} );
+
+	useEffect( () => {
+		const content = document.querySelector( '#wpbody-content' );
+		const topOffset = content?.getBoundingClientRect()?.top;
+
+		if ( ! topOffset ) {
+			return;
+		}
+
+		setResponseStyle( { '--wp-content-offset-top': `${ topOffset }px` } );
+	}, [] );
+
 	const classes = classnames( 'jp-forms__inbox-response', {
 		'has-email': true,
 	} );
@@ -20,7 +33,7 @@ const InboxResponse = ( { loading, response } ) => {
 	}
 
 	return (
-		<div className={ classes }>
+		<div className={ classes } style={ responseStyle }>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"

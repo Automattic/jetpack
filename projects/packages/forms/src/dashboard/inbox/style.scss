@@ -151,17 +151,24 @@
 .jp-forms__inbox-response {
 	position: relative;
 
+	@media (min-width: 1025px) {
+		position: sticky;
+		top: calc(var(--wp-content-offset-top) + 20px);
+		max-height: calc(100vh - calc(var(--wp-content-offset-top) + 40px));
+		overflow-y: auto;
+	}
+
 	&::before {
 		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
 		border-bottom: 1px solid #dcdcde;
 		box-sizing: border-box;
 		content: "";
 		display: flex;
-		height: 32px;
+		padding-top: 32px;
 	}
 
 	&.has-email::before {
-		height: 70px;
+		padding-top: 70px;
 		margin-bottom: 62px;
 	}
 }
