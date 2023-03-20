@@ -19,7 +19,11 @@ class Type_Assoc_Array implements Schema_Type {
 
 		$parsed = array();
 		foreach ( $this->sub_schema as $key => $validator ) {
-			$parsed[ $key ] = isset( $data[ $key ] ) ? $validator->parse( $data[ $key ] ) : null;
+			if ( ! isset( $data[ $key ] ) ) {
+				$message = "Expected key '$key' in associative array";
+				throw new \Error( $message );
+			}
+			$parsed[ $key ] = $validator->parse( $data[ $key ] );
 		}
 
 		return $parsed;
