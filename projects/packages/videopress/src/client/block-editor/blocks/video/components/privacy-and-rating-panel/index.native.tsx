@@ -3,7 +3,7 @@
  */
 import { useNavigation } from '@react-navigation/native';
 import { PanelBody, SelectControl, ToggleControl, BottomSheet } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 /**
@@ -38,15 +38,15 @@ export default function PrivacyAndRatingPanel( {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
 	const navigation = useNavigation();
 
-	const goBack = () => {
+	const goBack = useCallback( () => {
 		setShowSubSheet( false );
 		navigation.goBack();
-	};
+	}, [] );
 
-	const openSubSheet = () => {
+	const openSubSheet = useCallback( () => {
 		navigation.navigate( BottomSheet.SubSheet.screenName );
 		setShowSubSheet( true );
-	};
+	}, [] );
 
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
