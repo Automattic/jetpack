@@ -131,6 +131,11 @@ if ( $has_license ) {
 
 		<?php if ( ! $has_license ) : ?>
 			<span class="label label-default"><?php echo esc_html__( 'NO LICENSE', 'zero-bs-crm' ); ?></span>
+			<span class="invalid-license"> <?php echo esc_html__( 'The premium support is only available to customers with a valid license.', 'zero-bs-crm' ); ?> </span>
+			<span class="invalid-license">
+				<?php // translators: %s: URL to pricing page. ?>
+				<b><?php echo wp_kses_post( sprintf( __( '<a href="%s" target="_blank">Check our plans here</a>', 'zero-bs-crm' ), esc_url( $zbs->urls['pricing'] ) . '?utm_source=user_site&utm_medium=support_page' ) ); ?></b>
+			</span>
 		<?php elseif ( $is_valid_license ) : ?>
 			<span class="label label-success"><?php echo esc_html__( 'VALID', 'zero-bs-crm' ); ?></span>
 			<span class="license"> <?php echo esc_html( $license_key ); ?> </span>
