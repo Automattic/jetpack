@@ -39,6 +39,8 @@ class Type_Array_Test extends TestCase {
 			array( 'one', 'two', 'three' ),
 			array( 'four', 'five', 'six' ),
 		);
+		$sanitized_array    = $nested_schema->parse( $valid_nested_array );
+		$this->assertEquals( $valid_nested_array, $sanitized_array );
 
 		// Test with invalid nested array
 		$invalid_nested_array = array(
