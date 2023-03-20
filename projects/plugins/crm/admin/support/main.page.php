@@ -166,7 +166,7 @@ if ( $has_license ) {
 	<h2><?php echo esc_html__( 'Check our Knowledge Base', 'zero-bs-crm' ); ?></h2>
 	<div class="jetpack-crm-contact-text">
 		<?php echo esc_html__( "We want to make sure you get the help you need as quickly as possible. Before filing a support ticket, why not check out our Jetpack CRM Knowledge Base? It's packed with helpful articles and resources to help you get the most out of Jetpack CRM.", 'zero-bs-crm' ); ?>
-		<?php // PHPCS:Ignore WordPress.WP.I18n.MissingTranslatorsComment ?>
+		<?php // translators: %s URL to knowledge base. ?>
 		<?php echo wp_kses( sprintf( __( 'You can access it anytime at <a href="%s" target="_blank"><b>kb.jetpackcrm.com</b></a>.', 'zero-bs-crm' ), esc_url( $zbs->urls['kb'] ) ), $zbs->acceptable_html ); ?>
 		<div class="text-center goto-kb">
 			<a href="<?php echo esc_url( $zbs->urls['kb'] ); ?>" target="_blank">
