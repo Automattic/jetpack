@@ -51,7 +51,8 @@ class Publicize_Setup {
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 
 		add_action( 'admin_init', array( static::class, 'init_social_image_generator' ) );
-		add_action( 'jetpack_heartbeat', array( static::class, 'refresh_plan_data' ) );
+
+		Current_Plan::init();
 	}
 
 	/**
@@ -108,12 +109,5 @@ class Publicize_Setup {
 
 		$sig = new Social_Image_Generator\Setup();
 		$sig->init();
-	}
-
-	/**
-	 * Refreshess the plan data.
-	 */
-	public static function refresh_plan_data() {
-		Current_Plan::refresh_from_wpcom();
 	}
 }
