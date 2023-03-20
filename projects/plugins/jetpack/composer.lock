@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "63faa32d380d2d5e2924d5a0e3e6e543",
+    "content-hash": "2c9b540dc0ac37847c0052e1d0dddc04",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1616,16 +1616,16 @@
         },
         {
             "name": "automattic/jetpack-publicize",
-            "version": "v0.20.0",
+            "version": "v0.20.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-publicize.git",
-                "reference": "00f31125fdce9f0ff5e0baa677cab24d21e69fdb"
+                "reference": "c9331b3b6fee8042c83314bc9586818d3b091caf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/00f31125fdce9f0ff5e0baa677cab24d21e69fdb",
-                "reference": "00f31125fdce9f0ff5e0baa677cab24d21e69fdb",
+                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/c9331b3b6fee8042c83314bc9586818d3b091caf",
+                "reference": "c9331b3b6fee8042c83314bc9586818d3b091caf",
                 "shasum": ""
             },
             "require": {
@@ -1663,9 +1663,9 @@
             ],
             "description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.20.0"
+                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.20.0.1"
             },
-            "time": "2023-02-28T17:37:41+00:00"
+            "time": "2023-03-20T15:44:26+00:00"
         },
         {
             "name": "automattic/jetpack-redirect",
