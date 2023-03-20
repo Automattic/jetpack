@@ -5,7 +5,7 @@
  * @package automattic/jetpack-image-cdn
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Image_CDN;
 
 /**
  * Class description.
@@ -31,6 +31,6 @@ class Image_CDN_Setup {
 		require_once __DIR__ . '/class-image-cdn-image.php';
 		require_once __DIR__ . '/class-image-cdn-image-sizes.php';
 
-		Image_Cdn::instance();
+		Image_CDN::instance();
 	}
 }

@@ -5,12 +5,14 @@
  * @package automattic/jetpack-image-cdn
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Image_CDN;
+
+use Automattic\Jetpack\Assets;
 
 /**
- * Class Image_Cdn
+ * Class Image_CDN
  */
-class Image_Cdn {
+class Image_CDN {
 	/**
 	 * Singleton.
 	 *
@@ -46,8 +48,8 @@ class Image_Cdn {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Automattic\Jetpack\Image_Cdn' ) ) {
-			self::$instance = new Image_Cdn();
+		if ( ! is_a( self::$instance, 'Automattic\Jetpack\Image_CDN' ) ) {
+			self::$instance = new Image_CDN();
 			self::$instance->setup();
 		}
 
@@ -231,7 +233,7 @@ class Image_Cdn {
 		$attachment_is_image = preg_match( '!^image/!', $mime_type );
 
 		if ( 1 === $attachment_is_image ) {
-			$image_sizes   = new Image_Cdn_Image_Sizes( $attachment_id, $data );
+			$image_sizes   = new Image_CDN_Image_Sizes( $attachment_id, $data );
 			$data['sizes'] = $image_sizes->generate_sizes_meta();
 		}
 		return $data;

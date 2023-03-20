@@ -5,12 +5,12 @@
  * @package automattic/jetpack-image-cdn
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Image_CDN;
 
 /**
  * Represents a resizable image, exposing properties necessary for properly generating srcset.
  */
-class Image_Cdn_Image {
+class Image_CDN_Image {
 
 	/**
 	 * Attachment's Filename.

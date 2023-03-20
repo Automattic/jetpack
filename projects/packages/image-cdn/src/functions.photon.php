@@ -7,7 +7,7 @@
  * @package automattic/jetpack-image-cdn
  */
 
-use Automattic\Jetpack\Image_Cdn;
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Status;
 
 /**
@@ -333,7 +333,7 @@ function jetpack_image_cdn_banned_domains( $skip, $image_url ) {
  * @return string
  */
 function jetpack_image_cdn_support_text_widgets( $content ) {
-	return Image_Cdn::filter_the_content( $content );
+	return Image_CDN::filter_the_content( $content );
 }
 add_filter( 'widget_text', 'jetpack_image_cdn_support_text_widgets' );
 

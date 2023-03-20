@@ -5,14 +5,14 @@
  * @package automattic/jetpack-image-cdn
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Image_CDN;
 
 /**
- * Class Image_Cdn_Image_Sizes
+ * Class Image_CDN_Image_Sizes
  *
  * Manages image resizing via Jetpack CDN Service.
  */
-class Image_Cdn_Image_Sizes {
+class Image_CDN_Image_Sizes {
 
 	/**
 	 * Attachment metadata.
@@ -43,7 +43,7 @@ class Image_Cdn_Image_Sizes {
 	 */
 	public function __construct( $attachment_id, $data ) {
 		$this->data  = $data;
-		$this->image = new Image_Cdn_Image( $data, get_post_mime_type( $attachment_id ) );
+		$this->image = new Image_CDN_Image( $data, get_post_mime_type( $attachment_id ) );
 		$this->generate_sizes();
 	}
 
