@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.34.0] - 2023-03-20
 ### Changed
 - Updated package dependencies. [#29471]
-- Updated package dependencies. [#29480]
 
 ### Removed
 - Remove Tracks from Instant Search [#29490]
