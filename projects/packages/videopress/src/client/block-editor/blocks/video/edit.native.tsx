@@ -15,7 +15,6 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import DetailsPanel from './components/details-panel';
-import { VideoPressIcon as icon } from './components/icons';
 import PlaybackPanel from './components/playback-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import VideoPressUploader from './components/videopress-uploader/index.native';
