@@ -4,35 +4,8 @@ import { useState, useCallback, useMemo } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import React from 'react';
-// Template thumbnails
-import Dois from '../assets/dois.jpg';
-import Edge from '../assets/edge.jpg';
-import Fullscreen from '../assets/fullscreen.jpg';
-import Highway from '../assets/highway.jpg';
 import styles from './styles.module.scss';
-
-const TEMPLATES_DATA = [
-	{
-		name: 'highway',
-		label: 'Highway',
-		image: Highway,
-	},
-	{
-		name: 'dois',
-		label: 'Dois',
-		image: Dois,
-	},
-	{
-		name: 'edge',
-		label: 'Edge',
-		image: Edge,
-	},
-	{
-		name: 'fullscreen',
-		label: 'Fullscreen',
-		image: Fullscreen,
-	},
-];
+import TEMPLATES_DATA from './templates.js';
 
 /**
  * A component that displays a modal with a list of templates to choose from.
