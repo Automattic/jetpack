@@ -17,7 +17,7 @@ class Type_Assoc_Array implements Schema_Type {
 			throw new \Error( $message );
 		}
 
-		$parsed = [];
+		$parsed = array();
 		foreach ( $this->sub_schema as $key => $validator ) {
 			$parsed[ $key ] = isset( $data[ $key ] ) ? $validator->parse( $data[ $key ] ) : null;
 		}

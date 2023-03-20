@@ -3,7 +3,6 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_Default;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Modifier_Optional;
 
 class Validation_Rule {
 	private $type;

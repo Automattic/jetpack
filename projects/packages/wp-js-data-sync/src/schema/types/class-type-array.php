@@ -17,7 +17,7 @@ class Type_Array implements Schema_Type {
 			throw new \Error( $message );
 		}
 
-		$sanitized_data = [];
+		$sanitized_data = array();
 		foreach ( $data as $key => $value ) {
 			$sanitized_data[ $key ] = $this->sub_schema->parse( $value );
 		}

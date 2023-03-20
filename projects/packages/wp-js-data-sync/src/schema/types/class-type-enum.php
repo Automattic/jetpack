@@ -20,7 +20,4 @@ class Type_Enum implements Schema_Type {
 		return $data;
 	}
 
-
-
-
 }
