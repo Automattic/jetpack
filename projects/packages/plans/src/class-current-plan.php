@@ -24,6 +24,13 @@ class Current_Plan {
 	private static $active_plan_cache;
 
 	/**
+	 * Whether the hooks have been initialized.
+	 *
+	 * @var bool
+	 */
+	private static $is_hook_initialized = false;
+
+	/**
 	 * The name of the option that will store the site's plan.
 	 *
 	 * @var string
@@ -127,6 +134,16 @@ class Current_Plan {
 	);
 
 	/**
+	 * The constructor.
+	 */
+	public static function init() {
+		if ( ! static::$is_hook_initialized ) {
+			add_action( 'jetpack_heartbeat', array( static::class, 'refresh_plan_data' ) );
+			static::$is_hook_initialized = true;
+		}
+	}
+
+	/**
 	 * Given a response to the `/sites/%d` endpoint, will parse the response and attempt to set the
 	 * site's plan and products from the response.
 	 *
@@ -211,7 +228,6 @@ class Current_Plan {
 	 */
 	public static function refresh_from_wpcom() {
 		// Make the API request.
-
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . '?force=wpcom', '1.1' );
 		return self::update_from_sites_response( $response );
 	}
@@ -363,5 +379,12 @@ class Current_Plan {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Refreshess the plan data.
+	 */
+	public static function refresh_plan_data() {
+		self::refresh_from_wpcom();
 	}
 }
