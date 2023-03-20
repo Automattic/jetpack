@@ -81,7 +81,7 @@ const TemplatePicker = ( { onSelect, render, value = null } ) => {
 									[ styles[ 'template--active' ] ]: template.name === selectedTemplate,
 								} ) }
 							>
-								<img src={ template.image } alt="" />
+								<img src={ template.image } alt={ template.label } />
 								<span className="screen-reader-text">
 									{
 										/* translators: %s is the name of the template */
