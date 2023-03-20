@@ -43,6 +43,10 @@ class Status {
 	}
 
 	public function is_enabled() {
+		if ( 'cdn' === $this->slug ) {
+			return isset( $_GET['cdn'] );
+		}
+
 		return $this->ds->get();
 	}
 
