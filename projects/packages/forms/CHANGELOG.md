@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Rollback rename of columns/fields on export [#29448]
 - Updated package dependencies. [#29471]
-- Updated package dependencies. [#29480]
 
 ### Fixed
 - Avoid PHP notices when using a form with a dropdown field. [#29512]
