@@ -1,0 +1,19 @@
+.container {
+	position: relative;
+	display: grid;
+	justify-content: center;
+	background-color: var( --jp-gray-0 );
+	margin-bottom: 8px;
+	width: 100%;
+	min-height: 130px;
+
+	> * {
+		justify-self: center;
+	}
+
+	> svg {
+		position: absolute;
+		align-self: center;
+		margin: 0;
+	}
+}
