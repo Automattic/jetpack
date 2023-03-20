@@ -1,5 +1,8 @@
 <?php
+
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
+
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Modifier_Optional;
 
 class Validation_Rule {
@@ -13,8 +16,12 @@ class Validation_Rule {
 		return $this->type->parse( $data );
 	}
 
-	public function optional() {
-		return new Validation_Rule( new Modifier_Optional( $this->type ) );
+	public function fallback( $default_value ) {
+		return new Decorate_Default( $this->type, $default_value );
+	}
+
+	public function nullable() {
+		return new Decorate_Default( $this->type, null );
 	}
 
 }
