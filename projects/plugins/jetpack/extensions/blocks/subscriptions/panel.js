@@ -18,7 +18,16 @@ import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './sett
 import { isNewsletterFeatureEnabled } from './utils';
 
 function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
-	if ( ! isNewsletterFeatureEnabled() ) {
+	const newsletterSettings = useSelect( select => {
+		const newsletterPlans = select( 'jetpack/membership-products' )
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
+		return {
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
+		};
+	}, [] );
+
+	if ( ! isNewsletterFeatureEnabled() || ! newsletterSettings.hasNewsletterPlans ) {
 		return null;
 	}
 
