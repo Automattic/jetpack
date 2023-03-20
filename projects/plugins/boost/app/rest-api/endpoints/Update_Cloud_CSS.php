@@ -68,9 +68,9 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 		// Update each provider.
 		foreach ( $providers as $provider_key => $result ) {
 			if ( ! isset( $result['data'] ) ) {
-				$state->set_provider_error( $provider_key, __( 'An unknown provider error occurred', 'jetpack-boost' ) );
-				continue;
+				return new \WP_Error( 'invalid_data', __( 'Invalid request; missing data element', 'jetpack-boost' ) );
 			}
+
 			$data = $result['data'];
 
 			// Success
@@ -80,18 +80,16 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 				continue;
 			}
 
-			// Extract first URL error.
-			$message = __( 'An unknown provider error occurred', 'jetpack-boost' );
-			if ( ! empty( $data['urls'] ) && is_array( $data['urls'] ) ) {
-				foreach ( $data['urls'] as $_url => $url_data ) {
-					if ( ! empty( $url_data['message'] ) && is_string( $url_data['message'] ) ) {
-						$message = $url_data['message'];
-						break;
-					}
-				}
-			}
+			// Collate URL errors.
+			$urls   = empty( $data['urls'] ) || ! is_array( $data['urls'] ) ? array() : $data['urls'];
+			$errors = array_map(
+				function ( $url ) use ( $urls ) {
+					return array_merge( array( 'url' => $url ), $urls[ $url ] );
+				},
+				array_keys( $data['urls'] )
+			);
 
-			$state->set_provider_error( $provider_key, $message );
+			$state->set_provider_errors( $provider_key, $errors );
 		}
 
 		// Save the state changes.
