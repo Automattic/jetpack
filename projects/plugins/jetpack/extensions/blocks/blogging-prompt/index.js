@@ -5,6 +5,9 @@ import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
+import avatar1 from './example-avatars/avatar1.jpg';
+import avatar2 from './example-avatars/avatar2.jpg';
+import avatar3 from './example-avatars/avatar3.jpg';
 import icon from './icon';
 import save from './save';
 
@@ -67,13 +70,9 @@ export const settings = {
 		attributes: {
 			answersLink: 'https://wordpress.com/tag/dailyprompt',
 			answersLinkText: __( 'View all responses', 'jetpack' ),
-			gravatars: [
-				{ url: 'https://0.gravatar.com/avatar/1234?s=96&d=identicon&r=G' },
-				{ url: 'https://1.gravatar.com/avatar/5678?s=96&d=identicon&r=G' },
-				{ url: 'https://2.gravatar.com/avatar/9012?s=96&d=identicon&r=G' },
-			],
+			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
 			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
-			promptText: 'Write about your favorite place to visit.',
+			promptText: __( "What's your favorite place to visit.", 'jetpack' ),
 			promptFetched: true,
 			promptId: 1234,
 			showResponses: true,
