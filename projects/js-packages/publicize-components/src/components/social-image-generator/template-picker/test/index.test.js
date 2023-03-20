@@ -14,18 +14,40 @@ const setup = jsx => ( {
 	...render( jsx ),
 } );
 
+const openTemplatePicker = async ( { onSelect = () => {} } = {} ) => {
+	const { user } = setup(
+		<TemplatePicker
+			onSelect={ onSelect }
+			render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line
+		/>
+	);
+	const openButton = await screen.findByText( /Open Template Picker/i );
+	await user.click( openButton );
+
+	return { user };
+};
+
 describe( 'TemplatePicker', () => {
+	it( 'should open the template picker', async () => {
+		await openTemplatePicker();
+
+		expect( screen.getByText( /Pick a Template/i ) ).toBeInTheDocument();
+	} );
+
+	it( 'should close the template picker', async () => {
+		const { user } = await openTemplatePicker();
+
+		const cancelButton = screen.getByRole( 'button', {
+			name: /Cancel/i,
+		} );
+		await user.click( cancelButton );
+
+		expect( screen.queryByText( /Pick a Template/i ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'should render the template picker and pick a template', async () => {
 		const handleSelect = jest.fn();
-		const { user } = setup(
-			<TemplatePicker
-				onSelect={ handleSelect }
-				render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line
-			/>
-		);
-		const openButton = await screen.findByText( /Open Template Picker/i );
-		await user.click( openButton );
-		expect( screen.getByText( /Pick a Template/i ) ).toBeInTheDocument();
+		const { user } = await openTemplatePicker( { onSelect: handleSelect } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
@@ -43,15 +65,7 @@ describe( 'TemplatePicker', () => {
 
 	it( 'should not select a template if user presses cancel', async () => {
 		const handleSelect = jest.fn();
-		const { user } = setup(
-			<TemplatePicker
-				onSelect={ handleSelect }
-				render={ ( { open } ) => <button onClick={ open }>Open Template Picker</button> } // eslint-disable-line
-			/>
-		);
-		const openButton = await screen.findByText( /Open Template Picker/i );
-		await user.click( openButton );
-		expect( screen.getByText( /Pick a Template/i ) ).toBeInTheDocument();
+		const { user } = await openTemplatePicker( { onSelect: handleSelect } );
 
 		const edgeTemplateButton = screen.getByRole( 'button', {
 			name: /Pick the Edge template/i,
