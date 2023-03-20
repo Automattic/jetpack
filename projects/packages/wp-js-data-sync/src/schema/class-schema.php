@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Assoc_Array;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Boolean;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Enum;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Number;
@@ -15,6 +16,10 @@ class Schema {
 
 	public static function as_array( $sub_schema = null ) {
 		return new Validation_Rule( new Type_Array( $sub_schema ) );
+	}
+
+	public static function as_assoc_array( $sub_schema = null ) {
+		return new Validation_Rule( new Type_Assoc_Array( $sub_schema ) );
 	}
 
 	public static function as_boolean() {
