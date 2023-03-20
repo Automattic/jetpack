@@ -24,7 +24,6 @@ if ( ! zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 if ( $has_license ) {
 
-	$license          = zeroBSCRM_getSetting( 'license_key' );
 	$is_valid_license = isset( $license['validity'] ) && $license['validity'];
 
 	$license_key = $license['key'];
