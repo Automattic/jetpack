@@ -9,6 +9,6 @@ class Type_Float implements Schema_Type {
 		if ( ! is_numeric( $data ) ) {
 			throw new \Error( 'Invalid number' );
 		}
-		return (float) $data;
+		return (double) $data;
 	}
 }
