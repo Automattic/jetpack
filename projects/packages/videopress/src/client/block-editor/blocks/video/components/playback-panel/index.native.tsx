@@ -26,15 +26,15 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
 	const navigation = useNavigation();
 
-	const goBack = () => {
+	const goBack = useCallback( () => {
 		setShowSubSheet( false );
 		navigation.goBack();
-	};
+	}, [] );
 
-	const openSubSheet = () => {
+	const openSubSheet = useCallback( () => {
 		navigation.navigate( BottomSheet.SubSheet.screenName );
 		setShowSubSheet( true );
-	};
+	}, [] );
 
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
