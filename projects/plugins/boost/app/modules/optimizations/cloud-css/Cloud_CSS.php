@@ -38,12 +38,11 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 
 	public function setup() {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
-		add_action( 'jetpack_boost_after_clear_cache', array( $this, 'regenerate_cloud_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
 
 		Critical_CSS_Invalidator::init();
-		Cloud_CSS_Cron::init();
+		Cloud_CSS_Followup::init();
 
 		return true;
 	}
@@ -105,9 +104,6 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 	 * with a specific post.
 	 */
 	public function generate_cloud_css( $providers = array() ) {
-		// Set a one off cron job one hour from now. This will resend the request in case it failed.
-		Cloud_CSS_Cron::install( time() + HOUR_IN_SECONDS );
-
 		$grouped_urls = array();
 
 		foreach ( $providers as $source ) {
