@@ -2026,7 +2026,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return null|void
 	 */
-	private function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props ) {
 		/*
 		 * Event details.
 		 */
@@ -3296,8 +3296,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				if ( ! empty( $matches[0] ) ) {
 					$options = array();
 					foreach ( $matches[0] as $shortcode ) {
-						$attr      = shortcode_parse_atts( $shortcode );
-						$options[] = $attr['label'];
+						$attr = shortcode_parse_atts( $shortcode );
+						if ( ! empty( $attr['label'] ) ) {
+							$options[] = $attr['label'];
+						}
 					}
 
 					$attributes['options'] = $options;
