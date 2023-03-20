@@ -8,6 +8,6 @@ class Type_Number implements Validation_Type {
 	}
 
 	public function sanitize($data) {
-		return is_numeric($data) ? (int) $data : 0;
+		return is_numeric($data) ? (int) $data : null;
 	}
 }
