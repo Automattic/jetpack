@@ -28,7 +28,7 @@ function jetpack_image_cdn_disable_photon( $modules ) {
 		unset( $modules[ array_search( 'photon', $modules, true ) ] );
 
 		// Reset keys. Let's keep the array neat.
-		$modules = array_keys( $modules );
+		$modules = array_values( $modules );
 	}
 
 	return $modules;
