@@ -1252,7 +1252,8 @@ class Image_CDN {
 			'jetpack-photon',
 			Assets::get_file_url_for_environment(
 				'js/photon.min.js',
-				'js/photon.js'
+				'js/photon.js',
+				__FILE__
 			),
 			array(),
 			20191001,
