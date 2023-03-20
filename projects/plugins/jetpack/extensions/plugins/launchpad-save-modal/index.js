@@ -72,7 +72,7 @@ export const settings = {
 
 			if ( siteIntentOption === 'newsletter' ) {
 				if ( isInsidePostEditor ) {
-					modalContent.title = __( 'Your first post is published!', 'jetpack' );
+					modalContent.title = `first post nl ${ postLink }`;
 					modalContent.body = __(
 						'Congratulations! You did it. View your post to see how it will look on your site.',
 						'jetpack'
