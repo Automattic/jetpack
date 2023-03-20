@@ -35,8 +35,8 @@ class Schema {
 		return new Validation_Rule( new Type_Float( true ) );
 	}
 
-	public static function enum( $allowedValues ) {
-		return new Validation_Rule( new Type_Enum( $allowedValues ) );
+	public static function enum( $allowed_values ) {
+		return new Validation_Rule( new Type_Enum( $allowed_values ) );
 	}
 
 }
