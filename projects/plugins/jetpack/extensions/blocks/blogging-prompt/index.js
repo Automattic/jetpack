@@ -72,7 +72,7 @@ export const settings = {
 			answersLinkText: __( 'View all responses', 'jetpack' ),
 			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
 			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
-			promptText: __( "What's your favorite place to visit.", 'jetpack' ),
+			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
 			promptFetched: true,
 			promptId: 1234,
 			showResponses: true,
