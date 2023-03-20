@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add a check for array on $attributes before trying to set an item on it
