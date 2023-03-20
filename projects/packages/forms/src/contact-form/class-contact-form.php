@@ -240,9 +240,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( Settings::is_syncing() ) {
 			return '';
 		}
-		if ( is_array( $attributes ) && isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
+		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			self::style_on();
-			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			if ( is_array( $attributes ) ) {
+				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			}
 		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
