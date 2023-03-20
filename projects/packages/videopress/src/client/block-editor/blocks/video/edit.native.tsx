@@ -1,12 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { PanelBody } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -77,7 +76,7 @@ export default function VideoPressEdit( {
 					<DetailsPanel { ...{ attributes, setAttributes } } />
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
-            <ColorPanel { ...{ attributes, setAttributes } } />
+						<ColorPanel { ...{ attributes, setAttributes } } />
 					</PanelBody>
 				</InspectorControls>
 			) }
