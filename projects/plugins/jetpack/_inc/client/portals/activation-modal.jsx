@@ -32,10 +32,22 @@ const ActivationModal = props => {
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
+	const fromButtonkey = () => {
+		// Current page path.
+		const pagePath = window.location.pathname;
+
+		if ( pagePath.endsWith( 'plugins.php' ) ) {
+			return 'full-screen-prompt';
+		}
+
+		return 'landing-page-bottom';
+	};
+
 	return (
 		<PortalSidecar className="jp-connection__portal-contents">
 			<ConnectScreen
 				apiNonce={ apiNonce }
+				from={ fromButtonkey() }
 				registrationNonce={ registrationNonce }
 				apiRoot={ apiRoot }
 				images={ [ '/images/connect-right.jpg' ] }
