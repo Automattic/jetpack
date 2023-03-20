@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added function to refresh plan data on jetpack heartbeat.
