@@ -852,10 +852,9 @@ function jpcrm_crm_resources_page_styles_scripts() {
  */
 function jpcrm_support_page_styles_scripts() {
 
-	$file_css      = 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css';
-	$file_modified = filemtime( plugin_dir_path( ZBS_ROOTFILE ) . $file_css );
+	global $zbs;
 
-	wp_enqueue_style( 'jpcrm-support-page', plugins_url( $file_css, ZBS_ROOTFILE ), array(), $file_modified );
+	wp_enqueue_style( 'jpcrm-support-page', plugins_url( 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
 }
 
 // used in form templates & shortcode outputted forms.
