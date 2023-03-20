@@ -14,21 +14,22 @@ final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 
 	public function __construct() {
 		$this->schema = Schema::as_assoc_array(
-			[
-				'status'    => Schema::enum( [ 'pending', 'success', 'error', 'validation-error' ] ),
+			array(
+				'status'    => Schema::enum( array( 'pending', 'success', 'error', 'validation-error' ) ),
 				'providers' => Schema::as_array(
 					Schema::as_assoc_array(
-						[
+						array(
 							'key'           => Schema::as_string(),
 							'label'         => Schema::as_string(),
 							'urls'          => Schema::as_array( Schema::as_string() ),
 							'success_ratio' => Schema::as_float(),
-							'status'        => Schema::enum( [ 'pending', 'success', 'error', 'validation-error' ] ),
-						]
-					) ),
+							'status'        => Schema::enum( array( 'pending', 'success', 'error', 'validation-error' ) ),
+						)
+					)
+				),
 				'created'   => Schema::as_float()->nullable(),
 				'updated'   => Schema::as_float()->nullable(),
-			]
+			)
 		);
 	}
 
