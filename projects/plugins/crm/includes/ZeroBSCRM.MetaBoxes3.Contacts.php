@@ -211,7 +211,7 @@
                 if ( empty( $second_address_label ) ) {
                   $second_address_label = __( 'Second Address', 'zero-bs-crm' );
                 }
-
+						$is_second_address_fields_empty = true;
 
                // PerfTest: zeroBSCRM_performanceTest_finishTimer('custmetabox-dataget');
                // PerfTest: zeroBSCRM_performanceTest_startTimer('custmetabox-draw');
@@ -325,8 +325,24 @@
 
                                     #} Close it
                                     echo '</table></div>';
-                                    if ($zbsCloseTable) echo '</td></tr>';
+						if ( $zbsCloseTable ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							echo '</td></tr>';
 
+							if ( zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1 && $is_second_address_fields_empty ) {
+								?>
+								<script>
+									document.getElementById("wptbpMetaBoxGroup-second_address").style.display = "none";
+									document.getElementById("jpcrm-second-address-toggle-btn").style.display  = "inline-block";
+									document.getElementById("jpcrm-second-address-label").addEventListener("click", function () {
+										document.getElementById("wptbpMetaBoxGroup-second_address").style.display = "block";
+										// Since we are not allowing toggle from visible to invisible (WooCommerce does like that) we
+										// are just hiding the button after showing the second address fields.
+										document.getElementById("jpcrm-second-address-toggle-btn").style.display  = "none";
+									});
+								</script>
+								<?php
+							}
+						}
                             }
 
                             #} Any groupings?
@@ -366,23 +382,49 @@
                                                     $zbsGroupClass = 'zbs-hide';
 
                                                 }
-
                                         }
 
                                     }
 
                                     // / address  modifiers
 
-                                    #} add group div + label
-                                    if ($zbsOpenTable) echo '<tr class="wh-large zbs-field-group-tr ' . esc_attr( $zbsLineClass ) . '"><td colspan="2">';
+							if ( $zbsOpenTable ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								echo '<tr class="wh-large zbs-field-group-tr ' . esc_attr( $zbsLineClass ) . '"><td class="jpcrm-addresses-group-row" colspan="2">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							}
 
                                     if( $fieldV['area'] == 'Second Address' ) {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'. esc_attr( $fieldGroupLabel ) .' '. esc_attr( $zbsGroupClass ) .'"><label class="zbs-field-group-label">'. esc_html( $second_address_label ) .'</label>';
-                                    } else {
-                                        echo '<div class="zbs-field-group zbs-fieldgroup-'.esc_attr($fieldGroupLabel).' '. esc_attr($zbsGroupClass) .'"><label class="zbs-field-group-label">'. esc_html__( $fieldV['area'], 'zero-bs-crm' ).'</label>';
+													$second_address_toggle_btn_html = zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1
+														? '<i id="jpcrm-second-address-toggle-btn" class="fa fa-pencil">'
+														: '';
+													echo sprintf(
+														'<div class="zbs-field-group zbs-fieldgroup-%s %s"><label class="jpcrm-address-label" id="jpcrm-second-address-label">%s%s</label>',
+														esc_attr( $fieldGroupLabel ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														esc_attr( $zbsGroupClass ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														esc_html( $second_address_label ),
+														wp_kses(
+															$second_address_toggle_btn_html,
+															array(
+																'i' => array(
+																	'class' => true,
+																	'id' => true,
+																),
+															)
+														)
+													);
+							} else {
+													echo sprintf(
+														'<div><label class="jpcrm-addresses-group-label">%s</label></div>',
+														esc_html__( 'Addresses', 'zero-bs-crm' )
+													);
+													echo sprintf(
+														'<div class="zbs-field-group zbs-fieldgroup-%s %s"><label class="jpcrm-address-label">%s</label>',
+														esc_attr( $fieldGroupLabel ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														esc_attr( $zbsGroupClass ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+														esc_html__( $fieldV['area'], 'zero-bs-crm' ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText
+													);
                                     }
 
-                                    echo '<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxGroup-'.esc_attr($fieldGroupLabel).'">';
+											echo '<table class="wh-metatab wptbp" id="wptbpMetaBoxGroup-' . esc_attr( $fieldGroupLabel ) . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                     
                                     #} Set this (need to close)
                                     $zbsOpenGroup = true;
@@ -408,7 +450,11 @@
 
                             if (isset($fieldV[0])){
                                 if ($zbsFieldGroup == 'Second Address') {
-                                    $fieldV[1] = str_replace( ' (' . $second_address_label . ')', '', $fieldV[1] );
+												$fieldV[1]                      = str_replace( ' (' . $second_address_label . ')', '', $fieldV[1] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$second_address_field_key       = jpcrm_compatibility_get_correct_object_key( $fieldK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$is_second_address_fields_empty = isset( $zbsCustomer[ $second_address_field_key ] ) && $zbsCustomer[ $second_address_field_key ] !== '' // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+													? false
+													: $is_second_address_fields_empty;
                                 }
                                 // we now put these out via the centralised func (2.95.3+)
                                 //... rather than distinct switch below 
