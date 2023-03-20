@@ -1,5 +1,7 @@
 .jp-forms__inbox {
-	 a.back-button {
+	padding-bottom: 20px;
+
+	a.back-button {
 	 	align-items: center;
 	 	color: #2C3338;
 		display: none;
@@ -38,6 +40,7 @@
 
 	@media (min-width: 1025px) {
 		gap: 24px;
+		padding-bottom: 68px;
 		padding-left: 64px;
 		padding-right: 64px;
 	}
@@ -79,6 +82,11 @@
 		&:last-child {
 			flex: 2;
 		}
+
+		.jp-forms__page-navigation {
+			bottom: 0;
+			position: absolute;
+		}
 	}
 
 	.jp-forms__page-navigation {
@@ -90,6 +98,7 @@
 .jp-forms__inbox-response {
 	border: 1px solid #dcdcde;
 	border-radius: 5px;
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
 	min-height: 300px;
@@ -124,6 +133,11 @@
 		}
 	}
 
+	@media (min-width: 1025px) {
+		display: flex;
+		min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + 40px));
+	}
+
 	.jp-forms__table-cell {
 		white-space: nowrap;
 	}
@@ -152,10 +166,10 @@
 	position: relative;
 
 	@media (min-width: 1025px) {
-		position: sticky;
-		top: calc(var(--wp-content-offset-top) + 20px);
-		max-height: calc(100vh - calc(var(--wp-content-offset-top) + 40px));
+		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + 40px));
 		overflow-y: auto;
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height) + 20px);
 	}
 
 	&::before {
