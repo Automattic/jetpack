@@ -33,4 +33,5 @@ class Schema {
 	public static function enum( $allowedValues ) {
 		return new Validation_Rule( new Type_Enum( $allowedValues ) );
 	}
+	
 }

@@ -23,47 +23,30 @@ class Test_Integration_Array_Schemas extends TestCase {
 		// Test with valid nested array
 		$valid_array = [
 			[
-				'string'  => 'one',
-				'number'  => 1,
-				'boolean' => true,
-			],
-			[
 				'string'  => 'two',
 				'number'  => 2,
 				'boolean' => false,
 			],
 		];
-		$this->assertTrue( $schema->validate( $valid_array ) );
-		$this->assertEquals( $valid_array, $schema->sanitize( $valid_array ) );
+		$this->assertEquals( $valid_array, $schema->parse( $valid_array ) );
 
 		// Test with invalid nested array
 		$invalid_array = [
 			[
-				'string'  => 'one',
-				'number'  => 1,
-				'boolean' => 1, // Invalid boolean value
-			],
-			[
-				'string'  => 2, // Invalid string value
-				'number'  => 2,
-				'boolean' => false,
+				'string'  => 2, // Should be cast to string
+				'number'  => '2', // Should be cast to number
+				'boolean' => 0, // Should be cast to boolean
 			],
 		];
-		$this->assertFalse( $schema->validate( $invalid_array ) );
 
-		$expected_invalid_array_sanitization = [
+		$expect_parsed_array = [
 			[
-				'string'  => 'one',
-				'number'  => 1,
-				'boolean' => true, // Sanitized boolean value
-			],
-			[
-				'string'  => '', // Sanitized string value
+				'string'  => '2',
 				'number'  => 2,
 				'boolean' => false,
 			],
 		];
-		$this->assertEquals( $expected_invalid_array_sanitization, $schema->sanitize( $invalid_array ) );
+		$this->assertEquals( $expect_parsed_array, $schema->parse( $invalid_array ) );
 	}
 
 	public function test_nested_assoc_arrays() {
@@ -111,8 +94,7 @@ class Test_Integration_Array_Schemas extends TestCase {
 			],
 		];
 
-		$this->assertTrue( $schema->validate( $valid_array ) );
-		$this->assertEquals( $valid_array, $schema->sanitize( $valid_array ) );
+		$this->assertEquals( $valid_array, $schema->parse( $valid_array ) );
 	}
 
 }

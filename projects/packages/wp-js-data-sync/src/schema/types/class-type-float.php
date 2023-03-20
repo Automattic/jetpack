@@ -1,13 +1,14 @@
 <?php
+
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Type;
 
-class Type_Float implements Validation_Type {
-	public function validate($array) {
-		return is_numeric( $array);
-	}
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
-	public function sanitize($data) {
-		return is_numeric($data) ? (float) $data : 0;
+class Type_Float implements Schema_Type {
+	public function parse( $data ) {
+		if ( ! is_numeric( $data ) ) {
+			throw new \Error( 'Invalid number' );
+		}
+		return (double) $data;
 	}
 }

@@ -1,24 +1,20 @@
 <?php
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Optional;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Modifier_Optional;
 
 class Validation_Rule {
 	private $type;
 
-	public function __construct( Validation_Type $type ) {
+	public function __construct( Schema_Type $type ) {
 		$this->type = $type;
 	}
 
-	public function validate( $data ) {
-		return $this->type->validate( $data );
-	}
-
-	public function sanitize( $data ) {
-		return $this->type->sanitize( $data );
+	public function parse( $data ) {
+		return $this->type->parse( $data );
 	}
 
 	public function optional() {
-		return new Validation_Rule( new Type_Optional( $this->type ) );
+		return new Validation_Rule( new Modifier_Optional( $this->type ) );
 	}
 
 }

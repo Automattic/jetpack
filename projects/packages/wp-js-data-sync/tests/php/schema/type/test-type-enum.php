@@ -5,24 +5,15 @@ use PHPUnit\Framework\TestCase;
 
 class Test_Type_Enum extends TestCase {
 
-	public function test_validate_with_valid_data() {
+	public function test_parse_valid_enum() {
 		$validator = new Type_Enum( array( 'foo', 'bar', 'baz' ) );
-		$this->assertTrue( $validator->validate( 'foo' ) );
+		$this->assertSame( 'foo', $validator->parse( 'foo' ) );
 	}
 
-	public function test_validate_with_invalid_data() {
+	public function test_parse_invalid_enum() {
 		$validator = new Type_Enum( array( 'foo', 'bar', 'baz' ) );
-		$this->assertFalse( $validator->validate( 'qux' ) );
-	}
-
-	public function test_sanitize_with_valid_data() {
-		$validator = new Type_Enum( array( 'foo', 'bar', 'baz' ) );
-		$this->assertSame( 'foo', $validator->sanitize( 'foo' ) );
-	}
-
-	public function test_sanitize_with_invalid_data() {
-		$validator = new Type_Enum( array( 'foo', 'bar', 'baz' ) );
-		$this->assertSame( 'foo', $validator->sanitize( 'qux' ) );
+		$this->expectException( \Error::class );
+		$validator->parse( 'invalid' );
 	}
 
 }

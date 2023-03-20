@@ -37,7 +37,7 @@ final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 	}
 
 	public function sanitize( $value ) {
-		return $this->schema->sanitize( $value );
+		return $this->schema->parse( $value );
 	}
 
 }

@@ -1,13 +1,17 @@
 <?php
+
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Type;
 
-class Type_String implements Validation_Type {
-	public function validate($data) {
-		return is_string( $data );
-	}
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
-	public function sanitize($data) {
-		return is_string($data) ? $data : '';
+class Type_String implements Schema_Type {
+
+	public function parse( $data ) {
+
+		if ( ! is_scalar( $data ) || null === $data ) {
+			throw new \Error( 'Expected a string, received ' . gettype( $data ) );
+		}
+
+		return (string) $data;
 	}
 }

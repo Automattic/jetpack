@@ -5,39 +5,34 @@ use PHPUnit\Framework\TestCase;
 
 class Test_Type_Number extends TestCase {
 
-	public function test_validate_ok() {
+	public function cast_strings_to_numbers() {
 		$validator = new Type_Number();
-		$this->assertTrue( $validator->validate( 123 ) );
+		$this->assertSame( 123, $validator->parse( '123' ) );
 	}
 
-	public function test_validate_failure() {
-		$validator = new Type_Number();
-		$this->assertFalse( $validator->validate( 'hello world' ) );
+	public function expect_errors_on_non_numeric_values() {
+		$type = new Type_Number();
+		$this->expectException( \Error::class );
+		$type->parse( 'abc' );
 	}
 
-	public function test_sanitize_ok() {
+	public function test_parse_zero() {
 		$validator = new Type_Number();
-		$this->assertSame( 123, $validator->sanitize( '123' ) );
+		$this->assertSame( 0, $validator->parse( 0 ) );
 	}
 
-	public function test_sanitize_failure() {
+	public function test_parse_zero_string() {
 		$validator = new Type_Number();
-		$this->assertNull( $validator->sanitize( 'hello world' ) );
+		$this->assertSame( 0, $validator->parse( '0' ) );
 	}
 
-	public function test_sanitize_zero() {
+	public function test_parse_boolean() {
 		$validator = new Type_Number();
-		$this->assertSame( 0, $validator->sanitize( 0 ) );
-	}
+		$this->expectException( \Error::class );
+		$validator->parse( true );
 
-	public function test_sanitize_zero_string() {
-		$validator = new Type_Number();
-		$this->assertSame( 0, $validator->sanitize( '0' ) );
-	}
-
-	public function test_ok_sanitize_false() {
-		$validator = new Type_Number();
-		$this->assertNull( $validator->sanitize( false ) );
+		$this->expectException( \Error::class );
+		$validator->parse( false );
 	}
 
 }

@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
-class Type_Enum implements Validation_Type {
+class Type_Enum implements Schema_Type {
 
 	protected $valid_values;
 
@@ -12,15 +12,12 @@ class Type_Enum implements Validation_Type {
 		$this->valid_values = $schema;
 	}
 
-	public function validate( $array ) {
-		return in_array( $array, $this->valid_values, true );
-	}
-
-	public function sanitize( $data ) {
-		if ( $this->validate( $data ) ) {
-			return $data;
+	public function parse( $data ) {
+		if ( ! in_array( $data, $this->valid_values, true ) ) {
+			$message = sprintf( 'Invalid value "%s". Expected one of: %s', $data, implode( ', ', $this->valid_values ) );
+			throw new \Error( $message );
 		}
-		return $this->valid_values[0];
+		return $data;
 	}
 
 
