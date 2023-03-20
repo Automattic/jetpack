@@ -90,8 +90,9 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$updatedSettings['showaddress'] = 1;
 	}
 	$updatedSettings['secondaddress'] = 0;
-	if ( isset( $_POST['wpzbscrm_secondaddress'] ) && ! empty( $_POST['wpzbscrm_secondaddress'] ) ) {
-		$updatedSettings['secondaddress'] = 1;
+	if ( isset( $_POST['wpzbscrm_secondaddress'] ) ) {
+		$updatedSettings['secondaddress']       = (int) $_POST['wpzbscrm_secondaddress'] === SETTING_SECOND_ADDRESS_ALWAYS_HIDE ? 0 : 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$updatedSettings['secondaddresstoggle'] = (int) $_POST['wpzbscrm_secondaddress'] === SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ? 1 : 0; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 	$updatedSettings['secondaddresslabel'] = __( 'Second Address', 'zero-bs-crm' );
 	if ( isset( $_POST['wpzbscrm_secondaddresslabel'] ) && ! empty( $_POST['wpzbscrm_secondaddresslabel'] ) ) {
@@ -342,14 +343,29 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a customer', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields Visibility', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose "second address" visibility. They can be hidden, visible, or the user may have the option to toggle it.', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
-						<input type="checkbox" class="winput form-control" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress" value="1"
-						<?php
-						if ( isset( $settings['secondaddress'] ) && $settings['secondaddress'] == '1' ) {
-							echo ' checked="checked"';}
-						?>
-						/>
+						<select class="winput" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress">
+							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALWAYS_HIDE ); ?>"
+							<?php
+							$jpcrm_setting_second_address_visibility = jpcrm_settings_get_second_address_visibility( $settings );
+							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALWAYS_HIDE ) {
+								echo ' selected="selected"';}
+							?>
+							><?php esc_html_e( 'Always Hide', 'zero-bs-crm' ); ?></option>
+							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALWAYS_SHOW ); ?>"
+							<?php
+							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALWAYS_SHOW ) {
+								echo ' selected="selected"';}
+							?>
+							><?php esc_html_e( 'Always Show', 'zero-bs-crm' ); ?></option>
+							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ); ?>"
+							<?php
+							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ) {
+								echo ' selected="selected"';}
+							?>
+							><?php esc_html_e( 'Manually Toggle', 'zero-bs-crm' ); ?></option>
+						</select>
 				</tr>
 				<tr>
 					<td class="wfieldname"><label for="pzbscrm_secondaddresslabel"><?php esc_html_e( 'Second Address Label', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Edit what text is displayed (defaults to Second Address)', 'zero-bs-crm' ); ?></td>
