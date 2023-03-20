@@ -1,11 +1,11 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Optimizations\CDN;
+namespace Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN;
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Setup;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
-class CDN implements Pluggable {
+class Image_CDN implements Pluggable {
 
 	public function setup() {
 		// Image CDN needs load before Jetpack is loaded. The module is initialized along with all other modules on `plugins_loaded` action.
@@ -13,7 +13,7 @@ class CDN implements Pluggable {
 	}
 
 	public static function get_slug() {
-		return 'cdn';
+		return 'image-cdn';
 	}
 
 	public static function is_available() {
