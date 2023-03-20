@@ -124,7 +124,7 @@ if ( $has_license ) {
 ?>
 
 <div id="support-page" class="ui segment container">
-	<h1> <i class="icon user md"></i> Contact Support</h1>
+	<h1> <i class="icon user md"></i> <?php echo esc_html__( 'Jetpack CRM Support', 'zero-bs-crm' ); ?></h1>
 	<hr>
 	<div class="license-status">
 		<b><?php echo esc_html__( 'License', 'zero-bs-crm' ); ?>:</b>
@@ -132,13 +132,22 @@ if ( $has_license ) {
 		<?php if ( ! $has_license ) : ?>
 			<span class="label label-default"><?php echo esc_html__( 'NO LICENSE', 'zero-bs-crm' ); ?></span>
 		<?php elseif ( $is_valid_license ) : ?>
-			<span class="label label-success"><?php echo esc_html__( 'VALID', 'zero-bs-crm' ); ?></span> 
+			<span class="label label-success"><?php echo esc_html__( 'VALID', 'zero-bs-crm' ); ?></span>
 			<span class="license"> <?php echo esc_html( $license_key ); ?> </span>
+			<span class="expires">
+				<?php echo esc_html__( 'Expires', 'zero-bs-crm' ); ?>:
+				<?php echo ( isset( $license['expires'] ) ? esc_html( gmdate( 'Y-m-d H:i', $license['expires'] ) ) : '-' ); ?>
+			</span>
+			<span class="account">
+				<?php // translators: %s: URL to account page. ?>
+				<?php echo wp_kses_post( sprintf( __( '<a href="%s" target="_blank">Go to your Jetpack CRM account</a>', 'zero-bs-crm' ), esc_url( $zbs->urls['account'] ) ) ); ?>
+			</span>
 		<?php else : ?>
 			<span class="label label-danger"><?php echo esc_html__( 'NO VALID', 'zero-bs-crm' ); ?></span> 
 			<span class="invalid-license">
 				<?php echo esc_html__( 'Your license key is either invalid, expired, or not assigned to this site.', 'zero-bs-crm' ); ?>
-				<?php echo sprintf( wp_kses_post( 'Please visit <a href="%s" target="_blank">your account</a> to verify.', 'zero-bs-crm' ), esc_url( $zbs->urls['licensekeys'] ) ); ?>
+				<?php // translators: %s: URL to license keys page. ?>
+				<?php echo wp_kses_post( sprintf( __( 'Please visit <a href="%s" target="_blank">your account</a> to verify.', 'zero-bs-crm' ), esc_url( $zbs->urls['licensekeys'] ) ) ); ?>
 			</span>
 		<?php endif; ?>
 	</div>
@@ -158,7 +167,7 @@ if ( $has_license ) {
 	<div class="jetpack-crm-contact-text">
 		<?php echo esc_html__( "We want to make sure you get the help you need as quickly as possible. Before filing a support ticket, why not check out our Jetpack CRM Knowledge Base? It's packed with helpful articles and resources to help you get the most out of Jetpack CRM.", 'zero-bs-crm' ); ?>
 		<?php // PHPCS:Ignore WordPress.WP.I18n.MissingTranslatorsComment ?>
-		<?php echo sprintf( wp_kses( __( 'You can access it anytime at <a href="%s" target="_blank"><b>kb.jetpackcrm.com</b></a>.', 'zero-bs-crm' ), $zbs->acceptable_html ), esc_url( $zbs->urls['kb'] ) ); ?>
+		<?php echo wp_kses( sprintf( __( 'You can access it anytime at <a href="%s" target="_blank"><b>kb.jetpackcrm.com</b></a>.', 'zero-bs-crm' ), esc_url( $zbs->urls['kb'] ) ), $zbs->acceptable_html ); ?>
 		<div class="text-center goto-kb">
 			<a href="<?php echo esc_url( $zbs->urls['kb'] ); ?>" target="_blank">
 				<div class="btn btn-info">
@@ -207,9 +216,11 @@ if ( $has_license ) {
 		<div id="result"></div>
 	<?php else : ?>
 		<div class="jetpack-crm-contact-text">
-			<h2><?php echo esc_html__( 'Support Forum', 'zero-bs-crm' ); ?></h2>
+			<h2>
+				<?php echo esc_html__( 'Support Forum', 'zero-bs-crm' ); ?>
+			</h2>
 			<p>
-				<?php echo sprintf( wp_kses( "If you can't find what you're looking for, then feel free to ask it in our support forum.", $zbs->acceptable_html ), esc_url( $zbs->urls['support-forum'] ) ); ?>
+				<?php echo esc_html__( "If you can't find what you're looking for, then feel free to ask it in our support forum. We have a great community of Jetpack CRM users, including our happiness engineers who can help answer your questions.", 'zero-bs-crm' ); ?>
 			</p>
 			<div class="text-center btn-support-forum">
 				<a href="<?php echo esc_url( $zbs->urls['support-forum'] ); ?>" target="_blank">
