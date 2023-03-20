@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Fix preload dempty value on video block
+Fix preload behavior when none is chosen
