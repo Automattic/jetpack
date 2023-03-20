@@ -17,26 +17,28 @@ final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 			[
 				'status'    => Schema::enum( [ 'pending', 'success', 'error', 'validation-error' ] ),
 				'providers' => Schema::as_array(
-					[
-						'key'           => Schema::as_string(),
-						'label'         => Schema::as_string(),
-						'urls'          => Schema::as_array( [ Schema::as_string() ] ),
-						'success_ratio' => Schema::as_number(),
-						'status'        => Schema::enum( [ 'pending', 'success', 'error', 'validation-error' ] ),
-					]
-				),
-				'created'   => Schema::as_number(),
-				'updated'   => Schema::as_number(),
+					Schema::as_assoc_array(
+						[
+							'key'           => Schema::as_string(),
+							'label'         => Schema::as_string(),
+							'urls'          => Schema::as_array( Schema::as_string() ),
+							'success_ratio' => Schema::as_float(),
+							'status'        => Schema::enum( [ 'pending', 'success', 'error', 'validation-error' ] ),
+						]
+					) ),
+				'created'   => Schema::as_float()->nullable(),
+				'updated'   => Schema::as_float()->nullable(),
 			]
 		);
 	}
 
-
-	public function validate( $value ) {
-		return $this->schema->validate( $value );
+	// Clean up the data before saving it
+	public function sanitize( $value ) {
+		return $this->schema->parse( $value );
 	}
 
-	public function sanitize( $value ) {
+	// Unpack the data after getting it from the database
+	public function transform( $value ) {
 		return $this->schema->parse( $value );
 	}
 
