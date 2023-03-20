@@ -1,11 +1,11 @@
 /**
- * External dependencies
- */
-/**
  * WordPress dependencies
  */
 import { SandBox } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+/**
+ * External dependencies
+ */
 import { View, Text } from 'react-native';
 /**
  * Internal dependencies
