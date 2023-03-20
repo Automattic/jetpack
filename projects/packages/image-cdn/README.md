@@ -1,8 +1,8 @@
-# cdn
+# image-cdn
 
-Serve static assets through CDN.
+Serve images through Jetpack's powerful CDN
 
-## How to install cdn
+## How to install image-cdn
 
 ### Installation From Git Repo
 
@@ -16,5 +16,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-cdn is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+image-cdn is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

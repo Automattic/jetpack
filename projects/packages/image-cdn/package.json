@@ -1,16 +1,16 @@
 {
 	"private": true,
-	"name": "@automattic/jetpack-cdn",
+	"name": "@automattic/jetpack-image-cdn",
 	"version": "0.1.0-alpha",
-	"description": "Serve static assets through CDN.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/cdn/#readme",
+	"description": "Serve images through Jetpack's powerful CDN",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/image-cdn/#readme",
 	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Package] Cdn"
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Image Cdn"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/packages/cdn"
+		"directory": "projects/packages/image-cdn"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",

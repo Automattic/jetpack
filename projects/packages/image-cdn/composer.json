@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-image-cdn",
-	"description": "Serve static assets through CDN.",
+	"description": "Serve images through Jetpack's powerful CDN",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
@@ -35,12 +35,17 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"mirror-repo": "Automattic/jetpack-image-cdn",
+		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-image-cdn/compare/v${old}...v${new}"
+		},
+		"autotagger": true,
 		"branch-alias": {
 			"dev-trunk": "0.1.x-dev"
 		},
 		"textdomain": "jetpack-image-cdn",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-cdn.php"
+			"::PACKAGE_VERSION": "src/class-image-cdn.php"
 		}
 	}
 }
