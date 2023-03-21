@@ -17,7 +17,12 @@ import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
 
-const VideoPressUploader = ( { handleDoneUpload } ) => {
+const VideoPressUploader = ( {
+	autoOpenMediaUpload,
+	handleDoneUpload,
+	isInteractionDisabled,
+	onFocus,
+} ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
@@ -59,8 +64,19 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 		[ onSelectURL ]
 	);
 
+	const onResetUpload = useCallback( () => {
+		setIsUploadingInProgress( false );
+	}, [] );
+
 	if ( isUploadingInProgress ) {
-		return <UploadProgress file={ uploadFile } onDone={ handleDoneUpload } />;
+		return (
+			<UploadProgress
+				file={ uploadFile }
+				onDone={ handleDoneUpload }
+				onReset={ onResetUpload }
+				isInteractionDisabled={ isInteractionDisabled }
+			/>
+		);
 	}
 
 	return (
@@ -72,7 +88,8 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-			autoOpenMediaUpload
+			autoOpenMediaUpload={ autoOpenMediaUpload }
+			onFocus={ onFocus }
 		/>
 	);
 };

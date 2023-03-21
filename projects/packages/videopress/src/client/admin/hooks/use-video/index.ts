@@ -12,14 +12,15 @@ import { VideopressSelectors, VideoPressVideo } from '../../types';
 /**
  * React custom hook to get specific video.
  *
- * @param {number} id - Video ID
+ * @param {number} id        - Video ID
+ * @param {boolean} addAtEnd - Whether to add the video to the end of the list if not loaded.
  * @returns {object} video
  */
-export default function useVideo( id: number | string ) {
+export default function useVideo( id: number | string, addAtEnd = false ) {
 	const dispatch = useDispatch( STORE_ID );
 
 	const videoData = useSelect(
-		select => ( select( STORE_ID ) as VideopressSelectors ).getVideo( id ),
+		select => ( select( STORE_ID ) as VideopressSelectors ).getVideo( id, addAtEnd ),
 		[ id ]
 	);
 
@@ -57,7 +58,7 @@ export default function useVideo( id: number | string ) {
 		deleteVideo: () => dispatch.deleteVideo( id ),
 
 		updateVideoPrivacy: ( level: string ) => {
-			dispatch.updateVideoPrivacy(
+			return dispatch.updateVideoPrivacy(
 				id,
 				VIDEO_PRIVACY_LEVELS.findIndex( l => l === level )
 			);
